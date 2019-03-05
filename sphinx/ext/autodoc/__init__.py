@@ -417,9 +417,26 @@ class Documenter:
         else:
             return ''
 
+    @property
+    def _revealed_header_options(self):
+        # type: () -> Set[str]
+        """Keys of the options dict to appear in the directive header output.
+
+        See :py:meth:`add_directive_header`.
+        """
+        return set()
+
     def add_directive_header(self, sig):
         # type: (str) -> None
-        """Add the directive header and options to the generated content."""
+        """Add the directive header and options to the generated content.
+
+        The options include entries from the :py:attr:`options` dict which are
+        referenced in the :py:attr:`_revealed_header_options` whitelist.
+        For flags like ``'abstract'``, this means that the ``:abstract:``
+        option is added if and only if ``options['abstract'] is True``.
+        Options whose value is ``False`` are interpreted as unset flags and
+        thus omitted.
+        """
         domain = getattr(self, 'domain', 'py')
         directive = getattr(self, 'directivetype', self.objtype)
         name = self.format_name()
@@ -432,6 +449,15 @@ class Documenter:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
             self.add_line('   :module: %s' % self.modname, sourcename)
+
+        for opt in self._revealed_header_options:
+            if opt not in self.options or opt in {'module', 'noindex'}:
+                continue
+            value = self.options[opt]
+            if value is True:  # interpret `True` values as flag
+                self.add_line('   :%s:' % opt, sourcename)
+            elif value is not False:
+                self.add_line('   :%s: %s' % (opt, value), sourcename)
 
     def get_doc(self, encoding=None, ignore=1):
         # type: (str, int) -> List[List[str]]
@@ -902,6 +928,11 @@ class ClassLevelDocumenter(Documenter):
                 modname = self.env.ref_context.get('py:module')
             # ... else, it stays None, which means invalid
         return modname, parents + [base]
+
+    @property
+    def _revealed_header_options(self):
+        # type: () -> Set[str]
+        return super()._revealed_header_options | {'abstract'}
 
 
 class DocstringSignatureMixin:
