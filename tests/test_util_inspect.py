@@ -9,6 +9,8 @@
 """
 import functools
 import sys
+
+from abc import ABCMeta, abstractmethod
 from textwrap import dedent
 
 import pytest
@@ -429,4 +431,56 @@ def test_isclassmethod():
     assert inspect.isclassmethod(Bar.method1) is True
     assert inspect.isclassmethod(Bar.method2) is False
     assert inspect.isclassmethod(Bar.value) is False
+
+
+def test_isabstract():
+    class Foo(metaclass=ABCMeta):
+        @abstractmethod
+        def should_implement(self):
+            pass
+
+        def nonabstract(self):
+            return "something"
+
+        @property
+        @abstractmethod
+        def value(self):
+            pass
+
+
+        @staticmethod
+        @abstractmethod
+        def convert():
+            pass
+
+        @classmethod
+        @abstractmethod
+        def from_other_info(cls):
+            pass
+
+    class Bar(Foo):
+        """Let's implement some things, but not everything!"""
+        @property
+        def value(self):
+            return 3
+
+        @classmethod
+        def from_other_info(cls):
+            return cls()
+
+        def new_method(self):
+            return type(self).__name__
+
+    assert inspect.isabstract(Foo.should_implement)
+    assert not inspect.isabstract(Foo.nonabstract)
+    assert inspect.isabstract(Foo.value)
+    assert inspect.isabstract(Foo.convert)
+    assert inspect.isabstract(Foo.from_other_info)
+
+    assert inspect.isabstract(Bar.should_implement)
+    assert not inspect.isabstract(Bar.nonabstract)
+    assert not inspect.isabstract(Bar.value)
+    assert inspect.isabstract(Bar.convert)
+    assert not inspect.isabstract(Bar.from_other_info)
+    assert not inspect.isabstract(Bar.new_method)
 

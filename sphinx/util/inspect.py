@@ -149,6 +149,16 @@ def isstaticmethod(obj, cls=None, name=None):
     return False
 
 
+def isabstract(obj):
+    # type: (Any) -> bool
+    """Check if a class member is marked as abstract.
+
+    Although the marker we check for is named ``__isabstractmethod__``,
+    this covers properties as well.
+    """
+    return safe_getattr(obj, '__isabstractmethod__', False) is True
+
+
 def isdescriptor(x):
     # type: (Any) -> bool
     """Check if the object is some kind of descriptor."""
