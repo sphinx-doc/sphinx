@@ -392,10 +392,41 @@ def test_isstaticmethod():
         def method2(self):
             pass
 
+        @property
+        def value(self):
+            return "Test"
+
     class Bar(Foo):
         pass
 
     assert inspect.isstaticmethod(Foo.method1, Foo, 'method1') is True
     assert inspect.isstaticmethod(Foo.method2, Foo, 'method2') is False
+    assert inspect.isstaticmethod(Foo.value, Foo, 'value') is False
     assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is True
     assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
+    assert inspect.isstaticmethod(Bar.value, Bar, 'value') is False
+
+
+def test_isclassmethod():
+    class Foo():
+        @classmethod
+        def method1(cls):
+            pass
+
+        def method2(self):
+            pass
+
+        @property
+        def value(self):
+            return "Test"
+
+    class Bar(Foo):
+        pass
+
+    assert inspect.isclassmethod(Foo.method1) is True
+    assert inspect.isclassmethod(Foo.method2) is False
+    assert inspect.isclassmethod(Foo.value) is False
+    assert inspect.isclassmethod(Bar.method1) is True
+    assert inspect.isclassmethod(Bar.method2) is False
+    assert inspect.isclassmethod(Bar.value) is False
+
