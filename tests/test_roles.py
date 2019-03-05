@@ -11,11 +11,13 @@
 from docutils import nodes
 from mock import Mock
 
-from sphinx.roles import emph_literal_role
+from sphinx.roles import EmphasizedLiteral
 from sphinx.testing.util import assert_node
 
 
 def test_samp():
+    emph_literal_role = EmphasizedLiteral()
+
     # normal case
     text = 'print 1+{variable}'
     ret, msg = emph_literal_role('samp', text, text, 0, Mock())

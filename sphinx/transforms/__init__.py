@@ -340,11 +340,7 @@ class SphinxContentsFilter(ContentsFilter):
     Used with BuildEnvironment.add_toc_from() to discard cross-file links
     within table-of-contents link nodes.
     """
-    def visit_pending_xref(self, node):
-        # type: (addnodes.pending_xref) -> None
-        text = node.astext()
-        self.parent.append(nodes.literal(text, text))
-        raise nodes.SkipNode
+    visit_pending_xref = ContentsFilter.ignore_node_but_process_children
 
     def visit_image(self, node):
         # type: (nodes.image) -> None
