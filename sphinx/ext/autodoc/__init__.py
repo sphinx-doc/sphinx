@@ -30,7 +30,8 @@ from sphinx.util import rpartition
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumattribute, isclassmethod, isstaticmethod, isfunction, isbuiltin, ispartial, getdoc
+    isenumattribute, isclassmethod, isstaticmethod, isfunction, isbuiltin, \
+    isabstract, ispartial, getdoc
 
 if False:
     # For type annotation
@@ -1289,6 +1290,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if obj is None:
             obj = self.object
 
+        if isabstract(obj):
+            self.options['abstract'] = True
+
         if isclassmethod(obj):
             self.directivetype = 'classmethod'
             # document class and static members before ordinary ones
@@ -1367,6 +1371,10 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         else:
             # if it's not a data descriptor
             self._datadescriptor = False
+
+        if isabstract(self.object):
+            self.options['abstract'] = True
+
         return ret
 
     def get_real_modname(self):
