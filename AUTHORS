@@ -38,6 +38,7 @@ Other contributors, listed alphabetically, are:
 * Zac Hatfield-Dodds -- doctest reporting improvements
 * Doug Hellmann -- graphviz improvements
 * Tim Hoffmann -- theme improvements
+* Lukas Juhrich -- support for abstract methods
 * Antti Kaihola -- doctest extension (skipif option)
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme

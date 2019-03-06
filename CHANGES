@@ -73,6 +73,9 @@ Deprecated
 
 Features added
 --------------
+* #744: Class member directives like ``:py:method:`` now support the
+  ``:abstract:`` option resulting in a corresponding prefix when rendered
+* #744: autodoc: Add support for abstract methods / properties
 
 Bugs fixed
 ----------

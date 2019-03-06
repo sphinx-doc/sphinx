@@ -207,14 +207,16 @@ The following directives are provided for module and class contents:
 
    Describes an object data attribute.  The description should include
    information about the type of the data to be expected and whether it may be
-   changed directly.
+   changed directly.  An attribute can be marked as abstract using the
+   ``:abstract:`` flag if e.g. it is an abstract property.
 
 .. rst:directive:: .. py:method:: name(parameters)
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
-   described for ``function``.  See also :ref:`signatures` and
-   :ref:`info-field-lists`.
+   described for ``function``.  A method can be marked as abstract using the
+   ``:abstract:`` flag, the same holds for other method variants.  See also
+   :ref:`signatures` and :ref:`info-field-lists`.
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
 
