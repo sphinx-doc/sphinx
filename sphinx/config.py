@@ -27,7 +27,7 @@ from sphinx.util.typing import NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union  # NOQA
+    from typing import Callable, Dict, Generator, Iterator, List, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.tags import Tags  # NOQA

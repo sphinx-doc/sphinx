@@ -41,7 +41,7 @@ from sphinx.util.inventory import InventoryFile
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, IO, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

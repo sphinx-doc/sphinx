@@ -18,7 +18,6 @@ from sphinx import addnodes
 if False:
     # For type annotation
     from typing import Any, Dict, Type, Union  # NOQA
-    from sphinx.domains import Domain  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import TextlikeNode  # NOQA
 

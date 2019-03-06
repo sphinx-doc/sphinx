@@ -11,6 +11,7 @@
 import os
 from os import path
 
+from docutils import nodes
 from docutils.frontend import OptionParser
 
 import sphinx.builders.latex.nodes  # NOQA  # Workaround: import this before writer to avoid ImportError
@@ -42,7 +43,6 @@ from sphinx.writers.latex import (
 
 if False:
     # For type annotation
-    from docutils import nodes  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -295,7 +295,6 @@ class LaTeXBuilder(Builder):
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (str, bool, List[str]) -> nodes.document
-        from docutils import nodes  # NOQA
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)

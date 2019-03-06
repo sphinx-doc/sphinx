@@ -24,11 +24,6 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-
 
 def get_node_depth(node):
     i = 0

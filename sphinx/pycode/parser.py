@@ -18,7 +18,7 @@ from tokenize import COMMENT, NL
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')

@@ -21,9 +21,8 @@ from sphinx.util import url_re, logging
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Set, Tuple, Type, TypeVar  # NOQA
+    from typing import Dict, List, Set, Tuple, Type, TypeVar  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
     N = TypeVar('N')
