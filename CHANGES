@@ -297,6 +297,7 @@ Bugs fixed
 * #6047: autodoc: ``autofunction`` emits a warning for method objects
 * #6028: graphviz: Ensure the graphviz filenames are reproducible
 * #6068: doctest: ``skipif`` option may remove the code block from documentation
+* #6136: ``:name:`` option for ``math`` directive causes a crash
 
 Testing
 --------
