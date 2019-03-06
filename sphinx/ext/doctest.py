@@ -29,7 +29,6 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import relpath
 
 if False:
@@ -104,7 +103,7 @@ class TestDirective(SphinxDirective):
         else:
             groups = ['default']
         node = nodetype(code, code, testnodetype=self.name, groups=groups)
-        set_source_info(self, node)
+        self.set_source_info(node)
         if test is not None:
             # only save if it differs from code
             node['test'] = test

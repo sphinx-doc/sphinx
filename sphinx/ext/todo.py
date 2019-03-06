@@ -22,7 +22,6 @@ from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import set_source_info
 from sphinx.util.texescape import tex_escape_map
 
 if False:
@@ -68,7 +67,7 @@ class Todo(BaseAdmonition, SphinxDirective):
             return [todo]
         elif isinstance(todo, todo_node):
             todo.insert(0, nodes.title(text=_('Todo')))
-            set_source_info(self, todo)
+            self.set_source_info(todo)
 
             targetid = 'index-%s' % self.env.new_serialno('index')
             # Stash the target to be retrieved later in latex_visit_todo_node.

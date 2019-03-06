@@ -18,6 +18,7 @@ Deprecated
 * ``sphinx.ext.autodoc.importer.MockLoader``
 * ``sphinx.ext.autodoc.importer.mock()``
 * ``sphinx.ext.autosummary.autolink_role()``
+* ``sphinx.util.node.find_source_node()``
 * ``sphinx.util.i18n.find_catalog()``
 * ``sphinx.util.i18n.find_catalog_files()``
 * ``sphinx.util.i18n.find_catalog_source_files()``
@@ -26,6 +27,8 @@ For more details, see :ref:`deprecation APIs list <dev-deprecated-apis>`.
 
 Features added
 --------------
+
+* Add a helper method ``SphinxDirective.set_source_info()``
 
 Bugs fixed
 ----------

@@ -383,6 +383,11 @@ class SphinxDirective(Directive):
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
+    def set_source_info(self, node):
+        # type: (nodes.Node) -> None
+        """Set source and line number to the node."""
+        node.source, node.line = self.state_machine.get_source_and_line(self.lineno)
+
 
 class SphinxRole:
     """A base class for Sphinx roles.
