@@ -17,9 +17,8 @@ from sphinx.util.nodes import nested_parse_with_titles
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Set, Type  # NOQA
+    from typing import Callable, Dict, List, Set, Type  # NOQA
     from docutils.parsers.rst.state import RSTState  # NOQA
-    from docutils.statemachine import StateMachine, StringList  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

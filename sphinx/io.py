@@ -9,6 +9,7 @@
 """
 import codecs
 import warnings
+from typing import Any
 
 from docutils.core import Publisher
 from docutils.io import FileInput, NullOutput
@@ -16,7 +17,6 @@ from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
-from typing import Any, Union  # NOQA
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import (
@@ -39,14 +39,13 @@ from sphinx.versioning import UIDTransform
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
+    from typing import Dict, List, Tuple, Type  # NOQA
     from docutils import nodes  # NOQA
     from docutils.frontend import Values  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transforms import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
 

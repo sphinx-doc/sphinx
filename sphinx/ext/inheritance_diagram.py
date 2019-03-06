@@ -55,7 +55,7 @@ from sphinx.util.docutils import SphinxDirective
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Dict, Optional  # NOQA
+    from typing import Any, Dict, List, Optional, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA

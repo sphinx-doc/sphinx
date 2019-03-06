@@ -14,7 +14,7 @@ import warnings
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
-from pygments.lexer import Lexer  # NOQA
+from pygments.lexer import Lexer
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
     CLexer, TextLexer, RstLexer
