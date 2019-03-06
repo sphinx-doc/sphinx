@@ -181,7 +181,7 @@ def isbuiltin(obj):
 
 
 def safe_getattr(obj, name, *defargs):
-    # type: (Any, str, str) -> object
+    # type: (Any, str, Any) -> object
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)
