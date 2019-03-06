@@ -12,7 +12,7 @@ from docutils.writers.docutils_xml import Writer as BaseXMLWriter
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any  # NOQA
     from sphinx.builders import Builder  # NOQA
 
 

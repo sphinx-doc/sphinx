@@ -22,7 +22,7 @@ from sphinx.util.typing import NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator  # NOQA
+    from typing import Any, Callable  # NOQA
 
 
 logger = logging.getLogger(__name__)

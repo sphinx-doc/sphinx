@@ -15,7 +15,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Callable, Dict, IO, Iterator, Tuple  # NOQA
+    from typing import Callable, IO, Iterator  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import Inventory  # NOQA

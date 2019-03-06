@@ -32,7 +32,7 @@ from sphinx.util.nodes import is_translatable
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Pattern, Set, Tuple, Type, Union, Generator  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Set, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -307,10 +307,6 @@ class BuildEnvironment:
             self.included[docname] = other.included[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
-
-        for version, changes in other.versionchanges.items():
-            self.versionchanges.setdefault(version, []).extend(
-                change for change in changes if change[1] in docnames)
 
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])

@@ -23,7 +23,7 @@ from sphinx.util.osutil import mtimes_of_files
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Iterator, Tuple, Union  # NOQA
+    from typing import Dict, List, Union  # NOQA
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.theming import Theme  # NOQA

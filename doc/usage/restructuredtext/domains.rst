@@ -1295,8 +1295,6 @@ The JavaScript domain (name **js**) provides the following directives:
    specified.  If this option is specified, the directive will only update the
    current module name.
 
-   To clear the current module, set the module name to ``null`` or ``None``
-
    .. versionadded:: 1.6
 
 .. rst:directive:: .. js:function:: name(signature)

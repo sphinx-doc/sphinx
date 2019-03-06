@@ -27,7 +27,7 @@ from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, make_filename_from_project
+from sphinx.util.osutil import SEP, ensuredir, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoWriter, TexinfoTranslator
 
 if False:
@@ -134,6 +134,7 @@ class TexinfoBuilder(Builder):
                 settings.docname = docname
                 doctree.settings = settings
                 docwriter.write(doctree, destination)
+                self.copy_image_files(targetname[:-5])
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (str, bool, List[str]) -> nodes.document
@@ -180,11 +181,10 @@ class TexinfoBuilder(Builder):
 
     def finish(self):
         # type: () -> None
-        self.copy_image_files()
         self.copy_support_files()
 
-    def copy_image_files(self):
-        # type: () -> None
+    def copy_image_files(self, targetname):
+        # type: (str) -> None
         if self.images:
             stringify_func = ImageAdapter(self.app.env).get_original_image_uri
             for src in status_iterator(self.images, __('copying images... '), "brown",
@@ -192,8 +192,9 @@ class TexinfoBuilder(Builder):
                                        stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
-                    copy_asset_file(path.join(self.srcdir, src),
-                                    path.join(self.outdir, dest))
+                    imagedir = path.join(self.outdir, targetname + '-figures')
+                    ensuredir(imagedir)
+                    copy_asset_file(path.join(self.srcdir, dest), imagedir)
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)

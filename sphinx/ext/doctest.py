@@ -33,7 +33,7 @@ from sphinx.util.osutil import relpath
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Sequence, Set, Tuple, Type  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple, Type  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 logger = logging.getLogger(__name__)

@@ -25,7 +25,6 @@ from sphinx.util.osutil import relpath
 
 if False:
     # For type annotation
-    from typing import List  # NOQA
     from typing import Any, Dict, Generator, IO, List, Pattern  # NOQA
 
 

@@ -42,7 +42,6 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.io import SphinxFileInput  # NOQA
     from sphinx.util.typing import RoleFunction  # NOQA
 
 

@@ -22,7 +22,7 @@ from sphinx.domains.math import MathReferenceRole as EqXRefRole  # NOQA  # to ke
 
 if False:
     # For type annotation
-    from typing import Any, Callable, List, Tuple  # NOQA
+    from typing import Callable, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
 

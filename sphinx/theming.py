@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
+    from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 NODEFAULT = object()

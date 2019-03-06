@@ -39,7 +39,7 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union  # NOQA
+    from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

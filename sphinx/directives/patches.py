@@ -126,13 +126,16 @@ class MathDirective(SphinxDirective):
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
+        label = self.options.get('label', self.options.get('name'))
         node = nodes.math_block(latex, latex,
                                 docname=self.env.docname,
-                                number=self.options.get('name'),
-                                label=self.options.get('label'),
+                                number=None,
+                                label=label,
                                 nowrap='nowrap' in self.options)
-        ret = [node]  # type: List[nodes.Node]
+        self.add_name(node)
         self.set_source_info(node)
+
+        ret = [node]  # type: List[nodes.Node]
         self.add_target(ret)
         return ret
 

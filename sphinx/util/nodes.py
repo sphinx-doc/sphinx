@@ -21,7 +21,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, List, Optional, Set, Tuple, Type  # NOQA
+    from typing import Callable, Iterable, List, Optional, Set, Tuple, Type  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from docutils.statemachine import StringList  # NOQA
     from sphinx.builders import Builder  # NOQA
