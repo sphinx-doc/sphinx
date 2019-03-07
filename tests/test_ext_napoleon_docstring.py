@@ -12,9 +12,7 @@
 from collections import namedtuple
 from inspect import cleandoc
 from textwrap import dedent
-from unittest import TestCase
-
-import mock
+from unittest import TestCase, mock
 
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring

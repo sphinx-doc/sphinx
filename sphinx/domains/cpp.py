@@ -6734,27 +6734,20 @@ class CPPNamespacePopObject(SphinxDirective):
 
 
 class AliasNode(nodes.Element):
-    def __init__(self, sig, warnEnv):
-        """
-        :param sig: The name or function signature to alias.
-        :param warnEnv: An object which must have the following attributes:
-            env: a Sphinx environment
-            whatever DefinitionParser requires of warnEnv
-        """
+    def __init__(self, sig, env=None, parentKey=None):
         super().__init__()
         self.sig = sig
-        env = warnEnv.env
-        if 'cpp:parent_symbol' not in env.temp_data:
-            root = env.domaindata['cpp']['root_symbol']
-            env.temp_data['cpp:parent_symbol'] = root
-        self.parentKey = env.temp_data['cpp:parent_symbol'].get_lookup_key()
-        try:
-            parser = DefinitionParser(sig, warnEnv, warnEnv.env.config)
-            self.ast, self.isShorthand = parser.parse_xref_object()
-            parser.assert_end()
-        except DefinitionError as e:
-            warnEnv.warn(e)
-            self.ast = None
+        if env is not None:
+            if 'cpp:parent_symbol' not in env.temp_data:
+                root = env.domaindata['cpp']['root_symbol']
+                env.temp_data['cpp:parent_symbol'] = root
+            self.parentKey = env.temp_data['cpp:parent_symbol'].get_lookup_key()
+        else:
+            assert parentKey is not None
+            self.parentKey = parentKey
+
+    def copy(self):
+        return self.__class__(self.sig, env=None, parentKey=self.parentKey)
 
 
 class AliasTransform(SphinxTransform):
@@ -6763,8 +6756,20 @@ class AliasTransform(SphinxTransform):
     def apply(self, **kwargs):
         # type: (Any) -> None
         for node in self.document.traverse(AliasNode):
+            class Warner:
+                def warn(self, msg):
+                    logger.warning(msg, location=node)
+            warner = Warner()
             sig = node.sig
-            ast = node.ast
+            parentKey = node.parentKey
+            try:
+                parser = DefinitionParser(sig, warner, self.env.config)
+                ast, isShorthand = parser.parse_xref_object()
+                parser.assert_end()
+            except DefinitionError as e:
+                warner.warn(e)
+                ast, isShorthand = None, None
+
             if ast is None:
                 # could not be parsed, so stop here
                 signode = addnodes.desc_signature(sig, '')
@@ -6774,8 +6779,6 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            isShorthand = node.isShorthand
-            parentKey = node.parentKey
             rootSymbol = self.env.domains['cpp'].data['root_symbol']
             parentSymbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
@@ -6833,10 +6836,6 @@ class AliasTransform(SphinxTransform):
 class CPPAliasObject(ObjectDescription):
     option_spec = {}  # type: Dict
 
-    def warn(self, msg):
-        # type: (Union[str, Exception]) -> None
-        self.state_machine.reporter.warning(msg, line=self.lineno)
-
     def run(self):
         # type: () -> List[nodes.Node]
         """
@@ -6859,7 +6858,7 @@ class CPPAliasObject(ObjectDescription):
         self.names = []  # type: List[str]
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
-            node.append(AliasNode(sig, self))
+            node.append(AliasNode(sig, env=self.env))
 
         contentnode = addnodes.desc_content()
         node.append(contentnode)

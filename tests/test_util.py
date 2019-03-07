@@ -10,9 +10,9 @@
 
 import os
 import tempfile
+from unittest.mock import patch
 
 import pytest
-from mock import patch
 
 import sphinx
 from sphinx.errors import ExtensionError, PycodeError

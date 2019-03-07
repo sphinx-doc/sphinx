@@ -10,11 +10,13 @@
 
 import sys
 from io import StringIO
+from unittest.mock import Mock
 
 import pytest
 
 from sphinx.ext.autosummary import mangle_signature, import_by_name, extract_summary
 from sphinx.testing.util import etree_parse
+from sphinx.util.docutils import new_document
 
 html_warnfile = StringIO()
 
@@ -57,8 +59,6 @@ def test_mangle_signature():
 
 
 def test_extract_summary(capsys):
-    from sphinx.util.docutils import new_document
-    from mock import Mock
     settings = Mock(language_code='',
                     id_prefix='',
                     auto_id_prefix='',

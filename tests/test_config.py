@@ -8,7 +8,9 @@
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import mock
+
+from unittest import mock
+
 import pytest
 
 import sphinx
@@ -257,7 +259,7 @@ def test_conf_warning_message(logger, name, default, annotation, actual, message
     config.add(name, default, False, annotation or ())
     config.init_values()
     check_confval_types(None, config)
-    logger.warning.assert_called()
+    assert logger.warning.called
     assert logger.warning.call_args[0][0] == message
 
 
@@ -276,7 +278,7 @@ def test_check_enum_failed(logger):
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
     config.init_values()
     check_confval_types(None, config)
-    logger.warning.assert_called()
+    assert logger.warning.called
 
 
 @mock.patch("sphinx.config.logger")
@@ -294,4 +296,4 @@ def test_check_enum_for_list_failed(logger):
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
     config.init_values()
     check_confval_types(None, config)
-    logger.warning.assert_called()
+    assert logger.warning.called
