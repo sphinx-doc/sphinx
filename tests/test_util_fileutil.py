@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import mock
+from unittest import mock
 
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.fileutil import copy_asset, copy_asset_file

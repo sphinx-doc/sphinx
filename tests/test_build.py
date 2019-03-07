@@ -10,8 +10,8 @@
 
 import sys
 from textwrap import dedent
+from unittest import mock
 
-import mock
 import pytest
 from docutils import nodes
 
