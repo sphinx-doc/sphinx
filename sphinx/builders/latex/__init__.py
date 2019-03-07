@@ -11,7 +11,6 @@
 import os
 from os import path
 
-from docutils import nodes
 from docutils.frontend import OptionParser
 
 import sphinx.builders.latex.nodes  # NOQA  # Workaround: import this before writer to avoid ImportError
@@ -40,6 +39,9 @@ from sphinx.util.template import LaTeXRenderer
 from sphinx.writers.latex import (
     ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
 )
+
+# load docutils.nodes after loading sphinx.builders.latex.nodes
+from docutils import nodes  # NOQA
 
 if False:
     # For type annotation
