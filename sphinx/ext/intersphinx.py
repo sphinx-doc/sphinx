@@ -183,7 +183,7 @@ def fetch_inventory(app, uri, inv):
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
         err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
-                    inv, err.__class__, err)
+                    inv, err.__class__, str(err))
         raise
     try:
         if hasattr(f, 'url'):
@@ -201,7 +201,7 @@ def fetch_inventory(app, uri, inv):
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
         err.args = ('intersphinx inventory %r not readable due to %s: %s',
-                    inv, err.__class__.__name__, err)
+                    inv, err.__class__.__name__, str(err))
         raise
     else:
         return invdata
@@ -265,10 +265,9 @@ def load_mappings(app):
             for fail in failures:
                 logger.info(*fail)
         else:
+            issues = '\n'.join([f[0] % f[1:] for f in failures])
             logger.warning(__("failed to reach any of the inventories "
-                              "with the following issues:"))
-            for fail in failures:
-                logger.warning(*fail)
+                              "with the following issues:") + "\n" + issues)
 
     if update:
         inventories.clear()
