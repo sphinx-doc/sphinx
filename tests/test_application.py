@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_application
     ~~~~~~~~~~~~~~~~
@@ -42,13 +41,14 @@ def test_events(app, status, warning):
 
 
 def test_emit_with_nonascii_name_node(app, status, warning):
-    node = nodes.section(names=[u'\u65e5\u672c\u8a9e'])
+    node = nodes.section(names=['\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
-    assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")
+    warning = strip_escseq(warning.getvalue())
+    assert "extension 'shutil' has no setup() function" in warning
 
 
 def test_extension_in_blacklist(app, status, warning):

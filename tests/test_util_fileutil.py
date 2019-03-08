@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_util_fileutil
     ~~~~~~~~~~~~~~~~~~
@@ -17,7 +16,7 @@ from sphinx.util.fileutil import copy_asset, copy_asset_file
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
     def __init__(self):
-        BuiltinTemplateLoader.__init__(self)
+        super().__init__()
         builder = mock.Mock()
         builder.config.templates_path = []
         builder.app.translater = None

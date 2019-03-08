@@ -70,10 +70,6 @@ Options
 
    Master document name. (see :confval:`master_doc`).
 
-.. option:: --epub
-
-   Use epub.
-
 .. rubric:: Extension Options
 
 .. option:: --ext-autodoc

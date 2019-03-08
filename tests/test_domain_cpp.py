@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_domain_cpp
     ~~~~~~~~~~~~~~~
@@ -10,24 +9,23 @@
 """
 
 import re
-import sys
 
 import pytest
-from six import text_type
 
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
+from sphinx.util import docutils
 
 
 def parse(name, string):
-    class Config(object):
+    class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
     parser.allowFallbackExpressionParsing = False
-    ast = parser.parse_declaration(name)
+    ast = parser.parse_declaration(name, name)
     parser.assert_end()
     # The scopedness would usually have been set by CPPEnumObject
     if name == "enum":
@@ -40,10 +38,10 @@ def check(name, input, idDict, output=None):
     if output is None:
         output = input
     ast = parse(name, input)
-    res = text_type(ast)
+    res = str(ast)
     if res != output:
         print("")
-        print("Input:    ", text_type(input))
+        print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", output)
         raise DefinitionError("")
@@ -74,19 +72,19 @@ def check(name, input, idDict, output=None):
         res.append(idExpected[i] == idActual[i])
 
     if not all(res):
-        print("input:    %s" % text_type(input).rjust(20))
+        print("input:    %s" % input.rjust(20))
         for i in range(1, _max_id + 1):
             if res[i]:
                 continue
             print("Error in id version %d." % i)
-            print("result:   %s" % str(idActual[i]))
-            print("expected: %s" % str(idExpected[i]))
+            print("result:   %s" % idActual[i])
+            print("expected: %s" % idExpected[i])
         print(rootSymbol.dump(0))
         raise DefinitionError("")
 
 
 def test_fundamental_types():
-    # see http://en.cppreference.com/w/cpp/language/types
+    # see https://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
         def makeIdV1():
             if t == 'decltype(auto)':
@@ -153,9 +151,8 @@ def test_expressions():
         exprCheck(p + "'\\x0A'", t + "10")
         exprCheck(p + "'\\u0a42'", t + "2626")
         exprCheck(p + "'\\u0A42'", t + "2626")
-        if sys.maxunicode > 65535:
-            exprCheck(p + "'\\U0001f34c'", t + "127820")
-            exprCheck(p + "'\\U0001F34C'", t + "127820")
+        exprCheck(p + "'\\U0001f34c'", t + "127820")
+        exprCheck(p + "'\\U0001F34C'", t + "127820")
 
     # TODO: user-defined lit
     exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
@@ -196,6 +193,7 @@ def test_expressions():
     exprCheck('new int[42]', 'nw_AL42E_iE')
     exprCheck('new int()', 'nw_ipiE')
     exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
+    exprCheck('::new int', 'nw_iE')
     # delete-expression
     exprCheck('delete p', 'dl1p')
     exprCheck('delete [] p', 'da1p')
@@ -336,6 +334,8 @@ def test_member_definitions():
 
 
 def test_function_definitions():
+    check('function', 'void f(volatile int)', {1: "f__iV", 2: "1fVi"})
+    check('function', 'void f(std::size_t)', {1: "f__std::s", 2: "1fNSt6size_tE"})
     check('function', 'operator bool() const', {1: "castto-b-operatorC", 2: "NKcvbEv"})
     check('function', 'A::operator bool() const',
           {1: "A::castto-b-operatorC", 2: "NK1AcvbEv"})
@@ -525,11 +525,12 @@ def test_class_definitions():
     check('class', 'A', {1: "A", 2: "1A"})
     check('class', 'A::B::C', {1: "A::B::C", 2: "N1A1B1CE"})
     check('class', 'A : B', {1: "A", 2: "1A"})
-    check('class', 'A : private B', {1: "A", 2: "1A"}, output='A : B')
+    check('class', 'A : private B', {1: "A", 2: "1A"})
     check('class', 'A : public B', {1: "A", 2: "1A"})
     check('class', 'A : B, C', {1: "A", 2: "1A"})
     check('class', 'A : B, protected C, D', {1: "A", 2: "1A"})
-    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='A : virtual B')
+    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='A : private virtual B')
+    check('class', 'A : private virtual B', {1: 'A', 2: '1A'})
     check('class', 'A : B, virtual C', {1: 'A', 2: '1A'})
     check('class', 'A : public virtual B', {1: 'A', 2: '1A'})
     check('class', 'A : B, C...', {1: 'A', 2: '1A'})
@@ -561,6 +562,7 @@ def test_anon_definitions():
     check('union', '@a', {3: "Ut1_a"})
     check('enum', '@a', {3: "Ut1_a"})
     check('class', '@1', {3: "Ut1_1"})
+    check('class', '@a::A', {3: "NUt1_a1AE"})
 
 
 def test_templates():
@@ -706,6 +708,9 @@ def test_attributes():
     check('function', 'static inline __attribute__(()) void f()',
           {1: 'f', 2: '1fv'},
           output='__attribute__(()) static inline void f()')
+    check('function', '[[attr1]] [[attr2]] void f()',
+          {1: 'f', 2: '1fv'},
+          output='[[attr1]] [[attr2]] void f()')
     # position: declarator
     check('member', 'int *[[attr]] i', {1: 'i__iP', 2:'1i'})
     check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
@@ -728,12 +733,14 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     # TODO: properly check for the warnings we expect
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
 
     def check(spec, text, file):
-        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
@@ -769,13 +776,14 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
         check(s, t, f)
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={
-    'add_function_parentheses': False})
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
 def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()
 
     def check(spec, text, file):
-        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
@@ -832,7 +840,7 @@ not found in `{test}`
         assert result, expect
         return set(result.group('classes').split())
 
-    class RoleClasses(object):
+    class RoleClasses:
         """Collect the classes from the layout that was generated for a given role."""
 
         def __init__(self, role, root, contents):

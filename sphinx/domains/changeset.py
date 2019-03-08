@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.domains.changeset
     ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -10,9 +9,9 @@
 """
 
 from collections import namedtuple
+from typing import cast
 
 from docutils import nodes
-from six import iteritems
 
 from sphinx import addnodes
 from sphinx import locale
@@ -34,7 +33,13 @@ versionlabels = {
     'versionadded':   _('New in version %s'),
     'versionchanged': _('Changed in version %s'),
     'deprecated':     _('Deprecated since version %s'),
-}  # type: Dict[unicode, unicode]
+}
+
+versionlabel_classes = {
+    'versionadded':     'added',
+    'versionchanged':   'changed',
+    'deprecated':       'deprecated',
+}
 
 locale.versionlabels = DeprecatedDict(
     versionlabels,
@@ -77,6 +82,7 @@ class VersionChange(SphinxDirective):
             messages = []
         if self.content:
             self.state.nested_parse(self.content, self.content_offset, node)
+        classes = ['versionmodified', versionlabel_classes[self.name]]
         if len(node):
             if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
                 content = nodes.inline(node[0].rawsource, translatable=True)
@@ -84,17 +90,22 @@ class VersionChange(SphinxDirective):
                 content.line = node[0].line
                 content += node[0].children
                 node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
-            node[0].insert(0, nodes.inline('', '%s: ' % text,
-                                           classes=['versionmodified']))
+
+            para = cast(nodes.paragraph, node[0])
+            para.insert(0, nodes.inline('', '%s: ' % text, classes=classes))
         else:
             para = nodes.paragraph('', '',
                                    nodes.inline('', '%s.' % text,
-                                                classes=['versionmodified']),
+                                                classes=classes),
                                    translatable=False)
             node.append(para)
 
-        self.env.get_domain('changeset').note_changeset(node)  # type: ignore
-        return [node] + messages
+        domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
+        domain.note_changeset(node)
+
+        ret = [node]  # type: List[nodes.Node]
+        ret += messages
+        return ret
 
 
 class ChangeSetDomain(Domain):
@@ -108,27 +119,27 @@ class ChangeSetDomain(Domain):
     }  # type: Dict
 
     def clear_doc(self, docname):
-        # type: (unicode) -> None
-        for version, changes in iteritems(self.data['changes']):
+        # type: (str) -> None
+        for version, changes in self.data['changes'].items():
             for changeset in changes[:]:
                 if changeset.docname == docname:
                     changes.remove(changeset)
 
     def merge_domaindata(self, docnames, otherdata):
-        # type: (List[unicode], Dict) -> None
+        # type: (List[str], Dict) -> None
         # XXX duplicates?
-        for version, otherchanges in iteritems(otherdata['changes']):
+        for version, otherchanges in otherdata['changes'].items():
             changes = self.data['changes'].setdefault(version, [])
             for changeset in otherchanges:
                 if changeset.docname in docnames:
                     changes.append(changeset)
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        # type: (BuildEnvironment, str, nodes.document) -> None
         pass  # nothing to do here. All changesets are registered on calling directive.
 
     def note_changeset(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.versionmodified) -> None
         version = node['version']
         module = self.env.ref_context.get('py:module')
         objname = self.env.temp_data.get('object')
@@ -137,12 +148,12 @@ class ChangeSetDomain(Domain):
         self.data['changes'].setdefault(version, []).append(changeset)
 
     def get_changesets_for(self, version):
-        # type: (unicode) -> List[ChangeSet]
+        # type: (str) -> List[ChangeSet]
         return self.data['changes'].get(version, [])
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_domain(ChangeSetDomain)
     app.add_directive('deprecated', VersionChange)
     app.add_directive('versionadded', VersionChange)

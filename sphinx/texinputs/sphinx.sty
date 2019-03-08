@@ -707,53 +707,79 @@
 
 %% GRAPHICS
 %
-% \sphinxincludegraphics defined to resize images larger than the line width,
-% except if height or width option present.
+% \sphinxincludegraphics resizes images larger than the TeX \linewidth (which
+% is adjusted in indented environments), or taller than a certain maximal
+% height (usually \textheight and this is reduced in the environments which use
+% framed.sty to avoid infinite loop if image too tall).
 %
-% If scale is present, rescale before fitting to line width. (since 1.5)
-\newbox\spx@image@box
-\newcommand*{\sphinxincludegraphics}[2][]{%
-  \in@{height}{#1}\ifin@\else\in@{width}{#1}\fi
-  \ifin@ % height or width present
-    \includegraphics[#1]{#2}%
-  \else % no height nor width (but #1 may be "scale=...")
+% In case height or width options are present the rescaling is done
+% (since 2.0), in a way keeping the width:height ratio either native from
+% image or from the width and height options if both were present.
+%
+\newdimen\spx@image@maxheight
+\AtBeginDocument{\spx@image@maxheight\textheight}
+
+% box scratch register
+\newdimen\spx@image@box
+\newcommand*{\sphinxsafeincludegraphics}[2][]{%
+    % #1 contains possibly width=, height=, but no scale= since 1.8.4
     \setbox\spx@image@box\hbox{\includegraphics[#1,draft]{#2}}%
+    \in@false % use some handy boolean flag
     \ifdim \wd\spx@image@box>\linewidth
-      \setbox\spx@image@box\box\voidb@x % clear memory
-      \includegraphics[#1,width=\linewidth]{#2}%
+      \in@true % flag to remember to adjust options and set box dimensions
+      % compute height which results from rescaling width to \linewidth
+      % and keep current aspect ratio. multiply-divide in \numexpr uses
+      % temporarily doubled precision, hence no overflow. (of course we
+      % assume \ht is not a few sp's below \maxdimen...(about 16384pt).
+      \edef\spx@image@rescaledheight % with sp units
+           {\the\numexpr\ht\spx@image@box
+                        *\linewidth/\wd\spx@image@box sp}%
+      \ifdim\spx@image@rescaledheight>\spx@image@maxheight
+        % the rescaled height will be too big, so it is height which decides
+        % the rescaling factor
+        \def\spx@image@requiredheight{\spx@image@maxheight}% dimen register
+        \edef\spx@image@requiredwidth % with sp units
+         {\the\numexpr\wd\spx@image@box
+                      *\spx@image@maxheight/\ht\spx@image@box sp}%
+        % TODO: decide if this commented-out block could be needed due to
+        % rounding in numexpr operations going up
+        % \ifdim\spx@image@requiredwidth>\linewidth
+        %     \def\spx@image@requiredwidth{\linewidth}% dimen register
+        % \fi
+      \else
+        \def\spx@image@requiredwidth{\linewidth}% dimen register
+        \let\spx@image@requiredheight\spx@image@rescaledheight% sp units
+      \fi
     \else
+      % width is ok, let's check height
+      \ifdim\ht\spx@image@box>\spx@image@maxheight
+        \in@true
+        \edef\spx@image@requiredwidth % with sp units
+            {\the\numexpr\wd\spx@image@box
+                         *\spx@image@maxheight/\ht\spx@image@box sp}%
+        \def\spx@image@requiredheight{\spx@image@maxheight}% dimen register
+      \fi
+    \fi % end of check of width and height
+    \ifin@
+      \setbox\spx@image@box
+      \hbox{\includegraphics
+            [%#1,% contained only width and/or height and overruled anyhow
+            width=\spx@image@requiredwidth,height=\spx@image@requiredheight]%
+            {#2}}%
+      % \includegraphics does not set box dimensions to the exactly
+      % requested ones, see https://github.com/latex3/latex2e/issues/112
+      \wd\spx@image@box\spx@image@requiredwidth
+      \ht\spx@image@box\spx@image@requiredheight
+      \leavevmode\box\spx@image@box
+    \else
+      % here we do not modify the options, no need to adjust width and height
+      % on output, they will be computed exactly as with "draft" option
       \setbox\spx@image@box\box\voidb@x % clear memory
       \includegraphics[#1]{#2}%
     \fi
-  \fi
-}
-% \sphinxsafeincludegraphics resizes images larger than the line width,
-% or taller than about the text height (whether or not height/width options
-% were used). This is requested to avoid a crash with \MakeFramed as used by
-% sphinxShadowBox (topic/contents) and sphinxheavybox (admonitions), and also
-% by sphinxVerbatim (but a priori no image inclusion there).
-\newdimen\spx@image@maxheight
-% default maximal setting will get reduced by sphinxShadowBox/sphinxheavybox
-\AtBeginDocument{\spx@image@maxheight\textheight}
-\newcommand*{\sphinxsafeincludegraphics}[2][]{%
-    \gdef\spx@includegraphics@options{#1}%
-    \setbox\spx@image@box\hbox{\includegraphics[#1,draft]{#2}}%
-    \in@false
-    \ifdim \wd\spx@image@box>\linewidth
-      \g@addto@macro\spx@includegraphics@options{,width=\linewidth}%
-      \in@true
-    \fi
-    % no rotation, no need to worry about depth
-    \ifdim \ht\spx@image@box>\spx@image@maxheight
-      \g@addto@macro\spx@includegraphics@options{,height=\spx@image@maxheight}%
-      \in@true
-    \fi
-    \ifin@
-      \g@addto@macro\spx@includegraphics@options{,keepaspectratio}%
-    \fi
-    \setbox\spx@image@box\box\voidb@x % clear memory
-    \expandafter\includegraphics\expandafter[\spx@includegraphics@options]{#2}%
 }%
+% Use the "safe" one by default (2.0)
+\def\sphinxincludegraphics{\sphinxsafeincludegraphics}
 
 
 %% FIGURE IN TABLE
@@ -1093,8 +1119,6 @@
   \let\normalsize\footnotesize\let\@parboxrestore\relax
   \def\spx@abovecaptionskip{\sphinxverbatimsmallskipamount}%
 }
-% needed to create wrapper environments of fancyvrb's Verbatim
-\newcommand*{\sphinxVerbatimEnvironment}{\gdef\FV@EnvironName{sphinxVerbatim}}
 \newcommand*{\sphinxverbatimsmallskipamount}{\smallskipamount}
 % serves to implement line highlighting and line wrapping
 \newcommand\sphinxFancyVerbFormatLine[1]{%
@@ -1199,8 +1223,7 @@
     \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineNoWrap
   \fi
   \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
-  % workaround to fancyvrb's check of \@currenvir
-  \let\VerbatimEnvironment\sphinxVerbatimEnvironment
+  \VerbatimEnvironment
   % workaround to fancyvrb's check of current list depth
   \def\@toodeep {\advance\@listdepth\@ne}%
   % The list environment is needed to control perfectly the vertical space.
@@ -1247,8 +1270,7 @@
 }
 \newenvironment {sphinxVerbatimNoFrame}
   {\spx@opt@verbatimwithframefalse
-   % needed for fancyvrb as literal code will end in \end{sphinxVerbatimNoFrame}
-   \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimNoFrame}}%
+   \VerbatimEnvironment
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
 \newenvironment {sphinxVerbatimintable}
@@ -1261,7 +1283,7 @@
    \let\caption\sphinxfigcaption
    % reduce above caption skip
    \def\spx@abovecaptionskip{\sphinxverbatimsmallskipamount}%
-   \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimintable}}%
+   \VerbatimEnvironment
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
 
@@ -1378,7 +1400,6 @@
            +2\sphinxshadowsep
            +\sphinxshadowsize
            +\baselineskip\relax
-   \let\sphinxincludegraphics\sphinxsafeincludegraphics
    % configure framed.sty not to add extra vertical spacing
    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
    % the \trivlist will add the vertical spacing on top and bottom which is
@@ -1465,7 +1486,6 @@
    -\dimexpr2\FrameRule
            +2\FrameSep
            +\baselineskip\relax % will happen again if nested, needed indeed!
-   \let\sphinxincludegraphics\sphinxsafeincludegraphics
    % configure framed.sty's parameters to obtain same vertical spacing
    % as for "light" boxes. We need for this to manually insert parskip glue and
    % revert a skip done by framed before the frame.

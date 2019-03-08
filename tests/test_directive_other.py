@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_directive_other
     ~~~~~~~~~~~~~~~~~~~~
@@ -21,9 +20,11 @@ from sphinx.testing.util import assert_node
 
 def parse(app, docname, text):
     app.env.temp_data['docname'] = docname
+    parser = RSTParser()
+    parser.set_application(app)
     return publish_doctree(text, app.srcdir / docname + '.rst',
                            reader=SphinxStandaloneReader(app),
-                           parser=RSTParser(),
+                           parser=parser,
                            settings_overrides={'env': app.env,
                                                'gettext_compact': True})
 

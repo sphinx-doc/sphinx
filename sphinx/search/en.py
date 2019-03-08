@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.search.en
     ~~~~~~~~~~~~~~~~
@@ -16,7 +15,7 @@ if False:
     # For type annotation
     from typing import Dict  # NOQA
 
-english_stopwords = set(u"""
+english_stopwords = set("""
 a  and  are  as  at
 be  but  by
 for
@@ -226,5 +225,5 @@ class SearchEnglish(SearchLanguage):
         self.stemmer = get_stemmer()
 
     def stem(self, word):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return self.stemmer.stem(word.lower())

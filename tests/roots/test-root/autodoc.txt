@@ -3,8 +3,6 @@ Autodoc tests
 
 Just testing a few autodoc possibilities...
 
-.. automodule:: util
-
 .. automodule:: autodoc_target
    :members:
 
@@ -28,12 +26,6 @@ Just testing a few autodoc possibilities...
    :members:
 
 
-.. automodule:: autodoc_fodder
-   :noindex:
-
-   .. autoclass:: MarkupError
-
-
 .. currentmodule:: autodoc_target
 
 .. autoclass:: InstAttCls
@@ -45,5 +37,3 @@ Just testing a few autodoc possibilities...
    :members: ca1, ia1
 
    Specific members (2 total)
-
-.. automodule:: autodoc_missing_imports

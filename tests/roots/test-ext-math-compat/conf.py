@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
 from docutils.parsers.rst import Directive
 
 from sphinx.ext.mathbase import math, displaymath
 
-master_doc = 'index'
 extensions = ['sphinx.ext.mathjax']
 
 

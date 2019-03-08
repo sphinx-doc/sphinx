@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_todo
     ~~~~~~~~~~~~~
@@ -13,7 +12,11 @@ import re
 
 import pytest
 
+from sphinx.util import docutils
 
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
                     confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
 def test_todo(app, status, warning):
@@ -27,22 +30,22 @@ def test_todo(app, status, warning):
 
     # check todolist
     content = (app.outdir / 'index.html').text()
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in foo</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>')
     assert re.search(html, content, re.S)
 
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in bar</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in bar</p>')
     assert re.search(html, content, re.S)
 
     # check todo
     content = (app.outdir / 'foo.html').text()
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in foo</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>')
     assert re.search(html, content, re.S)
 
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in param field</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in param field</p>')
     assert re.search(html, content, re.S)
 
     # check emitted warnings
@@ -69,18 +72,18 @@ def test_todo_not_included(app, status, warning):
 
     # check todolist
     content = (app.outdir / 'index.html').text()
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in foo</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>')
     assert not re.search(html, content, re.S)
 
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in bar</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in bar</p>')
     assert not re.search(html, content, re.S)
 
     # check todo
     content = (app.outdir / 'foo.html').text()
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in foo</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>')
     assert not re.search(html, content, re.S)
 
     # check emitted warnings
@@ -106,7 +109,7 @@ def test_todo_valid_link(app, status, warning):
     # Ensure the LaTeX output is built.
     app.builder.build_all()
 
-    content = (app.outdir / 'TodoTests.tex').text()
+    content = (app.outdir / 'python.tex').text()
 
     # Look for the link to foo. Note that there are two of them because the
     # source document uses todolist twice. We could equally well look for links

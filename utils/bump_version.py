@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import argparse
 import os
@@ -84,7 +82,7 @@ def processing(message):
         print('done')
 
 
-class Changes(object):
+class Changes:
     def __init__(self, path):
         self.path = path
         self.fetch_version()

@@ -7,6 +7,8 @@ Sphinx documentation contents
 .. toctree::
    :maxdepth: 2
 
+   intro
+
    usage/installation
    usage/quickstart
    usage/restructuredtext/index
@@ -14,16 +16,17 @@ Sphinx documentation contents
    usage/configuration
    usage/builders/index
    usage/extensions/index
+   usage/theming
+   usage/advanced/intl
+   usage/advanced/setuptools
+   usage/advanced/websupport/index
 
-   intro
    man/index
-   intl
    theming
-   setuptools
    templating
    latex
    extdev/index
-   websupport
+   development/tutorials/index
 
    faq
    glossary

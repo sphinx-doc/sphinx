@@ -100,7 +100,7 @@ This is the current list of contributed extensions in that repository:
 - zopeext: provide an ``autointerface`` directive for using `Zope interfaces`_
 
 
-See the :ref:`extension tutorial <exttut>` on getting started with writing your
+See the :doc:`extension tutorials <../development/tutorials/index>` on getting started with writing your
 own extensions.
 
 
@@ -127,7 +127,7 @@ own extensions.
 .. _NumPy style: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 .. _hyphenator: https://github.com/mnater/hyphenator
 .. _exceltable: https://pythonhosted.org/sphinxcontrib-exceltable/
-.. _YouTube: http://www.youtube.com/
+.. _YouTube: https://www.youtube.com/
 .. _ClearQuest: https://www.ibm.com/us-en/marketplace/rational-clearquest
 .. _Zope interfaces: https://zopeinterface.readthedocs.io/en/latest/README.html
 .. _slideshare: https://www.slideshare.net/

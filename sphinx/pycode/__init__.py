@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.pycode
     ~~~~~~~~~~~~~
@@ -8,13 +7,11 @@
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import re
+from io import StringIO
 from os import path
 from zipfile import ZipFile
-
-from six import iteritems, BytesIO, StringIO
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
@@ -25,20 +22,18 @@ if False:
     from typing import Any, Dict, IO, List, Tuple  # NOQA
 
 
-class ModuleAnalyzer(object):
+class ModuleAnalyzer:
     # cache for analyzer objects -- caches both by module and file name
-    cache = {}  # type: Dict[Tuple[unicode, unicode], Any]
+    cache = {}  # type: Dict[Tuple[str, str], Any]
 
     @classmethod
     def for_string(cls, string, modname, srcname='<string>'):
-        # type: (unicode, unicode, unicode) -> ModuleAnalyzer
-        if isinstance(string, bytes):
-            return cls(BytesIO(string), modname, srcname)
+        # type: (str, str, str) -> ModuleAnalyzer
         return cls(StringIO(string), modname, srcname, decoded=True)
 
     @classmethod
     def for_file(cls, filename, modname):
-        # type: (unicode, unicode) -> ModuleAnalyzer
+        # type: (str, str) -> ModuleAnalyzer
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
@@ -54,12 +49,12 @@ class ModuleAnalyzer(object):
 
     @classmethod
     def for_egg(cls, filename, modname):
-        # type: (unicode, unicode) -> ModuleAnalyzer
+        # type: (str, str) -> ModuleAnalyzer
         SEP = re.escape(path.sep)
         eggpath, relpath = re.split('(?<=\\.egg)' + SEP, filename)
         try:
             with ZipFile(eggpath) as egg:
-                code = egg.read(relpath).decode('utf-8')
+                code = egg.read(relpath).decode()
                 return cls.for_string(code, modname, filename)
         except Exception as exc:
             raise PycodeError('error opening %r' % filename, exc)
@@ -86,7 +81,7 @@ class ModuleAnalyzer(object):
         return obj
 
     def __init__(self, source, modname, srcname, decoded=False):
-        # type: (IO, unicode, unicode, bool) -> None
+        # type: (IO, str, str, bool) -> None
         self.modname = modname  # name of the module
         self.srcname = srcname  # name of the source file
 
@@ -101,9 +96,9 @@ class ModuleAnalyzer(object):
             self.code = source.read()
 
         # will be filled by parse()
-        self.attr_docs = None   # type: Dict[Tuple[unicode, unicode], List[unicode]]
-        self.tagorder = None    # type: Dict[unicode, int]
-        self.tags = None        # type: Dict[unicode, Tuple[unicode, int, int]]
+        self.attr_docs = None   # type: Dict[Tuple[str, str], List[str]]
+        self.tagorder = None    # type: Dict[str, int]
+        self.tags = None        # type: Dict[str, Tuple[str, int, int]]
 
     def parse(self):
         # type: () -> None
@@ -113,7 +108,7 @@ class ModuleAnalyzer(object):
             parser.parse()
 
             self.attr_docs = {}
-            for (scope, comment) in iteritems(parser.comments):
+            for (scope, comment) in parser.comments.items():
                 if comment:
                     self.attr_docs[scope] = comment.splitlines() + ['']
                 else:
@@ -125,7 +120,7 @@ class ModuleAnalyzer(object):
             raise PycodeError('parsing %r failed: %r' % (self.srcname, exc))
 
     def find_attr_docs(self):
-        # type: () -> Dict[Tuple[unicode, unicode], List[unicode]]
+        # type: () -> Dict[Tuple[str, str], List[str]]
         """Find class and module-level attributes and their documentation."""
         if self.attr_docs is None:
             self.parse()
@@ -133,7 +128,7 @@ class ModuleAnalyzer(object):
         return self.attr_docs
 
     def find_tags(self):
-        # type: () -> Dict[unicode, Tuple[unicode, int, int]]
+        # type: () -> Dict[str, Tuple[str, int, int]]
         """Find class, function and method definitions and their location."""
         if self.tags is None:
             self.parse()

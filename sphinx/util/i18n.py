@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.i18n
     ~~~~~~~~~~~~~~~~
@@ -9,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 import gettext
-import io
 import os
 import re
 import warnings
@@ -26,7 +24,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.matching import Matcher
-from sphinx.util.osutil import SEP, relpath, walk
+from sphinx.util.osutil import SEP, relpath
 
 
 logger = logging.getLogger(__name__)
@@ -43,22 +41,22 @@ class CatalogInfo(LocaleFileInfoBase):
 
     @property
     def po_file(self):
-        # type: () -> unicode
+        # type: () -> str
         return self.domain + '.po'
 
     @property
     def mo_file(self):
-        # type: () -> unicode
+        # type: () -> str
         return self.domain + '.mo'
 
     @property
     def po_path(self):
-        # type: () -> unicode
+        # type: () -> str
         return path.join(self.base_dir, self.po_file)
 
     @property
     def mo_path(self):
-        # type: () -> unicode
+        # type: () -> str
         return path.join(self.base_dir, self.mo_file)
 
     def is_outdated(self):
@@ -68,15 +66,15 @@ class CatalogInfo(LocaleFileInfoBase):
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
     def write_mo(self, locale):
-        # type: (unicode) -> None
-        with io.open(self.po_path, 'rt', encoding=self.charset) as file_po:
+        # type: (str) -> None
+        with open(self.po_path, encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
                 logger.warning(__('reading error: %s, %s'), self.po_path, exc)
                 return
 
-        with io.open(self.mo_path, 'wb') as file_mo:
+        with open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po)
             except Exception as exc:
@@ -84,7 +82,7 @@ class CatalogInfo(LocaleFileInfoBase):
 
 
 def find_catalog(docname, compaction):
-    # type: (unicode, bool) -> unicode
+    # type: (str, bool) -> str
     if compaction:
         ret = docname.split(SEP, 1)[0]
     else:
@@ -94,21 +92,21 @@ def find_catalog(docname, compaction):
 
 
 def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
-    # type: (unicode, unicode, List[unicode], unicode, bool) -> List[unicode]
+    # type: (str, str, List[str], str, bool) -> List[str]
     if not(lang and locale_dirs):
         return []
 
     domain = find_catalog(docname, compaction)
-    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])  # type: ignore
+    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
              for dir_ in locale_dirs]
-    files = [relpath(f, srcdir) for f in files if f]  # type: ignore
-    return files  # type: ignore
+    files = [relpath(f, srcdir) for f in files if f]
+    return files
 
 
 def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=None,
                               charset='utf-8', force_all=False,
                               excluded=Matcher([])):
-    # type: (List[unicode], unicode, List[unicode], bool, unicode, bool, Matcher) -> Set[CatalogInfo]  # NOQA
+    # type: (List[str], str, List[str], bool, str, bool, Matcher) -> Set[CatalogInfo]
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -140,7 +138,7 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
         if not path.exists(base_dir):
             continue  # locale path is not found
 
-        for dirpath, dirnames, filenames in walk(base_dir, followlinks=True):
+        for dirpath, dirnames, filenames in os.walk(base_dir, followlinks=True):
             filenames = [f for f in filenames if f.endswith('.po')]
             for filename in filenames:
                 if excluded(path.join(relpath(dirpath, base_dir), filename)):
@@ -199,7 +197,7 @@ date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
 def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
-    # type: (datetime, unicode, unicode, Callable) -> unicode
+    # type: (datetime, str, str, Callable) -> str
     if locale is None:
         locale = 'en'
 
@@ -220,7 +218,7 @@ def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
 
 
 def format_date(format, date=None, language=None):
-    # type: (str, datetime, unicode) -> unicode
+    # type: (str, datetime, str) -> str
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
@@ -255,7 +253,7 @@ def format_date(format, date=None, language=None):
 
 
 def get_image_filename_for_language(filename, env):
-    # type: (unicode, BuildEnvironment) -> unicode
+    # type: (str, BuildEnvironment) -> str
     if not env.config.language:
         return filename
 
@@ -275,7 +273,7 @@ def get_image_filename_for_language(filename, env):
 
 
 def search_image_for_language(filename, env):
-    # type: (unicode, BuildEnvironment) -> unicode
+    # type: (str, BuildEnvironment) -> str
     if not env.config.language:
         return filename
 

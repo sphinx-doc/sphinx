@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_util_i18n
     ~~~~~~~~~~~~~~
@@ -8,7 +7,6 @@
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import datetime
 import os
@@ -178,7 +176,7 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='unknown') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='en') == 'February 07, 2016'
-    assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
+    assert i18n.format_date(format, date=date, language='ja') == '2月 07, 2016'
     assert i18n.format_date(format, date=date, language='de') == 'Februar 07, 2016'
 
     # raw string

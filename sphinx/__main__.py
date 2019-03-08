@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.__main__
     ~~~~~~~~~~~~~~~
@@ -13,4 +12,4 @@ import sys
 
 from sphinx.cmd.build import main
 
-sys.exit(main(sys.argv[1:]))  # type: ignore
+sys.exit(main(sys.argv[1:]))

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.make_mode
     ~~~~~~~~~~~~~~~~
@@ -29,7 +28,7 @@ class Make(make_mode.Make):
         warnings.warn('sphinx.make_mode.Make is deprecated. '
                       'Please use sphinx.cmd.make_mode.Make instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
-        super(Make, self).__init__(*args)
+        super().__init__(*args)
 
 
 def run_make_mode(args):

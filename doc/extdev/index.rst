@@ -52,6 +52,115 @@ Note that it is still necessary to register the builder using
 
 .. _entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
 
+.. _important-objects:
+
+Important objects
+-----------------
+
+There are several key objects whose API you will use while writing an
+extension. These are:
+
+**Application**
+   The application object (usually called ``app``) is an instance of
+   :class:`.Sphinx`.  It controls most high-level functionality, such as the
+   setup of extensions, event dispatching and producing output (logging).
+
+   If you have the environment object, the application is available as
+   ``env.app``.
+
+**Environment**
+   The build environment object (usually called ``env``) is an instance of
+   :class:`.BuildEnvironment`.  It is responsible for parsing the source
+   documents, stores all metadata about the document collection and is
+   serialized to disk after each build.
+
+   Its API provides methods to do with access to metadata, resolving references,
+   etc.  It can also be used by extensions to cache information that should
+   persist for incremental rebuilds.
+
+   If you have the application or builder object, the environment is available
+   as ``app.env`` or ``builder.env``.
+
+**Builder**
+   The builder object (usually called ``builder``) is an instance of a specific
+   subclass of :class:`.Builder`.  Each builder class knows how to convert the
+   parsed documents into an output format, or otherwise process them (e.g. check
+   external links).
+
+   If you have the application object, the builder is available as
+   ``app.builder``.
+
+**Config**
+   The config object (usually called ``config``) provides the values of
+   configuration values set in :file:`conf.py` as attributes.  It is an instance
+   of :class:`.Config`.
+
+   The config is available as ``app.config`` or ``env.config``.
+
+To see an example of use of these objects, refer to :doc:`../development/tutorials/index`.
+
+.. _build-phases:
+
+Build Phases
+------------
+
+One thing that is vital in order to understand extension mechanisms is the way
+in which a Sphinx project is built: this works in several phases.
+
+**Phase 0: Initialization**
+
+   In this phase, almost nothing of interest to us happens.  The source
+   directory is searched for source files, and extensions are initialized.
+   Should a stored build environment exist, it is loaded, otherwise a new one is
+   created.
+
+**Phase 1: Reading**
+
+   In Phase 1, all source files (and on subsequent builds, those that are new or
+   changed) are read and parsed.  This is the phase where directives and roles
+   are encountered by docutils, and the corresponding code is executed.  The
+   output of this phase is a *doctree* for each source file; that is a tree of
+   docutils nodes.  For document elements that aren't fully known until all
+   existing files are read, temporary nodes are created.
+
+   There are nodes provided by docutils, which are documented `in the docutils
+   documentation <http://docutils.sourceforge.net/docs/ref/doctree.html>`__.
+   Additional nodes are provided by Sphinx and :ref:`documented here <nodes>`.
+
+   During reading, the build environment is updated with all meta- and cross
+   reference data of the read documents, such as labels, the names of headings,
+   described Python objects and index entries.  This will later be used to
+   replace the temporary nodes.
+
+   The parsed doctrees are stored on the disk, because it is not possible to
+   hold all of them in memory.
+
+**Phase 2: Consistency checks**
+
+   Some checking is done to ensure no surprises in the built documents.
+
+**Phase 3: Resolving**
+
+   Now that the metadata and cross-reference data of all existing documents is
+   known, all temporary nodes are replaced by nodes that can be converted into
+   output using components called transforms.  For example, links are created for
+   object references that exist, and simple literal nodes are created for those
+   that don't.
+
+**Phase 4: Writing**
+
+   This phase converts the resolved doctrees to the desired output format, such
+   as HTML or LaTeX.  This happens via a so-called docutils writer that visits
+   the individual nodes of each doctree and produces some output in the process.
+
+.. note::
+
+   Some builders deviate from this general build plan, for example, the builder
+   that checks external links does not need anything more than the parsed
+   doctrees and therefore does not have phases 2--4.
+
+To see an example of application, refer to :doc:`../development/tutorials/todo`.
+
 .. _ext-metadata:
 
 Extension metadata
@@ -82,9 +191,10 @@ APIs used for writing extensions
 --------------------------------
 
 .. toctree::
+   :maxdepth: 2
 
-   tutorial
    appapi
+   projectapi
    envapi
    builderapi
    collectorapi
@@ -95,6 +205,8 @@ APIs used for writing extensions
    logging
    i18n
    utils
+
+.. _dev-deprecated-apis:
 
 Deprecated APIs
 ---------------
@@ -121,6 +233,368 @@ The following is a list of deprecated interfaces.
      - |LaTeXHyphenate|\ Deprecated
      - (will be) Removed
      - Alternatives
+
+   * - ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
+       ``autodoc.DocstringSignatureMixin.get_doc()``,
+       ``autodoc.DocstringSignatureMixin._find_signature()``, and
+       ``autodoc.ClassDocumenter.get_doc()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - arguments of ``EpubBuilder.build_mimetype()``,
+       ``EpubBuilder.build_container()``, ``EpubBuilder.build_content()``,
+       ``EpubBuilder.build_toc()`` and ``EpubBuilder.build_epub()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - arguments of ``Epub3Builder.build_navigation_doc()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``nodetype`` argument of
+       ``sphinx.search.WordCollector.is_meta_keywords()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``suffix`` argument of ``BuildEnvironment.doc2path()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - string style ``base`` argument of ``BuildEnvironment.doc2path()``
+     - 2.0
+     - 4.0
+     - ``os.path.join()``
+
+   * - ``sphinx.addnodes.abbreviation``
+     - 2.0
+     - 4.0
+     - ``docutils.nodes.abbreviation``
+
+   * - ``sphinx.builders.applehelp``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.applehelp``
+
+   * - ``sphinx.builders.devhelp``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.devhelp``
+
+   * - ``sphinx.builders.epub3.Epub3Builder.validate_config_value()``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.epub3.validate_config_values()``
+
+   * - ``sphinx.builders.html.JSONHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.JSONHTMLBuilder``
+
+   * - ``sphinx.builders.html.PickleHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.PickleHTMLBuilder``
+
+   * - ``sphinx.builders.html.SerializingHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.SerializingHTMLBuilder``
+
+   * - ``sphinx.builders.html.SingleFileHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.singlehtml.SingleFileHTMLBuilder``
+
+   * - ``sphinx.builders.html.WebHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.PickleHTMLBuilder``
+
+   * - ``sphinx.builders.htmlhelp``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.htmlhelp``
+
+   * - ``sphinx.builders.htmlhelp.HTMLHelpBuilder.open_file()``
+     - 2.0
+     - 4.0
+     - ``open()``
+
+   * - ``sphinx.builders.qthelp``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.qthelp``
+
+   * - ``sphinx.cmd.quickstart.term_decode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.cmd.quickstart.TERM_ENCODING``
+     - 2.0
+     - 4.0
+     - ``sys.stdin.encoding``
+
+   * - ``sphinx.config.check_unicode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.config.string_classes``
+     - 2.0
+     - 4.0
+     - ``[str]``
+
+   * - ``sphinx.domains.cpp.DefinitionError.description``
+     - 2.0
+     - 4.0
+     - ``str(exc)``
+
+   * - ``sphinx.domains.cpp.NoOldIdError.description``
+     - 2.0
+     - 4.0
+     - ``str(exc)``
+
+   * - ``sphinx.domains.cpp.UnsupportedMultiCharacterCharLiteral.decoded``
+     - 2.0
+     - 4.0
+     - ``str(exc)``
+
+   * - ``sphinx.ext.autosummary.Autosummary.warn()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.Autosummary.genopt``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.Autosummary.warnings``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.Autosummary.result``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.doctest.doctest_encode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.jsmath``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.jsmath``
+
+   * - ``sphinx.roles.abbr_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.Abbreviation``
+
+   * - ``sphinx.roles.emph_literal_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.EmphasizedLiteral``
+
+   * - ``sphinx.roles.menusel_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.GUILabel`` or ``sphinx.roles.MenuSelection``
+
+   * - ``sphinx.roles.index_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.Index``
+
+   * - ``sphinx.roles.indexmarkup_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.PEP`` or ``sphinx.roles.RFC``
+
+   * - ``sphinx.testing.util.remove_unicode_literal()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.attrdict``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.force_decode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.get_matching_docs()``
+     - 2.0
+     - 4.0
+     - ``sphinx.util.get_matching_files()``
+
+   * - ``sphinx.util.inspect.Parameter``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.util.jsonimpl``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.serializinghtml.jsonimpl``
+
+   * - ``sphinx.util.osutil.EEXIST``
+     - 2.0
+     - 4.0
+     - ``errno.EEXIST`` or ``FileExistsError``
+
+   * - ``sphinx.util.osutil.EINVAL``
+     - 2.0
+     - 4.0
+     - ``errno.EINVAL``
+
+   * - ``sphinx.util.osutil.ENOENT``
+     - 2.0
+     - 4.0
+     - ``errno.ENOENT`` or ``FileNotFoundError``
+
+   * - ``sphinx.util.osutil.EPIPE``
+     - 2.0
+     - 4.0
+     - ``errno.ENOENT`` or ``BrokenPipeError``
+
+   * - ``sphinx.util.osutil.walk()``
+     - 2.0
+     - 4.0
+     - ``os.walk()``
+
+   * - ``sphinx.util.pycompat.NoneType``
+     - 2.0
+     - 4.0
+     - ``sphinx.util.typing.NoneType``
+
+   * - ``sphinx.util.pycompat.TextIOWrapper``
+     - 2.0
+     - 4.0
+     - ``io.TextIOWrapper``
+
+   * - ``sphinx.util.pycompat.UnicodeMixin``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.htmlescape()``
+     - 2.0
+     - 4.0
+     - ``html.escape()``
+
+   * - ``sphinx.util.pycompat.indent()``
+     - 2.0
+     - 4.0
+     - ``textwrap.indent()``
+
+   * - ``sphinx.util.pycompat.sys_encoding``
+     - 2.0
+     - 4.0
+     - ``sys.getdefaultencoding()``
+
+   * - ``sphinx.util.pycompat.terminal_safe()``
+     - 2.0
+     - 4.0
+     - ``sphinx.util.console.terminal_safe()``
+
+   * - ``sphinx.util.pycompat.u``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.PeekableIterator``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - Omitting the ``filename`` argument in an overriddent
+       ``IndexBuilder.feed()`` method.
+     - 2.0
+     - 4.0
+     - ``IndexBuilder.feed(docname, filename, title, doctree)``
+
+   * - ``sphinx.writers.latex.ExtBabel``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.latex.util.ExtBabel``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.application.Sphinx._setting_up_extension``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - The ``importer`` argument of ``sphinx.ext.autodoc.importer._MockModule``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.importer._MockImporter``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.io.SphinxBaseFileInput``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.io.SphinxFileInput.supported``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.io.SphinxRSTFileInput``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.registry.SphinxComponentRegistry.add_source_input()``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator._make_visit_admonition()``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.collect_footnotes()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.texinfo.TexinfoTranslator._make_visit_admonition()``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.generate_numfig_format()``
+     - 2.0
+     - 4.0
+     - N/A
 
    * - :rst:dir:`highlightlang`
      - 1.8

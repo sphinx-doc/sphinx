@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.parallel
     ~~~~~~~~~~~~~~~~~~~~
@@ -8,14 +7,11 @@
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import os
 import time
 import traceback
 from math import sqrt
-
-from six import iteritems
 
 try:
     import multiprocessing
@@ -36,7 +32,7 @@ logger = logging.getLogger(__name__)
 parallel_available = multiprocessing and (os.name == 'posix')
 
 
-class SerialTasks(object):
+class SerialTasks:
     """Has the same interface as ParallelTasks, but executes tasks directly."""
 
     def __init__(self, nproc=1):
@@ -57,7 +53,7 @@ class SerialTasks(object):
         pass
 
 
-class ParallelTasks(object):
+class ParallelTasks:
     """Executes *nproc* tasks in parallel after forking."""
 
     def __init__(self, nproc):
@@ -115,7 +111,7 @@ class ParallelTasks(object):
 
     def _join_one(self):
         # type: () -> None
-        for tid, pipe in iteritems(self._precvs):
+        for tid, pipe in self._precvs.items():
             if pipe.poll():
                 exc, logs, result = pipe.recv()
                 if exc:
@@ -137,7 +133,7 @@ class ParallelTasks(object):
 
 
 def make_chunks(arguments, nproc, maxbatch=10):
-    # type: (Sequence[unicode], int, int) -> List[Any]
+    # type: (Sequence[str], int, int) -> List[Any]
     # determine how many documents to read in one go
     nargs = len(arguments)
     chunksize = nargs // nproc

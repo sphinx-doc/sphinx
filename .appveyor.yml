@@ -5,8 +5,6 @@ environment:
     PYTHONWARNINGS: all
 
   matrix:
-    - PYTHON: 27
-      TEST_IGNORE: --ignore py35
     - PYTHON: 37
     - PYTHON: 37-x64
 
@@ -37,7 +35,7 @@ test_script:
       if (-not $tests) { $tests = '' }
       & "C:\Python$($env:PYTHON)\python.exe" -m pytest $test_ignore.Split(' ') --junitxml .junit.xml $tests.Split(' ')
       Pop-Location
-      if ($LastExitCode -eq 1) { Write-Host "Test Failures Occurred, leaving for test result parsing" }
+      if ($LastExitCode -eq 1) { Write-Host "Test Failures Occurred, leaving for test result parsing"; exit $LastExitCode }
       elseif ($LastExitCode -ne 0) { Write-Host "Other Error Occurred, aborting"; exit $LastExitCode }
 
 after_test:

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.cmd.build
     ~~~~~~~~~~~~~~~~
@@ -8,7 +7,6 @@
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import argparse
 import locale
@@ -18,7 +16,6 @@ import sys
 import traceback
 
 from docutils.utils import SystemMessage
-from six import text_type, binary_type
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -26,9 +23,8 @@ from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
-from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
+from sphinx.util.console import red, nocolor, color_terminal, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
-from sphinx.util.pycompat import terminal_safe
 
 if False:
     # For type annotation
@@ -55,17 +51,17 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
             print(terminal_safe(exception.args[0]), file=stderr)
         elif isinstance(exception, SphinxError):
             print(red('%s:' % exception.category), file=stderr)
-            print(terminal_safe(text_type(exception)), file=stderr)
+            print(terminal_safe(str(exception)), file=stderr)
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)
-            print(terminal_safe(text_type(exception)), file=stderr)
+            print(terminal_safe(str(exception)), file=stderr)
             tbpath = save_traceback(app)
             print(red(__('The full traceback has been saved in %s, if you want '
                          'to report the issue to the developers.') % tbpath),
                   file=stderr)
         elif isinstance(exception, RuntimeError) and 'recursion depth' in str(exception):
             print(red(__('Recursion error:')), file=stderr)
-            print(terminal_safe(text_type(exception)), file=stderr)
+            print(terminal_safe(str(exception)), file=stderr)
             print(file=stderr)
             print(__('This can happen with very large or deeply nested source '
                      'files.  You can carefully increase the default Python '
@@ -199,15 +195,15 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def make_main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def build_main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def build_main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     """Sphinx build "main" command-line entry."""
 
     parser = get_parser()
@@ -229,13 +225,6 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
             missing_files.append(filename)
     if missing_files:
         parser.error(__('cannot find files %r') % missing_files)
-
-    # likely encoding used for command-line arguments
-    try:
-        locale = __import__('locale')  # due to submodule of the same name
-        likely_encoding = locale.getpreferredencoding()
-    except Exception:
-        likely_encoding = None
 
     if args.force_all and filenames:
         parser.error(__('cannot combine -a option and filenames'))
@@ -268,11 +257,6 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
             key, val = val.split('=', 1)
         except ValueError:
             parser.error(__('-D option argument must be in the form name=value'))
-        if likely_encoding and isinstance(val, binary_type):
-            try:
-                val = val.decode(likely_encoding)
-            except UnicodeError:
-                pass
         confoverrides[key] = val
 
     for val in args.htmldefine:
@@ -283,11 +267,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         try:
             val = int(val)
         except ValueError:
-            if likely_encoding and isinstance(val, binary_type):
-                try:
-                    val = val.decode(likely_encoding)
-                except UnicodeError:
-                    pass
+            pass
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:
@@ -308,8 +288,8 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         return 2
 
 
-def main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
@@ -320,4 +300,4 @@ def main(argv=sys.argv[1:]):  # type: ignore
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))  # type: ignore
+    sys.exit(main(sys.argv[1:]))
