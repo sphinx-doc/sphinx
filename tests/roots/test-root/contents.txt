@@ -68,3 +68,6 @@ Test for indirect hyperlink targets
 ===================================
 
 :ref:`indirect hyperref <other-label>`
+
+Test for :index:`index` in top level title
+==========================================

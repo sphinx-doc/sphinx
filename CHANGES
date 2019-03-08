@@ -27,6 +27,8 @@ Bugs fixed
 * #6068: doctest: ``skipif`` option may remove the code block from documentation
 * #6136: ``:name:`` option for ``math`` directive causes a crash
 * #6139: intersphinx: ValueError on failure reporting
+* #6149: LaTeX: ``:index:`` role in top level titles causes ``Use of
+  \@icentercr doesn't match its definition`` error on latexpdf build
 
 Testing
 --------

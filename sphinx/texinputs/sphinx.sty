@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2019/01/12 v1.8.4 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2019/03/08 v1.8.5 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -1823,4 +1823,30 @@
 
 % Tell TeX about pathological hyphenation cases:
 \hyphenation{Base-HTTP-Re-quest-Hand-ler}
+
+% Deep LaTeX hack as Bjarne style of fncychap applies \MakeUppercase to
+% chapter titles, which is incompatible with \index there.
+\DeclareRobustCommand\sphinxFixMakeUpperOrLowercase{%
+   \def\protected@edef{% wow!
+      \begingroup
+      \def\myendgroup{\expandafter\endgroup}%\reserved@a will follow
+      \let\protect\@unexpandable@protect
+      % the arguments will be upper- or lowercased but at least
+      % incomprehensible low level LaTeX errors will not be raised
+      % This behaves ok in section titles : the \index, \glossary, \label
+      % will swallow their arguments as usual and not end up in toc file.
+      \let\index\relax
+      \let\glossary\relax
+      \let\label\relax
+      \afterassignment\myendgroup
+      \edef}%
+}%
+% cf source2.pdf File O: ltfinal.dtx, \MakeUppercase definition
+\protected@edef\MakeUppercase#1{%
+    {\sphinxFixMakeUpperOrLowercase\MakeUppercase{#1}}%
+}%
+\protected@edef\MakeLowercase#1{%
+    {\sphinxFixMakeUpperOrLowercase\MakeLowercase{#1}}%
+}%
+
 \endinput
