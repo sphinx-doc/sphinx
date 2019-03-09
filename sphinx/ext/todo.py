@@ -86,7 +86,7 @@ def process_todos(app, doctree):
     if not hasattr(env, 'todo_all_todos'):
         env.todo_all_todos = []  # type: ignore
     for node in doctree.traverse(todo_node):
-        app.emit('todo-defined', node)
+        app.events.emit('todo-defined', node)
 
         newnode = node.deepcopy()
         newnode['ids'] = []

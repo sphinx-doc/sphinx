@@ -187,7 +187,7 @@ class Sphinx:
             self.warningiserror = warningiserror
         logging.setup(self, self._status, self._warning)
 
-        self.events = EventManager()
+        self.events = EventManager(self)
 
         # keep last few messages for traceback
         # This will be filled by sphinx.util.logging.LastMessagesWriter
@@ -254,7 +254,7 @@ class Sphinx:
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
-        self.emit('config-inited', self.config)
+        self.events.emit('config-inited', self.config)
 
         # create the project
         self.project = Project(self.srcdir, self.config.source_suffix)
@@ -324,7 +324,7 @@ class Sphinx:
         # type: () -> None
         self.builder.set_environment(self.env)
         self.builder.init()
-        self.emit('builder-inited')
+        self.events.emit('builder-inited')
 
     # ---- main "build" method -------------------------------------------------
 
@@ -365,10 +365,10 @@ class Sphinx:
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
             if path.isfile(envfile):
                 os.unlink(envfile)
-            self.emit('build-finished', err)
+            self.events.emit('build-finished', err)
             raise
         else:
-            self.emit('build-finished', None)
+            self.events.emit('build-finished', None)
         self.builder.cleanup()
 
     # ---- general extensibility interface -------------------------------------
@@ -437,13 +437,7 @@ class Sphinx:
         Return the return values of all callbacks as a list.  Do not emit core
         Sphinx events in extensions!
         """
-        try:
-            logger.debug('[app] emitting event: %r%s', event, repr(args)[:100])
-        except Exception:
-            # not every object likes to be repr()'d (think
-            # random stuff coming via autodoc)
-            pass
-        return self.events.emit(event, self, *args)
+        return self.events.emit(event, *args)
 
     def emit_firstresult(self, event, *args):
         # type: (str, Any) -> Any
@@ -453,7 +447,7 @@ class Sphinx:
 
         .. versionadded:: 0.5
         """
-        return self.events.emit_firstresult(event, self, *args)
+        return self.events.emit_firstresult(event, *args)
 
     # registering addon parts
 

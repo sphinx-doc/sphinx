@@ -43,6 +43,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.events import EventManager  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
@@ -93,6 +94,7 @@ class Builder:
 
         self.app = app              # type: Sphinx
         self.env = None             # type: BuildEnvironment
+        self.events = app.events    # type: EventManager
         self.config = app.config    # type: Config
         self.tags = app.tags        # type: Tags
         self.tags.add(self.format)
@@ -399,7 +401,7 @@ class Builder:
         added, changed, removed = self.env.get_outdated_files(updated)
 
         # allow user intervention as well
-        for docs in self.app.emit('env-get-outdated', self, added, changed, removed):
+        for docs in self.events.emit('env-get-outdated', self, added, changed, removed):
             changed.update(set(docs) & self.env.found_docs)
 
         # if files were added or removed, all documents with globbed toctrees
@@ -416,13 +418,13 @@ class Builder:
 
         # clear all files no longer present
         for docname in removed:
-            self.app.emit('env-purge-doc', self.env, docname)
+            self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
 
         # read all new and changed files
         docnames = sorted(added | changed)
         # allow changing and reordering the list of docs to read
-        self.app.emit('env-before-read-docs', self.env, docnames)
+        self.events.emit('env-before-read-docs', self.env, docnames)
 
         # check if we should do parallel or serial read
         if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
@@ -439,7 +441,7 @@ class Builder:
             raise SphinxError('master file %s not found' %
                               self.env.doc2path(self.config.master_doc))
 
-        for retval in self.app.emit('env-updated', self.env):
+        for retval in self.events.emit('env-updated', self.env):
             if retval is not None:
                 docnames.extend(retval)
 
@@ -453,7 +455,7 @@ class Builder:
         for docname in status_iterator(docnames, __('reading sources... '), "purple",
                                        len(docnames), self.app.verbosity):
             # remove all inventory entries for that file
-            self.app.emit('env-purge-doc', self.env, docname)
+            self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
             self.read_doc(docname)
 
@@ -461,7 +463,7 @@ class Builder:
         # type: (List[str], int) -> None
         # clear all outdated docs at once
         for docname in docnames:
-            self.app.emit('env-purge-doc', self.env, docname)
+            self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
 
         def read_process(docs):
