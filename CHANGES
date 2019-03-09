@@ -65,6 +65,9 @@ Bugs fixed
 * #3079: texinfo: image files are not copied on ``make install-info``
 * #5391: A cross reference in heading is rendered as literal
 * #5946: C++, fix ``cpp:alias`` problems in LaTeX (and singlehtml)
+* #6147: classes attribute of ``citation_reference`` node is lost
+* AssertionError is raised when custom ``citation_reference`` node having
+  classes attribute refers missing citation (refs: #6147)
 
 Testing
 --------
@@ -337,6 +340,8 @@ Bugs fixed
 * #6028: graphviz: Ensure the graphviz filenames are reproducible
 * #6068: doctest: ``skipif`` option may remove the code block from documentation
 * #6136: ``:name:`` option for ``math`` directive causes a crash
+* #6139: intersphinx: ValueError on failure reporting
+* #6135: changes: Fix UnboundLocalError when any module found
 
 Testing
 --------
