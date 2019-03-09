@@ -221,6 +221,8 @@ class CitationReferences(SphinxTransform):
             refnode.source = citation_ref.source or citation_ref.parent.source
             refnode.line = citation_ref.line or citation_ref.parent.line
             refnode += nodes.Text('[' + cittext + ']')
+            for class_name in citation_ref.attributes.get('classes', []):
+                refnode['classes'].append(class_name)
             citation_ref.parent.replace(citation_ref, refnode)
 
 
