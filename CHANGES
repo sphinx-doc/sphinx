@@ -27,6 +27,7 @@ Bugs fixed
 * #3079: texinfo: image files are not copied on ``make install-info``
 * #5391: A cross reference in heading is rendered as literal
 * #5946: C++, fix ``cpp:alias`` problems in LaTeX (and singlehtml)
+* #6147: classes attribute of ``citation_reference`` node is lost
 
 Testing
 --------
