@@ -29,7 +29,7 @@ from sphinx.util.nodes import (
 
 if False:
     # For type annotation
-    from typing import Any, Generator, List, Tuple  # NOQA
+    from typing import Any, Dict, Generator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domain.std import StandardDomain  # NOQA
@@ -438,3 +438,29 @@ class ManpageLink(SphinxTransform):
             if r:
                 info = r.groupdict()
             node.attributes.update(info)
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(ApplySourceWorkaround)
+    app.add_transform(ExtraTranslatableNodes)
+    app.add_transform(SmartQuotesSkipper)
+    app.add_transform(CitationReferences)
+    app.add_transform(DefaultSubstitutions)
+    app.add_transform(MoveModuleTargets)
+    app.add_transform(HandleCodeBlocks)
+    app.add_transform(SortIds)
+    app.add_transform(FigureAligner)
+    app.add_transform(AutoNumbering)
+    app.add_transform(AutoIndexUpgrader)
+    app.add_transform(FilterSystemMessages)
+    app.add_transform(UnreferencedFootnotesDetector)
+    app.add_transform(SphinxSmartQuotes)
+    app.add_transform(DoctreeReadEvent)
+    app.add_transform(ManpageLink)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

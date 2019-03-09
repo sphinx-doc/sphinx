@@ -20,8 +20,9 @@ from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
-    from typing import Any, Iterator  # NOQA
+    from typing import Any, Dict, Iterator  # NOQA
     from docutils import nodes  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 try:
     import Levenshtein
@@ -186,3 +187,14 @@ def prepare(document):
                   RemovedInSphinx30Warning, stacklevel=2)
     transform = UIDTransform(document)
     transform.apply()
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(UIDTransform)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

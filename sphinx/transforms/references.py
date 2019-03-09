@@ -15,7 +15,8 @@ from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 class SubstitutionDefinitionsRemover(SphinxTransform):
@@ -38,3 +39,15 @@ class SphinxDomains(SphinxTransform):
         # type: (Any) -> None
         for domain in self.env.domains.values():
             domain.process_doc(self.env, self.env.docname, self.document)
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(SubstitutionDefinitionsRemover)
+    app.add_transform(SphinxDomains)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

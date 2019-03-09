@@ -17,7 +17,8 @@ from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
-    from typing import Any, List  # NOQA
+    from typing import Any, Dict, List  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):
@@ -90,3 +91,14 @@ class RefOnlyBulletListTransform(SphinxTransform):
                     compact_para = addnodes.compact_paragraph()
                     compact_para += ref
                     item.replace(para, compact_para)
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(RefOnlyBulletListTransform)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
