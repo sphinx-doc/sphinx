@@ -30,6 +30,7 @@ Bugs fixed
 * #6136: ``:name:`` option for ``math`` directive causes a crash
 * #6139: intersphinx: ValueError on failure reporting
 * #6135: changes: Fix UnboundLocalError when any module found
+* #3859: manpage: code-block captions are not displayed correctly
 
 Testing
 --------
