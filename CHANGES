@@ -27,6 +27,7 @@ Bugs fixed
 * #6068: doctest: ``skipif`` option may remove the code block from documentation
 * #6136: ``:name:`` option for ``math`` directive causes a crash
 * #6139: intersphinx: ValueError on failure reporting
+* #6135: changes: Fix UnboundLocalError when any module found
 
 Testing
 --------
