@@ -1084,7 +1084,7 @@ Overloaded (member) functions
 
 When a (member) function is referenced using just its name, the reference
 will point to an arbitrary matching overload.
-The :rst:role:`cpp:any` and :rst:role:`cpp:func` roles will an alternative
+The :rst:role:`cpp:any` and :rst:role:`cpp:func` roles use an alternative
 format, which simply is a complete function declaration.
 This will resolve to the exact matching overload.
 As example, consider the following class declaration:
