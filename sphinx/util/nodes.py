@@ -528,6 +528,7 @@ def process_only_nodes(document, tags):
 
 
 # monkey-patch Element.copy to copy the rawsource and line
+# for docutils-0.14 or older versions.
 
 def _new_copy(self):
     # type: (nodes.Element) -> nodes.Element
