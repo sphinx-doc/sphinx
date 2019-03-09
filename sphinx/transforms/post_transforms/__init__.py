@@ -39,23 +39,23 @@ class SphinxPostTransform(SphinxTransform):
     builders = ()   # type: Tuple[str, ...]
     formats = ()    # type: Tuple[str, ...]
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.is_supported():
-            self.run()
+            self.run(**kwargs)
 
     def is_supported(self):
         # type: () -> bool
         """Check this transform working for current builder."""
-        if self.builders and self.builders.name not in self.builders:
+        if self.builders and self.app.builder.name not in self.builders:
             return False
-        if self.formats and self.builders.format not in self.formats:
+        if self.formats and self.app.builder.format not in self.formats:
             return False
 
         return True
 
-    def run(self):
-        # type: () -> None
+    def run(self, **kwargs):
+        # type: (Any) -> None
         """main method of post transforms.
 
         Subclasses should override this method instead of ``apply()``.
@@ -70,7 +70,7 @@ class ReferencesResolver(SphinxPostTransform):
 
     default_priority = 10
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
         for node in self.document.traverse(addnodes.pending_xref):
             contnode = cast(nodes.TextElement, node[0].deepcopy())
@@ -184,7 +184,7 @@ class ReferencesResolver(SphinxPostTransform):
 class OnlyNodeTransform(SphinxPostTransform):
     default_priority = 50
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
         # A comment on the comment() nodes being inserted: replacing by [] would
         # result in a "Losing ids" exception if there is a target node before

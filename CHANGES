@@ -13,6 +13,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.builders.latex.LaTeXBuilder.apply_transforms()``
 * ``sphinx.environment.NoUri``
 * ``sphinx.ext.autodoc.importer.MockFinder``
 * ``sphinx.ext.autodoc.importer.MockLoader``

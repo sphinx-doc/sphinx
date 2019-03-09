@@ -17,11 +17,13 @@ from sphinx.builders.latex.nodes import (
     captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
 )
 from sphinx.transforms import SphinxTransform
+from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util.nodes import NodeMatcher
 
 if False:
     # For type annotation
-    from typing import Any, List, Set, Tuple  # NOQA
+    from typing import Any, Dict, List, Set, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
@@ -38,7 +40,7 @@ class FootnoteDocnameUpdater(SphinxTransform):
             node['docname'] = self.env.docname
 
 
-class ShowUrlsTransform(SphinxTransform):
+class ShowUrlsTransform(SphinxPostTransform):
     """Expand references to inline text or footnotes.
 
     For more information, see :confval:`latex_show_urls`.
@@ -46,11 +48,12 @@ class ShowUrlsTransform(SphinxTransform):
     .. note:: This transform is used for integrated doctree
     """
     default_priority = 400
+    builders = ('latex',)
 
     # references are expanded to footnotes (or not)
     expanded = False
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
         try:
             # replace id_prefix temporarily
@@ -177,7 +180,7 @@ class FootnoteCollector(nodes.NodeVisitor):
         self.footnote_refs.append(node)
 
 
-class LaTeXFootnoteTransform(SphinxTransform):
+class LaTeXFootnoteTransform(SphinxPostTransform):
     """Convert footnote definitions and references to appropriate form to LaTeX.
 
     * Replace footnotes on restricted zone (e.g. headings) by footnotemark node.
@@ -345,8 +348,9 @@ class LaTeXFootnoteTransform(SphinxTransform):
     """
 
     default_priority = 600
+    builders = ('latex',)
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
         footnotes = list(self.document.traverse(nodes.footnote))
         for node in footnotes:
@@ -486,7 +490,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         return None
 
 
-class BibliographyTransform(SphinxTransform):
+class BibliographyTransform(SphinxPostTransform):
     """Gather bibliography entries to tail of document.
 
     Before::
@@ -517,8 +521,9 @@ class BibliographyTransform(SphinxTransform):
                     ...
     """
     default_priority = 750
+    builders = ('latex',)
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
         citations = thebibliography()
         for node in self.document.traverse(nodes.citation):
@@ -529,19 +534,17 @@ class BibliographyTransform(SphinxTransform):
             self.document += citations
 
 
-class CitationReferenceTransform(SphinxTransform):
+class CitationReferenceTransform(SphinxPostTransform):
     """Replace pending_xref nodes for citation by citation_reference.
 
     To handle citation reference easily on LaTeX writer, this converts
     pending_xref nodes to citation_reference.
     """
     default_priority = 5  # before ReferencesResolver
+    builders = ('latex',)
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
-        if self.app.builder.name != 'latex':
-            return
-
         matcher = NodeMatcher(addnodes.pending_xref, refdomain='std', reftype='citation')
         citations = self.env.get_domain('std').data['citations']
         for node in self.document.traverse(matcher):  # type: addnodes.pending_xref
@@ -552,19 +555,17 @@ class CitationReferenceTransform(SphinxTransform):
                 node.replace_self(citation_ref)
 
 
-class MathReferenceTransform(SphinxTransform):
+class MathReferenceTransform(SphinxPostTransform):
     """Replace pending_xref nodes for math by math_reference.
 
     To handle math reference easily on LaTeX writer, this converts pending_xref
     nodes to math_reference.
     """
     default_priority = 5  # before ReferencesResolver
+    builders = ('latex',)
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
-        if self.app.builder.name != 'latex':
-            return
-
         equations = self.env.get_domain('math').data['objects']
         for node in self.document.traverse(addnodes.pending_xref):
             if node['refdomain'] == 'math' and node['reftype'] in ('eq', 'numref'):
@@ -574,30 +575,26 @@ class MathReferenceTransform(SphinxTransform):
                     node.replace_self(refnode)
 
 
-class LiteralBlockTransform(SphinxTransform):
+class LiteralBlockTransform(SphinxPostTransform):
     """Replace container nodes for literal_block by captioned_literal_block."""
     default_priority = 400
+    builders = ('latex',)
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
-        if self.app.builder.name != 'latex':
-            return
-
         matcher = NodeMatcher(nodes.container, literal_block=True)
         for node in self.document.traverse(matcher):  # type: nodes.container
             newnode = captioned_literal_block('', *node.children, **node.attributes)
             node.replace_self(newnode)
 
 
-class DocumentTargetTransform(SphinxTransform):
+class DocumentTargetTransform(SphinxPostTransform):
     """Add :doc label to the first section of each document."""
     default_priority = 400
+    builders = ('latex',)
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
-        if self.app.builder.name != 'latex':
-            return
-
         for node in self.document.traverse(addnodes.start_of_file):
             section = node.next_node(nodes.section)
             if section:
@@ -639,3 +636,22 @@ class IndexInSectionTitleTransform(SphinxTransform):
                     # move the index node next to the section title
                     node.remove(index)
                     node.parent.insert(i + 1, index)
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(FootnoteDocnameUpdater)
+    app.add_post_transform(BibliographyTransform)
+    app.add_post_transform(CitationReferenceTransform)
+    app.add_post_transform(DocumentTargetTransform)
+    app.add_post_transform(IndexInSectionTitleTransform)
+    app.add_post_transform(LaTeXFootnoteTransform)
+    app.add_post_transform(LiteralBlockTransform)
+    app.add_post_transform(MathReferenceTransform)
+    app.add_post_transform(ShowUrlsTransform)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
