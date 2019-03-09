@@ -28,6 +28,7 @@ For more details, see :ref:`deprecation APIs list <dev-deprecated-apis>`.
 Features added
 --------------
 
+* Add a helper class ``sphinx.transforms.post_transforms.SphinxPostTransform``
 * Add a helper method ``SphinxDirective.set_source_info()``
 * #6180: Support ``--keep-going`` with BuildDoc setup command
 

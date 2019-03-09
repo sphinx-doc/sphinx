@@ -29,7 +29,41 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class ReferencesResolver(SphinxTransform):
+class SphinxPostTransform(SphinxTransform):
+    """A base class of post-transforms.
+
+    Post transforms are invoked to modify the document to restructure it for outputting.
+    They do resolving references, convert images, special transformation for each output
+    formats and so on.  This class helps to implement these post transforms.
+    """
+    builders = ()   # type: Tuple[str, ...]
+    formats = ()    # type: Tuple[str, ...]
+
+    def apply(self):
+        # type: () -> None
+        if self.is_supported():
+            self.run()
+
+    def is_supported(self):
+        # type: () -> bool
+        """Check this transform working for current builder."""
+        if self.builders and self.builders.name not in self.builders:
+            return False
+        if self.formats and self.builders.format not in self.formats:
+            return False
+
+        return True
+
+    def run(self):
+        # type: () -> None
+        """main method of post transforms.
+
+        Subclasses should override this method instead of ``apply()``.
+        """
+        raise NotImplementedError
+
+
+class ReferencesResolver(SphinxPostTransform):
     """
     Resolves cross-references on doctrees.
     """
@@ -147,7 +181,7 @@ class ReferencesResolver(SphinxTransform):
                        location=node, type='ref', subtype=typ)
 
 
-class OnlyNodeTransform(SphinxTransform):
+class OnlyNodeTransform(SphinxPostTransform):
     default_priority = 50
 
     def apply(self, **kwargs):
