@@ -20,7 +20,7 @@ from docutils.writers import UnfilteredWriter
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import (
-    ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
+    ApplySourceWorkaround, ExtraTranslatableNodes, SmartQuotesSkipper, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds, FigureAligner,
     AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
     UnreferencedFootnotesDetector, SphinxSmartQuotes, DoctreeReadEvent, ManpageLink
@@ -99,7 +99,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
                   RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
                   SphinxDomains, SubstitutionDefinitionsRemover, DoctreeReadEvent,
-                  UIDTransform]
+                  UIDTransform, SmartQuotesSkipper]
 
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
@@ -141,7 +141,7 @@ class SphinxI18nReader(SphinxBaseReader):
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SubstitutionDefinitionsRemover]
+                  SubstitutionDefinitionsRemover, SmartQuotesSkipper]
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None

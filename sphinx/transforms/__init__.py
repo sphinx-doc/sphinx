@@ -23,7 +23,9 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
+from sphinx.util.nodes import (
+    NodeMatcher, apply_source_workaround, copy_source_info, is_smartquotable
+)
 
 if False:
     # For type annotation
@@ -198,6 +200,18 @@ class SortIds(SphinxTransform):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
 
 
+class SmartQuotesSkipper(SphinxTransform):
+    """Mark specific nodes as not smartquoted."""
+    default_priority = 619
+
+    def apply(self, **kwargs):
+        # type: (Any) -> None
+        # citation labels
+        for node in self.document.traverse(nodes.citation):
+            label = cast(nodes.label, node[0])
+            label['support_smartquotes'] = False
+
+
 class CitationReferences(SphinxTransform):
     """
     Replace citation references by pending_xref nodes before the default
@@ -207,23 +221,16 @@ class CitationReferences(SphinxTransform):
 
     def apply(self, **kwargs):
         # type: (Any) -> None
-        # mark citation labels as not smartquoted
-        for citation in self.document.traverse(nodes.citation):
-            label = cast(nodes.label, citation[0])
-            label['support_smartquotes'] = False
-
-        for citation_ref in self.document.traverse(nodes.citation_reference):
-            cittext = citation_ref.astext()
-            refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
-                                            reftarget=cittext, refwarn=True,
-                                            support_smartquotes=False,
-                                            ids=citation_ref["ids"])
-            refnode.source = citation_ref.source or citation_ref.parent.source
-            refnode.line = citation_ref.line or citation_ref.parent.line
-            refnode += nodes.inline(cittext, '[%s]' % cittext)
-            for class_name in citation_ref.attributes.get('classes', []):
-                refnode['classes'].append(class_name)
-            citation_ref.parent.replace(citation_ref, refnode)
+        for node in self.document.traverse(nodes.citation_reference):
+            target = node.astext()
+            ref = addnodes.pending_xref(target, refdomain='std', reftype='citation',
+                                        reftarget=target, refwarn=True,
+                                        support_smartquotes=False,
+                                        ids=node["ids"],
+                                        classes=node.get('classes', []))
+            ref += nodes.inline(target, '[%s]' % target)
+            copy_source_info(node, ref)
+            node.replace_self(ref)
 
 
 TRANSLATABLE_NODES = {
