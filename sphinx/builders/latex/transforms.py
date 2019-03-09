@@ -596,3 +596,40 @@ class DocumentTargetTransform(SphinxTransform):
             section = node.next_node(nodes.section)
             if section:
                 section['ids'].append(':doc')  # special label for :doc:
+
+
+class IndexInSectionTitleTransform(SphinxTransform):
+    """Move index nodes in section title to outside of the title.
+
+    LaTeX index macro is not compatible with some handling of section titles
+    such as uppercasing done on LaTeX side (cf. fncychap handling of ``\\chapter``).
+    Moving the index node to after the title node fixes that.
+
+    Before::
+
+        <section>
+            <title>
+                blah blah <index entries=[...]/>blah
+            <paragraph>
+                blah blah blah
+            ...
+
+    After::
+
+        <section>
+            <title>
+                blah blah blah
+            <index entries=[...]/>
+            <paragraph>
+                blah blah blah
+            ...
+    """
+    default_priority = 400
+
+    def apply(self):
+        for node in self.document.traverse(nodes.title):
+            if isinstance(node.parent, nodes.section):
+                for i, index in enumerate(node.traverse(addnodes.index)):
+                    # move the index node next to the section title
+                    node.remove(index)
+                    node.parent.insert(i + 1, index)
