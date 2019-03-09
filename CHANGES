@@ -28,6 +28,8 @@ Bugs fixed
 * #5391: A cross reference in heading is rendered as literal
 * #5946: C++, fix ``cpp:alias`` problems in LaTeX (and singlehtml)
 * #6147: classes attribute of ``citation_reference`` node is lost
+* AssertionError is raised when custom ``citation_reference`` node having
+  classes attribute refers missing citation (refs: #6147)
 
 Testing
 --------
