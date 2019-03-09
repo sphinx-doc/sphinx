@@ -187,6 +187,7 @@ as metadata of the extension.  Metadata keys currently recognized are:
   output files can be used when the extension is loaded.  Since extensions
   usually don't negatively influence the process, this defaults to ``True``.
 
+
 APIs used for writing extensions
 --------------------------------
 
