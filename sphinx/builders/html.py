@@ -653,7 +653,7 @@ class StandaloneHTMLBuilder(Builder):
     def gen_additional_pages(self):
         # type: () -> None
         # pages from extensions
-        for pagelist in self.app.emit('html-collect-pages'):
+        for pagelist in self.events.emit('html-collect-pages'):
             for pagename, context, template in pagelist:
                 self.handle_page(pagename, context, template)
 
