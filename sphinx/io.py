@@ -19,7 +19,7 @@ from docutils.statemachine import StringList, string2lines
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.transforms import (
     AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
 )
@@ -58,11 +58,34 @@ class SphinxBaseReader(standalone.Reader):
 
     transforms = []  # type: List[Type[Transform]]
 
-    def __init__(self, app, *args, **kwargs):
-        # type: (Sphinx, Any, Any) -> None
-        self.app = app
-        self.env = app.env
+    def __init__(self, *args, **kwargs):
+        # type: (Any, Any) -> None
+        from sphinx.application import Sphinx
+        if len(args) > 0 and isinstance(args[0], Sphinx):
+            self._app = args[0]
+            self._env = self._app.env
+            args = args[1:]
+
         super().__init__(*args, **kwargs)
+
+    @property
+    def app(self):
+        # type: () -> Sphinx
+        warnings.warn('SphinxBaseReader.app is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self._app
+
+    @property
+    def env(self):
+        # type: () -> BuildEnvironment
+        warnings.warn('SphinxBaseReader.env is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self._env
+
+    def setup(self, app):
+        # type: (Sphinx) -> None
+        self._app = app      # hold application object only for compatibility
+        self._env = app.env
 
     def get_transforms(self):
         # type: () -> List[Type[Transform]]
@@ -85,7 +108,7 @@ class SphinxBaseReader(standalone.Reader):
 
         # substitute transformer
         document.transformer = SphinxTransformer(document)
-        document.transformer.set_environment(self.env)
+        document.transformer.set_environment(self.settings.env)
 
         # substitute reporter
         reporter = document.reporter
@@ -99,10 +122,10 @@ class SphinxStandaloneReader(SphinxBaseReader):
     A basic document reader for Sphinx.
     """
 
-    def __init__(self, app, *args, **kwargs):
-        # type: (Sphinx, Any, Any) -> None
+    def setup(self, app):
+        # type: (Sphinx) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
-        super().__init__(app, *args, **kwargs)
+        super().setup(app)
 
     def read(self, source, parser, settings):
         # type: (Input, Parser, Values) -> nodes.document
@@ -110,18 +133,18 @@ class SphinxStandaloneReader(SphinxBaseReader):
         if not self.parser:
             self.parser = parser
         self.settings = settings
-        self.input = self.read_source()
+        self.input = self.read_source(settings.env)
         self.parse()
         return self.document
 
-    def read_source(self):
-        # type: () -> str
+    def read_source(self, env):
+        # type: (BuildEnvironment) -> str
         """Read content from source and do post-process."""
         content = self.source.read()
 
         # emit "source-read" event
         arg = [content]
-        self.app.emit('source-read', self.env.docname, arg)
+        env.events.emit('source-read', env.docname, arg)
         return arg[0]
 
 
@@ -134,8 +157,10 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    def __init__(self, app, *args, **kwargs):
-        # type: (Sphinx, Any, Any) -> None
+    def setup(self, app):
+        # type: (Sphinx) -> None
+        super().setup(app)
+
         self.transforms = self.transforms + app.registry.get_transforms()
         unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
                   AutoIndexUpgrader, FigureAligner, SphinxDomains, DoctreeReadEvent,
@@ -143,8 +168,6 @@ class SphinxI18nReader(SphinxBaseReader):
         for transform in unused:
             if transform in self.transforms:
                 self.transforms.remove(transform)
-
-        super().__init__(app, *args, **kwargs)
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
@@ -290,7 +313,8 @@ def read_doc(app, env, filename):
     error_handler = UnicodeDecodeErrorHandler(env.docname)
     codecs.register_error('sphinx', error_handler)  # type: ignore
 
-    reader = SphinxStandaloneReader(app)
+    reader = SphinxStandaloneReader()
+    reader.setup(app)
     filetype = get_filetype(app.config.source_suffix, filename)
     parser = app.registry.create_source_parser(app, filetype)
     if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
