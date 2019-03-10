@@ -7,7 +7,7 @@ import sphinx
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
-              'sphinx.ext.viewcode']
+              'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
 
 master_doc = 'contents'
 templates_path = ['_templates']

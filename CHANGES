@@ -69,6 +69,7 @@ Bugs fixed
 * AssertionError is raised when custom ``citation_reference`` node having
   classes attribute refers missing citation (refs: #6147)
 * #2155: Support ``code`` directive
+* #4872: ext.inheritance_diagram: correctly describe behavior of ``parts`` option in docs, allow negative values.
 
 Testing
 --------
