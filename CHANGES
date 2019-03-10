@@ -30,9 +30,12 @@ Bugs fixed
 * #6147: classes attribute of ``citation_reference`` node is lost
 * AssertionError is raised when custom ``citation_reference`` node having
   classes attribute refers missing citation (refs: #6147)
+* #2155: Support ``code`` directive
 
 Testing
 --------
+
+* Add a helper function: ``sphinx.testing.restructuredtext.parse()``
 
 Release 2.0.0 beta1 (in development)
 ====================================
