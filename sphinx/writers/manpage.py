@@ -468,6 +468,21 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         return self.depart_strong(node)
 
     # overwritten: handle section titles better than in 0.6 release
+    def visit_caption(self, node):
+        # type: (nodes.Element) -> None
+        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+            self.body.append('.sp\n')
+        else:
+            BaseTranslator.visit_caption(self, node)
+
+    def depart_caption(self, node):
+        # type: (nodes.Element) -> None
+        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+            self.body.append('\n')
+        else:
+            BaseTranslator.depart_caption(self, node)
+
+    # overwritten: handle section titles better than in 0.6 release
     def visit_title(self, node):
         # type: (nodes.Element) -> None
         if isinstance(node.parent, addnodes.seealso):

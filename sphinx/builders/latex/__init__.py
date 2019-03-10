@@ -19,7 +19,7 @@ from sphinx.builders import Builder
 from sphinx.builders.latex.transforms import (
     BibliographyTransform, CitationReferenceTransform, MathReferenceTransform,
     FootnoteDocnameUpdater, LaTeXFootnoteTransform, LiteralBlockTransform,
-    ShowUrlsTransform, DocumentTargetTransform,
+    ShowUrlsTransform, DocumentTargetTransform, IndexInSectionTitleTransform,
 )
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM
@@ -347,7 +347,8 @@ class LaTeXBuilder(Builder):
                                     ShowUrlsTransform,
                                     LaTeXFootnoteTransform,
                                     LiteralBlockTransform,
-                                    DocumentTargetTransform])
+                                    DocumentTargetTransform,
+                                    IndexInSectionTitleTransform])
         transformer.apply_transforms()
 
     def finish(self):
