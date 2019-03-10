@@ -12,7 +12,8 @@ for stable releases
 * ``git commit -am 'Bump to X.Y.Z final'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
-* ``twine upload dist/<Sphinx-X.Y.Z files> --sign --identity [your GPG key]``
+* ``twine check dist/Sphinx-X.Y.Z*``
+* ``twine upload dist/Sphinx-X.Y.Z* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.Z``
 * ``python utils/bump_version.py --in-develop X.Y.Zb0`` (ex. 1.5.3b0)
@@ -39,7 +40,8 @@ for first beta releases
 * ``git commit -am 'Bump to X.Y.0 beta1'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
-* ``twine upload dist/<Sphinx-X.Y.Z files> --sign --identity [your GPG key]``
+* ``twine check dist/Sphinx-X.Y.Z*``
+* ``twine upload dist/Sphinx-X.Y.Z* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.0b1``
 * ``python utils/bump_version.py --in-develop X.Y.0b2`` (ex. 1.6.0b2)
@@ -69,7 +71,8 @@ for other beta releases
 * ``git commit -am 'Bump to X.Y.0 betaN'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
-* ``twine upload dist/<Sphinx-X.Y.Z files> --sign --identity [your GPG key]``
+* ``twine check dist/Sphinx-X.Y.Z*``
+* ``twine upload dist/Sphinx-X.Y.Z* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.0bN``
 * ``python utils/bump_version.py --in-develop X.Y.0bM`` (ex. 1.6.0b3)
@@ -98,7 +101,8 @@ for major releases
 * ``git commit -am 'Bump to X.Y.0 final'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
-* ``twine upload dist/<Sphinx-X.Y.Z files> --sign --identity [your GPG key]``
+* ``twine check dist/Sphinx-X.Y.Z*``
+* ``twine upload dist/Sphinx-X.Y.Z* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.0``
 * ``python utils/bump_version.py --in-develop X.Y.1b0`` (ex. 1.6.1b0)
