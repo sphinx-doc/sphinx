@@ -1,17 +1,5 @@
-Release 1.8.5 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.8.5 (released Mar 10, 2019)
+=====================================
 
 Bugs fixed
 ----------
@@ -31,9 +19,6 @@ Bugs fixed
 * #6139: intersphinx: ValueError on failure reporting
 * #6135: changes: Fix UnboundLocalError when any module found
 * #3859: manpage: code-block captions are not displayed correctly
-
-Testing
---------
 
 Release 1.8.4 (released Feb 03, 2019)
 =====================================
