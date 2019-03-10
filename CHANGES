@@ -315,8 +315,7 @@ Testing
 
 * Stop to use ``SPHINX_TEST_TEMPDIR`` envvar
 
-Release 1.8.5 (in development)
-==============================
+Release 1.8.6 (in development)
 
 Dependencies
 ------------
@@ -333,11 +332,22 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 1.8.5 (released Mar 10, 2019)
+=====================================
+
+Bugs fixed
+----------
+
 * LaTeX: Remove extraneous space after author names on PDF title page (refs: #6004)
 * #6026: LaTeX: A cross reference to definition list does not work
 * #6046: LaTeX: ``TypeError`` is raised when invalid latex_elements given
 * #6067: LaTeX: images having a target are concatenated to next line
 * #6067: LaTeX: images having a target are not aligned even if specified
+* #6149: LaTeX: ``:index:`` role in titles causes ``Use of \@icentercr doesn't
+  match its definition`` error on latexpdf build
 * #6019: imgconverter: Including multipage PDF fails
 * #6047: autodoc: ``autofunction`` emits a warning for method objects
 * #6028: graphviz: Ensure the graphviz filenames are reproducible
@@ -345,9 +355,7 @@ Bugs fixed
 * #6136: ``:name:`` option for ``math`` directive causes a crash
 * #6139: intersphinx: ValueError on failure reporting
 * #6135: changes: Fix UnboundLocalError when any module found
-
-Testing
---------
+* #3859: manpage: code-block captions are not displayed correctly
 
 Release 1.8.4 (released Feb 03, 2019)
 =====================================

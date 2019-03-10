@@ -1409,3 +1409,13 @@ def test_includegraphics_oversized(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     compile_latex_document(app)
+
+
+@pytest.mark.sphinx('latex', testroot='index_on_title')
+def test_index_on_title(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').text(encoding='utf8')
+    assert ('\\chapter{Test for index in top level title}\n'
+            '\\label{\\detokenize{contents:test-for-index-in-top-level-title}}'
+            '\\index{index@\\spxentry{index}}\n'
+            in result)
