@@ -20,7 +20,7 @@ from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Dict, Iterable, List, Tuple  # NOQA
     from sphinx import addnodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA

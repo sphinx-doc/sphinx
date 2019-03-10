@@ -9,8 +9,7 @@
 """
 
 from collections import namedtuple
-
-import mock
+from unittest import mock
 
 from sphinx import locale
 from sphinx.environment.adapters.indexentries import IndexEntries

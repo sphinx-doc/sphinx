@@ -20,12 +20,8 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
-    from docutils.parsers.rst.states import Inliner  # NOQA
-    from docutils.writers.html4css1 import Writer  # NOQA
+    from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
 

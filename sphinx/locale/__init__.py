@@ -18,7 +18,7 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Tuple, Union  # NOQA
 
 
 class _TranslationProxy(UserString):

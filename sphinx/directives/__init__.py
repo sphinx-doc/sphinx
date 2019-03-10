@@ -23,8 +23,6 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.docfields import Field  # NOQA
     from sphinx.util.typing import DirectiveOption  # NOQA
 

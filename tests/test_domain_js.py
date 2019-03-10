@@ -8,9 +8,10 @@
     :license: BSD, see LICENSE for details.
 """
 
+from unittest.mock import Mock
+
 import pytest
 from docutils import nodes
-from mock import Mock
 
 from sphinx import addnodes
 from sphinx.domains.javascript import JavaScriptDomain

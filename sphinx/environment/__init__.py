@@ -30,7 +30,7 @@ from sphinx.util.nodes import is_translatable
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Pattern, Set, Tuple, Type, Union, Generator  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Set, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA

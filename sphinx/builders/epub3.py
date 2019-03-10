@@ -25,8 +25,7 @@ from sphinx.util.osutil import make_filename
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterable, List, Set, Tuple  # NOQA
-    from docutils import nodes  # NOQA
+    from typing import Any, Dict, List, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
 

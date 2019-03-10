@@ -39,7 +39,6 @@ extras_require = {
         'colorama>=0.3.5',
     ],
     'test': [
-        'mock',
         'pytest',
         'pytest-cov',
         'html5lib',

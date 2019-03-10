@@ -26,7 +26,7 @@ from sphinx.util.nodes import explicit_title_re, set_source_info, \
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Generator, List, Tuple  # NOQA
+    from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 

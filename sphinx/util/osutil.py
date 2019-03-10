@@ -24,7 +24,7 @@ from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warnin
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, List, Tuple, Union  # NOQA
+    from typing import Any, Iterator, List, Tuple  # NOQA
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning

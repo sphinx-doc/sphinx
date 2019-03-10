@@ -30,7 +30,7 @@ from sphinx.util.requests import is_ssl_error
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.requests.requests import Response  # NOQA
 

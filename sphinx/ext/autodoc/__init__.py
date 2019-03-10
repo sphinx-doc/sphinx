@@ -33,9 +33,7 @@ from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
 if False:
     # For type annotation
     from types import ModuleType  # NOQA
-    from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
-    from docutils import nodes  # NOQA
-    from docutils.utils import Reporter  # NOQA
+    from typing import Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

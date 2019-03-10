@@ -11,8 +11,8 @@
 import os
 import unittest
 from io import BytesIO
+from unittest import mock
 
-import mock
 import pytest
 import requests
 from docutils import nodes

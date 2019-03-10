@@ -10,9 +10,7 @@
 """
 
 from collections import namedtuple
-from unittest import TestCase
-
-import mock
+from unittest import TestCase, mock
 
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon import _process_docstring, _skip_member, Config, setup

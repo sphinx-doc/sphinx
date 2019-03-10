@@ -220,7 +220,9 @@ class CitationReferences(SphinxTransform):
                                             ids=citation_ref["ids"])
             refnode.source = citation_ref.source or citation_ref.parent.source
             refnode.line = citation_ref.line or citation_ref.parent.line
-            refnode += nodes.Text('[' + cittext + ']')
+            refnode += nodes.inline(cittext, '[%s]' % cittext)
+            for class_name in citation_ref.attributes.get('classes', []):
+                refnode['classes'].append(class_name)
             citation_ref.parent.replace(citation_ref, refnode)
 
 
@@ -340,11 +342,7 @@ class SphinxContentsFilter(ContentsFilter):
     Used with BuildEnvironment.add_toc_from() to discard cross-file links
     within table-of-contents link nodes.
     """
-    def visit_pending_xref(self, node):
-        # type: (addnodes.pending_xref) -> None
-        text = node.astext()
-        self.parent.append(nodes.literal(text, text))
-        raise nodes.SkipNode
+    visit_pending_xref = ContentsFilter.ignore_node_but_process_children
 
     def visit_image(self, node):
         # type: (nodes.image) -> None

@@ -83,8 +83,7 @@ class ChangesBuilder(Builder):
                     entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
                 apichanges.append((entry, changeset.docname, changeset.lineno))
             elif descname or changeset.module:
-                if not changeset.module:
-                    module = _('Builtins')
+                module = changeset.module or _('Builtins')
                 if not descname:
                     descname = _('Module level')
                 if context:
