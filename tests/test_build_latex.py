@@ -1349,6 +1349,15 @@ def test_latex_labels(app, status, warning):
             r'\label{\detokenize{otherdoc:otherdoc}}'
             r'\label{\detokenize{otherdoc::doc}}' in result)
 
-
     # Embeded standalone hyperlink reference (refs: #5948)
     assert result.count(r'\label{\detokenize{index:section1}}') == 1
+
+
+@pytest.mark.sphinx('latex', testroot='index_on_title')
+def test_index_on_title(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    assert ('\\chapter{Test for index in top level title}\n'
+            '\\label{\\detokenize{contents:test-for-index-in-top-level-title}}'
+            '\\index{index@\\spxentry{index}}\n'
+            in result)
