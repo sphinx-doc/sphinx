@@ -15,7 +15,7 @@ Steps to reproduce the behavior:
 ```
 <Paste your command-line here which cause the problem>
 
-$ git clone htps://github.com/.../some_project
+$ git clone https://github.com/.../some_project
 $ cd some_project
 $ pip install -r requirements.txt
 $ cd docs
