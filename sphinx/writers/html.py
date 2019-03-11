@@ -942,6 +942,14 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         if depart:
             depart(self, node)
 
+    def visit_pending_xref(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def depart_pending_xref(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
