@@ -113,6 +113,7 @@ class I18nBuilder(Builder):
     versioning_compare = None   # type: bool
                                 # be set by `gettext_uuid`
     use_message_catalog = False
+    supported_hidden_tocs = True
 
     def init(self):
         # type: () -> None

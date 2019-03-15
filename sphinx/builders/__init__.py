@@ -82,6 +82,8 @@ class Builder:
     supported_remote_images = False
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
+    #: The builder supports handling hidden tocs
+    supported_hidden_tocs = False
 
     def __init__(self, app):
         # type: (Sphinx) -> None
@@ -561,17 +563,21 @@ class Builder:
 
     def _write_serial(self, docnames):
         # type: (Sequence[str]) -> None
+        includehidden = self.supported_hidden_tocs
         with logging.pending_warnings():
             for docname in status_iterator(docnames, __('writing output... '), "darkgreen",
                                            len(docnames), self.app.verbosity):
                 self.app.phase = BuildPhase.RESOLVING
-                doctree = self.env.get_and_resolve_doctree(docname, self)
+                doctree = self.env.get_and_resolve_doctree(docname, self,
+                                                           includehidden=includehidden)
                 self.app.phase = BuildPhase.WRITING
                 self.write_doc_serialized(docname, doctree)
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames, nproc):
         # type: (Sequence[str], int) -> None
+        includehidden = self.supported_hidden_tocs
+
         def write_process(docs):
             # type: (List[Tuple[str, nodes.document]]) -> None
             self.app.phase = BuildPhase.WRITING
@@ -581,7 +587,8 @@ class Builder:
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
         self.app.phase = BuildPhase.RESOLVING
-        doctree = self.env.get_and_resolve_doctree(firstname, self)
+        doctree = self.env.get_and_resolve_doctree(firstname, self,
+                                                   includehidden=includehidden)
         self.app.phase = BuildPhase.WRITING
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
@@ -594,7 +601,8 @@ class Builder:
                                      len(chunks), self.app.verbosity):
             arg = []
             for i, docname in enumerate(chunk):
-                doctree = self.env.get_and_resolve_doctree(docname, self)
+                doctree = self.env.get_and_resolve_doctree(docname, self,
+                                                           includehidden=includehidden)
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))
             tasks.add_task(write_process, arg)
