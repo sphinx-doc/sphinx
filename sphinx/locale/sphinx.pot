@@ -1252,7 +1252,7 @@ msgid "turn warnings into errors"
 msgstr ""
 
 #: sphinx/cmd/build.py:189
-msgid "With -W, Keep going when getting warnings"
+msgid "With -W, keep going when getting warnings"
 msgstr ""
 
 #: sphinx/cmd/build.py:191
