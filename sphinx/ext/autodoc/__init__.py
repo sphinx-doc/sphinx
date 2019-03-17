@@ -80,7 +80,7 @@ def members_set_option(arg):
     """Used to convert the :members: option to auto directives."""
     if arg is None:
         return ALL
-    return set(x.strip() for x in arg.split(','))
+    return {x.strip() for x in arg.split(',')}
 
 
 SUPPRESS = object()

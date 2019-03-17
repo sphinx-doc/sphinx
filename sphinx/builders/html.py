@@ -187,7 +187,7 @@ class BuildInfo:
         self.tags_hash = ''
 
         if config:
-            values = dict((c.name, c.value) for c in config.filter(config_categories))
+            values = {c.name: c.value for c in config.filter(config_categories)}
             self.config_hash = get_stable_hash(values)
 
         if tags:

@@ -36,11 +36,11 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-default_substitutions = set([
+default_substitutions = {
     'version',
     'release',
     'today',
-])
+}
 
 
 class SphinxTransform(Transform):

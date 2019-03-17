@@ -202,7 +202,7 @@ class SphinxFileInput(FileInput):
     def __init__(self, *args, **kwargs):
         # type: (Any, Any) -> None
         kwargs['error_handler'] = 'sphinx'
-        super(SphinxFileInput, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class SphinxRSTFileInput(SphinxBaseFileInput):

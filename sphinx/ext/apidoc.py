@@ -45,7 +45,7 @@ else:
     ]
 
 INITPY = '__init__.py'
-PY_SUFFIXES = set(['.py', '.pyx'])
+PY_SUFFIXES = {'.py', '.pyx'}
 
 
 def makename(package, module):

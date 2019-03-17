@@ -349,8 +349,7 @@ document is a custom template, you can also set this to another filename.'''))
                 d['extensions'].append('sphinx.ext.%s' % name)
 
         # Handle conflicting options
-        if set(['sphinx.ext.imgmath', 'sphinx.ext.mathjax']).issubset(
-                d['extensions']):
+        if {'sphinx.ext.imgmath', 'sphinx.ext.mathjax'}.issubset(d['extensions']):
             print(__('Note: imgmath and mathjax cannot be enabled at the same '
                      'time. imgmath has been deselected.'))
             d['extensions'].remove('sphinx.ext.imgmath')
@@ -469,7 +468,7 @@ def valid_dir(d):
     if not path.isdir(dir):
         return False
 
-    if set(['Makefile', 'make.bat']) & set(os.listdir(dir)):
+    if {'Makefile', 'make.bat'} & set(os.listdir(dir)):
         return False
 
     if d['sep']:
@@ -590,7 +589,7 @@ def main(argv=sys.argv[1:]):
 
     d = vars(args)
     # delete None or False value
-    d = dict((k, v) for k, v in d.items() if v is not None)
+    d = {k: v for k, v in d.items() if v is not None}
 
     # handle use of CSV-style extension values
     d.setdefault('extensions', [])
@@ -601,12 +600,12 @@ def main(argv=sys.argv[1:]):
 
     try:
         if 'quiet' in d:
-            if not set(['project', 'author']).issubset(d):
+            if not {'project', 'author'}.issubset(d):
                 print(__('''"quiet" is specified, but any of "project" or \
 "author" is not specified.'''))
                 return 1
 
-        if set(['quiet', 'project', 'author']).issubset(d):
+        if {'quiet', 'project', 'author'}.issubset(d):
             # quiet mode with all required params satisfied, use default
             d.setdefault('version', '')
             d.setdefault('release', d['version'])

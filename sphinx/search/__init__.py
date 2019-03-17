@@ -310,9 +310,9 @@ class IndexBuilder:
             rv = {}
             for k, v in mapping.items():
                 if isinstance(v, int):
-                    rv[k] = set([index2fn[v]])
+                    rv[k] = {index2fn[v]}
                 else:
-                    rv[k] = set(index2fn[i] for i in v)
+                    rv[k] = {index2fn[i] for i in v}
             return rv
 
         self._mapping = load_terms(frozen['terms'])
@@ -381,12 +381,11 @@ class IndexBuilder:
         """Create a usable data structure for serializing."""
         docnames, titles = zip(*sorted(self._titles.items()))
         filenames = [self._filenames.get(docname) for docname in docnames]
-        fn2index = dict((f, i) for (i, f) in enumerate(docnames))
+        fn2index = {f: i for (i, f) in enumerate(docnames)}
         terms, title_terms = self.get_terms(fn2index)
 
         objects = self.get_objects(fn2index)  # populates _objtypes
-        objtypes = dict((v, k[0] + ':' + k[1])
-                        for (k, v) in self._objtypes.items())
+        objtypes = {v: k[0] + ':' + k[1] for (k, v) in self._objtypes.items()}
         objnames = self._objnames
         return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
