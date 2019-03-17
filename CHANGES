@@ -29,6 +29,7 @@ Features added
 --------------
 
 * Add a helper method ``SphinxDirective.set_source_info()``
+* #6180: Support ``--keep-going`` with BuildDoc setup command
 
 Bugs fixed
 ----------
