@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.builders.latex.LaTeXBuilder.apply_transforms()``
+     - 2.1
+     - 4.0
+     - N/A
+
    * - ``sphinx.environment.NoUri``
      - 2.1
      - 4.0

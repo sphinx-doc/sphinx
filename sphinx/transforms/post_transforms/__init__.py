@@ -29,14 +29,48 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class ReferencesResolver(SphinxTransform):
+class SphinxPostTransform(SphinxTransform):
+    """A base class of post-transforms.
+
+    Post transforms are invoked to modify the document to restructure it for outputting.
+    They do resolving references, convert images, special transformation for each output
+    formats and so on.  This class helps to implement these post transforms.
+    """
+    builders = ()   # type: Tuple[str, ...]
+    formats = ()    # type: Tuple[str, ...]
+
+    def apply(self, **kwargs):
+        # type: (Any) -> None
+        if self.is_supported():
+            self.run(**kwargs)
+
+    def is_supported(self):
+        # type: () -> bool
+        """Check this transform working for current builder."""
+        if self.builders and self.app.builder.name not in self.builders:
+            return False
+        if self.formats and self.app.builder.format not in self.formats:
+            return False
+
+        return True
+
+    def run(self, **kwargs):
+        # type: (Any) -> None
+        """main method of post transforms.
+
+        Subclasses should override this method instead of ``apply()``.
+        """
+        raise NotImplementedError
+
+
+class ReferencesResolver(SphinxPostTransform):
     """
     Resolves cross-references on doctrees.
     """
 
     default_priority = 10
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
         for node in self.document.traverse(addnodes.pending_xref):
             contnode = cast(nodes.TextElement, node[0].deepcopy())
@@ -147,10 +181,10 @@ class ReferencesResolver(SphinxTransform):
                        location=node, type='ref', subtype=typ)
 
 
-class OnlyNodeTransform(SphinxTransform):
+class OnlyNodeTransform(SphinxPostTransform):
     default_priority = 50
 
-    def apply(self, **kwargs):
+    def run(self, **kwargs):
         # type: (Any) -> None
         # A comment on the comment() nodes being inserted: replacing by [] would
         # result in a "Losing ids" exception if there is a target node before
