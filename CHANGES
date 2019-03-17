@@ -32,6 +32,7 @@ Bugs fixed
   classes attribute refers missing citation (refs: #6147)
 * #2155: Support ``code`` directive
 * C++, fix parsing of braced initializers.
+* #6172: AttributeError is raised for old styled index nodes
 
 Testing
 --------
