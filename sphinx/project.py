@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
 
 
-class Project(object):
+class Project:
     """A project is source code set of Sphinx document."""
 
     def __init__(self, srcdir, source_suffix):

@@ -40,7 +40,7 @@ class _MockObject:
                 return _make_subclass(args[0], superclass.__display_name__,
                                       superclass=superclass, attributes=args[2])
 
-        return super(_MockObject, cls).__new__(cls)
+        return super().__new__(cls)
 
     def __init__(self, *args, **kwargs):
         # type: (Any, Any) -> None

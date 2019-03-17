@@ -150,9 +150,9 @@ def _get_safe_url(url):
     else:
         frags = list(parts)
         if parts.port:
-            frags[1] = '{0}@{1}:{2}'.format(parts.username, parts.hostname, parts.port)
+            frags[1] = '{}@{}:{}'.format(parts.username, parts.hostname, parts.port)
         else:
-            frags[1] = '{0}@{1}'.format(parts.username, parts.hostname)
+            frags[1] = '{}@{}'.format(parts.username, parts.hostname)
 
         return urlunsplit(frags)
 

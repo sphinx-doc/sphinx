@@ -818,8 +818,7 @@ def test_xml_footnote_backlinks(app):
 
     para0 = secs[0].findall('paragraph')
     refs0 = para0[0].findall('footnote_reference')
-    refid2id = dict([
-        (r.attrib.get('refid'), r.attrib.get('ids')) for r in refs0])
+    refid2id = {r.attrib.get('refid'): r.attrib.get('ids') for r in refs0}
 
     footnote0 = secs[0].findall('footnote')
     for footnote in footnote0:

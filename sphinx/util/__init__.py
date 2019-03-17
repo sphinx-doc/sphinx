@@ -138,7 +138,7 @@ class FilenameUniqDict(dict):
         while uniquename in self._existing:
             i += 1
             uniquename = '%s%s%s' % (base, i, ext)
-        self[newfile] = (set([docname]), uniquename)
+        self[newfile] = ({docname}, uniquename)
         self._existing.add(uniquename)
         return uniquename
 

@@ -155,14 +155,14 @@ class JanomeSplitter(BaseSplitter):
 
 
 class DefaultSplitter(BaseSplitter):
-    patterns_ = dict([(re.compile(pattern), value) for pattern, value in {
+    patterns_ = {re.compile(pattern): value for pattern, value in {
         '[一二三四五六七八九十百千万億兆]': 'M',
         '[一-龠々〆ヵヶ]': 'H',
         '[ぁ-ん]': 'I',
         '[ァ-ヴーｱ-ﾝﾞｰ]': 'K',
         '[a-zA-Zａ-ｚＡ-Ｚ]': 'A',
         '[0-9０-９]': 'N',
-    }.items()])
+    }.items()}
     BIAS__ = -332
     BC1__ = {'HH': 6, 'II': 2461, 'KH': 406, 'OH': -1378}
     BC2__ = {'AA': -3267, 'AI': 2744, 'AN': -878, 'HH': -4070, 'HM': -1711,
