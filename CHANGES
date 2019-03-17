@@ -14,6 +14,23 @@ Deprecated
 ----------
 
 * ``sphinx.builders.latex.LaTeXBuilder.apply_transforms()``
+* ``sphinx.directives.Acks``
+* ``sphinx.directives.Author``
+* ``sphinx.directives.Centered``
+* ``sphinx.directives.Class``
+* ``sphinx.directives.CodeBlock``
+* ``sphinx.directives.Figure``
+* ``sphinx.directives.HList``
+* ``sphinx.directives.Highlight``
+* ``sphinx.directives.Include``
+* ``sphinx.directives.Index``
+* ``sphinx.directives.LiteralInclude``
+* ``sphinx.directives.Meta``
+* ``sphinx.directives.Only``
+* ``sphinx.directives.SeeAlso``
+* ``sphinx.directives.TabularColumns``
+* ``sphinx.directives.TocTree``
+* ``sphinx.directives.VersionChange``
 * ``sphinx.environment.NoUri``
 * ``sphinx.ext.autodoc.importer.MockFinder``
 * ``sphinx.ext.autodoc.importer.MockLoader``

@@ -15,6 +15,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer
 from sphinx.util.docutils import SphinxDirective
@@ -186,10 +187,6 @@ class ObjectDescription(SphinxDirective):
         return [self.indexnode, node]
 
 
-# backwards compatible old name
-DescDirective = ObjectDescription
-
-
 class DefaultRole(SphinxDirective):
     """
     Set the default interpreted text role.  Overridden from docutils.
@@ -242,7 +239,6 @@ class DefaultDomain(SphinxDirective):
         self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
 
-# import all directives sphinx provides (for compatibility)
 from sphinx.directives.code import (  # noqa
     Highlight, CodeBlock, LiteralInclude
 )
@@ -253,6 +249,32 @@ from sphinx.directives.other import (  # noqa
 from sphinx.directives.patches import (  # noqa
     Figure, Meta
 )
+
+deprecated_alias('sphinx.directives',
+                 {
+                     'Highlight': Highlight,
+                     'CodeBlock': CodeBlock,
+                     'LiteralInclude': LiteralInclude,
+                     'TocTree': TocTree,
+                     'Author': Author,
+                     'Index': Index,
+                     'VersionChange': VersionChange,
+                     'SeeAlso': SeeAlso,
+                     'TabularColumns': TabularColumns,
+                     'Centered': Centered,
+                     'Acks': Acks,
+                     'HList': HList,
+                     'Only': Only,
+                     'Include': Include,
+                     'Class': Class,
+                     'Figure': Figure,
+                     'Meta': Meta,
+                 },
+                 RemovedInSphinx40Warning)
+
+
+# backwards compatible old name (will be marked deprecated in 3.0)
+DescDirective = ObjectDescription
 
 
 def setup(app):
