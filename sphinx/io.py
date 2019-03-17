@@ -20,17 +20,12 @@ from docutils.writers import UnfilteredWriter
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import (
-    ApplySourceWorkaround, ExtraTranslatableNodes, SmartQuotesSkipper, CitationReferences,
-    DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds, FigureAligner,
-    AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
-    UnreferencedFootnotesDetector, SphinxSmartQuotes, DoctreeReadEvent, ManpageLink
+    AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
 )
-from sphinx.transforms import SphinxTransformer
-from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
 from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
-from sphinx.transforms.references import SphinxDomains, SubstitutionDefinitionsRemover
+from sphinx.transforms.references import SphinxDomains
 from sphinx.util import logging
 from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
@@ -93,13 +88,6 @@ class SphinxStandaloneReader(SphinxBaseReader):
     """
     A basic document reader for Sphinx.
     """
-    transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
-                  Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
-                  HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds, FigureAligner,
-                  RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
-                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SphinxDomains, SubstitutionDefinitionsRemover, DoctreeReadEvent,
-                  UIDTransform, SmartQuotesSkipper]
 
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
@@ -136,12 +124,17 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
-                  DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
-                  AutoNumbering, SortIds, RemoveTranslatableInline,
-                  FilterSystemMessages, RefOnlyBulletListTransform,
-                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SubstitutionDefinitionsRemover, SmartQuotesSkipper]
+    def __init__(self, app, *args, **kwargs):
+        # type: (Sphinx, Any, Any) -> None
+        self.transforms = self.transforms + app.registry.get_transforms()
+        unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
+                  AutoIndexUpgrader, FigureAligner, SphinxDomains, DoctreeReadEvent,
+                  UIDTransform]
+        for transform in unused:
+            if transform in self.transforms:
+                self.transforms.remove(transform)
+
+        super().__init__(app, *args, **kwargs)
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None

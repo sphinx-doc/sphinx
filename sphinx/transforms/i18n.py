@@ -483,3 +483,16 @@ class RemoveTranslatableInline(SphinxTransform):
         for inline in self.document.traverse(matcher):  # type: nodes.inline
             inline.parent.remove(inline)
             inline.parent += inline.children
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(PreserveTranslatableMessages)
+    app.add_transform(Locale)
+    app.add_transform(RemoveTranslatableInline)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
