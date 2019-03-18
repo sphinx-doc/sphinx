@@ -113,6 +113,7 @@ Incompatible changes
 * epub: ``epub_title`` defaults to the :confval:`project` option
 * #4550: All tables and figures without ``align`` option are displayed to center
 * #4587: html: Output HTML5 by default
+* using a string value for :confval:`html_sidebars` is no longer accepted.
 
 Deprecated
 ----------
