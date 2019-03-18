@@ -617,6 +617,8 @@ def test_html_meta(app):
     assert expected_expr in result
     expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
     assert expected_expr in result
+    expected_expr = '<p class="caption"><span class="caption-text">HIDDEN TOC</span></p>'
+    assert expected_expr in result
 
 
 @sphinx_intl

@@ -19,6 +19,9 @@ msgstr ""
 msgid "Table of Contents"
 msgstr "TABLE OF CONTENTS"
 
+msgid "Hidden Toc"
+msgstr "HIDDEN TOC"
+
 msgid "testdata for i18n"
 msgstr "TESTDATA FOR I18N"
 
