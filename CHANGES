@@ -32,6 +32,9 @@ Bugs fixed
   classes attribute refers missing citation (refs: #6147)
 * #2155: Support ``code`` directive
 * C++, fix parsing of braced initializers.
+* #6172: AttributeError is raised for old styled index nodes
+* #4872: inheritance_diagram: correctly describe behavior of ``parts`` option in
+  docs, allow negative values.
 * #6178: i18n: Captions missing in translations for hidden TOCs
 
 Testing

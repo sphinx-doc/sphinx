@@ -70,13 +70,13 @@ def test_get_catalogs_for_xx(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_ALL' / 'test7.po').write_text('#')
 
     catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', force_all=False)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set([
+    domains = {c.domain for c in catalogs}
+    assert domains == {
         'test1',
         'test2',
         'sub/test4',
         'sub/test5',
-    ])
+    }
 
 
 def test_get_catalogs_for_en(tempdir):
@@ -86,8 +86,8 @@ def test_get_catalogs_for_en(tempdir):
     (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'en_dom.po').write_text('#')
 
     catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'en', force_all=False)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set(['en_dom'])
+    domains = {c.domain for c in catalogs}
+    assert domains == {'en_dom'}
 
 
 def test_get_catalogs_with_non_existent_locale(tempdir):
@@ -121,13 +121,13 @@ def test_get_catalogs_for_xx_without_outdated(tempdir):
     assert not catalogs
 
     catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', force_all=True)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set([
+    domains = {c.domain for c in catalogs}
+    assert domains == {
         'test1',
         'test2',
         'sub/test4',
         'sub/test5',
-    ])
+    }
 
 
 def test_get_catalogs_from_multiple_locale_dirs(tempdir):
@@ -152,8 +152,8 @@ def test_get_catalogs_with_compact(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
 
     catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', gettext_compact=True)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set(['test1', 'test2', 'sub/test3', 'sub/test4'])
+    domains = {c.domain for c in catalogs}
+    assert domains == {'test1', 'test2', 'sub/test3', 'sub/test4'}
 
 
 def test_get_catalogs_excluded(tempdir):
@@ -163,8 +163,8 @@ def test_get_catalogs_excluded(tempdir):
 
     catalogs = i18n.find_catalog_source_files(
         [tempdir / 'loc1'], 'en', force_all=False, excluded=lambda path: '.git' in path)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set(['en_dom'])
+    domains = {c.domain for c in catalogs}
+    assert domains == {'en_dom'}
 
 
 def test_format_date():

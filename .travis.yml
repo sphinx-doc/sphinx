@@ -37,6 +37,7 @@ matrix:
       services: xvfb
 
 install:
+  - "sudo apt-get install graphviz"
   - if [ $IS_PYTHON = true ]; then pip install -U tox codecov; fi
   - if [ $IS_PYTHON = false ]; then npm install; fi
 

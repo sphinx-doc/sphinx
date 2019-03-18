@@ -36,7 +36,7 @@ class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
     __slots__ = ()
 
     def __new__(cls, attr1, attr2=None):
-        return super(NamedtupleSubclass, cls).__new__(cls, attr1, attr2)
+        return super().__new__(cls, attr1, attr2)
 
 
 class BaseDocstringTest(TestCase):

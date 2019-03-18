@@ -352,7 +352,7 @@ def test_set_sorting():
 
 
 def test_set_sorting_fallback():
-    set_ = set((None, 1))
+    set_ = {None, 1}
     description = inspect.object_description(set_)
     assert description in ("{1, None}", "{None, 1}")
 

@@ -121,7 +121,7 @@ def test_import_classes(rootdir):
 
         # all of classes in the module
         classes = import_classes('sphinx.application', None)
-        assert set(classes) == set([Sphinx, TemplateBridge])
+        assert set(classes) == {Sphinx, TemplateBridge}
 
         # specified class in the module
         classes = import_classes('sphinx.application.Sphinx', None)
