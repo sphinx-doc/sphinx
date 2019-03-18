@@ -148,8 +148,8 @@ class ChangesBuilder(Builder):
                     'text': text
                 }
                 f.write(self.templates.render('changes/rstsource.html', ctx))
-        themectx = dict(('theme_' + key, val) for (key, val) in
-                        self.theme.get_options({}).items())
+        themectx = {'theme_' + key: val for (key, val) in
+                    self.theme.get_options({}).items()}
         copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css_t'),
                         self.outdir, context=themectx, renderer=self.templates)
         copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),

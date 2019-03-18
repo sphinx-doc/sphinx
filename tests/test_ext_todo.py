@@ -54,9 +54,9 @@ def test_todo(app, status, warning):
 
     # check handled event
     assert len(todos) == 3
-    assert set(todo[1].astext() for todo in todos) == {'todo in foo',
-                                                       'todo in bar',
-                                                       'todo in param field'}
+    assert {todo[1].astext() for todo in todos} == {'todo in foo',
+                                                    'todo in bar',
+                                                    'todo in param field'}
 
 
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
@@ -92,9 +92,9 @@ def test_todo_not_included(app, status, warning):
 
     # check handled event
     assert len(todos) == 3
-    assert set(todo[1].astext() for todo in todos) == {'todo in foo',
-                                                       'todo in bar',
-                                                       'todo in param field'}
+    assert {todo[1].astext() for todo in todos} == {'todo in foo',
+                                                    'todo in bar',
+                                                    'todo in param field'}
 
 
 @pytest.mark.sphinx('latex', testroot='ext-todo', freshenv=True,

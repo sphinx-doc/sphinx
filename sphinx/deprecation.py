@@ -37,7 +37,7 @@ def deprecated_alias(modname, objects, warning):
     sys.modules[modname] = _ModuleWrapper(module, modname, objects, warning)  # type: ignore
 
 
-class _ModuleWrapper(object):
+class _ModuleWrapper:
     def __init__(self, module, modname, objects, warning):
         # type: (Any, str, Dict, Type[Warning]) -> None
         self._module = module
