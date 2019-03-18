@@ -33,7 +33,8 @@ Bugs fixed
 * #2155: Support ``code`` directive
 * C++, fix parsing of braced initializers.
 * #6172: AttributeError is raised for old styled index nodes
-* #4872: ext.inheritance_diagram: correctly describe behavior of ``parts`` option in docs, allow negative values.
+* #4872: inheritance_diagram: correctly describe behavior of ``parts`` option in
+  docs, allow negative values.
 
 Testing
 --------
