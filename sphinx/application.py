@@ -832,9 +832,6 @@ class Sphinx:
         For the role content, you have the same syntactical possibilities as
         for standard Sphinx roles (see :ref:`xref-syntax`).
 
-        This method is also available under the deprecated alias
-        :meth:`add_description_unit`.
-
         .. versionchanged:: 1.8
            Add *override* keyword.
         """

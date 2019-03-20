@@ -56,7 +56,7 @@ Bugs fixed
 Testing
 --------
 
-Release 2.0.0 beta2 (in development)
+Release 2.0.0 beta3 (in development)
 ====================================
 
 Dependencies
@@ -65,13 +65,25 @@ Dependencies
 Incompatible changes
 --------------------
 
-* texinfo: image files are copied into ``name-figure`` directory
-
 Deprecated
 ----------
 
 Features added
 --------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 2.0.0 beta2 (released Mar 21, 2019)
+===========================================
+
+Incompatible changes
+--------------------
+
+* texinfo: image files are copied into ``name-figure`` directory
 
 Bugs fixed
 ----------
@@ -89,7 +101,11 @@ Bugs fixed
 * AssertionError is raised when custom ``citation_reference`` node having
   classes attribute refers missing citation (refs: #6147)
 * #2155: Support ``code`` directive
-* #4872: ext.inheritance_diagram: correctly describe behavior of ``parts`` option in docs, allow negative values.
+* C++, fix parsing of braced initializers.
+* #6172: AttributeError is raised for old styled index nodes
+* #4872: inheritance_diagram: correctly describe behavior of ``parts`` option in
+  docs, allow negative values.
+* #6178: i18n: Captions missing in translations for hidden TOCs
 
 Testing
 --------
