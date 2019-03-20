@@ -1,19 +1,10 @@
-Release 2.0.0 beta2 (in development)
-====================================
-
-Dependencies
-------------
+Release 2.0.0 beta2 (released Mar 21, 2019)
+===========================================
 
 Incompatible changes
 --------------------
 
 * texinfo: image files are copied into ``name-figure`` directory
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
