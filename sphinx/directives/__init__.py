@@ -17,12 +17,12 @@ from docutils.parsers.rst import directives, roles
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import docutils
-from sphinx.util.docfields import DocFieldTransformer
+from sphinx.util.docfields import DocFieldTransformer, TypedField
 from sphinx.util.docutils import SphinxDirective
 
 if False:
     # For type annotation
-    from typing import Any, Dict  # NOQA
+    from typing import Any, Dict, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.docfields import Field  # NOQA
     from sphinx.util.typing import DirectiveOption  # NOQA
@@ -66,6 +66,23 @@ class ObjectDescription(SphinxDirective):
     domain = None           # type: str
     objtype = None          # type: str
     indexnode = None        # type: addnodes.index
+
+    # Warning: this might be removed in future version. Don't touch this from extensions.
+    _doc_field_type_map = {}  # type: Dict[str, Tuple[Field, bool]]
+
+    def get_field_type_map(self):
+        # type: () -> Dict[str, Tuple[Field, bool]]
+        if self._doc_field_type_map == {}:
+            for field in self.doc_field_types:
+                for name in field.names:
+                    self._doc_field_type_map[name] = (field, False)
+
+                if field.is_typed:
+                    typed_field = cast(TypedField, field)
+                    for name in typed_field.typenames:
+                        self._doc_field_type_map[name] = (field, True)
+
+        return self._doc_field_type_map
 
     def get_signatures(self):
         # type: () -> List[str]
