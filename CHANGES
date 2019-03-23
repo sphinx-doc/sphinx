@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6196: py domain: unexpected prefix is generated
+
 Testing
 --------
 
