@@ -15,8 +15,8 @@ if False:
     from typing import List  # NOQA
 
 
-def prepare_docstring(s, ignore=1):
-    # type: (str, int) -> List[str]
+def prepare_docstring(s, ignore=1, tabsize=8):
+    # type: (str, int, int) -> List[str]
     """Convert a docstring into lines of parseable reST.  Remove common leading
     indentation, where the indentation of a given number of lines (usually just
     one) is ignored.
@@ -25,7 +25,7 @@ def prepare_docstring(s, ignore=1):
     ViewList (used as argument of nested_parse().)  An empty line is added to
     act as a separator between this docstring and following content.
     """
-    lines = s.expandtabs().splitlines()
+    lines = s.expandtabs(tabsize).splitlines()
     # Find minimum indentation of any non-blank lines after ignored lines.
     margin = sys.maxsize
     for line in lines[ignore:]:

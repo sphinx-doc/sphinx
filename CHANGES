@@ -91,6 +91,7 @@ Bugs fixed
 * #6213: ifconfig: contents after headings are not shown
 * commented term in glossary directive is wrongly recognized
 * #6299: rst domain: rst:directive directive generates waste space
+* #6165: autodoc: ``tab_width`` setting of docutils has been ignored
 
 Testing
 --------

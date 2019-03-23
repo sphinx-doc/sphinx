@@ -175,7 +175,7 @@ _app = None  # type: Sphinx
 class FakeDirective(DocumenterBridge):
     def __init__(self):
         # type: () -> None
-        super().__init__({}, None, Options(), 0)  # type: ignore
+        super().__init__({}, None, Options(), 0, None)  # type: ignore
 
 
 def get_documenter(app, obj, parent):
@@ -236,7 +236,7 @@ class Autosummary(SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
         self.bridge = DocumenterBridge(self.env, self.state.document.reporter,
-                                       Options(), self.lineno)
+                                       Options(), self.lineno, self.state)
 
         names = [x.strip().split()[0] for x in self.content
                  if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
