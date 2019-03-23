@@ -262,7 +262,8 @@ class PyObject(ObjectDescription):
         classname = self.env.ref_context.get('py:class')
         if classname:
             add_module = False
-            if name_prefix and name_prefix.startswith(classname):
+            if name_prefix and (name_prefix == classname or
+                                name_prefix.startswith(classname + ".")):
                 fullname = name_prefix + name
                 # class name is given again in the signature
                 name_prefix = name_prefix[len(classname):].lstrip('.')
