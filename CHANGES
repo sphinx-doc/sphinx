@@ -89,6 +89,7 @@ Incompatible changes
 
 * Drop python 2.7 and 3.4 support
 * Drop docutils 0.11 support
+* Drop features and APIs deprecated in 1.7.x
 * The default setting for :confval:`master_doc` is changed to ``'index'`` which
   has been longly used as default of sphinx-quickstart.
 * LaTeX: Move message resources to ``sphinxmessage.sty``
