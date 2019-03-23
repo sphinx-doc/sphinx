@@ -141,6 +141,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.ext.autosummary.AutoLink``
 
+   * - ``sphinx.util.docfields.DocFieldTransformer.preprocess_fieldtypes()``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.ObjectDescription.get_field_type_map()``
+
    * - ``sphinx.util.node.find_source_node()``
      - 2.1
      - 4.0

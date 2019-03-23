@@ -36,6 +36,7 @@ Deprecated
 * ``sphinx.ext.autodoc.importer.MockLoader``
 * ``sphinx.ext.autodoc.importer.mock()``
 * ``sphinx.ext.autosummary.autolink_role()``
+* ``sphinx.util.docfields.DocFieldTransformer.preprocess_fieldtypes()``
 * ``sphinx.util.node.find_source_node()``
 * ``sphinx.util.i18n.find_catalog()``
 * ``sphinx.util.i18n.find_catalog_files()``
