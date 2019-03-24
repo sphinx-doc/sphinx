@@ -166,7 +166,7 @@ class ObjectDescription(SphinxDirective):
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
 
-        self.names = []  # type: List[str]
+        self.names = []  # type: List[Any]
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             # add a signature node for each signature in the current unit
