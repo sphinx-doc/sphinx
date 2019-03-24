@@ -116,6 +116,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.directives.other.VersionChange``
 
+   * - ``sphinx.domains.std.StandardDomain._resolve_citation_xref()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDomain.resolve_xref()``
+
    * - ``sphinx.environment.NoUri``
      - 2.1
      - 4.0

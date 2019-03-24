@@ -16,6 +16,7 @@ from sphinx import addnodes
 from sphinx.builders.latex.nodes import (
     captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
 )
+from sphinx.domains.citation import CitationDomain
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util.nodes import NodeMatcher
@@ -545,10 +546,10 @@ class CitationReferenceTransform(SphinxPostTransform):
 
     def run(self, **kwargs):
         # type: (Any) -> None
-        matcher = NodeMatcher(addnodes.pending_xref, refdomain='std', reftype='citation')
-        citations = self.env.get_domain('std').data['citations']
+        domain = cast(CitationDomain, self.env.get_domain('citation'))
+        matcher = NodeMatcher(addnodes.pending_xref, refdomain='citation', reftype='ref')
         for node in self.document.traverse(matcher):  # type: addnodes.pending_xref
-            docname, labelid, _ = citations.get(node['reftarget'], ('', '', 0))
+            docname, labelid, _ = domain.citations.get(node['reftarget'], ('', '', 0))
             if docname:
                 citation_ref = nodes.citation_reference('', '', *node.children,
                                                         docname=docname, refname=labelid)

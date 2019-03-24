@@ -19,7 +19,7 @@ from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.errors import NoUri
@@ -496,8 +496,6 @@ class StandardDomain(Domain):
     initial_data = {
         'progoptions': {},      # (program, name) -> docname, labelid
         'objects': {},          # (type, name) -> docname, labelid
-        'citations': {},        # citation_name -> docname, labelid, lineno
-        'citation_refs': {},    # citation_name -> list of docnames
         'labels': {             # labelname -> docname, labelid, sectionname
             'genindex': ('genindex', '', _('Index')),
             'modindex': ('py-modindex', '', _('Module Index')),
@@ -518,7 +516,6 @@ class StandardDomain(Domain):
         'keyword': 'unknown keyword: %(target)s',
         'doc': 'unknown document: %(target)s',
         'option': 'unknown option: %(target)s',
-        'citation': 'citation not found: %(target)s',
     }
 
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
@@ -544,14 +541,6 @@ class StandardDomain(Domain):
         for key, (fn, _l) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][key]
-        for key, (fn, _l, lineno) in list(self.data['citations'].items()):
-            if fn == docname:
-                del self.data['citations'][key]
-        for key, docnames in list(self.data['citation_refs'].items()):
-            if docnames == [docname]:
-                del self.data['citation_refs'][key]
-            elif docname in docnames:
-                docnames.remove(docname)
         for key, (fn, _l, _l) in list(self.data['labels'].items()):
             if fn == docname:
                 del self.data['labels'][key]
@@ -568,14 +557,6 @@ class StandardDomain(Domain):
         for key, data in otherdata['objects'].items():
             if data[0] in docnames:
                 self.data['objects'][key] = data
-        for key, data in otherdata['citations'].items():
-            if data[0] in docnames:
-                self.data['citations'][key] = data
-        for key, data in otherdata['citation_refs'].items():
-            citation_refs = self.data['citation_refs'].setdefault(key, [])
-            for docname in data:
-                if docname in docnames:
-                    citation_refs.append(docname)
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
                 self.data['labels'][key] = data
@@ -584,31 +565,6 @@ class StandardDomain(Domain):
                 self.data['anonlabels'][key] = data
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.document) -> None
-        self.note_citations(env, docname, document)
-        self.note_citation_refs(env, docname, document)
-        self.note_labels(env, docname, document)
-
-    def note_citations(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.document) -> None
-        for node in document.traverse(nodes.citation):
-            node['docname'] = docname
-            label = cast(nodes.label, node[0]).astext()
-            if label in self.data['citations']:
-                path = env.doc2path(self.data['citations'][label][0])
-                logger.warning(__('duplicate citation %s, other instance in %s'), label, path,
-                               location=node, type='ref', subtype='citation')
-            self.data['citations'][label] = (docname, node['ids'][0], node.line)
-
-    def note_citation_refs(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.document) -> None
-        for node in document.traverse(addnodes.pending_xref):
-            if node['refdomain'] == 'std' and node['reftype'] == 'citation':
-                label = node['reftarget']
-                citation_refs = self.data['citation_refs'].setdefault(label, [])
-                citation_refs.append(docname)
-
-    def note_labels(self, env, docname, document):
         # type: (BuildEnvironment, str, nodes.document) -> None
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
         for name, explicit in document.nametypes.items():
@@ -659,14 +615,6 @@ class StandardDomain(Domain):
         # type: (str, str, str, str) -> None
         self.data['progoptions'][program, name] = (docname, labelid)
 
-    def check_consistency(self):
-        # type: () -> None
-        for name, (docname, labelid, lineno) in self.data['citations'].items():
-            if name not in self.data['citation_refs']:
-                logger.warning(__('Citation [%s] is not referenced.'), name,
-                               type='ref', subtype='citation',
-                               location=(docname, lineno))
-
     def build_reference_node(self, fromdocname, builder, docname, labelid,
                              sectname, rolename, **options):
         # type: (str, Builder, str, str, str, str, Any) -> nodes.Element
@@ -705,7 +653,10 @@ class StandardDomain(Domain):
         elif typ == 'option':
             resolver = self._resolve_option_xref
         elif typ == 'citation':
-            resolver = self._resolve_citation_xref
+            warnings.warn('pending_xref(domain=std, type=citation) is deprecated: %r' % node,
+                          RemovedInSphinx40Warning)
+            domain = env.get_domain('citation')
+            return domain.resolve_xref(env, fromdocname, builder, typ, target, node, contnode)
         else:
             resolver = self._resolve_obj_xref
 
@@ -839,6 +790,8 @@ class StandardDomain(Domain):
 
     def _resolve_citation_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
+        warnings.warn('StandardDomain._resolve_citation_xref() is deprecated.',
+                      RemovedInSphinx30Warning)
         docname, labelid, lineno = self.data['citations'].get(target, ('', '', 0))
         if not docname:
             if 'ids' in node:

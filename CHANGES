@@ -31,6 +31,7 @@ Deprecated
 * ``sphinx.directives.TabularColumns``
 * ``sphinx.directives.TocTree``
 * ``sphinx.directives.VersionChange``
+* ``sphinx.domains.std.StandardDomain._resolve_citation_xref()``
 * ``sphinx.environment.NoUri``
 * ``sphinx.ext.autodoc.importer.MockFinder``
 * ``sphinx.ext.autodoc.importer.MockLoader``
