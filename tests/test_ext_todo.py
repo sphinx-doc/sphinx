@@ -30,23 +30,19 @@ def test_todo(app, status, warning):
 
     # check todolist
     content = (app.outdir / 'index.html').text()
-    html = ('<p class="admonition-title">Todo</p>\n'
-            '<p>todo in foo</p>')
-    assert re.search(html, content, re.S)
+    assert ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>') in content
 
-    html = ('<p class="admonition-title">Todo</p>\n'
-            '<p>todo in bar</p>')
-    assert re.search(html, content, re.S)
+    assert ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in bar</p>') in content
 
     # check todo
     content = (app.outdir / 'foo.html').text()
-    html = ('<p class="admonition-title">Todo</p>\n'
-            '<p>todo in foo</p>')
-    assert re.search(html, content, re.S)
+    assert ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>') in content
 
-    html = ('<p class="admonition-title">Todo</p>\n'
-            '<p>todo in param field</p>')
-    assert re.search(html, content, re.S)
+    assert ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in param field</p>') in content
 
     # check emitted warnings
     assert 'WARNING: TODO entry found: todo in foo' in warning.getvalue()
@@ -72,19 +68,16 @@ def test_todo_not_included(app, status, warning):
 
     # check todolist
     content = (app.outdir / 'index.html').text()
-    html = ('<p class="admonition-title">Todo</p>\n'
-            '<p>todo in foo</p>')
-    assert not re.search(html, content, re.S)
+    assert ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>') not in content
 
-    html = ('<p class="admonition-title">Todo</p>\n'
-            '<p>todo in bar</p>')
-    assert not re.search(html, content, re.S)
+    assert ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in bar</p>') not in content
 
     # check todo
     content = (app.outdir / 'foo.html').text()
-    html = ('<p class="admonition-title">Todo</p>\n'
-            '<p>todo in foo</p>')
-    assert not re.search(html, content, re.S)
+    assert ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>') not in content
 
     # check emitted warnings
     assert 'WARNING: TODO entry found: todo in foo' in warning.getvalue()
@@ -114,8 +107,8 @@ def test_todo_valid_link(app, status, warning):
     # Look for the link to foo. Note that there are two of them because the
     # source document uses todolist twice. We could equally well look for links
     # to bar.
-    link = r'\{\\hyperref\[\\detokenize\{(.*?foo.*?)}]\{\\sphinxcrossref{' \
-        r'\\sphinxstyleemphasis{original entry}}}}'
+    link = (r'\{\\hyperref\[\\detokenize\{(.*?foo.*?)}]\{\\sphinxcrossref{'
+            r'\\sphinxstyleemphasis{original entry}}}}')
     m = re.findall(link, content)
     assert len(m) == 4
     target = m[0]
