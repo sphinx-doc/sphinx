@@ -9,6 +9,7 @@
 """
 
 import re
+from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -332,15 +333,9 @@ class PyObject(ObjectDescription):
             signode['ids'].append(fullname)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            objects = self.env.domaindata['py']['objects']
-            if fullname in objects:
-                self.state_machine.reporter.warning(
-                    'duplicate object description of %s, ' % fullname +
-                    'other instance in ' +
-                    self.env.doc2path(objects[fullname][0]) +
-                    ', use :noindex: for one of them',
-                    line=self.lineno)
-            objects[fullname] = (self.env.docname, self.objtype)
+
+            domain = cast(PythonDomain, self.env.get_domain('py'))
+            domain.note_object(fullname, self.objtype)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
@@ -583,6 +578,8 @@ class PyModule(SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
+        domain = cast(PythonDomain, self.env.get_domain('py'))
+
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
@@ -594,7 +591,8 @@ class PyModule(SphinxDirective):
                                                              'deprecated' in self.options)
             # make a duplicate entry in 'objects' to facilitate searching for
             # the module in PythonDomain.find_obj()
-            self.env.domaindata['py']['objects'][modname] = (self.env.docname, 'module')
+            domain.note_object(modname, 'module')
+
             targetnode = nodes.target('', '', ids=['module-' + modname],
                                       ismod=True)
             self.state.document.note_explicit_target(targetnode)
@@ -781,6 +779,19 @@ class PythonDomain(Domain):
     def objects(self):
         # type: () -> Dict[str, Tuple[str, str]]
         return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+
+    def note_object(self, name, objtype, location=None):
+        # type: (str, str, Any) -> None
+        """Note a python object for cross reference.
+
+        .. versionadded:: 2.1
+        """
+        if name in self.objects:
+            docname = self.objects[name][0]
+            logger.warning(__('duplicate object description of %s, '
+                              'other instance in %s, use :noindex: for one of them'),
+                           name, docname, location=location)
+        self.objects[name] = (self.env.docname, objtype)
 
     @property
     def modules(self):
