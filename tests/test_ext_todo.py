@@ -107,14 +107,15 @@ def test_todo_valid_link(app, status, warning):
     # Look for the link to foo. Note that there are two of them because the
     # source document uses todolist twice. We could equally well look for links
     # to bar.
-    link = (r'\{\\hyperref\[\\detokenize\{(.*?foo.*?)}]\{\\sphinxcrossref{'
+    link = (r'{\\hyperref\[\\detokenize{(.*?foo.*?)}]{\\sphinxcrossref{'
             r'\\sphinxstyleemphasis{original entry}}}}')
     m = re.findall(link, content)
     assert len(m) == 4
     target = m[0]
 
     # Look for the targets of this link.
-    labels = [m for m in re.findall(r'\\label\{([^}]*)}', content) if m == target]
+    labels = re.findall(r'\\label{\\detokenize{([^}]*)}}', content)
+    matched = [l for l in labels if l == target]
 
     # If everything is correct we should have exactly one target.
-    assert len(labels) == 1
+    assert len(matched) == 1
