@@ -66,7 +66,7 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
             print(__('This can happen with very large or deeply nested source '
                      'files.  You can carefully increase the default Python '
                      'recursion limit of 1000 in conf.py with e.g.:'), file=stderr)
-            print(__('    import sys; sys.setrecursionlimit(1500)'), file=stderr)
+            print('    import sys; sys.setrecursionlimit(1500)', file=stderr)
         else:
             print(red(__('Exception occurred:')), file=stderr)
             print(format_exception_cut_frames().rstrip(), file=stderr)
