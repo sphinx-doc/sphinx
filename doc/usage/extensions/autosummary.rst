@@ -241,6 +241,11 @@ The following variables available in the templates:
    List containing names of "public" attributes in the class.  Only available
    for classes.
 
+.. data:: public_modules
+
+   List containing names of "public" sub-modules in the module, i.e. modules
+   exposed in `__all__`. Only available for modules.
+
 
 Additionally, the following filters are available
 

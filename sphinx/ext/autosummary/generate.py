@@ -18,6 +18,7 @@
 """
 
 import argparse
+import importlib
 import locale
 import os
 import pydoc
@@ -186,6 +187,19 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                           if x in include_public or not x.startswith('_')]
                 return public, items
 
+            def get_public_modules(obj, typ):
+                # type: (Any, str) -> List[str]
+                items = []  # type: List[str]
+                for item in getattr(obj, '__all__', []):
+                    try:
+                        importlib.import_module(name + '.' + item)
+                    except ImportError:
+                        continue
+                    finally:
+                        sys.modules.pop(name + '.' + item)
+                    items.append(name + '.' + item)
+                return items
+
             ns = {}  # type: Dict[str, Any]
 
             if doc.objtype == 'module':
@@ -196,6 +210,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     get_members(obj, 'class', imported=imported_members)
                 ns['exceptions'], ns['all_exceptions'] = \
                     get_members(obj, 'exception', imported=imported_members)
+                ns['public_modules'] = get_public_modules(obj, 'module')
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['inherited_members'] = \
