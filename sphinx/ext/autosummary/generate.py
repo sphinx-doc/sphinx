@@ -196,7 +196,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     except ImportError:
                         continue
                     finally:
-                        sys.modules.pop(name + '.' + item)
+                        if item in sys.modules:
+                            sys.modules.pop(name + '.' + item)
                     items.append(name + '.' + item)
                 return items
 
