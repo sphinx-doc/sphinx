@@ -15,7 +15,8 @@ Math support for HTML outputs in Sphinx
    So mathbase extension is no longer needed.
 
 Since mathematical notation isn't natively supported by HTML in any way, Sphinx
-gives a math support to HTML document with several extensions.
+gives a math support to HTML document with several extensions.  These use the
+Sphinx :rst:dir:`directives <math>` and :rst:role:`roles <math>`.
 
 :mod:`sphinx.ext.imgmath` -- Render math as images
 --------------------------------------------------
@@ -128,10 +129,12 @@ built:
 
 This extension puts math as-is into the HTML files.  The JavaScript package
 MathJax_ is then loaded and transforms the LaTeX markup to readable math live in
-the browser.
+the browser.  Reminder: you should use the math :rst:dir:`directives <math>` and
+:rst:role:`roles <math>`, not the native MathJax ``$$``, ``\(``, etc.
 
 Because MathJax (and the necessary fonts) is very large, it is not included in
-Sphinx.
+Sphinx and your build will include resources from a external site (by
+default cdnjs.cloudflare.com).
 
 .. confval:: mathjax_path
 
