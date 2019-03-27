@@ -99,6 +99,12 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
      .. versionadded:: 1.0
 
+   * You can specify to documented imported classes and functions at a module
+     level using the new :confval:`autosummary_imported_members` config value.
+     By default this if disabled.
+
+     .. versionadded:: 2.1.1
+
 
 :program:`sphinx-autogen` -- generate autodoc stub pages
 --------------------------------------------------------
@@ -148,6 +154,11 @@ also use these config values:
    This value contains a list of modules to be mocked up.  See
    :confval:`autodoc_mock_imports` for more details.  It defaults to
    :confval:`autodoc_mock_imports`.
+
+.. confval:: autosummary_imported_members
+
+   A boolean flag indicating whether to document classes and functions imported
+   in modules. Default is ``False``
 
 Customizing templates
 ---------------------
