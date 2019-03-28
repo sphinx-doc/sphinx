@@ -296,45 +296,61 @@ def test_pyobject_prefix(app):
     assert doctree[1][1][3].astext().strip() == 'FooBar.say'    # not stripped
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-py')
-def test_classmember_prefix(app, status, warning):
-    sigs = []  # type: List[desc_signature]
+class WriteDocMock:
+    def __init__(self):
+        self.sigs = []  # type: List[desc_signature]
 
-    def my_write_doc(self, docname, doctree):
+    def __call__(self, docname, doctree):
         # to see how the doctree looks like, insert a
         # breakpoint()
         # ... and look at ``doctree.pformat()``.
-        nonlocal sigs
         if docname == 'class_members':
-            sigs.extend(doctree.traverse(lambda x: isinstance(x, desc_signature)))
+            self.sigs.extend(doctree.traverse(lambda x: isinstance(x, desc_signature)))
 
-    def get_method_prefix(sig_nodes, qualname):
-        # type: (List[desc_signature], str) -> str
-        sig_matches = [s for s in sig_nodes
-                       if qualname in s.attributes.get('names', '')]
-        assert len(sig_matches) == 1, f"No desc_signature found for '{qualname}'"
-        sig = sig_matches[0]
 
-        # type: List[desc_annotation]
-        ann_matches = list(sig.traverse(lambda x: isinstance(x, desc_annotation)))
-        if not ann_matches:
-            return ''
+def get_method_prefix(sig_nodes, qualname):
+    # type: (List[desc_signature], str) -> str
+    sig_matches = [s for s in sig_nodes
+                   if qualname in s.attributes.get('names', '')]
+    assert len(sig_matches) == 1, f"No desc_signature found for '{qualname}'"
+    sig = sig_matches[0]
 
-        # our desc_annotation node looks like this in pseudo-xml:
-        # (Pdb) print(ann_matches[0].pformat())
-        # <desc_annotation xml:space="preserve">
-        #     abstract
-        # …so we need the first inner node to get the text.
-        return str(ann_matches[0].next_node())
+    # type: List[desc_annotation]
+    ann_matches = list(sig.traverse(lambda x: isinstance(x, desc_annotation)))
+    if not ann_matches:
+        return ''
 
-    with patch('sphinx.builders.dummy.DummyBuilder.write_doc', my_write_doc):
+    # our desc_annotation node looks like this in pseudo-xml:
+    # (Pdb) print(ann_matches[0].pformat())
+    # <desc_annotation xml:space="preserve">
+    #     abstract
+    # …so we need the first inner node to get the text.
+    return str(ann_matches[0].next_node())
+
+
+@pytest.mark.sphinx('dummy', testroot='domain-py')
+def test_classmember_prefix(app, status, warning):
+    mock = WriteDocMock()
+    with patch('sphinx.builders.dummy.DummyBuilder.write_doc', mock):
         app.builder.build_all()
+
+    sigs = mock.sigs
 
     assert get_method_prefix(sigs, 'module_c.A.foo') == 'abstract '
     assert get_method_prefix(sigs, 'module_c.A.bar') == 'abstract '
     assert get_method_prefix(sigs, 'module_c.A.value') == 'abstract '
     assert get_method_prefix(sigs, 'module_c.A.sfoo') == 'abstract static '
     assert get_method_prefix(sigs, 'module_c.A.cfoo') == 'abstract classmethod '
+
+
+@pytest.mark.sphinx('dummy', testroot='domain-py')
+def test_classmember_flag_aliases(app, status, warning):
+    mock = WriteDocMock()
+    with patch('sphinx.builders.dummy.DummyBuilder.write_doc', mock):
+        app.builder.build_all()
+
+    sigs = mock.sigs
+
     assert get_method_prefix(sigs, 'module_c.C.static_by_directive') == 'static '
     assert get_method_prefix(sigs, 'module_c.C.static_by_option') == 'static '
     assert get_method_prefix(sigs, 'module_c.C.cm_by_directive') == 'classmethod '
