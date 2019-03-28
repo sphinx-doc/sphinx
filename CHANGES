@@ -1,10 +1,10 @@
-Release 2.0.0 beta3 (in development)
-====================================
+Release 2.0.0 (released Mar 29, 2019)
+=====================================
 
 Dependencies
 ------------
 
-1.8.0b1
+2.0.0b1
 
 * LaTeX builder now depends on TeX Live 2015 or above.
 * LaTeX builder (with ``'pdflatex'`` :confval:`latex_engine`) will process
@@ -33,7 +33,7 @@ Dependencies
 Incompatible changes
 --------------------
 
-1.8.0b1
+2.0.0b1
 
 * Drop python 2.7 and 3.4 support
 * Drop docutils 0.11 support
@@ -78,14 +78,14 @@ Incompatible changes
 * #4550: All tables and figures without ``align`` option are displayed to center
 * #4587: html: Output HTML5 by default
 
-1.8.0b2
+2.0.0b2
 
 * texinfo: image files are copied into ``name-figure`` directory
 
 Deprecated
 ----------
 
-1.8.0b1
+2.0.0b1
 
 * Support for evaluating Python 2 syntax is deprecated. This includes
   configuration files which should be converted to Python 3.
@@ -174,7 +174,7 @@ For more details, see :ref:`deprecation APIs list <dev-deprecated-apis>`.
 Features added
 --------------
 
-1.8.0b1
+2.0.0b1
 
 * #1618: The search results preview of generated HTML documentation is
   reader-friendlier: instead of showing the snippets as raw reStructuredText
@@ -225,7 +225,7 @@ Features added
 Bugs fixed
 ----------
 
-1.8.0b1
+2.0.0b1
 
 * #1682: LaTeX: writer should not translate Greek unicode, but use textgreek
   package
@@ -248,7 +248,7 @@ Bugs fixed
 * HTML search: search always returns nothing when multiple search terms are
   used and one term is shorter than three characters
 
-1.8.0b2
+2.0.0b2
 
 * #6096: html: Anchor links are not added to figures
 * #3620: html: Defer searchindex.js rather than loading it via ajax
@@ -269,40 +269,20 @@ Bugs fixed
   docs, allow negative values.
 * #6178: i18n: Captions missing in translations for hidden TOCs
 
-1.8.0 final
+2.0.0 final
 
 * #6196: py domain: unexpected prefix is generated
 
 Testing
 --------
 
-1.8.0b1
+2.0.0b1
 
 * Stop to use ``SPHINX_TEST_TEMPDIR`` envvar
 
-1.8.0b2
+2.0.0b2
 
 * Add a helper function: ``sphinx.testing.restructuredtext.parse()``
-
-Release 1.8.6 (in development)
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 1.8.5 (released Mar 10, 2019)
 =====================================
