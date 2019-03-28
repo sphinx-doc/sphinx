@@ -490,6 +490,8 @@ class PyClassmember(PyObject):
 
         for old, new in self.option_aliases.items():
             if old in self.__options:
+                if new in self.__options:
+                    self.warning(f"both option '{old}' and its alias '{new}' are used")
                 opts[new] = opts.pop(old)
 
         if self.objtype in self.objtype_flags:
