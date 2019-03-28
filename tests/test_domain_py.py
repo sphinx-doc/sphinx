@@ -273,3 +273,20 @@ def test_pydata_signature(app):
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="data",
                 domain="py", objtype="data", noindex=False)
+
+
+def test_pyobject_prefix(app):
+    text = (".. py:class:: Foo\n"
+            "\n"
+            "   .. py:method:: Foo.say\n"
+            "   .. py:method:: FooBar.say")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Foo"])],
+                                  [desc_content, (addnodes.index,
+                                                  desc,
+                                                  addnodes.index,
+                                                  desc)])]))
+    assert doctree[1][1][1].astext().strip() == 'say'           # prefix is stripped
+    assert doctree[1][1][3].astext().strip() == 'FooBar.say'    # not stripped
