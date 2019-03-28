@@ -461,6 +461,37 @@ class PyClassmember(PyObject):
 
     option_spec = PyObject.option_spec.copy()
     option_spec.update(abstract=directives.flag)
+    option_spec.update(abstractmethod=directives.flag)
+
+    option_aliases = {'abstractmethod': 'abstract'}  # type: Dict[str, str]
+
+    def __init__(self, *a, **kw):
+        self.__options = None  # type: Dict[str, Any]
+        super().__init__(*a, **kw)
+
+    @property
+    def options(self):
+        """An decorated version of the `options` dict.
+
+        Keys who appear in :py:attr:`option_aliases` will be renamed.
+
+        We refer to `__options` with name mangling to allow for subclasses
+        to do the same kind of magic without interfering with our “backup copy”.
+        """
+        if self.__options is None:
+            return None
+
+        opts = self.__options.copy()
+        for old, new in self.option_aliases.items():
+            if old in self.__options:
+                opts[new] = opts.pop(old)
+
+        return opts
+
+    @options.setter
+    def options(self, value):
+        # This is mainly going to be set to ``{}`` in an ``__init__`` method.
+        self.__options = value
 
     def needs_arglist(self):
         # type: () -> bool
