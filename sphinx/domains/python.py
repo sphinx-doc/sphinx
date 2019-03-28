@@ -462,8 +462,12 @@ class PyClassmember(PyObject):
     option_spec = PyObject.option_spec.copy()
     option_spec.update(abstract=directives.flag)
     option_spec.update(abstractmethod=directives.flag)
+    option_spec.update(static=directives.flag)
+    option_spec.update(classmethod=directives.flag)
 
     option_aliases = {'abstractmethod': 'abstract'}  # type: Dict[str, str]
+    objtype_flags = {'staticmethod': 'static',
+                       'classmethod': 'classmethod'}  # type: Dict[str, str]
 
     def __init__(self, *a, **kw):
         self.__options = None  # type: Dict[str, Any]
@@ -473,7 +477,8 @@ class PyClassmember(PyObject):
     def options(self):
         """An decorated version of the `options` dict.
 
-        Keys who appear in :py:attr:`option_aliases` will be renamed.
+        Keys who appear in :py:attr:`option_aliases` will be renamed, and the
+        object type may be converted into a flag.
 
         We refer to `__options` with name mangling to allow for subclasses
         to do the same kind of magic without interfering with our “backup copy”.
@@ -482,9 +487,15 @@ class PyClassmember(PyObject):
             return None
 
         opts = self.__options.copy()
+
         for old, new in self.option_aliases.items():
             if old in self.__options:
                 opts[new] = opts.pop(old)
+
+        if self.objtype in self.objtype_flags:
+            opts[self.objtype_flags[self.objtype]] = None
+
+        self._validate_options(opts)
 
         return opts
 
@@ -492,6 +503,24 @@ class PyClassmember(PyObject):
     def options(self, value):
         # This is mainly going to be set to ``{}`` in an ``__init__`` method.
         self.__options = value
+
+    def _validate_options(self, options):
+        # type: (Dict[str, Any]) -> None
+        exclusive_options = set(options) & set(self.objtype_flags)
+        if len(exclusive_options) > 1:
+            raise ValueError(f"Incompatible options: {exclusive_options}")
+
+    def _is_method(self):
+        return self.objtype == 'method'
+
+    def _is_staticmethod(self):
+        return 'static' in self.options
+
+    def _is_classmethod(self):
+        return 'classmethod' in self.options
+
+    def _is_attribute(self):
+        return self.objtype == 'attribute'
 
     def needs_arglist(self):
         # type: () -> bool
@@ -503,9 +532,9 @@ class PyClassmember(PyObject):
         if 'abstract' in self.options:
             prefix += 'abstract '
 
-        if self.objtype == 'staticmethod':
+        if self._is_staticmethod():
             prefix += 'static '
-        elif self.objtype == 'classmethod':
+        elif self._is_classmethod():
             prefix += 'classmethod '
         return prefix
 
@@ -513,7 +542,7 @@ class PyClassmember(PyObject):
         # type: (str, str) -> str
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
-        if self.objtype == 'method':
+        if self._is_method():
             try:
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
@@ -525,7 +554,7 @@ class PyClassmember(PyObject):
                 return _('%s() (%s.%s method)') % (methname, modname, clsname)
             else:
                 return _('%s() (%s method)') % (methname, clsname)
-        elif self.objtype == 'staticmethod':
+        elif self._is_staticmethod():
             try:
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
@@ -538,7 +567,7 @@ class PyClassmember(PyObject):
                                                           clsname)
             else:
                 return _('%s() (%s static method)') % (methname, clsname)
-        elif self.objtype == 'classmethod':
+        elif self._is_classmethod():
             try:
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
@@ -551,7 +580,7 @@ class PyClassmember(PyObject):
                                                          clsname)
             else:
                 return _('%s() (%s class method)') % (methname, clsname)
-        elif self.objtype == 'attribute':
+        elif self._is_attribute():
             try:
                 clsname, attrname = name.rsplit('.', 1)
             except ValueError:
