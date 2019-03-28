@@ -335,3 +335,7 @@ def test_classmember_prefix(app, status, warning):
     assert get_method_prefix(sigs, 'module_c.A.value') == 'abstract '
     assert get_method_prefix(sigs, 'module_c.A.sfoo') == 'abstract static '
     assert get_method_prefix(sigs, 'module_c.A.cfoo') == 'abstract classmethod '
+    assert get_method_prefix(sigs, 'module_c.C.static_by_directive') == 'static '
+    assert get_method_prefix(sigs, 'module_c.C.static_by_option') == 'static '
+    assert get_method_prefix(sigs, 'module_c.C.cm_by_directive') == 'classmethod '
+    assert get_method_prefix(sigs, 'module_c.C.cm_by_option') == 'classmethod '
