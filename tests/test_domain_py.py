@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from docutils import nodes
@@ -21,6 +21,10 @@ from sphinx.addnodes import (
 from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist, PythonDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+
+
+if False:
+    from typing import List, Dict
 
 
 def parse(sig):
@@ -290,3 +294,44 @@ def test_pyobject_prefix(app):
                                                   desc)])]))
     assert doctree[1][1][1].astext().strip() == 'say'           # prefix is stripped
     assert doctree[1][1][3].astext().strip() == 'FooBar.say'    # not stripped
+
+
+@pytest.mark.sphinx('dummy', testroot='domain-py')
+def test_classmember_prefix(app, status, warning):
+    sigs = []  # type: List[desc_signature]
+
+    def my_write_doc(self, docname, doctree):
+        # to see how the doctree looks like, insert a
+        # breakpoint()
+        # ... and look at ``doctree.pformat()``.
+        nonlocal sigs
+        if docname == 'class_members':
+            sigs.extend(doctree.traverse(lambda x: isinstance(x, desc_signature)))
+
+    def get_method_prefix(sig_nodes, qualname):
+        # type: (List[desc_signature], str) -> str
+        sig_matches = [s for s in sig_nodes
+                       if qualname in s.attributes.get('names', '')]
+        assert len(sig_matches) == 1, f"No desc_signature found for '{qualname}'"
+        sig = sig_matches[0]
+
+        # type: List[desc_annotation]
+        ann_matches = list(sig.traverse(lambda x: isinstance(x, desc_annotation)))
+        if not ann_matches:
+            return ''
+
+        # our desc_annotation node looks like this in pseudo-xml:
+        # (Pdb) print(ann_matches[0].pformat())
+        # <desc_annotation xml:space="preserve">
+        #     abstract
+        # …so we need the first inner node to get the text.
+        return str(ann_matches[0].next_node())
+
+    with patch('sphinx.builders.dummy.DummyBuilder.write_doc', my_write_doc):
+        app.builder.build_all()
+
+    assert get_method_prefix(sigs, 'module_c.A.foo') == 'abstract '
+    assert get_method_prefix(sigs, 'module_c.A.bar') == 'abstract '
+    assert get_method_prefix(sigs, 'module_c.A.value') == 'abstract '
+    assert get_method_prefix(sigs, 'module_c.A.sfoo') == 'abstract static '
+    assert get_method_prefix(sigs, 'module_c.A.cfoo') == 'abstract classmethod '

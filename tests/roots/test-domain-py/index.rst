@@ -5,3 +5,4 @@ test-domain-py
 
     roles
     module
+    class_members
