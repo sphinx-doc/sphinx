@@ -319,23 +319,23 @@ class Glossary(SphinxDirective):
                 # first term of definition
                 if in_definition:
                     if not was_empty:
-                        messages.append(self.state.reporter.system_message(
-                            2, 'glossary term must be preceded by empty line',
+                        messages.append(self.state.reporter.warning(
+                            _('glossary term must be preceded by empty line'),
                             source=source, line=lineno))
                     entries.append(([(line, source, lineno)], StringList()))
                     in_definition = False
                 # second term and following
                 else:
                     if was_empty:
-                        messages.append(self.state.reporter.system_message(
-                            2, 'glossary terms must not be separated by empty '
-                            'lines', source=source, line=lineno))
+                        messages.append(self.state.reporter.warning(
+                            _('glossary terms must not be separated by empty lines'),
+                            source=source, line=lineno))
                     if entries:
                         entries[-1][0].append((line, source, lineno))
                     else:
-                        messages.append(self.state.reporter.system_message(
-                            2, 'glossary seems to be misformatted, check '
-                            'indentation', source=source, line=lineno))
+                        messages.append(self.state.reporter.warning(
+                            _('glossary seems to be misformatted, check indentation'),
+                            source=source, line=lineno))
             else:
                 if not in_definition:
                     # first line of definition, determines indentation
@@ -344,9 +344,9 @@ class Glossary(SphinxDirective):
                 if entries:
                     entries[-1][1].append(line[indent_len:], source, lineno)
                 else:
-                    messages.append(self.state.reporter.system_message(
-                        2, 'glossary seems to be misformatted, check '
-                        'indentation', source=source, line=lineno))
+                    messages.append(self.state.reporter.warning(
+                        _('glossary seems to be misformatted, check indentation'),
+                        source=source, line=lineno))
             was_empty = False
 
         # now, parse all the entries into a big definition list
