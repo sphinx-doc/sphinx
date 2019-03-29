@@ -16,10 +16,7 @@ from warnings import catch_warnings
 import pytest
 from docutils.statemachine import ViewList
 
-from sphinx.ext.autodoc import (
-    ModuleLevelDocumenter, cut_lines, between, ALL,
-    merge_autodoc_default_flags, Options
-)
+from sphinx.ext.autodoc import ModuleLevelDocumenter, cut_lines, between, ALL, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
@@ -1520,27 +1517,6 @@ def test_partialmethod(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
     assert list(actual) == expected
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-@pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
-def test_merge_autodoc_default_flags1(app):
-    app.config.autodoc_default_flags = ['members', 'undoc-members']
-    merge_autodoc_default_flags(app, app.config)
-    assert app.config.autodoc_default_options == {'members': None,
-                                                  'undoc-members': None}
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-@pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
-def test_merge_autodoc_default_flags2(app):
-    app.config.autodoc_default_flags = ['members', 'undoc-members']
-    app.config.autodoc_default_options = {'members': 'this,that,order',
-                                          'inherited-members': 'this'}
-    merge_autodoc_default_flags(app, app.config)
-    assert app.config.autodoc_default_options == {'members': None,
-                                                  'undoc-members': None,
-                                                  'inherited-members': 'this'}
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

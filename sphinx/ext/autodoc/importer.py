@@ -150,12 +150,11 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
 
 
 from sphinx.ext.autodoc.mock import (  # NOQA
-    _MockImporter, _MockModule, _MockObject, MockFinder, MockLoader, mock
+    _MockModule, _MockObject, MockFinder, MockLoader, mock
 )
 
 deprecated_alias('sphinx.ext.autodoc.importer',
                  {
-                     '_MockImporter': _MockImporter,
                      '_MockModule': _MockModule,
                      '_MockObject': _MockObject,
                      'MockFinder': MockFinder,

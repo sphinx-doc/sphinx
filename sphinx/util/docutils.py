@@ -10,8 +10,6 @@
 
 import os
 import re
-import types
-import warnings
 from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
@@ -21,13 +19,11 @@ from typing import IO, cast
 import docutils
 from docutils import nodes
 from docutils.io import FileOutput
-from docutils.parsers.rst import Directive, directives, roles, convert_directive_function
+from docutils.parsers.rst import Directive, directives, roles
 from docutils.statemachine import StateMachine
 from docutils.utils import Reporter, unescape
 
-from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.errors import ExtensionError, SphinxError
-from sphinx.locale import __
+from sphinx.errors import SphinxError
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
@@ -302,24 +298,6 @@ class NullReporter(Reporter):
 def is_html5_writer_available():
     # type: () -> bool
     return __version_info__ > (0, 13, 0)
-
-
-def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
-    # type: (Any, bool, Tuple[int, int, bool], Any) -> Any
-    warnings.warn('function based directive support is now deprecated. '
-                  'Use class based directive instead.',
-                  RemovedInSphinx30Warning)
-
-    if isinstance(obj, (types.FunctionType, types.MethodType)):
-        obj.content = has_content                       # type: ignore
-        obj.arguments = argument_spec or (0, 0, False)  # type: ignore
-        obj.options = option_spec                       # type: ignore
-        return convert_directive_function(obj)
-    else:
-        if has_content or argument_spec or option_spec:
-            raise ExtensionError(__('when adding directive classes, no '
-                                    'additional arguments may be given'))
-        return obj
 
 
 @contextmanager

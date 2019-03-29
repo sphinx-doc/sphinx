@@ -15,7 +15,6 @@ import pickle
 import sys
 import warnings
 from collections import deque
-from inspect import isclass
 from io import StringIO
 from os import path
 
@@ -25,9 +24,7 @@ import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
 from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
-from sphinx.deprecation import (
-    RemovedInSphinx30Warning, RemovedInSphinx40Warning
-)
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
@@ -35,11 +32,10 @@ from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils
-from sphinx.util import import_object, progress_message
 from sphinx.util import logging
+from sphinx.util import progress_message
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.docutils import directive_helper
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
 from sphinx.util.osutil import abspath, ensuredir, relpath
@@ -98,7 +94,6 @@ builtin_extensions = (
     'sphinx.transforms.post_transforms',
     'sphinx.transforms.post_transforms.code',
     'sphinx.transforms.post_transforms.images',
-    'sphinx.transforms.post_transforms.compat',
     'sphinx.util.compat',
     'sphinx.versioning',
     # collectors should be loaded by specific order
@@ -397,18 +392,6 @@ class Sphinx:
         if version > sphinx.__display_version__[:3]:
             raise VersionRequirementError(version)
 
-    def import_object(self, objname, source=None):
-        # type: (str, str) -> Any
-        """Import an object from a ``module.name`` string.
-
-        .. deprecated:: 1.8
-           Use ``sphinx.util.import_object()`` instead.
-        """
-        warnings.warn('app.import_object() is deprecated. '
-                      'Use sphinx.util.add_object_type() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return import_object(objname, source=None)
-
     # event interface
     def connect(self, event, callback):
         # type: (str, Callable) -> int
@@ -593,36 +576,14 @@ class Sphinx:
         self.registry.add_enumerable_node(node, figtype, title_getter, override=override)
         self.add_node(node, override=override, **kwds)
 
-    @property
-    def enumerable_nodes(self):
-        # type: () -> Dict[Type[nodes.Node], Tuple[str, TitleGetter]]
-        warnings.warn('app.enumerable_nodes() is deprecated. '
-                      'Use app.get_domain("std").enumerable_nodes instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.registry.enumerable_nodes
-
-    def add_directive(self, name, obj, content=None, arguments=None, override=False, **options):  # NOQA
-        # type: (str, Any, bool, Tuple[int, int, bool], bool, Any) -> None
+    def add_directive(self, name, cls, override=False):
+        # type: (str, Type[Directive], bool) -> None
         """Register a Docutils directive.
 
-        *name* must be the prospective directive name.  There are two possible
-        ways to write a directive:
-
-        - In the docutils 0.4 style, *obj* is the directive function.
-          *content*, *arguments* and *options* are set as attributes on the
-          function and determine whether the directive has content, arguments
-          and options, respectively.  **This style is deprecated.**
-
-        - In the docutils 0.5 style, *obj* is the directive class.
-          It must already have attributes named *has_content*,
-          *required_arguments*, *optional_arguments*,
-          *final_argument_whitespace* and *option_spec* that correspond to the
-          options for the function way.  See `the Docutils docs
-          <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_
-          for details.
-
-        The directive class must inherit from the class
-        ``docutils.parsers.rst.Directive``.
+        *name* must be the prospective directive name.  *cls* is a directive
+        class which inherits ``docutils.parsers.rst.Directive``.  For more
+        details, see `the Docutils docs
+        <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_ .
 
         For example, the (already existing) :rst:dir:`literalinclude` directive
         would be added like this:
@@ -653,17 +614,12 @@ class Sphinx:
         .. versionchanged:: 1.8
            Add *override* keyword.
         """
-        logger.debug('[app] adding directive: %r',
-                     (name, obj, content, arguments, options))
+        logger.debug('[app] adding directive: %r', (name, cls))
         if not override and docutils.is_directive_registered(name):
             logger.warning(__('directive %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_directive')
 
-        if not isclass(obj) or not issubclass(obj, Directive):
-            directive = directive_helper(obj, content, arguments, **options)
-            docutils.register_directive(name, directive)
-        else:
-            docutils.register_directive(name, obj)
+        docutils.register_directive(name, cls)
 
     def add_role(self, name, role, override=False):
         # type: (str, Any, bool) -> None
@@ -716,26 +672,8 @@ class Sphinx:
         """
         self.registry.add_domain(domain, override=override)
 
-    def override_domain(self, domain):
-        # type: (Type[Domain]) -> None
-        """Override a registered domain.
-
-        Make the given *domain* class known to Sphinx, assuming that there is
-        already a domain with its ``.name``.  The new domain must be a subclass
-        of the existing one.
-
-        .. versionadded:: 1.0
-        .. deprecated:: 1.8
-           Integrated to :meth:`add_domain`.
-        """
-        warnings.warn('app.override_domain() is deprecated. '
-                      'Use app.add_domain() with override option instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        self.registry.add_domain(domain, override=True)
-
-    def add_directive_to_domain(self, domain, name, obj, has_content=None, argument_spec=None,
-                                override=False, **option_spec):
-        # type: (str, str, Any, bool, Any, bool, Any) -> None
+    def add_directive_to_domain(self, domain, name, cls, override=False):
+        # type: (str, str, Type[Directive], bool) -> None
         """Register a Docutils directive in a domain.
 
         Like :meth:`add_directive`, but the directive is added to the domain
@@ -745,9 +683,7 @@ class Sphinx:
         .. versionchanged:: 1.8
            Add *override* keyword.
         """
-        self.registry.add_directive_to_domain(domain, name, obj,
-                                              has_content, argument_spec, override=override,
-                                              **option_spec)
+        self.registry.add_directive_to_domain(domain, name, cls, override=override)
 
     def add_role_to_domain(self, domain, name, role, override=False):
         # type: (str, str, Union[RoleFunction, XRefRole], bool) -> None
@@ -1204,13 +1140,6 @@ class Sphinx:
                 return False
 
         return True
-
-    @property
-    def _setting_up_extension(self):
-        # type: () -> List[str]
-        warnings.warn('app._setting_up_extension is deprecated.',
-                      RemovedInSphinx30Warning)
-        return ['?']
 
 
 class TemplateBridge:

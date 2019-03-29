@@ -13,13 +13,10 @@ import pickle
 import warnings
 from collections import defaultdict
 from copy import copy
-from io import BytesIO
 from os import path
 
 from sphinx import addnodes
-from sphinx.deprecation import (
-    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
-)
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
 from sphinx.locale import __
@@ -657,133 +654,3 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.check_consistency()
         self.app.emit('env-check-consistency', self)
-
-    # --------- METHODS FOR COMPATIBILITY --------------------------------------
-
-    def update(self, config, srcdir, doctreedir):
-        # type: (Config, str, str) -> List[str]
-        warnings.warn('env.update() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.app.builder.read()
-
-    def _read_serial(self, docnames, app):
-        # type: (List[str], Sphinx) -> None
-        warnings.warn('env._read_serial() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.app.builder._read_serial(docnames)
-
-    def _read_parallel(self, docnames, app, nproc):
-        # type: (List[str], Sphinx, int) -> None
-        warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.app.builder._read_parallel(docnames, nproc)
-
-    def read_doc(self, docname, app=None):
-        # type: (str, Sphinx) -> None
-        warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        self.app.builder.read_doc(docname)
-
-    def write_doctree(self, docname, doctree):
-        # type: (str, nodes.document) -> None
-        warnings.warn('env.write_doctree() is deprecated. '
-                      'Please use builder.write_doctree() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        self.app.builder.write_doctree(docname, doctree)
-
-    @property
-    def _nitpick_ignore(self):
-        # type: () -> List[str]
-        warnings.warn('env._nitpick_ignore is deprecated. '
-                      'Please use config.nitpick_ignore instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.config.nitpick_ignore
-
-    @staticmethod
-    def load(f, app=None):
-        # type: (IO, Sphinx) -> BuildEnvironment
-        warnings.warn('BuildEnvironment.load() is deprecated. '
-                      'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        try:
-            env = pickle.load(f)
-        except Exception as exc:
-            # This can happen for example when the pickle is from a
-            # different version of Sphinx.
-            raise OSError(exc)
-        if app:
-            env.app = app
-            env.config.values = app.config.values
-        return env
-
-    @classmethod
-    def loads(cls, string, app=None):
-        # type: (bytes, Sphinx) -> BuildEnvironment
-        warnings.warn('BuildEnvironment.loads() is deprecated. '
-                      'Please use pickle.loads() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        io = BytesIO(string)
-        return cls.load(io, app)
-
-    @classmethod
-    def frompickle(cls, filename, app):
-        # type: (str, Sphinx) -> BuildEnvironment
-        warnings.warn('BuildEnvironment.frompickle() is deprecated. '
-                      'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        with open(filename, 'rb') as f:
-            return cls.load(f, app)
-
-    @staticmethod
-    def dump(env, f):
-        # type: (BuildEnvironment, IO) -> None
-        warnings.warn('BuildEnvironment.dump() is deprecated. '
-                      'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
-
-    @classmethod
-    def dumps(cls, env):
-        # type: (BuildEnvironment) -> bytes
-        warnings.warn('BuildEnvironment.dumps() is deprecated. '
-                      'Please use pickle.dumps() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        io = BytesIO()
-        cls.dump(env, io)
-        return io.getvalue()
-
-    def topickle(self, filename):
-        # type: (str) -> None
-        warnings.warn('env.topickle() is deprecated. '
-                      'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        with open(filename, 'wb') as f:
-            self.dump(self, f)
-
-    @property
-    def versionchanges(self):
-        # type: () -> Dict[str, List[Tuple[str, str, int, str, str, str]]]
-        warnings.warn('env.versionchanges() is deprecated. '
-                      'Please use ChangeSetDomain instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.domaindata['changeset']['changes']
-
-    def note_versionchange(self, type, version, node, lineno):
-        # type: (str, str, addnodes.versionmodified, int) -> None
-        warnings.warn('env.note_versionchange() is deprecated. '
-                      'Please use ChangeSetDomain.note_changeset() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        node['type'] = type
-        node['version'] = version
-        node.line = lineno
-        self.get_domain('changeset').note_changeset(node)  # type: ignore
-
-
-from sphinx.errors import NoUri  # NOQA
-
-
-deprecated_alias('sphinx.environment',
-                 {
-                     'NoUri': NoUri,
-                 },
-                 RemovedInSphinx30Warning)

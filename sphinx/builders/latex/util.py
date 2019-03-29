@@ -8,11 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
-
 from docutils.writers.latex2e import Babel
-
-from sphinx.deprecation import RemovedInSphinx30Warning
 
 
 class ExtBabel(Babel):
@@ -24,13 +20,6 @@ class ExtBabel(Babel):
         self.use_polyglossia = use_polyglossia
         self.supported = True
         super().__init__(language_code or '')
-
-    def get_shorthandoff(self):
-        # type: () -> str
-        warnings.warn('ExtBabel.get_shorthandoff() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        from sphinx.writers.latex import SHORTHANDOFF
-        return SHORTHANDOFF
 
     def uses_cyrillic(self):
         # type: () -> bool

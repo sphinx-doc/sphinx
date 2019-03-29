@@ -8,9 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import html
-import warnings
-
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
@@ -21,8 +18,6 @@ from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 
-from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.ext import doctest
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging
@@ -66,8 +61,8 @@ class PygmentsBridge:
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
-        # type: (str, str, bool) -> None
+    def __init__(self, dest='html', stylename='sphinx'):
+        # type: (str, str) -> None
         self.dest = dest
         if stylename is None or stylename == 'sphinx':
             style = SphinxStyle
@@ -86,29 +81,10 @@ class PygmentsBridge:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
 
-        self.trim_doctest_flags = trim_doctest_flags
-        if trim_doctest_flags is not None:
-            warnings.warn('trim_doctest_flags option for PygmentsBridge is now deprecated.',
-                          RemovedInSphinx30Warning, stacklevel=2)
-
     def get_formatter(self, **kwargs):
         # type: (Any) -> Formatter
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
-
-    def unhighlighted(self, source):
-        # type: (str) -> str
-        warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        if self.dest == 'html':
-            return '<pre>' + html.escape(source) + '</pre>\n'
-        else:
-            # first, escape highlighting characters like Pygments does
-            source = source.translate(escape_hl_chars)
-            # then, escape all characters nonrepresentable in LaTeX
-            source = source.translate(tex_hl_escape_map_new)
-            return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
-                   source + '\\end{Verbatim}\n'
 
     def highlight_block(self, source, lang, opts=None, location=None, force=False, **kwargs):
         # type: (str, str, Any, Any, bool, Any) -> str
@@ -144,11 +120,6 @@ class PygmentsBridge:
                     lexer = lexers['none']
                 else:
                     lexer.add_filter('raiseonerror')
-
-        # trim doctest options if wanted
-        if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:
-            source = doctest.blankline_re.sub('', source)
-            source = doctest.doctestopt_re.sub('', source)
 
         # highlight via Pygments
         formatter = self.get_formatter(**kwargs)

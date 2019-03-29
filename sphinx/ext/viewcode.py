@@ -9,13 +9,11 @@
 """
 
 import traceback
-import warnings
 
 from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname, logging, status_iterator
@@ -236,14 +234,6 @@ def collect_pages(app):
     }
 
     yield ('_modules/index', context, 'page.html')
-
-
-def migrate_viewcode_import(app, config):
-    # type: (Sphinx, Config) -> None
-    if config.viewcode_import is not None:
-        warnings.warn('viewcode_import was renamed to viewcode_follow_imported_members. '
-                      'Please update your configuration.',
-                      RemovedInSphinx30Warning, stacklevel=2)
 
 
 def setup(app):

@@ -12,7 +12,6 @@
 """
 
 import re
-import sys
 import warnings
 from collections import defaultdict
 from os import path
@@ -22,9 +21,7 @@ from docutils import nodes, writers
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.deprecation import (
-    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
-)
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
@@ -283,20 +280,6 @@ class Table:
                                                 # it maps table location to cell_id
                                                 # (cell = rectangular area)
         self.cell_id = 0                        # last assigned cell_id
-
-    @property
-    def caption_footnotetexts(self):
-        # type: () -> List[str]
-        warnings.warn('table.caption_footnotetexts is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
-
-    @property
-    def header_footnotetexts(self):
-        # type: () -> List[str]
-        warnings.warn('table.header_footnotetexts is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
 
     def is_longtable(self):
         # type: () -> bool
@@ -652,27 +635,6 @@ class LaTeXTranslator(SphinxTranslator):
         body = self.body
         self.body = self.bodystack.pop()
         return body
-
-    def restrict_footnote(self, node):
-        # type: (nodes.Element) -> None
-        warnings.warn('LaTeXWriter.restrict_footnote() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        if self.footnote_restricted is None:
-            self.footnote_restricted = node
-            self.pending_footnotes = []
-
-    def unrestrict_footnote(self, node):
-        # type: (nodes.Element) -> None
-        warnings.warn('LaTeXWriter.unrestrict_footnote() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        if self.footnote_restricted == node:
-            self.footnote_restricted = None
-            for footnode in self.pending_footnotes:
-                footnode['footnotetext'] = True
-                footnode.walkabout(self)
-            self.pending_footnotes = []
 
     def format_docclass(self, docclass):
         # type: (str) -> str
@@ -1781,8 +1743,8 @@ class LaTeXTranslator(SphinxTranslator):
         # type: (nodes.Element) -> None
         self.body.append('\n\\end{flushright}\n')
 
-    def visit_index(self, node, scre = None):
-        # type: (nodes.Element, Pattern) -> None
+    def visit_index(self, node):
+        # type: (nodes.Element) -> None
         def escape(value):
             value = self.encode(value)
             value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
@@ -1799,10 +1761,6 @@ class LaTeXTranslator(SphinxTranslator):
             else:
                 return '\\spxentry{%s}' % string
 
-        if scre:
-            warnings.warn(('LaTeXTranslator.visit_index() optional argument '
-                           '"scre" is deprecated. It is ignored.'),
-                          RemovedInSphinx30Warning, stacklevel=2)
         if not node.get('inline', True):
             self.body.append('\n')
         entries = node['entries']
@@ -2496,70 +2454,6 @@ class LaTeXTranslator(SphinxTranslator):
             fnotes[num] = [newnode, False]
         return fnotes
 
-    @property
-    def footnotestack(self):
-        # type: () -> List[Dict[str, List[Union[collected_footnote, bool]]]]
-        warnings.warn('LaTeXWriter.footnotestack is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
-
-    @property
-    def bibitems(self):
-        # type: () -> List[List[str]]
-        warnings.warn('LaTeXTranslator.bibitems() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
-
-    @property
-    def in_container_literal_block(self):
-        # type: () -> int
-        warnings.warn('LaTeXTranslator.in_container_literal_block is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return 0
-
-    @property
-    def next_section_ids(self):
-        # type: () -> Set[str]
-        warnings.warn('LaTeXTranslator.next_section_ids is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return set()
-
-    @property
-    def next_hyperlink_ids(self):
-        # type: () -> Dict
-        warnings.warn('LaTeXTranslator.next_hyperlink_ids is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return {}
-
-    def push_hyperlink_ids(self, figtype, ids):
-        # type: (str, Set[str]) -> None
-        warnings.warn('LaTeXTranslator.push_hyperlink_ids() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        pass
-
-    def pop_hyperlink_ids(self, figtype):
-        # type: (str) -> Set[str]
-        warnings.warn('LaTeXTranslator.pop_hyperlink_ids() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return set()
-
-    @property
-    def hlsettingstack(self):
-        # type: () -> List[List[Union[str, int]]]
-        warnings.warn('LaTeXTranslator.hlsettingstack is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return [[self.builder.config.highlight_language, sys.maxsize]]
-
-    def check_latex_elements(self):
-        # type: () -> None
-        warnings.warn('check_latex_elements() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        for key in self.builder.config.latex_elements:
-            if key not in self.elements:
-                msg = __("Unknown configure key: latex_elements[%r] is ignored.")
-                logger.warning(msg % key)
-
     def babel_defmacro(self, name, definition):
         # type: (str, str) -> str
         warnings.warn('babel_defmacro() is deprecated.',
@@ -2573,17 +2467,6 @@ class LaTeXTranslator(SphinxTranslator):
             suffix = ''
 
         return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
-
-    def _make_visit_admonition(name):  # type: ignore
-        # type: (str) -> Callable[[LaTeXTranslator, nodes.Element], None]
-        warnings.warn('LaTeXTranslator._make_visit_admonition() is deprecated.',
-                      RemovedInSphinx30Warning)
-
-        def visit_admonition(self, node):
-            # type: (nodes.Element) -> None
-            self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
-                             (name, admonitionlabels[name]))
-        return visit_admonition
 
     def generate_numfig_format(self, builder):
         # type: (LaTeXBuilder) -> str
@@ -2627,16 +2510,9 @@ class LaTeXTranslator(SphinxTranslator):
 
 
 # Import old modules here for compatibility
-from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA
 from sphinx.builders.latex.util import ExtBabel  # NOQA
 
 
-deprecated_alias('sphinx.writers.latex',
-                 {
-                     'ShowUrlsTransform': ShowUrlsTransform,
-                     'URI_SCHEMES': URI_SCHEMES,
-                 },
-                 RemovedInSphinx30Warning)
 deprecated_alias('sphinx.writers.latex',
                  {
                      'ExtBabel': ExtBabel,

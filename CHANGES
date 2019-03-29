@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* Drop features and APIs deprecated in 1.8.x
+
 Deprecated
 ----------
 

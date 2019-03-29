@@ -14,11 +14,9 @@ import inspect
 import re
 import sys
 import typing
-import warnings
 from functools import partial
 from io import StringIO
 
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.util import logging
 from sphinx.util.typing import NoneType
 
@@ -262,26 +260,6 @@ def is_builtin_class_method(obj, attr_name):
     if not hasattr(builtins, safe_getattr(cls, '__name__', '')):  # type: ignore
         return False
     return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls  # type: ignore
-
-
-class Parameter:
-    """Fake parameter class for python2."""
-    POSITIONAL_ONLY = 0
-    POSITIONAL_OR_KEYWORD = 1
-    VAR_POSITIONAL = 2
-    KEYWORD_ONLY = 3
-    VAR_KEYWORD = 4
-    empty = object()
-
-    def __init__(self, name, kind=POSITIONAL_OR_KEYWORD, default=empty):
-        # type: (str, int, Any) -> None
-        self.name = name
-        self.kind = kind
-        self.default = default
-        self.annotation = self.empty
-
-        warnings.warn('sphinx.util.inspect.Parameter is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
 
 
 class Signature:
