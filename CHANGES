@@ -20,6 +20,7 @@ Bugs fixed
 * deprecation warnings are not emitted
 
   - sphinx.application.CONFIG_FILENAME
+  - :confval:`viewcode_import`
 
 Testing
 --------
