@@ -54,8 +54,6 @@ package.
 
 .. automethod:: Sphinx.add_domain(domain)
 
-.. automethod:: Sphinx.override_domain(domain)
-
 .. method:: Sphinx.add_directive_to_domain(domain, name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive_to_domain(domain, name, directiveclass)
 
