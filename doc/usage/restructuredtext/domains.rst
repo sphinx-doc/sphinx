@@ -1225,6 +1225,8 @@ There is a set of directives allowing documenting command-line programs:
    The directive will create cross-reference targets for the given options,
    referenceable by :rst:role:`option` (in the example case, you'd use something
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
+   When used within the :rst:dir:`program` directive, however, it is mandatory
+   to also specify the program *name* (e.g. ``:option:`python -m```).
 
    ``cmdoption`` directive is a deprecated alias for the ``option`` directive.
 
