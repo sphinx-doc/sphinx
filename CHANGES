@@ -22,6 +22,8 @@ Bugs fixed
   - sphinx.application.CONFIG_FILENAME
   - :confval:`viewcode_import`
 
+* #6208: C++, properly parse full xrefs that happen to have a short xref as prefix.
+
 Testing
 --------
 
