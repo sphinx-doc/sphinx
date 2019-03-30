@@ -24,9 +24,8 @@ from docutils.parsers.rst import Directive, roles
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.deprecation import (
-    RemovedInSphinx30Warning, RemovedInSphinx40Warning
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
 )
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
@@ -1247,3 +1246,12 @@ class TemplateBridge:
         specified context (a Python dictionary).
         """
         raise NotImplementedError('must be implemented in subclasses')
+
+
+from sphinx.config import CONFIG_FILENAME  # NOQA
+
+deprecated_alias('sphinx.application',
+                 {
+                     'CONFIG_FILENAME': CONFIG_FILENAME,
+                 },
+                 RemovedInSphinx30Warning)
