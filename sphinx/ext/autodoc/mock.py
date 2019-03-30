@@ -11,12 +11,10 @@
 import contextlib
 import os
 import sys
-import warnings
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import FunctionType, MethodType, ModuleType
 
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.util import logging
 
 if False:
@@ -94,15 +92,11 @@ class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
     __file__ = os.devnull
 
-    def __init__(self, name, loader=None):
-        # type: (str, _MockImporter) -> None
+    def __init__(self, name):
+        # type: (str) -> None
         super().__init__(name)
         self.__all__ = []  # type: List[str]
         self.__path__ = []  # type: List[str]
-
-        if loader is not None:
-            warnings.warn('The loader argument for _MockModule is deprecated.',
-                          RemovedInSphinx30Warning)
 
     def __getattr__(self, name):
         # type: (str) -> _MockObject
@@ -111,48 +105,6 @@ class _MockModule(ModuleType):
     def __repr__(self):
         # type: () -> str
         return self.__name__
-
-
-class _MockImporter(MetaPathFinder):
-    def __init__(self, names):
-        # type: (List[str]) -> None
-        self.names = names
-        self.mocked_modules = []  # type: List[str]
-        # enable hook by adding itself to meta_path
-        sys.meta_path.insert(0, self)
-
-        warnings.warn('_MockImporter is now deprecated.',
-                      RemovedInSphinx30Warning)
-
-    def disable(self):
-        # type: () -> None
-        # remove `self` from `sys.meta_path` to disable import hook
-        sys.meta_path = [i for i in sys.meta_path if i is not self]
-        # remove mocked modules from sys.modules to avoid side effects after
-        # running auto-documenter
-        for m in self.mocked_modules:
-            if m in sys.modules:
-                del sys.modules[m]
-
-    def find_module(self, name, path=None):
-        # type: (str, Sequence[Union[bytes, str]]) -> Any
-        # check if name is (or is a descendant of) one of our base_packages
-        for n in self.names:
-            if n == name or name.startswith(n + '.'):
-                return self
-        return None
-
-    def load_module(self, name):
-        # type: (str) -> ModuleType
-        if name in sys.modules:
-            # module has already been imported, return it
-            return sys.modules[name]
-        else:
-            logger.debug('[autodoc] adding a mock module %s!', name)
-            module = _MockModule(name, self)
-            sys.modules[name] = module
-            self.mocked_modules.append(name)
-            return module
 
 
 class MockLoader(Loader):

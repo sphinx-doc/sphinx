@@ -18,9 +18,7 @@ from typing import Any
 from docutils.statemachine import StringList
 
 import sphinx
-from sphinx.deprecation import (
-    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
-)
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.ext.autodoc.importer import import_object, get_object_members
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import _, __
@@ -1448,39 +1446,6 @@ def autodoc_attrgetter(app, obj, name, *defargs):
     return safe_getattr(obj, name, *defargs)
 
 
-def merge_autodoc_default_flags(app, config):
-    # type: (Sphinx, Config) -> None
-    """This merges the autodoc_default_flags to autodoc_default_options."""
-    if not config.autodoc_default_flags:
-        return
-
-    # Note: this option will be removed in Sphinx-4.0.  But I marked this as
-    # RemovedInSphinx *30* Warning because we have to emit warnings for users
-    # who will be still in use with Sphinx-3.x.  So we should replace this by
-    # logger.warning() on 3.0.0 release.
-    warnings.warn('autodoc_default_flags is now deprecated. '
-                  'Please use autodoc_default_options instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-
-    for option in config.autodoc_default_flags:
-        if isinstance(option, str):
-            config.autodoc_default_options[option] = None
-        else:
-            logger.warning(
-                __("Ignoring invalid option in autodoc_default_flags: %r"),
-                option, type='autodoc'
-            )
-
-
-from sphinx.ext.autodoc.mock import _MockImporter  # NOQA
-
-deprecated_alias('sphinx.ext.autodoc',
-                 {
-                     '_MockImporter': _MockImporter,
-                 },
-                 RemovedInSphinx40Warning)
-
-
 def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
     app.add_autodocumenter(ModuleDocumenter)
@@ -1504,7 +1469,5 @@ def setup(app):
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
-
-    app.connect('config-inited', merge_autodoc_default_flags)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

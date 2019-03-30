@@ -17,7 +17,7 @@ from sphinx.ext.autodoc.mock import _MockModule, _MockObject, mock
 
 
 def test_MockModule():
-    mock = _MockModule('mocked_module', None)
+    mock = _MockModule('mocked_module')
     assert isinstance(mock.some_attr, _MockObject)
     assert isinstance(mock.some_method, _MockObject)
     assert isinstance(mock.attr1.attr2, _MockObject)

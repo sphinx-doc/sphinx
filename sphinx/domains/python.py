@@ -13,8 +13,7 @@ import re
 from docutils import nodes
 from docutils.parsers.rst import directives
 
-from sphinx import addnodes, locale
-from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
+from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.locale import _, __
@@ -54,13 +53,6 @@ pairindextypes = {
     'statement': _('statement'),
     'builtin':   _('built-in function'),
 }
-
-locale.pairindextypes = DeprecatedDict(
-    pairindextypes,
-    'sphinx.locale.pairindextypes is deprecated. '
-    'Please use sphinx.domains.python.pairindextypes instead.',
-    RemovedInSphinx30Warning
-)
 
 
 def _pseudo_parse_arglist(signode, arglist):

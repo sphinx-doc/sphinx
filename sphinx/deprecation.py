@@ -17,15 +17,11 @@ if False:
     from typing import Any, Dict, Type  # NOQA
 
 
-class RemovedInSphinx30Warning(PendingDeprecationWarning):
-    pass
-
-
 class RemovedInSphinx40Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx30Warning
+RemovedInNextVersionWarning = RemovedInSphinx40Warning
 
 
 def deprecated_alias(modname, objects, warning):

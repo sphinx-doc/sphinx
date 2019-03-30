@@ -11,7 +11,6 @@ import math
 import os
 import re
 import textwrap
-import warnings
 from itertools import groupby, chain
 from typing import Iterable, cast
 
@@ -19,7 +18,6 @@ from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.docutils import SphinxTranslator
 
@@ -1368,13 +1366,3 @@ class TextTranslator(SphinxTranslator):
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
-    def _make_depart_admonition(name):  # type: ignore
-        # type: (str) -> Callable[[TextTranslator, nodes.Element], None]
-        warnings.warn('TextTranslator._make_depart_admonition() is deprecated.',
-                      RemovedInSphinx30Warning)
-
-        def depart_admonition(self, node):
-            # type: (nodes.Element) -> None
-            self.end_state(first=admonitionlabels[name] + ': ')
-        return depart_admonition
