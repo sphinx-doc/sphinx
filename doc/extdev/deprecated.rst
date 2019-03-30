@@ -141,6 +141,16 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.ext.autosummary.AutoLink``
 
+   * - ``sphinx.transforms.CitationReferences``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationReferenceTransform``
+
+   * - ``sphinx.transforms.SmartQuotesSkipper``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDefinitionTransform``
+
    * - ``sphinx.util.docfields.DocFieldTransformer.preprocess_fieldtypes()``
      - 2.1
      - 4.0
