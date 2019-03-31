@@ -52,6 +52,7 @@ Features added
 * #6180: Support ``--keep-going`` with BuildDoc setup command
 * ``math`` directive now supports ``:class:`` option
 * todo: ``todo`` directive now supports ``:name:`` option
+* #6232: Enable CLI override of Makefile variables
 
 Bugs fixed
 ----------
