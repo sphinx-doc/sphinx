@@ -546,8 +546,14 @@ class StandardDomain(Domain):
         # type: () -> Dict[Tuple[str, str], Tuple[str, str]]
         return self.data.setdefault('progoptions', {})  # (program, name) -> docname, labelid
 
+    @property
+    def labels(self):
+        # type: () -> Dict[str, Tuple[str, str, str]]
+        return self.data.setdefault('labels', {})  # labelname -> docname, labelid, sectionname
+
     def clear_doc(self, docname):
         # type: (str) -> None
+        key = None  # type: Any
         for key, (fn, _l) in list(self.progoptions.items()):
             if fn == docname:
                 del self.progoptions[key]
@@ -562,9 +568,9 @@ class StandardDomain(Domain):
                 del self.data['citation_refs'][key]
             elif docname in docnames:
                 docnames.remove(docname)
-        for key, (fn, _l, _l) in list(self.data['labels'].items()):
+        for key, (fn, _l, _l) in list(self.labels.items()):
             if fn == docname:
-                del self.data['labels'][key]
+                del self.labels[key]
         for key, (fn, _l) in list(self.data['anonlabels'].items()):
             if fn == docname:
                 del self.data['anonlabels'][key]
@@ -588,7 +594,7 @@ class StandardDomain(Domain):
                     citation_refs.append(docname)
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
-                self.data['labels'][key] = data
+                self.labels[key] = data
         for key, data in otherdata['anonlabels'].items():
             if data[0] in docnames:
                 self.data['anonlabels'][key] = data
@@ -620,7 +626,7 @@ class StandardDomain(Domain):
 
     def note_labels(self, env, docname, document):
         # type: (BuildEnvironment, str, nodes.document) -> None
-        labels, anonlabels = self.data['labels'], self.data['anonlabels']
+        anonlabels = self.data['anonlabels']
         for name, explicit in document.nametypes.items():
             if not explicit:
                 continue
@@ -638,9 +644,9 @@ class StandardDomain(Domain):
                 # ignore footnote labels, labels automatically generated from a
                 # link and object descriptions
                 continue
-            if name in labels:
+            if name in self.labels:
                 logger.warning(__('duplicate label %s, other instance in %s'),
-                               name, env.doc2path(labels[name][0]),
+                               name, env.doc2path(self.labels[name][0]),
                                location=node)
             anonlabels[name] = docname, labelid
             if node.tagname in ('section', 'rubric'):
@@ -659,7 +665,7 @@ class StandardDomain(Domain):
             else:
                 # anonymous-only labels
                 continue
-            labels[name] = docname, labelid, sectname
+            self.labels[name] = docname, labelid, sectname
 
     def add_object(self, objtype, name, docname, labelid):
         # type: (str, str, str, str) -> None
@@ -731,8 +737,7 @@ class StandardDomain(Domain):
         else:
             # reference to named label; the final node will
             # contain the section name after the label
-            docname, labelid, sectname = self.data['labels'].get(target,
-                                                                 ('', '', ''))
+            docname, labelid, sectname = self.labels.get(target, ('', '', ''))
         if not docname:
             return None
 
@@ -741,8 +746,8 @@ class StandardDomain(Domain):
 
     def _resolve_numref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
-        if target in self.data['labels']:
-            docname, labelid, figname = self.data['labels'].get(target, ('', '', ''))
+        if target in self.labels:
+            docname, labelid, figname = self.labels.get(target, ('', '', ''))
         else:
             docname, labelid = self.data['anonlabels'].get(target, ('', ''))
             figname = None
@@ -803,7 +808,7 @@ class StandardDomain(Domain):
     def _resolve_keyword_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         # keywords are oddballs: they are referenced by named labels
-        docname, labelid, _ = self.data['labels'].get(target, ('', '', ''))
+        docname, labelid, _ = self.labels.get(target, ('', '', ''))
         if not docname:
             return None
         return make_refnode(builder, fromdocname, docname,
@@ -917,10 +922,10 @@ class StandardDomain(Domain):
         for (type, name), info in self.objects.items():
             yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
-        for name, info in self.data['labels'].items():
-            yield (name, info[2], 'label', info[0], info[1], -1)
+        for name, (docname, labelid, sectionname) in self.labels.items():
+            yield (name, sectionname, 'label', docname, labelid, -1)
         # add anonymous-only labels as well
-        non_anon_labels = set(self.data['labels'])
+        non_anon_labels = set(self.labels)
         for name, info in self.data['anonlabels'].items():
             if name not in non_anon_labels:
                 yield (name, name, 'label', info[0], info[1], -1)
