@@ -257,6 +257,9 @@ def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
     termtext = term.astext()
     if new_id is None:
         new_id = nodes.make_id('term-' + termtext)
+        if new_id == 'term':
+            # the term is not good for node_id.  Generate it by sequence number instead.
+            new_id = 'term-' + str(len(gloss_entries))
     if new_id in gloss_entries:
         new_id = 'term-' + str(len(gloss_entries))
     gloss_entries.add(new_id)
