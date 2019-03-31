@@ -24,7 +24,7 @@ from sphinx.testing.util import assert_node
 
 
 if False:
-    from typing import List, Dict
+    from typing import List, Dict, Optional
 
 
 def parse(sig):
@@ -296,62 +296,147 @@ def test_pyobject_prefix(app):
     assert doctree[1][1][3].astext().strip() == 'FooBar.say'    # not stripped
 
 
-class WriteDocMock:
-    def __init__(self):
-        self.sigs = []  # type: List[desc_signature]
+def assert_classmember_list(node, num_methods):
+    # type: (desc_content, int) -> None
+    assert isinstance(node, desc_content)
+    num_nodes = len(node)
+    assert num_nodes == num_methods * 2, \
+        f"Expected two nodes for %d methods each, got %d total" % (num_methods, num_nodes)
 
-    def __call__(self, docname, doctree):
-        # to see how the doctree looks like, insert a
-        # breakpoint()
-        # ... and look at ``doctree.pformat()``.
-        if docname == 'class_members':
-            self.sigs.extend(doctree.traverse(lambda x: isinstance(x, desc_signature)))
+    def iter_a_b(a, b, length):
+        """Iterate over (a, b, a, b, …) to yield 2*length items."""
+        for i in range(length):
+            yield a
+            yield b
 
-
-def get_method_prefix(sig_nodes, qualname):
-    # type: (List[desc_signature], str) -> str
-    sig_matches = [s for s in sig_nodes
-                   if qualname in s.attributes.get('names', '')]
-    assert len(sig_matches) == 1, f"No desc_signature found for '{qualname}'"
-    sig = sig_matches[0]
-
-    # type: List[desc_annotation]
-    ann_matches = list(sig.traverse(lambda x: isinstance(x, desc_annotation)))
-    if not ann_matches:
-        return ''
-
-    # our desc_annotation node looks like this in pseudo-xml:
-    # (Pdb) print(ann_matches[0].pformat())
-    # <desc_annotation xml:space="preserve">
-    #     abstract
-    # …so we need the first inner node to get the text.
-    return str(ann_matches[0].next_node())
+    inner_node_spec = tuple(iter_a_b(a=addnodes.index,
+                                     b=[desc, (desc_signature, desc_content)],
+                                     length=num_methods))
+    assert_node(node, inner_node_spec)
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-py')
-def test_classmember_prefix(app, status, warning):
-    mock = WriteDocMock()
-    with patch('sphinx.builders.dummy.DummyBuilder.write_doc', mock):
-        app.builder.build_all()
+def assert_classmember_sig(node, name, prefix=None, has_params=True):
+    # type: (desc_signature, Optional[str], Optional[str], bool) -> None
+    """Assert that the structure of a `desc_signature` node of a classmember is sound.
 
-    sigs = mock.sigs
+    The pseudo-xml representation of a fully-fleshed node looks something like this:
 
-    assert get_method_prefix(sigs, 'module_c.A.foo') == 'abstract '
-    assert get_method_prefix(sigs, 'module_c.A.bar') == 'abstract '
-    assert get_method_prefix(sigs, 'module_c.A.value') == 'abstract '
-    assert get_method_prefix(sigs, 'module_c.A.sfoo') == 'abstract static '
-    assert get_method_prefix(sigs, 'module_c.A.cfoo') == 'abstract classmethod '
+        <desc_signature class="Foo" […]>
+            <desc_annotation xml:space="preserve">
+                abstract static
+            <desc_name xml:space="preserve">
+                baz
+            <desc_parameterlist xml:space="preserve">
+
+    The `annotation` part only appears when there is a prefix (like ``static ``),
+    the `parameterlist` only appears for methods.
+    """
+    assert isinstance(node, desc_signature)
+    inner_node_spec = []
+    if prefix is not None:
+        inner_node_spec.append([desc_annotation, prefix])
+
+    inner_node_spec.append([desc_name, name])
+
+    if has_params:
+        inner_node_spec.append(desc_parameterlist)
+
+    assert_node(node, [desc_signature, tuple(inner_node_spec)])
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-py')
-def test_classmember_flag_aliases(app, status, warning):
-    mock = WriteDocMock()
-    with patch('sphinx.builders.dummy.DummyBuilder.write_doc', mock):
-        app.builder.build_all()
+def assert_index(node, text, target):
+    # type: (addnodes.index, str, str) -> None
+    assert isinstance(node, addnodes.index)
+    assert len(node.get('entries', [])) == 1
+    entrytype, entryname, entrytarget, ignored, key = node['entries'][0]
+    assert entrytype == 'single', "Unexpected entrytype %s" % entrytype
+    assert entryname == text
+    assert entrytarget == target
 
-    sigs = mock.sigs
 
-    assert get_method_prefix(sigs, 'module_c.C.static_by_directive') == 'static '
-    assert get_method_prefix(sigs, 'module_c.C.static_by_option') == 'static '
-    assert get_method_prefix(sigs, 'module_c.C.cm_by_directive') == 'classmethod '
-    assert get_method_prefix(sigs, 'module_c.C.cm_by_option') == 'classmethod '
+def test_method_prefix_included(app):
+    text = (".. py:class:: Foo\n"
+            "\n"
+            "   .. py:method:: Foo.say\n"
+            "      :classmethod:\n"
+            "\n"
+            "   .. py:method:: Foo.listen")
+    doctree = restructuredtext.parse(app, text)
+
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Foo"])],
+                                  desc_content)]))
+
+    foo_content = doctree[1][1]  # type: desc_content
+    assert_classmember_list(foo_content, 2)
+    assert_classmember_sig(foo_content[1][0], name="say", prefix="classmethod ")
+    assert_classmember_sig(foo_content[3][0], name="listen", prefix=None)
+
+
+def test_method_objtype_aliases(app):
+    text = (".. py:class:: Foo\n"
+            "\n"
+            "   .. py:classmethod:: Foo.cm_by_objtype\n"
+            "\n"
+            "   .. py:method:: Foo.cm_by_option\n"
+            "      :classmethod:\n"
+            "\n"
+            "   .. py:staticmethod:: Foo.sm_by_objtype\n"
+            "\n"
+            "   .. py:method:: Foo.sm_by_option\n"
+            "      :static:\n"
+            "\n"
+            "   .. py:method:: Foo.ordinary_method\n"
+            "\n")
+    doctree = restructuredtext.parse(app, text)
+
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Foo"])],
+                                  desc_content)]))
+
+    foo_content = doctree[1][1]  # type: desc_content
+    assert_classmember_list(foo_content, 5)
+    assert_classmember_sig(foo_content[1][0], name="cm_by_objtype", prefix="classmethod ")
+    assert_classmember_sig(foo_content[3][0], name="cm_by_option", prefix="classmethod ")
+    assert_classmember_sig(foo_content[5][0], name="sm_by_objtype", prefix="static ")
+    assert_classmember_sig(foo_content[7][0], name="sm_by_option", prefix="static ")
+    assert_classmember_sig(foo_content[9][0], name="ordinary_method", prefix=None)
+
+
+def test_classmember_abstract_prefixes(app):
+    text = (".. py:class:: Foo\n"
+            "\n"
+            "   .. py:method:: Foo.foo\n"
+            "      :abstract:"
+            "\n"
+            "   .. py:method:: Foo.bar\n"
+            "      :abstract:\n"
+            "      :classmethod:\n"
+            "\n"
+            "   .. py:method:: Foo.baz\n"
+            "      :abstract:\n"
+            "      :static:\n"
+            "\n"
+            "   .. py:attribute:: Foo.attr\n"
+            "      :abstract:\n"
+            "\n"
+            )
+    doctree = restructuredtext.parse(app, text)
+
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Foo"])],
+                                  desc_content)]))
+
+    foo_content = doctree[1][1]  # type: desc_content
+    assert_classmember_list(foo_content, 4)
+    assert_index(foo_content[0], text="foo() (abstract Foo method)", target="Foo.foo")
+    assert_classmember_sig(foo_content[1][0], name="foo", prefix="abstract ")
+    assert_index(foo_content[0], text="bar() (abstract Foo classmethod)", target="Foo.bar")
+    assert_classmember_sig(foo_content[3][0], name="bar", prefix="abstract classmethod ")
+    assert_index(foo_content[0], text="foo() (abstract static Foo method)", target="Foo.baz")
+    assert_classmember_sig(foo_content[5][0], name="baz", prefix="abstract static ")
+    assert_index(foo_content[0], text="foo() (abstract Foo attribute)", target="Foo.attr")
+    assert_classmember_sig(foo_content[7][0], name="attr", prefix="abstract ", has_params=False)
