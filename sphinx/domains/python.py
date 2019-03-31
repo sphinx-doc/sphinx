@@ -467,7 +467,7 @@ class PyClassmember(PyObject):
 
     option_aliases = {'abstractmethod': 'abstract'}  # type: Dict[str, str]
     objtype_flags = {'staticmethod': 'static',
-                       'classmethod': 'classmethod'}  # type: Dict[str, str]
+                     'classmethod': 'classmethod'}  # type: Dict[str, str]
 
     def __init__(self, *a, **kw):
         self.__options = None  # type: Dict[str, Any]
