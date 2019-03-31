@@ -782,14 +782,19 @@ class PythonDomain(Domain):
         # type: () -> Dict[str, Tuple[str, str]]
         return self.data.setdefault('objects', {})  # fullname -> docname, objtype
 
+    @property
+    def modules(self):
+        # type: () -> Dict[str, Tuple[str, str, str, bool]]
+        return self.data.setdefault('modules', {})  # modname -> docname, synopsis, platform, deprecated  # NOQA
+
     def clear_doc(self, docname):
         # type: (str) -> None
         for fullname, (fn, _l) in list(self.objects.items()):
             if fn == docname:
                 del self.objects[fullname]
-        for modname, (fn, _x, _x, _x) in list(self.data['modules'].items()):
+        for modname, (fn, _x, _x, _y) in list(self.modules.items()):
             if fn == docname:
-                del self.data['modules'][modname]
+                del self.modules[modname]
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[str], Dict) -> None
@@ -799,7 +804,7 @@ class PythonDomain(Domain):
                 self.objects[fullname] = (fn, objtype)
         for modname, data in otherdata['modules'].items():
             if data[0] in docnames:
-                self.data['modules'][modname] = data
+                self.modules[modname] = data
 
     def find_obj(self, env, modname, classname, name, type, searchmode=0):
         # type: (BuildEnvironment, str, str, str, str, int) -> List[Tuple[str, Any]]
@@ -908,7 +913,7 @@ class PythonDomain(Domain):
     def _make_module_refnode(self, builder, fromdocname, name, contnode):
         # type: (Builder, str, str, nodes.Node) -> nodes.Element
         # get additional info for modules
-        docname, synopsis, platform, deprecated = self.data['modules'][name]
+        docname, synopsis, platform, deprecated = self.modules[name]
         title = name
         if synopsis:
             title += ': ' + synopsis
@@ -921,7 +926,7 @@ class PythonDomain(Domain):
 
     def get_objects(self):
         # type: () -> Iterator[Tuple[str, str, str, str, str, int]]
-        for modname, info in self.data['modules'].items():
+        for modname, info in self.modules.items():
             yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
         for refname, (docname, type) in self.objects.items():
             if type != 'module':  # modules are already handled
