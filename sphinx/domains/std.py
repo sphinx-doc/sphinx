@@ -305,6 +305,7 @@ class Glossary(SphinxDirective):
         # first, collect single entries
         entries = []  # type: List[Tuple[List[Tuple[str, str, int]], StringList]]
         in_definition = True
+        in_comment = False
         was_empty = True
         messages = []  # type: List[nodes.Node]
         for line, (source, lineno) in zip(self.content, self.content.items):
@@ -318,7 +319,11 @@ class Glossary(SphinxDirective):
             if line and not line[0].isspace():
                 # enable comments
                 if line.startswith('.. '):
+                    in_comment = True
                     continue
+                else:
+                    in_comment = False
+
                 # first term of definition
                 if in_definition:
                     if not was_empty:
@@ -339,6 +344,8 @@ class Glossary(SphinxDirective):
                         messages.append(self.state.reporter.warning(
                             _('glossary seems to be misformatted, check indentation'),
                             source=source, line=lineno))
+            elif in_comment:
+                pass
             else:
                 if not in_definition:
                     # first line of definition, determines indentation
