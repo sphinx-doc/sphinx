@@ -149,6 +149,8 @@ also use these config values:
    :confval:`autodoc_mock_imports` for more details.  It defaults to
    :confval:`autodoc_mock_imports`.
 
+   .. versionadded:: 2.0
+
 .. confval:: autosummary_imported_members
 
    A boolean flag indicating whether to document classes and functions imported
