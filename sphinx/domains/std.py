@@ -536,14 +536,19 @@ class StandardDomain(Domain):
         for node, settings in env.app.registry.enumerable_nodes.items():
             self.enumerable_nodes[node] = settings
 
+    @property
+    def objects(self):
+        # type: () -> Dict[Tuple[str, str], Tuple[str, str]]
+        return self.data.setdefault('objects', {})  # (objtype, name) -> docname, labelid
+
     def clear_doc(self, docname):
         # type: (str) -> None
         for key, (fn, _l) in list(self.data['progoptions'].items()):
             if fn == docname:
                 del self.data['progoptions'][key]
-        for key, (fn, _l) in list(self.data['objects'].items()):
+        for key, (fn, _l) in list(self.objects.items()):
             if fn == docname:
-                del self.data['objects'][key]
+                del self.objects[key]
         for key, (fn, _l, lineno) in list(self.data['citations'].items()):
             if fn == docname:
                 del self.data['citations'][key]
@@ -567,7 +572,7 @@ class StandardDomain(Domain):
                 self.data['progoptions'][key] = data
         for key, data in otherdata['objects'].items():
             if data[0] in docnames:
-                self.data['objects'][key] = data
+                self.objects[key] = data
         for key, data in otherdata['citations'].items():
             if data[0] in docnames:
                 self.data['citations'][key] = data
@@ -653,7 +658,7 @@ class StandardDomain(Domain):
 
     def add_object(self, objtype, name, docname, labelid):
         # type: (str, str, str, str) -> None
-        self.data['objects'][objtype, name] = (docname, labelid)
+        self.objects[objtype, name] = (docname, labelid)
 
     def add_program_option(self, program, name, docname, labelid):
         # type: (str, str, str, str) -> None
@@ -862,8 +867,8 @@ class StandardDomain(Domain):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         objtypes = self.objtypes_for_role(typ) or []
         for objtype in objtypes:
-            if (objtype, target) in self.data['objects']:
-                docname, labelid = self.data['objects'][objtype, target]
+            if (objtype, target) in self.objects:
+                docname, labelid = self.objects[objtype, target]
                 break
         else:
             docname, labelid = '', ''
@@ -887,8 +892,8 @@ class StandardDomain(Domain):
             key = (objtype, target)
             if objtype == 'term':
                 key = (objtype, ltarget)
-            if key in self.data['objects']:
-                docname, labelid = self.data['objects'][key]
+            if key in self.objects:
+                docname, labelid = self.objects[key]
                 results.append(('std:' + self.role_for_objtype(objtype),
                                 make_refnode(builder, fromdocname, docname,
                                              labelid, contnode)))
@@ -905,7 +910,7 @@ class StandardDomain(Domain):
                 yield (fullname, fullname, 'cmdoption', info[0], info[1], 1)
             else:
                 yield (option, option, 'cmdoption', info[0], info[1], 1)
-        for (type, name), info in self.data['objects'].items():
+        for (type, name), info in self.objects.items():
             yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
         for name, info in self.data['labels'].items():
