@@ -317,14 +317,13 @@ class PyObject(ObjectDescription):
         return fullname, prefix
 
     def get_index_text(self, modname, name):
-        # type: (str, str) -> str
+        # type: (str, Tuple[str, str]) -> str
         """Return the text for the index entry of the object."""
         raise NotImplementedError('must be implemented in subclasses')
 
     def add_target_and_index(self, name_cls, sig, signode):
-        # type: (str, str, addnodes.desc_signature) -> None
-        modname = self.options.get(
-            'module', self.env.ref_context.get('py:module'))
+        # type: (Tuple[str, str], str, addnodes.desc_signature) -> None
+        modname = self.options.get('module', self.env.ref_context.get('py:module'))
         fullname = (modname and modname + '.' or '') + name_cls[0]
         # note target
         if fullname not in self.state.document.ids:
@@ -418,7 +417,7 @@ class PyModulelevel(PyObject):
         return self.objtype == 'function'
 
     def get_index_text(self, modname, name_cls):
-        # type: (str, str) -> str
+        # type: (str, Tuple[str, str]) -> str
         if self.objtype == 'function':
             if not modname:
                 return _('%s() (built-in function)') % name_cls[0]
@@ -443,7 +442,7 @@ class PyClasslike(PyObject):
         return self.objtype + ' '
 
     def get_index_text(self, modname, name_cls):
-        # type: (str, str) -> str
+        # type: (str, Tuple[str, str]) -> str
         if self.objtype == 'class':
             if not modname:
                 return _('%s (built-in class)') % name_cls[0]
@@ -472,7 +471,7 @@ class PyClassmember(PyObject):
         return ''
 
     def get_index_text(self, modname, name_cls):
-        # type: (str, str) -> str
+        # type: (str, Tuple[str, str]) -> str
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
         if self.objtype == 'method':
