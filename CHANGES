@@ -50,6 +50,7 @@ Features added
 * Add a helper class ``sphinx.transforms.post_transforms.SphinxPostTransform``
 * Add helper methods
 
+  - ``PythonDomain.note_module()``
   - ``PythonDomain.note_object()``
   - ``SphinxDirective.set_source_info()``
 

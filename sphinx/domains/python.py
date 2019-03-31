@@ -585,12 +585,11 @@ class PyModule(SphinxDirective):
         self.env.ref_context['py:module'] = modname
         ret = []  # type: List[nodes.Node]
         if not noindex:
-            self.env.domaindata['py']['modules'][modname] = (self.env.docname,
-                                                             self.options.get('synopsis', ''),
-                                                             self.options.get('platform', ''),
-                                                             'deprecated' in self.options)
-            # make a duplicate entry in 'objects' to facilitate searching for
-            # the module in PythonDomain.find_obj()
+            # note module to the domain
+            domain.note_module(modname,
+                               self.options.get('synopsis', ''),
+                               self.options.get('platform', ''),
+                               'deprecated' in self.options)
             domain.note_object(modname, 'module')
 
             targetnode = nodes.target('', '', ids=['module-' + modname],
@@ -797,6 +796,14 @@ class PythonDomain(Domain):
     def modules(self):
         # type: () -> Dict[str, Tuple[str, str, str, bool]]
         return self.data.setdefault('modules', {})  # modname -> docname, synopsis, platform, deprecated  # NOQA
+
+    def note_module(self, name, synopsis, platform, deprecated):
+        # type: (str, str, str, bool) -> None
+        """Note a python module for cross reference.
+
+        .. versionadded:: 2.1
+        """
+        self.modules[name] = (self.env.docname, synopsis, platform, deprecated)
 
     def clear_doc(self, docname):
         # type: (str) -> None
