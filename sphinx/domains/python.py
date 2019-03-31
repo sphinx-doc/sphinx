@@ -512,14 +512,16 @@ class PyClassmember(PyObject):
         if len(exclusive_options) > 1:
             raise ValueError(f"Incompatible options: {exclusive_options}")
 
-    def _is_method(self):
-        return self.objtype == 'method'
-
     def _is_staticmethod(self):
         return 'static' in self.options
 
     def _is_classmethod(self):
         return 'classmethod' in self.options
+
+    def _is_ordinary_method(self):
+        return (self.objtype == 'method' and
+                not self._is_staticmethod() and
+                not self._is_classmethod())
 
     def _is_attribute(self):
         return self.objtype == 'attribute'
@@ -544,7 +546,7 @@ class PyClassmember(PyObject):
         # type: (str, str) -> str
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
-        if self._is_method():
+        if self._is_ordinary_method():
             try:
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
