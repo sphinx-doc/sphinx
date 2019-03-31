@@ -551,6 +551,11 @@ class StandardDomain(Domain):
         # type: () -> Dict[str, Tuple[str, str, str]]
         return self.data.setdefault('labels', {})  # labelname -> docname, labelid, sectionname
 
+    @property
+    def anonlabels(self):
+        # type: () -> Dict[str, Tuple[str, str]]
+        return self.data.setdefault('anonlabels', {})  # labelname -> docname, labelid
+
     def clear_doc(self, docname):
         # type: (str) -> None
         key = None  # type: Any
@@ -571,9 +576,9 @@ class StandardDomain(Domain):
         for key, (fn, _l, _l) in list(self.labels.items()):
             if fn == docname:
                 del self.labels[key]
-        for key, (fn, _l) in list(self.data['anonlabels'].items()):
+        for key, (fn, _l) in list(self.anonlabels.items()):
             if fn == docname:
-                del self.data['anonlabels'][key]
+                del self.anonlabels[key]
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[str], Dict) -> None
@@ -597,7 +602,7 @@ class StandardDomain(Domain):
                 self.labels[key] = data
         for key, data in otherdata['anonlabels'].items():
             if data[0] in docnames:
-                self.data['anonlabels'][key] = data
+                self.anonlabels[key] = data
 
     def process_doc(self, env, docname, document):
         # type: (BuildEnvironment, str, nodes.document) -> None
@@ -626,7 +631,6 @@ class StandardDomain(Domain):
 
     def note_labels(self, env, docname, document):
         # type: (BuildEnvironment, str, nodes.document) -> None
-        anonlabels = self.data['anonlabels']
         for name, explicit in document.nametypes.items():
             if not explicit:
                 continue
@@ -648,7 +652,7 @@ class StandardDomain(Domain):
                 logger.warning(__('duplicate label %s, other instance in %s'),
                                name, env.doc2path(self.labels[name][0]),
                                location=node)
-            anonlabels[name] = docname, labelid
+            self.anonlabels[name] = docname, labelid
             if node.tagname in ('section', 'rubric'):
                 title = cast(nodes.title, node[0])
                 sectname = clean_astext(title)
@@ -732,7 +736,7 @@ class StandardDomain(Domain):
         if node['refexplicit']:
             # reference to anonymous label; the reference uses
             # the supplied link caption
-            docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+            docname, labelid = self.anonlabels.get(target, ('', ''))
             sectname = node.astext()
         else:
             # reference to named label; the final node will
@@ -749,7 +753,7 @@ class StandardDomain(Domain):
         if target in self.labels:
             docname, labelid, figname = self.labels.get(target, ('', '', ''))
         else:
-            docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+            docname, labelid = self.anonlabels.get(target, ('', ''))
             figname = None
 
         if not docname:
@@ -926,9 +930,9 @@ class StandardDomain(Domain):
             yield (name, sectionname, 'label', docname, labelid, -1)
         # add anonymous-only labels as well
         non_anon_labels = set(self.labels)
-        for name, info in self.data['anonlabels'].items():
+        for name, (docname, labelid) in self.anonlabels.items():
             if name not in non_anon_labels:
-                yield (name, name, 'label', info[0], info[1], -1)
+                yield (name, name, 'label', docname, labelid, -1)
 
     def get_type_name(self, type, primary=False):
         # type: (ObjType, bool) -> str
