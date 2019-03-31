@@ -22,6 +22,9 @@ Bugs fixed
   - sphinx.application.CONFIG_FILENAME
   - :confval:`viewcode_import`
 
+* #6220, #6225: napoleon: AttributeError is raised for raised section having
+  references
+
 Testing
 --------
 
