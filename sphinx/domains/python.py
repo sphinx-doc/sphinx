@@ -777,11 +777,16 @@ class PythonDomain(Domain):
         PythonModuleIndex,
     ]
 
+    @property
+    def objects(self):
+        # type: () -> Dict[str, Tuple[str, str]]
+        return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+
     def clear_doc(self, docname):
         # type: (str) -> None
-        for fullname, (fn, _l) in list(self.data['objects'].items()):
+        for fullname, (fn, _l) in list(self.objects.items()):
             if fn == docname:
-                del self.data['objects'][fullname]
+                del self.objects[fullname]
         for modname, (fn, _x, _x, _x) in list(self.data['modules'].items()):
             if fn == docname:
                 del self.data['modules'][modname]
@@ -791,7 +796,7 @@ class PythonDomain(Domain):
         # XXX check duplicates?
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                self.data['objects'][fullname] = (fn, objtype)
+                self.objects[fullname] = (fn, objtype)
         for modname, data in otherdata['modules'].items():
             if data[0] in docnames:
                 self.data['modules'][modname] = data
@@ -808,7 +813,6 @@ class PythonDomain(Domain):
         if not name:
             return []
 
-        objects = self.data['objects']
         matches = []  # type: List[Tuple[str, Any]]
 
         newname = None
@@ -820,44 +824,44 @@ class PythonDomain(Domain):
             if objtypes is not None:
                 if modname and classname:
                     fullname = modname + '.' + classname + '.' + name
-                    if fullname in objects and objects[fullname][1] in objtypes:
+                    if fullname in self.objects and self.objects[fullname][1] in objtypes:
                         newname = fullname
                 if not newname:
-                    if modname and modname + '.' + name in objects and \
-                       objects[modname + '.' + name][1] in objtypes:
+                    if modname and modname + '.' + name in self.objects and \
+                       self.objects[modname + '.' + name][1] in objtypes:
                         newname = modname + '.' + name
-                    elif name in objects and objects[name][1] in objtypes:
+                    elif name in self.objects and self.objects[name][1] in objtypes:
                         newname = name
                     else:
                         # "fuzzy" searching mode
                         searchname = '.' + name
-                        matches = [(oname, objects[oname]) for oname in objects
+                        matches = [(oname, self.objects[oname]) for oname in self.objects
                                    if oname.endswith(searchname) and
-                                   objects[oname][1] in objtypes]
+                                   self.objects[oname][1] in objtypes]
         else:
             # NOTE: searching for exact match, object type is not considered
-            if name in objects:
+            if name in self.objects:
                 newname = name
             elif type == 'mod':
                 # only exact matches allowed for modules
                 return []
-            elif classname and classname + '.' + name in objects:
+            elif classname and classname + '.' + name in self.objects:
                 newname = classname + '.' + name
-            elif modname and modname + '.' + name in objects:
+            elif modname and modname + '.' + name in self.objects:
                 newname = modname + '.' + name
             elif modname and classname and \
-                    modname + '.' + classname + '.' + name in objects:
+                    modname + '.' + classname + '.' + name in self.objects:
                 newname = modname + '.' + classname + '.' + name
             # special case: builtin exceptions have module "exceptions" set
             elif type == 'exc' and '.' not in name and \
-                    'exceptions.' + name in objects:
+                    'exceptions.' + name in self.objects:
                 newname = 'exceptions.' + name
             # special case: object methods
             elif type in ('func', 'meth') and '.' not in name and \
-                    'object.' + name in objects:
+                    'object.' + name in self.objects:
                 newname = 'object.' + name
         if newname is not None:
-            matches.append((newname, objects[newname]))
+            matches.append((newname, self.objects[newname]))
         return matches
 
     def resolve_xref(self, env, fromdocname, builder,
@@ -919,7 +923,7 @@ class PythonDomain(Domain):
         # type: () -> Iterator[Tuple[str, str, str, str, str, int]]
         for modname, info in self.data['modules'].items():
             yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
-        for refname, (docname, type) in self.data['objects'].items():
+        for refname, (docname, type) in self.objects.items():
             if type != 'module':  # modules are already handled
                 yield (refname, refname, type, docname, refname, 1)
 
