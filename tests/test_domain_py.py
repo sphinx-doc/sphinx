@@ -440,3 +440,18 @@ def test_classmember_abstract_prefixes(app):
     assert_classmember_sig(foo_content[5][0], name="baz", prefix="abstract static ")
     assert_index(foo_content[0], text="foo() (abstract Foo attribute)", target="Foo.attr")
     assert_classmember_sig(foo_content[7][0], name="attr", prefix="abstract ", has_params=False)
+
+
+def test_abstractmethod_option_alias(app):
+    # We don't need to test all corner cases, we only need an indicator that the alias works.
+    text = (".. py:class:: Foo\n"
+            "\n"
+            "   .. py:method:: Foo.foo\n"
+            "      :abstractmethod:"
+            "\n"
+            )
+    doctree = restructuredtext.parse(app, text)
+    foo_content = doctree[1][1]  # type: desc_content
+    assert_classmember_list(foo_content, 1)
+    assert_index(foo_content[0], text="foo() (abstract Foo method)", target="Foo.foo")
+    assert_classmember_sig(foo_content[1][0], name="foo", prefix="abstract ")
