@@ -541,11 +541,16 @@ class StandardDomain(Domain):
         # type: () -> Dict[Tuple[str, str], Tuple[str, str]]
         return self.data.setdefault('objects', {})  # (objtype, name) -> docname, labelid
 
+    @property
+    def progoptions(self):
+        # type: () -> Dict[Tuple[str, str], Tuple[str, str]]
+        return self.data.setdefault('progoptions', {})  # (program, name) -> docname, labelid
+
     def clear_doc(self, docname):
         # type: (str) -> None
-        for key, (fn, _l) in list(self.data['progoptions'].items()):
+        for key, (fn, _l) in list(self.progoptions.items()):
             if fn == docname:
-                del self.data['progoptions'][key]
+                del self.progoptions[key]
         for key, (fn, _l) in list(self.objects.items()):
             if fn == docname:
                 del self.objects[key]
@@ -569,7 +574,7 @@ class StandardDomain(Domain):
         # XXX duplicates?
         for key, data in otherdata['progoptions'].items():
             if data[0] in docnames:
-                self.data['progoptions'][key] = data
+                self.progoptions[key] = data
         for key, data in otherdata['objects'].items():
             if data[0] in docnames:
                 self.objects[key] = data
@@ -662,7 +667,7 @@ class StandardDomain(Domain):
 
     def add_program_option(self, program, name, docname, labelid):
         # type: (str, str, str, str) -> None
-        self.data['progoptions'][program, name] = (docname, labelid)
+        self.progoptions[program, name] = (docname, labelid)
 
     def check_consistency(self):
         # type: () -> None
@@ -824,7 +829,7 @@ class StandardDomain(Domain):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         progname = node.get('std:program')
         target = target.strip()
-        docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))
+        docname, labelid = self.progoptions.get((progname, target), ('', ''))
         if not docname:
             commands = []
             while ws_re.search(target):
@@ -832,8 +837,7 @@ class StandardDomain(Domain):
                 commands.append(subcommand)
                 progname = "-".join(commands)
 
-                docname, labelid = self.data['progoptions'].get((progname, target),
-                                                                ('', ''))
+                docname, labelid = self.progoptions.get((progname, target), ('', ''))
                 if docname:
                     break
             else:
@@ -904,7 +908,7 @@ class StandardDomain(Domain):
         # handle the special 'doc' reference here
         for doc in self.env.all_docs:
             yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
-        for (prog, option), info in self.data['progoptions'].items():
+        for (prog, option), info in self.progoptions.items():
             if prog:
                 fullname = ".".join([prog, option])
                 yield (fullname, fullname, 'cmdoption', info[0], info[1], 1)
