@@ -551,20 +551,6 @@ class PyClassmember(PyObject):
         if len(exclusive_options) > 1:
             raise ValueError(f"Incompatible options: {exclusive_options}")
 
-    def _is_staticmethod(self):
-        return 'static' in self.options
-
-    def _is_classmethod(self):
-        return 'classmethod' in self.options
-
-    def _is_ordinary_method(self):
-        return (self.objtype == 'method' and
-                not self._is_staticmethod() and
-                not self._is_classmethod())
-
-    def _is_attribute(self):
-        return self.objtype == 'attribute'
-
     def needs_arglist(self):
         # type: () -> bool
         return self.objtype == 'method'
@@ -575,46 +561,56 @@ class PyClassmember(PyObject):
         if 'abstract' in self.options:
             prefix += 'abstract '
 
-        if self._is_staticmethod():
+        if 'static' in self.options:
             prefix += 'static '
-        elif self._is_classmethod():
+        elif 'classmethod' in self.options:
             prefix += 'classmethod '
+
         return prefix
 
     def get_index_text(self, modname, name_cls):
         # type: (str, str) -> str
         name, cls = name_cls
-        add_modules = self.env.config.add_module_names
+        has_add_modules = bool(self.env.config.add_module_names)
 
         try:
             clsname, membername = name.rsplit('.', 1)
         except ValueError:
             return self._generic_index_text(name, modname)
 
-        if self._is_ordinary_method():
-            if modname and add_modules:
-                return _('%s() (%s.%s method)') % (membername, modname, clsname)
-            else:
-                return _('%s() (%s method)') % (membername, clsname)
-        elif self._is_staticmethod():
-            if modname and add_modules:
+        if self.objtype == 'method':
+            return self._method_index_text(membername, clsname, modname, has_add_modules)
+        elif self.objtype == 'attribute':
+            return self._attribute_index_text(membername, clsname, modname, has_add_modules)
+        else:
+            return ''
+
+    def _method_index_text(self, membername, clsname, modname, has_add_modules):
+        # type: (str, str, str, bool) -> str
+        if 'static' in self.options:
+            if modname and has_add_modules:
                 return _('%s() (%s.%s static method)') % (membername, modname,
                                                           clsname)
             else:
                 return _('%s() (%s static method)') % (membername, clsname)
-        elif self._is_classmethod():
+        elif 'classmethod' in self.options:
             if modname:
                 return _('%s() (%s.%s class method)') % (membername, modname,
                                                          clsname)
             else:
                 return _('%s() (%s class method)') % (membername, clsname)
-        elif self._is_attribute():
-            if modname and add_modules:
-                return _('%s (%s.%s attribute)') % (membername, modname, clsname)
-            else:
-                return _('%s (%s attribute)') % (membername, clsname)
         else:
-            return ''
+            if modname and has_add_modules:
+                return _('%s() (%s.%s method)') % (membername, modname, clsname)
+            else:
+                return _('%s() (%s method)') % (membername, clsname)
+
+    def _attribute_index_text(self, membername, clsname, modname, has_add_modules):
+        # type: (str, str, str, bool) -> str
+        if modname and has_add_modules:
+            return _('%s (%s.%s attribute)') % (membername, modname, clsname)
+        else:
+            return _('%s (%s attribute)') % (membername, clsname)
 
     def _generic_index_text(self, name, modname):
         # type: (str, str) -> str
