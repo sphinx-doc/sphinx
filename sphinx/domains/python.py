@@ -585,58 +585,53 @@ class PyClassmember(PyObject):
         # type: (str, str) -> str
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
+
+        try:
+            clsname, membername = name.rsplit('.', 1)
+        except ValueError:
+            return self._generic_index_text(name, modname)
+
         if self._is_ordinary_method():
-            try:
-                clsname, methname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s() (in module %s)') % (name, modname)
-                else:
-                    return '%s()' % name
             if modname and add_modules:
-                return _('%s() (%s.%s method)') % (methname, modname, clsname)
+                return _('%s() (%s.%s method)') % (membername, modname, clsname)
             else:
-                return _('%s() (%s method)') % (methname, clsname)
+                return _('%s() (%s method)') % (membername, clsname)
         elif self._is_staticmethod():
-            try:
-                clsname, methname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s() (in module %s)') % (name, modname)
-                else:
-                    return '%s()' % name
             if modname and add_modules:
-                return _('%s() (%s.%s static method)') % (methname, modname,
+                return _('%s() (%s.%s static method)') % (membername, modname,
                                                           clsname)
             else:
-                return _('%s() (%s static method)') % (methname, clsname)
+                return _('%s() (%s static method)') % (membername, clsname)
         elif self._is_classmethod():
-            try:
-                clsname, methname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s() (in module %s)') % (name, modname)
-                else:
-                    return '%s()' % name
             if modname:
-                return _('%s() (%s.%s class method)') % (methname, modname,
+                return _('%s() (%s.%s class method)') % (membername, modname,
                                                          clsname)
             else:
-                return _('%s() (%s class method)') % (methname, clsname)
+                return _('%s() (%s class method)') % (membername, clsname)
         elif self._is_attribute():
-            try:
-                clsname, attrname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s (in module %s)') % (name, modname)
-                else:
-                    return name
             if modname and add_modules:
-                return _('%s (%s.%s attribute)') % (attrname, modname, clsname)
+                return _('%s (%s.%s attribute)') % (membername, modname, clsname)
             else:
-                return _('%s (%s attribute)') % (attrname, clsname)
+                return _('%s (%s attribute)') % (membername, clsname)
         else:
             return ''
+
+    def _generic_index_text(self, name, modname):
+        # type: (str, str) -> str
+        if self.objtype == 'attribute':
+            if modname:
+                return _('%s (in module %s)') % (name, modname)
+            else:
+                return name
+        elif self.objtype == 'method':
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+        else:
+            # neither attribute nor any kind of method
+            return ''
+
 
 
 class PyDecoratorMixin:
