@@ -432,13 +432,13 @@ def test_classmember_abstract_prefixes(app):
 
     foo_content = doctree[1][1]  # type: desc_content
     assert_classmember_list(foo_content, 4)
-    assert_index(foo_content[0], text="foo() (abstract Foo method)", target="Foo.foo")
+    assert_index(foo_content[0], text="foo() (Foo method)", target="Foo.foo")
     assert_classmember_sig(foo_content[1][0], name="foo", prefix="abstract ")
-    assert_index(foo_content[0], text="bar() (abstract Foo classmethod)", target="Foo.bar")
+    assert_index(foo_content[0], text="bar() (Foo classmethod)", target="Foo.bar")
     assert_classmember_sig(foo_content[3][0], name="bar", prefix="abstract classmethod ")
-    assert_index(foo_content[0], text="foo() (abstract static Foo method)", target="Foo.baz")
+    assert_index(foo_content[0], text="foo() (static Foo method)", target="Foo.baz")
     assert_classmember_sig(foo_content[5][0], name="baz", prefix="abstract static ")
-    assert_index(foo_content[0], text="foo() (abstract Foo attribute)", target="Foo.attr")
+    assert_index(foo_content[0], text="foo() (Foo attribute)", target="Foo.attr")
     assert_classmember_sig(foo_content[7][0], name="attr", prefix="abstract ", has_params=False)
 
 
@@ -453,5 +453,5 @@ def test_abstractmethod_option_alias(app):
     doctree = restructuredtext.parse(app, text)
     foo_content = doctree[1][1]  # type: desc_content
     assert_classmember_list(foo_content, 1)
-    assert_index(foo_content[0], text="foo() (abstract Foo method)", target="Foo.foo")
+    assert_index(foo_content[0], text="foo() (Foo method)", target="Foo.foo")
     assert_classmember_sig(foo_content[1][0], name="foo", prefix="abstract ")
