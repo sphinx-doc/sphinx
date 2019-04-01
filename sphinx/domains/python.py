@@ -9,6 +9,7 @@
 """
 
 import re
+from abc import ABCMeta, abstractmethod
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -454,6 +455,28 @@ class PyClasslike(PyObject):
             return ''
 
 
+class AliasedDict(dict, metaclass=ABCMeta):
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        self._replace_aliases()
+
+    @property
+    @abstractmethod
+    def _aliases(self):
+        # type: () -> dict
+        """The dict mapping each key alias to its actual key"""
+        pass
+
+    def _replace_aliases(self):
+        for old, new in self._aliases.items():
+            if old in self:
+                self[new] = self.pop(old)
+
+    def __setitem__(self, item, value):
+        aliased_item = self._aliases.get(item, item)
+        super().__setitem__(aliased_item, value)
+
+
 class PyClassmember(PyObject):
     """
     Description of a class member (methods, attributes).
@@ -466,49 +489,65 @@ class PyClassmember(PyObject):
     option_spec.update(classmethod=directives.flag)
 
     option_aliases = {'abstractmethod': 'abstract'}  # type: Dict[str, str]
-    objtype_flags = {'staticmethod': 'static',
-                     'classmethod': 'classmethod'}  # type: Dict[str, str]
+
+    #: a mapping of objtype ↦ (effective_objtype, additional_flag)
+    objtype_aliases = {
+        'staticmethod': ('method', 'static'),
+        'classmethod': ('method', 'classmethod'),
+    }  # type: Dict[str, Tuple[str, str]]
 
     def __init__(self, *a, **kw):
-        self.__options = None  # type: Dict[str, Any]
+        self._options = None  # type: Dict[str, Any]
+        self._original_objtype = None  # type: str
         super().__init__(*a, **kw)
 
     @property
     def options(self):
         """An decorated version of the `options` dict.
 
-        Keys who appear in :py:attr:`option_aliases` will be renamed, and the
-        object type may be converted into a flag.
-
-        We refer to `__options` with name mangling to allow for subclasses
-        to do the same kind of magic without interfering with our “backup copy”.
+        If you set keys which appear in :py:attr:`option_aliases`, will affect
+        their aliases.  Furthermore, if you have an :py:attr:`objtype` that is
+        in :py:attr:`objtype_aliases`, those flags will be added upon access of
+        this attribute.
         """
-        if self.__options is None:
-            return None
+        if self._original_objtype in self.objtype_aliases:
+            _, target_flag = self.objtype_aliases[self._original_objtype]
+            self._options[target_flag] = None
 
-        opts = self.__options.copy()
+        self._validate_options(self._options)
 
-        for old, new in self.option_aliases.items():
-            if old in self.__options:
-                if new in self.__options:
-                    self.warning(f"both option '{old}' and its alias '{new}' are used")
-                opts[new] = opts.pop(old)
-
-        if self.objtype in self.objtype_flags:
-            opts[self.objtype_flags[self.objtype]] = None
-
-        self._validate_options(opts)
-
-        return opts
+        return self._options
 
     @options.setter
     def options(self, value):
         # This is mainly going to be set to ``{}`` in an ``__init__`` method.
-        self.__options = value
+        class OptionsWrapper(AliasedDict):
+            _aliases = self.option_aliases.copy()
+
+        self._options = OptionsWrapper(value)
+
+    @property
+    def objtype(self):
+        """A decorated version of the `objtype`.
+
+        If the :py:attr:`objtype` which has been set is an alias (as defined by
+        :py:attr:`objtype_aliases`), we return the associated “effective” value
+        instead.
+        """
+        if self._original_objtype is None:
+            return None
+
+        objtype = self._original_objtype
+        aliased_objtype, _ = self.objtype_aliases.get(objtype, (objtype, None))
+        return aliased_objtype
+
+    @objtype.setter
+    def objtype(self, value):
+        self._original_objtype = value
 
     def _validate_options(self, options):
         # type: (Dict[str, Any]) -> None
-        exclusive_options = set(options) & set(self.objtype_flags)
+        exclusive_options = set(options) & set(self.objtype_aliases)
         if len(exclusive_options) > 1:
             raise ValueError(f"Incompatible options: {exclusive_options}")
 
@@ -528,7 +567,7 @@ class PyClassmember(PyObject):
 
     def needs_arglist(self):
         # type: () -> bool
-        return self.objtype.endswith('method')
+        return self.objtype == 'method'
 
     def get_signature_prefix(self, sig):
         # type: (str) -> str
