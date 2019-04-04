@@ -55,6 +55,8 @@ Features added
 * ``math`` directive now supports ``:class:`` option
 * todo: ``todo`` directive now supports ``:name:`` option
 * #6232: Enable CLI override of Makefile variables
+* #6212 autosummary: Add :confval:`autosummary_imported_members` to display
+  imported members on autosummary
 
 Bugs fixed
 ----------
