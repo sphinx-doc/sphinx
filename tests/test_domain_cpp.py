@@ -755,6 +755,20 @@ def test_attributes():
     check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
 
 
+def test_xref_parsing():
+    def check(target):
+        class Config:
+            cpp_id_attributes = ["id_attr"]
+            cpp_paren_attributes = ["paren_attr"]
+        parser = DefinitionParser(target, None, Config())
+        ast, isShorthand = parser.parse_xref_object()
+        parser.assert_end()
+    check('f')
+    check('f()')
+    check('void f()')
+    check('T f()')
+
+
 # def test_print():
 #     # used for getting all the ids out for checking
 #     for a in ids:

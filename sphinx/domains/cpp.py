@@ -6391,6 +6391,7 @@ class DefinitionParser:
             # if there are '()' left, just skip them
             self.skip_ws()
             self.skip_string('()')
+            self.assert_end()
             templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                               fullSpecShorthand=True)
             res1 = ASTNamespace(name, templatePrefix)
@@ -6403,6 +6404,7 @@ class DefinitionParser:
                 # if there are '()' left, just skip them
                 self.skip_ws()
                 self.skip_string('()')
+                self.assert_end()
                 return res2, False
             except DefinitionError as e2:
                 errs = []
@@ -7145,7 +7147,6 @@ class CPPDomain(Domain):
         parser = DefinitionParser(target, warner, env.config)
         try:
             ast, isShorthand = parser.parse_xref_object()
-            parser.assert_end()
         except DefinitionError as e:
             def findWarning(e):  # as arg to stop flake8 from complaining
                 if typ != 'any' and typ != 'func':
@@ -7154,7 +7155,6 @@ class CPPDomain(Domain):
                 parser2 = DefinitionParser(target[:-2], warner, env.config)
                 try:
                     parser2.parse_xref_object()
-                    parser2.assert_end()
                 except DefinitionError as e2:
                     return target[:-2], e2
                 # strange, that we don't get the error now, use the original
