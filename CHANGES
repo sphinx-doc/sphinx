@@ -86,10 +86,17 @@ Bugs fixed
 ----------
 
 * LaTeX: some system labels are not translated
+* RemovedInSphinx30Warning is marked as pending
 * deprecation warnings are not emitted
 
   - sphinx.application.CONFIG_FILENAME
+  - sphinx.builders.htmlhelp
   - :confval:`viewcode_import`
+
+* #6208: C++, properly parse full xrefs that happen to have a short xref as prefix.
+* #6220, #6225: napoleon: AttributeError is raised for raised section having
+  references
+* #6245: circular import error on importing SerializingHTMLBuilder
 
 Testing
 --------

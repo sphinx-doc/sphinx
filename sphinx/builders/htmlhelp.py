@@ -24,7 +24,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
 
 
-deprecated_alias('sphinx.builders.devhelp',
+deprecated_alias('sphinx.builders.htmlhelp',
                  {
                      'chm_locales': chm_locales,
                      'chm_htmlescape': chm_htmlescape,
