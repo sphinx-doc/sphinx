@@ -17,7 +17,7 @@ if False:
     from typing import Any, Dict, Type  # NOQA
 
 
-class RemovedInSphinx30Warning(PendingDeprecationWarning):
+class RemovedInSphinx30Warning(DeprecationWarning):
     pass
 
 

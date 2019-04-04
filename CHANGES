@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * LaTeX: some system labels are not translated
+* RemovedInSphinx30Warning is marked as pending
 * deprecation warnings are not emitted
 
   - sphinx.application.CONFIG_FILENAME
