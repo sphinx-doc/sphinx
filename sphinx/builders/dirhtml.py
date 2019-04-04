@@ -11,6 +11,7 @@
 from os import path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
 from sphinx.util.osutil import SEP, os_path
 
@@ -53,6 +54,14 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         # type: (Set[str]) -> None
         super().prepare_writing(docnames)
         self.globalcontext['no_search_suffix'] = True
+
+
+# for compatibility
+deprecated_alias('sphinx.builders.html',
+                 {
+                     'DirectoryHTMLBuilder': DirectoryHTMLBuilder,
+                 },
+                 RemovedInSphinx40Warning)
 
 
 def setup(app):

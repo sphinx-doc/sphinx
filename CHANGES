@@ -24,6 +24,7 @@ Bugs fixed
 
 * #6220, #6225: napoleon: AttributeError is raised for raised section having
   references
+* #6245: circular import error on importing SerializingHTMLBuilder
 
 Testing
 --------
