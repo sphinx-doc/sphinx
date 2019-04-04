@@ -21,6 +21,7 @@ Bugs fixed
 * deprecation warnings are not emitted
 
   - sphinx.application.CONFIG_FILENAME
+  - sphinx.builders.htmlhelp
   - :confval:`viewcode_import`
 
 * #6220, #6225: napoleon: AttributeError is raised for raised section having
