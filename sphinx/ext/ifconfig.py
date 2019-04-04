@@ -23,6 +23,7 @@ from docutils import nodes
 
 import sphinx
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.nodes import nested_parse_with_titles
 
 if False:
     # For type annotation
@@ -48,8 +49,7 @@ class IfConfig(SphinxDirective):
         node.document = self.state.document
         self.set_source_info(node)
         node['expr'] = self.arguments[0]
-        self.state.nested_parse(self.content, self.content_offset,
-                                node, match_titles=True)
+        nested_parse_with_titles(self.state, self.content, node)
         return [node]
 
 
