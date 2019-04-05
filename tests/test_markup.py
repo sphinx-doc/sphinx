@@ -193,6 +193,27 @@ def get_verifier(verify, verify_re):
          '{\\sphinxstylestrong{RFC 2324\\#id1}}')
     ),
     (
+        # bcp role
+        'verify',
+        ':bcp:`2324`',
+        ('<p><span class="target" id="index-0"></span><a class="bcp reference external" '
+         'href="http://tools.ietf.org/html/bcp2324"><strong>BCP 2324</strong></a></p>'),
+        ('\\index{BCP@\\spxentry{BCP}!BCP 2324@\\spxentry{BCP 2324}}'
+         '\\sphinxhref{http://tools.ietf.org/html/bcp2324}'
+         '{\\sphinxstylestrong{BCP 2324}}')
+    ),
+    (
+        # bcp role with anchor
+        'verify',
+        ':bcp:`2324#id1`',
+        ('<p><span class="target" id="index-0"></span><a class="bcp reference external" '
+         'href="http://tools.ietf.org/html/bcp2324#id1">'
+         '<strong>BCP 2324#id1</strong></a></p>'),
+        ('\\index{BCP@\\spxentry{BCP}!BCP 2324\\#id1@\\spxentry{BCP 2324\\#id1}}'
+         '\\sphinxhref{http://tools.ietf.org/html/bcp2324\\#id1}'
+         '{\\sphinxstylestrong{BCP 2324\\#id1}}')
+    ),
+    (
         # correct interpretation of code with whitespace
         'verify_re',
         '``code   sample``',

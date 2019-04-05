@@ -338,6 +338,43 @@ class RFC(ReferenceRole):
             return base_url + self.inliner.rfc_url % int(ret[0])
 
 
+class BCP(ReferenceRole):
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        target_id = 'index-%s' % self.env.new_serialno('index')
+        entries = [('single', 'BCP; BCP %s' % self.target, target_id, '', None)]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['bcp'])
+            if self.has_explicit_title:
+                reference += nodes.strong(self.title, self.title)
+            else:
+                title = "BCP " + self.title
+                reference += nodes.strong(title, title)
+        except ValueError:
+            msg = self.inliner.reporter.error('invalid BCP number %s' % self.target,
+                                              line=self.lineno)
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self):
+        # type: () -> str
+        self.inliner.bcp_url = "bcp%d"
+        base_url = self.inliner.document.settings.rfc_base_url
+        ret = self.target.split('#', 1)
+        if len(ret) == 2:
+            return base_url + self.inliner.bcp_url % int(ret[0]) + '#' + ret[1]
+        else:
+            return base_url + self.inliner.bcp_url % int(ret[0])
+
+
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 
@@ -609,6 +646,7 @@ specific_docroles = {
 
     'pep': PEP(),
     'rfc': RFC(),
+    'bcp': BCP(),
     'guilabel': GUILabel(),
     'menuselection': MenuSelection(),
     'file': EmphasizedLiteral(),
