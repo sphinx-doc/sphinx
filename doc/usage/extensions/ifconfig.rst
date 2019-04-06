@@ -8,6 +8,11 @@
 
 This extension is quite simple, and features only one directive:
 
+.. warning::
+
+   This directive is designed to control only content of document.  It could
+   not control sections, labels and so on.
+
 .. rst:directive:: ifconfig
 
    Include content of the directive only if the Python expression given as an

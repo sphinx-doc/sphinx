@@ -251,6 +251,7 @@ def setup(app):
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)
+    app.connect('config-inited', migrate_viewcode_import)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('html-collect-pages', collect_pages)

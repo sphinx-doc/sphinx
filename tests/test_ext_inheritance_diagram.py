@@ -90,7 +90,7 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
 
 
 def test_import_classes(rootdir):
-    from sphinx.application import Sphinx, TemplateBridge
+    from sphinx.parsers import Parser, RSTParser
     from sphinx.util.i18n import CatalogInfo
 
     try:
@@ -120,16 +120,16 @@ def test_import_classes(rootdir):
         assert classes == []
 
         # all of classes in the module
-        classes = import_classes('sphinx.application', None)
-        assert set(classes) == {Sphinx, TemplateBridge}
+        classes = import_classes('sphinx.parsers', None)
+        assert set(classes) == {Parser, RSTParser}
 
         # specified class in the module
-        classes = import_classes('sphinx.application.Sphinx', None)
-        assert classes == [Sphinx]
+        classes = import_classes('sphinx.parsers.Parser', None)
+        assert classes == [Parser]
 
         # specified class in current module
-        classes = import_classes('Sphinx', 'sphinx.application')
-        assert classes == [Sphinx]
+        classes = import_classes('Parser', 'sphinx.parsers')
+        assert classes == [Parser]
 
         # relative module name to current module
         classes = import_classes('i18n.CatalogInfo', 'sphinx.util')
