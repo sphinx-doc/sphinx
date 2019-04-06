@@ -75,6 +75,16 @@ var Search = {
       }
   },
 
+  loadIndex : function(url) {
+    $.ajax({type: "GET", url: url, data: null,
+            dataType: "script", cache: true,
+            complete: function(jqxhr, textstatus) {
+              if (textstatus != "success") {
+                document.getElementById("searchindexloader").src = url;
+              }
+            }});
+  },
+
   setIndex : function(index) {
     var q;
     this._index = index;
