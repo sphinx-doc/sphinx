@@ -959,6 +959,21 @@ class StandardDomain(Domain):
         else:
             return None
 
+    def note_citations(self, env, docname, document):
+        # type: (BuildEnvironment, str, nodes.document) -> None
+        warnings.warn('StandardDomain.note_citations() is deprecated.',
+                      RemovedInSphinx40Warning)
+
+    def note_citation_refs(self, env, docname, document):
+        # type: (BuildEnvironment, str, nodes.document) -> None
+        warnings.warn('StandardDomain.note_citation_refs() is deprecated.',
+                      RemovedInSphinx40Warning)
+
+    def note_labels(self, env, docname, document):
+        # type: (BuildEnvironment, str, nodes.document) -> None
+        warnings.warn('StandardDomain.note_labels() is deprecated.',
+                      RemovedInSphinx40Warning)
+
 
 def setup(app):
     # type: (Sphinx) -> Dict[str, Any]

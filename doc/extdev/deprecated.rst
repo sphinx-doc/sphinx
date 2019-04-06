@@ -121,6 +121,21 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.domains.citation.CitationDomain.resolve_xref()``
 
+   * - ``sphinx.domains.std.StandardDomain.note_citations()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDomain.note_citation()``
+
+   * - ``sphinx.domains.std.StandardDomain.note_citation_refs()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDomain.note_citation_reference()``
+
+   * - ``sphinx.domains.std.StandardDomain.note_labels()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.std.StandardDomain.process_doc()``
+
    * - ``sphinx.environment.NoUri``
      - 2.1
      - 4.0
