@@ -116,6 +116,26 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.directives.other.VersionChange``
 
+   * - ``sphinx.domains.std.StandardDomain._resolve_citation_xref()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDomain.resolve_xref()``
+
+   * - ``sphinx.domains.std.StandardDomain.note_citations()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDomain.note_citation()``
+
+   * - ``sphinx.domains.std.StandardDomain.note_citation_refs()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDomain.note_citation_reference()``
+
+   * - ``sphinx.domains.std.StandardDomain.note_labels()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.std.StandardDomain.process_doc()``
+
    * - ``sphinx.environment.NoUri``
      - 2.1
      - 4.0
@@ -140,6 +160,16 @@ The following is a list of deprecated interfaces.
      - 2.1
      - 4.0
      - ``sphinx.ext.autosummary.AutoLink``
+
+   * - ``sphinx.transforms.CitationReferences``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationReferenceTransform``
+
+   * - ``sphinx.transforms.SmartQuotesSkipper``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDefinitionTransform``
 
    * - ``sphinx.util.docfields.DocFieldTransformer.preprocess_fieldtypes()``
      - 2.1

@@ -76,6 +76,7 @@ builtin_extensions = (
     'sphinx.config',
     'sphinx.domains.c',
     'sphinx.domains.changeset',
+    'sphinx.domains.citation',
     'sphinx.domains.cpp',
     'sphinx.domains.javascript',
     'sphinx.domains.math',

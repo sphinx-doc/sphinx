@@ -33,11 +33,17 @@ Deprecated
 * ``sphinx.directives.TabularColumns``
 * ``sphinx.directives.TocTree``
 * ``sphinx.directives.VersionChange``
+* ``sphinx.domains.std.StandardDomain._resolve_citation_xref()``
+* ``sphinx.domains.std.StandardDomain.note_citations()``
+* ``sphinx.domains.std.StandardDomain.note_citation_refs()``
+* ``sphinx.domains.std.StandardDomain.note_labels()``
 * ``sphinx.environment.NoUri``
 * ``sphinx.ext.autodoc.importer.MockFinder``
 * ``sphinx.ext.autodoc.importer.MockLoader``
 * ``sphinx.ext.autodoc.importer.mock()``
 * ``sphinx.ext.autosummary.autolink_role()``
+* ``sphinx.transforms.CitationReferences``
+* ``sphinx.transforms.SmartQuotesSkipper``
 * ``sphinx.util.docfields.DocFieldTransformer.preprocess_fieldtypes()``
 * ``sphinx.util.node.find_source_node()``
 * ``sphinx.util.i18n.find_catalog()``
