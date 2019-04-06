@@ -22,7 +22,11 @@ class RemovedInSphinx30Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx40Warning(PendingDeprecationWarning):
+class RemovedInSphinx40Warning(DeprecationWarning):
+    pass
+
+
+class RemovedInSphinx50Warning(PendingDeprecationWarning):
     pass
 
 
