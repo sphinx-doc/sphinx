@@ -50,7 +50,12 @@ Features added
 --------------
 
 * Add a helper class ``sphinx.transforms.post_transforms.SphinxPostTransform``
-* Add a helper method ``SphinxDirective.set_source_info()``
+* Add helper methods
+
+  - ``PythonDomain.note_module()``
+  - ``PythonDomain.note_object()``
+  - ``SphinxDirective.set_source_info()``
+
 * #6180: Support ``--keep-going`` with BuildDoc setup command
 * ``math`` directive now supports ``:class:`` option
 * todo: ``todo`` directive now supports ``:name:`` option
