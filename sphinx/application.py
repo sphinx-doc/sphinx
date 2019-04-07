@@ -23,7 +23,6 @@ from docutils.parsers.rst import Directive, roles
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
@@ -73,6 +72,7 @@ builtin_extensions = (
     'sphinx.config',
     'sphinx.domains.c',
     'sphinx.domains.changeset',
+    'sphinx.domains.citation',
     'sphinx.domains.cpp',
     'sphinx.domains.javascript',
     'sphinx.domains.math',

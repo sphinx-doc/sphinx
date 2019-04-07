@@ -242,3 +242,23 @@ def test_autosummary_mock_imports(app, status, warning):
         assert app.env.get_doctree('generated/foo')
     finally:
         sys.modules.pop('foo', None)  # unload foo module
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-imported_members')
+def test_autosummary_imported_members(app, status, warning):
+    try:
+        app.build()
+        # generated/foo is generated successfully
+        assert app.env.get_doctree('generated/autosummary_dummy_package')
+
+        module = (app.srcdir / 'generated' / 'autosummary_dummy_package.rst').text()
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      Bar\n'
+                '   \n' in module)
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      foo\n'
+                '   \n' in module)
+    finally:
+        sys.modules.pop('autosummary_dummy_package', None)

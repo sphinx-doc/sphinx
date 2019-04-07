@@ -208,7 +208,7 @@ class LaTeXBuilder(Builder):
         self.context['indexname'] = _('Index')
         if self.config.release:
             # Show the release label only if release value exists
-            self.context['releasename'] = _('Release')
+            self.context.setdefault('releasename', _('Release'))
 
     def init_babel(self):
         # type: () -> None

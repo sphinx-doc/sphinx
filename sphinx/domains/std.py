@@ -18,6 +18,7 @@ from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.errors import NoUri
@@ -255,6 +256,9 @@ def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
     termtext = term.astext()
     if new_id is None:
         new_id = nodes.make_id('term-' + termtext)
+        if new_id == 'term':
+            # the term is not good for node_id.  Generate it by sequence number instead.
+            new_id = 'term-' + str(len(gloss_entries))
     if new_id in gloss_entries:
         new_id = 'term-' + str(len(gloss_entries))
     gloss_entries.add(new_id)
@@ -300,6 +304,7 @@ class Glossary(SphinxDirective):
         # first, collect single entries
         entries = []  # type: List[Tuple[List[Tuple[str, str, int]], StringList]]
         in_definition = True
+        in_comment = False
         was_empty = True
         messages = []  # type: List[nodes.Node]
         for line, (source, lineno) in zip(self.content, self.content.items):
@@ -313,27 +318,33 @@ class Glossary(SphinxDirective):
             if line and not line[0].isspace():
                 # enable comments
                 if line.startswith('.. '):
+                    in_comment = True
                     continue
+                else:
+                    in_comment = False
+
                 # first term of definition
                 if in_definition:
                     if not was_empty:
-                        messages.append(self.state.reporter.system_message(
-                            2, 'glossary term must be preceded by empty line',
+                        messages.append(self.state.reporter.warning(
+                            _('glossary term must be preceded by empty line'),
                             source=source, line=lineno))
                     entries.append(([(line, source, lineno)], StringList()))
                     in_definition = False
                 # second term and following
                 else:
                     if was_empty:
-                        messages.append(self.state.reporter.system_message(
-                            2, 'glossary terms must not be separated by empty '
-                            'lines', source=source, line=lineno))
+                        messages.append(self.state.reporter.warning(
+                            _('glossary terms must not be separated by empty lines'),
+                            source=source, line=lineno))
                     if entries:
                         entries[-1][0].append((line, source, lineno))
                     else:
-                        messages.append(self.state.reporter.system_message(
-                            2, 'glossary seems to be misformatted, check '
-                            'indentation', source=source, line=lineno))
+                        messages.append(self.state.reporter.warning(
+                            _('glossary seems to be misformatted, check indentation'),
+                            source=source, line=lineno))
+            elif in_comment:
+                pass
             else:
                 if not in_definition:
                     # first line of definition, determines indentation
@@ -342,9 +353,9 @@ class Glossary(SphinxDirective):
                 if entries:
                     entries[-1][1].append(line[indent_len:], source, lineno)
                 else:
-                    messages.append(self.state.reporter.system_message(
-                        2, 'glossary seems to be misformatted, check '
-                        'indentation', source=source, line=lineno))
+                    messages.append(self.state.reporter.warning(
+                        _('glossary seems to be misformatted, check indentation'),
+                        source=source, line=lineno))
             was_empty = False
 
         # now, parse all the entries into a big definition list
@@ -494,8 +505,6 @@ class StandardDomain(Domain):
     initial_data = {
         'progoptions': {},      # (program, name) -> docname, labelid
         'objects': {},          # (type, name) -> docname, labelid
-        'citations': {},        # citation_name -> docname, labelid, lineno
-        'citation_refs': {},    # citation_name -> list of docnames
         'labels': {             # labelname -> docname, labelid, sectionname
             'genindex': ('genindex', '', _('Index')),
             'modindex': ('py-modindex', '', _('Module Index')),
@@ -516,7 +525,6 @@ class StandardDomain(Domain):
         'keyword': 'unknown keyword: %(target)s',
         'doc': 'unknown document: %(target)s',
         'option': 'unknown option: %(target)s',
-        'citation': 'citation not found: %(target)s',
     }
 
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
@@ -534,81 +542,60 @@ class StandardDomain(Domain):
         for node, settings in env.app.registry.enumerable_nodes.items():
             self.enumerable_nodes[node] = settings
 
+    @property
+    def objects(self):
+        # type: () -> Dict[Tuple[str, str], Tuple[str, str]]
+        return self.data.setdefault('objects', {})  # (objtype, name) -> docname, labelid
+
+    @property
+    def progoptions(self):
+        # type: () -> Dict[Tuple[str, str], Tuple[str, str]]
+        return self.data.setdefault('progoptions', {})  # (program, name) -> docname, labelid
+
+    @property
+    def labels(self):
+        # type: () -> Dict[str, Tuple[str, str, str]]
+        return self.data.setdefault('labels', {})  # labelname -> docname, labelid, sectionname
+
+    @property
+    def anonlabels(self):
+        # type: () -> Dict[str, Tuple[str, str]]
+        return self.data.setdefault('anonlabels', {})  # labelname -> docname, labelid
+
     def clear_doc(self, docname):
         # type: (str) -> None
-        for key, (fn, _l) in list(self.data['progoptions'].items()):
+        key = None  # type: Any
+        for key, (fn, _l) in list(self.progoptions.items()):
             if fn == docname:
-                del self.data['progoptions'][key]
-        for key, (fn, _l) in list(self.data['objects'].items()):
+                del self.progoptions[key]
+        for key, (fn, _l) in list(self.objects.items()):
             if fn == docname:
-                del self.data['objects'][key]
-        for key, (fn, _l, lineno) in list(self.data['citations'].items()):
+                del self.objects[key]
+        for key, (fn, _l, _l) in list(self.labels.items()):
             if fn == docname:
-                del self.data['citations'][key]
-        for key, docnames in list(self.data['citation_refs'].items()):
-            if docnames == [docname]:
-                del self.data['citation_refs'][key]
-            elif docname in docnames:
-                docnames.remove(docname)
-        for key, (fn, _l, _l) in list(self.data['labels'].items()):
+                del self.labels[key]
+        for key, (fn, _l) in list(self.anonlabels.items()):
             if fn == docname:
-                del self.data['labels'][key]
-        for key, (fn, _l) in list(self.data['anonlabels'].items()):
-            if fn == docname:
-                del self.data['anonlabels'][key]
+                del self.anonlabels[key]
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[str], Dict) -> None
         # XXX duplicates?
         for key, data in otherdata['progoptions'].items():
             if data[0] in docnames:
-                self.data['progoptions'][key] = data
+                self.progoptions[key] = data
         for key, data in otherdata['objects'].items():
             if data[0] in docnames:
-                self.data['objects'][key] = data
-        for key, data in otherdata['citations'].items():
-            if data[0] in docnames:
-                self.data['citations'][key] = data
-        for key, data in otherdata['citation_refs'].items():
-            citation_refs = self.data['citation_refs'].setdefault(key, [])
-            for docname in data:
-                if docname in docnames:
-                    citation_refs.append(docname)
+                self.objects[key] = data
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
-                self.data['labels'][key] = data
+                self.labels[key] = data
         for key, data in otherdata['anonlabels'].items():
             if data[0] in docnames:
-                self.data['anonlabels'][key] = data
+                self.anonlabels[key] = data
 
     def process_doc(self, env, docname, document):
         # type: (BuildEnvironment, str, nodes.document) -> None
-        self.note_citations(env, docname, document)
-        self.note_citation_refs(env, docname, document)
-        self.note_labels(env, docname, document)
-
-    def note_citations(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.document) -> None
-        for node in document.traverse(nodes.citation):
-            node['docname'] = docname
-            label = cast(nodes.label, node[0]).astext()
-            if label in self.data['citations']:
-                path = env.doc2path(self.data['citations'][label][0])
-                logger.warning(__('duplicate citation %s, other instance in %s'), label, path,
-                               location=node, type='ref', subtype='citation')
-            self.data['citations'][label] = (docname, node['ids'][0], node.line)
-
-    def note_citation_refs(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.document) -> None
-        for node in document.traverse(addnodes.pending_xref):
-            if node['refdomain'] == 'std' and node['reftype'] == 'citation':
-                label = node['reftarget']
-                citation_refs = self.data['citation_refs'].setdefault(label, [])
-                citation_refs.append(docname)
-
-    def note_labels(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.document) -> None
-        labels, anonlabels = self.data['labels'], self.data['anonlabels']
         for name, explicit in document.nametypes.items():
             if not explicit:
                 continue
@@ -626,11 +613,11 @@ class StandardDomain(Domain):
                 # ignore footnote labels, labels automatically generated from a
                 # link and object descriptions
                 continue
-            if name in labels:
+            if name in self.labels:
                 logger.warning(__('duplicate label %s, other instance in %s'),
-                               name, env.doc2path(labels[name][0]),
+                               name, env.doc2path(self.labels[name][0]),
                                location=node)
-            anonlabels[name] = docname, labelid
+            self.anonlabels[name] = docname, labelid
             if node.tagname in ('section', 'rubric'):
                 title = cast(nodes.title, node[0])
                 sectname = clean_astext(title)
@@ -647,23 +634,15 @@ class StandardDomain(Domain):
             else:
                 # anonymous-only labels
                 continue
-            labels[name] = docname, labelid, sectname
+            self.labels[name] = docname, labelid, sectname
 
     def add_object(self, objtype, name, docname, labelid):
         # type: (str, str, str, str) -> None
-        self.data['objects'][objtype, name] = (docname, labelid)
+        self.objects[objtype, name] = (docname, labelid)
 
     def add_program_option(self, program, name, docname, labelid):
         # type: (str, str, str, str) -> None
-        self.data['progoptions'][program, name] = (docname, labelid)
-
-    def check_consistency(self):
-        # type: () -> None
-        for name, (docname, labelid, lineno) in self.data['citations'].items():
-            if name not in self.data['citation_refs']:
-                logger.warning(__('Citation [%s] is not referenced.'), name,
-                               type='ref', subtype='citation',
-                               location=(docname, lineno))
+        self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname, builder, docname, labelid,
                              sectname, rolename, **options):
@@ -703,7 +682,10 @@ class StandardDomain(Domain):
         elif typ == 'option':
             resolver = self._resolve_option_xref
         elif typ == 'citation':
-            resolver = self._resolve_citation_xref
+            warnings.warn('pending_xref(domain=std, type=citation) is deprecated: %r' % node,
+                          RemovedInSphinx40Warning)
+            domain = env.get_domain('citation')
+            return domain.resolve_xref(env, fromdocname, builder, typ, target, node, contnode)
         else:
             resolver = self._resolve_obj_xref
 
@@ -714,13 +696,12 @@ class StandardDomain(Domain):
         if node['refexplicit']:
             # reference to anonymous label; the reference uses
             # the supplied link caption
-            docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+            docname, labelid = self.anonlabels.get(target, ('', ''))
             sectname = node.astext()
         else:
             # reference to named label; the final node will
             # contain the section name after the label
-            docname, labelid, sectname = self.data['labels'].get(target,
-                                                                 ('', '', ''))
+            docname, labelid, sectname = self.labels.get(target, ('', '', ''))
         if not docname:
             return None
 
@@ -729,10 +710,10 @@ class StandardDomain(Domain):
 
     def _resolve_numref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
-        if target in self.data['labels']:
-            docname, labelid, figname = self.data['labels'].get(target, ('', '', ''))
+        if target in self.labels:
+            docname, labelid, figname = self.labels.get(target, ('', '', ''))
         else:
-            docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+            docname, labelid = self.anonlabels.get(target, ('', ''))
             figname = None
 
         if not docname:
@@ -791,7 +772,7 @@ class StandardDomain(Domain):
     def _resolve_keyword_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         # keywords are oddballs: they are referenced by named labels
-        docname, labelid, _ = self.data['labels'].get(target, ('', '', ''))
+        docname, labelid, _ = self.labels.get(target, ('', '', ''))
         if not docname:
             return None
         return make_refnode(builder, fromdocname, docname,
@@ -817,7 +798,7 @@ class StandardDomain(Domain):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         progname = node.get('std:program')
         target = target.strip()
-        docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))
+        docname, labelid = self.progoptions.get((progname, target), ('', ''))
         if not docname:
             commands = []
             while ws_re.search(target):
@@ -825,8 +806,7 @@ class StandardDomain(Domain):
                 commands.append(subcommand)
                 progname = "-".join(commands)
 
-                docname, labelid = self.data['progoptions'].get((progname, target),
-                                                                ('', ''))
+                docname, labelid = self.progoptions.get((progname, target), ('', ''))
                 if docname:
                     break
             else:
@@ -835,33 +815,12 @@ class StandardDomain(Domain):
         return make_refnode(builder, fromdocname, docname,
                             labelid, contnode)
 
-    def _resolve_citation_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
-        docname, labelid, lineno = self.data['citations'].get(target, ('', '', 0))
-        if not docname:
-            if 'ids' in node:
-                # remove ids attribute that annotated at
-                # transforms.CitationReference.apply.
-                del node['ids'][:]
-            return None
-
-        try:
-            return make_refnode(builder, fromdocname, docname,
-                                labelid, contnode)
-        except NoUri:
-            # remove the ids we added in the CitationReferences
-            # transform since they can't be transfered to
-            # the contnode (if it's a Text node)
-            if not isinstance(contnode, nodes.Element):
-                del node['ids'][:]
-            raise
-
     def _resolve_obj_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         objtypes = self.objtypes_for_role(typ) or []
         for objtype in objtypes:
-            if (objtype, target) in self.data['objects']:
-                docname, labelid = self.data['objects'][objtype, target]
+            if (objtype, target) in self.objects:
+                docname, labelid = self.objects[objtype, target]
                 break
         else:
             docname, labelid = '', ''
@@ -885,8 +844,8 @@ class StandardDomain(Domain):
             key = (objtype, target)
             if objtype == 'term':
                 key = (objtype, ltarget)
-            if key in self.data['objects']:
-                docname, labelid = self.data['objects'][key]
+            if key in self.objects:
+                docname, labelid = self.objects[key]
                 results.append(('std:' + self.role_for_objtype(objtype),
                                 make_refnode(builder, fromdocname, docname,
                                              labelid, contnode)))
@@ -897,22 +856,22 @@ class StandardDomain(Domain):
         # handle the special 'doc' reference here
         for doc in self.env.all_docs:
             yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
-        for (prog, option), info in self.data['progoptions'].items():
+        for (prog, option), info in self.progoptions.items():
             if prog:
                 fullname = ".".join([prog, option])
                 yield (fullname, fullname, 'cmdoption', info[0], info[1], 1)
             else:
                 yield (option, option, 'cmdoption', info[0], info[1], 1)
-        for (type, name), info in self.data['objects'].items():
+        for (type, name), info in self.objects.items():
             yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
-        for name, info in self.data['labels'].items():
-            yield (name, info[2], 'label', info[0], info[1], -1)
+        for name, (docname, labelid, sectionname) in self.labels.items():
+            yield (name, sectionname, 'label', docname, labelid, -1)
         # add anonymous-only labels as well
-        non_anon_labels = set(self.data['labels'])
-        for name, info in self.data['anonlabels'].items():
+        non_anon_labels = set(self.labels)
+        for name, (docname, labelid) in self.anonlabels.items():
             if name not in non_anon_labels:
-                yield (name, name, 'label', info[0], info[1], -1)
+                yield (name, name, 'label', docname, labelid, -1)
 
     def get_type_name(self, type, primary=False):
         # type: (ObjType, bool) -> str
@@ -992,6 +951,21 @@ class StandardDomain(Domain):
                 return None
         else:
             return None
+
+    def note_citations(self, env, docname, document):
+        # type: (BuildEnvironment, str, nodes.document) -> None
+        warnings.warn('StandardDomain.note_citations() is deprecated.',
+                      RemovedInSphinx40Warning)
+
+    def note_citation_refs(self, env, docname, document):
+        # type: (BuildEnvironment, str, nodes.document) -> None
+        warnings.warn('StandardDomain.note_citation_refs() is deprecated.',
+                      RemovedInSphinx40Warning)
+
+    def note_labels(self, env, docname, document):
+        # type: (BuildEnvironment, str, nodes.document) -> None
+        warnings.warn('StandardDomain.note_labels() is deprecated.',
+                      RemovedInSphinx40Warning)
 
 
 def setup(app):

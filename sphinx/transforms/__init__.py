@@ -9,7 +9,6 @@
 """
 
 import re
-from typing import cast
 
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
@@ -19,13 +18,12 @@ from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import (
-    NodeMatcher, apply_source_workaround, copy_source_info, is_smartquotable
-)
+from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
 
 if False:
     # For type annotation
@@ -198,39 +196,6 @@ class SortIds(SphinxTransform):
         for node in self.document.traverse(nodes.section):
             if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
-
-
-class SmartQuotesSkipper(SphinxTransform):
-    """Mark specific nodes as not smartquoted."""
-    default_priority = 619
-
-    def apply(self, **kwargs):
-        # type: (Any) -> None
-        # citation labels
-        for node in self.document.traverse(nodes.citation):
-            label = cast(nodes.label, node[0])
-            label['support_smartquotes'] = False
-
-
-class CitationReferences(SphinxTransform):
-    """
-    Replace citation references by pending_xref nodes before the default
-    docutils transform tries to resolve them.
-    """
-    default_priority = 619
-
-    def apply(self, **kwargs):
-        # type: (Any) -> None
-        for node in self.document.traverse(nodes.citation_reference):
-            target = node.astext()
-            ref = addnodes.pending_xref(target, refdomain='std', reftype='citation',
-                                        reftarget=target, refwarn=True,
-                                        support_smartquotes=False,
-                                        ids=node["ids"],
-                                        classes=node.get('classes', []))
-            ref += nodes.inline(target, '[%s]' % target)
-            copy_source_info(node, ref)
-            node.replace_self(ref)
 
 
 TRANSLATABLE_NODES = {
@@ -440,12 +405,22 @@ class ManpageLink(SphinxTransform):
             node.attributes.update(info)
 
 
+from sphinx.domains.citation import (  # NOQA
+    CitationDefinitionTransform, CitationReferenceTransform
+)
+
+deprecated_alias('sphinx.transforms',
+                 {
+                     'CitationReferences': CitationReferenceTransform,
+                     'SmartQuotesSkipper': CitationDefinitionTransform,
+                 },
+                 RemovedInSphinx40Warning)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
-    app.add_transform(SmartQuotesSkipper)
-    app.add_transform(CitationReferences)
     app.add_transform(DefaultSubstitutions)
     app.add_transform(MoveModuleTargets)
     app.add_transform(HandleCodeBlocks)
