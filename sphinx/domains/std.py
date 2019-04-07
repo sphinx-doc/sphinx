@@ -10,6 +10,7 @@
 
 import re
 import unicodedata
+import warnings
 from copy import copy
 from typing import cast
 
@@ -21,7 +22,6 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
