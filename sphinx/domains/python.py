@@ -9,13 +9,16 @@
 """
 
 import re
+import warnings
 from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes, locale
-from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
+from sphinx.deprecation import (
+    DeprecatedDict, RemovedInSphinx30Warning, RemovedInSphinx40Warning
+)
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.locale import _, __
@@ -452,6 +455,13 @@ class PyClassmember(PyObject):
     """
     Description of a class member (methods, attributes).
     """
+
+    def run(self):
+        # type: () -> List[nodes.Node]
+        warnings.warn('PyClassmember is deprecated.',
+                      RemovedInSphinx40Warning)
+
+        return super().run()
 
     def needs_arglist(self):
         # type: () -> bool
