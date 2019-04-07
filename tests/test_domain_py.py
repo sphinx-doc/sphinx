@@ -353,3 +353,22 @@ def test_pystaticmethod(app):
                                    [desc_content, ()]))
     assert 'Class.meth' in domain.objects
     assert domain.objects['Class.meth'] == ('index', 'staticmethod')
+
+
+def test_pyattribute(app):
+    text = (".. py:class:: Class\n"
+            "\n"
+            "   .. py:attribute:: attr\n")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Class"])],
+                                  [desc_content, (addnodes.index,
+                                                  desc)])]))
+    assert_node(doctree[1][1][0], addnodes.index,
+                entries=[('single', 'attr (Class attribute)', 'Class.attr', '', None)])
+    assert_node(doctree[1][1][1], ([desc_signature, desc_name, "attr"],
+                                   [desc_content, ()]))
+    assert 'Class.attr' in domain.objects
+    assert domain.objects['Class.attr'] == ('index', 'attribute')

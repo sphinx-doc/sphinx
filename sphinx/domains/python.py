@@ -592,6 +592,25 @@ class PyStaticMethod(PyMethod):
         return _('%s() (%s static method)') % (methname, clsname)
 
 
+class PyAttribute(PyObject):
+    """Description of an attribute."""
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, attrname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s (in module %s)') % (name, modname)
+            else:
+                return name
+
+        return _('%s (%s attribute)') % (attrname, clsname)
+
+
 class PyDecoratorMixin:
     """
     Mixin for decorator directives.
@@ -817,7 +836,7 @@ class PythonDomain(Domain):
         'method':          PyMethod,
         'classmethod':     PyClassMethod,
         'staticmethod':    PyStaticMethod,
-        'attribute':       PyClassmember,
+        'attribute':       PyAttribute,
         'module':          PyModule,
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,
