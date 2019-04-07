@@ -290,3 +290,24 @@ def test_pyobject_prefix(app):
                                                   desc)])]))
     assert doctree[1][1][1].astext().strip() == 'say'           # prefix is stripped
     assert doctree[1][1][3].astext().strip() == 'FooBar.say'    # not stripped
+
+
+def test_pymethod(app):
+    text = (".. py:class:: Class\n"
+            "\n"
+            "   .. py:method:: meth\n")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Class"])],
+                                  [desc_content, (addnodes.index,
+                                                  desc)])]))
+
+    assert_node(doctree[1][1][0], addnodes.index,
+                entries=[('single', 'meth() (Class method)', 'Class.meth', '', None)])
+    assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "meth"],
+                                                     [desc_parameterlist, ()])],
+                                   [desc_content, ()]))
+    assert 'Class.meth' in domain.objects
+    assert domain.objects['Class.meth'] == ('index', 'method')

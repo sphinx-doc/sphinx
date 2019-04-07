@@ -523,6 +523,29 @@ class PyClassmember(PyObject):
             return ''
 
 
+class PyMethod(PyObject):
+    """Description of a method."""
+
+    def needs_arglist(self):
+        # type: () -> bool
+        return True
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        return _('%s() (%s method)') % (methname, clsname)
+
+
 class PyDecoratorMixin:
     """
     Mixin for decorator directives.
@@ -745,7 +768,7 @@ class PythonDomain(Domain):
         'data':            PyModulelevel,
         'class':           PyClasslike,
         'exception':       PyClasslike,
-        'method':          PyClassmember,
+        'method':          PyMethod,
         'classmethod':     PyClassmember,
         'staticmethod':    PyClassmember,
         'attribute':       PyClassmember,
