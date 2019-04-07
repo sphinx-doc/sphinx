@@ -68,6 +68,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.param_separator = ''
         self.optional_param_level = 0
         self._table_row_index = 0
+        self._fieldlist_row_index = 0
         self.required_params_left = 0
 
     def visit_start_of_file(self, node):

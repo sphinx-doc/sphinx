@@ -410,6 +410,20 @@ p.versionchanged span.versionmodified {
     background-color: #DCE6A0;
 }
 
+dl.field-list > dt {
+    color: white;
+    padding-left: 0.5em;
+    padding-right: 5px;
+    background-color: #82A0BE;
+}
+
+dl.field-list > dd {
+    padding-left: 0.5em;
+    margin-top: 0em;
+    margin-left: 0em;
+    background-color: #f7f7f7;
+}
+
 /* -- table styles ---------------------------------------------------------- */
 
 table.docutils {
