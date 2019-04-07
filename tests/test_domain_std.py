@@ -177,7 +177,7 @@ def test_glossary_comment(app):
             "       description\n"
             "   .. term2\n"
             "       description\n"
-            "       .. description\n")
+            "       description\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (
         [glossary, definition_list, definition_list_item, ([term, ("term1",
@@ -185,9 +185,33 @@ def test_glossary_comment(app):
                                                            definition)],
     ))
     assert_node(doctree[0][0][0][1],
+                [nodes.definition, nodes.paragraph, "description"])
+
+
+def test_glossary_comment2(app):
+    text = (".. glossary::\n"
+            "\n"
+            "   term1\n"
+            "       description\n"
+            "\n"
+            "   .. term2\n"
+            "   term3\n"
+            "       description\n"
+            "       description\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        [glossary, definition_list, ([definition_list_item, ([term, ("term1",
+                                                                     index)],
+                                                             definition)],
+                                     [definition_list_item, ([term, ("term3",
+                                                                     index)],
+                                                             definition)])],
+    ))
+    assert_node(doctree[0][0][0][1],
+                [nodes.definition, nodes.paragraph, "description"])
+    assert_node(doctree[0][0][1][1],
                 [nodes.definition, nodes.paragraph, ("description\n"
-                                                     "description\n"
-                                                     ".. description")])
+                                                     "description")])
 
 
 def test_glossary_sorted(app):
