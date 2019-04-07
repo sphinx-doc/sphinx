@@ -30,6 +30,7 @@ Bugs fixed
 * #6245: circular import error on importing SerializingHTMLBuilder
 * #6243: LaTeX: 'releasename' setting for latex_elements is ignored
 * #6244: html: Search function is broken with 3rd party themes
+* #6263: html: HTML5Translator crashed with invalid field node
 
 Testing
 --------
