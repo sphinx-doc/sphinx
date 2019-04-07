@@ -70,6 +70,8 @@ Features added
 * #6232: Enable CLI override of Makefile variables
 * #6212 autosummary: Add :confval:`autosummary_imported_members` to display
   imported members on autosummary
+* Add ``:classmethod:`` and ``:staticmethod:`` options to :rst:dir:`py:method`
+  directive
 
 Bugs fixed
 ----------

@@ -571,9 +571,24 @@ class PyClassmember(PyObject):
 class PyMethod(PyObject):
     """Description of a method."""
 
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'classmethod': directives.flag,
+        'staticmethod': directives.flag,
+    })
+
     def needs_arglist(self):
         # type: () -> bool
         return True
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        if 'staticmethod' in self.options:
+            return 'static '
+        elif 'classmethod' in self.options:
+            return 'classmethod '
+        else:
+            return ''
 
     def get_index_text(self, modname, name_cls):
         # type: (str, Tuple[str, str]) -> str
@@ -588,53 +603,38 @@ class PyMethod(PyObject):
             else:
                 return '%s()' % name
 
-        return _('%s() (%s method)') % (methname, clsname)
+        if 'staticmethod' in self.options:
+            return _('%s() (%s static method)') % (methname, clsname)
+        elif 'classmethod' in self.options:
+            return _('%s() (%s class method)') % (methname, clsname)
+        else:
+            return _('%s() (%s method)') % (methname, clsname)
 
 
 class PyClassMethod(PyMethod):
     """Description of a classmethod."""
 
-    def get_signature_prefix(self, sig):
-        # type: (str) -> str
-        return 'classmethod '
+    option_spec = PyObject.option_spec.copy()
 
-    def get_index_text(self, modname, name_cls):
-        # type: (str, Tuple[str, str]) -> str
-        name, cls = name_cls
-        try:
-            clsname, methname = name.rsplit('.', 1)
-            if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
-        except ValueError:
-            if modname:
-                return _('%s() (in module %s)') % (name, modname)
-            else:
-                return '%s()' % name
+    def run(self):
+        # type: () -> List[nodes.Node]
+        self.name = 'py:method'
+        self.options['classmethod'] = True
 
-        return _('%s() (%s class method)') % (methname, clsname)
+        return super().run()
 
 
 class PyStaticMethod(PyMethod):
     """Description of a staticmethod."""
 
-    def get_signature_prefix(self, sig):
-        # type: (str) -> str
-        return 'static '
+    option_spec = PyObject.option_spec.copy()
 
-    def get_index_text(self, modname, name_cls):
-        # type: (str, Tuple[str, str]) -> str
-        name, cls = name_cls
-        try:
-            clsname, methname = name.rsplit('.', 1)
-            if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
-        except ValueError:
-            if modname:
-                return _('%s() (in module %s)') % (name, modname)
-            else:
-                return '%s()' % name
+    def run(self):
+        # type: () -> List[nodes.Node]
+        self.name = 'py:method'
+        self.options['staticmethod'] = True
 
-        return _('%s() (%s static method)') % (methname, clsname)
+        return super().run()
 
 
 class PyAttribute(PyObject):
