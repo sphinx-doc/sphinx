@@ -546,6 +546,52 @@ class PyMethod(PyObject):
         return _('%s() (%s method)') % (methname, clsname)
 
 
+class PyClassMethod(PyMethod):
+    """Description of a classmethod."""
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        return 'classmethod '
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        return _('%s() (%s class method)') % (methname, clsname)
+
+
+class PyStaticMethod(PyMethod):
+    """Description of a staticmethod."""
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        return 'static '
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        return _('%s() (%s static method)') % (methname, clsname)
+
+
 class PyDecoratorMixin:
     """
     Mixin for decorator directives.
@@ -769,8 +815,8 @@ class PythonDomain(Domain):
         'class':           PyClasslike,
         'exception':       PyClasslike,
         'method':          PyMethod,
-        'classmethod':     PyClassmember,
-        'staticmethod':    PyClassmember,
+        'classmethod':     PyClassMethod,
+        'staticmethod':    PyStaticMethod,
         'attribute':       PyClassmember,
         'module':          PyModule,
         'currentmodule':   PyCurrentModule,

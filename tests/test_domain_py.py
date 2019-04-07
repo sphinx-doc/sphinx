@@ -311,3 +311,45 @@ def test_pymethod(app):
                                    [desc_content, ()]))
     assert 'Class.meth' in domain.objects
     assert domain.objects['Class.meth'] == ('index', 'method')
+
+
+def test_pyclassmethod(app):
+    text = (".. py:class:: Class\n"
+            "\n"
+            "   .. py:classmethod:: meth\n")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Class"])],
+                                  [desc_content, (addnodes.index,
+                                                  desc)])]))
+    assert_node(doctree[1][1][0], addnodes.index,
+                entries=[('single', 'meth() (Class class method)', 'Class.meth', '', None)])
+    assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, "classmethod "],
+                                                     [desc_name, "meth"],
+                                                     [desc_parameterlist, ()])],
+                                   [desc_content, ()]))
+    assert 'Class.meth' in domain.objects
+    assert domain.objects['Class.meth'] == ('index', 'classmethod')
+
+
+def test_pystaticmethod(app):
+    text = (".. py:class:: Class\n"
+            "\n"
+            "   .. py:staticmethod:: meth\n")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Class"])],
+                                  [desc_content, (addnodes.index,
+                                                  desc)])]))
+    assert_node(doctree[1][1][0], addnodes.index,
+                entries=[('single', 'meth() (Class static method)', 'Class.meth', '', None)])
+    assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, "static "],
+                                                     [desc_name, "meth"],
+                                                     [desc_parameterlist, ()])],
+                                   [desc_content, ()]))
+    assert 'Class.meth' in domain.objects
+    assert domain.objects['Class.meth'] == ('index', 'staticmethod')
