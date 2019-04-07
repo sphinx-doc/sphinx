@@ -31,7 +31,6 @@ from sphinx.util.png import read_png_depth, write_png_depth
 if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple, Union  # NOQA
-    from sphinx.addnodes import displaymath  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA

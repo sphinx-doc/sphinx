@@ -66,7 +66,7 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
             print(__('This can happen with very large or deeply nested source '
                      'files.  You can carefully increase the default Python '
                      'recursion limit of 1000 in conf.py with e.g.:'), file=stderr)
-            print(__('    import sys; sys.setrecursionlimit(1500)'), file=stderr)
+            print('    import sys; sys.setrecursionlimit(1500)', file=stderr)
         else:
             print(red(__('Exception occurred:')), file=stderr)
             print(format_exception_cut_frames().rstrip(), file=stderr)
@@ -186,7 +186,7 @@ files can be built by specifying individual filenames.
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       help=__("With -W, Keep going when getting warnings"))
+                       help=__("With -W, keep going when getting warnings"))
     group.add_argument('-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('-P', action='store_true', dest='pdb',

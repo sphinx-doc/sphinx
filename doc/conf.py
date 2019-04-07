@@ -7,7 +7,7 @@ import sphinx
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
-              'sphinx.ext.viewcode']
+              'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
 
 master_doc = 'contents'
 templates_path = ['_templates']
@@ -48,7 +48,7 @@ epub_fix_images = False
 epub_max_image_width = 0
 epub_show_urls = 'inline'
 epub_use_index = False
-epub_guide = (('toc', 'contents.xhtml', u'Table of Contents'),)
+epub_guide = (('toc', 'contents.xhtml', 'Table of Contents'),)
 epub_description = 'Sphinx documentation generator system manual'
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',

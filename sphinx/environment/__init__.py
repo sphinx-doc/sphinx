@@ -13,11 +13,10 @@ import pickle
 import warnings
 from collections import defaultdict
 from copy import copy
-from io import BytesIO
 from os import path
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
 from sphinx.locale import __
@@ -25,12 +24,12 @@ from sphinx.transforms import SphinxTransformer
 from sphinx.util import DownloadFiles, FilenameUniqDict
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
-from sphinx.util.i18n import find_catalog_files
+from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Pattern, Set, Tuple, Type, Union, Generator  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Set, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -76,11 +75,6 @@ versioning_conditions = {
     'none': False,
     'text': is_translatable,
 }  # type: Dict[str, Union[bool, Callable]]
-
-
-class NoUri(Exception):
-    """Raised by get_relative_uri if there is no URI available."""
-    pass
 
 
 class BuildEnvironment:
@@ -311,10 +305,6 @@ class BuildEnvironment:
             if docname in other.reread_always:
                 self.reread_always.add(docname)
 
-        for version, changes in other.versionchanges.items():
-            self.versionchanges.setdefault(version, []).extend(
-                change for change in changes if change[1] in docnames)
-
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         app.emit('env-merge-info', self, docnames, other)
@@ -395,15 +385,13 @@ class BuildEnvironment:
             # move i18n process into the writing phase, and remove these lines.
             if builder.use_message_catalog:
                 # add catalog mo file dependency
+                repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                         self.config.language, self.config.source_encoding)
                 for docname in self.found_docs:
-                    catalog_files = find_catalog_files(
-                        docname,
-                        self.srcdir,
-                        self.config.locale_dirs,
-                        self.config.language,
-                        self.config.gettext_compact)
-                    for filename in catalog_files:
-                        self.dependencies[docname].add(filename)
+                    domain = docname_to_domain(docname, self.config.gettext_compact)
+                    for catalog in repo.catalogs:
+                        if catalog.domain == domain:
+                            self.dependencies[docname].add(catalog.mo_path)
         except OSError as exc:
             raise DocumentError(__('Failed to scan documents in %s: %r') % (self.srcdir, exc))
 
@@ -666,123 +654,3 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.check_consistency()
         self.app.emit('env-check-consistency', self)
-
-    # --------- METHODS FOR COMPATIBILITY --------------------------------------
-
-    def update(self, config, srcdir, doctreedir):
-        # type: (Config, str, str) -> List[str]
-        warnings.warn('env.update() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.app.builder.read()
-
-    def _read_serial(self, docnames, app):
-        # type: (List[str], Sphinx) -> None
-        warnings.warn('env._read_serial() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.app.builder._read_serial(docnames)
-
-    def _read_parallel(self, docnames, app, nproc):
-        # type: (List[str], Sphinx, int) -> None
-        warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.app.builder._read_parallel(docnames, nproc)
-
-    def read_doc(self, docname, app=None):
-        # type: (str, Sphinx) -> None
-        warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        self.app.builder.read_doc(docname)
-
-    def write_doctree(self, docname, doctree):
-        # type: (str, nodes.document) -> None
-        warnings.warn('env.write_doctree() is deprecated. '
-                      'Please use builder.write_doctree() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        self.app.builder.write_doctree(docname, doctree)
-
-    @property
-    def _nitpick_ignore(self):
-        # type: () -> List[str]
-        warnings.warn('env._nitpick_ignore is deprecated. '
-                      'Please use config.nitpick_ignore instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.config.nitpick_ignore
-
-    @staticmethod
-    def load(f, app=None):
-        # type: (IO, Sphinx) -> BuildEnvironment
-        warnings.warn('BuildEnvironment.load() is deprecated. '
-                      'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        try:
-            env = pickle.load(f)
-        except Exception as exc:
-            # This can happen for example when the pickle is from a
-            # different version of Sphinx.
-            raise OSError(exc)
-        if app:
-            env.app = app
-            env.config.values = app.config.values
-        return env
-
-    @classmethod
-    def loads(cls, string, app=None):
-        # type: (bytes, Sphinx) -> BuildEnvironment
-        warnings.warn('BuildEnvironment.loads() is deprecated. '
-                      'Please use pickle.loads() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        io = BytesIO(string)
-        return cls.load(io, app)
-
-    @classmethod
-    def frompickle(cls, filename, app):
-        # type: (str, Sphinx) -> BuildEnvironment
-        warnings.warn('BuildEnvironment.frompickle() is deprecated. '
-                      'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        with open(filename, 'rb') as f:
-            return cls.load(f, app)
-
-    @staticmethod
-    def dump(env, f):
-        # type: (BuildEnvironment, IO) -> None
-        warnings.warn('BuildEnvironment.dump() is deprecated. '
-                      'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
-
-    @classmethod
-    def dumps(cls, env):
-        # type: (BuildEnvironment) -> bytes
-        warnings.warn('BuildEnvironment.dumps() is deprecated. '
-                      'Please use pickle.dumps() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        io = BytesIO()
-        cls.dump(env, io)
-        return io.getvalue()
-
-    def topickle(self, filename):
-        # type: (str) -> None
-        warnings.warn('env.topickle() is deprecated. '
-                      'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        with open(filename, 'wb') as f:
-            self.dump(self, f)
-
-    @property
-    def versionchanges(self):
-        # type: () -> Dict[str, List[Tuple[str, str, int, str, str, str]]]
-        warnings.warn('env.versionchanges() is deprecated. '
-                      'Please use ChangeSetDomain instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.domaindata['changeset']['changes']
-
-    def note_versionchange(self, type, version, node, lineno):
-        # type: (str, str, addnodes.versionmodified, int) -> None
-        warnings.warn('env.note_versionchange() is deprecated. '
-                      'Please use ChangeSetDomain.note_changeset() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        node['type'] = type
-        node['version'] = version
-        node.line = lineno
-        self.get_domain('changeset').note_changeset(node)  # type: ignore

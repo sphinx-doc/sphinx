@@ -29,12 +29,11 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import relpath
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Sequence, Set, Tuple, Type  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple, Type  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -83,16 +82,6 @@ class TestDirective(SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        if 'skipif' in self.options:
-            condition = self.options['skipif']
-            context = {}  # type: Dict[str, Any]
-            if self.config.doctest_global_setup:
-                exec(self.config.doctest_global_setup, context)
-            should_skip = eval(condition, context)
-            if self.config.doctest_global_cleanup:
-                exec(self.config.doctest_global_cleanup, context)
-            if should_skip:
-                return []
         # use ordinary docutils nodes for test code: they get special attributes
         # so that our builder recognizes them, and the other builders are happy.
         code = '\n'.join(self.content)
@@ -114,7 +103,7 @@ class TestDirective(SphinxDirective):
         else:
             groups = ['default']
         node = nodetype(code, code, testnodetype=self.name, groups=groups)
-        set_source_info(self, node)
+        self.set_source_info(node)
         if test is not None:
             # only save if it differs from code
             node['test'] = test
@@ -160,6 +149,8 @@ class TestDirective(SphinxDirective):
                 self.state.document.reporter.warning(
                     __("'%s' is not a valid pyversion option") % spec,
                     line=self.lineno)
+        if 'skipif' in self.options:
+            node['skipif'] = self.options['skipif']
         return [node]
 
 
@@ -404,6 +395,20 @@ Doctest summary
             return node.line - 1
         return None
 
+    def skipped(self, node):
+        # type: (nodes.Element) -> bool
+        if 'skipif' not in node:
+            return False
+        else:
+            condition = node['skipif']
+            context = {}  # type: Dict[str, Any]
+            if self.config.doctest_global_setup:
+                exec(self.config.doctest_global_setup, context)
+            should_skip = eval(condition, context)
+            if self.config.doctest_global_cleanup:
+                exec(self.config.doctest_global_cleanup, context)
+            return should_skip
+
     def test_doc(self, docname, doctree):
         # type: (str, nodes.Node) -> None
         groups = {}  # type: Dict[str, TestGroup]
@@ -429,8 +434,10 @@ Doctest summary
                 # type: (nodes.Node) -> bool
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
-
         for node in doctree.traverse(condition):  # type: nodes.Element
+            if self.skipped(node):
+                continue
+
             source = node['test'] if 'test' in node else node.astext()
             filename = self.get_filename_for_node(node, docname)
             line_number = self.get_line_number(node)

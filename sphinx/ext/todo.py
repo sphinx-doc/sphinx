@@ -18,11 +18,11 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 import sphinx
-from sphinx.environment import NoUri
+from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import set_source_info
+from sphinx.util.nodes import make_refnode
 from sphinx.util.texescape import tex_escape_map
 
 if False:
@@ -56,6 +56,7 @@ class Todo(BaseAdmonition, SphinxDirective):
     final_argument_whitespace = False
     option_spec = {
         'class': directives.class_option,
+        'name': directives.unchanged,
     }
 
     def run(self):
@@ -68,13 +69,10 @@ class Todo(BaseAdmonition, SphinxDirective):
             return [todo]
         elif isinstance(todo, todo_node):
             todo.insert(0, nodes.title(text=_('Todo')))
-            set_source_info(self, todo)
-
-            targetid = 'index-%s' % self.env.new_serialno('index')
-            # Stash the target to be retrieved later in latex_visit_todo_node.
-            todo['targetref'] = '%s:%s' % (self.env.docname, targetid)
-            targetnode = nodes.target('', '', ids=[targetid])
-            return [targetnode, todo]
+            self.add_name(todo)
+            self.set_source_info(todo)
+            self.state.document.note_explicit_target(todo)
+            return [todo]
         else:
             raise RuntimeError  # never reached here
 
@@ -90,20 +88,14 @@ def process_todos(app, doctree):
     for node in doctree.traverse(todo_node):
         app.emit('todo-defined', node)
 
-        try:
-            targetnode = node.parent[node.parent.index(node) - 1]
-            if not isinstance(targetnode, nodes.target):
-                raise IndexError
-        except IndexError:
-            targetnode = None
         newnode = node.deepcopy()
-        del newnode['ids']
+        newnode['ids'] = []
         env.todo_all_todos.append({  # type: ignore
             'docname': env.docname,
             'source': node.source or env.doc2path(env.docname),
             'lineno': node.line,
             'todo': newnode,
-            'target': targetnode,
+            'target': node['ids'][0],
         })
 
         if env.config.todo_emit_warnings:
@@ -168,27 +160,16 @@ def process_todo_nodes(app, doctree, fromdocname):
             para += nodes.Text(desc1, desc1)
 
             # Create a reference
-            newnode = nodes.reference('', '', internal=True)
             innernode = nodes.emphasis(_('original entry'), _('original entry'))
             try:
-                newnode['refuri'] = app.builder.get_relative_uri(
-                    fromdocname, todo_info['docname'])
-                if 'refid' in todo_info['target']:
-                    newnode['refuri'] += '#' + todo_info['target']['refid']
-                else:
-                    newnode['refuri'] += '#' + todo_info['target']['ids'][0]
+                para += make_refnode(app.builder, fromdocname, todo_info['docname'],
+                                     todo_info['target'], innernode)
             except NoUri:
                 # ignore if no URI can be determined, e.g. for LaTeX output
                 pass
-            newnode.append(innernode)
-            para += newnode
             para += nodes.Text(desc2, desc2)
 
             todo_entry = todo_info['todo']
-            # Remove targetref from the (copied) node to avoid emitting a
-            # duplicate label of the original entry when we walk this node.
-            if 'targetref' in todo_entry:
-                del todo_entry['targetref']
 
             # (Recursively) resolve references in the todo content
             env.resolve_references(todo_entry, todo_info['docname'],
@@ -231,12 +212,7 @@ def depart_todo_node(self, node):
 def latex_visit_todo_node(self, node):
     # type: (LaTeXTranslator, todo_node) -> None
     self.body.append('\n\\begin{sphinxadmonition}{note}{')
-    # If this is the original todo node, emit a label that will be referenced by
-    # a hyperref in the todolist.
-    target = node.get('targetref')
-    if target is not None:
-        self.body.append('\\label{%s}' % target)
-
+    self.body.append(self.hypertarget_to(node))
     title_node = cast(nodes.title, node[0])
     self.body.append('%s:}' % title_node.astext().translate(tex_escape_map))
     node.pop(0)

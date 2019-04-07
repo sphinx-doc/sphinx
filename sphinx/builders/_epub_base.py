@@ -36,7 +36,6 @@ except ImportError:
 if False:
     # For type annotation
     from typing import Any, Dict, List, Set, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 logger = logging.getLogger(__name__)

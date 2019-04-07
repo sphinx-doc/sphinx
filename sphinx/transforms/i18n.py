@@ -21,7 +21,7 @@ from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.locale import __, init as init_locale
 from sphinx.transforms import SphinxTransform
 from sphinx.util import split_index_msg, logging
-from sphinx.util.i18n import find_catalog
+from sphinx.util.i18n import docname_to_domain
 from sphinx.util.nodes import (
     LITERAL_TYPE_NODES, IMAGE_TYPE_NODES, NodeMatcher,
     extract_messages, is_pending_meta, traverse_translatable_index,
@@ -94,7 +94,7 @@ class Locale(SphinxTransform):
         assert source.startswith(self.env.srcdir)
         docname = path.splitext(relative_path(path.join(self.env.srcdir, 'dummy'),
                                               source))[0]
-        textdomain = find_catalog(docname, self.config.gettext_compact)
+        textdomain = docname_to_domain(docname, self.config.gettext_compact)
 
         # fetch translations
         dirs = [path.join(self.env.srcdir, directory)
@@ -483,3 +483,16 @@ class RemoveTranslatableInline(SphinxTransform):
         for inline in self.document.traverse(matcher):  # type: nodes.inline
             inline.parent.remove(inline)
             inline.parent += inline.children
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(PreserveTranslatableMessages)
+    app.add_transform(Locale)
+    app.add_transform(RemoveTranslatableInline)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

@@ -16,7 +16,7 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -27,7 +27,7 @@ from sphinx.util.typing import NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union  # NOQA
+    from typing import Callable, Dict, Generator, Iterator, List, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.tags import Tags  # NOQA
@@ -155,27 +155,8 @@ class Config:
                                  'env', []),
     }  # type: Dict[str, Tuple]
 
-    def __init__(self, *args):
-        # type: (Any) -> None
-        if len(args) == 4:
-            # old style arguments: (dirname, filename, overrides, tags)
-            warnings.warn('The argument of Config() class has been changed. '
-                          'Use Config.read() to read configuration from conf.py.',
-                          RemovedInSphinx30Warning, stacklevel=2)
-            dirname, filename, overrides, tags = args
-            if dirname is None:
-                config = {}  # type: Dict[str, Any]
-            else:
-                config = eval_config_file(path.join(dirname, filename), tags)
-        else:
-            # new style arguments: (config={}, overrides={})
-            if len(args) == 0:
-                config, overrides = {}, {}
-            elif len(args) == 1:
-                config, overrides = args[0], {}
-            else:
-                config, overrides = args[:2]
-
+    def __init__(self, config={}, overrides={}):
+        # type: (Dict[str, Any], Dict[str, Any]) -> None
         self.overrides = overrides
         self.values = Config.config_values.copy()
         self._raw_config = config
@@ -195,18 +176,6 @@ class Config:
         filename = path.join(confdir, CONFIG_FILENAME)
         namespace = eval_config_file(filename, tags)
         return cls(namespace, overrides or {})
-
-    def check_types(self):
-        # type: () -> None
-        warnings.warn('Config.check_types() is deprecated. Use check_confval_types() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        check_confval_types(None, self)
-
-    def check_unicode(self):
-        # type: () -> None
-        warnings.warn('Config.check_unicode() is deprecated. Use check_unicode() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        check_unicode(self)
 
     def convert_overrides(self, name, value):
         # type: (str, Any) -> Any

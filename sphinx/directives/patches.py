@@ -14,6 +14,7 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, html, tables
 
 from sphinx import addnodes
+from sphinx.directives import optional_int
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
@@ -110,6 +111,52 @@ class ListTable(tables.ListTable):
         return title, message
 
 
+class Code(SphinxDirective):
+    """Parse and mark up content of a code block.
+
+    This is compatible with docutils' :rst:dir:`code` directive.
+    """
+    optional_arguments = 1
+    option_spec = {
+        'class': directives.class_option,
+        'name': directives.unchanged,
+        'number-lines': optional_int,
+    }
+    has_content = True
+
+    def run(self):
+        # type: () -> List[nodes.Node]
+        self.assert_has_content()
+
+        code = '\n'.join(self.content)
+        node = nodes.literal_block(code, code,
+                                   classes=self.options.get('classes', []),
+                                   highlight_args={})
+        self.add_name(node)
+        set_source_info(self, node)
+
+        if self.arguments:
+            # highlight language specified
+            node['language'] = self.arguments[0]
+            node['force_highlighting'] = True
+        else:
+            # no highlight language specified.  Then this directive refers the current
+            # highlight setting via ``highlight`` directive or ``highlight_language``
+            # configuration.
+            node['language'] = self.env.temp_data.get('highlight_language',
+                                                      self.config.highlight_language)
+            node['force_highlighting'] = False
+
+        if 'number-lines' in self.options:
+            node['linenos'] = True
+
+            # if number given, treat as lineno-start.
+            if self.options['number-lines']:
+                node['highlight_args']['linenostart'] = self.options['number-lines']
+
+        return [node]
+
+
 class MathDirective(SphinxDirective):
     has_content = True
     required_arguments = 0
@@ -118,6 +165,7 @@ class MathDirective(SphinxDirective):
     option_spec = {
         'label': directives.unchanged,
         'name': directives.unchanged,
+        'class': directives.class_option,
         'nowrap': directives.flag,
     }
 
@@ -126,13 +174,17 @@ class MathDirective(SphinxDirective):
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
+        label = self.options.get('label', self.options.get('name'))
         node = nodes.math_block(latex, latex,
+                                classes=self.options.get('class', []),
                                 docname=self.env.docname,
-                                number=self.options.get('name'),
-                                label=self.options.get('label'),
+                                number=None,
+                                label=label,
                                 nowrap='nowrap' in self.options)
+        self.add_name(node)
+        self.set_source_info(node)
+
         ret = [node]  # type: List[nodes.Node]
-        set_source_info(self, node)
         self.add_target(ret)
         return ret
 
@@ -171,6 +223,7 @@ def setup(app):
     directives.register_directive('table', RSTTable)
     directives.register_directive('csv-table', CSVTable)
     directives.register_directive('list-table', ListTable)
+    directives.register_directive('code', Code)
     directives.register_directive('math', MathDirective)
 
     return {

@@ -14,12 +14,9 @@ from typing import cast
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx import locale
-from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
 from sphinx.domains import Domain
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import set_source_info
 
 
 if False:
@@ -41,13 +38,6 @@ versionlabel_classes = {
     'deprecated':       'deprecated',
 }
 
-locale.versionlabels = DeprecatedDict(
-    versionlabels,
-    'sphinx.locale.versionlabels is deprecated. '
-    'Please use sphinx.domains.changeset.versionlabels instead.',
-    RemovedInSphinx30Warning
-)
-
 
 # TODO: move to typing.NamedTuple after dropping py35 support (see #5958)
 ChangeSet = namedtuple('ChangeSet',
@@ -68,7 +58,7 @@ class VersionChange(SphinxDirective):
         # type: () -> List[nodes.Node]
         node = addnodes.versionmodified()
         node.document = self.state.document
-        set_source_info(self, node)
+        self.set_source_info(node)
         node['type'] = self.name
         node['version'] = self.arguments[0]
         text = versionlabels[self.name] % self.arguments[0]
@@ -76,7 +66,7 @@ class VersionChange(SphinxDirective):
             inodes, messages = self.state.inline_text(self.arguments[1],
                                                       self.lineno + 1)
             para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
-            set_source_info(self, para)
+            self.set_source_info(para)
             node.append(para)
         else:
             messages = []

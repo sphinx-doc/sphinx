@@ -75,11 +75,11 @@ def test_process_doc(app):
     # other collections
     assert app.env.toc_num_entries['index'] == 6
     assert app.env.toctree_includes['index'] == ['foo', 'bar', 'baz']
-    assert app.env.files_to_rebuild['foo'] == set(['index'])
-    assert app.env.files_to_rebuild['bar'] == set(['index'])
-    assert app.env.files_to_rebuild['baz'] == set(['index'])
+    assert app.env.files_to_rebuild['foo'] == {'index'}
+    assert app.env.files_to_rebuild['bar'] == {'index'}
+    assert app.env.files_to_rebuild['baz'] == {'index'}
     assert app.env.glob_toctrees == set()
-    assert app.env.numbered_toctrees == set(['index'])
+    assert app.env.numbered_toctrees == {'index'}
 
     # qux has no section title
     assert len(app.env.tocs['qux']) == 0

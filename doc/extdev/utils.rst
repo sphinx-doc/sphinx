@@ -15,6 +15,9 @@ components (e.g. :class:`.Config`, :class:`.BuildEnvironment` and so on) easily.
 .. autoclass:: sphinx.transforms.SphinxTransform
    :members:
 
+.. autoclass:: sphinx.transforms.post_transforms.SphinxPostTransform
+   :members:
+
 .. autoclass:: sphinx.util.docutils.SphinxDirective
    :members:
 

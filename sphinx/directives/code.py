@@ -20,7 +20,6 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import parselinenos
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import set_source_info
 
 if False:
     # For type annotation
@@ -154,8 +153,8 @@ class CodeBlock(SphinxDirective):
             code = '\n'.join(lines)
 
         literal = nodes.literal_block(code, code)  # type: nodes.Element
-        literal['linenos'] = 'linenos' in self.options or \
-                             'lineno-start' in self.options
+        if 'linenos' in self.options or 'lineno-start' in self.options:
+            literal['linenos'] = True
         literal['classes'] += self.options.get('class', [])
         if self.arguments:
             # highlight language specified
@@ -173,7 +172,7 @@ class CodeBlock(SphinxDirective):
             extra_args['hl_lines'] = hl_lines
         if 'lineno-start' in self.options:
             extra_args['linenostart'] = self.options['lineno-start']
-        set_source_info(self, literal)
+        self.set_source_info(literal)
 
         caption = self.options.get('caption')
         if caption:
@@ -446,14 +445,14 @@ class LiteralInclude(SphinxDirective):
             text, lines = reader.read(location=location)
 
             retnode = nodes.literal_block(text, text, source=filename)  # type: nodes.Element
-            set_source_info(self, retnode)
+            self.set_source_info(retnode)
             if self.options.get('diff'):  # if diff is set, set udiff
                 retnode['language'] = 'udiff'
             elif 'language' in self.options:
                 retnode['language'] = self.options['language']
-            retnode['linenos'] = ('linenos' in self.options or
-                                  'lineno-start' in self.options or
-                                  'lineno-match' in self.options)
+            if ('linenos' in self.options or 'lineno-start' in self.options or
+                    'lineno-match' in self.options):
+                retnode['linenos'] = True
             retnode['classes'] += self.options.get('class', [])
             extra_args = retnode['highlight_args'] = {}
             if 'emphasize-lines' in self.options:

@@ -19,19 +19,19 @@ import babel.dates
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.matching import Matcher
-from sphinx.util.osutil import SEP, relpath
+from sphinx.util.osutil import SEP, canon_path, relpath
 
 
 logger = logging.getLogger(__name__)
 
 if False:
     # For type annotation
-    from typing import Callable, List, Set  # NOQA
+    from typing import Callable, Generator, List, Set, Tuple  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
 LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
@@ -81,8 +81,55 @@ class CatalogInfo(LocaleFileInfoBase):
                 logger.warning(__('writing error: %s, %s'), self.mo_path, exc)
 
 
+class CatalogRepository:
+    """A repository for message catalogs."""
+
+    def __init__(self, basedir, locale_dirs, language, encoding):
+        # type: (str, List[str], str, str) -> None
+        self.basedir = basedir
+        self._locale_dirs = locale_dirs
+        self.language = language
+        self.encoding = encoding
+
+    @property
+    def locale_dirs(self):
+        # type: () -> Generator[str, None, None]
+        if not self.language:
+            return
+
+        for locale_dir in self._locale_dirs:
+            locale_dir = path.join(self.basedir, locale_dir)
+            if path.exists(path.join(locale_dir, self.language, 'LC_MESSAGES')):
+                yield locale_dir
+
+    @property
+    def pofiles(self):
+        # type: () -> Generator[Tuple[str, str], None, None]
+        for locale_dir in self.locale_dirs:
+            basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
+            for root, dirnames, filenames in os.walk(basedir):
+                # skip dot-directories
+                for dirname in dirnames:
+                    if dirname.startswith('.'):
+                        dirnames.remove(dirname)
+
+                for filename in filenames:
+                    if filename.endswith('.po'):
+                        fullpath = path.join(root, filename)
+                        yield basedir, relpath(fullpath, basedir)
+
+    @property
+    def catalogs(self):
+        # type: () -> Generator[CatalogInfo, None, None]
+        for basedir, filename in self.pofiles:
+            domain = canon_path(path.splitext(filename)[0])
+            yield CatalogInfo(basedir, domain, self.encoding)
+
+
 def find_catalog(docname, compaction):
     # type: (str, bool) -> str
+    warnings.warn('find_catalog() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     if compaction:
         ret = docname.split(SEP, 1)[0]
     else:
@@ -91,8 +138,19 @@ def find_catalog(docname, compaction):
     return ret
 
 
+def docname_to_domain(docname, compation):
+    # type: (str, bool) -> str
+    """Convert docname to domain for catalogs."""
+    if compation:
+        return docname.split(SEP, 1)[0]
+    else:
+        return docname
+
+
 def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
     # type: (str, str, List[str], str, bool) -> List[str]
+    warnings.warn('find_catalog_files() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     if not(lang and locale_dirs):
         return []
 
@@ -103,10 +161,9 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
     return files
 
 
-def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=None,
-                              charset='utf-8', force_all=False,
-                              excluded=Matcher([])):
-    # type: (List[str], str, List[str], bool, str, bool, Matcher) -> Set[CatalogInfo]
+def find_catalog_source_files(locale_dirs, locale, domains=None, charset='utf-8',
+                              force_all=False, excluded=Matcher([])):
+    # type: (List[str], str, List[str], str, bool, Matcher) -> Set[CatalogInfo]
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -120,9 +177,8 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
        default is False.
     :return: [CatalogInfo(), ...]
     """
-    if gettext_compact is not None:
-        warnings.warn('gettext_compact argument for find_catalog_source_files() '
-                      'is deprecated.', RemovedInSphinx30Warning, stacklevel=2)
+    warnings.warn('find_catalog_source_files() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
 
     catalogs = set()  # type: Set[CatalogInfo]
 

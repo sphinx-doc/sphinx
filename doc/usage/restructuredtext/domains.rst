@@ -1084,7 +1084,7 @@ Overloaded (member) functions
 
 When a (member) function is referenced using just its name, the reference
 will point to an arbitrary matching overload.
-The :rst:role:`cpp:any` and :rst:role:`cpp:func` roles will an alternative
+The :rst:role:`cpp:any` and :rst:role:`cpp:func` roles use an alternative
 format, which simply is a complete function declaration.
 This will resolve to the exact matching overload.
 As example, consider the following class declaration:
@@ -1195,6 +1195,7 @@ Configuration Variables
 
 See :ref:`cpp-config`.
 
+.. _domains-std:
 
 The Standard Domain
 -------------------
@@ -1293,8 +1294,6 @@ The JavaScript domain (name **js**) provides the following directives:
    entry in the global module index, unless the ``noindex`` option is
    specified.  If this option is specified, the directive will only update the
    current module name.
-
-   To clear the current module, set the module name to ``null`` or ``None``
 
    .. versionadded:: 1.6
 

@@ -9,17 +9,19 @@
 """
 
 import re
+import warnings
 from typing import Any, cast
 
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, List, Optional, Set, Tuple, Type  # NOQA
+    from typing import Callable, Iterable, List, Optional, Set, Tuple, Type  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from docutils.statemachine import StringList  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -152,7 +154,7 @@ def apply_source_workaround(node):
 
     # workaround: literal_block under bullet list (#4913)
     if isinstance(node, nodes.literal_block) and node.source is None:
-        node.source = find_source_node(node)
+        node.source = get_node_source(node)
 
     # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
     if not node.rawsource:
@@ -170,7 +172,7 @@ def apply_source_workaround(node):
     ))):
         logger.debug('[i18n] PATCH: %r to have source and line: %s',
                      get_full_module_name(node), repr_domxml(node))
-        node.source = find_source_node(node)
+        node.source = get_node_source(node)
         node.line = 0  # need fix docutils to get `node.line`
         return
 
@@ -278,6 +280,13 @@ def extract_messages(doctree):
 
 
 def find_source_node(node):
+    # type: (nodes.Element) -> str
+    warnings.warn('find_source_node() is deprecated.',
+                  RemovedInSphinx40Warning)
+    return get_node_source(node)
+
+
+def get_node_source(node):
     # type: (nodes.Element) -> str
     for pnode in traverse_parent(node):
         if pnode.source:
@@ -467,6 +476,12 @@ def set_role_source_info(inliner, lineno, node):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
 
+def copy_source_info(src, dst):
+    # type: (nodes.Element, nodes.Element) -> None
+    dst.source = get_node_source(src)
+    dst.line = get_node_line(src)
+
+
 NON_SMARTQUOTABLE_PARENT_NODES = (
     nodes.FixedTextElement,
     nodes.literal,
@@ -513,6 +528,7 @@ def process_only_nodes(document, tags):
 
 
 # monkey-patch Element.copy to copy the rawsource and line
+# for docutils-0.14 or older versions.
 
 def _new_copy(self):
     # type: (nodes.Element) -> nodes.Element

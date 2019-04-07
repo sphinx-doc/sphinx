@@ -39,7 +39,6 @@ extras_require = {
         'colorama>=0.3.5',
     ],
     'test': [
-        'mock',
         'pytest',
         'pytest-cov',
         'html5lib',
@@ -173,6 +172,7 @@ setup(
     author_email='georg@python.org',
     description='Python documentation generator',
     long_description=long_desc,
+    long_description_content_type='text/x-rst',
     zip_safe=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -24,9 +24,7 @@ from docutils.utils import relative_path
 
 from sphinx import package_dir, __display_version__
 from sphinx.builders import Builder
-from sphinx.deprecation import (
-    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
-)
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -105,39 +103,6 @@ class Stylesheet(str):
         return self
 
 
-class JSContainer(list):
-    """The container for JavaScript scripts."""
-    def insert(self, index, obj):
-        # type: (int, str) -> None
-        warnings.warn('To modify script_files in the theme is deprecated. '
-                      'Please insert a <script> tag directly in your theme instead.',
-                      RemovedInSphinx30Warning, stacklevel=3)
-        super().insert(index, obj)
-
-    def extend(self, other):  # type: ignore
-        # type: (List[str]) -> None
-        warnings.warn('To modify script_files in the theme is deprecated. '
-                      'Please insert a <script> tag directly in your theme instead.',
-                      RemovedInSphinx30Warning, stacklevel=3)
-        for item in other:
-            self.append(item)
-
-    def __iadd__(self, other):  # type: ignore
-        # type: (List[str]) -> JSContainer
-        warnings.warn('To modify script_files in the theme is deprecated. '
-                      'Please insert a <script> tag directly in your theme instead.',
-                      RemovedInSphinx30Warning, stacklevel=3)
-        for item in other:
-            self.append(item)
-        return self
-
-    def __add__(self, other):
-        # type: (List[str]) -> JSContainer
-        ret = JSContainer(self)
-        ret += other
-        return ret
-
-
 class JavaScript(str):
     """A metadata of javascript file.
 
@@ -187,7 +152,7 @@ class BuildInfo:
         self.tags_hash = ''
 
         if config:
-            values = dict((c.name, c.value) for c in config.filter(config_categories))
+            values = {c.name: c.value for c in config.filter(config_categories)}
             self.config_hash = get_stable_hash(values)
 
         if tags:
@@ -247,7 +212,7 @@ class StandaloneHTMLBuilder(Builder):
         self.css_files = []  # type: List[Dict[str, str]]
 
         # JS files
-        self.script_files = JSContainer()  # type: List[JavaScript]
+        self.script_files = []  # type: List[JavaScript]
 
     def init(self):
         # type: () -> None
@@ -1067,16 +1032,6 @@ class StandaloneHTMLBuilder(Builder):
                 return True
             return False
         ctx['hasdoc'] = hasdoc
-
-        def warn(*args, **kwargs):
-            # type: (Any, Any) -> str
-            """Simple warn() wrapper for themes."""
-            warnings.warn('The template function warn() was deprecated. '
-                          'Use warning() instead.',
-                          RemovedInSphinx30Warning, stacklevel=2)
-            logger.warning(*args, **kwargs)
-            return ''  # return empty string
-        ctx['warn'] = warn
 
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
         self.add_sidebars(pagename, ctx)

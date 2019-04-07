@@ -15,28 +15,15 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import docutils
-from sphinx.util.docfields import DocFieldTransformer
+from sphinx.util.docfields import DocFieldTransformer, TypedField
 from sphinx.util.docutils import SphinxDirective
-
-# import all directives sphinx provides
-from sphinx.directives.code import (  # noqa
-    Highlight, CodeBlock, LiteralInclude
-)
-from sphinx.directives.other import (  # noqa
-    TocTree, Author, Index, VersionChange, SeeAlso,
-    TabularColumns, Centered, Acks, HList, Only, Include, Class
-)
-from sphinx.directives.patches import (  # noqa
-    Figure, Meta
-)
 
 if False:
     # For type annotation
-    from typing import Any, Dict  # NOQA
+    from typing import Any, Dict, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.docfields import Field  # NOQA
     from sphinx.util.typing import DirectiveOption  # NOQA
 
@@ -44,6 +31,19 @@ if False:
 # RE to strip backslash escapes
 nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
+
+
+def optional_int(argument):
+    """
+    Check for an integer argument or None value; raise ``ValueError`` if not.
+    """
+    if argument is None:
+        return None
+    else:
+        value = int(argument)
+        if value < 0:
+            raise ValueError('negative value; must be positive or zero')
+        return value
 
 
 class ObjectDescription(SphinxDirective):
@@ -66,6 +66,23 @@ class ObjectDescription(SphinxDirective):
     domain = None           # type: str
     objtype = None          # type: str
     indexnode = None        # type: addnodes.index
+
+    # Warning: this might be removed in future version. Don't touch this from extensions.
+    _doc_field_type_map = {}  # type: Dict[str, Tuple[Field, bool]]
+
+    def get_field_type_map(self):
+        # type: () -> Dict[str, Tuple[Field, bool]]
+        if self._doc_field_type_map == {}:
+            for field in self.doc_field_types:
+                for name in field.names:
+                    self._doc_field_type_map[name] = (field, False)
+
+                if field.is_typed:
+                    typed_field = cast(TypedField, field)
+                    for name in typed_field.typenames:
+                        self._doc_field_type_map[name] = (field, True)
+
+        return self._doc_field_type_map
 
     def get_signatures(self):
         # type: () -> List[str]
@@ -187,10 +204,6 @@ class ObjectDescription(SphinxDirective):
         return [self.indexnode, node]
 
 
-# backwards compatible old name
-DescDirective = ObjectDescription
-
-
 class DefaultRole(SphinxDirective):
     """
     Set the default interpreted text role.  Overridden from docutils.
@@ -242,6 +255,43 @@ class DefaultDomain(SphinxDirective):
         #             break
         self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
+
+from sphinx.directives.code import (  # noqa
+    Highlight, CodeBlock, LiteralInclude
+)
+from sphinx.directives.other import (  # noqa
+    TocTree, Author, Index, VersionChange, SeeAlso,
+    TabularColumns, Centered, Acks, HList, Only, Include, Class
+)
+from sphinx.directives.patches import (  # noqa
+    Figure, Meta
+)
+
+deprecated_alias('sphinx.directives',
+                 {
+                     'Highlight': Highlight,
+                     'CodeBlock': CodeBlock,
+                     'LiteralInclude': LiteralInclude,
+                     'TocTree': TocTree,
+                     'Author': Author,
+                     'Index': Index,
+                     'VersionChange': VersionChange,
+                     'SeeAlso': SeeAlso,
+                     'TabularColumns': TabularColumns,
+                     'Centered': Centered,
+                     'Acks': Acks,
+                     'HList': HList,
+                     'Only': Only,
+                     'Include': Include,
+                     'Class': Class,
+                     'Figure': Figure,
+                     'Meta': Meta,
+                 },
+                 RemovedInSphinx40Warning)
+
+
+# backwards compatible old name (will be marked deprecated in 3.0)
+DescDirective = ObjectDescription
 
 
 def setup(app):

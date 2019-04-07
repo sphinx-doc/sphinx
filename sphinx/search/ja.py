@@ -19,7 +19,6 @@
 import os
 import re
 import sys
-import warnings
 
 try:
     import MeCab
@@ -33,7 +32,6 @@ try:
 except ImportError:
     janome_module = False
 
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.search import SearchLanguage
 from sphinx.util import import_object
@@ -155,14 +153,14 @@ class JanomeSplitter(BaseSplitter):
 
 
 class DefaultSplitter(BaseSplitter):
-    patterns_ = dict([(re.compile(pattern), value) for pattern, value in {
+    patterns_ = {re.compile(pattern): value for pattern, value in {
         '[一二三四五六七八九十百千万億兆]': 'M',
         '[一-龠々〆ヵヶ]': 'H',
         '[ぁ-ん]': 'I',
         '[ァ-ヴーｱ-ﾝﾞｰ]': 'K',
         '[a-zA-Zａ-ｚＡ-Ｚ]': 'A',
         '[0-9０-９]': 'N',
-    }.items()])
+    }.items()}
     BIAS__ = -332
     BC1__ = {'HH': 6, 'II': 2461, 'KH': 406, 'OH': -1378}
     BC2__ = {'AA': -3267, 'AI': 2744, 'AN': -878, 'HH': -4070, 'HM': -1711,
@@ -543,22 +541,10 @@ class SearchJapanese(SearchLanguage):
     """
     lang = 'ja'
     language_name = 'Japanese'
-    splitters = {
-        'default': 'sphinx.search.ja.DefaultSplitter',
-        'mecab': 'sphinx.search.ja.MecabSplitter',
-        'janome': 'sphinx.search.ja.JanomeSplitter',
-    }
 
     def init(self, options):
         # type: (Dict) -> None
-        type = options.get('type', 'sphinx.search.ja.DefaultSplitter')
-        if type in self.splitters:
-            dotted_path = self.splitters[type]
-            warnings.warn('html_search_options["type"]: %s is deprecated. '
-                          'Please give "%s" instead.' % (type, dotted_path),
-                          RemovedInSphinx30Warning, stacklevel=2)
-        else:
-            dotted_path = type
+        dotted_path = options.get('type', 'sphinx.search.ja.DefaultSplitter')
         try:
             self.splitter = import_object(dotted_path)(options)
         except ExtensionError:

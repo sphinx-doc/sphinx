@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import platform
 import sys
 from warnings import catch_warnings
@@ -17,10 +16,7 @@ from warnings import catch_warnings
 import pytest
 from docutils.statemachine import ViewList
 
-from sphinx.ext.autodoc import (
-    ModuleLevelDocumenter, cut_lines, between, ALL,
-    merge_autodoc_default_flags, Options
-)
+from sphinx.ext.autodoc import ModuleLevelDocumenter, cut_lines, between, ALL, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
@@ -517,13 +513,11 @@ def test_docstring_processing():
     app.disconnect(lid)
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_new_documenter():
-    logging.setup(app, app._status, app._warning)
-
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_new_documenter(app):
     class MyDocumenter(ModuleLevelDocumenter):
         objtype = 'integer'
-        directivetype = 'data'
+        directivetype = 'integer'
         priority = 100
 
         @classmethod
@@ -535,17 +529,19 @@ def test_new_documenter():
 
     app.add_autodocumenter(MyDocumenter)
 
-    def assert_result_contains(item, objtype, name, **kw):
-        app._warning.truncate(0)
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-        # print '\n'.join(directive.result)
-        assert app._warning.getvalue() == ''
-        assert item in directive.result
-        del directive.result[:]
-
-    options.members = ['integer']
-    assert_result_contains('.. py:data:: integer', 'module', 'target')
+    options = {"members": 'integer'}
+    actual = do_autodoc(app, 'module', 'target', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target',
+        '',
+        '',
+        '.. py:integer:: integer',
+        '   :module: target',
+        '',
+        '   documentation for the integer',
+        '   '
+    ]
 
 
 @pytest.mark.usefixtures('setup_test')
@@ -583,23 +579,29 @@ def test_attrgetter_using():
         assert_getter_works('class', 'target.Class', Class, ['meth', 'inheritedmeth'])
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_generate():
-    def assert_result_contains(item, objtype, name, **kw):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-        assert item in directive.result
-        del directive.result[:]
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_py_module(app, warning):
+    # without py:module
+    actual = do_autodoc(app, 'method', 'Class.meth')
+    assert list(actual) == []
+    assert ("don't know which module to import for autodocumenting 'Class.meth'"
+            in warning.getvalue())
 
-    # test auto and given content mixing
-    directive.env.ref_context['py:module'] = 'target'
-    assert_result_contains('   Function.', 'method', 'Class.meth')
-    add_content = ViewList()
-    add_content.append('Content.', '', 0)
-    assert_result_contains('   Function.', 'method',
-                           'Class.meth', more_content=add_content)
-    assert_result_contains('   Content.', 'method',
-                           'Class.meth', more_content=add_content)
+    # with py:module
+    app.env.ref_context['py:module'] = 'target'
+    warning.truncate(0)
+
+    actual = do_autodoc(app, 'method', 'Class.meth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Class.meth()',
+        '   :module: target',
+        '',
+        '   Function.',
+        '   '
+    ]
+    assert ("don't know which module to import for autodocumenting 'Class.meth'"
+            not in warning.getvalue())
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1515,27 +1517,6 @@ def test_partialmethod(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
     assert list(actual) == expected
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-@pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
-def test_merge_autodoc_default_flags1(app):
-    app.config.autodoc_default_flags = ['members', 'undoc-members']
-    merge_autodoc_default_flags(app, app.config)
-    assert app.config.autodoc_default_options == {'members': None,
-                                                  'undoc-members': None}
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-@pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
-def test_merge_autodoc_default_flags2(app):
-    app.config.autodoc_default_flags = ['members', 'undoc-members']
-    app.config.autodoc_default_options = {'members': 'this,that,order',
-                                          'inherited-members': 'this'}
-    merge_autodoc_default_flags(app, app.config)
-    assert app.config.autodoc_default_options == {'members': None,
-                                                  'undoc-members': None,
-                                                  'inherited-members': 'this'}
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

@@ -1220,15 +1220,27 @@ def test_latex_raw_directive(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='images')
-def test_latex_remote_images(app, status, warning):
+def test_latex_images(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'python.tex').text(encoding='utf8')
+
+    # images are copied
     assert '\\sphinxincludegraphics{{python-logo}.png}' in result
     assert (app.outdir / 'python-logo.png').exists()
+
+    # not found images
     assert '\\sphinxincludegraphics{{NOT_EXIST}.PNG}' not in result
     assert ('WARNING: Could not fetch remote image: '
             'http://example.com/NOT_EXIST.PNG [404]' in warning.getvalue())
+
+    # an image having target
+    assert ('\\sphinxhref{https://www.sphinx-doc.org/}'
+            '{\\sphinxincludegraphics{{rimg}.png}}\n\n' in result)
+
+    # a centerized image having target
+    assert ('\\sphinxhref{https://www.python.org/}{{\\hspace*{\\fill}'
+            '\\sphinxincludegraphics{{rimg}.png}\\hspace*{\\fill}}}\n\n' in result)
 
 
 @pytest.mark.sphinx('latex', testroot='latex-index')
@@ -1397,3 +1409,13 @@ def test_includegraphics_oversized(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     compile_latex_document(app)
+
+
+@pytest.mark.sphinx('latex', testroot='index_on_title')
+def test_index_on_title(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').text(encoding='utf8')
+    assert ('\\chapter{Test for index in top level title}\n'
+            '\\label{\\detokenize{contents:test-for-index-in-top-level-title}}'
+            '\\index{index@\\spxentry{index}}\n'
+            in result)

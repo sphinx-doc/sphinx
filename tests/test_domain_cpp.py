@@ -9,7 +9,6 @@
 """
 
 import re
-import sys
 
 import pytest
 
@@ -152,9 +151,8 @@ def test_expressions():
         exprCheck(p + "'\\x0A'", t + "10")
         exprCheck(p + "'\\u0a42'", t + "2626")
         exprCheck(p + "'\\u0A42'", t + "2626")
-        if sys.maxunicode > 65535:
-            exprCheck(p + "'\\U0001f34c'", t + "127820")
-            exprCheck(p + "'\\U0001F34C'", t + "127820")
+        exprCheck(p + "'\\U0001f34c'", t + "127820")
+        exprCheck(p + "'\\U0001F34C'", t + "127820")
 
     # TODO: user-defined lit
     exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
@@ -196,6 +194,8 @@ def test_expressions():
     exprCheck('new int()', 'nw_ipiE')
     exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
     exprCheck('::new int', 'nw_iE')
+    exprCheck('new int{}', 'nw_iilE')
+    exprCheck('new int{5, 42}', 'nw_iilL5EL42EE')
     # delete-expression
     exprCheck('delete p', 'dl1p')
     exprCheck('delete [] p', 'da1p')
@@ -673,6 +673,40 @@ def test_template_args():
     check('type', "template<typename T> "
           "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
           {2: "I0E21enable_if_not_array_t"})
+
+
+def test_initializers():
+    idsMember = {1: 'v__T', 2:'1v'}
+    idsFunction = {1: 'f__T', 2: '1f1T'}
+    idsTemplate = {2: 'I_1TE1fv', 4: 'I_1TE1fvv'}
+    # no init
+    check('member', 'T v', idsMember)
+    check('function', 'void f(T v)', idsFunction)
+    check('function', 'template<T v> void f()', idsTemplate)
+    # with '=', assignment-expression
+    check('member', 'T v = 42', idsMember)
+    check('function', 'void f(T v = 42)', idsFunction)
+    check('function', 'template<T v = 42> void f()', idsTemplate)
+    # with '=', braced-init
+    check('member', 'T v = {}', idsMember)
+    check('function', 'void f(T v = {})', idsFunction)
+    check('function', 'template<T v = {}> void f()', idsTemplate)
+    check('member', 'T v = {42, 42, 42}', idsMember)
+    check('function', 'void f(T v = {42, 42, 42})', idsFunction)
+    check('function', 'template<T v = {42, 42, 42}> void f()', idsTemplate)
+    check('member', 'T v = {42, 42, 42,}', idsMember)
+    check('function', 'void f(T v = {42, 42, 42,})', idsFunction)
+    check('function', 'template<T v = {42, 42, 42,}> void f()', idsTemplate)
+    check('member', 'T v = {42, 42, args...}', idsMember)
+    check('function', 'void f(T v = {42, 42, args...})', idsFunction)
+    check('function', 'template<T v = {42, 42, args...}> void f()', idsTemplate)
+    # without '=', braced-init
+    check('member', 'T v{}', idsMember)
+    check('member', 'T v{42, 42, 42}', idsMember)
+    check('member', 'T v{42, 42, 42,}', idsMember)
+    check('member', 'T v{42, 42, args...}', idsMember)
+    # other
+    check('member', 'T v = T{}', idsMember)
 
 
 def test_attributes():

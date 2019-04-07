@@ -88,7 +88,7 @@ MediaWiki
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
 
-   .. code-block:: html+django
+   .. code-block:: html+jinja
 
       {% extends "!layout.html" %}
 
@@ -118,6 +118,36 @@ Google Analytics
       </div>
       {% endblock %}
 
+
+Google Search
+   To replace Sphinx's built-in search function with Google Search, proceed as
+   follows:
+
+   1. Go to https://cse.google.com/cse/all to create the Google Search code
+      snippet.
+
+   2. Copy the code snippet and paste it into ``_templates/searchbox.html`` in
+      your Sphinx project:
+
+      .. code-block:: html+jinja
+
+         <div>
+            <h3>{{ _('Quick search') }}</h3>
+            <script>
+               (function() {
+                  var cx = '......';
+                  var gcse = document.createElement('script');
+                  gcse.type = 'text/javascript';
+                  gcse.async = true;
+                  gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+                  var s = document.getElementsByTagName('script')[0];
+                  s.parentNode.insertBefore(gcse, s);
+               })();
+            </script>
+           <gcse:search></gcse:search>
+         </div>
+
+   3. Add ``searchbox.html`` to the :confval:`html_sidebars` configuration value.
 
 .. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py

@@ -23,7 +23,6 @@ from docutils import nodes
 
 import sphinx
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import set_source_info
 
 if False:
     # For type annotation
@@ -47,7 +46,7 @@ class IfConfig(SphinxDirective):
         # type: () -> List[nodes.Node]
         node = ifconfig()
         node.document = self.state.document
-        set_source_info(self, node)
+        self.set_source_info(node)
         node['expr'] = self.arguments[0]
         self.state.nested_parse(self.content, self.content_offset,
                                 node, match_titles=True)
@@ -56,7 +55,7 @@ class IfConfig(SphinxDirective):
 
 def process_ifconfig_nodes(app, doctree, docname):
     # type: (Sphinx, nodes.document, str) -> None
-    ns = dict((confval.name, confval.value) for confval in app.config)
+    ns = {confval.name: confval.value for confval in app.config}
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
     for node in doctree.traverse(ifconfig):

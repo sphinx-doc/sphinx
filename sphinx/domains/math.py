@@ -11,7 +11,6 @@
 from docutils import nodes
 from docutils.nodes import make_id
 
-from sphinx.addnodes import math_block as displaymath
 from sphinx.domains import Domain
 from sphinx.locale import __
 from sphinx.roles import XRefRole
@@ -20,7 +19,7 @@ from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Dict, Iterable, List, Tuple  # NOQA
     from sphinx import addnodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -49,7 +48,6 @@ class MathDomain(Domain):
         'eq': 'equation not found: %(target)s',
     }
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
-        displaymath: ('displaymath', None),
         nodes.math_block: ('displaymath', None),
     }
     roles = {

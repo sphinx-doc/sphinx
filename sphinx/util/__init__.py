@@ -26,21 +26,18 @@ from os import path
 from time import mktime, strptime
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
-from docutils.utils import relative_path
-
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
-from sphinx.util.fileutil import copy_asset_file
 from sphinx.util import smartypants  # noqa
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
 from sphinx.util.osutil import (  # noqa
     SEP, os_path, relative_uri, ensuredir, walk, mtimes_of_files, movefile,
-    copyfile, copytimes, make_filename, ustrftime)
+    copyfile, copytimes, make_filename)
 from sphinx.util.nodes import (   # noqa
     nested_parse_with_titles, split_explicit_title, explicit_title_re,
     caption_ref_re)
@@ -48,7 +45,7 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -138,7 +135,7 @@ class FilenameUniqDict(dict):
         while uniquename in self._existing:
             i += 1
             uniquename = '%s%s%s' % (base, i, ext)
-        self[newfile] = (set([docname]), uniquename)
+        self[newfile] = ({docname}, uniquename)
         self._existing.add(uniquename)
         return uniquename
 
@@ -194,36 +191,6 @@ class DownloadFiles(dict):
         for filename, (docs, dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
-
-
-def copy_static_entry(source, targetdir, builder, context={},
-                      exclude_matchers=(), level=0):
-    # type: (str, str, Any, Dict, Tuple[Callable, ...], int) -> None
-    """[DEPRECATED] Copy a HTML builder static_path entry from source to targetdir.
-
-    Handles all possible cases of files, directories and subdirectories.
-    """
-    warnings.warn('sphinx.util.copy_static_entry is deprecated for removal',
-                  RemovedInSphinx30Warning, stacklevel=2)
-
-    if exclude_matchers:
-        relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
-        for matcher in exclude_matchers:
-            if matcher(relpath):
-                return
-    if path.isfile(source):
-        copy_asset_file(source, targetdir, context, builder.templates)
-    elif path.isdir(source):
-        ensuredir(targetdir)
-        for entry in os.listdir(source):
-            if entry.startswith('.'):
-                continue
-            newtarget = targetdir
-            if path.isdir(path.join(source, entry)):
-                newtarget = path.join(targetdir, entry)
-            copy_static_entry(path.join(source, entry), newtarget,
-                              builder, context, level=level + 1,
-                              exclude_matchers=exclude_matchers)
 
 
 _DEBUG_HEADER = '''\
@@ -603,22 +570,26 @@ class PeekableIterator:
 
 def import_object(objname, source=None):
     # type: (str, str) -> Any
+    """Import python object by qualname."""
     try:
-        module, name = objname.rsplit('.', 1)
-    except ValueError as err:
-        raise ExtensionError('Invalid full object name %s' % objname +
-                             (source and ' (needed for %s)' % source or ''),
-                             err)
-    try:
-        return getattr(__import__(module, None, None, [name]), name)
-    except ImportError as err:
-        raise ExtensionError('Could not import %s' % module +
-                             (source and ' (needed for %s)' % source or ''),
-                             err)
-    except AttributeError as err:
-        raise ExtensionError('Could not find %s' % objname +
-                             (source and ' (needed for %s)' % source or ''),
-                             err)
+        objpath = objname.split('.')
+        modname = objpath.pop(0)
+        obj = __import__(modname)
+        for name in objpath:
+            modname += '.' + name
+            try:
+                obj = getattr(obj, name)
+            except AttributeError:
+                __import__(modname)
+                obj = getattr(obj, name)
+
+        return obj
+    except (AttributeError, ImportError) as exc:
+        if source:
+            raise ExtensionError('Could not import %s (needed for %s)' %
+                                 (objname, source), exc)
+        else:
+            raise ExtensionError('Could not import %s' % objname, exc)
 
 
 def encode_uri(uri):

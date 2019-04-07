@@ -41,7 +41,7 @@ from sphinx.util.inventory import InventoryFile
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, IO, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -150,9 +150,9 @@ def _get_safe_url(url):
     else:
         frags = list(parts)
         if parts.port:
-            frags[1] = '{0}@{1}:{2}'.format(parts.username, parts.hostname, parts.port)
+            frags[1] = '{}@{}:{}'.format(parts.username, parts.hostname, parts.port)
         else:
-            frags[1] = '{0}@{1}'.format(parts.username, parts.hostname)
+            frags[1] = '{}@{}'.format(parts.username, parts.hostname)
 
         return urlunsplit(frags)
 
@@ -173,7 +173,7 @@ def fetch_inventory(app, uri, inv):
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
         err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
-                    inv, err.__class__, err)
+                    inv, err.__class__, str(err))
         raise
     try:
         if hasattr(f, 'url'):
@@ -191,7 +191,7 @@ def fetch_inventory(app, uri, inv):
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
         err.args = ('intersphinx inventory %r not readable due to %s: %s',
-                    inv, err.__class__.__name__, err)
+                    inv, err.__class__.__name__, str(err))
         raise
     else:
         return invdata
@@ -234,10 +234,9 @@ def load_mappings(app):
             for fail in failures:
                 logger.info(*fail)
         else:
+            issues = '\n'.join([f[0] % f[1:] for f in failures])
             logger.warning(__("failed to reach any of the inventories "
-                              "with the following issues:"))
-            for fail in failures:
-                logger.warning(*fail)
+                              "with the following issues:") + "\n" + issues)
 
     if update:
         inventories.clear()

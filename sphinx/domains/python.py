@@ -13,8 +13,7 @@ import re
 from docutils import nodes
 from docutils.parsers.rst import directives
 
-from sphinx import addnodes, locale
-from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
+from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.locale import _, __
@@ -26,7 +25,7 @@ from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Dict, Iterable, Iterator, List, Tuple, Type  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -54,13 +53,6 @@ pairindextypes = {
     'statement': _('statement'),
     'builtin':   _('built-in function'),
 }
-
-locale.pairindextypes = DeprecatedDict(
-    pairindextypes,
-    'sphinx.locale.pairindextypes is deprecated. '
-    'Please use sphinx.domains.python.pairindextypes instead.',
-    RemovedInSphinx30Warning
-)
 
 
 def _pseudo_parse_arglist(signode, arglist):
@@ -254,30 +246,30 @@ class PyObject(ObjectDescription):
         m = py_sig_re.match(sig)
         if m is None:
             raise ValueError
-        name_prefix, name, arglist, retann = m.groups()
+        prefix, name, arglist, retann = m.groups()
 
         # determine module and class name (if applicable), as well as full name
-        modname = self.options.get(
-            'module', self.env.ref_context.get('py:module'))
+        modname = self.options.get('module', self.env.ref_context.get('py:module'))
         classname = self.env.ref_context.get('py:class')
         if classname:
             add_module = False
-            if name_prefix and name_prefix.startswith(classname):
-                fullname = name_prefix + name
+            if prefix and (prefix == classname or
+                           prefix.startswith(classname + ".")):
+                fullname = prefix + name
                 # class name is given again in the signature
-                name_prefix = name_prefix[len(classname):].lstrip('.')
-            elif name_prefix:
+                prefix = prefix[len(classname):].lstrip('.')
+            elif prefix:
                 # class name is given in the signature, but different
                 # (shouldn't happen)
-                fullname = classname + '.' + name_prefix + name
+                fullname = classname + '.' + prefix + name
             else:
                 # class name is not given in the signature
                 fullname = classname + '.' + name
         else:
             add_module = True
-            if name_prefix:
-                classname = name_prefix.rstrip('.')
-                fullname = name_prefix + name
+            if prefix:
+                classname = prefix.rstrip('.')
+                fullname = prefix + name
             else:
                 classname = ''
                 fullname = name
@@ -290,36 +282,31 @@ class PyObject(ObjectDescription):
         if sig_prefix:
             signode += addnodes.desc_annotation(sig_prefix, sig_prefix)
 
-        if name_prefix:
-            signode += addnodes.desc_addname(name_prefix, name_prefix)
-        # exceptions are a special case, since they are documented in the
-        # 'exceptions' module.
+        if prefix:
+            signode += addnodes.desc_addname(prefix, prefix)
         elif add_module and self.env.config.add_module_names:
-            modname = self.options.get(
-                'module', self.env.ref_context.get('py:module'))
             if modname and modname != 'exceptions':
+                # exceptions are a special case, since they are documented in the
+                # 'exceptions' module.
                 nodetext = modname + '.'
                 signode += addnodes.desc_addname(nodetext, nodetext)
 
-        anno = self.options.get('annotation')
-
         signode += addnodes.desc_name(name, name)
-        if not arglist:
+        if arglist:
+            _pseudo_parse_arglist(signode, arglist)
+        else:
             if self.needs_arglist():
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
-            if retann:
-                signode += addnodes.desc_returns(retann, retann)
-            if anno:
-                signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
-            return fullname, name_prefix
 
-        _pseudo_parse_arglist(signode, arglist)
         if retann:
             signode += addnodes.desc_returns(retann, retann)
+
+        anno = self.options.get('annotation')
         if anno:
             signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
-        return fullname, name_prefix
+
+        return fullname, prefix
 
     def get_index_text(self, modname, name):
         # type: (str, str) -> str

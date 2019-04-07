@@ -391,8 +391,8 @@ def test_html4_output(app, status, warning):
         (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
         (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
         (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
-        (".//a[@class='reference internal'][@href='#bar'][@id='id4']", r"\[bar\]"),
-        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']", r"\[baz_qux\]"),
+        (".//a[@class='reference internal'][@href='#bar'][@id='id4']/span", r"\[bar\]"),
+        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']/span", r"\[baz_qux\]"),
         (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
         (".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
         (".//a[@class='fn-backref'][@href='#id1']", r"1"),
@@ -1252,6 +1252,15 @@ def test_html_inventory(app):
                                            '',
                                            'http://example.com/index.html',
                                            'The basic Sphinx documentation for testing')
+
+
+@pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_anchor_for_figure(app):
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').text()
+    assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
+            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
+            in content)
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')

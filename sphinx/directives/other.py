@@ -21,12 +21,11 @@ from sphinx.locale import _
 from sphinx.util import url_re, docname_join
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
-from sphinx.util.nodes import explicit_title_re, set_source_info, \
-    process_index_entry
+from sphinx.util.nodes import explicit_title_re, process_index_entry
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Generator, List, Tuple  # NOQA
+    from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -77,7 +76,7 @@ class TocTree(SphinxDirective):
         subnode['includehidden'] = 'includehidden' in self.options
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
-        set_source_info(self, subnode)
+        self.set_source_info(subnode)
         wrappernode = nodes.compound(classes=['toctree-wrapper'])
         wrappernode.append(subnode)
         self.add_name(wrappernode)
@@ -204,7 +203,7 @@ class Index(SphinxDirective):
         indexnode = addnodes.index()
         indexnode['entries'] = []
         indexnode['inline'] = False
-        set_source_info(self, indexnode)
+        self.set_source_info(indexnode)
         for entry in arguments:
             indexnode['entries'].extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
@@ -231,7 +230,7 @@ class TabularColumns(SphinxDirective):
         # type: () -> List[nodes.Node]
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
-        set_source_info(self, node)
+        self.set_source_info(node)
         return [node]
 
 
@@ -330,7 +329,7 @@ class Only(SphinxDirective):
         # type: () -> List[nodes.Node]
         node = addnodes.only()
         node.document = self.state.document
-        set_source_info(self, node)
+        self.set_source_info(node)
         node['expr'] = self.arguments[0]
 
         # Same as util.nested_parse_with_titles but try to handle nested

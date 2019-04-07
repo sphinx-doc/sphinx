@@ -9,3 +9,4 @@ Refer to the following tutorials to get started with extension development.
 
    helloworld
    todo
+   recipe

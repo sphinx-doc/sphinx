@@ -9,19 +9,18 @@
     :license: BSD, see LICENSE for details.
 """
 import pickle
-import warnings
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
 from uuid import uuid4
 
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
-    from typing import Any, Iterator  # NOQA
+    from typing import Any, Dict, Iterator  # NOQA
     from docutils import nodes  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 try:
     import Levenshtein
@@ -179,10 +178,12 @@ class UIDTransform(SphinxTransform):
             list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
 
 
-def prepare(document):
-    # type: (nodes.document) -> None
-    """Simple wrapper for UIDTransform."""
-    warnings.warn('versioning.prepare() is deprecated. Use UIDTransform instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    transform = UIDTransform(document)
-    transform.apply()
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(UIDTransform)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

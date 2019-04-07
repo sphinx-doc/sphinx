@@ -1,6 +1,6 @@
 """
-    test_ext_autodoc_importer
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    test_ext_autodoc_mock
+    ~~~~~~~~~~~~~~~~~~~~~
 
     Test the autodoc extension.
 
@@ -13,11 +13,11 @@ import sys
 
 import pytest
 
-from sphinx.ext.autodoc.importer import _MockModule, _MockObject, mock
+from sphinx.ext.autodoc.mock import _MockModule, _MockObject, mock
 
 
 def test_MockModule():
-    mock = _MockModule('mocked_module', None)
+    mock = _MockModule('mocked_module')
     assert isinstance(mock.some_attr, _MockObject)
     assert isinstance(mock.some_method, _MockObject)
     assert isinstance(mock.attr1.attr2, _MockObject)

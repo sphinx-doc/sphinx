@@ -41,31 +41,21 @@ def write_mo(pathname, po):
         return mofile.write_mo(f, po)
 
 
-@pytest.fixture
-def build_mo():
-    def builder(srcdir):
-        """
-        :param str srcdir: app.srcdir
-        """
-        srcdir = path(srcdir)
-        for dirpath, dirs, files in os.walk(srcdir):
-            dirpath = path(dirpath)
-            for f in [f for f in files if f.endswith('.po')]:
-                po = dirpath / f
-                mo = srcdir / 'xx' / 'LC_MESSAGES' / (
-                    os.path.relpath(po[:-3], srcdir) + '.mo')
-                if not mo.parent.exists():
-                    mo.parent.makedirs()
-
-                if not mo.exists() or mo.stat().st_mtime < po.stat().st_mtime:
-                    # compile .mo file only if needed
-                    write_mo(mo, read_po(po))
-    return builder
-
-
 @pytest.fixture(autouse=True)
-def setup_intl(app_params, build_mo):
-    build_mo(app_params.kwargs['srcdir'])
+def setup_intl(app_params):
+    srcdir = path(app_params.kwargs['srcdir'])
+    for dirpath, dirs, files in os.walk(srcdir):
+        dirpath = path(dirpath)
+        for f in [f for f in files if f.endswith('.po')]:
+            po = dirpath / f
+            mo = srcdir / 'xx' / 'LC_MESSAGES' / (
+                os.path.relpath(po[:-3], srcdir) + '.mo')
+            if not mo.parent.exists():
+                mo.parent.makedirs()
+
+            if not mo.exists() or mo.stat().st_mtime < po.stat().st_mtime:
+                # compile .mo file only if needed
+                write_mo(mo, read_po(po))
 
 
 @pytest.fixture(autouse=True)
@@ -296,7 +286,7 @@ def test_text_glossary_term_inconsistencies(app, warning):
 def test_gettext_section(app):
     app.build()
     # --- section
-    expect = read_po(app.srcdir / 'section.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'section.po')
     actual = read_po(app.outdir / 'section.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -309,7 +299,7 @@ def test_text_section(app):
     app.build()
     # --- section
     result = (app.outdir / 'section.txt').text()
-    expect = read_po(app.srcdir / 'section.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'section.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
 
@@ -445,7 +435,7 @@ def test_text_admonitions(app):
 def test_gettext_toctree(app):
     app.build()
     # --- toctree
-    expect = read_po(app.srcdir / 'index.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'index.po')
     actual = read_po(app.outdir / 'index.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -457,7 +447,7 @@ def test_gettext_toctree(app):
 def test_gettext_table(app):
     app.build()
     # --- toctree
-    expect = read_po(app.srcdir / 'table.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'table.po')
     actual = read_po(app.outdir / 'table.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -470,7 +460,7 @@ def test_text_table(app):
     app.build()
     # --- toctree
     result = (app.outdir / 'table.txt').text()
-    expect = read_po(app.srcdir / 'table.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'table.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
 
@@ -481,7 +471,7 @@ def test_text_table(app):
 def test_gettext_topic(app):
     app.build()
     # --- topic
-    expect = read_po(app.srcdir / 'topic.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'topic.po')
     actual = read_po(app.outdir / 'topic.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -494,7 +484,7 @@ def test_text_topic(app):
     app.build()
     # --- topic
     result = (app.outdir / 'topic.txt').text()
-    expect = read_po(app.srcdir / 'topic.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'topic.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
 
@@ -505,7 +495,7 @@ def test_text_topic(app):
 def test_gettext_definition_terms(app):
     app.build()
     # --- definition terms: regression test for #2198, #2205
-    expect = read_po(app.srcdir / 'definition_terms.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'definition_terms.po')
     actual = read_po(app.outdir / 'definition_terms.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -517,7 +507,7 @@ def test_gettext_definition_terms(app):
 def test_gettext_glossary_terms(app, warning):
     app.build()
     # --- glossary terms: regression test for #1090
-    expect = read_po(app.srcdir / 'glossary_terms.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'glossary_terms.po')
     actual = read_po(app.outdir / 'glossary_terms.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -531,7 +521,7 @@ def test_gettext_glossary_terms(app, warning):
 def test_gettext_glossary_term_inconsistencies(app):
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
-    expect = read_po(app.srcdir / 'glossary_terms_inconsistency.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po')
     actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -543,7 +533,7 @@ def test_gettext_glossary_term_inconsistencies(app):
 def test_gettext_literalblock(app):
     app.build()
     # --- gettext builder always ignores ``only`` directive
-    expect = read_po(app.srcdir / 'literalblock.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'literalblock.po')
     actual = read_po(app.outdir / 'literalblock.pot')
     for expect_msg in [m for m in expect if m.id]:
         if len(expect_msg.id.splitlines()) == 1:
@@ -559,7 +549,7 @@ def test_gettext_literalblock(app):
 def test_gettext_buildr_ignores_only_directive(app):
     app.build()
     # --- gettext builder always ignores ``only`` directive
-    expect = read_po(app.srcdir / 'only.po')
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'only.po')
     actual = read_po(app.outdir / 'only.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -568,7 +558,7 @@ def test_gettext_buildr_ignores_only_directive(app):
 @sphinx_intl
 # use individual shared_result directory to avoid "incompatible doctree" error
 @pytest.mark.sphinx(testroot='builder-gettext-dont-rebuild-mo')
-def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
+def test_gettext_dont_rebuild_mo(make_app, app_params):
     # --- don't rebuild by .mo mtime
     def get_number_of_update_targets(app_):
         app_.env.find_files(app_.config, app_.builder)
@@ -579,7 +569,6 @@ def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
 
     # phase1: build document with non-gettext builder and generate mo file in srcdir
     app0 = make_app('dummy', *args, **kwargs)
-    build_mo(app0.srcdir)
     app0.build()
     assert (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').exists()
     # Since it is after the build, the number of documents to be updated is 0
@@ -616,6 +605,8 @@ def test_html_meta(app):
     expected_expr = '<meta content="TESTDATA FOR I18N" name="description" />'
     assert expected_expr in result
     expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
+    assert expected_expr in result
+    expected_expr = '<p class="caption"><span class="caption-text">HIDDEN TOC</span></p>'
     assert expected_expr in result
 
 
@@ -829,8 +820,7 @@ def test_xml_footnote_backlinks(app):
 
     para0 = secs[0].findall('paragraph')
     refs0 = para0[0].findall('footnote_reference')
-    refid2id = dict([
-        (r.attrib.get('refid'), r.attrib.get('ids')) for r in refs0])
+    refid2id = {r.attrib.get('refid'): r.attrib.get('ids') for r in refs0}
 
     footnote0 = secs[0].findall('footnote')
     for footnote in footnote0:

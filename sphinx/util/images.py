@@ -10,15 +10,11 @@
 
 import base64
 import imghdr
-import warnings
 from collections import OrderedDict
-from io import BytesIO
 from os import path
 from typing import NamedTuple
 
 import imagesize
-
-from sphinx.deprecation import RemovedInSphinx30Warning
 
 try:
     from PIL import Image
@@ -27,7 +23,7 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Dict, IO, List, Tuple  # NOQA
+    from typing import IO, Tuple  # NOQA
 
 mime_suffixes = OrderedDict([
     ('.gif', 'image/gif'),
@@ -72,17 +68,11 @@ def guess_mimetype_for_stream(stream, default=None):
         return default
 
 
-def guess_mimetype(filename='', content=None, default=None):
-    # type: (str, bytes, str) -> str
+def guess_mimetype(filename, default=None):
+    # type: (str, str) -> str
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
-    elif content:
-        # TODO: When the content argument is removed, make filename a required
-        # argument.
-        warnings.warn('The content argument of guess_mimetype() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return guess_mimetype_for_stream(BytesIO(content), default=default)
     elif path.exists(filename):
         with open(filename, 'rb') as f:
             return guess_mimetype_for_stream(f, default=default)

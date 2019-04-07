@@ -42,9 +42,7 @@ from sphinx.util.rst import escape as rst_escape
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, List, Tuple, Type, Union  # NOQA
-    from sphinx import addnodes  # NOQA
     from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
 
 

@@ -12,6 +12,7 @@ import re
 import unicodedata
 from itertools import groupby
 
+from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import split_into, logging
 
@@ -33,8 +34,6 @@ class IndexEntries:
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
         # type: (Builder, bool, Pattern) -> List[Tuple[str, List[Tuple[str, Any]]]]
         """Create the real index from the collected index entries."""
-        from sphinx.environment import NoUri
-
         new = {}  # type: Dict[str, List]
 
         def add_entry(word, subword, main, link=True, dic=new, key=None):

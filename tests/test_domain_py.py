@@ -8,12 +8,18 @@
     :license: BSD, see LICENSE for details.
 """
 
+from unittest.mock import Mock
+
 import pytest
 from docutils import nodes
-from mock import Mock
 
 from sphinx import addnodes
+from sphinx.addnodes import (
+    desc, desc_addname, desc_annotation, desc_content, desc_name, desc_optional,
+    desc_parameter, desc_parameterlist, desc_returns, desc_signature
+)
 from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist, PythonDomain
+from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
@@ -202,3 +208,85 @@ def test_get_full_qualified_name():
     kwargs = {'py:module': 'module1', 'py:class': 'Class'}
     node = nodes.reference(reftarget='func', **kwargs)
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
+
+
+def test_pyfunction_signature(app):
+    text = ".. py:function:: hello(name: str) -> str"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "hello"],
+                                                    desc_parameterlist,
+                                                    [desc_returns, "str"])],
+                                  desc_content)]))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, "name: str"])
+
+
+def test_optional_pyfunction_signature(app):
+    text = ".. py:function:: compile(source [, filename [, symbol]]) -> ast object"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "compile"],
+                                                    desc_parameterlist,
+                                                    [desc_returns, "ast object"])],
+                                  desc_content)]))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1],
+                ([desc_parameter, "source"],
+                 [desc_optional, ([desc_parameter, "filename"],
+                                  [desc_optional, desc_parameter, "symbol"])]))
+
+
+def test_pyexception_signature(app):
+    text = ".. py:exception:: exceptions.IOError"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "exception "],
+                                                    [desc_addname, "exceptions."],
+                                                    [desc_name, "IOError"])],
+                                  desc_content)]))
+    assert_node(doctree[1], desc, desctype="exception",
+                domain="py", objtype="exception", noindex=False)
+
+
+def test_exceptions_module_is_ignored(app):
+    text = (".. py:exception:: IOError\n"
+            "   :module: exceptions\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "exception "],
+                                                    [desc_name, "IOError"])],
+                                  desc_content)]))
+    assert_node(doctree[1], desc, desctype="exception",
+                domain="py", objtype="exception", noindex=False)
+
+
+def test_pydata_signature(app):
+    text = (".. py:data:: version\n"
+            "   :annotation: = 1\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "version"],
+                                                    [desc_annotation, " = 1"])],
+                                  desc_content)]))
+    assert_node(doctree[1], addnodes.desc, desctype="data",
+                domain="py", objtype="data", noindex=False)
+
+
+def test_pyobject_prefix(app):
+    text = (".. py:class:: Foo\n"
+            "\n"
+            "   .. py:method:: Foo.say\n"
+            "   .. py:method:: FooBar.say")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Foo"])],
+                                  [desc_content, (addnodes.index,
+                                                  desc,
+                                                  addnodes.index,
+                                                  desc)])]))
+    assert doctree[1][1][1].astext().strip() == 'say'           # prefix is stripped
+    assert doctree[1][1][3].astext().strip() == 'FooBar.say'    # not stripped

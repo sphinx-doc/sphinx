@@ -10,16 +10,16 @@
 
 import os
 import tempfile
+from unittest.mock import patch
 
 import pytest
-from mock import patch
 
 import sphinx
-from sphinx.errors import PycodeError
+from sphinx.errors import ExtensionError, PycodeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (
     SkipProgressMessage, display_chunk, encode_uri, ensuredir, get_module_source,
-    parselinenos, progress_message, status_iterator, xmlname_checker
+    import_object, parselinenos, progress_message, status_iterator, xmlname_checker
 )
 from sphinx.util import logging
 
@@ -69,6 +69,26 @@ def test_get_module_source():
         get_module_source('builtins')
     with pytest.raises(PycodeError):
         get_module_source('itertools')
+
+
+def test_import_object():
+    module = import_object('sphinx')
+    assert module.__name__ == 'sphinx'
+
+    module = import_object('sphinx.application')
+    assert module.__name__ == 'sphinx.application'
+
+    obj = import_object('sphinx.application.Sphinx')
+    assert obj.__name__ == 'Sphinx'
+
+    with pytest.raises(ExtensionError) as exc:
+        import_object('sphinx.unknown_module')
+    assert exc.value.args[0] == 'Could not import sphinx.unknown_module'
+
+    with pytest.raises(ExtensionError) as exc:
+        import_object('sphinx.unknown_module', 'my extension')
+    assert exc.value.args[0] == ('Could not import sphinx.unknown_module '
+                                 '(needed for my extension)')
 
 
 @pytest.mark.sphinx('dummy')

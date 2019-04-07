@@ -55,7 +55,7 @@ from sphinx.util.docutils import SphinxDirective
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Dict, Optional  # NOQA
+    from typing import Any, Dict, List, Optional, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
@@ -167,11 +167,17 @@ class InheritanceGraph:
         """Return name and bases for all classes that are ancestors of
         *classes*.
 
-        *parts* gives the number of dotted name parts that is removed from the
-        displayed node names.
+        *parts* gives the number of dotted name parts to include in the
+        displayed node names, from right to left. If given as a negative, the
+        number of parts to drop from the left. A value of 0 displays the full
+        dotted name. E.g. ``sphinx.ext.inheritance_diagram.InheritanceGraph``
+        with ``parts=2`` or ``parts=-2`` gets displayed as
+        ``inheritance_diagram.InheritanceGraph``, and as
+        ``ext.inheritance_diagram.InheritanceGraph`` with ``parts=3`` or
+        ``parts=-1``.
 
-        *top_classes* gives the name(s) of the top most ancestor class to traverse
-        to. Multiple names can be specified separated by comma.
+        *top_classes* gives the name(s) of the top most ancestor class to
+        traverse to. Multiple names can be specified separated by comma.
         """
         all_classes = {}
         py_builtins = vars(builtins).values()
@@ -332,7 +338,7 @@ class InheritanceDiagram(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {
-        'parts': directives.nonnegative_int,
+        'parts': int,
         'private-bases': directives.flag,
         'caption': directives.unchanged,
         'top-classes': directives.unchanged_required,

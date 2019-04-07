@@ -13,7 +13,7 @@ This extension features one additional builder, the :class:`CoverageBuilder`.
 
 .. todo:: Write this section.
 
-Several new configuration values can be used to specify what the builder
+Several configuration values can be used to specify what the builder
 should check:
 
 .. confval:: coverage_ignore_modules

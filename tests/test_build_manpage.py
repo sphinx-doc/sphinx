@@ -30,6 +30,27 @@ def test_all(app, status, warning):
     assert 'Footnotes' not in content
 
 
+@pytest.mark.sphinx('man', testroot='directive-code')
+def test_captioned_code_block(app, status, warning):
+    app.builder.build_all()
+    content = (app.outdir / 'python.1').text()
+
+    assert ('.sp\n'
+            'caption \\fItest\\fP rb\n'
+            '.INDENT 0.0\n'
+            '.INDENT 3.5\n'
+            '.sp\n'
+            '.nf\n'
+            '.ft C\n'
+            'def ruby?\n'
+            '    false\n'
+            'end\n'
+            '.ft P\n'
+            '.fi\n'
+            '.UNINDENT\n'
+            '.UNINDENT\n' in content)
+
+
 def test_default_man_pages():
     config = Config({'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein",

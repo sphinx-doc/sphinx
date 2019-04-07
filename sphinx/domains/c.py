@@ -72,12 +72,12 @@ class CObject(ObjectDescription):
 
     # These C types aren't described anywhere, so don't try to create
     # a cross-reference to them
-    stopwords = set((
+    stopwords = {
         'const', 'void', 'char', 'wchar_t', 'int', 'short',
         'long', 'float', 'double', 'unsigned', 'signed', 'FILE',
         'clock_t', 'time_t', 'ptrdiff_t', 'size_t', 'ssize_t',
         'struct', '_Bool',
-    ))
+    }
 
     def _parse_type(self, node, ctype):
         # type: (nodes.Element, str) -> None

@@ -16,13 +16,14 @@ from os import path, walk, getenv
 from time import time
 from uuid import uuid4
 
+from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.i18n import find_catalog
+from sphinx.util.i18n import docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import relpath, ensuredir, canon_path
 from sphinx.util.tags import Tags
@@ -140,7 +141,12 @@ class I18nBuilder(Builder):
 
     def write_doc(self, docname, doctree):
         # type: (str, nodes.document) -> None
-        catalog = self.catalogs[find_catalog(docname, self.config.gettext_compact)]
+        catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
+
+        for toctree in self.env.tocs[docname].traverse(addnodes.toctree):
+            for node, msg in extract_messages(toctree):
+                node.uid = ''  # type: ignore  # Hack UUID model
+                catalog.add(msg, node)
 
         for node, msg in extract_messages(doctree):
             catalog.add(msg, node)

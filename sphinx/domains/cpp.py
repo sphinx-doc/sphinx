@@ -19,7 +19,7 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.environment import NoUri
+from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.transforms import SphinxTransform
@@ -1159,15 +1159,12 @@ class ASTNoexceptExpr(ASTBase):
 
 
 class ASTNewExpr(ASTBase):
-    def __init__(self, rooted, isNewTypeId, typ, initList, initType):
-        # type: (bool, bool,  ASTType, List[Any], str) -> None
+    def __init__(self, rooted, isNewTypeId, typ, initList):
+        # type: (bool, bool,  ASTType, Any) -> None
         self.rooted = rooted
         self.isNewTypeId = isNewTypeId
         self.typ = typ
         self.initList = initList
-        self.initType = initType
-        if self.initList is not None:
-            assert self.initType in ')}'
 
     def _stringify(self, transform):
         # type: (Callable[[Any], str]) -> str
@@ -1181,15 +1178,7 @@ class ASTNewExpr(ASTBase):
         else:
             assert False
         if self.initList is not None:
-            if self.initType == ')':
-                res.append('(')
-            first = True
-            for e in self.initList:
-                if not first:
-                    res.append(', ')
-                first = False
-                res.append(transform(e))
-            res.append(self.initType)
+            res.append(transform(self.initList))
         return ''.join(res)
 
     def get_id(self, version):
@@ -1200,13 +1189,7 @@ class ASTNewExpr(ASTBase):
         res.append('_')
         res.append(self.typ.get_id(version))
         if self.initList is not None:
-            if self.initType == ')':
-                res.append('pi')
-                for e in self.initList:
-                    res.append(e.get_id(version))
-                res.append('E')
-            else:
-                assert False
+            res.append(self.initList.get_id(version))
         else:
             res.append('E')
         return ''.join(res)
@@ -1221,17 +1204,7 @@ class ASTNewExpr(ASTBase):
         else:
             assert False
         if self.initList is not None:
-            if self.initType == ')':
-                signode.append(nodes.Text('('))
-                first = True
-                for e in self.initList:
-                    if not first:
-                        signode.append(nodes.Text(', '))
-                    first = False
-                    e.describe_signature(signode, mode, env, symbol)
-                signode.append(nodes.Text(')'))
-            else:
-                assert False
+            self.initList.describe_signature(signode, mode, env, symbol)
 
 
 class ASTDeleteExpr(ASTBase):
@@ -1323,38 +1296,24 @@ class ASTTypeId(ASTBase):
 
 
 class ASTPostfixCallExpr(ASTBase):
-    def __init__(self, exprs):
-        self.exprs = exprs
+    def __init__(self, lst):
+        # type: (Union[ASTParenExprList, ASTBracedInitList]) -> None
+        self.lst = lst
 
     def _stringify(self, transform):
         # type: (Callable[[Any], str]) -> str
-        res = ['(']
-        first = True
-        for e in self.exprs:
-            if not first:
-                res.append(', ')
-            first = False
-            res.append(transform(e))
-        res.append(')')
-        return ''.join(res)
+        return transform(self.lst)
 
     def get_id(self, idPrefix, version):
         # type: (str, int) -> str
         res = ['cl', idPrefix]
-        for e in self.exprs:
+        for e in self.lst.exprs:
             res.append(e.get_id(version))
         res.append('E')
         return ''.join(res)
 
     def describe_signature(self, signode, mode, env, symbol):
-        signode.append(nodes.Text('('))
-        first = True
-        for e in self.exprs:
-            if not first:
-                signode.append(nodes.Text(', '))
-            first = False
-            e.describe_signature(signode, mode, env, symbol)
-        signode.append(nodes.Text(')'))
+        self.lst.describe_signature(signode, mode, env, symbol)
 
 
 class ASTPostfixArray(ASTBase):
@@ -3232,18 +3191,85 @@ class ASTDeclaratorNameParamQual(ASTBase):
             self.paramQual.describe_signature(signode, mode, env, symbol)
 
 
-class ASTInitializer(ASTBase):
-    def __init__(self, value):
-        self.value = value
+class ASTParenExprList(ASTBase):
+    def __init__(self, exprs):
+        # type: (List[Any]) -> None
+        self.exprs = exprs
+
+    def get_id(self, version):
+        # type: (int) -> str
+        return "pi%sE" % ''.join(e.get_id(version) for e in self.exprs)
 
     def _stringify(self, transform):
         # type: (Callable[[Any], str]) -> str
-        return ' = ' + transform(self.value)
+        exprs = [transform(e) for e in self.exprs]
+        return '(%s)' % ', '.join(exprs)
 
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
-        signode.append(nodes.Text(' = '))
+        signode.append(nodes.Text('('))
+        first = True
+        for e in self.exprs:
+            if not first:
+                signode.append(nodes.Text(', '))
+            else:
+                first = False
+                e.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTBracedInitList(ASTBase):
+    def __init__(self, exprs, trailingComma):
+        # type: (List[Any], bool) -> None
+        self.exprs = exprs
+        self.trailingComma = trailingComma
+
+    def get_id(self, version):
+        # type: (int) -> str
+        return "il%sE" % ''.join(e.get_id(version) for e in self.exprs)
+
+    def _stringify(self, transform):
+        # type: (Callable[[Any], str]) -> str
+        exprs = [transform(e) for e in self.exprs]
+        trailingComma = ',' if self.trailingComma else ''
+        return '{%s%s}' % (', '.join(exprs), trailingComma)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
+        _verify_description_mode(mode)
+        signode.append(nodes.Text('{'))
+        first = True
+        for e in self.exprs:
+            if not first:
+                signode.append(nodes.Text(', '))
+            else:
+                first = False
+                e.describe_signature(signode, mode, env, symbol)
+        if self.trailingComma:
+            signode.append(nodes.Text(','))
+        signode.append(nodes.Text('}'))
+
+
+class ASTInitializer(ASTBase):
+    def __init__(self, value, hasAssign=True):
+        # type: (Any, bool) -> None
+        self.value = value
+        self.hasAssign = hasAssign
+
+    def _stringify(self, transform):
+        # type: (Callable[[Any], str]) -> str
+        val = transform(self.value)
+        if self.hasAssign:
+            return ' = ' + val
+        else:
+            return val
+
+    def describe_signature(self, signode, mode, env, symbol):
+        # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
+        _verify_description_mode(mode)
+        if self.hasAssign:
+            signode.append(nodes.Text(' = '))
         self.value.describe_signature(signode, 'markType', env, symbol)
 
 
@@ -4844,35 +4870,67 @@ class DefinitionParser:
             return res
         return self._parse_nested_name()
 
-    def _parse_expression_list_or_braced_init_list(self):
-        # type: () -> Tuple[List[Any], str]
+    def _parse_initializer_list(self, name, open, close):
+        # type: (str, str, str) -> Tuple[List[Any], bool]
+        # Parse open and close with the actual initializer-list inbetween
+        # -> initializer-clause '...'[opt]
+        #  | initializer-list ',' initializer-clause '...'[opt]
         self.skip_ws()
-        if self.skip_string_and_ws('('):
-            close = ')'
-            name = 'parenthesized expression-list'
-        elif self.skip_string_and_ws('{'):
-            close = '}'
-            name = 'braced-init-list'
-            self.fail('Sorry, braced-init-list not yet supported.')
-        else:
+        if not self.skip_string_and_ws(open):
             return None, None
+        if self.skip_string(close):
+            return [], False
+
         exprs = []
-        self.skip_ws()
-        if not self.skip_string(close):
-            while True:
-                self.skip_ws()
-                expr = self._parse_expression(inTemplate=False)
-                self.skip_ws()
-                if self.skip_string('...'):
-                    exprs.append(ASTPackExpansionExpr(expr))
-                else:
-                    exprs.append(expr)
-                self.skip_ws()
-                if self.skip_string(close):
-                    break
-                if not self.skip_string(','):
-                    self.fail("Error in %s, expected ',' or '%s'." % (name, close))
-        return exprs, close
+        trailingComma = False
+        while True:
+            self.skip_ws()
+            expr = self._parse_expression(inTemplate=False)
+            self.skip_ws()
+            if self.skip_string('...'):
+                exprs.append(ASTPackExpansionExpr(expr))
+            else:
+                exprs.append(expr)
+            self.skip_ws()
+            if self.skip_string(close):
+                break
+            if not self.skip_string_and_ws(','):
+                self.fail("Error in %s, expected ',' or '%s'." % (name, close))
+            if self.current_char == close and close == '}':
+                self.pos += 1
+                trailingComma = True
+                break
+        return exprs, trailingComma
+
+    def _parse_paren_expression_list(self):
+        # type: () -> ASTParenExprList
+        # -> '(' expression-list ')'
+        # though, we relax it to also allow empty parens
+        # as it's needed in some cases
+        #
+        # expression-list
+        # -> initializer-list
+        exprs, trailingComma = self._parse_initializer_list("parenthesized expression-list",
+                                                            '(', ')')
+        if exprs is None:
+            return None
+        return ASTParenExprList(exprs)
+
+    def _parse_braced_init_list(self):
+        # type: () -> ASTBracedInitList
+        # -> '{' initializer-list ','[opt] '}'
+        #  | '{' '}'
+        exprs, trailingComma = self._parse_initializer_list("braced-init-list", '{', '}')
+        if exprs is None:
+            return None
+        return ASTBracedInitList(exprs, trailingComma)
+
+    def _parse_expression_list_or_braced_init_list(self):
+        # type: () -> Union[ASTParenExprList, ASTBracedInitList]
+        paren = self._parse_paren_expression_list()
+        if paren is not None:
+            return paren
+        return self._parse_braced_init_list()
 
     def _parse_postfix_expression(self):
         # -> primary
@@ -4980,7 +5038,7 @@ class DefinitionParser:
                     raise self._make_multi_error(errors, header)
 
         # and now parse postfixes
-        postFixes = []
+        postFixes = []  # type: List[Any]
         while True:
             self.skip_ws()
             if prefixType in ['expr', 'cast', 'typeid']:
@@ -5000,7 +5058,7 @@ class DefinitionParser:
                         self.pos -= 3
                     else:
                         name = self._parse_nested_name()
-                        postFixes.append(ASTPostfixMember(name))  # type: ignore
+                        postFixes.append(ASTPostfixMember(name))
                         continue
                 if self.skip_string('->'):
                     if self.skip_string('*'):
@@ -5008,21 +5066,17 @@ class DefinitionParser:
                         self.pos -= 3
                     else:
                         name = self._parse_nested_name()
-                        postFixes.append(ASTPostfixMemberOfPointer(name))  # type: ignore
+                        postFixes.append(ASTPostfixMemberOfPointer(name))
                         continue
                 if self.skip_string('++'):
-                    postFixes.append(ASTPostfixInc())  # type: ignore
+                    postFixes.append(ASTPostfixInc())
                     continue
                 if self.skip_string('--'):
-                    postFixes.append(ASTPostfixDec())  # type: ignore
+                    postFixes.append(ASTPostfixDec())
                     continue
-            lst, typ = self._parse_expression_list_or_braced_init_list()
+            lst = self._parse_expression_list_or_braced_init_list()
             if lst is not None:
-                if typ == ')':
-                    postFixes.append(ASTPostfixCallExpr(lst))  # type: ignore
-                else:
-                    assert typ == '}'
-                    assert False
+                postFixes.append(ASTPostfixCallExpr(lst))
                 continue
             break
         if len(postFixes) == 0:
@@ -5105,10 +5159,8 @@ class DefinitionParser:
                 decl = self._parse_declarator(named=False, paramMode="new")
             else:
                 self.fail("Sorry, parenthesised type-id in new expression not yet supported.")
-            lst, typ = self._parse_expression_list_or_braced_init_list()
-            if lst:
-                assert typ in ")}"
-            return ASTNewExpr(rooted, isNewTypeId, ASTType(declSpecs, decl), lst, typ)
+            lst = self._parse_expression_list_or_braced_init_list()
+            return ASTNewExpr(rooted, isNewTypeId, ASTType(declSpecs, decl), lst)
         # delete-expression
         pos = self.pos
         rooted = self.skip_string('::')
@@ -5267,7 +5319,7 @@ class DefinitionParser:
             value = self.matched_text
         else:
             # TODO: add handling of more bracket-like things, and quote handling
-            brackets = {'(': ')', '[': ']', '<': '>'}
+            brackets = {'(': ')', '{': '}', '[': ']', '<': '>'}
             symbols = []  # type: List[str]
             while not self.eof:
                 if (len(symbols) == 0 and self.current_char in end):
@@ -5825,30 +5877,52 @@ class DefinitionParser:
 
     def _parse_initializer(self, outer=None, allowFallback=True):
         # type: (str, bool) -> ASTInitializer
+        # initializer                           # global vars
+        # -> brace-or-equal-initializer
+        #  | '(' expression-list ')'
+        #
+        # brace-or-equal-initializer            # member vars
+        # -> '=' initializer-clause
+        #  | braced-init-list
+        #
+        # initializer-clause  # function params, non-type template params (with '=' in front)
+        # -> assignment-expression
+        #  | braced-init-list
+        #
+        # we don't distinguish between global and member vars, so disallow paren:
+        #
+        # -> braced-init-list             # var only
+        #  | '=' assignment-expression
+        #  | '=' braced-init-list
         self.skip_ws()
-        # TODO: support paren and brace initialization for memberObject
+        if outer == 'member':
+            bracedInit = self._parse_braced_init_list()
+            if bracedInit is not None:
+                return ASTInitializer(bracedInit, hasAssign=False)
+
         if not self.skip_string('='):
             return None
+
+        bracedInit = self._parse_braced_init_list()
+        if bracedInit is not None:
+            return ASTInitializer(bracedInit)
+
+        if outer == 'member':
+            fallbackEnd = []  # type: List[str]
+        elif outer == 'templateParam':
+            fallbackEnd = [',', '>']
+        elif outer is None:  # function parameter
+            fallbackEnd = [',', ')']
         else:
-            if outer == 'member':
-                def parser():
-                    return self._parse_assignment_expression(inTemplate=False)
-                value = self._parse_expression_fallback([], parser,
-                                                        allow=allowFallback)
-            elif outer == 'templateParam':
-                def parser():
-                    return self._parse_assignment_expression(inTemplate=True)
-                value = self._parse_expression_fallback([',', '>'], parser,
-                                                        allow=allowFallback)
-            elif outer is None:  # function parameter
-                def parser():
-                    return self._parse_assignment_expression(inTemplate=False)
-                value = self._parse_expression_fallback([',', ')'], parser,
-                                                        allow=allowFallback)
-            else:
-                self.fail("Internal error, initializer for outer '%s' not "
-                          "implemented." % outer)
-            return ASTInitializer(value)
+            self.fail("Internal error, initializer for outer '%s' not "
+                      "implemented." % outer)
+
+        inTemplate = outer == 'templateParam'
+
+        def parser():
+            return self._parse_assignment_expression(inTemplate=inTemplate)
+        value = self._parse_expression_fallback(fallbackEnd, parser, allow=allowFallback)
+        return ASTInitializer(value)
 
     def _parse_type(self, named, outer=None):
         # type: (Union[bool, str], str) -> ASTType
@@ -6734,27 +6808,20 @@ class CPPNamespacePopObject(SphinxDirective):
 
 
 class AliasNode(nodes.Element):
-    def __init__(self, sig, warnEnv):
-        """
-        :param sig: The name or function signature to alias.
-        :param warnEnv: An object which must have the following attributes:
-            env: a Sphinx environment
-            whatever DefinitionParser requires of warnEnv
-        """
+    def __init__(self, sig, env=None, parentKey=None):
         super().__init__()
         self.sig = sig
-        env = warnEnv.env
-        if 'cpp:parent_symbol' not in env.temp_data:
-            root = env.domaindata['cpp']['root_symbol']
-            env.temp_data['cpp:parent_symbol'] = root
-        self.parentKey = env.temp_data['cpp:parent_symbol'].get_lookup_key()
-        try:
-            parser = DefinitionParser(sig, warnEnv, warnEnv.env.config)
-            self.ast, self.isShorthand = parser.parse_xref_object()
-            parser.assert_end()
-        except DefinitionError as e:
-            warnEnv.warn(e)
-            self.ast = None
+        if env is not None:
+            if 'cpp:parent_symbol' not in env.temp_data:
+                root = env.domaindata['cpp']['root_symbol']
+                env.temp_data['cpp:parent_symbol'] = root
+            self.parentKey = env.temp_data['cpp:parent_symbol'].get_lookup_key()
+        else:
+            assert parentKey is not None
+            self.parentKey = parentKey
+
+    def copy(self):
+        return self.__class__(self.sig, env=None, parentKey=self.parentKey)
 
 
 class AliasTransform(SphinxTransform):
@@ -6763,8 +6830,20 @@ class AliasTransform(SphinxTransform):
     def apply(self, **kwargs):
         # type: (Any) -> None
         for node in self.document.traverse(AliasNode):
+            class Warner:
+                def warn(self, msg):
+                    logger.warning(msg, location=node)
+            warner = Warner()
             sig = node.sig
-            ast = node.ast
+            parentKey = node.parentKey
+            try:
+                parser = DefinitionParser(sig, warner, self.env.config)
+                ast, isShorthand = parser.parse_xref_object()
+                parser.assert_end()
+            except DefinitionError as e:
+                warner.warn(e)
+                ast, isShorthand = None, None
+
             if ast is None:
                 # could not be parsed, so stop here
                 signode = addnodes.desc_signature(sig, '')
@@ -6774,8 +6853,6 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            isShorthand = node.isShorthand
-            parentKey = node.parentKey
             rootSymbol = self.env.domains['cpp'].data['root_symbol']
             parentSymbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
@@ -6833,10 +6910,6 @@ class AliasTransform(SphinxTransform):
 class CPPAliasObject(ObjectDescription):
     option_spec = {}  # type: Dict
 
-    def warn(self, msg):
-        # type: (Union[str, Exception]) -> None
-        self.state_machine.reporter.warning(msg, line=self.lineno)
-
     def run(self):
         # type: () -> List[nodes.Node]
         """
@@ -6859,7 +6932,7 @@ class CPPAliasObject(ObjectDescription):
         self.names = []  # type: List[str]
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
-            node.append(AliasNode(sig, self))
+            node.append(AliasNode(sig, env=self.env))
 
         contentnode = addnodes.desc_content()
         node.append(contentnode)

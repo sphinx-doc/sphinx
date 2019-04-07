@@ -23,11 +23,13 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
+from sphinx.util.nodes import (
+    NodeMatcher, apply_source_workaround, copy_source_info, is_smartquotable
+)
 
 if False:
     # For type annotation
-    from typing import Any, Generator, List, Tuple  # NOQA
+    from typing import Any, Dict, Generator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domain.std import StandardDomain  # NOQA
@@ -36,11 +38,11 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-default_substitutions = set([
+default_substitutions = {
     'version',
     'release',
     'today',
-])
+}
 
 
 class SphinxTransform(Transform):
@@ -198,6 +200,18 @@ class SortIds(SphinxTransform):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
 
 
+class SmartQuotesSkipper(SphinxTransform):
+    """Mark specific nodes as not smartquoted."""
+    default_priority = 619
+
+    def apply(self, **kwargs):
+        # type: (Any) -> None
+        # citation labels
+        for node in self.document.traverse(nodes.citation):
+            label = cast(nodes.label, node[0])
+            label['support_smartquotes'] = False
+
+
 class CitationReferences(SphinxTransform):
     """
     Replace citation references by pending_xref nodes before the default
@@ -207,21 +221,16 @@ class CitationReferences(SphinxTransform):
 
     def apply(self, **kwargs):
         # type: (Any) -> None
-        # mark citation labels as not smartquoted
-        for citation in self.document.traverse(nodes.citation):
-            label = cast(nodes.label, citation[0])
-            label['support_smartquotes'] = False
-
-        for citation_ref in self.document.traverse(nodes.citation_reference):
-            cittext = citation_ref.astext()
-            refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
-                                            reftarget=cittext, refwarn=True,
-                                            support_smartquotes=False,
-                                            ids=citation_ref["ids"])
-            refnode.source = citation_ref.source or citation_ref.parent.source
-            refnode.line = citation_ref.line or citation_ref.parent.line
-            refnode += nodes.Text('[' + cittext + ']')
-            citation_ref.parent.replace(citation_ref, refnode)
+        for node in self.document.traverse(nodes.citation_reference):
+            target = node.astext()
+            ref = addnodes.pending_xref(target, refdomain='std', reftype='citation',
+                                        reftarget=target, refwarn=True,
+                                        support_smartquotes=False,
+                                        ids=node["ids"],
+                                        classes=node.get('classes', []))
+            ref += nodes.inline(target, '[%s]' % target)
+            copy_source_info(node, ref)
+            node.replace_self(ref)
 
 
 TRANSLATABLE_NODES = {
@@ -340,11 +349,7 @@ class SphinxContentsFilter(ContentsFilter):
     Used with BuildEnvironment.add_toc_from() to discard cross-file links
     within table-of-contents link nodes.
     """
-    def visit_pending_xref(self, node):
-        # type: (addnodes.pending_xref) -> None
-        text = node.astext()
-        self.parent.append(nodes.literal(text, text))
-        raise nodes.SkipNode
+    visit_pending_xref = ContentsFilter.ignore_node_but_process_children
 
     def visit_image(self, node):
         # type: (nodes.image) -> None
@@ -433,3 +438,29 @@ class ManpageLink(SphinxTransform):
             if r:
                 info = r.groupdict()
             node.attributes.update(info)
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(ApplySourceWorkaround)
+    app.add_transform(ExtraTranslatableNodes)
+    app.add_transform(SmartQuotesSkipper)
+    app.add_transform(CitationReferences)
+    app.add_transform(DefaultSubstitutions)
+    app.add_transform(MoveModuleTargets)
+    app.add_transform(HandleCodeBlocks)
+    app.add_transform(SortIds)
+    app.add_transform(FigureAligner)
+    app.add_transform(AutoNumbering)
+    app.add_transform(AutoIndexUpgrader)
+    app.add_transform(FilterSystemMessages)
+    app.add_transform(UnreferencedFootnotesDetector)
+    app.add_transform(SphinxSmartQuotes)
+    app.add_transform(DoctreeReadEvent)
+    app.add_transform(ManpageLink)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

@@ -25,7 +25,6 @@ from sphinx.util.osutil import relpath
 
 if False:
     # For type annotation
-    from typing import List  # NOQA
     from typing import Any, Dict, Generator, IO, List, Pattern  # NOQA
 
 
@@ -134,8 +133,8 @@ class SphinxTestApp(application.Sphinx):
         self._saved_directives = directives._directives.copy()  # type: ignore
         self._saved_roles = roles._roles.copy()  # type: ignore
 
-        self._saved_nodeclasses = set(v for v in dir(nodes.GenericNodeVisitor)
-                                      if v.startswith('visit_'))
+        self._saved_nodeclasses = {v for v in dir(nodes.GenericNodeVisitor)
+                                   if v.startswith('visit_')}
 
         try:
             super().__init__(srcdir, confdir, outdir, doctreedir,

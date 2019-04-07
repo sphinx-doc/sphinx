@@ -9,6 +9,7 @@
 """
 
 import os
+import warnings
 from os import path
 
 from docutils.frontend import OptionParser
@@ -16,18 +17,12 @@ from docutils.frontend import OptionParser
 import sphinx.builders.latex.nodes  # NOQA  # Workaround: import this before writer to avoid ImportError
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.builders import Builder
-from sphinx.builders.latex.transforms import (
-    BibliographyTransform, CitationReferenceTransform, MathReferenceTransform,
-    FootnoteDocnameUpdater, LaTeXFootnoteTransform, LiteralBlockTransform,
-    ShowUrlsTransform, DocumentTargetTransform,
-)
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM
-from sphinx.environment import NoUri
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.errors import SphinxError
+from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
-from sphinx.transforms import SphinxTransformer
 from sphinx.util import texescape, logging, progress_message, status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import SphinxFileOutput, new_document
@@ -40,9 +35,11 @@ from sphinx.writers.latex import (
     ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
 )
 
+# load docutils.nodes after loading sphinx.builders.latex.nodes
+from docutils import nodes  # NOQA
+
 if False:
     # For type annotation
-    from docutils import nodes  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -263,7 +260,6 @@ class LaTeXBuilder(Builder):
                     docname, toctree_only,
                     appendices=((docclass != 'howto') and self.config.latex_appendices or []))
                 doctree['tocdepth'] = tocdepth
-                self.apply_transforms(doctree)
                 self.post_process_images(doctree)
                 self.update_doc_context(title, author)
 
@@ -295,7 +291,6 @@ class LaTeXBuilder(Builder):
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (str, bool, List[str]) -> nodes.document
-        from docutils import nodes  # NOQA
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
@@ -340,14 +335,8 @@ class LaTeXBuilder(Builder):
 
     def apply_transforms(self, doctree):
         # type: (nodes.document) -> None
-        transformer = SphinxTransformer(doctree)
-        transformer.set_environment(self.env)
-        transformer.add_transforms([BibliographyTransform,
-                                    ShowUrlsTransform,
-                                    LaTeXFootnoteTransform,
-                                    LiteralBlockTransform,
-                                    DocumentTargetTransform])
-        transformer.apply_transforms()
+        warnings.warn('LaTeXBuilder.apply_transforms() is deprecated.',
+                      RemovedInSphinx40Warning)
 
     def finish(self):
         # type: () -> None
@@ -484,11 +473,10 @@ def default_latex_documents(config):
 
 def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
+    app.setup_extension('sphinx.builders.latex.transforms')
+
     app.add_builder(LaTeXBuilder)
-    app.add_post_transform(CitationReferenceTransform)
-    app.add_post_transform(MathReferenceTransform)
     app.connect('config-inited', validate_config_values)
-    app.add_transform(FootnoteDocnameUpdater)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))

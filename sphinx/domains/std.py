@@ -10,7 +10,6 @@
 
 import re
 import unicodedata
-import warnings
 from copy import copy
 from typing import cast
 
@@ -19,9 +18,9 @@ from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
+from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
@@ -838,8 +837,6 @@ class StandardDomain(Domain):
 
     def _resolve_citation_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
-        from sphinx.environment import NoUri
-
         docname, labelid, lineno = self.data['citations'].get(target, ('', '', 0))
         if not docname:
             if 'ids' in node:
@@ -957,17 +954,6 @@ class StandardDomain(Domain):
         else:
             figtype, _ = self.enumerable_nodes.get(node.__class__, (None, None))
             return figtype
-
-    def get_figtype(self, node):
-        # type: (nodes.Node) -> str
-        """Get figure type of nodes.
-
-        .. deprecated:: 1.8
-        """
-        warnings.warn('StandardDomain.get_figtype() is deprecated. '
-                      'Please use get_enumerable_node_type() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.get_enumerable_node_type(node)
 
     def get_fignumber(self, env, builder, figtype, docname, target_node):
         # type: (BuildEnvironment, Builder, str, str, nodes.Element) -> Tuple[int, ...]

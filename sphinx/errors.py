@@ -121,3 +121,8 @@ class PycodeError(Exception):
         if len(self.args) > 1:
             res += ' (exception was: %r)' % self.args[1]
         return res
+
+
+class NoUri(Exception):
+    """Raised by builder.get_relative_uri() if there is no URI available."""
+    pass

@@ -10,15 +10,12 @@
 
 import gettext
 import locale
-import warnings
 from collections import UserString, defaultdict
 from gettext import NullTranslations
 
-from sphinx.deprecation import RemovedInSphinx30Warning
-
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Tuple, Union  # NOQA
 
 
 class _TranslationProxy(UserString):
@@ -125,26 +122,6 @@ class _TranslationProxy(UserString):
             return 'i' + repr(str(self.data))
         except Exception:
             return '<%s broken>' % self.__class__.__name__
-
-
-def mygettext(string):
-    # type: (str) -> str
-    """Used instead of _ when creating TranslationProxies, because _ is
-    not bound yet at that time.
-    """
-    warnings.warn('sphinx.locale.mygettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    return _(string)
-
-
-def lazy_gettext(string):
-    # type: (str) -> str
-    """A lazy version of `gettext`."""
-    # if isinstance(string, _TranslationProxy):
-    #     return string
-    warnings.warn('sphinx.locale.laxy_gettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    return _TranslationProxy(mygettext, string)  # type: ignore
 
 
 translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
@@ -255,20 +232,19 @@ def get_translation(catalog, namespace='general'):
         import os
         from sphinx.locale import get_translation
 
-        _ = get_translation(__name__)
+        MESSAGE_CATALOG_NAME = 'myextension'  # name of *.pot, *.po and *.mo files
+        _ = get_translation(MESSAGE_CATALOG_NAME)
         text = _('Hello Sphinx!')
 
 
         def setup(app):
             package_dir = path.abspath(path.dirname(__file__))
             locale_dir = os.path.join(package_dir, 'locales')
-            app.add_message_catalog(__name__, locale_dir)
+            app.add_message_catalog(MESSAGE_CATALOG_NAME, locale_dir)
 
     With this code, sphinx searches a message catalog from
-    ``${package_dir}/locales/${language}/LC_MESSAGES/${__name__}.mo``
-    (ex. ``sphinxcontrib.applehelp.mo``).  Of course, you can use
-    arbitrary catalog name instead of ``__name__``.  The
-    :confval:`language` is used for the searching.
+    ``${package_dir}/locales/${language}/LC_MESSAGES/myextension.mo``.
+    The :confval:`language` is used for the searching.
 
     .. versionadded:: 1.8
     """
@@ -294,12 +270,6 @@ _ = get_translation('sphinx')
 #: Translation function for console messages
 #: This function follows locale setting (`LC_ALL`, `LC_MESSAGES` and so on).
 __ = get_translation('sphinx', 'console')
-
-
-def l_(*args):
-    warnings.warn('sphinx.locale.l_() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    return _(*args)
 
 
 # labels
