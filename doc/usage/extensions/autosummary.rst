@@ -25,9 +25,9 @@ The :mod:`sphinx.ext.autosummary` extension does this in three parts:
    These files by default contain only the corresponding
    :mod:`sphinx.ext.autodoc` directive, but can be customized with templates.
 
-3. Optionally, the new :confval:`autosummary_recursion_limit` config value can be
-   used to generate "stub" files recursively for packages. Warning: this will overwrite
-   existing files for packages.
+3. Optionally, :confval:`autosummary_depth_limit` config value can be
+   used to generate "stub" files of modules and sub-packages for packages
+   under the :rst:dir:`autosummary` directive.
 
 .. rst:directive:: autosummary
 
@@ -56,27 +56,6 @@ The :mod:`sphinx.ext.autosummary` extension does this in three parts:
 
           environment.BuildEnvironment
           util.relative_uri
-
-       .. currentmodule:: sphinx.ext.autosummary
-
-   When :confval:`autosummary_recursion_limit != 0`, the :rst:dir:`autosummary`
-   directive recursively generates stub ``.rst`` files for packages.
-
-   For example, ::
-
-       .. currentmodule:: sphinx
-
-       .. autosummary::
-
-          autosummary
-
-   produces a table like this:
-
-       .. currentmodule:: sphinx.ext
-
-       .. autosummary::
-
-          autosummary
 
        .. currentmodule:: sphinx.ext.autosummary
 
@@ -169,17 +148,16 @@ also use these config values:
    The new files will be placed in the directories specified in the
    ``:toctree:`` options of the directives.
 
-Packages can be explored recursively when generating stub pages.
+.. confval:: autosummary_depth_limit
 
-.. confval:: autosummary_recursion_limit
-
-   Integer that determines the maximal recursion depth.
+   Integer that determines the maximal depth (starting from root) when adding
+   modules and sub-packages of packages.
    
-    - ``autosummary_recursion_limit = -1``: no recursion limit
-    - ``autosummary_recursion_limit = 0``: disable recursion (default)
-    - ``autosummary_recursion_limit > 0``: limit recursion depth
+    - ``autosummary_depth_limit = -1``: no limit
+    - ``autosummary_depth_limit = 0``: disable adding modules and sub-packages (default)
+    - ``autosummary_depth_limit > 0``: limited depth starting from root
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.1
 
 .. confval:: autosummary_mock_imports
 
@@ -284,14 +262,14 @@ The following variables available in the templates:
    List containing names of "public" modules in the package.  Only available for
    modules that are packages.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.1
 
 .. data:: packages
 
    List containing names of "public" sub-packages in the package.  Only available for
    modules that are packages.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.1
 
 Additionally, the following filters are available
 

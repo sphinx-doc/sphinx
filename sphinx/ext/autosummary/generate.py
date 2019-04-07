@@ -98,8 +98,8 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                               builder=None,            # type: Builder
                               template_dir=None,       # type: str
                               imported_members=False,  # type: bool
-                              recursion_limit=0,       # type: int
-                              app=None                 # type: Any
+                              app=None,                # type: Any
+                              depth_limit=0,           # type: int
                               ):
     # type: (...) -> None
     showed_sources = list(sorted(sources))
@@ -163,20 +163,20 @@ def generate_autosummary_docs(sources,                 # type: List[str]
         ispackage = hasattr(obj, '__path__')
         if ispackage:
             depth = len(name.split('.')) - 1
-            recurse_package = depth < recursion_limit or recursion_limit < 0
-            if recurse_package:
+            add_package_children = depth < depth_limit or depth_limit < 0
+            if add_package_children:
                 info(__('[autosummary] add modules/packages from %s') % repr(name))
         else:
-            recurse_package = False
+            add_package_children = False
 
         fn = os.path.join(path, name + suffix)
 
         # Skip it if it exists and not a package.
         if os.path.isfile(fn):
-            if ispackage and recursion_limit != 0:
+            if ispackage and depth_limit != 0:
                 # Overwrite the file because submodules/packages
                 # could have been added/removed from the package
-                # or the recursion limit might have changed.
+                # or the depth limit might have changed.
                 # Warning: this file could have been created by the user
                 # in which case it is lost.
                 warn('[autosummary] overwriting docs of package %s' % (repr(name)))
@@ -242,7 +242,7 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                     get_members(obj, 'class', imported=imported_members)
                 ns['exceptions'], ns['all_exceptions'] = \
                     get_members(obj, 'exception', imported=imported_members)
-                if recurse_package:
+                if add_package_children:
                     ns['modules'], ns['all_modules'] = \
                         get_package_members(obj, 'module')
                     ns['packages'], ns['all_packages'] = \
@@ -283,7 +283,7 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                                   base_path=base_path, builder=builder,
                                   template_dir=template_dir,
                                   imported_members=imported_members,
-                                  recursion_limit=recursion_limit,
+                                  depth_limit=depth_limit,
                                   app=app)
 
 
@@ -465,7 +465,7 @@ def main(argv=sys.argv[1:]):
                               '.' + args.suffix,
                               template_dir=args.templates,
                               imported_members=args.imported_members,
-                              recursion_limit=args.recursion_limit,
+                              depth_limit=args.depth_limit,
                               app=app)
 
 

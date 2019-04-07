@@ -202,12 +202,12 @@ def test_autosummary_generate(app, status, warning):
 def _assert_autosummary_generate_package(app):
     app.builder.build_all()
 
-    # Prepare recursion
+    # Prepare package exploration
     max_depth = 3
-    recursion_limit = app.config.autosummary_recursion_limit
-    assert recursion_limit <= max_depth
+    depth_limit = app.config.autosummary_depth_limit
+    assert depth_limit <= max_depth
     
-    unlimited = recursion_limit < 0
+    unlimited = depth_limit < 0
 
     # All packages, modules and classes have the same name
     package_name = 'package'
@@ -270,7 +270,7 @@ def _assert_autosummary_generate_package(app):
     modules = []
     directories = []
     while True:
-        limit_reached = (depth == recursion_limit) and not unlimited
+        limit_reached = (depth == depth_limit) and not unlimited
         last_package = depth == max_depth
         has_packages = not limit_reached and not last_package
         has_modules = not limit_reached
@@ -319,15 +319,15 @@ def test_autosummary_generate_package(make_app, app_params):
     import sphinx.ext.autosummary.generate
     logger = sphinx.ext.autosummary.logger
     args, kwargs = app_params
-    confoverrides = {'autosummary_recursion_limit': 0}
+    confoverrides = {'autosummary_depth_limit': 0}
     kwargs['confoverrides'] = confoverrides
-    # Try different recursion limits
+    # Try different depth limits
     # TODO: going from higher to lower limit
     # currently fails because generated files
     # are not deleted
     for limit in 0, 1, 2, 3, -1:
-        logger.info('autosummary_recursion_limit = {}'.format(limit))
-        confoverrides['autosummary_recursion_limit'] = limit
+        logger.info('autosummary_depth_limit = {}'.format(limit))
+        confoverrides['autosummary_depth_limit'] = limit
         app = make_app(*args, **kwargs)
         _assert_autosummary_generate_package(app)
         # Cleanup

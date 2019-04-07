@@ -733,14 +733,13 @@ def process_generate_options(app):
                           'But your source_suffix does not contain .rst. Skipped.'))
         return
 
-    recursion_limit = app.config.autosummary_recursion_limit
+    depth_limit = app.config.autosummary_depth_limit
 
     with mock(app.config.autosummary_mock_imports):
         generate_autosummary_docs(genfiles, builder=app.builder,
                                   warn=logger.warning, info=logger.info,
                                   suffix=suffix, base_path=app.srcdir,
-                                  recursion_limit=recursion_limit,
-                                  app=app)
+                                  app=app, depth_limit=depth_limit)
 
 
 def setup(app):
@@ -764,7 +763,7 @@ def setup(app):
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_generate', [], True, [bool])
-    app.add_config_value('autosummary_recursion_limit', 0, True, [int])
+    app.add_config_value('autosummary_depth_limit', 0, 'env', [int])
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
