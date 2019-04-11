@@ -399,3 +399,23 @@ def test_isstaticmethod():
     assert inspect.isstaticmethod(Foo.method2, Foo, 'method2') is False
     assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is True
     assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
+
+
+def test_isfunction():
+    def func(x, y, z):
+        pass
+
+    func2 = functools.partial(func, 1)
+
+    class Foo:
+        def meth(self):
+            pass
+
+    print2 = functools.partial(print, 1)
+
+    assert inspect.isfunction(func) is True         # function
+    assert inspect.isfunction(func2) is True        # partial-ed function
+    assert inspect.isfunction(Foo.meth) is True     # method of class
+    assert inspect.isfunction(Foo().meth) is False  # method of instance
+    assert inspect.isfunction(print) is False       # builtin function
+    assert inspect.isfunction(print2) is False      # partial-ed builtin function
