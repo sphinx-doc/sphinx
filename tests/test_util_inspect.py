@@ -419,3 +419,23 @@ def test_isfunction():
     assert inspect.isfunction(Foo().meth) is False  # method of instance
     assert inspect.isfunction(print) is False       # builtin function
     assert inspect.isfunction(print2) is False      # partial-ed builtin function
+
+
+def test_isbuiltin():
+    def func(x, y, z):
+        pass
+
+    func2 = functools.partial(func, 1)
+
+    class Foo:
+        def meth(self):
+            pass
+
+    print2 = functools.partial(print, 1)
+
+    assert inspect.isbuiltin(print) is True         # builtin function
+    assert inspect.isbuiltin(print2) is True        # partial-ed builtin function
+    assert inspect.isbuiltin(func) is False         # function
+    assert inspect.isbuiltin(func2) is False        # partial-ed function
+    assert inspect.isbuiltin(Foo.meth) is False     # method of class
+    assert inspect.isbuiltin(Foo().meth) is False   # method of instance
