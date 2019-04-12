@@ -740,19 +740,41 @@ thus allowing redefinitions. Check the respective files for the defaults.
 Macros
 ~~~~~~
 
-- text styling commands ``\sphinx<foo>`` with ``<foo>`` being one of
-  ``strong``, ``bfcode``, ``email``, ``tablecontinued``, ``titleref``,
-  ``menuselection``, ``accelerator``, ``crossref``, ``termref``, ``optional``.
+- text styling commands:
 
+  - ``\sphinxstrong``,
+  - ``\sphinxbfcode``,
+  - ``\sphinxemail``,
+  - ``\sphinxtablecontinued``,
+  - ``\sphinxtitleref``,
+  - ``\sphinxmenuselection``,
+  - ``\sphinxaccelerator``,
+  - ``\sphinxcrossref``,
+  - ``\sphinxtermref``,
+  - ``\sphinxoptional``.
+ 
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
      with LaTeX packages.
-- more text styling: ``\sphinxstyle<bar>`` with ``<bar>`` one of
-  ``indexentry``, ``indexextra``, ``indexpageref``, ``topictitle``,
-  ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``theadfamily``,
-  ``emphasis``, ``literalemphasis``, ``strong``, ``literalstrong``,
-  ``abbreviation``, ``literalintitle``, ``codecontinued``, ``codecontinues``
+- more text styling:
 
+  - ``\sphinxstyleindexentry``,
+  - ``\sphinxstyleindexextra``,
+  - ``\sphinxstyleindexpageref``,
+  - ``\sphinxstyletopictitle``,
+  - ``\sphinxstylesidebartitle``,
+  - ``\sphinxstyleothertitle``,
+  - ``\sphinxstylesidebarsubtitle``,
+  - ``\sphinxstyletheadfamily``,
+  - ``\sphinxstyleemphasis``,
+  - ``\sphinxstyleliteralemphasis``,
+  - ``\sphinxstylestrong``,
+  - ``\sphinxstyleliteralstrong``,
+  - ``\sphinxstyleabbreviation``,
+  - ``\sphinxstyleliteralintitle``,
+  - ``\sphinxstylecodecontinued``,
+  - ``\sphinxstylecodecontinues``.
+ 
   .. versionadded:: 1.5
      these macros were formerly hard-coded as non customizable ``\texttt``,
      ``\emph``, etc...
