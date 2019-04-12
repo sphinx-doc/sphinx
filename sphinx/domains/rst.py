@@ -9,12 +9,14 @@
 """
 
 import re
+from typing import cast
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.roles import XRefRole
+from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 
 if False:
@@ -25,6 +27,8 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
+
+logger = logging.getLogger(__name__)
 
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
@@ -43,14 +47,9 @@ class ReSTMarkup(ObjectDescription):
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
-            objects = self.env.domaindata['rst']['objects']
-            key = (self.objtype, name)
-            if key in objects:
-                self.state_machine.reporter.warning(
-                    'duplicate description of %s %s, ' % (self.objtype, name) +
-                    'other instance in ' + self.env.doc2path(objects[key]),
-                    line=self.lineno)
-            objects[key] = self.env.docname
+            domain = cast(ReSTDomain, self.env.get_domain('rst'))
+            domain.note_object(self.objtype, name, location=(self.env.docname, self.lineno))
+
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
@@ -126,42 +125,54 @@ class ReSTDomain(Domain):
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
-    }  # type: Dict[str, Dict[str, Tuple[str, ObjType]]]
+    }  # type: Dict[str, Dict[Tuple[str, str], str]]
+
+    @property
+    def objects(self):
+        # type: () -> Dict[Tuple[str, str], str]
+        return self.data.setdefault('objects', {})  # (objtype, fullname) -> docname
+
+    def note_object(self, objtype, name, location=None):
+        # type: (str, str, Any) -> None
+        if (objtype, name) in self.objects:
+            docname = self.objects[objtype, name]
+            logger.warning(__('duplicate description of %s %s, other instance in %s') %
+                           (objtype, name, docname), location=location)
+
+        self.objects[objtype, name] = self.env.docname
 
     def clear_doc(self, docname):
         # type: (str) -> None
-        for (typ, name), doc in list(self.data['objects'].items()):
+        for (typ, name), doc in list(self.objects.items()):
             if doc == docname:
-                del self.data['objects'][typ, name]
+                del self.objects[typ, name]
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[str], Dict) -> None
         # XXX check duplicates
         for (typ, name), doc in otherdata['objects'].items():
             if doc in docnames:
-                self.data['objects'][typ, name] = doc
+                self.objects[typ, name] = doc
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
-        objects = self.data['objects']
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
-            if (objtype, target) in objects:
-                return make_refnode(builder, fromdocname,
-                                    objects[objtype, target],
+            todocname = self.objects.get((objtype, target))
+            if todocname:
+                return make_refnode(builder, fromdocname, todocname,
                                     objtype + '-' + target,
                                     contnode, target + ' ' + objtype)
         return None
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, addnodes.pending_xref, nodes.Element) -> List[Tuple[str, nodes.Element]]  # NOQA
-        objects = self.data['objects']
         results = []  # type: List[Tuple[str, nodes.Element]]
         for objtype in self.object_types:
-            if (objtype, target) in self.data['objects']:
+            todocname = self.objects.get((objtype, target))
+            if todocname:
                 results.append(('rst:' + self.role_for_objtype(objtype),
-                                make_refnode(builder, fromdocname,
-                                             objects[objtype, target],
+                                make_refnode(builder, fromdocname, todocname,
                                              objtype + '-' + target,
                                              contnode, target + ' ' + objtype)))
         return results
