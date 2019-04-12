@@ -492,6 +492,17 @@ General configuration
       direct usage of :program:`sphinx-build` as it caches
       (in its default usage) the parsed source files in per builder locations.
 
+   .. hint:: An alternative way to effectively deactivate (or customize) the
+      smart quotes for a given builder, for example ``latex``, is to use
+      ``make`` this way:
+
+      .. code-block:: console
+
+         make latex O="-D smartquotes_action="
+
+      This can follow some ``make html`` with no problem, in contrast to the
+      situation from the prior note.  It requires Docutils 0.14 or later.
+
    .. versionadded:: 1.6.6
 
 .. confval:: tls_verify
