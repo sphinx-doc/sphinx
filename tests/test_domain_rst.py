@@ -23,7 +23,7 @@ def test_parse_directive():
     assert s == ('foö', '')
 
     s = parse_directive(' ..    foö ::  ')
-    assert s == ('foö', ' ')
+    assert s == ('foö', '')
 
     s = parse_directive('.. foö:: args1 args2')
     assert s == ('foö', ' args1 args2')
@@ -48,8 +48,7 @@ def test_rst_directive(app):
     text = ".. rst:directive:: .. toctree::"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_name, ".. toctree::"],
-                                                    [desc_addname, " "])],
+                          [desc, ([desc_signature, desc_name, ".. toctree::"],
                                   [desc_content, ()])]))
     assert_node(doctree[0],
                 entries=[("single", "toctree (directive)", "directive-toctree", "", None)])
