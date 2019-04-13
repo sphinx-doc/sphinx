@@ -259,6 +259,11 @@ def test_format_signature():
     assert formatsig('method', 'H.foo', H.foo2, None, None) == '(*c)'
     assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\\n')"
 
+    # test bound methods interpreted as functions
+    assert formatsig('function', 'foo', H().foo1, None, None) == '(b, *c)'
+    assert formatsig('function', 'foo', H().foo2, None, None) == '(*c)'
+    assert formatsig('function', 'foo', H().foo3, None, None) == r"(d='\\n')"
+
     # test exception handling (exception is caught and args is '')
     directive.env.config.autodoc_docstring_signature = False
     assert formatsig('function', 'int', int, None, None) == ''
@@ -280,6 +285,7 @@ def test_format_signature():
     curried4 = partial(lambda a, b, c=42, *d, **e: None, 'A')
     assert formatsig('function', 'curried4', curried4, None, None) == \
         '(b, c=42, *d, **e)'
+
 
 
 @pytest.mark.usefixtures('setup_test')
@@ -450,6 +456,14 @@ def test_get_doc():
     assert getdocl('class', I) == ['New docstring']
     directive.env.config.autoclass_content = 'both'
     assert getdocl('class', I) == ['Class docstring', '', 'New docstring']
+
+    # verify that method docstrings get extracted in both normal case
+    # and in case of bound method posing as a function
+    class J:  # NOQA
+        def foo(self):
+            """Method docstring"""
+    assert getdocl('method', J.foo) == ['Method docstring']
+    assert getdocl('function', J().foo) == ['Method docstring']
 
     from target import Base, Derived
 
