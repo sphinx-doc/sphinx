@@ -381,6 +381,10 @@ class VariableCommentPicker(ast.NodeVisitor):
             self.context.pop()
             self.current_function = None
 
+    def visit_AsyncFunctionDef(self, node):
+        # type: (ast.AsyncFunctionDef) -> None
+        self.visit_FunctionDef(node)  # type: ignore
+
 
 class DefinitionFinder(TokenProcessor):
     def __init__(self, lines):
