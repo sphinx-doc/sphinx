@@ -383,78 +383,52 @@ def test_dict_customtype():
     assert "<CustomType(2)>: 2" in description
 
 
-def test_isstaticmethod():
-    class Foo():
-        @staticmethod
-        def method1():
-            pass
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_isstaticmethod(app):
+    from target.methods import Base, Inherited
 
-        def method2(self):
-            pass
-
-    class Bar(Foo):
-        pass
-
-    assert inspect.isstaticmethod(Foo.method1, Foo, 'method1') is True
-    assert inspect.isstaticmethod(Foo.method2, Foo, 'method2') is False
-    assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is True
-    assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
+    assert inspect.isstaticmethod(Base.staticmeth, Base, 'staticmeth') is True
+    assert inspect.isstaticmethod(Base.meth, Base, 'meth') is False
+    assert inspect.isstaticmethod(Inherited.staticmeth, Inherited, 'staticmeth') is True
+    assert inspect.isstaticmethod(Inherited.meth, Inherited, 'meth') is False
 
 
-def test_isfunction():
-    def func(x, y, z):
-        pass
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_isfunction(app):
+    from target.functions import builtin_func, partial_builtin_func
+    from target.functions import func, partial_func
+    from target.methods import Base
 
-    func2 = functools.partial(func, 1)
-
-    class Foo:
-        def meth(self):
-            pass
-
-    print2 = functools.partial(print, 1)
-
-    assert inspect.isfunction(func) is True         # function
-    assert inspect.isfunction(func2) is True        # partial-ed function
-    assert inspect.isfunction(Foo.meth) is True     # method of class
-    assert inspect.isfunction(Foo().meth) is False  # method of instance
-    assert inspect.isfunction(print) is False       # builtin function
-    assert inspect.isfunction(print2) is False      # partial-ed builtin function
+    assert inspect.isfunction(func) is True                     # function
+    assert inspect.isfunction(partial_func) is True             # partial-ed function
+    assert inspect.isfunction(Base.meth) is True                # method of class
+    assert inspect.isfunction(Base.partialmeth) is True         # partial-ed method of class
+    assert inspect.isfunction(Base().meth) is False             # method of instance
+    assert inspect.isfunction(builtin_func) is False            # builtin function
+    assert inspect.isfunction(partial_builtin_func) is False    # partial-ed builtin function
 
 
-def test_isbuiltin():
-    def func(x, y, z):
-        pass
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_isbuiltin(app):
+    from target.functions import builtin_func, partial_builtin_func
+    from target.functions import func, partial_func
+    from target.methods import Base
 
-    func2 = functools.partial(func, 1)
-
-    class Foo:
-        def meth(self):
-            pass
-
-    print2 = functools.partial(print, 1)
-
-    assert inspect.isbuiltin(print) is True         # builtin function
-    assert inspect.isbuiltin(print2) is True        # partial-ed builtin function
-    assert inspect.isbuiltin(func) is False         # function
-    assert inspect.isbuiltin(func2) is False        # partial-ed function
-    assert inspect.isbuiltin(Foo.meth) is False     # method of class
-    assert inspect.isbuiltin(Foo().meth) is False   # method of instance
+    assert inspect.isbuiltin(builtin_func) is True          # builtin function
+    assert inspect.isbuiltin(partial_builtin_func) is True  # partial-ed builtin function
+    assert inspect.isbuiltin(func) is False                 # function
+    assert inspect.isbuiltin(partial_func) is False         # partial-ed function
+    assert inspect.isbuiltin(Base.meth) is False            # method of class
+    assert inspect.isbuiltin(Base().meth) is False          # method of instance
 
 
-def test_isdescriptor():
-    def func(x, y, z):
-        pass
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_isdescriptor(app):
+    from target.functions import func
+    from target.methods import Base
 
-    class Foo:
-        def meth(self):
-            pass
-
-        @property
-        def prop(self):
-            pass
-
-    assert inspect.isdescriptor(Foo.prop) is True       # property of class
-    assert inspect.isdescriptor(Foo().prop) is False    # property of instance
-    assert inspect.isdescriptor(Foo.meth) is True       # method of class
-    assert inspect.isdescriptor(Foo().meth) is True     # method of instance
+    assert inspect.isdescriptor(Base.prop) is True      # property of class
+    assert inspect.isdescriptor(Base().prop) is False   # property of instance
+    assert inspect.isdescriptor(Base.meth) is True      # method of class
+    assert inspect.isdescriptor(Base().meth) is True    # method of instance
     assert inspect.isdescriptor(func) is True           # function
