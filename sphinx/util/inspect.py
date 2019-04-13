@@ -16,6 +16,9 @@ import sys
 import typing
 import warnings
 from functools import partial
+from inspect import (  # NOQA
+    isclass, ismethod, ismethoddescriptor, isroutine
+)
 from io import StringIO
 
 from sphinx.deprecation import RemovedInSphinx30Warning
