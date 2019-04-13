@@ -439,3 +439,22 @@ def test_isbuiltin():
     assert inspect.isbuiltin(func2) is False        # partial-ed function
     assert inspect.isbuiltin(Foo.meth) is False     # method of class
     assert inspect.isbuiltin(Foo().meth) is False   # method of instance
+
+
+def test_isdescriptor():
+    def func(x, y, z):
+        pass
+
+    class Foo:
+        def meth(self):
+            pass
+
+        @property
+        def prop(self):
+            pass
+
+    assert inspect.isdescriptor(Foo.prop) is True       # property of class
+    assert inspect.isdescriptor(Foo().prop) is False    # property of instance
+    assert inspect.isdescriptor(Foo.meth) is True       # method of class
+    assert inspect.isdescriptor(Foo().meth) is True     # method of instance
+    assert inspect.isdescriptor(func) is True           # function
