@@ -9,13 +9,16 @@
 """
 
 import re
+import warnings
 from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes, locale
-from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
+from sphinx.deprecation import (
+    DeprecatedDict, RemovedInSphinx30Warning, RemovedInSphinx40Warning
+)
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.locale import _, __
@@ -453,6 +456,13 @@ class PyClassmember(PyObject):
     Description of a class member (methods, attributes).
     """
 
+    def run(self):
+        # type: () -> List[nodes.Node]
+        warnings.warn('PyClassmember is deprecated.',
+                      RemovedInSphinx40Warning)
+
+        return super().run()
+
     def needs_arglist(self):
         # type: () -> bool
         return self.objtype.endswith('method')
@@ -521,6 +531,94 @@ class PyClassmember(PyObject):
                 return _('%s (%s attribute)') % (attrname, clsname)
         else:
             return ''
+
+
+class PyMethod(PyObject):
+    """Description of a method."""
+
+    def needs_arglist(self):
+        # type: () -> bool
+        return True
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        return _('%s() (%s method)') % (methname, clsname)
+
+
+class PyClassMethod(PyMethod):
+    """Description of a classmethod."""
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        return 'classmethod '
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        return _('%s() (%s class method)') % (methname, clsname)
+
+
+class PyStaticMethod(PyMethod):
+    """Description of a staticmethod."""
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        return 'static '
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        return _('%s() (%s static method)') % (methname, clsname)
+
+
+class PyAttribute(PyObject):
+    """Description of an attribute."""
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, attrname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s (in module %s)') % (name, modname)
+            else:
+                return name
+
+        return _('%s (%s attribute)') % (attrname, clsname)
 
 
 class PyDecoratorMixin:
@@ -745,10 +843,10 @@ class PythonDomain(Domain):
         'data':            PyModulelevel,
         'class':           PyClasslike,
         'exception':       PyClasslike,
-        'method':          PyClassmember,
-        'classmethod':     PyClassmember,
-        'staticmethod':    PyClassmember,
-        'attribute':       PyClassmember,
+        'method':          PyMethod,
+        'classmethod':     PyClassMethod,
+        'staticmethod':    PyStaticMethod,
+        'attribute':       PyAttribute,
         'module':          PyModule,
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,

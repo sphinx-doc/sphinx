@@ -33,6 +33,7 @@ Deprecated
 * ``sphinx.directives.TabularColumns``
 * ``sphinx.directives.TocTree``
 * ``sphinx.directives.VersionChange``
+* ``sphinx.domains.python.PyClassmember``
 * ``sphinx.domains.std.StandardDomain._resolve_citation_xref()``
 * ``sphinx.domains.std.StandardDomain.note_citations()``
 * ``sphinx.domains.std.StandardDomain.note_citation_refs()``
