@@ -10,7 +10,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import inspect
 import re
 import warnings
 from typing import Any
@@ -25,12 +24,13 @@ from sphinx.ext.autodoc.importer import import_object, get_object_members
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.util import inspect
 from sphinx.util import logging
 from sphinx.util import rpartition
 from sphinx.util.docstrings import prepare_docstring
-from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
-    safe_getattr, object_description, is_builtin_class_method, \
-    isenumattribute, isclassmethod, isstaticmethod, isfunction, isbuiltin, ispartial, getdoc
+from sphinx.util.inspect import (
+    Signature, getdoc, object_description, safe_getattr, safe_getmembers
+)
 
 if False:
     # For type annotation
@@ -359,7 +359,7 @@ class Documenter:
             return True
 
         modname = self.get_attr(self.object, '__module__', None)
-        if ispartial(self.object) and modname == '_functools':  # for pypy
+        if inspect.ispartial(self.object) and modname == '_functools':  # for pypy
             return True
         elif modname and modname != self.modname:
             return False
@@ -993,25 +993,25 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, str, bool, Any) -> bool
-        return isfunction(member) or isbuiltin(member)
+        return inspect.isfunction(member) or inspect.isbuiltin(member)
 
     def format_args(self):
         # type: () -> str
-        if isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
+        if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
             # cannot introspect arguments of a C function or method
             return None
         try:
-            if (not isfunction(self.object) and
+            if (not inspect.isfunction(self.object) and
                     not inspect.ismethod(self.object) and
-                    not isbuiltin(self.object) and
+                    not inspect.isbuiltin(self.object) and
                     not inspect.isclass(self.object) and
                     hasattr(self.object, '__call__')):
                 args = Signature(self.object.__call__).format_args()
             else:
                 args = Signature(self.object).format_args()
         except TypeError:
-            if (is_builtin_class_method(self.object, '__new__') and
-               is_builtin_class_method(self.object, '__init__')):
+            if (inspect.is_builtin_class_method(self.object, '__new__') and
+               inspect.is_builtin_class_method(self.object, '__init__')):
                 raise TypeError('%r is a builtin class' % self.object)
 
             # if a class should be documented as function (yay duck
@@ -1093,8 +1093,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # classes without __init__ method, default __init__ or
         # __init__ written in C?
         if initmeth is None or \
-                is_builtin_class_method(self.object, '__init__') or \
-                not(inspect.ismethod(initmeth) or isfunction(initmeth)):
+                inspect.is_builtin_class_method(self.object, '__init__') or \
+                not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
             return Signature(initmeth, bound_method=True, has_retval=False).format_args()
@@ -1289,11 +1289,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if obj is None:
             obj = self.object
 
-        if isclassmethod(obj):
+        if inspect.isclassmethod(obj):
             self.directivetype = 'classmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
-        elif isstaticmethod(obj, cls=self.parent, name=self.object_name):
+        elif inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
             self.directivetype = 'staticmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
@@ -1303,10 +1303,10 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
     def format_args(self):
         # type: () -> str
-        if isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
+        if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
             # can never get arguments of a C function or method
             return None
-        if isstaticmethod(self.object, cls=self.parent, name=self.object_name):
+        if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
             args = Signature(self.object, bound_method=False).format_args()
         else:
             args = Signature(self.object, bound_method=True).format_args()
@@ -1335,13 +1335,13 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     @staticmethod
     def is_function_or_method(obj):
         # type: (Any) -> bool
-        return isfunction(obj) or isbuiltin(obj) or inspect.ismethod(obj)
+        return inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, str, bool, Any) -> bool
         non_attr_types = (type, MethodDescriptorType)
-        isdatadesc = isdescriptor(member) and not \
+        isdatadesc = inspect.isdescriptor(member) and not \
             cls.is_function_or_method(member) and not \
             isinstance(member, non_attr_types) and not \
             type(member).__name__ == "instancemethod"
@@ -1359,9 +1359,9 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     def import_object(self):
         # type: () -> Any
         ret = super().import_object()
-        if isenumattribute(self.object):
+        if inspect.isenumattribute(self.object):
             self.object = self.object.value
-        if isdescriptor(self.object) and \
+        if inspect.isdescriptor(self.object) and \
                 not self.is_function_or_method(self.object):
             self._datadescriptor = True
         else:
