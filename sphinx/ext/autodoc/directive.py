@@ -30,7 +30,8 @@ logger = logging.getLogger(__name__)
 # common option names for autodoc directives
 AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
                            'show-inheritance', 'private-members', 'special-members',
-                           'ignore-module-all', 'exclude-members', 'member-order']
+                           'ignore-module-all', 'exclude-members', 'member-order',
+                           'imported-members']
 
 
 class DummyOptionSpec(dict):
