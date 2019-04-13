@@ -75,6 +75,7 @@ Features added
   functions
 * #6289: autodoc: :confval:`autodoc_default_options` now supports
   ``imported-members`` option
+* #4777: autodoc: Support coroutine
 * #6212 autosummary: Add :confval:`autosummary_imported_members` to display
   imported members on autosummary
 * #6271: ``make clean`` is catastrophically broken if building into '.'
