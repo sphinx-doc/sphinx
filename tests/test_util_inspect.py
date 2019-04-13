@@ -7,8 +7,12 @@
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import _testcapi
+import datetime
 import functools
 import sys
+import types
 from textwrap import dedent
 
 import pytest
@@ -432,3 +436,26 @@ def test_isdescriptor(app):
     assert inspect.isdescriptor(Base.meth) is True      # method of class
     assert inspect.isdescriptor(Base().meth) is True    # method of instance
     assert inspect.isdescriptor(func) is True           # function
+
+
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_isattributedescriptor(app):
+    from target.methods import Base
+
+    class Descriptor:
+        def __get__(self, obj, typ=None):
+            pass
+
+    testinstancemethod = _testcapi.instancemethod(str.__repr__)
+
+    assert inspect.isattributedescriptor(Base.prop) is True                    # property
+    assert inspect.isattributedescriptor(Base.meth) is False                   # method
+    assert inspect.isattributedescriptor(Base.staticmeth) is False             # staticmethod
+    assert inspect.isattributedescriptor(Base.classmeth) is False              # classmetho
+    assert inspect.isattributedescriptor(Descriptor) is False                  # custom descriptor class    # NOQA
+    assert inspect.isattributedescriptor(str.join) is False                    # MethodDescriptorType       # NOQA
+    assert inspect.isattributedescriptor(object.__init__) is False             # WrapperDescriptorType      # NOQA
+    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType  # NOQA
+    assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType       # NOQA
+    assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType       # NOQA
+    assert inspect.isattributedescriptor(testinstancemethod) is False          # instancemethod (C-API)     # NOQA
