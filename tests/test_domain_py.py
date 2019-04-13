@@ -292,6 +292,29 @@ def test_pyobject_prefix(app):
     assert doctree[1][1][3].astext().strip() == 'FooBar.say'    # not stripped
 
 
+def test_pydata(app):
+    text = ".. py:data:: var\n"
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, desc_name, "var"],
+                                  [desc_content, ()])]))
+    assert 'var' in domain.objects
+    assert domain.objects['var'] == ('index', 'data')
+
+
+def test_pyfunction(app):
+    text = ".. py:function:: func\n"
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "func"],
+                                                    [desc_parameterlist, ()])],
+                                  [desc_content, ()])]))
+    assert 'func' in domain.objects
+    assert domain.objects['func'] == ('index', 'function')
+
+
 def test_pymethod(app):
     text = (".. py:class:: Class\n"
             "\n"
