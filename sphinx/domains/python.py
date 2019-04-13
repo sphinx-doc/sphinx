@@ -410,6 +410,13 @@ class PyModulelevel(PyObject):
     Description of an object on module level (functions, data).
     """
 
+    def run(self):
+        # type: () -> List[nodes.Node]
+        warnings.warn('PyClassmember is deprecated.',
+                      RemovedInSphinx40Warning)
+
+        return super().run()
+
     def needs_arglist(self):
         # type: () -> bool
         return self.objtype == 'function'
@@ -426,6 +433,34 @@ class PyModulelevel(PyObject):
             return _('%s (in module %s)') % (name_cls[0], modname)
         else:
             return ''
+
+
+class PyFunction(PyObject):
+    """Description of a function."""
+
+    def needs_arglist(self):
+        # type: () -> bool
+        return True
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        if modname:
+            return _('%s() (in module %s)') % (name, modname)
+        else:
+            return _('%s() (built-in function)') % name
+
+
+class PyVariable(PyObject):
+    """Description of a variable."""
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        if modname:
+            return _('%s (in module %s)') % (name, modname)
+        else:
+            return _('%s (built-in variable)') % name
 
 
 class PyClasslike(PyObject):
@@ -839,8 +874,8 @@ class PythonDomain(Domain):
     }  # type: Dict[str, ObjType]
 
     directives = {
-        'function':        PyModulelevel,
-        'data':            PyModulelevel,
+        'function':        PyFunction,
+        'data':            PyVariable,
         'class':           PyClasslike,
         'exception':       PyClasslike,
         'method':          PyMethod,

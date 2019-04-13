@@ -121,8 +121,16 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.domains.python.PyAttribute``,
        ``sphinx.domains.python.PyMethod``,
-       ``sphinx.domains.python.PyClassMethod`` and
+       ``sphinx.domains.python.PyClassMethod``,
+       ``sphinx.domains.python.PyObject`` and
        ``sphinx.domains.python.PyStaticMethod``
+
+   * - ``sphinx.domains.python.PyModulelevel``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.python.PyFunction``,
+       ``sphinx.domains.python.PyObject`` and
+       ``sphinx.domains.python.PyVariable``
 
    * - ``sphinx.domains.std.StandardDomain._resolve_citation_xref()``
      - 2.1
