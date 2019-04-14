@@ -80,7 +80,10 @@ def parse_directive(d):
     if not m:
         return (dir, '')
     parsed_dir, parsed_args = m.groups()
-    return (parsed_dir.strip(), ' ' + parsed_args.strip())
+    if parsed_args.strip():
+        return (parsed_dir.strip(), ' ' + parsed_args.strip())
+    else:
+        return (parsed_dir.strip(), '')
 
 
 class ReSTDirective(ReSTMarkup):
