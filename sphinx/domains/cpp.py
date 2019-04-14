@@ -292,7 +292,7 @@ logger = logging.getLogger(__name__)
 
 _integer_literal_re = re.compile(r'[1-9][0-9]*')
 _octal_literal_re = re.compile(r'0[0-7]*')
-_hex_literal_re = re.compile(r'0[xX][0-7a-fA-F][0-7a-fA-F]*')
+_hex_literal_re = re.compile(r'0[xX][0-9a-fA-F][0-9a-fA-F]*')
 _binary_literal_re = re.compile(r'0[bB][01][01]*')
 _integer_suffix_re = re.compile(r'')
 _float_literal_re = re.compile(r'''(?x)
