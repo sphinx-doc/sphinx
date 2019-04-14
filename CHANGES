@@ -74,7 +74,8 @@ Features added
 * #6180: Support ``--keep-going`` with BuildDoc setup command
 * ``math`` directive now supports ``:class:`` option
 * todo: ``todo`` directive now supports ``:name:`` option
-* #6232: Enable CLI override of Makefile variables
+* Enable override via environment of ``SPHINXOPTS`` and ``SPHINXBUILD`` Makefile
+  variables (refs: #6232, #6303)
 * #6287: autodoc: Unable to document bound instance methods exported as module
   functions
 * #6289: autodoc: :confval:`autodoc_default_options` now supports
@@ -107,6 +108,7 @@ Bugs fixed
 * #6351: "Hyperlink target is not referenced" message is shown even if
   referenced
 * #6165: autodoc: ``tab_width`` setting of docutils has been ignored
+* Generated Makefiles lack a final EOL (refs: #6232)
 
 Testing
 --------
