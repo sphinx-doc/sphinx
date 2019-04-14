@@ -359,8 +359,8 @@ There are also config values that you can set:
    This value is a list of autodoc directive flags that should be automatically
    applied to all autodoc directives.  The supported flags are ``'members'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
-   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
-   ``'imported-members'`` and ``'exclude-members'``.
+   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``
+   and ``'exclude-members'``.
 
    .. versionadded:: 1.0
 
@@ -387,13 +387,16 @@ There are also config values that you can set:
 
    The supported options are ``'members'``, ``'member-order'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
-   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'`` and
-   ``'exclude-members'``.
+   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
+   ``'imported-members'`` and ``'exclude-members'``.
 
    .. versionadded:: 1.8
 
    .. versionchanged:: 2.0
       Accepts ``True`` as a value.
+
+   .. versionchanged:: 2.1
+      Added ``'imported-members'``.
 
 .. confval:: autodoc_docstring_signature
 
