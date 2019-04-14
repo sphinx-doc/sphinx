@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6286: C++, allow 8 and 9 in hexadecimal integer literals.
+
 Testing
 --------
 
