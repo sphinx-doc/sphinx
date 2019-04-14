@@ -90,7 +90,8 @@ Features added
 * #6180: Support ``--keep-going`` with BuildDoc setup command
 * ``math`` directive now supports ``:class:`` option
 * todo: ``todo`` directive now supports ``:name:`` option
-* #6232: Enable CLI override of Makefile variables
+* Enable override via environment of ``SPHINXOPTS`` and ``SPHINXBUILD`` Makefile
+  variables (refs: #6232, #6303)
 * #6287: autodoc: Unable to document bound instance methods exported as module
   functions
 * #6212 autosummary: Add :confval:`autosummary_imported_members` to display
@@ -105,6 +106,7 @@ Bugs fixed
 * #6213: ifconfig: contents after headings are not shown
 * commented term in glossary directive is wrongly recognized
 * #6299: rst domain: rst:directive directive generates waste space
+* Generated Makefiles lack a final EOL (refs: #6232)
 
 Testing
 --------
