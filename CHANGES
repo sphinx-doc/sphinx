@@ -68,6 +68,8 @@ Features added
 * ``math`` directive now supports ``:class:`` option
 * todo: ``todo`` directive now supports ``:name:`` option
 * #6232: Enable CLI override of Makefile variables
+* #6287: autodoc: Unable to document bound instance methods exported as module
+  functions
 * #6212 autosummary: Add :confval:`autosummary_imported_members` to display
   imported members on autosummary
 * #6271: ``make clean`` is catastrophically broken if building into '.'
