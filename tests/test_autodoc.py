@@ -287,7 +287,6 @@ def test_format_signature():
         '(b, c=42, *d, **e)'
 
 
-
 @pytest.mark.usefixtures('setup_test')
 def test_get_doc():
     def getdocl(objtype, obj):
@@ -1474,6 +1473,23 @@ def test_partialfunction():
         '',
         '   docstring of func3',
         '   '
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_bound_method():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.bound_method', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.bound_method',
+        '',
+        '',
+        '.. py:function:: bound_method()',
+        '   :module: target.bound_method',
+        '',
+        '   Method docstring',
+        '   ',
     ]
 
 
