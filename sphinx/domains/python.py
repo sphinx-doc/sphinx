@@ -9,12 +9,14 @@
 """
 
 import re
+import warnings
 from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.locale import _, __
@@ -399,6 +401,13 @@ class PyModulelevel(PyObject):
     Description of an object on module level (functions, data).
     """
 
+    def run(self):
+        # type: () -> List[nodes.Node]
+        warnings.warn('PyClassmember is deprecated.',
+                      RemovedInSphinx40Warning)
+
+        return super().run()
+
     def needs_arglist(self):
         # type: () -> bool
         return self.objtype == 'function'
@@ -415,6 +424,34 @@ class PyModulelevel(PyObject):
             return _('%s (in module %s)') % (name_cls[0], modname)
         else:
             return ''
+
+
+class PyFunction(PyObject):
+    """Description of a function."""
+
+    def needs_arglist(self):
+        # type: () -> bool
+        return True
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        if modname:
+            return _('%s() (in module %s)') % (name, modname)
+        else:
+            return _('%s() (built-in function)') % name
+
+
+class PyVariable(PyObject):
+    """Description of a variable."""
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        if modname:
+            return _('%s (in module %s)') % (name, modname)
+        else:
+            return _('%s (built-in variable)') % name
 
 
 class PyClasslike(PyObject):
@@ -444,6 +481,13 @@ class PyClassmember(PyObject):
     """
     Description of a class member (methods, attributes).
     """
+
+    def run(self):
+        # type: () -> List[nodes.Node]
+        warnings.warn('PyClassmember is deprecated.',
+                      RemovedInSphinx40Warning)
+
+        return super().run()
 
     def needs_arglist(self):
         # type: () -> bool
@@ -513,6 +557,94 @@ class PyClassmember(PyObject):
                 return _('%s (%s attribute)') % (attrname, clsname)
         else:
             return ''
+
+
+class PyMethod(PyObject):
+    """Description of a method."""
+
+    def needs_arglist(self):
+        # type: () -> bool
+        return True
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        return _('%s() (%s method)') % (methname, clsname)
+
+
+class PyClassMethod(PyMethod):
+    """Description of a classmethod."""
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        return 'classmethod '
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        return _('%s() (%s class method)') % (methname, clsname)
+
+
+class PyStaticMethod(PyMethod):
+    """Description of a staticmethod."""
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        return 'static '
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        return _('%s() (%s static method)') % (methname, clsname)
+
+
+class PyAttribute(PyObject):
+    """Description of an attribute."""
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, attrname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s (in module %s)') % (name, modname)
+            else:
+                return name
+
+        return _('%s (%s attribute)') % (attrname, clsname)
 
 
 class PyDecoratorMixin:
@@ -733,14 +865,14 @@ class PythonDomain(Domain):
     }  # type: Dict[str, ObjType]
 
     directives = {
-        'function':        PyModulelevel,
-        'data':            PyModulelevel,
+        'function':        PyFunction,
+        'data':            PyVariable,
         'class':           PyClasslike,
         'exception':       PyClasslike,
-        'method':          PyClassmember,
-        'classmethod':     PyClassmember,
-        'staticmethod':    PyClassmember,
-        'attribute':       PyClassmember,
+        'method':          PyMethod,
+        'classmethod':     PyClassMethod,
+        'staticmethod':    PyStaticMethod,
+        'attribute':       PyAttribute,
         'module':          PyModule,
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,

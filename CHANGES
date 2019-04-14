@@ -56,6 +56,8 @@ Deprecated
 * ``sphinx.directives.TabularColumns``
 * ``sphinx.directives.TocTree``
 * ``sphinx.directives.VersionChange``
+* ``sphinx.domains.python.PyClassmember``
+* ``sphinx.domains.python.PyModulelevel``
 * ``sphinx.domains.std.StandardDomain._resolve_citation_xref()``
 * ``sphinx.domains.std.StandardDomain.note_citations()``
 * ``sphinx.domains.std.StandardDomain.note_citation_refs()``
@@ -89,8 +91,11 @@ Features added
 * ``math`` directive now supports ``:class:`` option
 * todo: ``todo`` directive now supports ``:name:`` option
 * #6232: Enable CLI override of Makefile variables
+* #6287: autodoc: Unable to document bound instance methods exported as module
+  functions
 * #6212 autosummary: Add :confval:`autosummary_imported_members` to display
   imported members on autosummary
+* #6271: ``make clean`` is catastrophically broken if building into '.'
 
 Bugs fixed
 ----------
@@ -99,24 +104,13 @@ Bugs fixed
   is consisted by non-ASCII characters
 * #6213: ifconfig: contents after headings are not shown
 * commented term in glossary directive is wrongly recognized
+* #6299: rst domain: rst:directive directive generates waste space
 
 Testing
 --------
 
-Release 2.0.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 2.0.1 (released Apr 08, 2019)
+=====================================
 
 Bugs fixed
 ----------
@@ -137,9 +131,6 @@ Bugs fixed
 * #6244: html: Search function is broken with 3rd party themes
 * #6263: html: HTML5Translator crashed with invalid field node
 * #6262: html theme: The style of field lists has changed in bizstyle theme
-
-Testing
---------
 
 Release 2.0.0 (released Mar 29, 2019)
 =====================================
