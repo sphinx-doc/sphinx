@@ -1581,6 +1581,8 @@ def test_autodoc_default_options(app):
     assert '   .. py:attribute:: EnumCls.val4' not in actual
     actual = do_autodoc(app, 'class', 'target.CustomIter')
     assert '   .. py:method:: target.CustomIter' not in actual
+    actual = do_autodoc(app, 'module', 'target')
+    assert '.. py:function:: save_traceback(app)' not in actual
 
     # with :members:
     app.config.autodoc_default_options = {'members': None}
@@ -1643,6 +1645,15 @@ def test_autodoc_default_options(app):
         assert '      list of weak references to the object (if defined)' in actual
     assert '   .. py:method:: CustomIter.snafucate()' in actual
     assert '      Makes this snafucated.' in actual
+
+    # with :imported-members:
+    app.config.autodoc_default_options = {
+        'members': None,
+        'imported-members': None,
+        'ignore-module-all': None,
+    }
+    actual = do_autodoc(app, 'module', 'target')
+    assert '.. py:function:: save_traceback(app)' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
