@@ -44,6 +44,9 @@ Deprecated
 * ``sphinx.ext.autodoc.importer.MockLoader``
 * ``sphinx.ext.autodoc.importer.mock()``
 * ``sphinx.ext.autosummary.autolink_role()``
+* ``sphinx.ext.imgmath.DOC_BODY``
+* ``sphinx.ext.imgmath.DOC_BODY_PREVIEW``
+* ``sphinx.ext.imgmath.DOC_HEAD``
 * ``sphinx.transforms.CitationReferences``
 * ``sphinx.transforms.SmartQuotesSkipper``
 * ``sphinx.util.docfields.DocFieldTransformer.preprocess_fieldtypes()``
