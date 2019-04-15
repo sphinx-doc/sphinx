@@ -29,7 +29,7 @@ def deprecate_source_parsers(app, config):
     # type: (Sphinx, Config) -> None
     if config.source_parsers:
         warnings.warn('The config variable "source_parsers" is deprecated. '
-                      'Please use app.add_source_parser() API instead.',
+                      'Please update your extension for the parser and remove the setting.',
                       RemovedInSphinx30Warning)
         for suffix, parser in config.source_parsers.items():
             if isinstance(parser, str):
