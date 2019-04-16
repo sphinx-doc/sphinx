@@ -10,8 +10,10 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
 from collections import OrderedDict, defaultdict
 
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -48,8 +50,11 @@ core_events = {
 class EventManager:
     """Event manager for Sphinx."""
 
-    def __init__(self, app):
+    def __init__(self, app=None):
         # type: (Sphinx) -> None
+        if app is None:
+            warnings.warn('app argument is required for EventManager.',
+                          RemovedInSphinx40Warning)
         self.app = app
         self.events = core_events.copy()
         self.listeners = defaultdict(OrderedDict)  # type: Dict[str, Dict[int, Callable]]
@@ -91,7 +96,11 @@ class EventManager:
 
         results = []
         for callback in self.listeners[name].values():
-            results.append(callback(self.app, *args))
+            if self.app is None:
+                # for compatibility; RemovedInSphinx40Warning
+                results.append(callback(*args))
+            else:
+                results.append(callback(self.app, *args))
         return results
 
     def emit_firstresult(self, name, *args):
