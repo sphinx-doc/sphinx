@@ -40,7 +40,7 @@ from sphinx.util.rst import escape as rst_escape
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, List, Set, Tuple, Type, Union  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
 
@@ -170,7 +170,12 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     template = template_env.get_template('autosummary/base.rst')
 
             def get_members(obj, typ, include_public=[], imported=True):
-                # type: (Any, str, List[str], bool) -> Tuple[List[str], List[str]]
+                # type: (Any, Union[str, Set[str]], List[str], bool) -> Tuple[List[str], List[str]]  # NOQA
+                if isinstance(typ, str):
+                    types = {typ}
+                else:
+                    types = typ
+
                 items = []  # type: List[str]
                 for name in dir(obj):
                     try:
@@ -178,7 +183,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     except AttributeError:
                         continue
                     documenter = get_documenter(app, value, obj)
-                    if documenter.objtype == typ:
+                    if documenter.objtype in types:
                         if imported or getattr(value, '__module__', None) == obj.__name__:
                             # skip imported members if expected
                             items.append(name)
@@ -203,7 +208,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 ns['methods'], ns['all_methods'] = \
                     get_members(obj, 'method', ['__init__'])
                 ns['attributes'], ns['all_attributes'] = \
-                    get_members(obj, 'attribute')
+                    get_members(obj, {'attribute', 'property'})
 
             parts = name.split('.')
             if doc.objtype in ('method', 'attribute'):
