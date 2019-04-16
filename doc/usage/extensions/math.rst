@@ -105,8 +105,9 @@ built:
    Unfortunately, this only works when the `preview-latex package`_ is
    installed. Therefore, the default for this option is ``False``.
 
-   Currently this option is only used when ``imgmath_image_format`` is
-   ``'png'``.
+   .. versionchanged:: 2.1.0
+
+      This option can also be used with ``imgmath_image_format`` set to ``'svg'``.
 
 .. confval:: imgmath_add_tooltips
 
