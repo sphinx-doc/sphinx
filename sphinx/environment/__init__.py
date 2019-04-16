@@ -34,6 +34,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
+    from sphinx.event import EventManager  # NOQA
     from sphinx.domains import Domain  # NOQA
     from sphinx.project import Project  # NOQA
 
@@ -95,6 +96,7 @@ class BuildEnvironment:
         self.srcdir = None          # type: str
         self.config = None          # type: Config
         self.config_status = None   # type: int
+        self.events = None          # type: EventManager
         self.project = None         # type: Project
         self.version = None         # type: Dict[str, str]
 
@@ -190,7 +192,7 @@ class BuildEnvironment:
         # type: () -> Dict
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
-        __dict__.update(app=None, domains={})  # clear unpickable attributes
+        __dict__.update(app=None, domains={}, events=None)  # clear unpickable attributes
         return __dict__
 
     def __setstate__(self, state):
@@ -210,6 +212,7 @@ class BuildEnvironment:
 
         self.app = app
         self.doctreedir = app.doctreedir
+        self.events = app.events
         self.srcdir = app.srcdir
         self.project = app.project
         self.version = app.registry.get_envversion(app)
@@ -307,7 +310,7 @@ class BuildEnvironment:
 
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
-        app.emit('env-merge-info', self, docnames, other)
+        self.events.emit('env-merge-info', self, docnames, other)
 
     def path2doc(self, filename):
         # type: (str) -> Optional[str]
@@ -449,7 +452,7 @@ class BuildEnvironment:
     def check_dependents(self, app, already):
         # type: (Sphinx, Set[str]) -> Iterator[str]
         to_rewrite = []  # type: List[str]
-        for docnames in app.emit('env-get-updated', self):
+        for docnames in self.events.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
         for docname in set(to_rewrite):
             if docname not in already:
@@ -597,7 +600,7 @@ class BuildEnvironment:
             self.temp_data = backup
 
         # allow custom references to be resolved
-        self.app.emit('doctree-resolved', doctree, docname)
+        self.events.emit('doctree-resolved', doctree, docname)
 
     def collect_relations(self):
         # type: () -> Dict[str, List[str]]
@@ -653,4 +656,4 @@ class BuildEnvironment:
         # call check-consistency for all extensions
         for domain in self.domains.values():
             domain.check_consistency()
-        self.app.emit('env-check-consistency', self)
+        self.events.emit('env-check-consistency', self)

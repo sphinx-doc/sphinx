@@ -403,9 +403,9 @@ class Documenter:
 
         retann = self.retann
 
-        result = self.env.app.emit_firstresult(
-            'autodoc-process-signature', self.objtype, self.fullname,
-            self.object, self.options, args, retann)
+        result = self.env.events.emit_firstresult('autodoc-process-signature',
+                                                  self.objtype, self.fullname,
+                                                  self.object, self.options, args, retann)
         if result:
             args, retann = result
 
