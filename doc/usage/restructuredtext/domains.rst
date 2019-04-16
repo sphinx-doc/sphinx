@@ -229,9 +229,13 @@ The following directives are provided for module and class contents:
    The ``classmethod`` option and ``staticmethod`` option can be given (with
    no value) to indicate the method is a class method (or a static method).
 
+   The ``property`` option can be given (with no value) to indicate the method
+   is a property.
+
    .. versionchanged:: 2.1
 
-      ``:async:``, ``:classmethod:`` and ``:staticmethod:`` options added.
+      ``:async:``, ``:classmethod:``, ``:property:`` and ``:staticmethod:``
+      options added.
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
 

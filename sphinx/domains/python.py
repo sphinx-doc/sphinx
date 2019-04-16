@@ -587,22 +587,28 @@ class PyMethod(PyObject):
     option_spec.update({
         'async': directives.flag,
         'classmethod': directives.flag,
+        'property': directives.flag,
         'staticmethod': directives.flag,
     })
 
     def needs_arglist(self):
         # type: () -> bool
-        return True
+        if 'property' in self.options:
+            return False
+        else:
+            return True
 
     def get_signature_prefix(self, sig):
         # type: (str) -> str
         prefix = []
         if 'async' in self.options:
             prefix.append('async')
-        if 'staticmethod' in self.options:
-            prefix.append('static')
         if 'classmethod' in self.options:
             prefix.append('classmethod')
+        if 'property' in self.options:
+            prefix.append('property')
+        if 'staticmethod' in self.options:
+            prefix.append('static')
 
         if prefix:
             return ' '.join(prefix) + ' '
@@ -622,10 +628,12 @@ class PyMethod(PyObject):
             else:
                 return '%s()' % name
 
-        if 'staticmethod' in self.options:
-            return _('%s() (%s static method)') % (methname, clsname)
-        elif 'classmethod' in self.options:
+        if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
+        elif 'property' in self.options:
+            return _('%s() (%s property)') % (methname, clsname)
+        elif 'staticmethod' in self.options:
+            return _('%s() (%s static method)') % (methname, clsname)
         else:
             return _('%s() (%s method)') % (methname, clsname)
 
