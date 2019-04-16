@@ -95,6 +95,21 @@ def test_rst_directive_option_with_argument(app):
                 domain="rst", objtype="directive:option", noindex=False)
 
 
+def test_rst_directive_option_type(app):
+    text = (".. rst:directive:option:: foo\n"
+            "   :type: directives.flags\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, ":foo:"],
+                                                    [desc_annotation, " (directives.flags)"])],
+                                  [desc_content, ()])]))
+    assert_node(doctree[0],
+                entries=[("single", ":foo: (directive option)",
+                          "directive:option--foo", "", "F")])
+    assert_node(doctree[1], addnodes.desc, desctype="directive:option",
+                domain="rst", objtype="directive:option", noindex=False)
+
+
 def test_rst_directive_and_directive_option(app):
     text = (".. rst:directive:: foo\n"
             "\n"

@@ -1444,6 +1444,20 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
           .. rst:directive:option:: glob
 
+   .. rubric:: options
+
+   .. rst:directive:option:: type
+      :type: description for the option of directive
+
+      Describe the type of option value.
+
+      For example::
+
+         .. rst:directive:: toctree
+
+            .. rst:directive:option:: maxdepth
+               :type: integer or no value
+
    .. versionadded:: 2.1
 
 .. rst:directive:: .. rst:role:: name
