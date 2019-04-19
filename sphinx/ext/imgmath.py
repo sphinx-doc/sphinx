@@ -21,12 +21,15 @@ from subprocess import CalledProcessError, PIPE
 from docutils import nodes
 
 import sphinx
+from sphinx import package_dir
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
+from sphinx.util.template import LaTeXRenderer
 
 if False:
     # For type annotation
@@ -37,6 +40,8 @@ if False:
     from sphinx.writers.html import HTMLTranslator  # NOQA
 
 logger = logging.getLogger(__name__)
+
+templates_path = path.join(package_dir, 'templates', 'imgmath')
 
 
 class MathExtError(SphinxError):
@@ -87,19 +92,27 @@ DOC_BODY_PREVIEW = r'''
 depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
 
 
-def generate_latex_macro(math, config):
-    # type: (str, Config) -> str
+def generate_latex_macro(math, config, confdir=''):
+    # type: (str, Config, str) -> str
     """Generate LaTeX macro."""
-    fontsize = config.imgmath_font_size
-    baselineskip = int(round(fontsize * 1.2))
+    variables = {
+        'fontsize': config.imgmath_font_size,
+        'baselineskip': int(round(config.imgmath_font_size * 1.2)),
+        'preamble': config.imgmath_latex_preamble,
+        'math': math
+    }
 
-    latex = DOC_HEAD + config.imgmath_latex_preamble
     if config.imgmath_use_preview:
-        latex += DOC_BODY_PREVIEW % (fontsize, baselineskip, math)
+        template_name = 'preview.tex_t'
     else:
-        latex += DOC_BODY % (fontsize, baselineskip, math)
+        template_name = 'template.tex_t'
 
-    return latex
+    for template_dir in config.templates_path:
+        template = path.join(confdir, template_dir, template_name)
+        if path.exists(template):
+            return LaTeXRenderer().render(template, variables)
+
+    return LaTeXRenderer(templates_path).render(template_name, variables)
 
 
 def ensure_tempdir(builder):
@@ -220,7 +233,7 @@ def render_math(self, math):
     if image_format not in SUPPORT_FORMAT:
         raise MathExtError('imgmath_image_format must be either "png" or "svg"')
 
-    latex = generate_latex_macro(math, self.builder.config)
+    latex = generate_latex_macro(math, self.builder.config, self.builder.confdir)
 
     filename = "%s.%s" % (sha1(latex.encode()).hexdigest(), image_format)
     relfn = posixpath.join(self.builder.imgpath, 'math', filename)
@@ -330,6 +343,15 @@ def html_visit_displaymath(self, node):
         self.body.append(('<img src="%s"' % fname) + get_tooltip(self, node) +
                          '/></p>\n</div>')
     raise nodes.SkipNode
+
+
+deprecated_alias('sphinx.ext.imgmath',
+                 {
+                     'DOC_BODY': DOC_BODY,
+                     'DOC_BODY_PREVIEW': DOC_BODY_PREVIEW,
+                     'DOC_HEAD': DOC_HEAD,
+                 },
+                 RemovedInSphinx40Warning)
 
 
 def setup(app):
