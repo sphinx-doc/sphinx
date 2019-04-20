@@ -7,8 +7,7 @@ import pygments
 import pytest
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True)
-def test_viewcode(app, status, warning):
+def check_viewcode_output(app, status, warning):
     app.builder.build_all()
 
     warnings = re.sub(r'\\+', '/', warning.getvalue())
@@ -49,6 +48,19 @@ def test_viewcode(app, status, warning):
                 '    <span>&quot;&quot;&quot;</span>\n'
                 '<span>    this is Class1</span>\n'
                 '<span>    &quot;&quot;&quot;</span>\n') in result
+    return result
+
+
+@pytest.mark.sphinx(testroot='ext-viewcode', confoverrides={"viewcode_linenumbers": True}, freshenv=True)
+def test_viewcode_linenos(app, status, warning):
+    result = check_viewcode_output(app, status, warning)
+    assert '<table class="highlighttable"><tr><td class="linenos">' in result
+
+
+@pytest.mark.sphinx(testroot='ext-viewcode', confoverrides={"viewcode_linenumbers": False}, freshenv=True)
+def test_viewcode(app, status, warning):
+    result = check_viewcode_output(app, status, warning)
+    assert 'class="linenos">' not in result
 
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
