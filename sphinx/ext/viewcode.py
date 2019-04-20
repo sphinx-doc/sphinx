@@ -281,9 +281,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
         lines[0:1] = [before + '<pre>', after]
         # nothing to do for the last line; it always starts with </pre> anyway
         # now that we have code lines (starting at index 1), insert anchors for
-        # the collected tags (HACK: this only works if the tag boundaries are
-        # properly nested!)
-        maxindex = len(lines) - 1
+        # the collected tags
         for name, docname in used.items():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
