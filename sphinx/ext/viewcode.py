@@ -203,6 +203,22 @@ def get_module_filename(app: Sphinx, modname: str) -> str | None:
             return None
 
 
+def split_code_lines(lines):
+    end_header_string = 'td class="code">'
+    header = []
+    for i, line in enumerate(lines):
+        if end_header_string in line:
+            last_header_index = i
+            last_header_line = line
+            break
+        header.append(line)
+    last_header, first_line = last_header_line.split(end_header_string)
+    header.append(last_header + end_header_string)
+    footer = lines[-1:]
+    lines = [first_line] + lines[last_header_index + 1:-1]
+    return header, lines, footer
+
+
 def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     """Check generation of module page is needed."""
     module_filename = get_module_filename(app, modname)
@@ -253,9 +269,13 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             lexer = env.config.highlight_language
         else:
             lexer = 'python'
-        highlighted = highlighter.highlight_block(code, lexer, linenos=False)
-        # split the code into lines
+        linenos = env.config.viewcode_linenumbers
+        highlighted = highlighter.highlight_block(code, lexer, linenos=linenos)
         lines = highlighted.splitlines()
+        if linenos:
+            # If we're including line numbers, need to split out the actual
+            # code lines in the html from the line numbering
+            header, lines, footer = split_code_lines(lines)
         # split off wrap markup from the first line of the actual code
         before, after = lines[0].split('<pre>')
         lines[0:1] = [before + '<pre>', after]
@@ -268,10 +288,13 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
             lines[start] = (
-                '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
-                'href="%s">%s</a>' % (name, backlink, _('[docs]')) +
+                '<a class="viewcode-block viewcode-back"' +
+                'id="%s" href="%s">%s</a>' % (name, backlink, _('[docs]')) +
                 lines[start])
-            lines[min(end, maxindex)] += '</div>'
+
+        if linenos:
+            lines = header + lines + footer
+
         # try to find parents (for submodules)
         parents = []
         parent = modname
@@ -327,6 +350,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)
+    app.add_config_value('viewcode_linenumbers', False, False)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)
