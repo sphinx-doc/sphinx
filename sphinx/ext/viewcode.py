@@ -203,7 +203,7 @@ def get_module_filename(app: Sphinx, modname: str) -> str | None:
             return None
 
 
-def split_code_lines(lines):
+def split_code_lines(lines: list[str]) -> tuple[list[str], list[str], list[str]]:
     end_header_string = 'td class="code">'
     header = []
     for i, line in enumerate(lines):
