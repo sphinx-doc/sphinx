@@ -39,7 +39,7 @@ extras_require = {
         'colorama>=0.3.5',
     ],
     'test': [
-        'pytest',
+        'pytest>=4.4.0',
         'pytest-cov',
         'pytest-xdist',
         'pytest-travis-fold',
