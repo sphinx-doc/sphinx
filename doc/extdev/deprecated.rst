@@ -177,6 +177,21 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.ext.autosummary.AutoLink``
 
+   * - ``sphinx.ext.imgmath.DOC_BODY``
+     - 2.1
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.imgmath.DOC_BODY_PREVIEW``
+     - 2.1
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.imgmath.DOC_HEAD``
+     - 2.1
+     - 4.0
+     - N/A
+
    * - ``sphinx.transforms.CitationReferences``
      - 2.1
      - 4.0

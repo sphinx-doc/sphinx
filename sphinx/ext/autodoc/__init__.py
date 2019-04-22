@@ -405,9 +405,9 @@ class Documenter:
 
         retann = self.retann
 
-        result = self.env.app.emit_firstresult(
-            'autodoc-process-signature', self.objtype, self.fullname,
-            self.object, self.options, args, retann)
+        result = self.env.events.emit_firstresult('autodoc-process-signature',
+                                                  self.objtype, self.fullname,
+                                                  self.object, self.options, args, retann)
         if result:
             args, retann = result
 
@@ -993,7 +993,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, str, bool, Any) -> bool
-        return inspect.isfunction(member) or inspect.isbuiltin(member)
+        # supports functions, builtins and bound methods exported at the module level
+        return (inspect.isfunction(member) or inspect.isbuiltin(member) or
+                (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter)))
 
     def format_args(self):
         # type: () -> str
@@ -1347,17 +1349,14 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, str, bool, Any) -> bool
-        non_attr_types = (type, MethodDescriptorType)
-        isdatadesc = inspect.isdescriptor(member) and not \
-            cls.is_function_or_method(member) and not \
-            isinstance(member, non_attr_types) and not \
-            type(member).__name__ == "instancemethod"
-        # That last condition addresses an obscure case of C-defined
-        # methods using a deprecated type in Python 3, that is not otherwise
-        # exported anywhere by Python
-        return isdatadesc or (not isinstance(parent, ModuleDocumenter) and
-                              not inspect.isroutine(member) and
-                              not isinstance(member, type))
+        if inspect.isattributedescriptor(member):
+            return True
+        elif (not isinstance(parent, ModuleDocumenter) and
+              not inspect.isroutine(member) and
+              not isinstance(member, type)):
+            return True
+        else:
+            return False
 
     def document_members(self, all_members=False):
         # type: (bool) -> None
@@ -1368,8 +1367,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         ret = super().import_object()
         if inspect.isenumattribute(self.object):
             self.object = self.object.value
-        if inspect.isdescriptor(self.object) and \
-                not self.is_function_or_method(self.object):
+        if inspect.isattributedescriptor(self.object):
             self._datadescriptor = True
         else:
             # if it's not a data descriptor

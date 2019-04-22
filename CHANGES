@@ -44,6 +44,9 @@ Deprecated
 * ``sphinx.ext.autodoc.importer.MockLoader``
 * ``sphinx.ext.autodoc.importer.mock()``
 * ``sphinx.ext.autosummary.autolink_role()``
+* ``sphinx.ext.imgmath.DOC_BODY``
+* ``sphinx.ext.imgmath.DOC_BODY_PREVIEW``
+* ``sphinx.ext.imgmath.DOC_HEAD``
 * ``sphinx.transforms.CitationReferences``
 * ``sphinx.transforms.SmartQuotesSkipper``
 * ``sphinx.util.docfields.DocFieldTransformer.preprocess_fieldtypes()``
@@ -68,8 +71,13 @@ Features added
 * ``math`` directive now supports ``:class:`` option
 * todo: ``todo`` directive now supports ``:name:`` option
 * #6232: Enable CLI override of Makefile variables
+* #6287: autodoc: Unable to document bound instance methods exported as module
+  functions
+* #6289: autodoc: :confval:`autodoc_default_options` now supports
+  ``imported-members`` option
 * #6212 autosummary: Add :confval:`autosummary_imported_members` to display
   imported members on autosummary
+* #6271: ``make clean`` is catastrophically broken if building into '.'
 * Add ``:classmethod:`` and ``:staticmethod:`` options to :rst:dir:`py:method`
   directive
 
@@ -80,6 +88,7 @@ Bugs fixed
   is consisted by non-ASCII characters
 * #6213: ifconfig: contents after headings are not shown
 * commented term in glossary directive is wrongly recognized
+* #6299: rst domain: rst:directive directive generates waste space
 
 Testing
 --------

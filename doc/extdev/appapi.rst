@@ -147,7 +147,7 @@ Sphinx core events
 ------------------
 
 These events are known to the core.  The arguments shown are given to the
-registered event handlers.  Use :meth:`.connect` in an extension's ``setup``
+registered event handlers.  Use :meth:`.Sphinx.connect` in an extension's ``setup``
 function (note that ``conf.py`` can also have a ``setup`` function) to connect
 handlers to the events.  Example:
 
