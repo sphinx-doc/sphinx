@@ -7,7 +7,6 @@ env:
   global:
     - PYTHONFAULTHANDLER=x
     - SKIP_LATEX_BUILD=1
-    - IS_PYTHON=true
 
 matrix:
   include:
@@ -33,7 +32,7 @@ matrix:
     - language: node_js
       node_js:
         - 10.7
-      env: IS_PYTHON=false
+      script: npm test
       services: xvfb
 
 install:
@@ -41,9 +40,7 @@ install:
   - if [ $IS_PYTHON = true ]; then pip install -U tox codecov; fi
   - if [ $IS_PYTHON = false ]; then npm install; fi
 
-script:
-  - if [ $IS_PYTHON = true ]; then tox -- -v; fi
-  - if [ $IS_PYTHON = false ]; then npm test; fi
+script: tox -- -v -n 2
 
 after_success:
   - if [[ -e .coverage ]]; then codecov -e $TOXENV; fi

@@ -40,16 +40,19 @@ def pytest_assertrepr_compare(op, left, right):
     comparer.pytest_assertrepr_compare(op, left, right)
 
 
-def _initialize_test_directory(session):
+@pytest.fixture(scope="session", autouse=True)
+def _initialize_test_directory(request):
+    tempdir = getattr(request.config, "slaveinput", {}).get("slaveid")
     if 'SPHINX_TEST_TEMPDIR' in os.environ:
-        tempdir = os.path.abspath(os.getenv('SPHINX_TEST_TEMPDIR'))
+        prefix = os.path.abspath(os.getenv('SPHINX_TEST_TEMPDIR'))
+        if tempdir:
+            tempdir = '{0}_{1}'.format(prefix, tempdir)
+        else:
+            tempdir = prefix
+    if tempdir:
         print('Temporary files will be placed in %s.' % tempdir)
 
         if os.path.exists(tempdir):
             shutil.rmtree(tempdir)
 
         os.makedirs(tempdir)
-
-
-def pytest_sessionstart(session):
-    _initialize_test_directory(session)

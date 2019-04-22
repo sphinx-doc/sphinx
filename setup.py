@@ -41,6 +41,8 @@ extras_require = {
     'test': [
         'pytest',
         'pytest-cov',
+        'pytest-xdist',
+        'pytest-travis-fold',
         'html5lib',
         'flake8>=3.5.0',
         'flake8-import-order',
