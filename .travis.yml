@@ -32,13 +32,15 @@ matrix:
     - language: node_js
       node_js:
         - 10.7
+      install:
+        - "sudo apt-get install graphviz"
+        - npm install
       script: npm test
       services: xvfb
 
 install:
   - "sudo apt-get install graphviz"
-  - if [ $IS_PYTHON = true ]; then pip install -U tox codecov; fi
-  - if [ $IS_PYTHON = false ]; then npm install; fi
+  - pip install -U tox codecov
 
 script: tox -- -v -n 2
 
