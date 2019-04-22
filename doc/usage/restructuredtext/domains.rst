@@ -216,6 +216,13 @@ The following directives are provided for module and class contents:
    described for ``function``.  See also :ref:`signatures` and
    :ref:`info-field-lists`.
 
+   The ``classmethod`` option and ``staticmethod`` option can be given (with
+   no value) to indicate the method is a class method (or a static method).
+
+   .. versionchanged:: 2.1
+
+      ``:classmethod:`` and ``:staticmethod:`` options added.
+
 .. rst:directive:: .. py:staticmethod:: name(parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a static method.

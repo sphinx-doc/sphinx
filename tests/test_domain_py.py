@@ -315,25 +315,54 @@ def test_pyfunction(app):
     assert domain.objects['func'] == ('index', 'function')
 
 
-def test_pymethod(app):
+def test_pymethod_options(app):
     text = (".. py:class:: Class\n"
             "\n"
-            "   .. py:method:: meth\n")
+            "   .. py:method:: meth1\n"
+            "   .. py:method:: meth2\n"
+            "      :classmethod:\n"
+            "   .. py:method:: meth3\n"
+            "      :staticmethod:\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "class "],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
+                                                  desc,
+                                                  addnodes.index,
+                                                  desc,
+                                                  addnodes.index,
                                                   desc)])]))
 
+    # method
     assert_node(doctree[1][1][0], addnodes.index,
-                entries=[('single', 'meth() (Class method)', 'Class.meth', '', None)])
-    assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "meth"],
+                entries=[('single', 'meth1() (Class method)', 'Class.meth1', '', None)])
+    assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "meth1"],
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
-    assert 'Class.meth' in domain.objects
-    assert domain.objects['Class.meth'] == ('index', 'method')
+    assert 'Class.meth1' in domain.objects
+    assert domain.objects['Class.meth1'] == ('index', 'method')
+
+    # :classmethod:
+    assert_node(doctree[1][1][2], addnodes.index,
+                entries=[('single', 'meth2() (Class class method)', 'Class.meth2', '', None)])
+    assert_node(doctree[1][1][3], ([desc_signature, ([desc_annotation, "classmethod "],
+                                                     [desc_name, "meth2"],
+                                                     [desc_parameterlist, ()])],
+                                   [desc_content, ()]))
+    assert 'Class.meth2' in domain.objects
+    assert domain.objects['Class.meth2'] == ('index', 'method')
+
+    # :staticmethod:
+    assert_node(doctree[1][1][4], addnodes.index,
+                entries=[('single', 'meth3() (Class static method)', 'Class.meth3', '', None)])
+    assert_node(doctree[1][1][5], ([desc_signature, ([desc_annotation, "static "],
+                                                     [desc_name, "meth3"],
+                                                     [desc_parameterlist, ()])],
+                                   [desc_content, ()]))
+    assert 'Class.meth3' in domain.objects
+    assert domain.objects['Class.meth3'] == ('index', 'method')
 
 
 def test_pyclassmethod(app):
@@ -354,7 +383,7 @@ def test_pyclassmethod(app):
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
     assert 'Class.meth' in domain.objects
-    assert domain.objects['Class.meth'] == ('index', 'classmethod')
+    assert domain.objects['Class.meth'] == ('index', 'method')
 
 
 def test_pystaticmethod(app):
@@ -375,7 +404,7 @@ def test_pystaticmethod(app):
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
     assert 'Class.meth' in domain.objects
-    assert domain.objects['Class.meth'] == ('index', 'staticmethod')
+    assert domain.objects['Class.meth'] == ('index', 'method')
 
 
 def test_pyattribute(app):
