@@ -126,4 +126,4 @@ def test_theme_sidebars(app, status, warning):
     assert '<h3><a href="#">Table of Contents</a></h3>' in result
     assert '<h3>Related Topics</h3>' not in result
     assert '<h3>This Page</h3>' not in result
-    assert '<h3>Quick search</h3>' in result
+    assert '<h3 id="searchlabel">Quick search</h3>' in result
