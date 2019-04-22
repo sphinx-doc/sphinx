@@ -24,6 +24,7 @@ matrix:
       env: TOXENV=py38
     - python: '3.6'
       env: TOXENV=docs
+      script: tox -- -v
     - python: '3.6'
       env: TOXENV=mypy
     - python: '3.6'
