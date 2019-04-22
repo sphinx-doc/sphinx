@@ -29,5 +29,6 @@ doc/locale/
 tests/.coverage
 tests/build/
 utils/regression_test.js
+temp_gw*/
 
 node_modules/

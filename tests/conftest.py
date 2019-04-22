@@ -49,6 +49,9 @@ def _initialize_test_directory(request):
             tempdir = '{0}_{1}'.format(prefix, tempdir)
         else:
             tempdir = prefix
+    else:
+        tempdir = 'temp_{0}'.format(tempdir)
+
     if tempdir:
         print('Temporary files will be placed in %s.' % tempdir)
 
