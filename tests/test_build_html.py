@@ -1338,7 +1338,7 @@ def test_html_sidebar(app, status, warning):
     assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
     assert '<h3>Navigation</h3>' in result
     assert '<h3>Related Topics</h3>' in result
-    assert '<h3>Quick search</h3>' in result
+    assert '<h3 id="searchlabel">Quick search</h3>' in result
 
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == ['about.html', 'navigation.html', 'relations.html',
@@ -1353,7 +1353,7 @@ def test_html_sidebar(app, status, warning):
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' in result
-    assert '<h3>Quick search</h3>' not in result
+    assert '<h3 id="searchlabel">Quick search</h3>' not in result
 
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == ['relations.html']
@@ -1367,7 +1367,7 @@ def test_html_sidebar(app, status, warning):
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' not in result
-    assert '<h3>Quick search</h3>' not in result
+    assert '<h3 id="searchlabel">Quick search</h3>' not in result
 
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == []
