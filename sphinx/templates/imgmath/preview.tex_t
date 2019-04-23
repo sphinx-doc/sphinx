@@ -13,6 +13,6 @@
 
 \begin{document}
 \begin{preview}
-\fontsize{<%= fontsize %>}{<%= baselineskip %}}\selectfont <%= math %>
+\fontsize{<%= fontsize %>}{<%= baselineskip %>}\selectfont <%= math %>
 \end{preview}
 \end{document}
