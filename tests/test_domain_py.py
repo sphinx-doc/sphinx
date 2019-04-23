@@ -304,15 +304,24 @@ def test_pydata(app):
 
 
 def test_pyfunction(app):
-    text = ".. py:function:: func\n"
+    text = (".. py:function:: func1\n"
+            ".. py:function:: func2\n"
+            "   :async:\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_name, "func"],
+                          [desc, ([desc_signature, ([desc_name, "func1"],
+                                                    [desc_parameterlist, ()])],
+                                  [desc_content, ()])],
+                          addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "async "],
+                                                    [desc_name, "func2"],
                                                     [desc_parameterlist, ()])],
                                   [desc_content, ()])]))
-    assert 'func' in domain.objects
-    assert domain.objects['func'] == ('index', 'function')
+    assert 'func1' in domain.objects
+    assert domain.objects['func1'] == ('index', 'function')
+    assert 'func2' in domain.objects
+    assert domain.objects['func2'] == ('index', 'function')
 
 
 def test_pymethod_options(app):
@@ -322,13 +331,17 @@ def test_pymethod_options(app):
             "   .. py:method:: meth2\n"
             "      :classmethod:\n"
             "   .. py:method:: meth3\n"
-            "      :staticmethod:\n")
+            "      :staticmethod:\n"
+            "   .. py:method:: meth4\n"
+            "      :async:\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "class "],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
+                                                  desc,
+                                                  addnodes.index,
                                                   desc,
                                                   addnodes.index,
                                                   desc,
@@ -363,6 +376,16 @@ def test_pymethod_options(app):
                                    [desc_content, ()]))
     assert 'Class.meth3' in domain.objects
     assert domain.objects['Class.meth3'] == ('index', 'method')
+
+    # :async:
+    assert_node(doctree[1][1][6], addnodes.index,
+                entries=[('single', 'meth4() (Class method)', 'Class.meth4', '', None)])
+    assert_node(doctree[1][1][7], ([desc_signature, ([desc_annotation, "async "],
+                                                     [desc_name, "meth4"],
+                                                     [desc_parameterlist, ()])],
+                                   [desc_content, ()]))
+    assert 'Class.meth4' in domain.objects
+    assert domain.objects['Class.meth4'] == ('index', 'method')
 
 
 def test_pyclassmethod(app):

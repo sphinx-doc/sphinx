@@ -169,6 +169,13 @@ The following directives are provided for module and class contents:
    This information can (in any ``py`` directive) optionally be given in a
    structured form, see :ref:`info-field-lists`.
 
+   The ``async`` option can be given (with no value) to indicate the function is
+   an async method.
+
+   .. versionchanged:: 2.1
+
+      ``:async:`` option added.
+
 .. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
@@ -216,12 +223,15 @@ The following directives are provided for module and class contents:
    described for ``function``.  See also :ref:`signatures` and
    :ref:`info-field-lists`.
 
+   The ``async`` option can be given (with no value) to indicate the method is
+   an async method.
+
    The ``classmethod`` option and ``staticmethod`` option can be given (with
    no value) to indicate the method is a class method (or a static method).
 
    .. versionchanged:: 2.1
 
-      ``:classmethod:`` and ``:staticmethod:`` options added.
+      ``:async:``, ``:classmethod:`` and ``:staticmethod:`` options added.
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
 

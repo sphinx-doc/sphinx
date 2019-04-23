@@ -1034,6 +1034,14 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         # type: (bool) -> None
         pass
 
+    def add_directive_header(self, sig):
+        # type: (str) -> None
+        sourcename = self.get_sourcename()
+        super().add_directive_header(sig)
+
+        if inspect.iscoroutinefunction(self.object):
+            self.add_line('   :async:', sourcename)
+
 
 class DecoratorDocumenter(FunctionDocumenter):
     """
@@ -1318,9 +1326,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         sourcename = self.get_sourcename()
         obj = self.parent.__dict__.get(self.object_name, self.object)
+        if inspect.iscoroutinefunction(obj):
+            self.add_line('   :async:', sourcename)
         if inspect.isclassmethod(obj):
             self.add_line('   :classmethod:', sourcename)
-        elif inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
+        if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
             self.add_line('   :staticmethod:', sourcename)
 
     def document_members(self, all_members=False):

@@ -15,7 +15,7 @@ import re
 import sys
 import typing
 import warnings
-from functools import partial
+from functools import partial, partialmethod
 from inspect import (  # NOQA
     isclass, ismethod, ismethoddescriptor, isroutine
 )
@@ -129,7 +129,7 @@ def isenumattribute(x):
 def ispartial(obj):
     # type: (Any) -> bool
     """Check if the object is partial."""
-    return isinstance(obj, partial)
+    return isinstance(obj, (partial, partialmethod))
 
 
 def isclassmethod(obj):
@@ -210,6 +210,18 @@ def isbuiltin(obj):
     # type: (Any) -> bool
     """Check if the object is builtin."""
     return inspect.isbuiltin(obj) or ispartial(obj) and inspect.isbuiltin(obj.func)
+
+
+def iscoroutinefunction(obj):
+    # type: (Any) -> bool
+    """Check if the object is coroutine-function."""
+    if inspect.iscoroutinefunction(obj):
+        return True
+    elif ispartial(obj) and inspect.iscoroutinefunction(obj.func):
+        # partialed
+        return True
+    else:
+        return False
 
 
 def safe_getattr(obj, name, *defargs):

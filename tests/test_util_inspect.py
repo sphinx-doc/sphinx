@@ -398,6 +398,22 @@ def test_isstaticmethod(app):
 
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
+def test_iscoroutinefunction(app):
+    from target.functions import coroutinefunc, func, partial_coroutinefunc
+    from target.methods import Base
+
+    assert inspect.iscoroutinefunction(func) is False                   # function
+    assert inspect.iscoroutinefunction(coroutinefunc) is True           # coroutine
+    assert inspect.iscoroutinefunction(partial_coroutinefunc) is True   # partial-ed coroutine
+    assert inspect.iscoroutinefunction(Base.meth) is False              # method
+    assert inspect.iscoroutinefunction(Base.coroutinemeth) is True      # coroutine-method
+
+    # partial-ed coroutine-method
+    partial_coroutinemeth = Base.__dict__['partial_coroutinemeth']
+    assert inspect.iscoroutinefunction(partial_coroutinemeth) is True
+
+
+@pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isfunction(app):
     from target.functions import builtin_func, partial_builtin_func
     from target.functions import func, partial_func

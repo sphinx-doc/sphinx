@@ -1523,6 +1523,15 @@ def test_bound_method():
 
 @pytest.mark.usefixtures('setup_test')
 def test_coroutine():
+    actual = do_autodoc(app, 'function', 'target.functions.coroutinefunc')
+    assert list(actual) == [
+        '',
+        '.. py:function:: coroutinefunc()',
+        '   :module: target.functions',
+        '   :async:',
+        '',
+    ]
+
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.coroutine.AsyncClass', options)
     assert list(actual) == [
@@ -1533,6 +1542,7 @@ def test_coroutine():
         '   ',
         '   .. py:method:: AsyncClass.do_coroutine()',
         '      :module: target.coroutine',
+        '      :async:',
         '   ',
         '      A documented coroutine function',
         '      '
