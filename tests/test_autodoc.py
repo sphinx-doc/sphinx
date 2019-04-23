@@ -702,9 +702,9 @@ def test_autodoc_members(app):
     actual = do_autodoc(app, 'class', 'target.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
-        '   .. py:classmethod:: Base.inheritedclassmeth()',
+        '   .. py:method:: Base.inheritedclassmeth()',
         '   .. py:method:: Base.inheritedmeth()',
-        '   .. py:staticmethod:: Base.inheritedstaticmeth(cls)'
+        '   .. py:method:: Base.inheritedstaticmeth(cls)'
     ]
 
     # default specific-members
@@ -713,7 +713,7 @@ def test_autodoc_members(app):
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
         '   .. py:method:: Base.inheritedmeth()',
-        '   .. py:staticmethod:: Base.inheritedstaticmeth(cls)'
+        '   .. py:method:: Base.inheritedstaticmeth(cls)'
     ]
 
 
@@ -724,7 +724,7 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
-        '   .. py:classmethod:: Base.inheritedclassmeth()'
+        '   .. py:method:: Base.inheritedclassmeth()'
     ]
 
     # members vs exclude-members
@@ -752,9 +752,9 @@ def test_autodoc_undoc_members(app):
         '   .. py:attribute:: Class.inst_attr_string',
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
-        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
@@ -769,11 +769,11 @@ def test_autodoc_inherited_members(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: 'method::' in l, actual)) == [
         '   .. py:method:: Class.excludemeth()',
-        '   .. py:classmethod:: Class.inheritedclassmeth()',
+        '   .. py:method:: Class.inheritedclassmeth()',
         '   .. py:method:: Class.inheritedmeth()',
-        '   .. py:staticmethod:: Class.inheritedstaticmeth(cls)',
+        '   .. py:method:: Class.inheritedstaticmeth(cls)',
         '   .. py:method:: Class.meth()',
-        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
         '   .. py:method:: Class.skipmeth()'
     ]
 
@@ -832,9 +832,9 @@ def test_autodoc_special_members(app):
         '   .. py:attribute:: Class.inst_attr_string',
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
-        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
@@ -953,6 +953,34 @@ def test_autodoc_inner_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_classmethod(app):
+    actual = do_autodoc(app, 'method', 'target.Base.inheritedclassmeth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Base.inheritedclassmeth()',
+        '   :module: target',
+        '   :classmethod:',
+        '',
+        '   Inherited class method.',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_staticmethod(app):
+    actual = do_autodoc(app, 'method', 'target.Base.inheritedstaticmeth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Base.inheritedstaticmeth(cls)',
+        '   :module: target',
+        '   :staticmethod:',
+        '',
+        '   Inherited static method.',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_descriptor(app):
     actual = do_autodoc(app, 'attribute', 'target.Class.descr')
     assert list(actual) == [
@@ -1001,8 +1029,8 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',
-        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
-        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_comment',
         '   .. py:attribute:: Class.inst_attr_string',
@@ -1019,8 +1047,8 @@ def test_autodoc_member_order(app):
         '.. py:class:: Class(arg)',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:method:: Class.meth()',
-        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
-        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.undocmeth()',
         '   .. py:attribute:: Class._private_inst_attr',
@@ -1053,9 +1081,9 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.inst_attr_string',
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
-        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
@@ -1557,6 +1585,8 @@ def test_autodoc_default_options(app):
     assert '   .. py:attribute:: EnumCls.val4' not in actual
     actual = do_autodoc(app, 'class', 'target.CustomIter')
     assert '   .. py:method:: target.CustomIter' not in actual
+    actual = do_autodoc(app, 'module', 'target')
+    assert '.. py:function:: save_traceback(app)' not in actual
 
     # with :members:
     app.config.autodoc_default_options = {'members': None}
@@ -1620,6 +1650,15 @@ def test_autodoc_default_options(app):
     assert '   .. py:method:: CustomIter.snafucate()' in actual
     assert '      Makes this snafucated.' in actual
 
+    # with :imported-members:
+    app.config.autodoc_default_options = {
+        'members': None,
+        'imported-members': None,
+        'ignore-module-all': None,
+    }
+    actual = do_autodoc(app, 'module', 'target')
+    assert '.. py:function:: save_traceback(app)' in actual
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options_with_values(app):
@@ -1648,7 +1687,7 @@ def test_autodoc_default_options_with_values(app):
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',
-        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_comment',
         '   .. py:attribute:: Class.inst_attr_string',

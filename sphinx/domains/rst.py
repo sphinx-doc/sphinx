@@ -57,10 +57,6 @@ class ReSTMarkup(ObjectDescription):
 
     def get_index_text(self, objectname, name):
         # type: (str, str) -> str
-        if self.objtype == 'directive':
-            return _('%s (directive)') % name
-        elif self.objtype == 'role':
-            return _('%s (role)') % name
         return ''
 
 
@@ -98,6 +94,10 @@ class ReSTDirective(ReSTMarkup):
             signode += addnodes.desc_addname(args, args)
         return name
 
+    def get_index_text(self, objectname, name):
+        # type: (str, str) -> str
+        return _('%s (directive)') % name
+
 
 class ReSTRole(ReSTMarkup):
     """
@@ -107,6 +107,10 @@ class ReSTRole(ReSTMarkup):
         # type: (str, addnodes.desc_signature) -> str
         signode += addnodes.desc_name(':%s:' % sig, ':%s:' % sig)
         return sig
+
+    def get_index_text(self, objectname, name):
+        # type: (str, str) -> str
+        return _('%s (role)') % name
 
 
 class ReSTDomain(Domain):

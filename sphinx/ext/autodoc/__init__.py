@@ -1269,6 +1269,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     Specialized Documenter subclass for methods (normal, static and class).
     """
     objtype = 'method'
+    directivetype = 'method'
     member_order = 50
     priority = 1  # must be more than FunctionDocumenter
 
@@ -1289,16 +1290,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if obj is None:
             obj = self.object
 
-        if inspect.isclassmethod(obj):
-            self.directivetype = 'classmethod'
+        if (inspect.isclassmethod(obj) or
+                inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name)):
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
-        elif inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
-            self.directivetype = 'staticmethod'
-            # document class and static members before ordinary ones
-            self.member_order = self.member_order - 1
-        else:
-            self.directivetype = 'method'
+
         return ret
 
     def format_args(self):
@@ -1313,6 +1309,17 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
         return args
+
+    def add_directive_header(self, sig):
+        # type: (str) -> None
+        super().add_directive_header(sig)
+
+        sourcename = self.get_sourcename()
+        obj = self.parent.__dict__.get(self.object_name, self.object)
+        if inspect.isclassmethod(obj):
+            self.add_line('   :classmethod:', sourcename)
+        elif inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
+            self.add_line('   :staticmethod:', sourcename)
 
     def document_members(self, all_members=False):
         # type: (bool) -> None
