@@ -30,74 +30,21 @@ This extension renders math via LaTeX and dvipng_ or dvisvgm_ into PNG or SVG
 images. This of course means that the computer where the docs are built must
 have both programs available.
 
-There are various config values you can set to influence how the images are
-built:
+There are various configuration values you can set to influence how the images
+are built:
 
 .. confval:: imgmath_image_format
 
-   The output image format. The default is ``'png'``.  It should be either
-   ``'png'`` or ``'svg'``.
-
-.. confval:: imgmath_latex
-
-   The command name with which to invoke LaTeX.  The default is ``'latex'``; you
-   may need to set this to a full path if ``latex`` is not in the executable
-   search path.
-
-   Since this setting is not portable from system to system, it is normally not
-   useful to set it in ``conf.py``; rather, giving it on the
-   :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
-   option should be preferable, like this::
-
-      sphinx-build -b html -D imgmath_latex=C:\tex\latex.exe . _build/html
-
-   This value should only contain the path to the latex executable, not further
-   arguments; use :confval:`imgmath_latex_args` for that purpose.
-
-.. confval:: imgmath_dvipng
-
-   The command name with which to invoke ``dvipng``.  The default is
-   ``'dvipng'``; you may need to set this to a full path if ``dvipng`` is not in
-   the executable search path. This option is only used when
-   ``imgmath_image_format`` is set to ``'png'``.
-
-.. confval:: imgmath_dvisvgm
-
-   The command name with which to invoke ``dvisvgm``.  The default is
-   ``'dvisvgm'``; you may need to set this to a full path if ``dvisvgm`` is not
-   in the executable search path.  This option is only used when
-   ``imgmath_image_format`` is ``'svg'``.
-
-.. confval:: imgmath_latex_args
-
-   Additional arguments to give to latex, as a list.  The default is an empty
-   list.
-
-.. confval:: imgmath_latex_preamble
-
-   Additional LaTeX code to put into the preamble of the short LaTeX files that
-   are used to translate the math snippets.  This is empty by default.  Use it
-   e.g. to add more packages whose commands you want to use in the math.
-
-.. confval:: imgmath_dvipng_args
-
-   Additional arguments to give to dvipng, as a list.  The default value is
-   ``['-gamma', '1.5', '-D', '110', '-bg', 'Transparent']`` which makes the
-   image a bit darker and larger then it is by default, and produces PNGs with a
-   transparent background.  This option is used only when
-   ``imgmath_image_format`` is ``'png'``.
-
-.. confval:: imgmath_dvisvgm_args
-
-   Additional arguments to give to dvisvgm, as a list.  The default value is
-   ``['--no-fonts']``.  This option is used only when ``imgmath_image_format``
-   is ``'svg'``.
+   The output image format. The default is ``'png'``. It should be either
+   ``'png'`` or ``'svg'``. The image is produced by first executing ``latex``
+   on the TeX mathematical mark-up then (depending on the requested format)
+   either `dvipng`_ or `dvisvgm`_.
 
 .. confval:: imgmath_use_preview
 
-   ``dvipng`` and ``dvisvgm`` have the ability to collect from LaTeX the
-   "depth" of the rendered text: an inline image should use this "depth" in a
-   ``vertical-align`` style to be correctly aligned with surrounding text.
+   ``dvipng`` and ``dvisvgm`` both have the ability to collect from LaTeX the
+   "depth" of the rendered math: an inline image should use this "depth" in a
+   ``vertical-align`` style to get correctly aligned with surrounding text.
 
    This mechanism requires the `LaTeX preview package`_ (available as
    ``preview-latex-style`` on Ubuntu xenial).  Therefore, the default for this
@@ -116,6 +63,67 @@ built:
 
    The font size (in ``pt``) of the displayed math.  The default value is
    ``12``.  It must be a positive integer.
+
+.. confval:: imgmath_latex
+
+   The command name with which to invoke LaTeX.  The default is ``'latex'``; you
+   may need to set this to a full path if ``latex`` is not in the executable
+   search path.
+
+   Since this setting is not portable from system to system, it is normally not
+   useful to set it in ``conf.py``; rather, giving it on the
+   :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
+   option should be preferable, like this::
+
+      sphinx-build -b html -D imgmath_latex=C:\tex\latex.exe . _build/html
+
+   This value should only contain the path to the latex executable, not further
+   arguments; use :confval:`imgmath_latex_args` for that purpose.
+
+.. confval:: imgmath_latex_args
+
+   Additional arguments to give to latex, as a list.  The default is an empty
+   list.
+
+.. confval:: imgmath_latex_preamble
+
+   Additional LaTeX code to put into the preamble of the LaTeX files used to
+   translate the math snippets.  This is left empty by default.  Use it
+   e.g. to add packages which modify the fonts used for math, such as
+   ``'\\usepackage{newtxsf}'`` for sans-serif fonts, or
+   ``'\\usepackage{fouriernc}'`` for serif fonts.  Indeed, the default LaTeX
+   math fonts have rather thin glyphs which (in HTML output) often do not
+   match well with the font for text.
+
+.. confval:: imgmath_dvipng
+
+   The command name to invoke ``dvipng``.  The default is
+   ``'dvipng'``; you may need to set this to a full path if ``dvipng`` is not in
+   the executable search path. This option is only used when
+   ``imgmath_image_format`` is set to ``'png'``.
+
+.. confval:: imgmath_dvipng_args
+
+   Additional arguments to give to dvipng, as a list.  The default value is
+   ``['-gamma', '1.5', '-D', '110', '-bg', 'Transparent']`` which makes the
+   image a bit darker and larger then it is by default (this compensates
+   somewhat for the thinness of default LaTeX math fonts), and produces PNGs with a
+   transparent background.  This option is used only when
+   ``imgmath_image_format`` is ``'png'``.
+
+.. confval:: imgmath_dvisvgm
+
+   The command name to invoke ``dvisvgm``.  The default is
+   ``'dvisvgm'``; you may need to set this to a full path if ``dvisvgm`` is not
+   in the executable search path.  This option is only used when
+   ``imgmath_image_format`` is ``'svg'``.
+
+.. confval:: imgmath_dvisvgm_args
+
+   Additional arguments to give to dvisvgm, as a list. The default value is
+   ``['--no-fonts']``, which means that ``dvisvgm`` will render glyphs as path
+   elements (cf the `dvisvgm FAQ`_). This option is used only when
+   ``imgmath_image_format`` is ``'svg'``.
 
 
 :mod:`sphinx.ext.mathjax` -- Render math via JavaScript
@@ -217,6 +225,7 @@ package jsMath_.  It provides this config value:
 
 .. _dvipng: https://savannah.nongnu.org/projects/dvipng/
 .. _dvisvgm: https://dvisvgm.de/
+.. _dvisvgm FAQ: https://dvisvgm.de/FAQ
 .. _MathJax: https://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
 .. _LaTeX preview package: https://www.gnu.org/software/auctex/preview-latex.html
