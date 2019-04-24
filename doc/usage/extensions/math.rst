@@ -95,19 +95,17 @@ built:
 
 .. confval:: imgmath_use_preview
 
-   ``dvipng`` has the ability to determine the "depth" of the rendered text: for
-   example, when typesetting a fraction inline, the baseline of surrounding text
-   should not be flush with the bottom of the image, rather the image should
-   extend a bit below the baseline.  This is what TeX calls "depth".  When this
-   is enabled, the images put into the HTML document will get a
-   ``vertical-align`` style that correctly aligns the baselines.
+   ``dvipng`` and ``dvisvgm`` have the ability to collect from LaTeX the
+   "depth" of the rendered text: an inline image should use this "depth" in a
+   ``vertical-align`` style to be correctly aligned with surrounding text.
 
-   Unfortunately, this only works when the `preview-latex package`_ is
-   installed. Therefore, the default for this option is ``False``.
+   This mechanism requires the `LaTeX preview package`_ (available as
+   ``preview-latex-style`` on Ubuntu xenial).  Therefore, the default for this
+   option is ``False`` but it is strongly recommended to set it to ``True``.
 
-   .. versionchanged:: 2.1.0
+   .. versionchanged:: 2.1
 
-      This option can also be used with ``imgmath_image_format`` set to ``'svg'``.
+      This option can be used with the ``'svg'`` :confval:`imgmath_image_format`.
 
 .. confval:: imgmath_add_tooltips
 
@@ -221,4 +219,4 @@ package jsMath_.  It provides this config value:
 .. _dvisvgm: http://dvisvgm.bplaced.net/
 .. _MathJax: https://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
-.. _preview-latex package: https://www.gnu.org/software/auctex/preview-latex.html
+.. _LaTeX preview package: https://www.gnu.org/software/auctex/preview-latex.html
