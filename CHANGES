@@ -16,6 +16,7 @@ Deprecated
 ----------
 
 * ``sphinx.builders.latex.LaTeXBuilder.apply_transforms()``
+* ``sphinx.builders._epub_base.EpubBuilder.esc()``
 * ``sphinx.directives.Acks``
 * ``sphinx.directives.Author``
 * ``sphinx.directives.Centered``
