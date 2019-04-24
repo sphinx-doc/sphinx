@@ -88,6 +88,7 @@ DOC_BODY_PREVIEW = r'''
 
 depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
 depthsvg_re = re.compile(br'.*, depth=(.*)pt')
+depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
 def read_svg_depth(filename):
@@ -97,7 +98,11 @@ def read_svg_depth(filename):
     with open(filename, 'r') as f:
         for line in f:
             pass
-        return int(line[11:-4])
+        # Only last line is checked
+        matched = depthsvgcomment_re.match(line)
+        if matched:
+            return int(matched.group(1))
+        return None
 
 
 def write_svg_depth(filename, depth):
