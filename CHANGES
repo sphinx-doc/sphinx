@@ -196,6 +196,8 @@ Features added
 
 * #6180: Support ``--keep-going`` with BuildDoc setup command
 * ``math`` directive now supports ``:class:`` option
+* #6310: imgmath: let :confval:`imgmath_use_preview` work also with the SVG
+  format for images rendering inline math
 * todo: ``todo`` directive now supports ``:name:`` option
 * Enable override via environment of ``SPHINXOPTS`` and ``SPHINXBUILD`` Makefile
   variables (refs: #6232, #6303)
