@@ -13,6 +13,7 @@ from collections import namedtuple
 import pytest
 
 from sphinx.ext.apidoc import main as apidoc_main
+from sphinx.testing.path import path
 
 
 @pytest.fixture()
@@ -398,3 +399,32 @@ def test_subpackage_in_toc(make_app, apidoc):
     assert 'parent.child.foo' in parent_child
 
     assert (outdir / 'parent.child.foo.rst').isfile()
+
+
+def test_module_file(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'example.py').write_text('')
+    apidoc_main(['-o', tempdir, tempdir])
+    assert (outdir / 'example.rst').exists()
+
+    content = (outdir / 'example.rst').text()
+    assert content == ("example module\n"
+                       "==============\n"
+                       "\n"
+                       ".. automodule:: example\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n")
+
+
+def test_module_file_noheadings(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'example.py').write_text('')
+    apidoc_main(['--no-headings', '-o', tempdir, tempdir])
+    assert (outdir / 'example.rst').exists()
+
+    content = (outdir / 'example.rst').text()
+    assert content == (".. automodule:: example\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n")

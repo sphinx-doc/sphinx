@@ -28,6 +28,7 @@ from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.locale import __
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
+from sphinx.util.template import ReSTRenderer
 
 if False:
     # For type annotation
@@ -46,6 +47,8 @@ else:
 
 INITPY = '__init__.py'
 PY_SUFFIXES = {'.py', '.pyx'}
+
+template_dir = path.join(package_dir, 'templates', 'apidoc')
 
 
 def makename(package, module):
@@ -94,16 +97,18 @@ def format_directive(module, package=None):
     return directive
 
 
-def create_module_file(package, module, opts):
+def create_module_file(package, basename, opts):
     # type: (str, str, Any) -> None
     """Build the text of the file and write the file."""
-    if not opts.noheadings:
-        text = format_heading(1, '%s module' % module)
-    else:
-        text = ''
-    # text += format_heading(2, ':mod:`%s` Module' % module)
-    text += format_directive(module, package)
-    write_file(makename(package, module), text, opts)
+    qualname = makename(package, basename)
+    context = {
+        'show_headings': not opts.noheadings,
+        'basename': basename,
+        'qualname': qualname,
+        'automodule_options': OPTIONS,
+    }
+    text = ReSTRenderer(template_dir).render('module.rst', context)
+    write_file(qualname, text, opts)
 
 
 def create_package_file(root, master_package, subroot, py_files, opts, subs, is_namespace, excludes=[]):  # NOQA
