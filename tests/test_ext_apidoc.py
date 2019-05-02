@@ -401,6 +401,24 @@ def test_subpackage_in_toc(make_app, apidoc):
     assert (outdir / 'parent.child.foo.rst').isfile()
 
 
+def test_toc_file(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'module').makedirs()
+    (outdir / 'example.py').write_text('')
+    (outdir / 'module' / 'example.py').write_text('')
+    apidoc_main(['-o', tempdir, tempdir])
+    assert (outdir / 'modules.rst').exists()
+
+    content = (outdir / 'modules.rst').text()
+    assert content == ("test_toc_file0\n"
+                       "==============\n"
+                       "\n"
+                       ".. toctree::\n"
+                       "   :maxdepth: 4\n"
+                       "\n"
+                       "   example\n")
+
+
 def test_module_file(tempdir):
     outdir = path(tempdir)
     (outdir / 'example.py').write_text('')

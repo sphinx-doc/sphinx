@@ -174,19 +174,21 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
 def create_modules_toc_file(modules, opts, name='modules'):
     # type: (List[str], Any, str) -> None
     """Create the module's index."""
-    text = format_heading(1, '%s' % opts.header, escape=False)
-    text += '.. toctree::\n'
-    text += '   :maxdepth: %s\n\n' % opts.maxdepth
-
     modules.sort()
     prev_module = ''
-    for module in modules:
+    for module in modules[:]:
         # look if the module is a subpackage and, if yes, ignore it
         if module.startswith(prev_module + '.'):
-            continue
-        prev_module = module
-        text += '   %s\n' % module
+            modules.remove(module)
+        else:
+            prev_module = module
 
+    context = {
+        'header': opts.header,
+        'maxdepth': opts.maxdepth,
+        'docnames': modules,
+    }
+    text = ReSTRenderer(template_dir).render('toc.rst', context)
     write_file(name, text, opts)
 
 
