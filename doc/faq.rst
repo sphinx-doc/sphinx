@@ -48,11 +48,11 @@ Using Sphinx with...
 --------------------
 
 Read the Docs
-    https://readthedocs.org is a documentation hosting service based around
+    `Read the Docs <https://readthedocs.org>`_ is a documentation hosting service based around
     Sphinx. They will host sphinx documentation, along with supporting a number
     of other features including version support, PDF generation, and more. The
     `Getting Started
-    <https://read-the-docs.readthedocs.io/en/latest/getting_started.html>`_
+    <https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html>`_
     guide is a good place to start.
 
 Epydoc
