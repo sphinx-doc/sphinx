@@ -9,11 +9,14 @@
 """
 
 import re
+from collections import defaultdict
 from contextlib import contextmanager
+from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.utils import Reporter
+from jinja2 import environmentfilter
 
 from sphinx.locale import __
 from sphinx.util import docutils
@@ -21,13 +24,20 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Generator  # NOQA
+    from typing import Callable, Dict, Generator  # NOQA
     from docutils.statemachine import StringList  # NOQA
+    from jinja2 import Environment  # NOQA
 
 logger = logging.getLogger(__name__)
 
 docinfo_re = re.compile(':\\w+:.*?')
 symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
+SECTIONING_CHARS = ['=', '-', '~']
+
+# width of characters
+WIDECHARS = defaultdict(lambda: "WF")   # type: Dict[str, str]
+                                        # WF: Wide + Full-width
+WIDECHARS["ja"] = "WFA"  # In Japanese, Ambiguous characters also have double width
 
 
 def escape(text):
@@ -35,6 +45,29 @@ def escape(text):
     text = symbols_re.sub(r'\\\1', text)
     text = re.sub(r'^\.', r'\.', text)  # escape a dot at top
     return text
+
+
+def textwidth(text, widechars='WF'):
+    # type: (str, str) -> int
+    """Get width of text."""
+    def charwidth(char, widechars):
+        # type: (str, str) -> int
+        if east_asian_width(char) in widechars:
+            return 2
+        else:
+            return 1
+
+    return sum(charwidth(c, widechars) for c in text)
+
+
+@environmentfilter
+def heading(env, text, level=1):
+    # type: (Environment, str, int) -> str
+    """Create a heading for *level*."""
+    assert level <= 3
+    width = textwidth(text, WIDECHARS[env.language])  # type: ignore
+    sectioning_char = SECTIONING_CHARS[level - 1]
+    return '%s\n%s' % (text, sectioning_char * width)
 
 
 @contextmanager
