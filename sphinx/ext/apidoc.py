@@ -114,61 +114,34 @@ def create_module_file(package, basename, opts):
 def create_package_file(root, master_package, subroot, py_files, opts, subs, is_namespace, excludes=[]):  # NOQA
     # type: (str, str, str, List[str], Any, List[str], bool, List[str]) -> None
     """Build the text of the file and write the file."""
-    text = format_heading(1, ('%s package' if not is_namespace else "%s namespace")
-                          % makename(master_package, subroot))
+    # build a list of sub packages (directories containing an INITPY file)
+    subpackages = [sub for sub in subs if not
+                   shall_skip(path.join(root, sub, INITPY), opts, excludes)]
+    subpackages = [makename(makename(master_package, subroot), pkgname)
+                   for pkgname in subpackages]
+    # build a list of sub modules
+    submodules = [path.splitext(sub)[0] for sub in py_files
+                  if not shall_skip(path.join(root, sub), opts, excludes) and
+                  sub != INITPY]
+    submodules = [makename(master_package, makename(subroot, modname))
+                  for modname in submodules]
 
-    if opts.modulefirst and not is_namespace:
-        text += format_directive(subroot, master_package)
-        text += '\n'
-
-    # build a list of directories that are szvpackages (contain an INITPY file)
-    # and also checks the INITPY file is not empty, or there are other python
-    # source files in that folder.
-    # (depending on settings - but shall_skip() takes care of that)
-    subs = [sub for sub in subs if not
-            shall_skip(path.join(root, sub, INITPY), opts, excludes)]
-    # if there are some package directories, add a TOC for theses subpackages
-    if subs:
-        text += format_heading(2, 'Subpackages')
-        text += '.. toctree::\n\n'
-        for sub in subs:
-            text += '    %s.%s\n' % (makename(master_package, subroot), sub)
-        text += '\n'
-
-    submods = [path.splitext(sub)[0] for sub in py_files
-               if not shall_skip(path.join(root, sub), opts, excludes) and
-               sub != INITPY]
-    if submods:
-        text += format_heading(2, 'Submodules')
-        if opts.separatemodules:
-            text += '.. toctree::\n\n'
-            for submod in submods:
-                modfile = makename(master_package, makename(subroot, submod))
-                text += '   %s\n' % modfile
-
-                # generate separate file for this module
-                if not opts.noheadings:
-                    filetext = format_heading(1, '%s module' % modfile)
-                else:
-                    filetext = ''
-                filetext += format_directive(makename(subroot, submod),
-                                             master_package)
-                write_file(modfile, filetext, opts)
-        else:
-            for submod in submods:
-                modfile = makename(master_package, makename(subroot, submod))
-                if not opts.noheadings:
-                    text += format_heading(2, '%s module' % modfile)
-                text += format_directive(makename(subroot, submod),
-                                         master_package)
-                text += '\n'
-        text += '\n'
-
-    if not opts.modulefirst and not is_namespace:
-        text += format_heading(2, 'Module contents')
-        text += format_directive(subroot, master_package)
-
+    context = {
+        'pkgname': makename(master_package, subroot),
+        'subpackages': subpackages,
+        'submodules': submodules,
+        'is_namespace': is_namespace,
+        'modulefirst': opts.modulefirst,
+        'separatemodules': opts.separatemodules,
+        'automodule_options': OPTIONS,
+        'show_headings': not opts.noheadings,
+    }
+    text = ReSTRenderer(template_dir).render('package.rst', context)
     write_file(makename(master_package, subroot), text, opts)
+
+    if submodules and opts.separatemodules:
+        for submodule in submodules:
+            create_module_file(None, submodule, opts)
 
 
 def create_modules_toc_file(modules, opts, name='modules'):
