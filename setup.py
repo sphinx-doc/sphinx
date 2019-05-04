@@ -38,6 +38,9 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
+    'docs': [
+        'sphinxcontrib-websupport',
+    ],
     'test': [
         'pytest',
         'pytest-cov',
