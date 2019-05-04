@@ -19,12 +19,14 @@ import glob
 import locale
 import os
 import sys
+import warnings
 from fnmatch import fnmatch
 from os import path
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
@@ -82,6 +84,8 @@ def write_file(name, text, opts):
 def format_heading(level, text, escape=True):
     # type: (int, str, bool) -> str
     """Create a heading of <level> [1, 2 or 3 supported]."""
+    warnings.warn('format_warning() is deprecated.',
+                  RemovedInSphinx40Warning)
     if escape:
         text = rst.escape(text)
     underlining = ['=', '-', '~', ][level - 1] * len(text)
@@ -91,6 +95,8 @@ def format_heading(level, text, escape=True):
 def format_directive(module, package=None):
     # type: (str, str) -> str
     """Create the automodule directive and add the options."""
+    warnings.warn('format_directive() is deprecated.',
+                  RemovedInSphinx40Warning)
     directive = '.. automodule:: %s\n' % makename(package, module)
     for option in OPTIONS:
         directive += '    :%s:\n' % option
