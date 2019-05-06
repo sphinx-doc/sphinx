@@ -441,6 +441,10 @@ def mangle_signature(sig, max_chars=30):
     s = re.sub(r"\\'", "", s)
     s = re.sub(r"'[^']*'", "", s)
 
+    # Strip arguments of typehints (ex. Tuple[int, str] -> Tuple)
+    while re.search(r'\[[^],][^\[\]]*\]', s):
+        s = re.sub(r'\[[^],][^\[\]]*\]', '', s)
+
     # Parse the signature to arguments + options
     args = []  # type: List[str]
     opts = []  # type: List[str]

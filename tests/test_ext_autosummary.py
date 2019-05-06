@@ -49,6 +49,8 @@ def test_mangle_signature():
     (a=1, b=2, c=3) :: ([a, b, c])
     (a=1, b=<SomeClass: a, b, c>, c=3) :: ([a, b, c])
     (a: int, b: int) -> str :: (a, b)
+    (a: Tuple[int, str], b: int) :: (a, b)
+    (a: Union[Tuple[int, str], str], b: int) :: (a, b)
     """
 
     TEST = [[y.strip() for y in x.split("::")] for x in TEST.split("\n")
