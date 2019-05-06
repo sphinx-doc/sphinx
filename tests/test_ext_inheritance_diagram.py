@@ -23,7 +23,7 @@ def test_inheritance_diagram_png_html(app, status, warning):
 
     content = (app.outdir / 'index.html').text()
 
-    pattern = ('<div class="figure align-center" id="id1">\n'
+    pattern = ('<div class="figure align-default" id="id1">\n'
                '<div class="graphviz">'
                '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
                'class="inheritance graphviz" /></div>\n<p class="caption">'
@@ -40,7 +40,7 @@ def test_inheritance_diagram_svg_html(app, status, warning):
 
     content = (app.outdir / 'index.html').text()
 
-    pattern = ('<div class="figure align-center" id="id1">\n'
+    pattern = ('<div class="figure align-default" id="id1">\n'
                '<div class="graphviz">'
                '<object data="_images/inheritance-\\w+.svg" '
                'type="image/svg\\+xml" class="inheritance graphviz">\n'
@@ -80,7 +80,7 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
 
     content = (app.outdir / 'index.html').text()
 
-    pattern = ('<div class="figure align-center" id="id1">\n'
+    pattern = ('<div class="figure align-default" id="id1">\n'
                '<div class="graphviz">'
                '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
                'class="inheritance graphviz" /></div>\n<p class="caption">'

@@ -11,6 +11,7 @@ Incompatible changes
   API directly
 * #6230: The anchor of term in glossary directive is changed if it is consisted
   by non-ASCII characters
+* #4550: html: Centering tables by default using CSS
 
 Deprecated
 ----------
