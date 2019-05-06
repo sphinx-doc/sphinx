@@ -19,6 +19,11 @@ class Base():
 
     partialmeth = partialmethod(meth)
 
+    async def coroutinemeth(self):
+        pass
+
+    partial_coroutinemeth = partialmethod(coroutinemeth)
+
 
 class Inherited(Base):
     pass

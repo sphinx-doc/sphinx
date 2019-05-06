@@ -31,6 +31,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.builders._epub_base.EpubBuilder.esc()``
+     - 2.1
+     - 4.0
+     - ``html.escape()``
+
    * - ``sphinx.directives.Acks``
      - 2.1
      - 4.0
@@ -156,6 +161,15 @@ The following is a list of deprecated interfaces.
      - 2.1
      - 4.0
      - ``sphinx.errors.NoUri``
+   * - ``sphinx.ext.apidoc.format_directive()``
+     - 2.1
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.apidoc.format_heading()``
+     - 2.1
+     - 4.0
+     - N/A
 
    * - ``sphinx.ext.autodoc.importer.MockFinder``
      - 2.1

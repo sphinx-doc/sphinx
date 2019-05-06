@@ -429,6 +429,18 @@ class PyModulelevel(PyObject):
 class PyFunction(PyObject):
     """Description of a function."""
 
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'async': directives.flag,
+    })
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        if 'async' in self.options:
+            return 'async '
+        else:
+            return ''
+
     def needs_arglist(self):
         # type: () -> bool
         return True
@@ -564,6 +576,7 @@ class PyMethod(PyObject):
 
     option_spec = PyObject.option_spec.copy()
     option_spec.update({
+        'async': directives.flag,
         'classmethod': directives.flag,
         'staticmethod': directives.flag,
     })
@@ -574,10 +587,16 @@ class PyMethod(PyObject):
 
     def get_signature_prefix(self, sig):
         # type: (str) -> str
+        prefix = []
+        if 'async' in self.options:
+            prefix.append('async')
         if 'staticmethod' in self.options:
-            return 'static '
-        elif 'classmethod' in self.options:
-            return 'classmethod '
+            prefix.append('static')
+        if 'classmethod' in self.options:
+            prefix.append('classmethod')
+
+        if prefix:
+            return ' '.join(prefix) + ' '
         else:
             return ''
 

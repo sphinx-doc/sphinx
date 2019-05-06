@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
 import os
 import re
 import warnings
@@ -178,7 +179,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def esc(self, name):
         # type: (str) -> str
         """Replace all characters not allowed in text an attribute values."""
-        # Like cgi.escape, but also replace apostrophe
+        warnings.warn(
+            '%s.esc() is deprecated. Use html.escape() instead.' % self.__class__.__name__,
+            RemovedInSphinx40Warning)
         name = name.replace('&', '&amp;')
         name = name.replace('<', '&lt;')
         name = name.replace('>', '&gt;')
@@ -201,8 +204,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 if (self.toctree_template % level) in classes:
                     result.append({
                         'level': level,
-                        'refuri': self.esc(refuri),
-                        'text': ssp(self.esc(doctree.astext()))
+                        'refuri': html.escape(refuri),
+                        'text': ssp(html.escape(doctree.astext()))
                     })
                     break
         elif isinstance(doctree, nodes.Element):
@@ -241,21 +244,21 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         refnodes.insert(0, {
             'level': 1,
-            'refuri': self.esc(self.config.master_doc + self.out_suffix),
-            'text': ssp(self.esc(
+            'refuri': html.escape(self.config.master_doc + self.out_suffix),
+            'text': ssp(html.escape(
                 self.env.titles[self.config.master_doc].astext()))
         })
         for file, text in reversed(self.config.epub_pre_files):
             refnodes.insert(0, {
                 'level': 1,
-                'refuri': self.esc(file),
-                'text': ssp(self.esc(text))
+                'refuri': html.escape(file),
+                'text': ssp(html.escape(text))
             })
         for file, text in self.config.epub_post_files:
             refnodes.append({
                 'level': 1,
-                'refuri': self.esc(file),
-                'text': ssp(self.esc(text))
+                'refuri': html.escape(file),
+                'text': ssp(html.escape(text))
             })
 
     def fix_fragment(self, prefix, fragment):
@@ -511,15 +514,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
         file properly escaped.
         """
         metadata = {}  # type: Dict[str, Any]
-        metadata['title'] = self.esc(self.config.epub_title)
-        metadata['author'] = self.esc(self.config.epub_author)
-        metadata['uid'] = self.esc(self.config.epub_uid)
-        metadata['lang'] = self.esc(self.config.epub_language)
-        metadata['publisher'] = self.esc(self.config.epub_publisher)
-        metadata['copyright'] = self.esc(self.config.epub_copyright)
-        metadata['scheme'] = self.esc(self.config.epub_scheme)
-        metadata['id'] = self.esc(self.config.epub_identifier)
-        metadata['date'] = self.esc(format_date("%Y-%m-%d"))
+        metadata['title'] = html.escape(self.config.epub_title)
+        metadata['author'] = html.escape(self.config.epub_author)
+        metadata['uid'] = html.escape(self.config.epub_uid)
+        metadata['lang'] = html.escape(self.config.epub_language)
+        metadata['publisher'] = html.escape(self.config.epub_publisher)
+        metadata['copyright'] = html.escape(self.config.epub_copyright)
+        metadata['scheme'] = html.escape(self.config.epub_scheme)
+        metadata['id'] = html.escape(self.config.epub_identifier)
+        metadata['date'] = html.escape(format_date("%Y-%m-%d"))
         metadata['manifest_items'] = []
         metadata['spines'] = []
         metadata['guides'] = []
@@ -566,9 +569,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                        type='epub', subtype='unknown_project_files')
                     continue
                 filename = filename.replace(os.sep, '/')
-                item = ManifestItem(self.esc(filename),
-                                    self.esc(self.make_id(filename)),
-                                    self.esc(self.media_types[ext]))
+                item = ManifestItem(html.escape(filename),
+                                    html.escape(self.make_id(filename)),
+                                    html.escape(self.media_types[ext]))
                 metadata['manifest_items'].append(item)
                 self.files.append(filename)
 
@@ -579,21 +582,21 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 continue
             if refnode['refuri'] in self.ignored_files:
                 continue
-            spine = Spine(self.esc(self.make_id(refnode['refuri'])), True)
+            spine = Spine(html.escape(self.make_id(refnode['refuri'])), True)
             metadata['spines'].append(spine)
             spinefiles.add(refnode['refuri'])
         for info in self.domain_indices:
-            spine = Spine(self.esc(self.make_id(info[0] + self.out_suffix)), True)
+            spine = Spine(html.escape(self.make_id(info[0] + self.out_suffix)), True)
             metadata['spines'].append(spine)
             spinefiles.add(info[0] + self.out_suffix)
         if self.use_index:
-            spine = Spine(self.esc(self.make_id('genindex' + self.out_suffix)), True)
+            spine = Spine(html.escape(self.make_id('genindex' + self.out_suffix)), True)
             metadata['spines'].append(spine)
             spinefiles.add('genindex' + self.out_suffix)
         # add auto generated files
         for name in self.files:
             if name not in spinefiles and name.endswith(self.out_suffix):
-                spine = Spine(self.esc(self.make_id(name)), False)
+                spine = Spine(html.escape(self.make_id(name)), False)
                 metadata['spines'].append(spine)
 
         # add the optional cover
@@ -601,18 +604,18 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if self.config.epub_cover:
             image, html_tmpl = self.config.epub_cover
             image = image.replace(os.sep, '/')
-            metadata['cover'] = self.esc(self.make_id(image))
+            metadata['cover'] = html.escape(self.make_id(image))
             if html_tmpl:
-                spine = Spine(self.esc(self.make_id(self.coverpage_name)), True)
+                spine = Spine(html.escape(self.make_id(self.coverpage_name)), True)
                 metadata['spines'].insert(0, spine)
                 if self.coverpage_name not in self.files:
                     ext = path.splitext(self.coverpage_name)[-1]
                     self.files.append(self.coverpage_name)
-                    item = ManifestItem(self.esc(self.coverpage_name),
-                                        self.esc(self.make_id(self.coverpage_name)),
-                                        self.esc(self.media_types[ext]))
+                    item = ManifestItem(html.escape(self.coverpage_name),
+                                        html.escape(self.make_id(self.coverpage_name)),
+                                        html.escape(self.media_types[ext]))
                     metadata['manifest_items'].append(item)
-                ctx = {'image': self.esc(image), 'title': self.config.project}
+                ctx = {'image': html.escape(image), 'title': self.config.project}
                 self.handle_page(
                     path.splitext(self.coverpage_name)[0], ctx, html_tmpl)
                 spinefiles.add(self.coverpage_name)
@@ -628,17 +631,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     auto_add_cover = False
                 if type == 'toc':
                     auto_add_toc = False
-                metadata['guides'].append(Guide(self.esc(type),
-                                                self.esc(title),
-                                                self.esc(uri)))
+                metadata['guides'].append(Guide(html.escape(type),
+                                                html.escape(title),
+                                                html.escape(uri)))
         if auto_add_cover and html_tmpl:
             metadata['guides'].append(Guide('cover',
                                             self.guide_titles['cover'],
-                                            self.esc(self.coverpage_name)))
+                                            html.escape(self.coverpage_name)))
         if auto_add_toc and self.refnodes:
             metadata['guides'].append(Guide('toc',
                                             self.guide_titles['toc'],
-                                            self.esc(self.refnodes[0]['refuri'])))
+                                            html.escape(self.refnodes[0]['refuri'])))
 
         # write the project file
         copy_asset_file(path.join(self.template_dir, 'content.opf_t'),
@@ -707,7 +710,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         metadata = {}  # type: Dict[str, Any]
         metadata['uid'] = self.config.epub_uid
-        metadata['title'] = self.esc(self.config.epub_title)
+        metadata['title'] = html.escape(self.config.epub_title)
         metadata['level'] = level
         metadata['navpoints'] = navpoints
         return metadata
