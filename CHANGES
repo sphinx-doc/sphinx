@@ -94,6 +94,7 @@ Bugs fixed
 * #6213: ifconfig: contents after headings are not shown
 * commented term in glossary directive is wrongly recognized
 * #6299: rst domain: rst:directive directive generates waste space
+* #6331: man: invalid output when doctest follows rubric
 
 Testing
 --------
