@@ -161,6 +161,15 @@ The following is a list of deprecated interfaces.
      - 2.1
      - 4.0
      - ``sphinx.errors.NoUri``
+   * - ``sphinx.ext.apidoc.format_directive()``
+     - 2.1
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.apidoc.format_heading()``
+     - 2.1
+     - 4.0
+     - N/A
 
    * - ``sphinx.ext.autodoc.importer.MockFinder``
      - 2.1
