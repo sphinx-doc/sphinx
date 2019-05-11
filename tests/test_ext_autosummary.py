@@ -53,6 +53,7 @@ def test_mangle_signature():
     (a, b={'c=d, ': 3, '\\\\': 3}) :: (a[, b])
     (a=1, b=2, c=3) :: ([a, b, c])
     (a=1, b=<SomeClass: a, b, c>, c=3) :: ([a, b, c])
+    (a=1, b=T(a=1, b=2), c=3) :: ([a, b, c])
     (a: int, b: int) -> str :: (a, b)
     """
 

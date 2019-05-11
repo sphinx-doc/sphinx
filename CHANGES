@@ -118,8 +118,7 @@ Bugs fixed
   referenced
 * #6165: autodoc: ``tab_width`` setting of docutils has been ignored
 * #6311: autosummary: autosummary table gets confused by complex type hints
-* #6350: autosummary: confused by an argument having default string value
-  containing a single quote
+* #6350: autosummary: confused by an argument having some kind of default value
 * Generated Makefiles lack a final EOL (refs: #6232)
 * #6375: extlinks: Cannot escape angle brackets in link caption
 * #6378: linkcheck: Send commonly used User-Agent
