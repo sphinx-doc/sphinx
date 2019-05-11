@@ -47,6 +47,7 @@ def test_mangle_signature():
     (a, b[, c]) :: (a, b[, c])
     (a, b[, cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]) :: (a, b[, ...)
     (a, b='c=d, e=f, g=h', c=3) :: (a[, b, c])
+    (a, b="c=d, e=f, g=h", c=3) :: (a[, b, c])
     (a, b='c=d, \\'e=f,\\' g=h', c=3) :: (a[, b, c])
     (a, b='c=d, ', e='\\\\' g=h, c=3) :: (a[, b, e, c])
     (a, b={'c=d, ': 3, '\\\\': 3}) :: (a[, b])
