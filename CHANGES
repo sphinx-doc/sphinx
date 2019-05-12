@@ -95,6 +95,7 @@ Bugs fixed
 * commented term in glossary directive is wrongly recognized
 * #6299: rst domain: rst:directive directive generates waste space
 * #6331: man: invalid output when doctest follows rubric
+* #6311: autosummary: autosummary table gets confused by complex type hints
 
 Testing
 --------

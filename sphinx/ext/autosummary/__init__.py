@@ -329,7 +329,12 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the signature
 
-            sig = documenter.format_signature()
+            try:
+                sig = documenter.format_signature(show_annotation=False)
+            except TypeError:
+                # the documenter does not support ``show_annotation`` option
+                sig = documenter.format_signature()
+
             if not sig:
                 sig = ''
             else:
@@ -445,7 +450,7 @@ def mangle_signature(sig, max_chars=30):
     args = []  # type: List[str]
     opts = []  # type: List[str]
 
-    opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)=")
+    opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)\s*=\s*")
     while s:
         m = opt_re.search(s)
         if not m:
