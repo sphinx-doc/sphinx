@@ -1,5 +1,5 @@
 \begin{savenotes}\sphinxatlongtablestart\begin{longtable}
-<%- if table.align == 'center' -%>
+<%- if table.align in ('center', 'default') -%>
   [c]
 <%- elif table.align == 'left' -%>
   [l]
