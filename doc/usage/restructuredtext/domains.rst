@@ -1079,15 +1079,16 @@ These roles link to the given declaration types:
 
 .. admonition:: Note on References with Templates Parameters/Arguments
 
-   These roles follow the Sphinx :ref:`xref-syntax` rules. This means care must be
-   taken when referencing a (partial) template specialization, e.g. if the link looks like
-   this: ``:cpp:class:`MyClass<int>```.
+   These roles follow the Sphinx :ref:`xref-syntax` rules. This means care must
+   be taken when referencing a (partial) template specialization, e.g. if the
+   link looks like this: ``:cpp:class:`MyClass<int>```.
    This is interpreted as a link to ``int`` with a title of ``MyClass``.
    In this case, escape the opening angle bracket with a backslash,
    like this: ``:cpp:class:`MyClass\<int>```.
 
-   When a custom title is not needed it may be useful to use the roles for inline expressions,
-   :rst:role:`cpp:expr` and :rst:role:`cpp:texpr`, where angle brackets do not need escaping.
+   When a custom title is not needed it may be useful to use the roles for
+   inline expressions, :rst:role:`cpp:expr` and :rst:role:`cpp:texpr`, where
+   angle brackets do not need escaping.
 
 Declarations without template parameters and template arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
