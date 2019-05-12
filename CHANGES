@@ -99,6 +99,7 @@ Bugs fixed
 * #6331: man: invalid output when doctest follows rubric
 * #6351: "Hyperlink target is not referenced" message is shown even if
   referenced
+* #6165: autodoc: ``tab_width`` setting of docutils has been ignored
 
 Testing
 --------

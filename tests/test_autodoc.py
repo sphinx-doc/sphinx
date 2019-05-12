@@ -11,6 +11,7 @@
 
 import platform
 import sys
+from unittest.mock import Mock
 from warnings import catch_warnings
 
 import pytest
@@ -36,7 +37,9 @@ def do_autodoc(app, objtype, name, options=None):
     app.env.temp_data.setdefault('docname', 'index')  # set dummy docname
     doccls = app.registry.documenters[objtype]
     docoptions = process_documenter_options(doccls, app.config, options)
-    bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1)
+    state = Mock()
+    state.document.settings.tab_width = 8
+    bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1, state)
     documenter = doccls(bridge, name)
     documenter.generate()
 
@@ -95,7 +98,9 @@ def setup_test():
         genopt = options,
         result = ViewList(),
         filename_set = set(),
+        state = Mock(),
     )
+    directive.state.document.settings.tab_width = 8
 
     processed_docstrings = []
     processed_signatures = []

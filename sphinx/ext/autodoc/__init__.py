@@ -442,7 +442,8 @@ class Documenter:
         docstring = getdoc(self.object, self.get_attr,
                            self.env.config.autodoc_inherit_docstrings)
         if docstring:
-            return [prepare_docstring(docstring, ignore)]
+            tab_width = self.directive.state.document.settings.tab_width
+            return [prepare_docstring(docstring, ignore, tab_width)]
         return []
 
     def process_doc(self, docstrings):
@@ -936,7 +937,9 @@ class DocstringSignatureMixin:
             if base not in valid_names:
                 continue
             # re-prepare docstring to ignore more leading indentation
-            self._new_docstrings[i] = prepare_docstring('\n'.join(doclines[1:]))
+            tab_width = self.directive.state.document.settings.tab_width  # type: ignore
+            self._new_docstrings[i] = prepare_docstring('\n'.join(doclines[1:]),
+                                                        tabsize=tab_width)
             result = args, retann
             # don't look any further
             break
@@ -1179,7 +1182,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                     docstrings = [initdocstring]
                 else:
                     docstrings.append(initdocstring)
-        return [prepare_docstring(docstring, ignore) for docstring in docstrings]
+
+        tab_width = self.directive.state.document.settings.tab_width
+        return [prepare_docstring(docstring, ignore, tab_width) for docstring in docstrings]
 
     def add_content(self, more_content, no_docstring=False):
         # type: (Any, bool) -> None
