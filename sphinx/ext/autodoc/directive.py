@@ -6,10 +6,14 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from docutils import nodes
+from docutils.parsers.rst.states import Struct
 from docutils.statemachine import StringList
 from docutils.utils import assemble_option_dict
 
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.ext.autodoc import Options, get_documenters
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
@@ -17,7 +21,7 @@ from sphinx.util.nodes import nested_parse_with_titles
 
 if False:
     # For type annotation
-    from typing import Callable, Dict, List, Set, Type  # NOQA
+    from typing import Any, Callable, Dict, List, Set, Type  # NOQA
     from docutils.parsers.rst.state import RSTState  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.config import Config  # NOQA
@@ -50,14 +54,24 @@ class DummyOptionSpec(dict):
 class DocumenterBridge:
     """A parameters container for Documenters."""
 
-    def __init__(self, env, reporter, options, lineno):
-        # type: (BuildEnvironment, Reporter, Options, int) -> None
+    def __init__(self, env, reporter, options, lineno, state=None):
+        # type: (BuildEnvironment, Reporter, Options, int, Any) -> None
         self.env = env
         self.reporter = reporter
         self.genopt = options
         self.lineno = lineno
         self.filename_set = set()  # type: Set[str]
         self.result = StringList()
+
+        if state:
+            self.state = state
+        else:
+            # create fake object for self.state.document.settings.tab_width
+            warnings.warn('DocumenterBridge requires a state object on instantiation.',
+                          RemovedInSphinx40Warning)
+            settings = Struct(tab_width=8)
+            document = Struct(settings=settings)
+            self.state = Struct(document=document)
 
     def warn(self, msg):
         # type: (str) -> None
@@ -131,7 +145,7 @@ class AutodocDirective(SphinxDirective):
             return []
 
         # generate the output
-        params = DocumenterBridge(self.env, reporter, documenter_options, lineno)
+        params = DocumenterBridge(self.env, reporter, documenter_options, lineno, self.state)
         documenter = doccls(params, self.arguments[0])
         documenter.generate(more_content=self.content)
         if not params.result:

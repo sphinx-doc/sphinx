@@ -16,6 +16,7 @@ from docutils.io import FileInput, NullOutput
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
+from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -64,7 +65,15 @@ class SphinxBaseReader(standalone.Reader):
 
     def get_transforms(self):
         # type: () -> List[Type[Transform]]
-        return super().get_transforms() + self.transforms
+        transforms = super().get_transforms() + self.transforms
+
+        # remove transforms which is not needed for Sphinx
+        unused = [DanglingReferences]
+        for transform in unused:
+            if transform in transforms:
+                transforms.remove(transform)
+
+        return transforms
 
     def new_document(self):
         # type: () -> nodes.document
