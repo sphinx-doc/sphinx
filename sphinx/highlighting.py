@@ -32,6 +32,7 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from pygments.formatter import Formatter  # NOQA
+    from pygments.style import Style  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -69,16 +70,8 @@ class PygmentsBridge:
     def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
         # type: (str, str, bool) -> None
         self.dest = dest
-        if stylename is None or stylename == 'sphinx':
-            style = SphinxStyle
-        elif stylename == 'none':
-            style = NoneStyle
-        elif '.' in stylename:
-            module, stylename = stylename.rsplit('.', 1)
-            style = getattr(__import__(module, None, None, ['__name__']),
-                            stylename)
-        else:
-            style = get_style_by_name(stylename)
+
+        style = self.get_style(stylename)
         self.formatter_args = {'style': style}  # type: Dict[str, Any]
         if dest == 'html':
             self.formatter = self.html_formatter
@@ -90,6 +83,18 @@ class PygmentsBridge:
         if trim_doctest_flags is not None:
             warnings.warn('trim_doctest_flags option for PygmentsBridge is now deprecated.',
                           RemovedInSphinx30Warning, stacklevel=2)
+
+    def get_style(self, stylename):
+        # type: (str) -> Style
+        if stylename is None or stylename == 'sphinx':
+            return SphinxStyle
+        elif stylename == 'none':
+            return NoneStyle
+        elif '.' in stylename:
+            module, stylename = stylename.rsplit('.', 1)
+            return getattr(__import__(module, None, None, ['__name__']), stylename)
+        else:
+            return get_style_by_name(stylename)
 
     def get_formatter(self, **kwargs):
         # type: (Any) -> Formatter
@@ -110,11 +115,8 @@ class PygmentsBridge:
             return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
-    def highlight_block(self, source, lang, opts=None, location=None, force=False, **kwargs):
-        # type: (str, str, Any, Any, bool, Any) -> str
-        if not isinstance(source, str):
-            source = source.decode()
-
+    def get_lexer(self, source, lang, opts=None, location=None):
+        # type: (str, str, Any, Any) -> Lexer
         # find out which lexer to use
         if lang in ('py', 'python'):
             if source.startswith('>>>'):
@@ -145,6 +147,15 @@ class PygmentsBridge:
                 else:
                     lexer.add_filter('raiseonerror')
 
+        return lexer
+
+    def highlight_block(self, source, lang, opts=None, location=None, force=False, **kwargs):
+        # type: (str, str, Any, Any, bool, Any) -> str
+        if not isinstance(source, str):
+            source = source.decode()
+
+        lexer = self.get_lexer(source, lang, opts, location)
+
         # trim doctest options if wanted
         if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:
             source = doctest.blankline_re.sub('', source)
@@ -165,6 +176,7 @@ class PygmentsBridge:
                                type='misc', subtype='highlighting_failure',
                                location=location)
             hlsource = highlight(source, lexers['none'], formatter)
+
         if self.dest == 'html':
             return hlsource
         else:

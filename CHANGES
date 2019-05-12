@@ -11,11 +11,13 @@ Incompatible changes
   API directly
 * #6230: The anchor of term in glossary directive is changed if it is consisted
   by non-ASCII characters
+* #4550: html: Centering tables by default using CSS
 
 Deprecated
 ----------
 
 * ``sphinx.builders.latex.LaTeXBuilder.apply_transforms()``
+* ``sphinx.builders._epub_base.EpubBuilder.esc()``
 * ``sphinx.directives.Acks``
 * ``sphinx.directives.Author``
 * ``sphinx.directives.Centered``
@@ -40,6 +42,8 @@ Deprecated
 * ``sphinx.domains.std.StandardDomain.note_citation_refs()``
 * ``sphinx.domains.std.StandardDomain.note_labels()``
 * ``sphinx.environment.NoUri``
+* ``sphinx.ext.apidoc.format_directive()``
+* ``sphinx.ext.apidoc.format_heading()``
 * ``sphinx.ext.autodoc.importer.MockFinder``
 * ``sphinx.ext.autodoc.importer.MockLoader``
 * ``sphinx.ext.autodoc.importer.mock()``
@@ -91,6 +95,9 @@ Bugs fixed
 * #6213: ifconfig: contents after headings are not shown
 * commented term in glossary directive is wrongly recognized
 * #6299: rst domain: rst:directive directive generates waste space
+* #6331: man: invalid output when doctest follows rubric
+* #6351: "Hyperlink target is not referenced" message is shown even if
+  referenced
 * #6165: autodoc: ``tab_width`` setting of docutils has been ignored
 
 Testing

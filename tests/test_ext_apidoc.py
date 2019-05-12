@@ -13,6 +13,7 @@ from collections import namedtuple
 import pytest
 
 from sphinx.ext.apidoc import main as apidoc_main
+from sphinx.testing.path import path
 
 
 @pytest.fixture()
@@ -398,3 +399,216 @@ def test_subpackage_in_toc(make_app, apidoc):
     assert 'parent.child.foo' in parent_child
 
     assert (outdir / 'parent.child.foo.rst').isfile()
+
+
+def test_toc_file(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'module').makedirs()
+    (outdir / 'example.py').write_text('')
+    (outdir / 'module' / 'example.py').write_text('')
+    apidoc_main(['-o', tempdir, tempdir])
+    assert (outdir / 'modules.rst').exists()
+
+    content = (outdir / 'modules.rst').text()
+    assert content == ("test_toc_file0\n"
+                       "==============\n"
+                       "\n"
+                       ".. toctree::\n"
+                       "   :maxdepth: 4\n"
+                       "\n"
+                       "   example\n")
+
+
+def test_module_file(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'example.py').write_text('')
+    apidoc_main(['-o', tempdir, tempdir])
+    assert (outdir / 'example.rst').exists()
+
+    content = (outdir / 'example.rst').text()
+    assert content == ("example module\n"
+                       "==============\n"
+                       "\n"
+                       ".. automodule:: example\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n")
+
+
+def test_module_file_noheadings(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'example.py').write_text('')
+    apidoc_main(['--no-headings', '-o', tempdir, tempdir])
+    assert (outdir / 'example.rst').exists()
+
+    content = (outdir / 'example.rst').text()
+    assert content == (".. automodule:: example\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n")
+
+
+def test_package_file(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'testpkg').makedirs()
+    (outdir / 'testpkg' / '__init__.py').write_text('')
+    (outdir / 'testpkg' / 'example.py').write_text('')
+    (outdir / 'testpkg' / 'subpkg').makedirs()
+    (outdir / 'testpkg' / 'subpkg' / '__init__.py').write_text('')
+    apidoc_main(['-o', tempdir, tempdir / 'testpkg'])
+    assert (outdir / 'testpkg.rst').exists()
+    assert (outdir / 'testpkg.subpkg.rst').exists()
+
+    content = (outdir / 'testpkg.rst').text()
+    assert content == ("testpkg package\n"
+                       "===============\n"
+                       "\n"
+                       "Subpackages\n"
+                       "-----------\n"
+                       "\n"
+                       ".. toctree::\n"
+                       "\n"
+                       "   testpkg.subpkg\n"
+                       "\n"
+                       "Submodules\n"
+                       "----------\n"
+                       "\n"
+                       "testpkg.example module\n"
+                       "----------------------\n"
+                       "\n"
+                       ".. automodule:: testpkg.example\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n"
+                       "\n"
+                       "\n"
+                       "Module contents\n"
+                       "---------------\n"
+                       "\n"
+                       ".. automodule:: testpkg\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n")
+
+    content = (outdir / 'testpkg.subpkg.rst').text()
+    assert content == ("testpkg.subpkg package\n"
+                       "======================\n"
+                       "\n"
+                       "Module contents\n"
+                       "---------------\n"
+                       "\n"
+                       ".. automodule:: testpkg.subpkg\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n")
+
+
+def test_package_file_separate(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'testpkg').makedirs()
+    (outdir / 'testpkg' / '__init__.py').write_text('')
+    (outdir / 'testpkg' / 'example.py').write_text('')
+    apidoc_main(['--separate', '-o', tempdir, tempdir / 'testpkg'])
+    assert (outdir / 'testpkg.rst').exists()
+    assert (outdir / 'testpkg.example.rst').exists()
+
+    content = (outdir / 'testpkg.rst').text()
+    assert content == ("testpkg package\n"
+                       "===============\n"
+                       "\n"
+                       "Submodules\n"
+                       "----------\n"
+                       "\n"
+                       ".. toctree::\n"
+                       "\n"
+                       "   testpkg.example\n"
+                       "\n"
+                       "Module contents\n"
+                       "---------------\n"
+                       "\n"
+                       ".. automodule:: testpkg\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n")
+
+    content = (outdir / 'testpkg.example.rst').text()
+    assert content == ("testpkg.example module\n"
+                       "======================\n"
+                       "\n"
+                       ".. automodule:: testpkg.example\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n")
+
+
+def test_package_file_module_first(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'testpkg').makedirs()
+    (outdir / 'testpkg' / '__init__.py').write_text('')
+    (outdir / 'testpkg' / 'example.py').write_text('')
+    apidoc_main(['--module-first', '-o', tempdir, tempdir])
+
+    content = (outdir / 'testpkg.rst').text()
+    assert content == ("testpkg package\n"
+                       "===============\n"
+                       "\n"
+                       ".. automodule:: testpkg\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n"
+                       "\n"
+                       "Submodules\n"
+                       "----------\n"
+                       "\n"
+                       "testpkg.example module\n"
+                       "----------------------\n"
+                       "\n"
+                       ".. automodule:: testpkg.example\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n"
+                       "\n")
+
+
+def test_package_file_without_submodules(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'testpkg').makedirs()
+    (outdir / 'testpkg' / '__init__.py').write_text('')
+    apidoc_main(['-o', tempdir, tempdir / 'testpkg'])
+    assert (outdir / 'testpkg.rst').exists()
+
+    content = (outdir / 'testpkg.rst').text()
+    assert content == ("testpkg package\n"
+                       "===============\n"
+                       "\n"
+                       "Module contents\n"
+                       "---------------\n"
+                       "\n"
+                       ".. automodule:: testpkg\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n")
+
+
+def test_namespace_package_file(tempdir):
+    outdir = path(tempdir)
+    (outdir / 'testpkg').makedirs()
+    (outdir / 'testpkg' / 'example.py').write_text('')
+    apidoc_main(['--implicit-namespace', '-o', tempdir, tempdir / 'testpkg'])
+    assert (outdir / 'testpkg.rst').exists()
+
+    content = (outdir / 'testpkg.rst').text()
+    assert content == ("testpkg namespace\n"
+                       "=================\n"
+                       "\n"
+                       "Submodules\n"
+                       "----------\n"
+                       "\n"
+                       "testpkg.example module\n"
+                       "----------------------\n"
+                       "\n"
+                       ".. automodule:: testpkg.example\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n"
+                       "\n")

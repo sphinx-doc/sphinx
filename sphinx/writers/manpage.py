@@ -282,7 +282,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_rubric(self, node):
         # type: (nodes.Element) -> None
-        pass
+        self.body.append('\n')
 
     def visit_seealso(self, node):
         # type: (nodes.Element) -> None
