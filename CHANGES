@@ -86,6 +86,7 @@ Features added
 * #4777: py domain: Add ``:async:`` option to :rst:dir:`py:function` directive
 * py domain: Add ``:async:``, ``:classmethod:`` and ``:staticmethod:`` options
   to :rst:dir:`py:method` directive
+* #6306: html: Add a label to search form for accessability purposes
 
 Bugs fixed
 ----------
