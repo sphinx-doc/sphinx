@@ -12,6 +12,8 @@ Incompatible changes
 * #6230: The anchor of term in glossary directive is changed if it is consisted
   by non-ASCII characters
 * #4550: html: Centering tables by default using CSS
+* The ``rawsource`` property of ``production`` nodes now contains the full
+  production rule.
 
 Deprecated
 ----------
