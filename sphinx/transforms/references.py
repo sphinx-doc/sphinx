@@ -9,7 +9,7 @@
 """
 
 from docutils import nodes
-from docutils.transforms.references import Substitutions
+from docutils.transforms.references import DanglingReferences, Substitutions
 
 from sphinx.transforms import SphinxTransform
 
@@ -31,6 +31,22 @@ class SubstitutionDefinitionsRemover(SphinxTransform):
             node.parent.remove(node)
 
 
+class SphinxDanglingReferences(DanglingReferences):
+    """DanglingReferences transform which does not output info messages."""
+
+    def apply(self, **kwargs):
+        # type: (Any) -> None
+        try:
+            reporter = self.document.reporter
+            report_level = reporter.report_level
+
+            # suppress INFO level messages for a while
+            reporter.report_level = max(reporter.WARNING_LEVEL, reporter.report_level)
+            super().apply()
+        finally:
+            reporter.report_level = report_level
+
+
 class SphinxDomains(SphinxTransform):
     """Collect objects to Sphinx domains for cross references."""
     default_priority = 850
@@ -44,6 +60,7 @@ class SphinxDomains(SphinxTransform):
 def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
     app.add_transform(SubstitutionDefinitionsRemover)
+    app.add_transform(SphinxDanglingReferences)
     app.add_transform(SphinxDomains)
 
     return {
