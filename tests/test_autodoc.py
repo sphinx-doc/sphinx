@@ -11,6 +11,7 @@
 
 import platform
 import sys
+from unittest.mock import Mock
 from warnings import catch_warnings
 
 import pytest
@@ -33,7 +34,9 @@ def do_autodoc(app, objtype, name, options=None):
     app.env.temp_data.setdefault('docname', 'index')  # set dummy docname
     doccls = app.registry.documenters[objtype]
     docoptions = process_documenter_options(doccls, app.config, options)
-    bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1)
+    state = Mock()
+    state.document.settings.tab_width = 8
+    bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1, state)
     documenter = doccls(bridge, name)
     documenter.generate()
 
@@ -92,7 +95,9 @@ def setup_test():
         genopt = options,
         result = ViewList(),
         filename_set = set(),
+        state = Mock(),
     )
+    directive.state.document.settings.tab_width = 8
 
     processed_docstrings = []
     processed_signatures = []
@@ -753,7 +758,7 @@ def test_autodoc_undoc_members(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:attribute:: Class.prop',
+        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
@@ -774,6 +779,7 @@ def test_autodoc_inherited_members(app):
         '   .. py:method:: Class.inheritedstaticmeth(cls)',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.skipmeth()'
     ]
 
@@ -833,7 +839,7 @@ def test_autodoc_special_members(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:attribute:: Class.prop',
+        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
@@ -1025,7 +1031,7 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.prop',
+        '   .. py:method:: Class.prop',
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',
@@ -1059,7 +1065,7 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_string',
         '   .. py:attribute:: Class.mdocattr',
-        '   .. py:attribute:: Class.prop',
+        '   .. py:method:: Class.prop',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:attribute:: Class.udocattr'
     ]
@@ -1082,7 +1088,7 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:attribute:: Class.prop',
+        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
@@ -1149,14 +1155,16 @@ def test_autodoc_docstring_signature(app):
         '          indented line',
         '      ',
         '   ',
-        '   .. py:attribute:: DocstringSig.prop1',
+        '   .. py:method:: DocstringSig.prop1',
         '      :module: target',
+        '      :property:',
         '   ',
         '      First line of docstring',
         '      ',
         '   ',
-        '   .. py:attribute:: DocstringSig.prop2',
+        '   .. py:method:: DocstringSig.prop2',
         '      :module: target',
+        '      :property:',
         '   ',
         '      First line of docstring',
         '      Second line of docstring',
@@ -1191,15 +1199,17 @@ def test_autodoc_docstring_signature(app):
         '          indented line',
         '      ',
         '   ',
-        '   .. py:attribute:: DocstringSig.prop1',
+        '   .. py:method:: DocstringSig.prop1',
         '      :module: target',
+        '      :property:',
         '   ',
         '      DocstringSig.prop1(self)',
         '      First line of docstring',
         '      ',
         '   ',
-        '   .. py:attribute:: DocstringSig.prop2',
+        '   .. py:method:: DocstringSig.prop2',
         '      :module: target',
+        '      :property:',
         '   ',
         '      First line of docstring',
         '      Second line of docstring',
@@ -1693,7 +1703,7 @@ def test_autodoc_default_options_with_values(app):
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.prop',
+        '   .. py:method:: Class.prop',
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',

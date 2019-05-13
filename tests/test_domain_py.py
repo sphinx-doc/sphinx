@@ -333,13 +333,17 @@ def test_pymethod_options(app):
             "   .. py:method:: meth3\n"
             "      :staticmethod:\n"
             "   .. py:method:: meth4\n"
-            "      :async:\n")
+            "      :async:\n"
+            "   .. py:method:: meth5\n"
+            "      :property:\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "class "],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
+                                                  desc,
+                                                  addnodes.index,
                                                   desc,
                                                   addnodes.index,
                                                   desc,
@@ -386,6 +390,15 @@ def test_pymethod_options(app):
                                    [desc_content, ()]))
     assert 'Class.meth4' in domain.objects
     assert domain.objects['Class.meth4'] == ('index', 'method')
+
+    # :property:
+    assert_node(doctree[1][1][8], addnodes.index,
+                entries=[('single', 'meth5() (Class property)', 'Class.meth5', '', None)])
+    assert_node(doctree[1][1][9], ([desc_signature, ([desc_annotation, "property "],
+                                                     [desc_name, "meth5"])],
+                                   [desc_content, ()]))
+    assert 'Class.meth5' in domain.objects
+    assert domain.objects['Class.meth5'] == ('index', 'method')
 
 
 def test_pyclassmethod(app):

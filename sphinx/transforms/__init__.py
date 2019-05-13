@@ -293,7 +293,7 @@ class FigureAligner(SphinxTransform):
         # type: (Any) -> None
         matcher = NodeMatcher(nodes.table, nodes.figure)
         for node in self.document.traverse(matcher):  # type: nodes.Element
-            node.setdefault('align', 'center')
+            node.setdefault('align', 'default')
 
 
 class FilterSystemMessages(SphinxTransform):

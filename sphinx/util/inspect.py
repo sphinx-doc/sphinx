@@ -222,6 +222,12 @@ def iscoroutinefunction(obj):
         return False
 
 
+def isproperty(obj):
+    # type: (Any) -> bool
+    """Check if the object is property."""
+    return isinstance(obj, property)
+
+
 def safe_getattr(obj, name, *defargs):
     # type: (Any, str, str) -> object
     """A getattr() that turns all exceptions into AttributeErrors."""

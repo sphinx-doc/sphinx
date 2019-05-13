@@ -1527,6 +1527,7 @@ class LaTeXTranslator(SphinxTranslator):
                 (1, 'middle'): ('\\raisebox{-0.5\\height}{', '}'),
                 (1, 'bottom'): ('\\raisebox{-\\height}{', '}'),
                 (0, 'center'): ('{\\hspace*{\\fill}', '\\hspace*{\\fill}}'),
+                (0, 'default'): ('{\\hspace*{\\fill}', '\\hspace*{\\fill}}'),
                 # These 2 don't exactly do the right thing.  The image should
                 # be floated alongside the paragraph.  See
                 # https://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
