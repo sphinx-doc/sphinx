@@ -1423,6 +1423,43 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
          Bar description.
 
+.. rst:directive:: .. rst:directive:option:: name
+
+   Describes an option for reST directive.  The *name* can be a single option
+   name or option name with arguments which separated with colon (``:``).
+   For example::
+
+       .. rst:directive:: toctree
+
+          .. rst:directive:option:: caption: caption of ToC
+
+          .. rst:directive:option:: glob
+
+   will be rendered as:
+
+       .. rst:directive:: toctree
+          :noindex:
+
+          .. rst:directive:option:: caption: caption of ToC
+
+          .. rst:directive:option:: glob
+
+   .. rubric:: options
+
+   .. rst:directive:option:: type
+      :type: description for the option of directive
+
+      Describe the type of option value.
+
+      For example::
+
+         .. rst:directive:: toctree
+
+            .. rst:directive:option:: maxdepth
+               :type: integer or no value
+
+   .. versionadded:: 2.1
+
 .. rst:directive:: .. rst:role:: name
 
    Describes a reST role.  For example::
