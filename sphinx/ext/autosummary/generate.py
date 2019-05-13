@@ -169,13 +169,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 except TemplateNotFound:
                     template = template_env.get_template('autosummary/base.rst')
 
-            def get_members(obj, typ, include_public=[], imported=True):
-                # type: (Any, Union[str, Set[str]], List[str], bool) -> Tuple[List[str], List[str]]  # NOQA
-                if isinstance(typ, str):
-                    types = {typ}
-                else:
-                    types = typ
-
+            def get_members(obj, types, include_public=[], imported=True):
+                # type: (Any, Set[str], List[str], bool) -> Tuple[List[str], List[str]]  # NOQA
                 items = []  # type: List[str]
                 for name in dir(obj):
                     try:
@@ -196,17 +191,17 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             if doc.objtype == 'module':
                 ns['members'] = dir(obj)
                 ns['functions'], ns['all_functions'] = \
-                    get_members(obj, 'function', imported=imported_members)
+                    get_members(obj, {'function'}, imported=imported_members)
                 ns['classes'], ns['all_classes'] = \
-                    get_members(obj, 'class', imported=imported_members)
+                    get_members(obj, {'class'}, imported=imported_members)
                 ns['exceptions'], ns['all_exceptions'] = \
-                    get_members(obj, 'exception', imported=imported_members)
+                    get_members(obj, {'exception'}, imported=imported_members)
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['inherited_members'] = \
                     set(dir(obj)) - set(obj.__dict__.keys())
                 ns['methods'], ns['all_methods'] = \
-                    get_members(obj, 'method', ['__init__'])
+                    get_members(obj, {'method'}, ['__init__'])
                 ns['attributes'], ns['all_attributes'] = \
                     get_members(obj, {'attribute', 'property'})
 
