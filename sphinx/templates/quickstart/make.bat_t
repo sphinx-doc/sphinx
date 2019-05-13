@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set BUILDDIR={{ rbuilddir }}
 set SOURCEDIR={{ rsrcdir }}
-set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% %SOURCEDIR%
+set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% %O% %SOURCEDIR%
 set I18NSPHINXOPTS=%SPHINXOPTS% %SOURCEDIR%
 if NOT "%PAPER%" == "" (
 	set ALLSPHINXOPTS=-D latex_elements.papersize=%PAPER%paper %ALLSPHINXOPTS%
