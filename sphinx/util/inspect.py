@@ -413,8 +413,8 @@ class Signature:
         else:
             return None
 
-    def format_args(self):
-        # type: () -> str
+    def format_args(self, show_annotation=True):
+        # type: (bool) -> str
         args = []
         last_kind = None
         for i, param in enumerate(self.parameters.values()):
@@ -435,7 +435,7 @@ class Signature:
                               param.POSITIONAL_OR_KEYWORD,
                               param.KEYWORD_ONLY):
                 arg.write(param.name)
-                if param.annotation is not param.empty:
+                if show_annotation and param.annotation is not param.empty:
                     if isinstance(param.annotation, str) and param.name in self.annotations:
                         arg.write(': ')
                         arg.write(self.format_annotation(self.annotations[param.name]))
