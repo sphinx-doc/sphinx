@@ -11,6 +11,8 @@
 import re
 from typing import cast
 
+from docutils.parsers.rst import directives
+
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
@@ -98,6 +100,74 @@ class ReSTDirective(ReSTMarkup):
         # type: (str, str) -> str
         return _('%s (directive)') % name
 
+    def before_content(self):
+        # type: () -> None
+        if self.names:
+            directives = self.env.ref_context.setdefault('rst:directives', [])
+            directives.append(self.names[0])
+
+    def after_content(self):
+        # type: () -> None
+        directives = self.env.ref_context.setdefault('rst:directives', [])
+        if directives:
+            directives.pop()
+
+
+class ReSTDirectiveOption(ReSTMarkup):
+    """
+    Description of an option for reST directive.
+    """
+    option_spec = ReSTMarkup.option_spec.copy()
+    option_spec.update({
+        'type': directives.unchanged,
+    })
+
+    def handle_signature(self, sig, signode):
+        # type: (str, addnodes.desc_signature) -> str
+        try:
+            name, argument = re.split(r'\s*:\s+', sig.strip(), 1)
+        except ValueError:
+            name, argument = sig, None
+
+        signode += addnodes.desc_name(':%s:' % name, ':%s:' % name)
+        if argument:
+            signode += addnodes.desc_annotation(' ' + argument, ' ' + argument)
+        if self.options.get('type'):
+            text = ' (%s)' % self.options['type']
+            signode += addnodes.desc_annotation(text, text)
+        return name
+
+    def add_target_and_index(self, name, sig, signode):
+        # type: (str, str, addnodes.desc_signature) -> None
+        targetname = '-'.join([self.objtype, self.current_directive, name])
+        if targetname not in self.state.document.ids:
+            signode['names'].append(targetname)
+            signode['ids'].append(targetname)
+            signode['first'] = (not self.names)
+            self.state.document.note_explicit_target(signode)
+
+            domain = cast(ReSTDomain, self.env.get_domain('rst'))
+            domain.note_object(self.objtype, name, location=(self.env.docname, self.lineno))
+
+        if self.current_directive:
+            key = name[0].upper()
+            pair = [_('%s (directive)') % self.current_directive,
+                    _(':%s: (directive option)') % name]
+            self.indexnode['entries'].append(('pair', '; '.join(pair), targetname, '', key))
+        else:
+            key = name[0].upper()
+            text = _(':%s: (directive option)') % name
+            self.indexnode['entries'].append(('single', text, targetname, '', key))
+
+    @property
+    def current_directive(self):
+        # type: () -> str
+        directives = self.env.ref_context.get('rst:directives')
+        if directives:
+            return directives[-1]
+        else:
+            return ''
+
 
 class ReSTRole(ReSTMarkup):
     """
@@ -119,11 +189,13 @@ class ReSTDomain(Domain):
     label = 'reStructuredText'
 
     object_types = {
-        'directive': ObjType(_('directive'), 'dir'),
-        'role':      ObjType(_('role'),      'role'),
+        'directive':        ObjType(_('directive'), 'dir'),
+        'directive:option': ObjType(_('directive-option'), 'dir'),
+        'role':             ObjType(_('role'),      'role'),
     }
     directives = {
         'directive': ReSTDirective,
+        'directive:option': ReSTDirectiveOption,
         'role':      ReSTRole,
     }
     roles = {

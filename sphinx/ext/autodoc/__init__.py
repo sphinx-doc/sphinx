@@ -448,7 +448,8 @@ class Documenter:
         docstring = getdoc(self.object, self.get_attr,
                            self.env.config.autodoc_inherit_docstrings)
         if docstring:
-            return [prepare_docstring(docstring, ignore)]
+            tab_width = self.directive.state.document.settings.tab_width
+            return [prepare_docstring(docstring, ignore, tab_width)]
         return []
 
     def process_doc(self, docstrings):
@@ -942,7 +943,9 @@ class DocstringSignatureMixin:
             if base not in valid_names:
                 continue
             # re-prepare docstring to ignore more leading indentation
-            self._new_docstrings[i] = prepare_docstring('\n'.join(doclines[1:]))
+            tab_width = self.directive.state.document.settings.tab_width  # type: ignore
+            self._new_docstrings[i] = prepare_docstring('\n'.join(doclines[1:]),
+                                                        tabsize=tab_width)
             result = args, retann
             # don't look any further
             break
@@ -1186,7 +1189,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                     docstrings = [initdocstring]
                 else:
                     docstrings.append(initdocstring)
-        return [prepare_docstring(docstring, ignore) for docstring in docstrings]
+
+        tab_width = self.directive.state.document.settings.tab_width
+        return [prepare_docstring(docstring, ignore, tab_width) for docstring in docstrings]
 
     def add_content(self, more_content, no_docstring=False):
         # type: (Any, bool) -> None
@@ -1422,6 +1427,37 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         super().add_content(more_content, no_docstring)
 
 
+class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
+    """
+    Specialized Documenter subclass for properties.
+    """
+    objtype = 'property'
+    directivetype = 'method'
+    member_order = 60
+
+    # before AttributeDocumenter
+    priority = AttributeDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member, membername, isattr, parent):
+        # type: (Any, str, bool, Any) -> bool
+        return inspect.isproperty(member) and isinstance(parent, ClassDocumenter)
+
+    def document_members(self, all_members=False):
+        # type: (bool) -> None
+        pass
+
+    def get_real_modname(self):
+        # type: () -> str
+        return self.get_attr(self.parent or self.object, '__module__', None) \
+            or self.modname
+
+    def add_directive_header(self, sig):
+        # type: (str) -> None
+        super().add_directive_header(sig)
+        self.add_line('   :property:', self.get_sourcename())
+
+
 class InstanceAttributeDocumenter(AttributeDocumenter):
     """
     Specialized Documenter subclass for attributes that cannot be imported
@@ -1513,6 +1549,7 @@ def setup(app):
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
+    app.add_autodocumenter(PropertyDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True)
