@@ -1420,6 +1420,37 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         super().add_content(more_content, no_docstring)
 
 
+class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
+    """
+    Specialized Documenter subclass for properties.
+    """
+    objtype = 'property'
+    directivetype = 'method'
+    member_order = 60
+
+    # before AttributeDocumenter
+    priority = AttributeDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member, membername, isattr, parent):
+        # type: (Any, str, bool, Any) -> bool
+        return inspect.isproperty(member) and isinstance(parent, ClassDocumenter)
+
+    def document_members(self, all_members=False):
+        # type: (bool) -> None
+        pass
+
+    def get_real_modname(self):
+        # type: () -> str
+        return self.get_attr(self.parent or self.object, '__module__', None) \
+            or self.modname
+
+    def add_directive_header(self, sig):
+        # type: (str) -> None
+        super().add_directive_header(sig)
+        self.add_line('   :property:', self.get_sourcename())
+
+
 class InstanceAttributeDocumenter(AttributeDocumenter):
     """
     Specialized Documenter subclass for attributes that cannot be imported
@@ -1511,6 +1542,7 @@ def setup(app):
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
+    app.add_autodocumenter(PropertyDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True)

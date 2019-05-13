@@ -475,3 +475,14 @@ def test_isattributedescriptor(app):
     assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType       # NOQA
     assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType       # NOQA
     assert inspect.isattributedescriptor(testinstancemethod) is False          # instancemethod (C-API)     # NOQA
+
+
+def test_isproperty(app):
+    from target.functions import func
+    from target.methods import Base
+
+    assert inspect.isproperty(Base.prop) is True        # property of class
+    assert inspect.isproperty(Base().prop) is False     # property of instance
+    assert inspect.isproperty(Base.meth) is False       # method of class
+    assert inspect.isproperty(Base().meth) is False     # method of instance
+    assert inspect.isproperty(func) is False            # function
