@@ -443,7 +443,7 @@ class ProductionList(SphinxDirective):
                 name, tokens = rule.split(':', 1)
             except ValueError:
                 break
-            subnode = addnodes.production()
+            subnode = addnodes.production(rule)
             subnode['tokenname'] = name.strip()
             if subnode['tokenname']:
                 idname = nodes.make_id('grammar-token-%s' % subnode['tokenname'])
