@@ -171,6 +171,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.ext.apidoc.makename()``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.apidoc.module_join()``
+
    * - ``sphinx.ext.autodoc.importer.MockFinder``
      - 2.1
      - 4.0

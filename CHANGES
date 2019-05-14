@@ -44,6 +44,7 @@ Deprecated
 * ``sphinx.environment.NoUri``
 * ``sphinx.ext.apidoc.format_directive()``
 * ``sphinx.ext.apidoc.format_heading()``
+* ``sphinx.ext.apidoc.makename()``
 * ``sphinx.ext.autodoc.importer.MockFinder``
 * ``sphinx.ext.autodoc.importer.MockLoader``
 * ``sphinx.ext.autodoc.importer.mock()``
