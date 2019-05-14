@@ -12,8 +12,6 @@ Incompatible changes
 * #6230: The anchor of term in glossary directive is changed if it is consisted
   by non-ASCII characters
 * #4550: html: Centering tables by default using CSS
-* The ``rawsource`` property of ``production`` nodes now contains the full
-  production rule.
 
 Deprecated
 ----------
@@ -98,6 +96,8 @@ Features added
 * rst domain: Add :rst:dir:`directive:option` directive to describe the option
   for directive
 * #6306: html: Add a label to search form for accessability purposes
+* #6358: The ``rawsource`` property of ``production`` nodes now contains the
+  full production rule
 
 Bugs fixed
 ----------
