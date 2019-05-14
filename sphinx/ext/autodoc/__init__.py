@@ -400,9 +400,7 @@ class Documenter:
                 try:
                     args = self.format_args(**kwargs)
                 except TypeError:
-                    warnings.warn("Documenter.format_args() takes keyword arguments "
-                                  "since Sphinx-2.1",
-                                  RemovedInSphinx40Warning)
+                    # retry without arguments for old documenters
                     args = self.format_args()
             except Exception as err:
                 logger.warning(__('error while formatting arguments for %s: %s') %

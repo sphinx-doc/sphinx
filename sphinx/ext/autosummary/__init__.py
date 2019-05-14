@@ -63,7 +63,7 @@ from typing import List, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import RSTStateMachine, state_classes
+from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
@@ -175,7 +175,10 @@ _app = None  # type: Sphinx
 class FakeDirective(DocumenterBridge):
     def __init__(self):
         # type: () -> None
-        super().__init__({}, None, Options(), 0, None)  # type: ignore
+        settings = Struct(tab_width=8)
+        document = Struct(settings=settings)
+        state = Struct(document=document)
+        super().__init__({}, None, Options(), 0, state)  # type: ignore
 
 
 def get_documenter(app, obj, parent):
