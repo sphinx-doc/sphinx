@@ -226,16 +226,17 @@ The following directives are provided for module and class contents:
    The ``async`` option can be given (with no value) to indicate the method is
    an async method.
 
-   The ``classmethod`` option and ``staticmethod`` option can be given (with
-   no value) to indicate the method is a class method (or a static method).
+   The ``abstractmethod``, ``classmethod`` option and ``staticmethod`` option
+   can be given (with no value) to indicate the method is an abstract method,
+   a class method or a static method.
 
    The ``property`` option can be given (with no value) to indicate the method
    is a property.
 
    .. versionchanged:: 2.1
 
-      ``:async:``, ``:classmethod:``, ``:property:`` and ``:staticmethod:``
-      options added.
+      ``:abstractmethod:``, ``:async:``, ``:classmethod:``, ``:property:`` and
+      ``:staticmethod:`` options added.
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
 

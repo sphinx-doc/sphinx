@@ -88,6 +88,7 @@ Features added
 * #4777: py domain: Add ``:async:`` option to :rst:dir:`py:function` directive
 * py domain: Add new options to :rst:dir:`py:method` directive
 
+  - ``:abstractmethod:``
   - ``:async:``
   - ``:classmethod:``
   - ``:property:``
