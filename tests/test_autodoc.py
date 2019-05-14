@@ -1486,6 +1486,55 @@ def test_mocked_module_imports(app, warning):
 
 
 @pytest.mark.usefixtures('setup_test')
+def test_abstractmethods():
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.abstractmethods', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.abstractmethods',
+        '',
+        '',
+        '.. py:class:: Base',
+        '   :module: target.abstractmethods',
+        '',
+        '   ',
+        '   .. py:method:: Base.abstractmeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.classmeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :classmethod:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.coroutinemeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :async:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.meth()',
+        '      :module: target.abstractmethods',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.prop',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :property:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.staticmeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :staticmethod:',
+        '   '
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
 def test_partialfunction():
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.partialfunction', options)
