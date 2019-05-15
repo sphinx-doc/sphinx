@@ -123,7 +123,7 @@ def process_docstring(app, what, name, obj, options, lines):
         lines.extend(['42', ''])
 
 
-def process_signature(app, what, name, obj, options, args, retann):
+def process_signature(app, what, name, obj, options, args, retann, documenter):
     processed_signatures.append((what, name))
     if name == 'bar':
         return '42', None

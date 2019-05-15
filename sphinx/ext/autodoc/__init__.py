@@ -409,9 +409,20 @@ class Documenter:
 
         retann = self.retann
 
-        result = self.env.events.emit_firstresult('autodoc-process-signature',
-                                                  self.objtype, self.fullname,
-                                                  self.object, self.options, args, retann)
+        # NOTE: in Sphinx-4.x the `event_args` can return to being direct
+        # arguments to a `self.env.events.emit_firstresult` call.
+        event_args = ('autodoc-process-signature', self.objtype, self.fullname,
+                      self.object, self.options, args, retann)
+        try:
+            result = self.env.events.emit_firstresult(*event_args, self)
+        except TypeError:
+            # process_signature() takes 7 positional arguments but 8 were given
+            warnings.warn('autodoc-process-signature event takes 8 arguments '
+                          'since Sphinx-2.1.  The 8th argument is `documenter`, '
+                          'which is a sphinx.ext.autodoc.Documenter instance.',
+                          RemovedInSphinx40Warning)
+            result = self.env.events.emit_firstresult(*event_args)
+
         if result:
             args, retann = result
 

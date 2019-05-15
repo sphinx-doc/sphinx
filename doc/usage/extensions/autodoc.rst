@@ -484,7 +484,7 @@ autodoc provides the following additional events:
       auto directive
    :param lines: the lines of the docstring, see above
 
-.. event:: autodoc-process-signature (app, what, name, obj, options, signature, return_annotation)
+.. event:: autodoc-process-signature (app, what, name, obj, options, signature, return_annotation, documenter)
 
    .. versionadded:: 0.5
 
@@ -507,6 +507,15 @@ autodoc provides the following additional events:
       succeed and signature wasn't specified in the directive.
    :param return_annotation: function return annotation as a string of the form
       ``" -> annotation"``, or ``None`` if there is no return annotation
+   :param documenter: The :class:`sphinx.ext.autodoc.Documenter` instance.  See
+      `Removing Type Hints`_ example.
+
+   .. versionadded:: 2.1
+
+      The ``documenter`` parameter.  Starting with Sphinx 2.1, the event is
+      tried with 8 parameters.  If it fails, the event will be called with 7
+      parameters (everything except ``documenter``).  In Sphinx 4.0+ only 8
+      parameters will be used.
 
 The :mod:`sphinx.ext.autodoc` module provides factory functions for commonly
 needed docstring processing in event :event:`autodoc-process-docstring`:
@@ -546,3 +555,36 @@ member should be included in the documentation by using the following event:
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
       ``noindex`` that are true if the flag option of same name was given to the
       auto directive
+
+Removing Type Hints
+-------------------
+
+.. versionadded:: 2.1
+
+The ``documenter`` parameter to :event:`autodoc-process-signature` enables users
+to remove type hints from docstring signatures if desired.  In ``conf.py``::
+
+    def autodoc_process_signature(app, what, name, obj, options, signature,
+                                  return_annotation, documenter):
+        """Remove type hints from all documented items."""
+        try:
+            return documenter.format_args(show_annotation=False), return_annotation
+        except:
+            return None  # signals no change
+
+
+    def setup(app):
+        app.connect('autodoc-process-signature', autodoc_process_signature)
+
+The ``show_annotation=False`` will remove the type annotations, but keep default
+values.  Not all documenters support this, so be sure to ``try-except``.  Users
+may also selectively remove type hints by evaluating the other parameters.  For
+example, before the ``try-except``, users may::
+
+    # Only remove type hints for methods / functions.
+    if what not in {'method', 'function'}:
+        return None
+
+    # Only strip hints for function 'complex_foo(...)'
+    if not name.endswith('complex_foo'):
+        return None
