@@ -99,6 +99,7 @@ Features added
 * #6306: html: Add a label to search form for accessability purposes
 * #6358: The ``rawsource`` property of ``production`` nodes now contains the
   full production rule
+* #6373: Allow suppression of autosectionlabel warnings
 * Support a new ``coverage_ignore_pyobjects`` option in the coverage builder
 
 Bugs fixed

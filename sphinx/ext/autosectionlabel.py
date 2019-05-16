@@ -55,7 +55,7 @@ def register_sections_as_label(app, document):
         if name in labels:
             logger.warning(__('duplicate label %s, other instance in %s'),
                            name, app.env.doc2path(labels[name][0]),
-                           location=node)
+                           location=node, type='autosectionlabel', subtype=docname)
 
         anonlabels[name] = docname, labelid
         labels[name] = docname, labelid, sectname
