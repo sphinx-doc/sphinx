@@ -82,6 +82,7 @@ Other contributors, listed alphabetically, are:
 * Stephen Finucane -- setup command improvements and documentation
 * Daniel Pizetta -- inheritance diagram improvements
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
+* Adrián Chaves (Gallaecio) -- coverage builder improvements
 
 Many thanks for all contributions!
 
