@@ -3213,9 +3213,8 @@ class ASTParenExprList(ASTBase):
         for e in self.exprs:
             if not first:
                 signode.append(nodes.Text(', '))
-            else:
-                first = False
-                e.describe_signature(signode, mode, env, symbol)
+            first = False
+            e.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')'))
 
 
