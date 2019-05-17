@@ -83,6 +83,29 @@ def check(name, input, idDict, output=None):
         raise DefinitionError("")
 
 
+def parse_expression(expr):
+    class Config:
+        cpp_id_attributes = ["id_attr"]
+        cpp_paren_attributes = ["paren_attr"]
+    parser = DefinitionParser(expr, None, Config())
+    parser.allowFallbackExpressionParsing = False
+    ast = parser.parse_expression()
+    parser.assert_end()
+    return ast
+
+
+def check_expression(input, output=None):
+    output = output or input
+    ast = parse_expression(input)
+    res = str(ast)
+    if res != output:
+        print("")
+        print("Input:    ", input)
+        print("Result:   ", res)
+        print("Expected: ", output)
+        raise DefinitionError("")
+
+
 def test_fundamental_types():
     # see https://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
@@ -798,6 +821,19 @@ def test_contracts():
     check('function', 'int make_a_zero() [[  ensures  audit  audit  :  audit == 0  ]]',
           {1: 'make_a_zero', 2: '11make_a_zerov'},
           output='int make_a_zero() [[ensures audit audit: audit == 0]]')
+
+    # assert
+    check_expression('  [  [  assert  :  2 + 2 == 5  ]  ]  ',
+                     output='[[assert: 2 + 2 == 5]]')
+    check_expression('[[assert default: (this ->* pmf)(0)]]')
+    check_expression('[[assert audit: (this ->* pmf)(0)]]')
+    check_expression('[[assert axiom: (this ->* pmf)(0)]]')
+    with pytest.raises(DefinitionError):
+        check_expression('[[assert ident: ident > 0]]')
+    with pytest.raises(DefinitionError):
+        check_expression('[[assert default ident: ident > 0]]')
+    with pytest.raises(DefinitionError):
+        check_expression('[[maybe_unused]]')
 
     # assert contracts are meant in function bodies only so this is not valid C++, should fail
     # if/when correctness is enforced

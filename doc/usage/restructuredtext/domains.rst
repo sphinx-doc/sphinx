@@ -1275,6 +1275,38 @@ Resulting in the following:
 
 .. cpp:namespace-pop::
 
+Assertions
+^^^^^^^^^^
+
+The :rst:role:`cpp:expr` and :rst:role:`cpp:texpr` roles can accept a contract
+assertion. This can allow you to express program invariants::
+
+    .. cpp:struct:: config
+
+        .. cpp:var:: int height
+                     int width
+
+            Canvas dimensions. These must define a valid resolution, i.e.
+            subject to:
+
+            - :cpp:expr:`[[assert: 0 < height && 0 && width]]`
+            - :cpp:expr:`[[assert: min_pixels <= height * width]]`
+            - :cpp:expr:`[[assert: height * width <= max_pixels]]`
+
+This is rendered as follows:
+
+.. cpp:struct:: config
+
+    .. cpp:var:: int height
+                    int width
+
+        Canvas dimensions. These must define a valid resolution, i.e.
+        subject to:
+
+        - :cpp:expr:`[[assert: 0 < height && 0 && width]]`
+        - :cpp:expr:`[[assert: min_pixels < height * width]]`
+        - :cpp:expr:`[[assert: height * width < max_pixels]]`
+
 Configuration Variables
 ~~~~~~~~~~~~~~~~~~~~~~~
 

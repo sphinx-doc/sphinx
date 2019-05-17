@@ -1502,6 +1502,24 @@ class ASTPackExpansionExpr(ASTBase):
         signode += nodes.Text('...')
 
 
+class ASTAssertionExpr(ASTBase):
+    def __init__(self, assertion):
+        # type: (ASTContractAttribute) -> None
+        self.assertion = assertion
+        assert assertion.kind == 'assert'
+
+    def _stringify(self, transform):
+        # type: (Callable[[Any], str]) -> str
+        return transform(self.assertion)
+
+    def get_id(self, version):
+        # type: (int) -> str
+        raise NotImplementedError()
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.assertion.describe_signature(signode, env, symbol)
+
+
 class ASTFallbackExpr(ASTBase):
     def __init__(self, expr):
         self.expr = expr
@@ -6630,21 +6648,37 @@ class DefinitionParser:
     def parse_expression(self):
         pos = self.pos
         try:
-            expr = self._parse_expression(False)
+            assertion = self._parse_attribute(contract_expectations=['assert'])
+            if not isinstance(assertion, ASTContractAttribute):
+                self.fail("Non-assertion attribute found.")
             self.skip_ws()
             self.assert_end()
-        except DefinitionError as exExpr:
+            expr = ASTAssertionExpr(assertion)
+
+        except DefinitionError as exAssert:
             self.pos = pos
+
             try:
-                expr = self._parse_type(False)
+                expr = self._parse_expression(False)
                 self.skip_ws()
                 self.assert_end()
-            except DefinitionError as exType:
-                header = "Error when parsing (type) expression."
-                errs = []
-                errs.append((exExpr, "If expression"))
-                errs.append((exType, "If type"))
-                raise self._make_multi_error(errs, header)
+
+            except DefinitionError as exExpr:
+                self.pos = pos
+
+                try:
+                    expr = self._parse_type(False)
+                    self.skip_ws()
+                    self.assert_end()
+
+                except DefinitionError as exType:
+                    header = "Error when parsing (type) expression."
+                    errs = []
+                    errs.append((exExpr, "If expression"))
+                    errs.append((exType, "If type"))
+                    errs.append((exAssert, "If contract assertion"))
+                    raise self._make_multi_error(errs, header)
+
         return expr
 
 
