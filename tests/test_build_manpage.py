@@ -59,3 +59,10 @@ def test_default_man_pages():
     expected = [('index', 'stasi', 'STASI™ Documentation 1.0',
                  ["Wolfgang Schäuble & G'Beckstein"], 1)]
     assert default_man_pages(config) == expected
+
+
+@pytest.mark.sphinx('man', testroot='markup-rubric')
+def test_rubric(app, status, warning):
+    app.build()
+    content = (app.outdir / 'python.1').text()
+    assert 'This is a rubric\n' in content

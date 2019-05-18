@@ -15,7 +15,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from sphinx import package_dir
 from sphinx.jinja2glue import SphinxFileSystemLoader
 from sphinx.locale import get_translator
-from sphinx.util import texescape
+from sphinx.util import rst, texescape
 
 if False:
     # For type annotation
@@ -67,9 +67,10 @@ class SphinxRenderer(FileRenderer):
 
 
 class LaTeXRenderer(SphinxRenderer):
-    def __init__(self):
-        # type: () -> None
-        template_path = os.path.join(package_dir, 'templates', 'latex')
+    def __init__(self, template_path=None):
+        # type: (str) -> None
+        if template_path is None:
+            template_path = os.path.join(package_dir, 'templates', 'latex')
         super().__init__(template_path)
 
         # use texescape as escape filter
@@ -83,3 +84,17 @@ class LaTeXRenderer(SphinxRenderer):
         self.env.variable_end_string = '%>'
         self.env.block_start_string = '<%'
         self.env.block_end_string = '%>'
+
+
+class ReSTRenderer(SphinxRenderer):
+    def __init__(self, template_path=None, language=None):
+        # type: (str, str) -> None
+        super().__init__(template_path)
+
+        # add language to environment
+        self.env.extend(language=language)
+
+        # use texescape as escape filter
+        self.env.filters['e'] = rst.escape
+        self.env.filters['escape'] = rst.escape
+        self.env.filters['heading'] = rst.heading

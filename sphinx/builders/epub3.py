@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
 import warnings
 from collections import namedtuple
 from os import path
@@ -98,12 +99,12 @@ class Epub3Builder(_epub_base.EpubBuilder):
         writing_mode = self.config.epub_writing_mode
 
         metadata = super().content_metadata()
-        metadata['description'] = self.esc(self.config.epub_description)
-        metadata['contributor'] = self.esc(self.config.epub_contributor)
+        metadata['description'] = html.escape(self.config.epub_description)
+        metadata['contributor'] = html.escape(self.config.epub_contributor)
         metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
         metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
-        metadata['date'] = self.esc(format_date("%Y-%m-%dT%H:%M:%SZ"))
-        metadata['version'] = self.esc(self.config.version)
+        metadata['date'] = html.escape(format_date("%Y-%m-%dT%H:%M:%SZ"))
+        metadata['version'] = html.escape(self.config.version)
         metadata['epub_version'] = self.config.epub_version
         return metadata
 
@@ -166,8 +167,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
         properly escaped.
         """
         metadata = {}  # type: Dict
-        metadata['lang'] = self.esc(self.config.epub_language)
-        metadata['toc_locale'] = self.esc(self.guide_titles['toc'])
+        metadata['lang'] = html.escape(self.config.epub_language)
+        metadata['toc_locale'] = html.escape(self.guide_titles['toc'])
         metadata['navlist'] = navlist
         return metadata
 

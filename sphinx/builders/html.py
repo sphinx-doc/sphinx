@@ -24,7 +24,7 @@ from docutils.utils import relative_path
 
 from sphinx import package_dir, __display_version__
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -653,7 +653,7 @@ class StandaloneHTMLBuilder(Builder):
     def gen_additional_pages(self):
         # type: () -> None
         # pages from extensions
-        for pagelist in self.app.emit('html-collect-pages'):
+        for pagelist in self.events.emit('html-collect-pages'):
             for pagename, context, template in pagelist:
                 self.handle_page(pagename, context, template)
 
@@ -1187,23 +1187,9 @@ def validate_math_renderer(app):
 
 
 # for compatibility
-from sphinx.builders.dirhtml import DirectoryHTMLBuilder  # NOQA
-from sphinx.builders.singlehtml import SingleFileHTMLBuilder  # NOQA
-from sphinxcontrib.serializinghtml import (  # NOQA
-    LAST_BUILD_FILENAME, JSONHTMLBuilder, PickleHTMLBuilder, SerializingHTMLBuilder
-)
-
-deprecated_alias('sphinx.builders.html',
-                 {
-                     'LAST_BUILD_FILENAME': LAST_BUILD_FILENAME,
-                     'DirectoryHTMLBuilder': DirectoryHTMLBuilder,
-                     'JSONHTMLBuilder': JSONHTMLBuilder,
-                     'PickleHTMLBuilder': PickleHTMLBuilder,
-                     'SerializingHTMLBuilder': SerializingHTMLBuilder,
-                     'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
-                     'WebHTMLBuilder': PickleHTMLBuilder,
-                 },
-                 RemovedInSphinx40Warning)
+import sphinx.builders.dirhtml  # NOQA
+import sphinx.builders.singlehtml  # NOQA
+import sphinxcontrib.serializinghtml  # NOQA
 
 
 def setup(app):

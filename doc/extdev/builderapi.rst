@@ -38,3 +38,8 @@ Builder API
    .. automethod:: write_doc
    .. automethod:: finish
 
+   **Attributes**
+
+   .. attribute:: events
+
+      An :class:`.EventManager` object.

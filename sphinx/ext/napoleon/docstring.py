@@ -100,7 +100,7 @@ class GoogleDocstring:
 
     """
 
-    _name_rgx = re.compile(r"^\s*(:(?P<role>\w+):`(?P<name>[a-zA-Z0-9_.-]+)`|"
+    _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>[a-zA-Z0-9_.-]+)`|"
                            r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
 
     def __init__(self, docstring, config=None, app=None, what='', name='',
@@ -700,9 +700,9 @@ class GoogleDocstring:
         fields = self._consume_fields(parse_type=False, prefer_type=True)
         lines = []  # type: List[str]
         for _name, _type, _desc in fields:
-            m = self._name_rgx.match(_type).groupdict()
-            if m['role']:
-                _type = m['name']
+            m = self._name_rgx.match(_type)
+            if m and m.group('name'):
+                _type = m.group('name')
             _type = ' ' + _type if _type else ''
             _desc = self._strip_empty(_desc)
             _descs = ' ' + '\n    '.join(_desc) if any(_desc) else ''

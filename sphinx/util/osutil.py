@@ -20,6 +20,7 @@ from io import StringIO
 from os import path
 
 from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.testing.path import path as Path
 
 if False:
     # For type annotation
@@ -167,15 +168,18 @@ fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 def abspath(pathdir):
     # type: (str) -> str
-    pathdir = path.abspath(pathdir)
-    if isinstance(pathdir, bytes):
-        try:
-            pathdir = pathdir.decode(fs_encoding)
-        except UnicodeDecodeError:
-            raise UnicodeDecodeError('multibyte filename not supported on '
-                                     'this filesystem encoding '
-                                     '(%r)' % fs_encoding)
-    return pathdir
+    if isinstance(pathdir, Path):
+        return pathdir.abspath()
+    else:
+        pathdir = path.abspath(pathdir)
+        if isinstance(pathdir, bytes):
+            try:
+                pathdir = pathdir.decode(fs_encoding)
+            except UnicodeDecodeError:
+                raise UnicodeDecodeError('multibyte filename not supported on '
+                                         'this filesystem encoding '
+                                         '(%r)' % fs_encoding)
+        return pathdir
 
 
 def getcwd():

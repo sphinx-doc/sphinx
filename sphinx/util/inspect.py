@@ -14,7 +14,10 @@ import inspect
 import re
 import sys
 import typing
-from functools import partial
+from functools import partial, partialmethod
+from inspect import (  # NOQA
+    isclass, ismethod, ismethoddescriptor, isroutine
+)
 from io import StringIO
 
 from sphinx.util import logging
@@ -23,6 +26,17 @@ from sphinx.util.typing import NoneType
 if False:
     # For type annotation
     from typing import Any, Callable, Mapping, List, Tuple, Type  # NOQA
+
+if sys.version_info > (3, 7):
+    from types import (
+        ClassMethodDescriptorType,
+        MethodDescriptorType,
+        WrapperDescriptorType
+    )
+else:
+    ClassMethodDescriptorType = type(object.__init__)
+    MethodDescriptorType = type(str.join)
+    WrapperDescriptorType = type(dict.__dict__['fromkeys'])
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +127,7 @@ def isenumattribute(x):
 def ispartial(obj):
     # type: (Any) -> bool
     """Check if the object is partial."""
-    return isinstance(obj, partial)
+    return isinstance(obj, (partial, partialmethod))
 
 
 def isclassmethod(obj):
@@ -156,6 +170,34 @@ def isdescriptor(x):
     return False
 
 
+def isattributedescriptor(obj):
+    # type: (Any) -> bool
+    """Check if the object is an attribute like descriptor."""
+    if inspect.isdatadescriptor(object):
+        # data descriptor is kind of attribute
+        return True
+    elif isdescriptor(obj):
+        # non data descriptor
+        if isfunction(obj) or isbuiltin(obj) or inspect.ismethod(obj):
+            # attribute must not be either function, builtin and method
+            return False
+        elif inspect.isclass(obj):
+            # attribute must not be a class
+            return False
+        elif isinstance(obj, (ClassMethodDescriptorType,
+                              MethodDescriptorType,
+                              WrapperDescriptorType)):
+            # attribute must not be a method descriptor
+            return False
+        elif type(obj).__name__ == "instancemethod":
+            # attribute must not be an instancemethod (C-API)
+            return False
+        else:
+            return True
+    else:
+        return False
+
+
 def isfunction(obj):
     # type: (Any) -> bool
     """Check if the object is function."""
@@ -166,6 +208,24 @@ def isbuiltin(obj):
     # type: (Any) -> bool
     """Check if the object is builtin."""
     return inspect.isbuiltin(obj) or ispartial(obj) and inspect.isbuiltin(obj.func)
+
+
+def iscoroutinefunction(obj):
+    # type: (Any) -> bool
+    """Check if the object is coroutine-function."""
+    if inspect.iscoroutinefunction(obj):
+        return True
+    elif ispartial(obj) and inspect.iscoroutinefunction(obj.func):
+        # partialed
+        return True
+    else:
+        return False
+
+
+def isproperty(obj):
+    # type: (Any) -> bool
+    """Check if the object is property."""
+    return isinstance(obj, property)
 
 
 def safe_getattr(obj, name, *defargs):

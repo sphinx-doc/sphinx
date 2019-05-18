@@ -97,7 +97,8 @@ extension. These are:
 
    The config is available as ``app.config`` or ``env.config``.
 
-To see an example of use of these objects, refer to :doc:`../development/tutorials/index`.
+To see an example of use of these objects, refer to
+:doc:`../development/tutorials/index`.
 
 .. _build-phases:
 

@@ -31,6 +31,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.builders._epub_base.EpubBuilder.esc()``
+     - 2.1
+     - 4.0
+     - ``html.escape()``
+
    * - ``sphinx.directives.Acks``
      - 2.1
      - 4.0
@@ -116,10 +121,55 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.directives.other.VersionChange``
 
+   * - ``sphinx.domains.python.PyClassmember``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.python.PyAttribute``,
+       ``sphinx.domains.python.PyMethod``,
+       ``sphinx.domains.python.PyClassMethod``,
+       ``sphinx.domains.python.PyObject`` and
+       ``sphinx.domains.python.PyStaticMethod``
+
+   * - ``sphinx.domains.python.PyModulelevel``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.python.PyFunction``,
+       ``sphinx.domains.python.PyObject`` and
+       ``sphinx.domains.python.PyVariable``
+
+   * - ``sphinx.domains.std.StandardDomain._resolve_citation_xref()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDomain.resolve_xref()``
+
+   * - ``sphinx.domains.std.StandardDomain.note_citations()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDomain.note_citation()``
+
+   * - ``sphinx.domains.std.StandardDomain.note_citation_refs()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDomain.note_citation_reference()``
+
+   * - ``sphinx.domains.std.StandardDomain.note_labels()``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.std.StandardDomain.process_doc()``
+
    * - ``sphinx.environment.NoUri``
      - 2.1
      - 4.0
      - ``sphinx.errors.NoUri``
+   * - ``sphinx.ext.apidoc.format_directive()``
+     - 2.1
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.apidoc.format_heading()``
+     - 2.1
+     - 4.0
+     - N/A
 
    * - ``sphinx.ext.autodoc.importer.MockFinder``
      - 2.1
@@ -140,6 +190,31 @@ The following is a list of deprecated interfaces.
      - 2.1
      - 4.0
      - ``sphinx.ext.autosummary.AutoLink``
+
+   * - ``sphinx.ext.imgmath.DOC_BODY``
+     - 2.1
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.imgmath.DOC_BODY_PREVIEW``
+     - 2.1
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.imgmath.DOC_HEAD``
+     - 2.1
+     - 4.0
+     - N/A
+
+   * - ``sphinx.transforms.CitationReferences``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationReferenceTransform``
+
+   * - ``sphinx.transforms.SmartQuotesSkipper``
+     - 2.1
+     - 4.0
+     - ``sphinx.domains.citation.CitationDefinitionTransform``
 
    * - ``sphinx.util.docfields.DocFieldTransformer.preprocess_fieldtypes()``
      - 2.1

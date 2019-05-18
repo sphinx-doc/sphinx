@@ -21,12 +21,15 @@ from subprocess import CalledProcessError, PIPE
 from docutils import nodes
 
 import sphinx
+from sphinx import package_dir
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
+from sphinx.util.template import LaTeXRenderer
 
 if False:
     # For type annotation
@@ -37,6 +40,8 @@ if False:
     from sphinx.writers.html import HTMLTranslator  # NOQA
 
 logger = logging.getLogger(__name__)
+
+templates_path = path.join(package_dir, 'templates', 'imgmath')
 
 
 class MathExtError(SphinxError):
@@ -85,21 +90,54 @@ DOC_BODY_PREVIEW = r'''
 '''
 
 depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
+depthsvg_re = re.compile(br'.*, depth=(.*)pt')
+depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
-def generate_latex_macro(math, config):
-    # type: (str, Config) -> str
+def read_svg_depth(filename):
+    # type: (str) -> int
+    """Read the depth from comment at last line of SVG file
+    """
+    with open(filename, 'r') as f:
+        for line in f:
+            pass
+        # Only last line is checked
+        matched = depthsvgcomment_re.match(line)
+        if matched:
+            return int(matched.group(1))
+        return None
+
+
+def write_svg_depth(filename, depth):
+    # type: (str, int) -> None
+    """Write the depth to SVG file as a comment at end of file
+    """
+    with open(filename, 'a') as f:
+        f.write('\n<!-- DEPTH=%s -->' % depth)
+
+
+def generate_latex_macro(image_format, math, config, confdir=''):
+    # type: (str, str, Config, str) -> str
     """Generate LaTeX macro."""
-    fontsize = config.imgmath_font_size
-    baselineskip = int(round(fontsize * 1.2))
+    variables = {
+        'fontsize': config.imgmath_font_size,
+        'baselineskip': int(round(config.imgmath_font_size * 1.2)),
+        'preamble': config.imgmath_latex_preamble,
+        'tightpage': '' if image_format == 'png' else ',tightpage',
+        'math': math
+    }
 
-    latex = DOC_HEAD + config.imgmath_latex_preamble
     if config.imgmath_use_preview:
-        latex += DOC_BODY_PREVIEW % (fontsize, baselineskip, math)
+        template_name = 'preview.tex_t'
     else:
-        latex += DOC_BODY % (fontsize, baselineskip, math)
+        template_name = 'template.tex_t'
 
-    return latex
+    for template_dir in config.templates_path:
+        template = path.join(confdir, template_dir, template_name)
+        if path.exists(template):
+            return LaTeXRenderer().render(template, variables)
+
+    return LaTeXRenderer(templates_path).render(template_name, variables)
 
 
 def ensure_tempdir(builder):
@@ -197,8 +235,18 @@ def convert_dvi_to_svg(dvipath, builder):
     command.extend(builder.config.imgmath_dvisvgm_args)
     command.append(dvipath)
 
-    convert_dvi_to_image(command, name)
-    return filename, None
+    stdout, stderr = convert_dvi_to_image(command, name)
+
+    depth = None
+    if builder.config.imgmath_use_preview:
+        for line in stderr.splitlines():  # not stdout !
+            matched = depthsvg_re.match(line)
+            if matched:
+                depth = round(float(matched.group(1)) * 100 / 72.27)  # assume 100ppi
+                write_svg_depth(filename, depth)
+                break
+
+    return filename, depth
 
 
 def render_math(self, math):
@@ -220,13 +268,19 @@ def render_math(self, math):
     if image_format not in SUPPORT_FORMAT:
         raise MathExtError('imgmath_image_format must be either "png" or "svg"')
 
-    latex = generate_latex_macro(math, self.builder.config)
+    latex = generate_latex_macro(image_format,
+                                 math,
+                                 self.builder.config,
+                                 self.builder.confdir)
 
     filename = "%s.%s" % (sha1(latex.encode()).hexdigest(), image_format)
     relfn = posixpath.join(self.builder.imgpath, 'math', filename)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
     if path.isfile(outfn):
-        depth = read_png_depth(outfn)
+        if image_format == 'png':
+            depth = read_png_depth(outfn)
+        elif image_format == 'svg':
+            depth = read_svg_depth(outfn)
         return relfn, depth
 
     # if latex or dvipng (dvisvgm) has failed once, don't bother to try again
@@ -330,6 +384,15 @@ def html_visit_displaymath(self, node):
         self.body.append(('<img src="%s"' % fname) + get_tooltip(self, node) +
                          '/></p>\n</div>')
     raise nodes.SkipNode
+
+
+deprecated_alias('sphinx.ext.imgmath',
+                 {
+                     'DOC_BODY': DOC_BODY,
+                     'DOC_BODY_PREVIEW': DOC_BODY_PREVIEW,
+                     'DOC_HEAD': DOC_HEAD,
+                 },
+                 RemovedInSphinx40Warning)
 
 
 def setup(app):

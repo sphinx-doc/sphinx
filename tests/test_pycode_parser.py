@@ -314,6 +314,21 @@ def test_decorators():
                                   'Foo.method': ('def', 13, 15)}
 
 
+def test_async_function_and_method():
+    source = ('async def some_function():\n'
+              '    """docstring"""\n'
+              '    a = 1 + 1  #: comment1\n'
+              '\n'
+              'class Foo:\n'
+              '    async def method(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.definitions == {'some_function': ('def', 1, 3),
+                                  'Foo': ('class', 5, 7),
+                                  'Foo.method': ('def', 6, 7)}
+
+
 def test_formfeed_char():
     source = ('class Foo:\n'
               '\f\n'

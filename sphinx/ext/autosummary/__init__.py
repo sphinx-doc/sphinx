@@ -175,7 +175,7 @@ _app = None  # type: Sphinx
 class FakeDirective(DocumenterBridge):
     def __init__(self):
         # type: () -> None
-        super().__init__({}, None, Options(), 0)  # type: ignore
+        super().__init__({}, None, Options(), 0, None)  # type: ignore
 
 
 def get_documenter(app, obj, parent):
@@ -236,7 +236,7 @@ class Autosummary(SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
         self.bridge = DocumenterBridge(self.env, self.state.document.reporter,
-                                       Options(), self.lineno)
+                                       Options(), self.lineno, self.state)
 
         names = [x.strip().split()[0] for x in self.content
                  if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
@@ -734,12 +734,13 @@ def process_generate_options(app):
         return
 
     depth_limit = app.config.autosummary_depth_limit
-
+    imported_members = app.config.autosummary_imported_members
     with mock(app.config.autosummary_mock_imports):
         generate_autosummary_docs(genfiles, builder=app.builder,
                                   warn=logger.warning, info=logger.info,
                                   suffix=suffix, base_path=app.srcdir,
-                                  app=app, depth_limit=depth_limit)
+                                  app=app, imported_members=imported_members,
+                                  depth_limit=depth_limit)
 
 
 def setup(app):
@@ -766,4 +767,6 @@ def setup(app):
     app.add_config_value('autosummary_depth_limit', 0, 'env', [int])
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')
+    app.add_config_value('autosummary_imported_members', [], False, [bool])
+
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

@@ -27,6 +27,10 @@ Build environment API
 
       Directory for storing pickled doctrees.
 
+   .. attribute:: events
+
+      An :class:`.EventManager` object.
+
    .. attribute:: found_docs
 
       A set of all existing docnames.

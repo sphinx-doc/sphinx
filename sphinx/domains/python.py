@@ -9,11 +9,14 @@
 """
 
 import re
+import warnings
+from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.locale import _, __
@@ -309,14 +312,13 @@ class PyObject(ObjectDescription):
         return fullname, prefix
 
     def get_index_text(self, modname, name):
-        # type: (str, str) -> str
+        # type: (str, Tuple[str, str]) -> str
         """Return the text for the index entry of the object."""
         raise NotImplementedError('must be implemented in subclasses')
 
     def add_target_and_index(self, name_cls, sig, signode):
-        # type: (str, str, addnodes.desc_signature) -> None
-        modname = self.options.get(
-            'module', self.env.ref_context.get('py:module'))
+        # type: (Tuple[str, str], str, addnodes.desc_signature) -> None
+        modname = self.options.get('module', self.env.ref_context.get('py:module'))
         fullname = (modname and modname + '.' or '') + name_cls[0]
         # note target
         if fullname not in self.state.document.ids:
@@ -324,15 +326,9 @@ class PyObject(ObjectDescription):
             signode['ids'].append(fullname)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            objects = self.env.domaindata['py']['objects']
-            if fullname in objects:
-                self.state_machine.reporter.warning(
-                    'duplicate object description of %s, ' % fullname +
-                    'other instance in ' +
-                    self.env.doc2path(objects[fullname][0]) +
-                    ', use :noindex: for one of them',
-                    line=self.lineno)
-            objects[fullname] = (self.env.docname, self.objtype)
+
+            domain = cast(PythonDomain, self.env.get_domain('py'))
+            domain.note_object(fullname, self.objtype)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
@@ -405,12 +401,19 @@ class PyModulelevel(PyObject):
     Description of an object on module level (functions, data).
     """
 
+    def run(self):
+        # type: () -> List[nodes.Node]
+        warnings.warn('PyClassmember is deprecated.',
+                      RemovedInSphinx40Warning)
+
+        return super().run()
+
     def needs_arglist(self):
         # type: () -> bool
         return self.objtype == 'function'
 
     def get_index_text(self, modname, name_cls):
-        # type: (str, str) -> str
+        # type: (str, Tuple[str, str]) -> str
         if self.objtype == 'function':
             if not modname:
                 return _('%s() (built-in function)') % name_cls[0]
@@ -421,6 +424,46 @@ class PyModulelevel(PyObject):
             return _('%s (in module %s)') % (name_cls[0], modname)
         else:
             return ''
+
+
+class PyFunction(PyObject):
+    """Description of a function."""
+
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'async': directives.flag,
+    })
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        if 'async' in self.options:
+            return 'async '
+        else:
+            return ''
+
+    def needs_arglist(self):
+        # type: () -> bool
+        return True
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        if modname:
+            return _('%s() (in module %s)') % (name, modname)
+        else:
+            return _('%s() (built-in function)') % name
+
+
+class PyVariable(PyObject):
+    """Description of a variable."""
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        if modname:
+            return _('%s (in module %s)') % (name, modname)
+        else:
+            return _('%s (built-in variable)') % name
 
 
 class PyClasslike(PyObject):
@@ -435,7 +478,7 @@ class PyClasslike(PyObject):
         return self.objtype + ' '
 
     def get_index_text(self, modname, name_cls):
-        # type: (str, str) -> str
+        # type: (str, Tuple[str, str]) -> str
         if self.objtype == 'class':
             if not modname:
                 return _('%s (built-in class)') % name_cls[0]
@@ -451,6 +494,13 @@ class PyClassmember(PyObject):
     Description of a class member (methods, attributes).
     """
 
+    def run(self):
+        # type: () -> List[nodes.Node]
+        warnings.warn('PyClassmember is deprecated.',
+                      RemovedInSphinx40Warning)
+
+        return super().run()
+
     def needs_arglist(self):
         # type: () -> bool
         return self.objtype.endswith('method')
@@ -464,7 +514,7 @@ class PyClassmember(PyObject):
         return ''
 
     def get_index_text(self, modname, name_cls):
-        # type: (str, str) -> str
+        # type: (str, Tuple[str, str]) -> str
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
         if self.objtype == 'method':
@@ -521,6 +571,109 @@ class PyClassmember(PyObject):
             return ''
 
 
+class PyMethod(PyObject):
+    """Description of a method."""
+
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'async': directives.flag,
+        'classmethod': directives.flag,
+        'property': directives.flag,
+        'staticmethod': directives.flag,
+    })
+
+    def needs_arglist(self):
+        # type: () -> bool
+        if 'property' in self.options:
+            return False
+        else:
+            return True
+
+    def get_signature_prefix(self, sig):
+        # type: (str) -> str
+        prefix = []
+        if 'async' in self.options:
+            prefix.append('async')
+        if 'classmethod' in self.options:
+            prefix.append('classmethod')
+        if 'property' in self.options:
+            prefix.append('property')
+        if 'staticmethod' in self.options:
+            prefix.append('static')
+
+        if prefix:
+            return ' '.join(prefix) + ' '
+        else:
+            return ''
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, methname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s() (in module %s)') % (name, modname)
+            else:
+                return '%s()' % name
+
+        if 'classmethod' in self.options:
+            return _('%s() (%s class method)') % (methname, clsname)
+        elif 'property' in self.options:
+            return _('%s() (%s property)') % (methname, clsname)
+        elif 'staticmethod' in self.options:
+            return _('%s() (%s static method)') % (methname, clsname)
+        else:
+            return _('%s() (%s method)') % (methname, clsname)
+
+
+class PyClassMethod(PyMethod):
+    """Description of a classmethod."""
+
+    option_spec = PyObject.option_spec.copy()
+
+    def run(self):
+        # type: () -> List[nodes.Node]
+        self.name = 'py:method'
+        self.options['classmethod'] = True
+
+        return super().run()
+
+
+class PyStaticMethod(PyMethod):
+    """Description of a staticmethod."""
+
+    option_spec = PyObject.option_spec.copy()
+
+    def run(self):
+        # type: () -> List[nodes.Node]
+        self.name = 'py:method'
+        self.options['staticmethod'] = True
+
+        return super().run()
+
+
+class PyAttribute(PyObject):
+    """Description of an attribute."""
+
+    def get_index_text(self, modname, name_cls):
+        # type: (str, Tuple[str, str]) -> str
+        name, cls = name_cls
+        try:
+            clsname, attrname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s (in module %s)') % (name, modname)
+            else:
+                return name
+
+        return _('%s (%s attribute)') % (attrname, clsname)
+
+
 class PyDecoratorMixin:
     """
     Mixin for decorator directives.
@@ -575,18 +728,20 @@ class PyModule(SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
+        domain = cast(PythonDomain, self.env.get_domain('py'))
+
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
         ret = []  # type: List[nodes.Node]
         if not noindex:
-            self.env.domaindata['py']['modules'][modname] = (self.env.docname,
-                                                             self.options.get('synopsis', ''),
-                                                             self.options.get('platform', ''),
-                                                             'deprecated' in self.options)
-            # make a duplicate entry in 'objects' to facilitate searching for
-            # the module in PythonDomain.find_obj()
-            self.env.domaindata['py']['objects'][modname] = (self.env.docname, 'module')
+            # note module to the domain
+            domain.note_module(modname,
+                               self.options.get('synopsis', ''),
+                               self.options.get('platform', ''),
+                               'deprecated' in self.options)
+            domain.note_object(modname, 'module')
+
             targetnode = nodes.target('', '', ids=['module-' + modname],
                                       ismod=True)
             self.state.document.note_explicit_target(targetnode)
@@ -737,14 +892,14 @@ class PythonDomain(Domain):
     }  # type: Dict[str, ObjType]
 
     directives = {
-        'function':        PyModulelevel,
-        'data':            PyModulelevel,
+        'function':        PyFunction,
+        'data':            PyVariable,
         'class':           PyClasslike,
         'exception':       PyClasslike,
-        'method':          PyClassmember,
-        'classmethod':     PyClassmember,
-        'staticmethod':    PyClassmember,
-        'attribute':       PyClassmember,
+        'method':          PyMethod,
+        'classmethod':     PyClassMethod,
+        'staticmethod':    PyStaticMethod,
+        'attribute':       PyAttribute,
         'module':          PyModule,
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,
@@ -769,24 +924,55 @@ class PythonDomain(Domain):
         PythonModuleIndex,
     ]
 
+    @property
+    def objects(self):
+        # type: () -> Dict[str, Tuple[str, str]]
+        return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+
+    def note_object(self, name, objtype, location=None):
+        # type: (str, str, Any) -> None
+        """Note a python object for cross reference.
+
+        .. versionadded:: 2.1
+        """
+        if name in self.objects:
+            docname = self.objects[name][0]
+            logger.warning(__('duplicate object description of %s, '
+                              'other instance in %s, use :noindex: for one of them'),
+                           name, docname, location=location)
+        self.objects[name] = (self.env.docname, objtype)
+
+    @property
+    def modules(self):
+        # type: () -> Dict[str, Tuple[str, str, str, bool]]
+        return self.data.setdefault('modules', {})  # modname -> docname, synopsis, platform, deprecated  # NOQA
+
+    def note_module(self, name, synopsis, platform, deprecated):
+        # type: (str, str, str, bool) -> None
+        """Note a python module for cross reference.
+
+        .. versionadded:: 2.1
+        """
+        self.modules[name] = (self.env.docname, synopsis, platform, deprecated)
+
     def clear_doc(self, docname):
         # type: (str) -> None
-        for fullname, (fn, _l) in list(self.data['objects'].items()):
+        for fullname, (fn, _l) in list(self.objects.items()):
             if fn == docname:
-                del self.data['objects'][fullname]
-        for modname, (fn, _x, _x, _x) in list(self.data['modules'].items()):
+                del self.objects[fullname]
+        for modname, (fn, _x, _x, _y) in list(self.modules.items()):
             if fn == docname:
-                del self.data['modules'][modname]
+                del self.modules[modname]
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[str], Dict) -> None
         # XXX check duplicates?
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                self.data['objects'][fullname] = (fn, objtype)
+                self.objects[fullname] = (fn, objtype)
         for modname, data in otherdata['modules'].items():
             if data[0] in docnames:
-                self.data['modules'][modname] = data
+                self.modules[modname] = data
 
     def find_obj(self, env, modname, classname, name, type, searchmode=0):
         # type: (BuildEnvironment, str, str, str, str, int) -> List[Tuple[str, Any]]
@@ -800,7 +986,6 @@ class PythonDomain(Domain):
         if not name:
             return []
 
-        objects = self.data['objects']
         matches = []  # type: List[Tuple[str, Any]]
 
         newname = None
@@ -812,44 +997,44 @@ class PythonDomain(Domain):
             if objtypes is not None:
                 if modname and classname:
                     fullname = modname + '.' + classname + '.' + name
-                    if fullname in objects and objects[fullname][1] in objtypes:
+                    if fullname in self.objects and self.objects[fullname][1] in objtypes:
                         newname = fullname
                 if not newname:
-                    if modname and modname + '.' + name in objects and \
-                       objects[modname + '.' + name][1] in objtypes:
+                    if modname and modname + '.' + name in self.objects and \
+                       self.objects[modname + '.' + name][1] in objtypes:
                         newname = modname + '.' + name
-                    elif name in objects and objects[name][1] in objtypes:
+                    elif name in self.objects and self.objects[name][1] in objtypes:
                         newname = name
                     else:
                         # "fuzzy" searching mode
                         searchname = '.' + name
-                        matches = [(oname, objects[oname]) for oname in objects
+                        matches = [(oname, self.objects[oname]) for oname in self.objects
                                    if oname.endswith(searchname) and
-                                   objects[oname][1] in objtypes]
+                                   self.objects[oname][1] in objtypes]
         else:
             # NOTE: searching for exact match, object type is not considered
-            if name in objects:
+            if name in self.objects:
                 newname = name
             elif type == 'mod':
                 # only exact matches allowed for modules
                 return []
-            elif classname and classname + '.' + name in objects:
+            elif classname and classname + '.' + name in self.objects:
                 newname = classname + '.' + name
-            elif modname and modname + '.' + name in objects:
+            elif modname and modname + '.' + name in self.objects:
                 newname = modname + '.' + name
             elif modname and classname and \
-                    modname + '.' + classname + '.' + name in objects:
+                    modname + '.' + classname + '.' + name in self.objects:
                 newname = modname + '.' + classname + '.' + name
             # special case: builtin exceptions have module "exceptions" set
             elif type == 'exc' and '.' not in name and \
-                    'exceptions.' + name in objects:
+                    'exceptions.' + name in self.objects:
                 newname = 'exceptions.' + name
             # special case: object methods
             elif type in ('func', 'meth') and '.' not in name and \
-                    'object.' + name in objects:
+                    'object.' + name in self.objects:
                 newname = 'object.' + name
         if newname is not None:
-            matches.append((newname, objects[newname]))
+            matches.append((newname, self.objects[newname]))
         return matches
 
     def resolve_xref(self, env, fromdocname, builder,
@@ -896,7 +1081,7 @@ class PythonDomain(Domain):
     def _make_module_refnode(self, builder, fromdocname, name, contnode):
         # type: (Builder, str, str, nodes.Node) -> nodes.Element
         # get additional info for modules
-        docname, synopsis, platform, deprecated = self.data['modules'][name]
+        docname, synopsis, platform, deprecated = self.modules[name]
         title = name
         if synopsis:
             title += ': ' + synopsis
@@ -909,9 +1094,9 @@ class PythonDomain(Domain):
 
     def get_objects(self):
         # type: () -> Iterator[Tuple[str, str, str, str, str, int]]
-        for modname, info in self.data['modules'].items():
+        for modname, info in self.modules.items():
             yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
-        for refname, (docname, type) in self.data['objects'].items():
+        for refname, (docname, type) in self.objects.items():
             if type != 'module':  # modules are already handled
                 yield (refname, refname, type, docname, refname, 1)
 
