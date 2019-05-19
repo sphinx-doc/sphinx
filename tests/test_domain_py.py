@@ -18,7 +18,10 @@ from sphinx.addnodes import (
     desc, desc_addname, desc_annotation, desc_content, desc_name, desc_optional,
     desc_parameter, desc_parameterlist, desc_returns, desc_signature
 )
-from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist, PythonDomain
+from sphinx.domains import IndexEntry
+from sphinx.domains.python import (
+    py_sig_re, _pseudo_parse_arglist, PythonDomain, PythonModuleIndex
+)
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
@@ -460,3 +463,49 @@ def test_pyattribute(app):
                                    [desc_content, ()]))
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'attribute')
+
+
+@pytest.mark.sphinx(freshenv=True)
+def test_module_index(app):
+    text = (".. py:module:: docutils\n"
+            ".. py:module:: sphinx\n"
+            ".. py:module:: sphinx.config\n"
+            ".. py:module:: sphinx.builders\n"
+            ".. py:module:: sphinx.builders.html\n"
+            ".. py:module:: sphinx_intl\n")
+    restructuredtext.parse(app, text)
+    index = PythonModuleIndex(app.env.get_domain('py'))
+    assert index.generate() == (
+        [('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
+         ('s', [IndexEntry('sphinx', 1, 'index', 'module-sphinx', '', '', ''),
+                IndexEntry('sphinx.builders', 2, 'index', 'module-sphinx.builders', '', '', ''),  # NOQA
+                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx.builders.html', '', '', ''),  # NOQA
+                IndexEntry('sphinx.config', 2, 'index', 'module-sphinx.config', '', '', ''),
+                IndexEntry('sphinx_intl', 0, 'index', 'module-sphinx_intl', '', '', '')])],
+        False
+    )
+
+
+@pytest.mark.sphinx(freshenv=True)
+def test_module_index_submodule(app):
+    text = ".. py:module:: sphinx.config\n"
+    restructuredtext.parse(app, text)
+    index = PythonModuleIndex(app.env.get_domain('py'))
+    assert index.generate() == (
+        [('s', [IndexEntry('sphinx', 1, '', '', '', '', ''),
+                IndexEntry('sphinx.config', 2, 'index', 'module-sphinx.config', '', '', '')])],
+        False
+    )
+
+
+@pytest.mark.sphinx(freshenv=True)
+def test_module_index_not_collapsed(app):
+    text = (".. py:module:: docutils\n"
+            ".. py:module:: sphinx\n")
+    restructuredtext.parse(app, text)
+    index = PythonModuleIndex(app.env.get_domain('py'))
+    assert index.generate() == (
+        [('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
+         ('s', [IndexEntry('sphinx', 0, 'index', 'module-sphinx', '', '', '')])],
+        True
+    )
