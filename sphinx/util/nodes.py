@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 # \x00 means the "<" was backslash-escaped
-explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
+explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<([^<]*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
