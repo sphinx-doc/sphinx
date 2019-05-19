@@ -585,6 +585,7 @@ class PyMethod(PyObject):
 
     option_spec = PyObject.option_spec.copy()
     option_spec.update({
+        'abstractmethod': directives.flag,
         'async': directives.flag,
         'classmethod': directives.flag,
         'property': directives.flag,
@@ -601,6 +602,8 @@ class PyMethod(PyObject):
     def get_signature_prefix(self, sig):
         # type: (str) -> str
         prefix = []
+        if 'abstractmethod' in self.options:
+            prefix.append('abstract')
         if 'async' in self.options:
             prefix.append('async')
         if 'classmethod' in self.options:

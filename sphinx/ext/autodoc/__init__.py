@@ -1336,6 +1336,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         sourcename = self.get_sourcename()
         obj = self.parent.__dict__.get(self.object_name, self.object)
+        if inspect.isabstractmethod(obj):
+            self.add_line('   :abstractmethod:', sourcename)
         if inspect.iscoroutinefunction(obj):
             self.add_line('   :async:', sourcename)
         if inspect.isclassmethod(obj):
@@ -1453,7 +1455,10 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
     def add_directive_header(self, sig):
         # type: (str) -> None
         super().add_directive_header(sig)
-        self.add_line('   :property:', self.get_sourcename())
+        sourcename = self.get_sourcename()
+        if inspect.isabstractmethod(self.object):
+            self.add_line('   :abstractmethod:', sourcename)
+        self.add_line('   :property:', sourcename)
 
 
 class InstanceAttributeDocumenter(AttributeDocumenter):
