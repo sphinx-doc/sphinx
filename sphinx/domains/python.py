@@ -858,7 +858,6 @@ class PythonModuleIndex(Index):
                         last = entries[-1]
                         entries[-1] = IndexEntry(last[0], 1, last[2], last[3],
                                                  last[4], last[5], last[6])
-                    entries.append(IndexEntry(stripped + package, 1, '', '', '', '', ''))
                 elif not prev_modname.startswith(package):
                     # submodule without parent in list, add dummy entry
                     entries.append(IndexEntry(stripped + package, 1, '', '', '', '', ''))
