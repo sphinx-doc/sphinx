@@ -128,17 +128,28 @@ declarations:
 
    This directive will also cause an entry in the global module index.
 
-   The ``platform`` option, if present, is a comma-separated list of the
-   platforms on which the module is available (if it is available on all
-   platforms, the option should be omitted).  The keys are short identifiers;
-   examples that are in use include "IRIX", "Mac", "Windows", and "Unix".  It is
-   important to use a key which has already been used when applicable.
+   .. rubric:: options
 
-   The ``synopsis`` option should consist of one sentence describing the
-   module's purpose -- it is currently only used in the Global Module Index.
+   .. rst:directive:option:: platform: platforms
+      :type: comma separated list
 
-   The ``deprecated`` option can be given (with no value) to mark a module as
-   deprecated; it will be designated as such in various locations then.
+      Indicate platforms which the module is available (if it is available on
+      all platforms, the option should be omitted).  The keys are short
+      identifiers; examples that are in use include "IRIX", "Mac", "Windows"
+      and "Unix".  It is important to use a key which has already been used when
+      applicable.
+
+   .. rst:directive:option:: synopsis: purpose
+      :type: text
+
+      Consist of one sentence describing the module's purpose -- it is currently
+      only used in the Global Module Index.
+
+   .. rst:directive:option:: deprecated
+      :type: no argument
+
+      Mark a module as deprecated; it will be designated as such in various
+      locations then.
 
 .. rst:directive:: .. py:currentmodule:: name
 
@@ -169,12 +180,14 @@ The following directives are provided for module and class contents:
    This information can (in any ``py`` directive) optionally be given in a
    structured form, see :ref:`info-field-lists`.
 
-   The ``async`` option can be given (with no value) to indicate the function is
-   an async method.
+   .. rubric:: options
 
-   .. versionchanged:: 2.1
+   .. rst:directive:option:: async
+      :type: no value
 
-      ``:async:`` option added.
+      Indicate the function is an async function.
+
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. py:data:: name
 
@@ -223,20 +236,43 @@ The following directives are provided for module and class contents:
    described for ``function``.  See also :ref:`signatures` and
    :ref:`info-field-lists`.
 
-   The ``async`` option can be given (with no value) to indicate the method is
-   an async method.
+   .. rubric:: options
 
-   The ``abstractmethod``, ``classmethod`` option and ``staticmethod`` option
-   can be given (with no value) to indicate the method is an abstract method,
-   a class method or a static method.
+   .. rst:directive:option:: abstractmethod
+      :type: no value
 
-   The ``property`` option can be given (with no value) to indicate the method
-   is a property.
+      Indicate the method is an abstract method.
 
-   .. versionchanged:: 2.1
+      .. versionadded:: 2.1
 
-      ``:abstractmethod:``, ``:async:``, ``:classmethod:``, ``:property:`` and
-      ``:staticmethod:`` options added.
+   .. rst:directive:option:: async
+      :type: no value
+
+      Indicate the method is an async method.
+
+      .. versionadded:: 2.1
+
+   .. rst:directive:option:: classmethod
+      :type: no value
+
+      Indicate the method is a class method.
+
+      .. versionadded:: 2.1
+
+   .. rst:directive:option:: property
+      :type: no value
+
+      Indicate the method is a property.
+
+      .. versionadded:: 2.1
+
+   .. rst:directive:option:: staticmethod
+      :type: no value
+
+      Indicate the method is a static method.
+
+      .. versionadded:: 2.1
+
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
 
@@ -1448,8 +1484,8 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
    .. rubric:: options
 
-   .. rst:directive:option:: type
-      :type: description for the option of directive
+   .. rst:directive:option:: type: description of argument
+      :type: text
 
       Describe the type of option value.
 
@@ -1460,7 +1496,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
             .. rst:directive:option:: maxdepth
                :type: integer or no value
 
-   .. versionadded:: 2.1
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. rst:role:: name
 
