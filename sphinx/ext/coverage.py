@@ -79,6 +79,8 @@ class CoverageBuilder(Builder):
                                                 self.config.coverage_ignore_classes)
         self.fun_ignorexps = compile_regex_list('coverage_ignore_functions',
                                                 self.config.coverage_ignore_functions)
+        self.py_ignorexps = compile_regex_list('coverage_ignore_pyobjects',
+                                               self.config.coverage_ignore_pyobjects)
 
     def get_outdated_docs(self):
         # type: () -> str
@@ -130,6 +132,12 @@ class CoverageBuilder(Builder):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                 op.write('\n')
 
+    def ignore_pyobj(self, full_name):
+        for exp in self.py_ignorexps:
+            if exp.search(full_name):
+                return True
+        return False
+
     def build_py_coverage(self):
         # type: () -> None
         objects = self.env.domaindata['py']['objects']
@@ -143,7 +151,7 @@ class CoverageBuilder(Builder):
                 if exp.match(mod_name):
                     ignore = True
                     break
-            if ignore:
+            if ignore or self.ignore_pyobj(mod_name):
                 continue
 
             try:
@@ -169,6 +177,8 @@ class CoverageBuilder(Builder):
                     continue
 
                 full_name = '%s.%s' % (mod_name, name)
+                if self.ignore_pyobj(full_name):
+                    continue
 
                 if inspect.isfunction(obj):
                     if full_name not in objects:
@@ -209,11 +219,11 @@ class CoverageBuilder(Builder):
                             if skip_undoc and not attr.__doc__:
                                 # skip methods without docstring if wished
                                 continue
-
                             full_attr_name = '%s.%s' % (full_name, attr_name)
+                            if self.ignore_pyobj(full_attr_name):
+                                continue
                             if full_attr_name not in objects:
                                 attrs.append(attr_name)
-
                         if attrs:
                             # some attributes are undocumented
                             classes[name] = attrs
@@ -270,6 +280,7 @@ def setup(app):
     app.add_config_value('coverage_ignore_modules', [], False)
     app.add_config_value('coverage_ignore_functions', [], False)
     app.add_config_value('coverage_ignore_classes', [], False)
+    app.add_config_value('coverage_ignore_pyobjects', [], False)
     app.add_config_value('coverage_c_path', [], False)
     app.add_config_value('coverage_c_regexes', {}, False)
     app.add_config_value('coverage_ignore_c_items', {}, False)

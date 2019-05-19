@@ -348,9 +348,16 @@ class Sphinx:
             status = (self.statuscode == 0 and
                       __('succeeded') or __('finished with problems'))
             if self._warncount:
-                logger.info(bold(__('build %s, %s warning.',
-                                    'build %s, %s warnings.', self._warncount) %
-                                 (status, self._warncount)))
+                if self.warningiserror:
+                    msg = __('build %s, %s warning (with warnings treated as errors).',
+                             'build %s, %s warnings (with warnings treated as errors).',
+                             self._warncount)
+                else:
+                    msg = __('build %s, %s warning.',
+                             'build %s, %s warnings.',
+                             self._warncount)
+
+                logger.info(bold(msg % (status, self._warncount)))
             else:
                 logger.info(bold(__('build %s.') % status))
 

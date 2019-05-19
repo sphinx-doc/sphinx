@@ -99,6 +99,8 @@ Features added
 * #6306: html: Add a label to search form for accessability purposes
 * #6358: The ``rawsource`` property of ``production`` nodes now contains the
   full production rule
+* #6373: autosectionlabel: Allow suppression of warnings
+* coverage: Support a new ``coverage_ignore_pyobjects`` option
 
 Bugs fixed
 ----------
@@ -115,6 +117,7 @@ Bugs fixed
 * #6311: autosummary: autosummary table gets confused by complex type hints
 * Generated Makefiles lack a final EOL (refs: #6232)
 * #6375: extlinks: Cannot escape angle brackets in link caption
+* #6378: linkcheck: Send commonly used User-Agent
 
 Testing
 --------
