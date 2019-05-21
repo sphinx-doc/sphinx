@@ -121,6 +121,7 @@ Bugs fixed
 * Generated Makefiles lack a final EOL (refs: #6232)
 * #6375: extlinks: Cannot escape angle brackets in link caption
 * #6378: linkcheck: Send commonly used User-Agent
+* #6387: html search: failed to search document with haiku and scrolls themes
 
 Testing
 --------
