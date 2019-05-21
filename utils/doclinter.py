@@ -60,12 +60,15 @@ def lint(path: str) -> int:
 
 def main(args: List[str]) -> int:
     errors = 0
-    for directory in args:
-        for root, dirs, files in os.walk(directory):
-            for filename in files:
-                if filename.endswith('.rst'):
-                    path = os.path.join(root, filename)
-                    errors += lint(path)
+    for path in args:
+        if os.path.isfile(path):
+            errors += lint(path)
+        elif os.path.isdir(path):
+            for root, dirs, files in os.walk(path):
+                for filename in files:
+                    if filename.endswith('.rst'):
+                        path = os.path.join(root, filename)
+                        errors += lint(path)
 
     if errors:
         return 1
