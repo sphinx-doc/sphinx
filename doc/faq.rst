@@ -80,7 +80,8 @@ GitHub Pages
    Sphinx HTML output properly.
 
 MediaWiki
-   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by Kevin Dunn.
+   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by
+   Kevin Dunn.
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:

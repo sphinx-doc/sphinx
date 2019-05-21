@@ -17,8 +17,9 @@ There are two additional directives when using this extension:
    ``True``.
 
    .. versionadded:: 1.3.2
-      This directive supports an ``class`` option that determines the class attribute
-      for HTML output.  If not given, the class defaults to ``admonition-todo``.
+      This directive supports an ``class`` option that determines the class
+      attribute for HTML output.  If not given, the class defaults to
+      ``admonition-todo``.
 
 
 .. rst:directive:: todolist
@@ -46,8 +47,8 @@ Configuration
 
 .. confval:: todo_link_only
 
-   If this is ``True``, :rst:dir:`todolist` produce output without file path and line,
-   The default is ``False``.
+   If this is ``True``, :rst:dir:`todolist` produce output without file path and
+   line, The default is ``False``.
 
    .. versionadded:: 1.4
 
@@ -57,5 +58,5 @@ autodoc provides the following an additional event:
 
    .. versionadded:: 1.5
 
-   Emitted when a todo is defined. *node* is the defined ``sphinx.ext.todo.todo_node``
-   node.
+   Emitted when a todo is defined. *node* is the defined
+   ``sphinx.ext.todo.todo_node`` node.

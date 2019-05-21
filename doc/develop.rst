@@ -46,7 +46,8 @@ This is the current list of contributed extensions in that repository:
 - coffeedomain: a domain for (auto)documenting CoffeeScript source code
 - context: a builder for ConTeXt
 - disqus: embed Disqus comments in documents
-- documentedlist: converts a Python list to a table in the generated documentation
+- documentedlist: converts a Python list to a table in the generated
+  documentation
 - doxylink: Link to external Doxygen-generated HTML documentation
 - domaintools_: A tool for easy domain creation
 - email: obfuscate email addresses
@@ -76,7 +77,8 @@ This is the current list of contributed extensions in that repository:
 - nicovideo: embed videos from nicovideo
 - nwdiag: embed network diagrams by using nwdiag_
 - omegat: support tools to collaborate with OmegaT_ (Sphinx 1.1 needed)
-- osaka: convert standard Japanese doc to Osaka dialect (this is a joke extension)
+- osaka: convert standard Japanese doc to Osaka dialect (this is a joke
+  extension)
 - paverutils: an alternate integration of Sphinx with Paver_
 - phpdomain: an extension for PHP support
 - plantuml: embed UML diagram by using PlantUML_
@@ -96,7 +98,8 @@ This is the current list of contributed extensions in that repository:
 - sword: an extension inserting Bible verses from Sword_
 - tikz: draw pictures with the `TikZ/PGF LaTeX package`_
 - traclinks: create TracLinks_ to a Trac_ instance from within Sphinx
-- versioning: Sphinx extension that allows building versioned docs for self-hosting
+- versioning: Sphinx extension that allows building versioned docs for
+  self-hosting
 - whooshindex: whoosh indexer extension
 - youtube: embed videos from YouTube_
 - zopeext: provide an ``autointerface`` directive for using `Zope interfaces`_
