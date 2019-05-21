@@ -17,10 +17,10 @@ docs have a look at `Epydoc <http://epydoc.sourceforge.net/>`_, which also
 understands reST.
 
 For a great "introduction" to writing docs in general -- the whys and hows, see
-also `Write the docs <https://write-the-docs.readthedocs.io/>`_, written by Eric
-Holscher.
+also `Write the docs`_, written by Eric Holscher.
 
 .. _rinohtype: https://github.com/brechtm/rinohtype
+.. _Write the docs: http://www.writethedocs.org/guide/writing/beginners-guide-to-docs/
 
 Conversion from other systems
 -----------------------------
