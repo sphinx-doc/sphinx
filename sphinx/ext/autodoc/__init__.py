@@ -67,6 +67,7 @@ def identity(x):
 
 ALL = object()
 INSTANCEATTR = object()
+SLOTSATTR = object()
 
 
 def members_option(arg):
@@ -1493,6 +1494,55 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         super().add_content(more_content, no_docstring=True)
 
 
+class SlotsAttributeDocumenter(AttributeDocumenter):
+    """
+    Specialized Documenter subclass for attributes that cannot be imported
+    because they are attributes in __slots__.
+    """
+    objtype = 'slotsattribute'
+    directivetype = 'attribute'
+    member_order = 60
+
+    # must be higher than AttributeDocumenter
+    priority = 11
+
+    @classmethod
+    def can_document_member(cls, member, membername, isattr, parent):
+        # type: (Any, str, bool, Any) -> bool
+        """This documents only SLOTSATTR members."""
+        return member is SLOTSATTR
+
+    def import_object(self):
+        # type: () -> bool
+        """Never import anything."""
+        # disguise as an attribute
+        self.objtype = 'attribute'
+        self._datadescriptor = True
+
+        with mock(self.env.config.autodoc_mock_imports):
+            try:
+                ret = import_object(self.modname, self.objpath[:-1], 'class',
+                                    attrgetter=self.get_attr,
+                                    warningiserror=self.env.config.autodoc_warningiserror)
+                self.module, _, _, self.parent = ret
+                return True
+            except ImportError as exc:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return False
+
+    def get_doc(self, encoding=None, ignore=1):
+        # type: (str, int) -> List[List[str]]
+        """Decode and return lines of the docstring(s) for the object."""
+        name = self.objpath[-1]
+        __slots__ = safe_getattr(self.parent, '__slots__', [])
+        if isinstance(__slots__, dict) and isinstance(__slots__.get(name), str):
+            docstring = prepare_docstring(__slots__[name])
+            return [docstring]
+        else:
+            return []
+
+
 def get_documenters(app):
     # type: (Sphinx) -> Dict[str, Type[Documenter]]
     """Returns registered Documenter classes"""
@@ -1554,6 +1604,7 @@ def setup(app):
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)
+    app.add_autodocumenter(SlotsAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True)
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
