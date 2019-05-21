@@ -15,6 +15,9 @@ from typing import List
 
 
 MAX_LINE_LENGTH = 100
+LONG_INTERPRETED_TEXT = re.compile(r'^\s*\W*(:(\w+:)+)?`.*`\W*$')
+CODE_BLOCK_DIRECTIVE = re.compile(r'^(\s*)\.\. code-block::')
+LEADING_SPACES = re.compile(r'^(\s*)')
 
 
 def lint(path: str) -> int:
@@ -22,13 +25,28 @@ def lint(path: str) -> int:
         document = f.readlines()
 
     errors = 0
+    in_code_block = False
+    code_block_depth = 0
     for i, line in enumerate(document):
         if line.endswith(' '):
             print('%s:%d: the line ends with whitespace.' %
                   (path, i + 1))
             errors += 1
 
-        if len(line) > MAX_LINE_LENGTH:
+        matched = CODE_BLOCK_DIRECTIVE.match(line)
+        if matched:
+            in_code_block = True
+            code_block_depth = len(matched.group(1))
+        elif in_code_block:
+            if line.strip() == '':
+                pass
+            else:
+                spaces = LEADING_SPACES.match(line).group(1)
+                if len(spaces) < code_block_depth:
+                    in_code_block = False
+        elif LONG_INTERPRETED_TEXT.match(line):
+            pass
+        elif len(line) > MAX_LINE_LENGTH:
             if re.match(r'^\s*\.\. ', line):
                 # ignore directives and hyperlink targets
                 pass
