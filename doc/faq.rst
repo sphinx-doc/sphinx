@@ -37,9 +37,6 @@ How do I...
    You'll still need to mark up classes and such, but the headings and code
    examples come through cleanly.
 
-... create HTML slides from Sphinx documents?
-   See the "Hieroglyph" package at https://github.com/nyergler/hieroglyph.
-
 For many more extensions and other contributed stuff, see the sphinx-contrib_
 repository.
 
