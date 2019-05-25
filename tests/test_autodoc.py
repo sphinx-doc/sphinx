@@ -1321,6 +1321,46 @@ def test_instance_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_slots(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.slots', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.slots',
+        '',
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.slots',
+        '',
+        '   ',
+        '   .. py:attribute:: Bar.attr1',
+        '      :module: target.slots',
+        '   ',
+        '      docstring of attr1',
+        '      ',
+        '   ',
+        '   .. py:attribute:: Bar.attr2',
+        '      :module: target.slots',
+        '   ',
+        '      docstring of instance attr2',
+        '      ',
+        '   ',
+        '   .. py:attribute:: Bar.attr3',
+        '      :module: target.slots',
+        '   ',
+        '',
+        '.. py:class:: Foo',
+        '   :module: target.slots',
+        '',
+        '   ',
+        '   .. py:attribute:: Foo.attr',
+        '      :module: target.slots',
+        '   ',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app):
     options = {"members": None,
                "undoc-members": True}
