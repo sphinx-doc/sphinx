@@ -12,6 +12,7 @@ Incompatible changes
 * #6230: The anchor of term in glossary directive is changed if it is consisted
   by non-ASCII characters
 * #4550: html: Centering tables by default using CSS
+* #6239: latex: xelatex and xeCJK are used for Chinese documents by default
 
 Deprecated
 ----------
@@ -105,6 +106,7 @@ Features added
   full production rule
 * #6373: autosectionlabel: Allow suppression of warnings
 * coverage: Support a new ``coverage_ignore_pyobjects`` option
+* #6239: latex: Support to build Chinese documents
 
 Bugs fixed
 ----------
