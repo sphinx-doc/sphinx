@@ -444,10 +444,20 @@ def mangle_signature(sig, max_chars=30):
     # Remove parenthesis
     s = re.sub(r"^\((.*)\)$", r"\1", s).strip()
 
-    # Strip strings (which can contain things that confuse the code below)
-    s = re.sub(r"\\\\", "", s)
-    s = re.sub(r"\\'", "", s)
-    s = re.sub(r"'[^']*'", "", s)
+    # Strip literals (which can contain things that confuse the code below)
+    s = re.sub(r"\\\\", "", s)      # escaped backslash (maybe inside string)
+    s = re.sub(r"\\'", "", s)       # escaped single quote
+    s = re.sub(r'\\"', "", s)       # escaped double quote
+    s = re.sub(r"'[^']*'", "", s)   # string literal (w/ single quote)
+    s = re.sub(r'"[^"]*"', "", s)   # string literal (w/ double quote)
+
+    # Strip complex objects (maybe default value of arguments)
+    while re.search(r'\([^)]*\)', s):   # contents of parenthesis (ex. NamedTuple(attr=...))
+        s = re.sub(r'\([^)]*\)', '', s)
+    while re.search(r'<[^>]*>', s):     # contents of angle brackets (ex. <object>)
+        s = re.sub(r'<[^>]*>', '', s)
+    while re.search(r'{[^}]*}', s):     # contents of curly brackets (ex. dict)
+        s = re.sub(r'{[^}]*}', '', s)
 
     # Parse the signature to arguments + options
     args = []  # type: List[str]
