@@ -1071,7 +1071,9 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.websupport``
      - 1.6
      - 2.0
-     - `sphinxcontrib-websupport <https://pypi.org/project/sphinxcontrib-websupport/>`_
+     - `sphinxcontrib-websupport`_
+
+       .. _sphinxcontrib-websupport: https://pypi.org/project/sphinxcontrib-websupport/
 
    * - ``StandaloneHTMLBuilder.css_files``
      - 1.6

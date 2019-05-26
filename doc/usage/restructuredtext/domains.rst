@@ -757,7 +757,8 @@ visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:enum-struct:: protected MyScopedVisibilityEnum : std::underlying_type<MySpecificEnum>::type
 
-         A scoped enum with non-default visibility, and with a specified underlying type.
+         A scoped enum with non-default visibility, and with a specified
+         underlying type.
 
 .. rst:directive:: .. cpp:enumerator:: name
                    .. cpp:enumerator:: name = constant
@@ -797,7 +798,8 @@ visibility statement (``public``, ``private`` or ``protected``).
          **Valid Expressions**
 
          - :cpp:expr:`*r`, when :cpp:expr:`r` is dereferenceable.
-         - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r` is incrementable.
+         - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when
+           :cpp:expr:`r` is incrementable.
 
    This will render as follows:
 
@@ -836,11 +838,12 @@ Anonymous Entities
 ~~~~~~~~~~~~~~~~~~
 
 C++ supports anonymous namespaces, classes, enums, and unions.
-For the sake of documentation they must be given some name that starts with ``@``,
-e.g., ``@42`` or ``@data``.
+For the sake of documentation they must be given some name that starts with
+``@``, e.g., ``@42`` or ``@data``.
 These names can also be used in cross-references and (type) expressions,
 though nested symbols will be found even when omitted.
-The ``@...`` name will always be rendered as **[anonymous]** (possibly as a link).
+The ``@...`` name will always be rendered as **[anonymous]** (possibly as a
+link).
 
 Example::
 
@@ -872,8 +875,8 @@ Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 Aliasing Declarations
 ~~~~~~~~~~~~~~~~~~~~~
 
-Sometimes it may be helpful list declarations elsewhere than their main documentation,
-e.g., when creating a synopsis of a class interface.
+Sometimes it may be helpful list declarations elsewhere than their main
+documentation, e.g., when creating a synopsis of a class interface.
 The following directive can be used for this purpose.
 
 .. rst:directive:: .. cpp:alias:: name or function signature
@@ -1116,7 +1119,8 @@ These roles link to the given declaration types:
    be properly qualified relative to the position of the link.
 
    .. versionadded:: 2.0
-      The :rst:role:`cpp:struct` role as alias for the :rst:role:`cpp:class` role.
+      The :rst:role:`cpp:struct` role as alias for the :rst:role:`cpp:class`
+      role.
 
 .. admonition:: Note on References with Templates Parameters/Arguments
 
@@ -1163,7 +1167,8 @@ References using the :rst:role:`cpp:func` role:
 - Specific overload: ``void C::f()``, :cpp:func:`void C::f()`
 - Specific overload: ``void C::f(int)``, :cpp:func:`void C::f(int)`
 - Specific overload: ``void C::f(double)``, :cpp:func:`void C::f(double)`
-- Specific overload: ``void C::f(double) const``, :cpp:func:`void C::f(double) const`
+- Specific overload: ``void C::f(double) const``,
+  :cpp:func:`void C::f(double) const`
 
 Note that the :confval:`add_function_parentheses` configuration variable
 does not influence specific overload references.
@@ -1192,8 +1197,8 @@ and template arguments for the prefix of qualified names. For example:
 - ``template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner``
   (:cpp:class:`template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner`)
 
-Currently the lookup only succeed if the template parameter identifiers are equal strings.
-That is, ``template\<typename UOuter> Wrapper::Outer`` will not work.
+Currently the lookup only succeed if the template parameter identifiers are equal
+strings.  That is, ``template\<typename UOuter> Wrapper::Outer`` will not work.
 
 As a shorthand notation, if a template parameter list is omitted,
 then the lookup will assume either a primary template or a non-template,
