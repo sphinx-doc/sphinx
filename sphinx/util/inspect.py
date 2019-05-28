@@ -170,6 +170,12 @@ def isdescriptor(x):
     return False
 
 
+def isabstractmethod(obj):
+    # type: (Any) -> bool
+    """Check if the object is an abstractmethod."""
+    return safe_getattr(obj, '__isabstractmethod__', False) is True
+
+
 def isattributedescriptor(obj):
     # type: (Any) -> bool
     """Check if the object is an attribute like descriptor."""
@@ -229,7 +235,7 @@ def isproperty(obj):
 
 
 def safe_getattr(obj, name, *defargs):
-    # type: (Any, str, str) -> object
+    # type: (Any, str, Any) -> Any
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)
@@ -317,9 +323,9 @@ def is_builtin_class_method(obj, attr_name):
     classes = [c for c in inspect.getmro(obj) if attr_name in c.__dict__]
     cls = classes[0] if classes else object
 
-    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):  # type: ignore
+    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):
         return False
-    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls  # type: ignore
+    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls
 
 
 class Signature:
@@ -391,8 +397,8 @@ class Signature:
         else:
             return None
 
-    def format_args(self):
-        # type: () -> str
+    def format_args(self, show_annotation=True):
+        # type: (bool) -> str
         args = []
         last_kind = None
         for i, param in enumerate(self.parameters.values()):
@@ -413,7 +419,7 @@ class Signature:
                               param.POSITIONAL_OR_KEYWORD,
                               param.KEYWORD_ONLY):
                 arg.write(param.name)
-                if param.annotation is not param.empty:
+                if show_annotation and param.annotation is not param.empty:
                     if isinstance(param.annotation, str) and param.name in self.annotations:
                         arg.write(': ')
                         arg.write(self.format_annotation(self.annotations[param.name]))

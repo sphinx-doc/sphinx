@@ -56,8 +56,8 @@ Logging API
         :meth:`SphinxLoggerAdapter.warning`.
 
       **color**
-        The color of logs.  By default, info and verbose level logs are not colored,
-        and debug level ones are colored as ``"darkgray"``.
+        The color of logs.  By default, info and verbose level logs are not
+        colored, and debug level ones are colored as ``"darkgray"``.
 
 .. autofunction:: pending_logging()
 

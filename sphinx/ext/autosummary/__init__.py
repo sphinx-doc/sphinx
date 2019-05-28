@@ -63,7 +63,7 @@ from typing import List, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import RSTStateMachine, state_classes
+from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
@@ -175,7 +175,10 @@ _app = None  # type: Sphinx
 class FakeDirective(DocumenterBridge):
     def __init__(self):
         # type: () -> None
-        super().__init__({}, None, Options(), 0, None)  # type: ignore
+        settings = Struct(tab_width=8)
+        document = Struct(settings=settings)
+        state = Struct(document=document)
+        super().__init__({}, None, Options(), 0, state)  # type: ignore
 
 
 def get_documenter(app, obj, parent):
@@ -329,7 +332,12 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the signature
 
-            sig = documenter.format_signature()
+            try:
+                sig = documenter.format_signature(show_annotation=False)
+            except TypeError:
+                # the documenter does not support ``show_annotation`` option
+                sig = documenter.format_signature()
+
             if not sig:
                 sig = ''
             else:
@@ -436,16 +444,26 @@ def mangle_signature(sig, max_chars=30):
     # Remove parenthesis
     s = re.sub(r"^\((.*)\)$", r"\1", s).strip()
 
-    # Strip strings (which can contain things that confuse the code below)
-    s = re.sub(r"\\\\", "", s)
-    s = re.sub(r"\\'", "", s)
-    s = re.sub(r"'[^']*'", "", s)
+    # Strip literals (which can contain things that confuse the code below)
+    s = re.sub(r"\\\\", "", s)      # escaped backslash (maybe inside string)
+    s = re.sub(r"\\'", "", s)       # escaped single quote
+    s = re.sub(r'\\"', "", s)       # escaped double quote
+    s = re.sub(r"'[^']*'", "", s)   # string literal (w/ single quote)
+    s = re.sub(r'"[^"]*"', "", s)   # string literal (w/ double quote)
+
+    # Strip complex objects (maybe default value of arguments)
+    while re.search(r'\([^)]*\)', s):   # contents of parenthesis (ex. NamedTuple(attr=...))
+        s = re.sub(r'\([^)]*\)', '', s)
+    while re.search(r'<[^>]*>', s):     # contents of angle brackets (ex. <object>)
+        s = re.sub(r'<[^>]*>', '', s)
+    while re.search(r'{[^}]*}', s):     # contents of curly brackets (ex. dict)
+        s = re.sub(r'{[^}]*}', '', s)
 
     # Parse the signature to arguments + options
     args = []  # type: List[str]
     opts = []  # type: List[str]
 
-    opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)=")
+    opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)\s*=\s*")
     while s:
         m = opt_re.search(s)
         if not m:

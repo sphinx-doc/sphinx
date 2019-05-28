@@ -244,7 +244,7 @@ date_format_mappings = {
     '%x':  'medium',  # Locale’s appropriate date representation.
     '%X':  'medium',  # Locale’s appropriate time representation.
     '%y':  'YY',      # Year without century as a zero-padded decimal number.
-    '%Y':  'YYYY',    # Year with century as a decimal number.
+    '%Y':  'yyyy',    # Year with century as a decimal number.
     '%Z':  'zzzz',    # Time zone name (no characters if no time zone exists).
     '%%':  '%',
 }

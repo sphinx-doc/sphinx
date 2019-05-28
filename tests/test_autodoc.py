@@ -1318,6 +1318,46 @@ def test_instance_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_slots(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.slots', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.slots',
+        '',
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.slots',
+        '',
+        '   ',
+        '   .. py:attribute:: Bar.attr1',
+        '      :module: target.slots',
+        '   ',
+        '      docstring of attr1',
+        '      ',
+        '   ',
+        '   .. py:attribute:: Bar.attr2',
+        '      :module: target.slots',
+        '   ',
+        '      docstring of instance attr2',
+        '      ',
+        '   ',
+        '   .. py:attribute:: Bar.attr3',
+        '      :module: target.slots',
+        '   ',
+        '',
+        '.. py:class:: Foo',
+        '   :module: target.slots',
+        '',
+        '   ',
+        '   .. py:attribute:: Foo.attr',
+        '      :module: target.slots',
+        '   ',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app):
     options = {"members": None,
                "undoc-members": True}
@@ -1480,6 +1520,55 @@ def test_mocked_module_imports(app, warning):
         '   '
     ]
     assert warning.getvalue() == ''
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_abstractmethods():
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.abstractmethods', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.abstractmethods',
+        '',
+        '',
+        '.. py:class:: Base',
+        '   :module: target.abstractmethods',
+        '',
+        '   ',
+        '   .. py:method:: Base.abstractmeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.classmeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :classmethod:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.coroutinemeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :async:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.meth()',
+        '      :module: target.abstractmethods',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.prop',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :property:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.staticmeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :staticmethod:',
+        '   '
+    ]
 
 
 @pytest.mark.usefixtures('setup_test')

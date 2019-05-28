@@ -128,17 +128,28 @@ declarations:
 
    This directive will also cause an entry in the global module index.
 
-   The ``platform`` option, if present, is a comma-separated list of the
-   platforms on which the module is available (if it is available on all
-   platforms, the option should be omitted).  The keys are short identifiers;
-   examples that are in use include "IRIX", "Mac", "Windows", and "Unix".  It is
-   important to use a key which has already been used when applicable.
+   .. rubric:: options
 
-   The ``synopsis`` option should consist of one sentence describing the
-   module's purpose -- it is currently only used in the Global Module Index.
+   .. rst:directive:option:: platform: platforms
+      :type: comma separated list
 
-   The ``deprecated`` option can be given (with no value) to mark a module as
-   deprecated; it will be designated as such in various locations then.
+      Indicate platforms which the module is available (if it is available on
+      all platforms, the option should be omitted).  The keys are short
+      identifiers; examples that are in use include "IRIX", "Mac", "Windows"
+      and "Unix".  It is important to use a key which has already been used when
+      applicable.
+
+   .. rst:directive:option:: synopsis: purpose
+      :type: text
+
+      Consist of one sentence describing the module's purpose -- it is currently
+      only used in the Global Module Index.
+
+   .. rst:directive:option:: deprecated
+      :type: no argument
+
+      Mark a module as deprecated; it will be designated as such in various
+      locations then.
 
 .. rst:directive:: .. py:currentmodule:: name
 
@@ -169,12 +180,14 @@ The following directives are provided for module and class contents:
    This information can (in any ``py`` directive) optionally be given in a
    structured form, see :ref:`info-field-lists`.
 
-   The ``async`` option can be given (with no value) to indicate the function is
-   an async method.
+   .. rubric:: options
 
-   .. versionchanged:: 2.1
+   .. rst:directive:option:: async
+      :type: no value
 
-      ``:async:`` option added.
+      Indicate the function is an async function.
+
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. py:data:: name
 
@@ -223,19 +236,43 @@ The following directives are provided for module and class contents:
    described for ``function``.  See also :ref:`signatures` and
    :ref:`info-field-lists`.
 
-   The ``async`` option can be given (with no value) to indicate the method is
-   an async method.
+   .. rubric:: options
 
-   The ``classmethod`` option and ``staticmethod`` option can be given (with
-   no value) to indicate the method is a class method (or a static method).
+   .. rst:directive:option:: abstractmethod
+      :type: no value
 
-   The ``property`` option can be given (with no value) to indicate the method
-   is a property.
+      Indicate the method is an abstract method.
 
-   .. versionchanged:: 2.1
+      .. versionadded:: 2.1
 
-      ``:async:``, ``:classmethod:``, ``:property:`` and ``:staticmethod:``
-      options added.
+   .. rst:directive:option:: async
+      :type: no value
+
+      Indicate the method is an async method.
+
+      .. versionadded:: 2.1
+
+   .. rst:directive:option:: classmethod
+      :type: no value
+
+      Indicate the method is a class method.
+
+      .. versionadded:: 2.1
+
+   .. rst:directive:option:: property
+      :type: no value
+
+      Indicate the method is a property.
+
+      .. versionadded:: 2.1
+
+   .. rst:directive:option:: staticmethod
+      :type: no value
+
+      Indicate the method is a static method.
+
+      .. versionadded:: 2.1
+
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
 
@@ -720,7 +757,8 @@ visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:enum-struct:: protected MyScopedVisibilityEnum : std::underlying_type<MySpecificEnum>::type
 
-         A scoped enum with non-default visibility, and with a specified underlying type.
+         A scoped enum with non-default visibility, and with a specified
+         underlying type.
 
 .. rst:directive:: .. cpp:enumerator:: name
                    .. cpp:enumerator:: name = constant
@@ -760,7 +798,8 @@ visibility statement (``public``, ``private`` or ``protected``).
          **Valid Expressions**
 
          - :cpp:expr:`*r`, when :cpp:expr:`r` is dereferenceable.
-         - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r` is incrementable.
+         - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when
+           :cpp:expr:`r` is incrementable.
 
    This will render as follows:
 
@@ -799,11 +838,12 @@ Anonymous Entities
 ~~~~~~~~~~~~~~~~~~
 
 C++ supports anonymous namespaces, classes, enums, and unions.
-For the sake of documentation they must be given some name that starts with ``@``,
-e.g., ``@42`` or ``@data``.
+For the sake of documentation they must be given some name that starts with
+``@``, e.g., ``@42`` or ``@data``.
 These names can also be used in cross-references and (type) expressions,
 though nested symbols will be found even when omitted.
-The ``@...`` name will always be rendered as **[anonymous]** (possibly as a link).
+The ``@...`` name will always be rendered as **[anonymous]** (possibly as a
+link).
 
 Example::
 
@@ -835,8 +875,8 @@ Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 Aliasing Declarations
 ~~~~~~~~~~~~~~~~~~~~~
 
-Sometimes it may be helpful list declarations elsewhere than their main documentation,
-e.g., when creating a synopsis of a class interface.
+Sometimes it may be helpful list declarations elsewhere than their main
+documentation, e.g., when creating a synopsis of a class interface.
 The following directive can be used for this purpose.
 
 .. rst:directive:: .. cpp:alias:: name or function signature
@@ -1079,7 +1119,8 @@ These roles link to the given declaration types:
    be properly qualified relative to the position of the link.
 
    .. versionadded:: 2.0
-      The :rst:role:`cpp:struct` role as alias for the :rst:role:`cpp:class` role.
+      The :rst:role:`cpp:struct` role as alias for the :rst:role:`cpp:class`
+      role.
 
 .. admonition:: Note on References with Templates Parameters/Arguments
 
@@ -1126,7 +1167,8 @@ References using the :rst:role:`cpp:func` role:
 - Specific overload: ``void C::f()``, :cpp:func:`void C::f()`
 - Specific overload: ``void C::f(int)``, :cpp:func:`void C::f(int)`
 - Specific overload: ``void C::f(double)``, :cpp:func:`void C::f(double)`
-- Specific overload: ``void C::f(double) const``, :cpp:func:`void C::f(double) const`
+- Specific overload: ``void C::f(double) const``,
+  :cpp:func:`void C::f(double) const`
 
 Note that the :confval:`add_function_parentheses` configuration variable
 does not influence specific overload references.
@@ -1155,8 +1197,8 @@ and template arguments for the prefix of qualified names. For example:
 - ``template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner``
   (:cpp:class:`template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner`)
 
-Currently the lookup only succeed if the template parameter identifiers are equal strings.
-That is, ``template\<typename UOuter> Wrapper::Outer`` will not work.
+Currently the lookup only succeed if the template parameter identifiers are equal
+strings.  That is, ``template\<typename UOuter> Wrapper::Outer`` will not work.
 
 As a shorthand notation, if a template parameter list is omitted,
 then the lookup will assume either a primary template or a non-template,
@@ -1447,8 +1489,8 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
    .. rubric:: options
 
-   .. rst:directive:option:: type
-      :type: description for the option of directive
+   .. rst:directive:option:: type: description of argument
+      :type: text
 
       Describe the type of option value.
 
@@ -1459,7 +1501,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
             .. rst:directive:option:: maxdepth
                :type: integer or no value
 
-   .. versionadded:: 2.1
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. rst:role:: name
 

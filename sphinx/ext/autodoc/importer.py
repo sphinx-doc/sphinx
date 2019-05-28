@@ -15,7 +15,7 @@ from collections import namedtuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
-from sphinx.util.inspect import isenumclass, safe_getattr
+from sphinx.util.inspect import isclass, isenumclass, safe_getattr
 
 if False:
     # For type annotation
@@ -126,6 +126,13 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
         for name, value in obj_dict.items():
             if name not in superclass.__dict__:
                 members[name] = Attribute(name, True, value)
+
+    # members in __slots__
+    if isclass(subject) and hasattr(subject, '__slots__'):
+        from sphinx.ext.autodoc import SLOTSATTR
+
+        for name in subject.__slots__:
+            members[name] = Attribute(name, True, SLOTSATTR)
 
     # other members
     for name in dir(subject):

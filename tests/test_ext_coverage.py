@@ -45,3 +45,22 @@ def test_build(app, status, warning):
     assert 'classes' in undoc_py['autodoc_target']
     assert 'Class' in undoc_py['autodoc_target']['classes']
     assert 'undocmeth' in undoc_py['autodoc_target']['classes']['Class']
+
+
+@pytest.mark.sphinx('coverage', testroot='ext-coverage')
+def test_coverage_ignore_pyobjects(app, status, warning):
+    app.builder.build_all()
+    actual = (app.outdir / 'python.txt').text()
+    expected = '''Undocumented Python objects
+===========================
+coverage_not_ignored
+--------------------
+Classes:
+ * Documented -- missing methods:
+
+   - not_ignored1
+   - not_ignored2
+ * NotIgnored
+
+'''
+    assert actual == expected

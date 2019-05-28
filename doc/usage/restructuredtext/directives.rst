@@ -686,8 +686,8 @@ Glossary
 
    (When the glossary is sorted, the first term determines the sort order.)
 
-   If you want to specify "grouping key" for general index entries, you can put a "key"
-   as "term : key". For example::
+   If you want to specify "grouping key" for general index entries, you can put
+   a "key" as "term : key". For example::
 
       .. glossary::
 
@@ -697,12 +697,12 @@ Glossary
 
    Note that "key" is used for grouping key as is.
    The "key" isn't normalized; key "A" and "a" become different groups.
-   The whole characters in "key" is used instead of a first character; it is used for
-   "Combining Character Sequence" and "Surrogate Pairs" grouping key.
+   The whole characters in "key" is used instead of a first character; it is
+   used for "Combining Character Sequence" and "Surrogate Pairs" grouping key.
 
-   In i18n situation, you can specify "localized term : key" even if original text only
-   have "term" part. In this case, translated "localized term" will be categorized in
-   "key" group.
+   In i18n situation, you can specify "localized term : key" even if original
+   text only have "term" part. In this case, translated "localized term" will be
+   categorized in "key" group.
 
    .. versionadded:: 0.6
       You can now give the glossary directive a ``:sorted:`` flag that will
@@ -958,16 +958,16 @@ this reason, the following directive exists:
    .. warning::
 
       Tables with more than 30 rows are rendered using ``longtable``, not
-      ``tabulary``, in order to allow pagebreaks. The ``L``, ``R``, ... specifiers
-      do not work for these tables.
+      ``tabulary``, in order to allow pagebreaks. The ``L``, ``R``, ...
+      specifiers do not work for these tables.
 
       Tables that contain list-like elements such as object descriptions,
       blockquotes or any kind of lists cannot be set out of the box with
-      ``tabulary``. They are therefore set with the standard LaTeX ``tabular`` (or
-      ``longtable``) environment if you don't give a ``tabularcolumns`` directive.
-      If you do, the table will be set with ``tabulary`` but you must use the
-      ``p{width}`` construct (or Sphinx's ``\X`` and ``\Y`` specifiers described
-      below) for the columns containing these elements.
+      ``tabulary``. They are therefore set with the standard LaTeX ``tabular``
+      (or ``longtable``) environment if you don't give a ``tabularcolumns``
+      directive.  If you do, the table will be set with ``tabulary`` but you
+      must use the ``p{width}`` construct (or Sphinx's ``\X`` and ``\Y``
+      specifiers described below) for the columns containing these elements.
 
       Literal blocks do not work with ``tabulary`` at all, so tables containing
       a literal block are always set with ``tabular``. The verbatim environment
@@ -996,10 +996,11 @@ this reason, the following directive exists:
    .. versionchanged:: 1.6
 
       Merged cells from complex grid tables (either multi-row, multi-column, or
-      both) now allow blockquotes, lists, literal blocks, ... as do regular cells.
+      both) now allow blockquotes, lists, literal blocks, ... as do regular
+      cells.
 
-      Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``, ``Y{f}``
-      and tabulary's columns.
+      Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``,
+      ``Y{f}`` and tabulary's columns.
 
    .. note::
 

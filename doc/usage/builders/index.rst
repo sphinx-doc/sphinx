@@ -61,7 +61,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionadded:: 1.0
 
-.. module:: sphinx.builders.htmlhelp
+.. module:: sphinxcontrib.htmlhelp
 .. class:: HTMLHelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but

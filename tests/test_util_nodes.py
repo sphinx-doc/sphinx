@@ -17,7 +17,7 @@ from docutils.parsers import rst
 from docutils.utils import new_document
 
 from sphinx.transforms import ApplySourceWorkaround
-from sphinx.util.nodes import NodeMatcher, extract_messages, clean_astext
+from sphinx.util.nodes import NodeMatcher, extract_messages, clean_astext, split_explicit_title
 
 
 def _transform(doctree):
@@ -178,3 +178,18 @@ def test_clean_astext():
     node = nodes.paragraph(text='hello world')
     node += nodes.raw('', 'raw text', format='html')
     assert 'hello world' == clean_astext(node)
+
+
+@pytest.mark.parametrize(
+    'title, expected',
+    [
+        # implicit
+        ('hello', (False, 'hello', 'hello')),
+        # explicit
+        ('hello <world>', (True, 'hello', 'world')),
+        # explicit (title having angle brackets)
+        ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
+    ]
+)
+def test_split_explicit_target(title, expected):
+    assert expected == split_explicit_title(title)
