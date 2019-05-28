@@ -129,6 +129,7 @@ Bugs fixed
 * #6378: linkcheck: Send commonly used User-Agent
 * #6387: html search: failed to search document with haiku and scrolls themes
 * #6406: Wrong year is returned for ``SOURCE_DATE_EPOCH``
+* #6402: image directive crashes by unknown image format
 
 Testing
 --------
