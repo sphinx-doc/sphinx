@@ -793,7 +793,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: save_traceback(app)' in actual
+    assert '.. py:function:: save_traceback(app: Sphinx) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1795,7 +1795,7 @@ def test_autodoc_default_options(app):
     actual = do_autodoc(app, 'class', 'target.CustomIter')
     assert '   .. py:method:: target.CustomIter' not in actual
     actual = do_autodoc(app, 'module', 'target')
-    assert '.. py:function:: save_traceback(app)' not in actual
+    assert '.. py:function:: save_traceback(app: Sphinx) -> str' not in actual
 
     # with :members:
     app.config.autodoc_default_options = {'members': None}
@@ -1866,7 +1866,8 @@ def test_autodoc_default_options(app):
         'ignore-module-all': None,
     }
     actual = do_autodoc(app, 'module', 'target')
-    assert '.. py:function:: save_traceback(app)' in actual
+    print('\n'.join(actual))
+    assert '.. py:function:: save_traceback(app: Sphinx) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
