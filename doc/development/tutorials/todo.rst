@@ -23,8 +23,8 @@ We want the extension to add the following to Sphinx:
   only shown in the output if a new config value is set. Todo entries should not
   be in the output by default.
 
-* A ``todolist`` directive that creates a list of all todo entries throughout the
-  documentation.
+* A ``todolist`` directive that creates a list of all todo entries throughout
+  the documentation.
 
 For that, we will need to add the following elements to Sphinx:
 

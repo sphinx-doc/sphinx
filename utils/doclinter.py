@@ -14,7 +14,7 @@ import sys
 from typing import List
 
 
-MAX_LINE_LENGTH = 90
+MAX_LINE_LENGTH = 85
 LONG_INTERPRETED_TEXT = re.compile(r'^\s*\W*(:(\w+:)+)?`.*`\W*$')
 CODE_BLOCK_DIRECTIVE = re.compile(r'^(\s*)\.\. code-block::')
 LEADING_SPACES = re.compile(r'^(\s*)')

@@ -144,9 +144,9 @@ in which a Sphinx project is built: this works in several phases.
 
    Now that the metadata and cross-reference data of all existing documents is
    known, all temporary nodes are replaced by nodes that can be converted into
-   output using components called transforms.  For example, links are created for
-   object references that exist, and simple literal nodes are created for those
-   that don't.
+   output using components called transforms.  For example, links are created
+   for object references that exist, and simple literal nodes are created for
+   those that don't.
 
 **Phase 4: Writing**
 
