@@ -1197,8 +1197,9 @@ and template arguments for the prefix of qualified names. For example:
 - ``template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner``
   (:cpp:class:`template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner`)
 
-Currently the lookup only succeed if the template parameter identifiers are equal
-strings.  That is, ``template\<typename UOuter> Wrapper::Outer`` will not work.
+Currently the lookup only succeed if the template parameter identifiers are
+equal strings.  That is, ``template\<typename UOuter> Wrapper::Outer`` will not
+work.
 
 As a shorthand notation, if a template parameter list is omitted,
 then the lookup will assume either a primary template or a non-template,
