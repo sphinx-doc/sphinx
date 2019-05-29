@@ -453,21 +453,29 @@ __ http://pygments.org/docs/lexers/
    As discussed previously, *language* can be any lexer alias supported by
    Pygments.
 
-   **Additional options**
+   .. rubric:: options
 
-   Pygments can generate line numbers for code blocks.  To enable this, use the
-   ``linenothreshold`` option. ::
+   .. rst:directive:option:: linenothreshold: threshold
+      :type: number (optional)
 
-      .. highlight:: python
-         :linenothreshold: 5
+      Enable to generate line numbers for code blocks.
 
-   This will produce line numbers for all code blocks longer than five lines.
+      This option takes an optional number as threshold parameter.  If any
+      threshold given, the directive will produce line numbers only for the code
+      blocks longer than N lines.  If not given, line numbers will be produced
+      for all of code blocks.
 
-   To ignore minor errors on highlighting, you can specifiy ``:force:`` option.
+      Example::
 
-   .. versionchanged:: 2.1
+         .. highlight:: python
+            :linenothreshold: 5
 
-      ``:force:`` option.
+   .. rst:directive:option:: force
+      :type: no value
+
+      If given, minor errors on highlighting are ignored.
+
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. code-block:: [language]
 
