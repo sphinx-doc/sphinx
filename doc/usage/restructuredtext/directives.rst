@@ -491,72 +491,98 @@ __ http://pygments.org/docs/lexers/
    :rst:dir:`highlight` directive will be used.  If not set,
    :confval:`highlight_language` will be used.
 
-   **Additional options**
-
-   Pygments can generate line numbers for code blocks. To enable this for, use
-   the ``linenos`` flag option. ::
-
-      .. code-block:: ruby
-         :linenos:
-
-         Some more Ruby code.
-
-   The first line number can be selected with the ``lineno-start`` option.  If
-   present, ``linenos`` flag is automatically activated::
-
-      .. code-block:: ruby
-         :lineno-start: 10
-
-         Some more Ruby code, with line numbering starting at 10.
-
-   Additionally, an ``emphasize-lines`` option can be given to have Pygments
-   emphasize particular lines::
-
-    .. code-block:: python
-       :emphasize-lines: 3,5
-
-       def some_function():
-           interesting = False
-           print 'This line is highlighted.'
-           print 'This one is not...'
-           print '...but this one is.'
-
-   A ``caption`` option can be given to show that name before the code block.
-   A ``name`` option can be provided implicit target name that can be
-   referenced by using :rst:role:`ref`.  For example::
-
-     .. code-block:: python
-        :caption: this.py
-        :name: this-py
-
-        print 'Explicit is better than implicit.'
-
-   A ``dedent`` option can be given to strip indentation characters from the
-   code block. For example::
-
-      .. code-block:: ruby
-         :dedent: 4
-
-             some ruby code
-
-   A ``force`` option can ignore minor errors on highlighting.
-
-   .. versionchanged:: 1.1
-      The ``emphasize-lines`` option has been added.
-
-   .. versionchanged:: 1.3
-      The ``lineno-start``, ``caption``, ``name`` and ``dedent`` options have
-      been added.
-
-   .. versionchanged:: 1.6.6
-      LaTeX supports the ``emphasize-lines`` option.
-
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.
 
-   .. versionchanged:: 2.1
+   .. rubric:: options
 
-      ``:force:`` option has been added.
+   .. rst:directive:option:: linenos
+      :type: no value
+
+      Enable to generate line numbers for the code block::
+
+         .. code-block:: ruby
+            :linenos:
+
+            Some more Ruby code.
+
+   .. rst:directive:option:: lineno-start: number
+      :type: number
+
+      Set the first line number of the code block.  If present, ``linenos``
+      option is also automatically activated::
+
+         .. code-block:: ruby
+            :lineno-start: 10
+
+            Some more Ruby code, with line numbering starting at 10.
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: emphasized-lines: line numbers
+      :type: comma separated numbers
+
+      Empahsize particular lines of the code block::
+
+       .. code-block:: python
+          :emphasize-lines: 3,5
+
+          def some_function():
+              interesting = False
+              print 'This line is highlighted.'
+              print 'This one is not...'
+              print '...but this one is.'
+
+      .. versionadded:: 1.1
+      .. versionchanged:: 1.6.6
+         LaTeX supports the ``emphasize-lines`` option.
+
+   .. rst:directive:option: force
+      :type: no value
+
+      Ignore minor errors on highlighting
+
+      .. versionchanged:: 2.1
+
+   .. rst:directive:option:: caption: caption of code block
+      :type: text
+
+      Set a caption to the code block.
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.  For example::
+
+        .. code-block:: python
+           :caption: this.py
+           :name: this-py
+
+           print 'Explicit is better than implicit.'
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: dedent: number
+      :type: number
+
+      Strip indentation characters from the code block. For example::
+
+         .. code-block:: ruby
+            :dedent: 4
+
+                some ruby code
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: force
+      :type: no value
+
+      If given, minor errors on highlighting are ignored.
+
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. literalinclude:: filename
 
