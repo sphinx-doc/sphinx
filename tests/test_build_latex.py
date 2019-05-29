@@ -165,6 +165,16 @@ def test_latex_basic(app, status, warning):
     assert r'\renewcommand{\releasename}{}' in result
 
 
+@pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language': 'zh'})
+def test_latex_additional_settings_for_language_code(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert r'\usepackage{xeCJK}' in result
+
+
 @pytest.mark.sphinx('latex', testroot='latex-title')
 def test_latex_title_after_admonitions(app, status, warning):
     app.builder.build_all()

@@ -180,12 +180,10 @@ class LaTeXBuilder(Builder):
         # Add special settings for latex_engine
         self.context.update(ADDITIONAL_SETTINGS.get(self.config.latex_engine, {}))
 
-        # for xelatex+French, don't use polyglossia by default
-        if self.config.latex_engine == 'xelatex':
-            if self.config.language:
-                if self.config.language[:2] == 'fr':
-                    self.context['polyglossia'] = ''
-                    self.context['babel'] = r'\usepackage{babel}'
+        # Add special settings for (latex_engine, language_code)
+        if self.config.language:
+            key = (self.config.latex_engine, self.config.language[:2])
+            self.context.update(ADDITIONAL_SETTINGS.get(key, {}))
 
         # Apply extension settings to context
         self.context['packages'] = self.usepackages
@@ -441,6 +439,8 @@ def default_latex_engine(config):
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
         return 'platex'
+    elif (config.language or '').startswith('zh'):
+        return 'xelatex'
     else:
         return 'pdflatex'
 
