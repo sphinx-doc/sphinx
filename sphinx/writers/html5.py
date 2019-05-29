@@ -117,7 +117,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def visit_desc_addname(self, node):
         # type: (nodes.Element) -> None
-        self.body.append(self.starttag(node, 'code', '', CLASS='descclassname'))
+        self.body.append(self.starttag(node, 'code', '', CLASS='sig-prename descclassname'))
 
     def depart_desc_addname(self, node):
         # type: (nodes.Element) -> None
@@ -141,7 +141,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def visit_desc_name(self, node):
         # type: (nodes.Element) -> None
-        self.body.append(self.starttag(node, 'code', '', CLASS='descname'))
+        self.body.append(self.starttag(node, 'code', '', CLASS='sig-name descname'))
 
     def depart_desc_name(self, node):
         # type: (nodes.Element) -> None
@@ -176,7 +176,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if self.optional_param_level == 0:
             self.required_params_left -= 1
         if not node.hasattr('noemph'):
-            self.body.append('<em>')
+            self.body.append('<em class="sig-param">')
 
     def depart_desc_parameter(self, node):
         # type: (nodes.Element) -> None

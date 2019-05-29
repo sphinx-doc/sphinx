@@ -102,6 +102,7 @@ Features added
 * rst domain: Add :rst:dir:`directive:option` directive to describe the option
   for directive
 * #6306: html: Add a label to search form for accessability purposes
+* #4390: html: Consistent and semantic CSS for signatures
 * #6358: The ``rawsource`` property of ``production`` nodes now contains the
   full production rule
 * #6373: autosectionlabel: Allow suppression of warnings
