@@ -41,6 +41,7 @@ class Highlight(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec = {
+        'force': directives.flag,
         'linenothreshold': directives.positive_int,
     }
 
@@ -48,9 +49,12 @@ class Highlight(SphinxDirective):
         # type: () -> List[nodes.Node]
         language = self.arguments[0].strip()
         linenothreshold = self.options.get('linenothreshold', sys.maxsize)
+        force = 'force' in self.options
 
         self.env.temp_data['highlight_language'] = language
-        return [addnodes.highlightlang(lang=language, linenothreshold=linenothreshold)]
+        return [addnodes.highlightlang(lang=language,
+                                       force=force,
+                                       linenothreshold=linenothreshold)]
 
 
 class HighlightLang(Highlight):
@@ -115,6 +119,7 @@ class CodeBlock(SphinxDirective):
     optional_arguments = 1
     final_argument_whitespace = False
     option_spec = {
+        'force': directives.flag,
         'linenos': directives.flag,
         'dedent': int,
         'lineno-start': int,
@@ -156,17 +161,16 @@ class CodeBlock(SphinxDirective):
         if 'linenos' in self.options or 'lineno-start' in self.options:
             literal['linenos'] = True
         literal['classes'] += self.options.get('class', [])
+        literal['force'] = 'force' in self.options
         if self.arguments:
             # highlight language specified
             literal['language'] = self.arguments[0]
-            literal['force_highlighting'] = True
         else:
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
             literal['language'] = self.env.temp_data.get('highlight_language',
                                                          self.config.highlight_language)
-            literal['force_highlighting'] = False
         extra_args = literal['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
@@ -409,6 +413,7 @@ class LiteralInclude(SphinxDirective):
         'lineno-match': directives.flag,
         'tab-width': int,
         'language': directives.unchanged_required,
+        'force': directives.flag,
         'encoding': directives.encoding,
         'pyobject': directives.unchanged_required,
         'lines': directives.unchanged_required,
@@ -445,6 +450,7 @@ class LiteralInclude(SphinxDirective):
             text, lines = reader.read(location=location)
 
             retnode = nodes.literal_block(text, text, source=filename)  # type: nodes.Element
+            retnode['force'] = 'force' in self.options
             self.set_source_info(retnode)
             if self.options.get('diff'):  # if diff is set, set udiff
                 retnode['language'] = 'udiff'

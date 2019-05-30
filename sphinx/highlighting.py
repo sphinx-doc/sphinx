@@ -40,13 +40,13 @@ logger = logging.getLogger(__name__)
 
 lexers = {}  # type: Dict[str, Lexer]
 lexer_classes = {
-    'none': TextLexer,
-    'python': PythonLexer,
-    'python3': Python3Lexer,
-    'pycon': PythonConsoleLexer,
-    'pycon3': partial(PythonConsoleLexer, python3=True),
-    'rest': RstLexer,
-    'c': CLexer,
+    'none': partial(TextLexer, stripnl=False),
+    'python': partial(PythonLexer, stripnl=False),
+    'python3': partial(Python3Lexer, stripnl=False),
+    'pycon': partial(PythonConsoleLexer, stripnl=False),
+    'pycon3': partial(PythonConsoleLexer, python3=True, stripnl=False),
+    'rest': partial(RstLexer, stripnl=False),
+    'c': partial(CLexer, stripnl=False),
 }  # type: Dict[str, Lexer]
 
 
@@ -117,8 +117,8 @@ class PygmentsBridge:
 
     def get_lexer(self, source, lang, opts=None, force=False, location=None):
         # type: (str, str, Dict, bool, Any) -> Lexer
-        lexer_options = {'strip': True}
-        lexer_options.update(opts)
+        if not opts:
+            opts = {}
 
         # find out which lexer to use
         if lang in ('py', 'python'):
@@ -141,17 +141,17 @@ class PygmentsBridge:
         if lang in lexers:
             lexer = lexers[lang]
         elif lang in lexer_classes:
-            lexer = lexer_classes[lang](**lexer_options)
+            lexer = lexer_classes[lang](**opts)
         else:
             try:
                 if lang == 'guess':
-                    lexer = guess_lexer(lang, **lexer_options)
+                    lexer = guess_lexer(lang, **opts)
                 else:
-                    lexer = get_lexer_by_name(lang, **lexer_options)
+                    lexer = get_lexer_by_name(lang, **opts)
             except ClassNotFound:
                 logger.warning(__('Pygments lexer name %r is not known'), lang,
                                location=location)
-                lexer = lexer_classes['none'](**lexer_options)
+                lexer = lexer_classes['none'](**opts)
 
         if not force:
             lexer.add_filter('raiseonerror')
@@ -184,7 +184,8 @@ class PygmentsBridge:
                                   'Highlighting skipped.'), lang,
                                type='misc', subtype='highlighting_failure',
                                location=location)
-            hlsource = highlight(source, lexers['none'], formatter)
+            lexer = self.get_lexer(source, 'none', opts, force, location)
+            hlsource = highlight(source, lexer, formatter)
 
         if self.dest == 'html':
             return hlsource
