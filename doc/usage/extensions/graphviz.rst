@@ -84,8 +84,8 @@ It adds these directives:
    ``dot`` command within the directive.
 
 .. versionadded:: 1.5
-   All three directives support a ``align`` option to align the graph horizontal.
-   The values "left", "center", "right" are allowed.
+   All three directives support a ``align`` option to align the graph
+   horizontal.  The values "left", "center", "right" are allowed.
 
 .. versionadded:: 1.6
    All three directives support a ``name`` option to set the label to graph.

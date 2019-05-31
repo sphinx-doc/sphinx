@@ -100,6 +100,9 @@ class ImageCollector(EnvironmentCollector):
                                         filename)
             try:
                 mimetype = guess_mimetype(filename)
+                if mimetype is None:
+                    basename, suffix = path.splitext(filename)
+                    mimetype = 'image/x-' + suffix[1:]
                 if mimetype not in candidates:
                     globbed.setdefault(mimetype, []).append(new_imgpath)
             except OSError as err:

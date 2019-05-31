@@ -401,6 +401,21 @@ def test_subpackage_in_toc(make_app, apidoc):
     assert (outdir / 'parent.child.foo.rst').isfile()
 
 
+def test_private(tempdir):
+    (tempdir / 'hello.py').write_text('')
+    (tempdir / '_world.py').write_text('')
+
+    # without --private option
+    apidoc_main(['-o', tempdir, tempdir])
+    assert (tempdir / 'hello.rst').exists()
+    assert not (tempdir / '_world.rst').exists()
+
+    # with --private option
+    apidoc_main(['--private', '-o', tempdir, tempdir])
+    assert (tempdir / 'hello.rst').exists()
+    assert (tempdir / '_world.rst').exists()
+
+
 def test_toc_file(tempdir):
     outdir = path(tempdir)
     (outdir / 'module').makedirs()

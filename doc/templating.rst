@@ -297,7 +297,8 @@ in the future.
 
    The "page name" of the current file, i.e. either the document name if the
    file is generated from a reST source, or the equivalent hierarchical name
-   relative to the output directory (``[directory/]filename_without_extension``).
+   relative to the output directory
+   (``[directory/]filename_without_extension``).
 
 .. data:: project
 

@@ -213,7 +213,17 @@ ADDITIONAL_SETTINGS = {
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
-}  # type: Dict[str, Dict[str, Any]]
+
+    # special settings for latex_engine + language_code
+    ('xelatex', 'fr'): {
+        # use babel instead of polyglossia by default
+        'polyglossia':  '',
+        'babel':        '\\usepackage{babel}',
+    },
+    ('xelatex', 'zh'): {
+        'fontenc':      '\\usepackage{xeCJK}',
+    },
+}  # type: Dict[Any, Dict[str, Any]]
 
 EXTRA_RE = re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')
 

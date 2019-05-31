@@ -135,7 +135,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
                    for pkgname in subpackages]
     # build a list of sub modules
     submodules = [path.splitext(sub)[0] for sub in py_files
-                  if not shall_skip(path.join(root, sub), opts, excludes) and
+                  if not is_skipped_module(path.join(root, sub), opts, excludes) and
                   sub != INITPY]
     submodules = [module_join(master_package, subroot, modname)
                   for modname in submodules]
@@ -207,6 +207,19 @@ def shall_skip(module, opts, excludes=[]):
     return False
 
 
+def is_skipped_module(filename, opts, excludes):
+    # type: (str, Any, List[str]) -> bool
+    """Check if we want to skip this module."""
+    if not path.exists(filename):
+        # skip if the file doesn't exist
+        return True
+    elif path.basename(filename).startswith('_') and not opts.includeprivate:
+        # skip if the module has a "private" name
+        return True
+    else:
+        return False
+
+
 def recurse_tree(rootpath, excludes, opts):
     # type: (str, List[str], Any) -> List[str]
     """
@@ -264,7 +277,7 @@ def recurse_tree(rootpath, excludes, opts):
             # if we are at the root level, we don't require it to be a package
             assert root == rootpath and root_package is None
             for py_file in py_files:
-                if not shall_skip(path.join(rootpath, py_file), opts):
+                if not is_skipped_module(path.join(rootpath, py_file), opts, excludes):
                     module = path.splitext(py_file)[0]
                     create_module_file(root_package, module, opts)
                     toplevels.append(module)

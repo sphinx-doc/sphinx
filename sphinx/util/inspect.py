@@ -509,6 +509,8 @@ class Signature:
                 args = ', '.join(self.format_annotation(a) for a in annotation.__args__[:-1])
                 returns = self.format_annotation(annotation.__args__[-1])
                 return '%s[[%s], %s]' % (qualname, args, returns)
+            elif annotation._special:
+                return qualname
             else:
                 args = ', '.join(self.format_annotation(a) for a in annotation.__args__)
                 return '%s[%s]' % (qualname, args)
@@ -540,8 +542,11 @@ class Signature:
                 not hasattr(annotation, '__tuple_params__')):
             # This is for Python 3.6+, 3.5 case is handled below
             params = annotation.__args__
-            param_str = ', '.join(self.format_annotation(p) for p in params)
-            return '%s[%s]' % (qualname, param_str)
+            if params:
+                param_str = ', '.join(self.format_annotation(p) for p in params)
+                return '%s[%s]' % (qualname, param_str)
+            else:
+                return qualname
         elif (hasattr(typing, 'GenericMeta') and  # for py36 or below
               isinstance(annotation, typing.GenericMeta)):
             # In Python 3.5.2+, all arguments are stored in __args__,

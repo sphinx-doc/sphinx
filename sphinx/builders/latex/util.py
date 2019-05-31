@@ -36,11 +36,13 @@ class ExtBabel(Babel):
             # polyglossia calls new orthography (Neue Rechtschreibung) as
             # german (with new spelling option).
             return 'german'
-        elif not language:
+        elif language:
+            return language
+        elif language_code.startswith('zh'):
+            return 'english'  # fallback to english (behaves like supported)
+        else:
             self.supported = False
             return 'english'  # fallback to english
-        else:
-            return language
 
     def get_mainlanguage_options(self):
         # type: () -> str

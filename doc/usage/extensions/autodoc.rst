@@ -429,6 +429,16 @@ There are also config values that you can set:
       This config value only requires to declare the top-level modules that
       should be mocked.
 
+.. confval:: autodoc_typehints
+
+   This value controls how to represents typehints.  The setting takes the
+   following values:
+
+   * ``'signature'`` -- Show typehints as its signature (default)
+   * ``'none'`` -- Do not show typehints
+
+   .. versionadded: 2.1
+
 .. confval:: autodoc_warningiserror
 
    This value controls the behavior of :option:`sphinx-build -W` during
