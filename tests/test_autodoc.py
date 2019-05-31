@@ -1690,6 +1690,58 @@ def test_partialmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typehints_signature(app):
+    app.config.autodoc_typehints = "signature"
+
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.typehints', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typehints',
+        '',
+        '',
+        '.. py:class:: Math(s: str, o: object = None)',
+        '   :module: target.typehints',
+        '',
+        '   ',
+        '   .. py:method:: Math.incr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '   ',
+        '',
+        '.. py:function:: incr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typehints_none(app):
+    app.config.autodoc_typehints = "none"
+
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.typehints', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typehints',
+        '',
+        '',
+        '.. py:class:: Math(s, o = None)',
+        '   :module: target.typehints',
+        '',
+        '   ',
+        '   .. py:method:: Math.incr(a, b = 1) -> int',
+        '      :module: target.typehints',
+        '   ',
+        '',
+        '.. py:function:: incr(a, b = 1) -> int',
+        '   :module: target.typehints',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 @pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
 def test_merge_autodoc_default_flags1(app):
     app.config.autodoc_default_flags = ['members', 'undoc-members']

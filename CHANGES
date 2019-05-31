@@ -86,6 +86,8 @@ Features added
 * #744: autodoc: Support abstractmethod
 * #6325: autodoc: Support attributes in __slots__.  For dict-style __slots__,
   autodoc considers values as a docstring of the attribute
+* #6361: autodoc: Add :confval:`autodoc_typehints` to suppress typehints from
+  signature
 * #6212 autosummary: Add :confval:`autosummary_imported_members` to display
   imported members on autosummary
 * #6271: ``make clean`` is catastrophically broken if building into '.'

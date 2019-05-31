@@ -17,6 +17,7 @@ from typing import Any
 from docutils.statemachine import StringList
 
 import sphinx
+from sphinx.config import ENUM
 from sphinx.deprecation import (
     RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
 )
@@ -1007,6 +1008,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
     def format_args(self, **kwargs):
         # type: (Any) -> str
+        if self.env.config.autodoc_typehints == 'none':
+            kwargs.setdefault('show_annotation', False)
+
         if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
             # cannot introspect arguments of a C function or method
             return None
@@ -1106,6 +1110,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def format_args(self, **kwargs):
         # type: (Any) -> str
+        if self.env.config.autodoc_typehints == 'none':
+            kwargs.setdefault('show_annotation', False)
+
         # for classes, the relevant signature is the __init__ method's
         initmeth = self.get_attr(self.object, '__init__', None)
         # classes without __init__ method, default __init__ or
@@ -1320,6 +1327,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
     def format_args(self, **kwargs):
         # type: (Any) -> str
+        if self.env.config.autodoc_typehints == 'none':
+            kwargs.setdefault('show_annotation', False)
+
         if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
             # can never get arguments of a C function or method
             return None
@@ -1612,6 +1622,7 @@ def setup(app):
     app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
+    app.add_config_value('autodoc_typehints', "signature", True, ENUM("signature", "none"))
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
     app.add_event('autodoc-process-docstring')
