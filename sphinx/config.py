@@ -13,6 +13,7 @@ import traceback
 import types
 import warnings
 from collections import OrderedDict
+from importlib.machinery import SourceFileLoader
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
@@ -22,7 +23,6 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd
-from sphinx.util.pycompat import execfile_
 from sphinx.util.typing import NoneType
 
 if False:
@@ -320,14 +320,16 @@ class Config:
 def eval_config_file(filename, tags):
     # type: (str, Tags) -> Dict[str, Any]
     """Evaluate a config file."""
-    namespace = {}  # type: Dict[str, Any]
-    namespace['__file__'] = filename
-    namespace['tags'] = tags
+    module_name = '__config__'
+    mod = types.ModuleType(module_name)
+    mod.__file__ = filename
+    setattr(mod, 'tags', tags)
+    loader = SourceFileLoader(module_name, filename)
 
     with cd(path.dirname(filename)):
         # during executing config file, current dir is changed to ``confdir``.
         try:
-            execfile_(filename, namespace)
+            loader.exec_module(mod)
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err)
@@ -339,7 +341,7 @@ def eval_config_file(filename, tags):
             msg = __("There is a programmable error in your configuration file:\n\n%s")
             raise ConfigError(msg % traceback.format_exc())
 
-    return namespace
+    return vars(mod)
 
 
 def convert_source_suffix(app, config):
