@@ -171,6 +171,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.ext.apidoc.makename()``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.apidoc.module_join()``
+
    * - ``sphinx.ext.autodoc.importer.MockFinder``
      - 2.1
      - 4.0
@@ -1066,7 +1071,9 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.websupport``
      - 1.6
      - 2.0
-     - `sphinxcontrib-websupport <https://pypi.org/project/sphinxcontrib-websupport/>`_
+     - `sphinxcontrib-websupport`_
+
+       .. _sphinxcontrib-websupport: https://pypi.org/project/sphinxcontrib-websupport/
 
    * - ``StandaloneHTMLBuilder.css_files``
      - 1.6

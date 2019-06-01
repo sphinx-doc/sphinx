@@ -14,9 +14,13 @@ import os
 from unittest.mock import Mock
 
 import pytest
+from docutils import nodes
 
-from sphinx.ext.autosummary import mangle_signature, import_by_name, extract_summary
-from sphinx.testing.util import etree_parse
+from sphinx import addnodes
+from sphinx.ext.autosummary import (
+    autosummary_table, autosummary_toc, mangle_signature, import_by_name, extract_summary
+)
+from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
 
 html_warnfile = StringIO()
@@ -44,11 +48,13 @@ def test_mangle_signature():
     (a, b[, c]) :: (a, b[, c])
     (a, b[, cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]) :: (a, b[, ...)
     (a, b='c=d, e=f, g=h', c=3) :: (a[, b, c])
+    (a, b="c=d, e=f, g=h", c=3) :: (a[, b, c])
     (a, b='c=d, \\'e=f,\\' g=h', c=3) :: (a[, b, c])
     (a, b='c=d, ', e='\\\\' g=h, c=3) :: (a[, b, e, c])
     (a, b={'c=d, ': 3, '\\\\': 3}) :: (a[, b])
     (a=1, b=2, c=3) :: ([a, b, c])
     (a=1, b=<SomeClass: a, b, c>, c=3) :: ([a, b, c])
+    (a=1, b=T(a=1, b=2), c=3) :: ([a, b, c])
     (a: int, b: int) -> str :: (a, b)
     """
 
@@ -180,6 +186,25 @@ def test_escaping(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary')
 def test_autosummary_generate(app, status, warning):
     app.builder.build_all()
+
+    doctree = app.env.get_doctree('index')
+    assert_node(doctree, (nodes.paragraph,
+                          nodes.paragraph,
+                          addnodes.tabular_col_spec,
+                          autosummary_table,
+                          autosummary_toc))
+    assert_node(doctree[3],
+                [autosummary_table, nodes.table, nodes.tgroup, (nodes.colspec,
+                                                                nodes.colspec,
+                                                                [nodes.tbody, (nodes.row,
+                                                                               nodes.row,
+                                                                               nodes.row,
+                                                                               nodes.row)])])
+    assert doctree[3][0][0][2][0].astext() == 'autosummary_dummy_module\n\n'
+    assert doctree[3][0][0][2][1].astext() == 'autosummary_dummy_module.Foo()\n\n'
+    assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
+    assert doctree[3][0][0][2][3].astext() == 'autosummary_importfail\n\n'
+
     module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
     assert ('   .. autosummary::\n'
             '   \n'

@@ -36,8 +36,8 @@ It adds this directive:
       with ``lib.``, you can give ``:parts: -1`` to remove that prefix from the
       displayed node names.
 
-   The directive also supports a ``private-bases`` flag option; if given, private base
-   classes (those whose name starts with ``_``) will be included.
+   The directive also supports a ``private-bases`` flag option; if given,
+   private base classes (those whose name starts with ``_``) will be included.
 
    You can use ``caption`` option to give a caption to the diagram.
 

@@ -56,6 +56,8 @@ template_dir = path.join(package_dir, 'templates', 'apidoc')
 def makename(package, module):
     # type: (str, str) -> str
     """Join package and module with a dot."""
+    warnings.warn('makename() is deprecated.',
+                  RemovedInSphinx40Warning)
     # Both package and module can be None/empty.
     if package:
         name = package
@@ -64,6 +66,12 @@ def makename(package, module):
     else:
         name = module
     return name
+
+
+def module_join(*modnames):
+    # type: (*str) -> str
+    """Join module names with dots."""
+    return '.'.join(filter(None, modnames))
 
 
 def write_file(name, text, opts):
@@ -97,7 +105,7 @@ def format_directive(module, package=None):
     """Create the automodule directive and add the options."""
     warnings.warn('format_directive() is deprecated.',
                   RemovedInSphinx40Warning)
-    directive = '.. automodule:: %s\n' % makename(package, module)
+    directive = '.. automodule:: %s\n' % module_join(package, module)
     for option in OPTIONS:
         directive += '    :%s:\n' % option
     return directive
@@ -106,7 +114,7 @@ def format_directive(module, package=None):
 def create_module_file(package, basename, opts):
     # type: (str, str, Any) -> None
     """Build the text of the file and write the file."""
-    qualname = makename(package, basename)
+    qualname = module_join(package, basename)
     context = {
         'show_headings': not opts.noheadings,
         'basename': basename,
@@ -123,17 +131,18 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
     # build a list of sub packages (directories containing an INITPY file)
     subpackages = [sub for sub in subs if not
                    shall_skip(path.join(root, sub, INITPY), opts, excludes)]
-    subpackages = [makename(makename(master_package, subroot), pkgname)
+    subpackages = [module_join(master_package, subroot, pkgname)
                    for pkgname in subpackages]
     # build a list of sub modules
     submodules = [path.splitext(sub)[0] for sub in py_files
-                  if not shall_skip(path.join(root, sub), opts, excludes) and
+                  if not is_skipped_module(path.join(root, sub), opts, excludes) and
                   sub != INITPY]
-    submodules = [makename(master_package, makename(subroot, modname))
+    submodules = [module_join(master_package, subroot, modname)
                   for modname in submodules]
 
+    pkgname = module_join(master_package, subroot)
     context = {
-        'pkgname': makename(master_package, subroot),
+        'pkgname': pkgname,
         'subpackages': subpackages,
         'submodules': submodules,
         'is_namespace': is_namespace,
@@ -143,7 +152,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
         'show_headings': not opts.noheadings,
     }
     text = ReSTRenderer(template_dir).render('package.rst', context)
-    write_file(makename(master_package, subroot), text, opts)
+    write_file(pkgname, text, opts)
 
     if submodules and opts.separatemodules:
         for submodule in submodules:
@@ -198,6 +207,19 @@ def shall_skip(module, opts, excludes=[]):
     return False
 
 
+def is_skipped_module(filename, opts, excludes):
+    # type: (str, Any, List[str]) -> bool
+    """Check if we want to skip this module."""
+    if not path.exists(filename):
+        # skip if the file doesn't exist
+        return True
+    elif path.basename(filename).startswith('_') and not opts.includeprivate:
+        # skip if the module has a "private" name
+        return True
+    else:
+        return False
+
+
 def recurse_tree(rootpath, excludes, opts):
     # type: (str, List[str], Any) -> List[str]
     """
@@ -250,12 +272,12 @@ def recurse_tree(rootpath, excludes, opts):
                 if not is_namespace or len(py_files) > 0:
                     create_package_file(root, root_package, subpackage,
                                         py_files, opts, subs, is_namespace, excludes)
-                    toplevels.append(makename(root_package, subpackage))
+                    toplevels.append(module_join(root_package, subpackage))
         else:
             # if we are at the root level, we don't require it to be a package
             assert root == rootpath and root_package is None
             for py_file in py_files:
-                if not shall_skip(path.join(rootpath, py_file), opts):
+                if not is_skipped_module(path.join(rootpath, py_file), opts, excludes):
                     module = path.splitext(py_file)[0]
                     create_module_file(root_package, module, opts)
                     toplevels.append(module)

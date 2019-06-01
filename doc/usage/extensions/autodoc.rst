@@ -40,10 +40,8 @@ you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
 :mod:`napoleon <sphinx.ext.napoleon>` is a preprocessor that converts your
 docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 
-.. _Google:
-   https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
-.. _NumPy:
-   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _Google: https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
+.. _NumPy: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
 
 Directives
@@ -430,6 +428,16 @@ There are also config values that you can set:
    .. versionchanged:: 1.6
       This config value only requires to declare the top-level modules that
       should be mocked.
+
+.. confval:: autodoc_typehints
+
+   This value controls how to represents typehints.  The setting takes the
+   following values:
+
+   * ``'signature'`` -- Show typehints as its signature (default)
+   * ``'none'`` -- Do not show typehints
+
+   .. versionadded: 2.1
 
 .. confval:: autodoc_warningiserror
 

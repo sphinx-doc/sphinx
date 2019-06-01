@@ -25,7 +25,7 @@ import pydoc
 import re
 import sys
 
-from jinja2 import FileSystemLoader, TemplateNotFound
+from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
 import sphinx.locale
@@ -35,9 +35,9 @@ from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
+from sphinx.util import rst
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
-from sphinx.util.rst import escape as rst_escape
 
 if False:
     # For type annotation
@@ -59,12 +59,14 @@ def setup_documenters(app):
     from sphinx.ext.autodoc import (
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
-        InstanceAttributeDocumenter
+        InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
+        SlotsAttributeDocumenter,
     )
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
-        InstanceAttributeDocumenter
+        InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
+        SlotsAttributeDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
@@ -85,6 +87,42 @@ def _underline(title, line='='):
     if '\n' in title:
         raise ValueError('Can only underline single lines')
     return title + '\n' + line * len(title)
+
+
+class AutosummaryRenderer:
+    """A helper class for rendering."""
+
+    def __init__(self, builder, template_dir):
+        # type: (Builder, str) -> None
+        loader = None  # type: BaseLoader
+        template_dirs = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
+        if builder is None:
+            if template_dir:
+                template_dirs.insert(0, template_dir)
+            loader = FileSystemLoader(template_dirs)
+        else:
+            # allow the user to override the templates
+            loader = BuiltinTemplateLoader()
+            loader.init(builder, dirs=template_dirs)
+
+        self.env = SandboxedEnvironment(loader=loader)
+        self.env.filters['escape'] = rst.escape
+        self.env.filters['e'] = rst.escape
+        self.env.filters['underline'] = _underline
+
+    def exists(self, template_name):
+        # type: (str) -> bool
+        """Check if template file exists."""
+        try:
+            self.env.get_template(template_name)
+            return True
+        except TemplateNotFound:
+            return False
+
+    def render(self, template_name, context):
+        # type: (str, Dict) -> str
+        """Render a template file."""
+        return self.env.get_template(template_name).render(context)
 
 
 # -- Generating output ---------------------------------------------------------
@@ -114,26 +152,7 @@ def generate_autosummary_docs(sources,                 # type: List[str]
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
 
-    # create our own templating environment
-    template_dirs = None  # type: List[str]
-    template_dirs = [os.path.join(package_dir, 'ext',
-                                  'autosummary', 'templates')]
-
-    template_loader = None  # type: Union[BuiltinTemplateLoader, FileSystemLoader]
-    if builder is not None:
-        # allow the user to override the templates
-        template_loader = BuiltinTemplateLoader()
-        template_loader.init(builder, dirs=template_dirs)
-    else:
-        if template_dir:
-            template_dirs.insert(0, template_dir)
-        template_loader = FileSystemLoader(template_dirs)
-    template_env = SandboxedEnvironment(loader=template_loader)
-    template_env.filters['underline'] = _underline
-
-    # replace the builtin html filters
-    template_env.filters['escape'] = rst_escape
-    template_env.filters['e'] = rst_escape
+    template = AutosummaryRenderer(builder, template_dir)
 
     # read
     items = find_autosummary_in_files(sources)
@@ -189,14 +208,10 @@ def generate_autosummary_docs(sources,                 # type: List[str]
         with open(fn, 'w') as f:
             doc = get_documenter(app, obj, parent)
 
-            if template_name is not None:
-                template = template_env.get_template(template_name)
-            else:
-                try:
-                    template = template_env.get_template('autosummary/%s.rst'
-                                                         % doc.objtype)
-                except TemplateNotFound:
-                    template = template_env.get_template('autosummary/base.rst')
+            if template_name is None:
+                template_name = 'autosummary/%s.rst' % doc.objtype
+                if not template.exists(template_name):
+                    template_name = 'autosummary/base.rst'
 
             def get_members(obj, types, include_public=[], imported=True):
                 # type: (Any, Set[str], List[str], bool) -> Tuple[List[str], List[str]]  # NOQA
@@ -273,7 +288,7 @@ def generate_autosummary_docs(sources,                 # type: List[str]
             ns['objtype'] = doc.objtype
             ns['underline'] = len(name) * '='
 
-            rendered = template.render(**ns)
+            rendered = template.render(template_name, ns)
             f.write(rendered)
 
     # descend recursively to new files

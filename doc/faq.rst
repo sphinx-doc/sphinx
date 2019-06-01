@@ -37,9 +37,6 @@ How do I...
    You'll still need to mark up classes and such, but the headings and code
    examples come through cleanly.
 
-... create HTML slides from Sphinx documents?
-   See the "Hieroglyph" package at https://github.com/nyergler/hieroglyph.
-
 For many more extensions and other contributed stuff, see the sphinx-contrib_
 repository.
 
@@ -51,12 +48,10 @@ Using Sphinx with...
 --------------------
 
 Read the Docs
-    `Read the Docs <https://readthedocs.org>`_ is a documentation hosting service based around
-    Sphinx. They will host sphinx documentation, along with supporting a number
-    of other features including version support, PDF generation, and more. The
-    `Getting Started
-    <https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html>`_
-    guide is a good place to start.
+    `Read the Docs <https://readthedocs.org>`_ is a documentation hosting
+    service based around Sphinx.  They will host sphinx documentation, along
+    with supporting a number of other features including version support, PDF
+    generation, and more. The `Getting Started`_ guide is a good place to start.
 
 Epydoc
    There's a third-party extension providing an `api role`_ which refers to
@@ -83,7 +78,8 @@ GitHub Pages
    Sphinx HTML output properly.
 
 MediaWiki
-   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by Kevin Dunn.
+   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by
+   Kevin Dunn.
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
@@ -149,6 +145,7 @@ Google Search
 
    3. Add ``searchbox.html`` to the :confval:`html_sidebars` configuration value.
 
+.. _Getting Started: https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html
 .. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
 

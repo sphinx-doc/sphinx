@@ -4,7 +4,8 @@ sphinx-apidoc
 Synopsis
 --------
 
-**sphinx-apidoc** [*OPTIONS*] -o <*OUTPUT_PATH*> <*MODULE_PATH*> [*EXCLUDE_PATTERN*, ...]
+**sphinx-apidoc** [*OPTIONS*] -o <*OUTPUT_PATH*> <*MODULE_PATH*>
+[*EXCLUDE_PATTERN*, ...]
 
 Description
 -----------

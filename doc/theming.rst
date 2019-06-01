@@ -49,8 +49,9 @@ Python :mod:`ConfigParser` module) and has the following structure:
 * The **inherit** setting gives the name of a "base theme", or ``none``.  The
   base theme will be used to locate missing templates (most themes will not have
   to supply most templates if they use ``basic`` as the base theme), its options
-  will be inherited, and all of its static files will be used as well. If you want
-  to also inherit the stylesheet, include it via CSS' ``@import`` in your own.
+  will be inherited, and all of its static files will be used as well. If you
+  want to also inherit the stylesheet, include it via CSS' ``@import`` in your
+  own.
 
 * The **stylesheet** setting gives the name of a CSS file which will be
   referenced in the HTML header.  If you need more than one CSS file, either

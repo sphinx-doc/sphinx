@@ -296,25 +296,26 @@ General configuration
 
    Sphinx supports following warning types:
 
-   * app.add_node
-   * app.add_directive
-   * app.add_role
-   * app.add_generic_role
-   * app.add_source_parser
-   * download.not_readable
-   * image.not_readable
-   * ref.term
-   * ref.ref
-   * ref.numref
-   * ref.keyword
-   * ref.option
-   * ref.citation
-   * ref.footnote
-   * ref.doc
-   * ref.python
-   * misc.highlighting_failure
-   * toc.secnum
-   * epub.unknown_project_files
+   * ``app.add_node``
+   * ``app.add_directive``
+   * ``app.add_role``
+   * ``app.add_generic_role``
+   * ``app.add_source_parser``
+   * ``download.not_readable``
+   * ``image.not_readable``
+   * ``ref.term``
+   * ``ref.ref``
+   * ``ref.numref``
+   * ``ref.keyword``
+   * ``ref.option``
+   * ``ref.citation``
+   * ``ref.footnote``
+   * ``ref.doc``
+   * ``ref.python``
+   * ``misc.highlighting_failure``
+   * ``toc.secnum``
+   * ``epub.unknown_project_files``
+   * ``autosectionlabel.*``
 
    You can choose from these types.
 
@@ -333,6 +334,10 @@ General configuration
    .. versionchanged:: 1.6
 
       Added ``ref.footnote``
+
+   .. versionchanged:: 2.1
+
+      Added ``autosectionlabel.*``
 
 .. confval:: needs_sphinx
 

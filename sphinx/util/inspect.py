@@ -170,6 +170,12 @@ def isdescriptor(x):
     return False
 
 
+def isabstractmethod(obj):
+    # type: (Any) -> bool
+    """Check if the object is an abstractmethod."""
+    return safe_getattr(obj, '__isabstractmethod__', False) is True
+
+
 def isattributedescriptor(obj):
     # type: (Any) -> bool
     """Check if the object is an attribute like descriptor."""
@@ -229,7 +235,7 @@ def isproperty(obj):
 
 
 def safe_getattr(obj, name, *defargs):
-    # type: (Any, str, str) -> object
+    # type: (Any, str, Any) -> Any
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)
@@ -317,9 +323,9 @@ def is_builtin_class_method(obj, attr_name):
     classes = [c for c in inspect.getmro(obj) if attr_name in c.__dict__]
     cls = classes[0] if classes else object
 
-    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):  # type: ignore
+    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):
         return False
-    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls  # type: ignore
+    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls
 
 
 class Signature:
@@ -391,8 +397,8 @@ class Signature:
         else:
             return None
 
-    def format_args(self):
-        # type: () -> str
+    def format_args(self, show_annotation=True):
+        # type: (bool) -> str
         args = []
         last_kind = None
         for i, param in enumerate(self.parameters.values()):
@@ -413,7 +419,7 @@ class Signature:
                               param.POSITIONAL_OR_KEYWORD,
                               param.KEYWORD_ONLY):
                 arg.write(param.name)
-                if param.annotation is not param.empty:
+                if show_annotation and param.annotation is not param.empty:
                     if isinstance(param.annotation, str) and param.name in self.annotations:
                         arg.write(': ')
                         arg.write(self.format_annotation(self.annotations[param.name]))
@@ -503,6 +509,8 @@ class Signature:
                 args = ', '.join(self.format_annotation(a) for a in annotation.__args__[:-1])
                 returns = self.format_annotation(annotation.__args__[-1])
                 return '%s[[%s], %s]' % (qualname, args, returns)
+            elif annotation._special:
+                return qualname
             else:
                 args = ', '.join(self.format_annotation(a) for a in annotation.__args__)
                 return '%s[%s]' % (qualname, args)
@@ -534,8 +542,11 @@ class Signature:
                 not hasattr(annotation, '__tuple_params__')):
             # This is for Python 3.6+, 3.5 case is handled below
             params = annotation.__args__
-            param_str = ', '.join(self.format_annotation(p) for p in params)
-            return '%s[%s]' % (qualname, param_str)
+            if params:
+                param_str = ', '.join(self.format_annotation(p) for p in params)
+                return '%s[%s]' % (qualname, param_str)
+            else:
+                return qualname
         elif (hasattr(typing, 'GenericMeta') and  # for py36 or below
               isinstance(annotation, typing.GenericMeta)):
             # In Python 3.5.2+, all arguments are stored in __args__,

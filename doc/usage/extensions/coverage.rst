@@ -22,6 +22,16 @@ should check:
 
 .. confval:: coverage_ignore_classes
 
+.. confval:: coverage_ignore_pyobjects
+
+   List of `Python regular expressions`_.
+
+   If any of these regular expressions matches any part of the full import path
+   of a Python object, that Python object is excluded from the documentation
+   coverage report.
+
+   .. versionadded:: 2.1
+
 .. confval:: coverage_c_path
 
 .. confval:: coverage_c_regexes
@@ -40,3 +50,5 @@ should check:
    ``False`` by default.
 
    .. versionadded:: 1.1
+
+.. _Python regular expressions: https://docs.python.org/library/re

@@ -139,6 +139,7 @@ class ReSTDirectiveOption(ReSTMarkup):
 
     def add_target_and_index(self, name, sig, signode):
         # type: (str, str, addnodes.desc_signature) -> None
+        directive_name = self.current_directive
         targetname = '-'.join([self.objtype, self.current_directive, name])
         if targetname not in self.state.document.ids:
             signode['names'].append(targetname)
@@ -146,12 +147,13 @@ class ReSTDirectiveOption(ReSTMarkup):
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
+            objname = ':'.join(filter(None, [directive_name, name]))
             domain = cast(ReSTDomain, self.env.get_domain('rst'))
-            domain.note_object(self.objtype, name, location=(self.env.docname, self.lineno))
+            domain.note_object(self.objtype, objname, location=(self.env.docname, self.lineno))
 
-        if self.current_directive:
+        if directive_name:
             key = name[0].upper()
-            pair = [_('%s (directive)') % self.current_directive,
+            pair = [_('%s (directive)') % directive_name,
                     _(':%s: (directive option)') % name]
             self.indexnode['entries'].append(('pair', '; '.join(pair), targetname, '', key))
         else:

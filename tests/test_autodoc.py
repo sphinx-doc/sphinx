@@ -1318,6 +1318,46 @@ def test_instance_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_slots(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.slots', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.slots',
+        '',
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.slots',
+        '',
+        '   ',
+        '   .. py:attribute:: Bar.attr1',
+        '      :module: target.slots',
+        '   ',
+        '      docstring of attr1',
+        '      ',
+        '   ',
+        '   .. py:attribute:: Bar.attr2',
+        '      :module: target.slots',
+        '   ',
+        '      docstring of instance attr2',
+        '      ',
+        '   ',
+        '   .. py:attribute:: Bar.attr3',
+        '      :module: target.slots',
+        '   ',
+        '',
+        '.. py:class:: Foo',
+        '   :module: target.slots',
+        '',
+        '   ',
+        '   .. py:attribute:: Foo.attr',
+        '      :module: target.slots',
+        '   ',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app):
     options = {"members": None,
                "undoc-members": True}
@@ -1483,6 +1523,55 @@ def test_mocked_module_imports(app, warning):
 
 
 @pytest.mark.usefixtures('setup_test')
+def test_abstractmethods():
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.abstractmethods', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.abstractmethods',
+        '',
+        '',
+        '.. py:class:: Base',
+        '   :module: target.abstractmethods',
+        '',
+        '   ',
+        '   .. py:method:: Base.abstractmeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.classmeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :classmethod:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.coroutinemeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :async:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.meth()',
+        '      :module: target.abstractmethods',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.prop',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :property:',
+        '   ',
+        '   ',
+        '   .. py:method:: Base.staticmeth()',
+        '      :module: target.abstractmethods',
+        '      :abstractmethod:',
+        '      :staticmethod:',
+        '   '
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
 def test_partialfunction():
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.partialfunction', options)
@@ -1595,6 +1684,58 @@ def test_partialmethod(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
     assert list(actual) == expected
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typehints_signature(app):
+    app.config.autodoc_typehints = "signature"
+
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.typehints', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typehints',
+        '',
+        '',
+        '.. py:class:: Math(s: str, o: object = None)',
+        '   :module: target.typehints',
+        '',
+        '   ',
+        '   .. py:method:: Math.incr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '   ',
+        '',
+        '.. py:function:: incr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typehints_none(app):
+    app.config.autodoc_typehints = "none"
+
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.typehints', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typehints',
+        '',
+        '',
+        '.. py:class:: Math(s, o = None)',
+        '   :module: target.typehints',
+        '',
+        '   ',
+        '   .. py:method:: Math.incr(a, b = 1) -> int',
+        '      :module: target.typehints',
+        '   ',
+        '',
+        '.. py:function:: incr(a, b = 1) -> int',
+        '   :module: target.typehints',
+        ''
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
