@@ -15,14 +15,9 @@ import textwrap
 import warnings
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
-from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import terminal_safe
 from sphinx.util.typing import NoneType
-
-if False:
-    # For type annotation
-    from typing import Any, Callable  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -60,30 +55,6 @@ class UnicodeMixin:
         warnings.warn('UnicodeMixin is deprecated',
                       RemovedInSphinx40Warning, stacklevel=2)
         return self.__unicode__()
-
-
-def execfile_(filepath, _globals, open=open):
-    # type: (str, Any, Callable) -> None
-    from sphinx.util.osutil import fs_encoding
-    with open(filepath, 'rb') as f:
-        source = f.read()
-
-    # compile to a code object, handle syntax errors
-    filepath_enc = filepath.encode(fs_encoding)
-    try:
-        code = compile(source, filepath_enc, 'exec')
-    except SyntaxError:
-        # maybe the file uses 2.x syntax; try to refactor to
-        # 3.x syntax using 2to3
-        source = convert_with_2to3(filepath)
-        code = compile(source, filepath_enc, 'exec')
-        # TODO: When support for evaluating Python 2 syntax is removed,
-        # deprecate convert_with_2to3().
-        logger.warning(__('Support for evaluating Python 2 syntax is deprecated '
-                          'and will be removed in Sphinx 4.0. '
-                          'Convert %s to Python 3 syntax.'),
-                       filepath)
-    exec(code, _globals)
 
 
 deprecated_alias('sphinx.util.pycompat',
