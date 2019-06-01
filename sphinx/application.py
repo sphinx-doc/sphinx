@@ -20,6 +20,7 @@ from io import StringIO
 from os import path
 
 from docutils.parsers.rst import Directive, roles
+from pygments.lexer import Lexer
 
 import sphinx
 from sphinx import package_dir, locale
@@ -30,7 +31,7 @@ from sphinx.deprecation import (
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
-from sphinx.highlighting import lexers
+from sphinx.highlighting import lexer_classes, lexers
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
@@ -51,7 +52,6 @@ if False:
     from docutils import nodes  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transforms import Transform  # NOQA
-    from pygments.lexer import Lexer  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
@@ -1035,16 +1035,24 @@ class Sphinx:
         self.registry.add_latex_package(packagename, options)
 
     def add_lexer(self, alias, lexer):
-        # type: (str, Lexer) -> None
+        # type: (str, Union[Lexer, Type[Lexer]]) -> None
         """Register a new lexer for source code.
 
-        Use *lexer*, which must be an instance of a Pygments lexer class, to
-        highlight code blocks with the given language *alias*.
+        Use *lexer* to highlight code blocks with the given language *alias*.
 
         .. versionadded:: 0.6
+        .. versionchanged:: 2.1
+           Take a lexer class as an argument.  An instance of lexers are
+           still supported until Sphinx-3.x.
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
-        lexers[alias] = lexer
+        if isinstance(lexer, Lexer):
+            warnings.warn('app.add_lexer() API changed; '
+                          'Please give lexer class instead instance',
+                          RemovedInSphinx40Warning)
+            lexers[alias] = lexer
+        else:
+            lexer_classes[alias] = lexer
 
     def add_autodocumenter(self, cls):
         # type: (Any) -> None
