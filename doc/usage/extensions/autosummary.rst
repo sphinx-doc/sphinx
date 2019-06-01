@@ -143,6 +143,13 @@ also use these config values:
    The new files will be placed in the directories specified in the
    ``:toctree:`` options of the directives.
 
+.. confval:: autosummary_generate_overwrite
+
+   If true, autosummary already overwrites stub files by generated contents.
+   Defaults to true (enabled).
+
+   .. versionadded:: 3.0
+
 .. confval:: autosummary_mock_imports
 
    This value contains a list of modules to be mocked up.  See
