@@ -9,6 +9,8 @@
 """
 
 import time
+import types
+from importlib.machinery import SourceFileLoader
 from io import StringIO
 
 import pytest
@@ -16,7 +18,6 @@ import pytest
 from sphinx import application
 from sphinx.cmd import quickstart as qs
 from sphinx.util.console import nocolor, coloron
-from sphinx.util.pycompat import execfile_
 
 
 warnfile = StringIO()
@@ -108,15 +109,17 @@ def test_quickstart_defaults(tempdir):
 
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
-    ns = {}
-    execfile_(conffile, ns)
-    assert ns['extensions'] == []
-    assert ns['templates_path'] == ['_templates']
-    assert ns['project'] == 'Sphinx Test'
-    assert ns['copyright'] == '%s, Georg Brandl' % time.strftime('%Y')
-    assert ns['version'] == '0.1'
-    assert ns['release'] == '0.1'
-    assert ns['html_static_path'] == ['_static']
+    module_name = '__config__'
+    mod = types.ModuleType(module_name)
+    loader = SourceFileLoader(module_name, conffile)
+    loader.exec_module(mod)
+    assert getattr(mod, 'extensions') == []
+    assert getattr(mod, 'templates_path') == ['_templates']
+    assert getattr(mod, 'project') == 'Sphinx Test'
+    assert getattr(mod, 'copyright') == '%s, Georg Brandl' % time.strftime('%Y')
+    assert getattr(mod, 'version') == '0.1'
+    assert getattr(mod, 'release') == '0.1'
+    assert getattr(mod, 'html_static_path') == ['_static']
 
     assert (tempdir / '_static').isdir()
     assert (tempdir / '_templates').isdir()
@@ -158,21 +161,24 @@ def test_quickstart_all_answers(tempdir):
 
     conffile = tempdir / 'source' / 'conf.py'
     assert conffile.isfile()
-    ns = {}
-    execfile_(conffile, ns)
-    assert ns['extensions'] == [
+
+    module_name = '__config__'
+    mod = types.ModuleType(module_name)
+    loader = SourceFileLoader(module_name, conffile)
+    loader.exec_module(mod)
+
+    assert getattr(mod, 'extensions') == [
         'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
     ]
-    assert ns['templates_path'] == ['.templates']
-    assert ns['source_suffix'] == '.txt'
-    assert ns['master_doc'] == 'contents'
-    assert ns['project'] == 'STASI™'
-    assert ns['copyright'] == '%s, Wolfgang Schäuble & G\'Beckstein' % \
+    assert getattr(mod, 'templates_path') == ['.templates']
+    assert getattr(mod, 'source_suffix') == '.txt'
+    assert getattr(mod, 'master_doc') == 'contents'
+    assert getattr(mod, 'project') == 'STASI™'
+    assert getattr(mod, 'copyright') == '%s, Wolfgang Schäuble & G\'Beckstein' % \
         time.strftime('%Y')
-    assert ns['version'] == '2.0'
-    assert ns['release'] == '2.0.1'
-    assert ns['todo_include_todos'] is True
-    assert ns['html_static_path'] == ['.static']
+    assert getattr(mod, 'release') == '2.0.1'
+    assert getattr(mod, 'todo_include_todos') is True
+    assert getattr(mod, 'html_static_path') == ['.static']
 
     assert (tempdir / 'build').isdir()
     assert (tempdir / 'source' / '.static').isdir()
@@ -239,8 +245,6 @@ def test_default_filename(tempdir):
 
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
-    ns = {}
-    execfile_(conffile, ns)
 
 
 def test_extensions(tempdir):
@@ -249,6 +253,10 @@ def test_extensions(tempdir):
 
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
-    ns = {}
-    execfile_(conffile, ns)
-    assert ns['extensions'] == ['foo', 'bar', 'baz']
+
+    module_name = '__config__'
+    mod = types.ModuleType(module_name)
+    loader = SourceFileLoader(module_name, conffile)
+    loader.exec_module(mod)
+
+    assert getattr(mod, 'extensions') == ['foo', 'bar', 'baz']
