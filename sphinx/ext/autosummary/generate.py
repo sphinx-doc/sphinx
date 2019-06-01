@@ -134,6 +134,73 @@ class AutosummaryRenderer:
 
 # -- Generating output ---------------------------------------------------------
 
+
+def generate_autosummary_content(name, obj, parent, template, template_name,
+                                 imported_members, app):
+    # type: (str, Any, Any, AutosummaryRenderer, str, bool, Any) -> str
+    doc = get_documenter(app, obj, parent)
+
+    if template_name is None:
+        template_name = 'autosummary/%s.rst' % doc.objtype
+        if not template.exists(template_name):
+            template_name = 'autosummary/base.rst'
+
+    def get_members(obj, types, include_public=[], imported=True):
+        # type: (Any, Set[str], List[str], bool) -> Tuple[List[str], List[str]]  # NOQA
+        items = []  # type: List[str]
+        for name in dir(obj):
+            try:
+                value = safe_getattr(obj, name)
+            except AttributeError:
+                continue
+            documenter = get_documenter(app, value, obj)
+            if documenter.objtype in types:
+                if imported or getattr(value, '__module__', None) == obj.__name__:
+                    # skip imported members if expected
+                    items.append(name)
+        public = [x for x in items
+                  if x in include_public or not x.startswith('_')]
+        return public, items
+
+    ns = {}  # type: Dict[str, Any]
+
+    if doc.objtype == 'module':
+        ns['members'] = dir(obj)
+        ns['functions'], ns['all_functions'] = \
+            get_members(obj, {'function'}, imported=imported_members)
+        ns['classes'], ns['all_classes'] = \
+            get_members(obj, {'class'}, imported=imported_members)
+        ns['exceptions'], ns['all_exceptions'] = \
+            get_members(obj, {'exception'}, imported=imported_members)
+    elif doc.objtype == 'class':
+        ns['members'] = dir(obj)
+        ns['inherited_members'] = \
+            set(dir(obj)) - set(obj.__dict__.keys())
+        ns['methods'], ns['all_methods'] = \
+            get_members(obj, {'method'}, ['__init__'])
+        ns['attributes'], ns['all_attributes'] = \
+            get_members(obj, {'attribute', 'property'})
+
+    parts = name.split('.')
+    if doc.objtype in ('method', 'attribute', 'property'):
+        mod_name = '.'.join(parts[:-2])
+        cls_name = parts[-2]
+        obj_name = '.'.join(parts[-2:])
+        ns['class'] = cls_name
+    else:
+        mod_name, obj_name = '.'.join(parts[:-1]), parts[-1]
+
+    ns['fullname'] = name
+    ns['module'] = mod_name
+    ns['objname'] = obj_name
+    ns['name'] = parts[-1]
+
+    ns['objtype'] = doc.objtype
+    ns['underline'] = len(name) * '='
+
+    return template.render(template_name, ns)
+
+
 def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                               warn=None, info=None, base_path=None, builder=None,
                               template_dir=None, imported_members=False, app=None):
@@ -195,67 +262,9 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         new_files.append(fn)
 
         with open(fn, 'w') as f:
-            doc = get_documenter(app, obj, parent)
-
-            if template_name is None:
-                template_name = 'autosummary/%s.rst' % doc.objtype
-                if not template.exists(template_name):
-                    template_name = 'autosummary/base.rst'
-
-            def get_members(obj, types, include_public=[], imported=True):
-                # type: (Any, Set[str], List[str], bool) -> Tuple[List[str], List[str]]  # NOQA
-                items = []  # type: List[str]
-                for name in dir(obj):
-                    try:
-                        value = safe_getattr(obj, name)
-                    except AttributeError:
-                        continue
-                    documenter = get_documenter(app, value, obj)
-                    if documenter.objtype in types:
-                        if imported or getattr(value, '__module__', None) == obj.__name__:
-                            # skip imported members if expected
-                            items.append(name)
-                public = [x for x in items
-                          if x in include_public or not x.startswith('_')]
-                return public, items
-
-            ns = {}  # type: Dict[str, Any]
-
-            if doc.objtype == 'module':
-                ns['members'] = dir(obj)
-                ns['functions'], ns['all_functions'] = \
-                    get_members(obj, {'function'}, imported=imported_members)
-                ns['classes'], ns['all_classes'] = \
-                    get_members(obj, {'class'}, imported=imported_members)
-                ns['exceptions'], ns['all_exceptions'] = \
-                    get_members(obj, {'exception'}, imported=imported_members)
-            elif doc.objtype == 'class':
-                ns['members'] = dir(obj)
-                ns['inherited_members'] = \
-                    set(dir(obj)) - set(obj.__dict__.keys())
-                ns['methods'], ns['all_methods'] = \
-                    get_members(obj, {'method'}, ['__init__'])
-                ns['attributes'], ns['all_attributes'] = \
-                    get_members(obj, {'attribute', 'property'})
-
-            parts = name.split('.')
-            if doc.objtype in ('method', 'attribute', 'property'):
-                mod_name = '.'.join(parts[:-2])
-                cls_name = parts[-2]
-                obj_name = '.'.join(parts[-2:])
-                ns['class'] = cls_name
-            else:
-                mod_name, obj_name = '.'.join(parts[:-1]), parts[-1]
-
-            ns['fullname'] = name
-            ns['module'] = mod_name
-            ns['objname'] = obj_name
-            ns['name'] = parts[-1]
-
-            ns['objtype'] = doc.objtype
-            ns['underline'] = len(name) * '='
-
-            rendered = template.render(template_name, ns)
+            rendered = generate_autosummary_content(name, obj, parent,
+                                                    template, template_name,
+                                                    imported_members, app)
             f.write(rendered)
 
     # descend recursively to new files
