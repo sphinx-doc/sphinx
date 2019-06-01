@@ -10,6 +10,7 @@
 
 import html
 import warnings
+from functools import partial
 
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -37,17 +38,16 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-lexers = {
-    'none': TextLexer(stripnl=False),
-    'python': PythonLexer(stripnl=False),
-    'python3': Python3Lexer(stripnl=False),
-    'pycon': PythonConsoleLexer(stripnl=False),
-    'pycon3': PythonConsoleLexer(python3=True, stripnl=False),
-    'rest': RstLexer(stripnl=False),
-    'c': CLexer(stripnl=False),
+lexers = {}  # type: Dict[str, Lexer]
+lexer_classes = {
+    'none': partial(TextLexer, stripnl=False),
+    'python': partial(PythonLexer, stripnl=False),
+    'python3': partial(Python3Lexer, stripnl=False),
+    'pycon': partial(PythonConsoleLexer, stripnl=False),
+    'pycon3': partial(PythonConsoleLexer, python3=True, stripnl=False),
+    'rest': partial(RstLexer, stripnl=False),
+    'c': partial(CLexer, stripnl=False),
 }  # type: Dict[str, Lexer]
-for _lexer in lexers.values():
-    _lexer.add_filter('raiseonerror')
 
 
 escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
@@ -115,46 +115,55 @@ class PygmentsBridge:
             return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
-    def get_lexer(self, source, lang, opts=None, location=None):
-        # type: (str, str, Any, Any) -> Lexer
+    def get_lexer(self, source, lang, opts=None, force=False, location=None):
+        # type: (str, str, Dict, bool, Any) -> Lexer
+        if not opts:
+            opts = {}
+
         # find out which lexer to use
         if lang in ('py', 'python'):
             if source.startswith('>>>'):
                 # interactive session
-                lexer = lexers['pycon']
+                lang = 'pycon'
             else:
-                lexer = lexers['python']
+                lang = 'python'
         elif lang in ('py3', 'python3', 'default'):
             if source.startswith('>>>'):
-                lexer = lexers['pycon3']
+                lang = 'pycon3'
             else:
-                lexer = lexers['python3']
+                lang = 'python3'
         elif lang == 'guess':
             try:
                 lexer = guess_lexer(source)
             except Exception:
                 lexer = lexers['none']
+
+        if lang in lexers:
+            lexer = lexers[lang]
+        elif lang in lexer_classes:
+            lexer = lexer_classes[lang](**opts)
         else:
-            if lang in lexers:
-                lexer = lexers[lang]
-            else:
-                try:
-                    lexer = lexers[lang] = get_lexer_by_name(lang, **(opts or {}))
-                except ClassNotFound:
-                    logger.warning(__('Pygments lexer name %r is not known'), lang,
-                                   location=location)
-                    lexer = lexers['none']
+            try:
+                if lang == 'guess':
+                    lexer = guess_lexer(lang, **opts)
                 else:
-                    lexer.add_filter('raiseonerror')
+                    lexer = get_lexer_by_name(lang, **opts)
+            except ClassNotFound:
+                logger.warning(__('Pygments lexer name %r is not known'), lang,
+                               location=location)
+                lexer = lexer_classes['none'](**opts)
+
+        if not force:
+            lexer.add_filter('raiseonerror')
 
         return lexer
 
-    def highlight_block(self, source, lang, opts=None, location=None, force=False, **kwargs):
-        # type: (str, str, Any, Any, bool, Any) -> str
+    def highlight_block(self, source, lang, opts=None, force=False, location=None, **kwargs):
+        # type: (str, str, Dict, bool, Any, Any) -> str
         if not isinstance(source, str):
             source = source.decode()
 
-        lexer = self.get_lexer(source, lang, opts, location)
+        lexer = self.get_lexer(source, lang, opts, force, location)
 
         # trim doctest options if wanted
         if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:
@@ -175,7 +184,8 @@ class PygmentsBridge:
                                   'Highlighting skipped.'), lang,
                                type='misc', subtype='highlighting_failure',
                                location=location)
-            hlsource = highlight(source, lexers['none'], formatter)
+            lexer = self.get_lexer(source, 'none', opts, force, location)
+            hlsource = highlight(source, lexer, formatter)
 
         if self.dest == 'html':
             return hlsource
