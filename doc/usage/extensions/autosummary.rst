@@ -154,7 +154,7 @@ also use these config values:
    modules and sub-packages of packages.
    
     - ``autosummary_depth_limit = -1``: no limit
-    - ``autosummary_depth_limit = 0``: disable adding modules and sub-packages (default)
+    - ``autosummary_depth_limit = 0``: disable adding sub-packages (default)
     - ``autosummary_depth_limit > 0``: limited depth starting from root
 
    .. versionadded:: 2.1
@@ -276,8 +276,8 @@ The following variables available in the templates:
 
 .. data:: packages
 
-   List containing names of "public" sub-packages in the package.  Only available for
-   modules that are packages.
+   List containing names of "public" sub-packages in the package.  Only available
+   for modules that are packages.
 
    .. versionadded:: 2.1
 
