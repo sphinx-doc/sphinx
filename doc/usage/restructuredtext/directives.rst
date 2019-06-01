@@ -36,8 +36,8 @@ tables of contents.  The ``toctree`` directive is the central element.
 
 .. note::
 
-   For local tables of contents, use the standard reST :dudir:`contents
-   directive <table-of-contents>`.
+   To create table of contents for current document (.rst file), use the
+   standard reST :dudir:`contents directive <table-of-contents>`.
 
 .. rst:directive:: toctree
 
