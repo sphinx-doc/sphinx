@@ -483,6 +483,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_term = 0
         self.needs_linetrimming = 0
         self.in_minipage = 0
+        self.no_latex_floats = 0
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
@@ -1625,6 +1626,9 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_figure(self, node):
         # type: (nodes.Element) -> None
+        align = self.elements['figure_align']
+        if self.no_latex_floats:
+            align = "H"
         if self.table:
             # TODO: support align option
             if 'width' in node:
@@ -1650,8 +1654,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append('\n\\begin{center}')
             self.context.append('\\end{center}\n')
         else:
-            self.body.append('\n\\begin{figure}[%s]\n\\centering\n' %
-                             self.elements['figure_align'])
+            self.body.append('\n\\begin{figure}[%s]\n\\centering\n' % align)
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
             self.context.append('\\end{figure}\n')
@@ -1691,20 +1694,24 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_admonition(self, node):
         # type: (nodes.Element) -> None
         self.body.append('\n\\begin{sphinxadmonition}{note}')
+        self.no_latex_floats += 1
 
     def depart_admonition(self, node):
         # type: (nodes.Element) -> None
         self.body.append('\\end{sphinxadmonition}\n')
+        self.no_latex_floats -= 1
 
     def _visit_named_admonition(self, node):
         # type: (nodes.Element) -> None
         label = admonitionlabels[node.tagname]
         self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
                          (node.tagname, label))
+        self.no_latex_floats += 1
 
     def _depart_named_admonition(self, node):
         # type: (nodes.Element) -> None
         self.body.append('\\end{sphinxadmonition}\n')
+        self.no_latex_floats -= 1
 
     visit_attention = _visit_named_admonition
     depart_attention = _depart_named_admonition

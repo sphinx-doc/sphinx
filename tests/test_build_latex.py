@@ -1399,6 +1399,12 @@ def test_latex_labels(app, status, warning):
     assert result.count(r'\label{\detokenize{index:section1}}') == 1
 
 
+@pytest.mark.sphinx('latex', testroot='latex-figure-in-admonition')
+def test_latex_figure_in_admonition(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').text(encoding='utf8')
+    assert(r'\begin{figure}[H]' in result)
+
 def test_default_latex_documents():
     from sphinx.util import texescape
     texescape.init()

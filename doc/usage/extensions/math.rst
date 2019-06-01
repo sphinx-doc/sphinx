@@ -103,7 +103,8 @@ built:
    ``vertical-align`` style that correctly aligns the baselines.
 
    Unfortunately, this only works when the `preview-latex package`_ is
-   installed. Therefore, the default for this option is ``False``.
+   installed (on Ubuntu xenial, it is available as `preview-latex-style`_).
+   Therefore, the default for this option is ``False``.
 
    Currently this option is only used when ``imgmath_image_format`` is
    ``'png'``.
@@ -217,7 +218,8 @@ package jsMath_.  It provides this config value:
 
 
 .. _dvipng: https://savannah.nongnu.org/projects/dvipng/
-.. _dvisvgm: http://dvisvgm.bplaced.net/
+.. _dvisvgm: https://dvisvgm.de/
 .. _MathJax: https://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
 .. _preview-latex package: https://www.gnu.org/software/auctex/preview-latex.html
+.. _preview-latex-style: https://packages.ubuntu.com/xenial/preview-latex-style
