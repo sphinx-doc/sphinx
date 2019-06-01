@@ -30,6 +30,7 @@ from sphinx.deprecation import (
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
+from sphinx.highlighting import lexers
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
@@ -50,6 +51,7 @@ if False:
     from docutils import nodes  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transforms import Transform  # NOQA
+    from pygments.lexer import Lexer  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
@@ -1033,7 +1035,7 @@ class Sphinx:
         self.registry.add_latex_package(packagename, options)
 
     def add_lexer(self, alias, lexer):
-        # type: (str, Any) -> None
+        # type: (str, Lexer) -> None
         """Register a new lexer for source code.
 
         Use *lexer*, which must be an instance of a Pygments lexer class, to
@@ -1042,9 +1044,6 @@ class Sphinx:
         .. versionadded:: 0.6
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
-        from sphinx.highlighting import lexers
-        if lexers is None:
-            return
         lexers[alias] = lexer
 
     def add_autodocumenter(self, cls):
