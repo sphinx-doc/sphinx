@@ -36,6 +36,8 @@ Incompatible changes
   by non-ASCII characters
 * #4550: html: Centering tables by default using CSS
 * #6239: latex: xelatex and xeCJK are used for Chinese documents by default
+* ``Sphinx.add_lexer()`` now takes a Lexer class instead of instance.  An
+  instance of lexers are still supported until Sphinx-3.x.
 
 Deprecated
 ----------

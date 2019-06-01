@@ -25,6 +25,7 @@ if False:
 
 
 HighlightSetting = NamedTuple('HighlightSetting', [('language', str),
+                                                   ('force', bool),
                                                    ('lineno_threshold', int)])
 
 
@@ -51,7 +52,7 @@ class HighlightLanguageTransform(SphinxTransform):
 class HighlightLanguageVisitor(nodes.NodeVisitor):
     def __init__(self, document, default_language):
         # type: (nodes.document, str) -> None
-        self.default_setting = HighlightSetting(default_language, sys.maxsize)
+        self.default_setting = HighlightSetting(default_language, False, sys.maxsize)
         self.settings = []  # type: List[HighlightSetting]
         super().__init__(document)
 
@@ -81,16 +82,16 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
 
     def visit_highlightlang(self, node):
         # type: (addnodes.highlightlang) -> None
-        self.settings[-1] = HighlightSetting(node['lang'], node['linenothreshold'])
+        self.settings[-1] = HighlightSetting(node['lang'],
+                                             node['force'],
+                                             node['linenothreshold'])
 
     def visit_literal_block(self, node):
         # type: (nodes.literal_block) -> None
         setting = self.settings[-1]
         if 'language' not in node:
             node['language'] = setting.language
-            node['force_highlighting'] = False
-        elif 'force_highlighting' not in node:
-            node['force_highlighting'] = True
+            node['force'] = setting.force
         if 'linenos' not in node:
             lines = node.astext().count('\n')
             node['linenos'] = (lines >= setting.lineno_threshold - 1)

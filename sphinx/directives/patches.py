@@ -119,6 +119,7 @@ class Code(SphinxDirective):
     optional_arguments = 1
     option_spec = {
         'class': directives.class_option,
+        'force': directives.flag,
         'name': directives.unchanged,
         'number-lines': optional_int,
     }
@@ -131,6 +132,7 @@ class Code(SphinxDirective):
         code = '\n'.join(self.content)
         node = nodes.literal_block(code, code,
                                    classes=self.options.get('classes', []),
+                                   force='force' in self.options,
                                    highlight_args={})
         self.add_name(node)
         set_source_info(self, node)
@@ -138,14 +140,12 @@ class Code(SphinxDirective):
         if self.arguments:
             # highlight language specified
             node['language'] = self.arguments[0]
-            node['force_highlighting'] = True
         else:
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
             node['language'] = self.env.temp_data.get('highlight_language',
                                                       self.config.highlight_language)
-            node['force_highlighting'] = False
 
         if 'number-lines' in self.options:
             node['linenos'] = True
