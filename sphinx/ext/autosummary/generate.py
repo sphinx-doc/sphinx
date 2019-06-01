@@ -198,7 +198,8 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                               suffix: str = '.rst', warn: Callable = None,
                               info: Callable = None, base_path: str = None,
                               builder: Builder = None, template_dir: str = None,
-                              imported_members: bool = False, app: Any = None) -> None:
+                              imported_members: bool = False, app: Any = None,
+                              overwrite: bool = True) -> None:
     if info:
         warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx40Warning)
@@ -249,26 +250,32 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
             _warn('[autosummary] failed to import %r: %s' % (name, e))
             continue
 
-        fn = os.path.join(path, name + suffix)
+        content = generate_autosummary_content(name, obj, parent, template, template_name,
+                                               imported_members, app)
 
-        # skip it if it exists
-        if os.path.isfile(fn):
-            continue
+        filename = os.path.join(path, name + suffix)
+        if os.path.isfile(filename):
+            with open(filename) as f:
+                old_content = f.read()
 
-        new_files.append(fn)
-
-        with open(fn, 'w') as f:
-            rendered = generate_autosummary_content(name, obj, parent,
-                                                    template, template_name,
-                                                    imported_members, app)
-            f.write(rendered)
+            if content == old_content:
+                continue
+            elif overwrite:  # content has changed
+                with open(filename, 'w') as f:
+                    f.write(content)
+                new_files.append(filename)
+        else:
+            with open(filename, 'w') as f:
+                f.write(content)
+            new_files.append(filename)
 
     # descend recursively to new files
     if new_files:
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir, app=app)
+                                  template_dir=template_dir, app=app,
+                                  overwrite=overwrite)
 
 
 # -- Finding documented entries in files ---------------------------------------
