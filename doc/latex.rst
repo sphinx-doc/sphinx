@@ -740,19 +740,41 @@ thus allowing redefinitions. Check the respective files for the defaults.
 Macros
 ~~~~~~
 
-- text styling commands ``\sphinx<foo>`` with ``<foo>`` being one of
-  ``strong``, ``bfcode``, ``email``, ``tablecontinued``, ``titleref``,
-  ``menuselection``, ``accelerator``, ``crossref``, ``termref``, ``optional``.
+- text styling commands:
 
+  - ``\sphinxstrong``,
+  - ``\sphinxbfcode``,
+  - ``\sphinxemail``,
+  - ``\sphinxtablecontinued``,
+  - ``\sphinxtitleref``,
+  - ``\sphinxmenuselection``,
+  - ``\sphinxaccelerator``,
+  - ``\sphinxcrossref``,
+  - ``\sphinxtermref``,
+  - ``\sphinxoptional``.
+ 
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
      with LaTeX packages.
-- more text styling: ``\sphinxstyle<bar>`` with ``<bar>`` one of
-  ``indexentry``, ``indexextra``, ``indexpageref``, ``topictitle``,
-  ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``theadfamily``,
-  ``emphasis``, ``literalemphasis``, ``strong``, ``literalstrong``,
-  ``abbreviation``, ``literalintitle``, ``codecontinued``, ``codecontinues``
+- more text styling:
 
+  - ``\sphinxstyleindexentry``,
+  - ``\sphinxstyleindexextra``,
+  - ``\sphinxstyleindexpageref``,
+  - ``\sphinxstyletopictitle``,
+  - ``\sphinxstylesidebartitle``,
+  - ``\sphinxstyleothertitle``,
+  - ``\sphinxstylesidebarsubtitle``,
+  - ``\sphinxstyletheadfamily``,
+  - ``\sphinxstyleemphasis``,
+  - ``\sphinxstyleliteralemphasis``,
+  - ``\sphinxstylestrong``,
+  - ``\sphinxstyleliteralstrong``,
+  - ``\sphinxstyleabbreviation``,
+  - ``\sphinxstyleliteralintitle``,
+  - ``\sphinxstylecodecontinued``,
+  - ``\sphinxstylecodecontinues``.
+ 
   .. versionadded:: 1.5
      these macros were formerly hard-coded as non customizable ``\texttt``,
      ``\emph``, etc...
@@ -761,7 +783,7 @@ Macros
      multiple paragraphs in header cells of tables.
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
-- the table of contents is typeset via ``\sphinxtableofcontents`` which is a
+- ``\sphinxtableofcontents``: it is a
   wrapper (defined differently in :file:`sphinxhowto.cls` and in
   :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.  The macro
   ``\sphinxtableofcontentshook`` is executed during its expansion right before
@@ -774,22 +796,22 @@ Macros
      done during loading of ``'manual'`` docclass are now executed later via
      ``\sphinxtableofcontentshook``.  This macro is also executed by the
      ``'howto'`` docclass, but defaults to empty with it.
-- a custom ``\sphinxmaketitle`` is defined in the class files
+- ``\sphinxmaketitle``: it is defined in the class files
   :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls` and is used as
   default setting of ``'maketitle'`` :confval:`latex_elements` key.
 
   .. versionchanged:: 1.8.3
      formerly, ``\maketitle`` from LaTeX document class was modified by
      Sphinx.
-- for ``'manual'`` docclass a macro ``\sphinxbackoftitlepage``, if it is
-  defined, gets executed at end of ``\sphinxmaketitle``, before the final
+- ``\sphinxbackoftitlepage``: for ``'manual'`` docclass, and if it is
+  defined, it gets executed at end of ``\sphinxmaketitle``, before the final
   ``\clearpage``.  Use either the ``'maketitle'`` key or the ``'preamble'`` key
   of :confval:`latex_elements` to add a custom definition of
   ``\sphinxbackoftitlepage``.
 
   .. versionadded:: 1.8.3
-- the citation reference is typeset via ``\sphinxcite`` which is a wrapper
-  of standard ``\cite``.
+- ``\sphinxcite``: it is a wrapper of standard ``\cite`` for citation
+  references.
 
 Environments
 ~~~~~~~~~~~~
@@ -801,12 +823,23 @@ Environments
   .. versionadded:: 1.5.6
      formerly, the ``\small`` was hardcoded in LaTeX writer and the ending
      ``\par`` was lacking.
-- for each admonition type ``<foo>``, the
-  used environment is named ``sphinx<foo>``. They may be ``\renewenvironment``
+- environments associated with admonitions:
+
+  - ``sphinxnote``,
+  - ``sphinxhint``,
+  - ``sphinximportant``,
+  - ``sphinxtip``,
+  - ``sphinxwarning``,
+  - ``sphinxcaution``,
+  - ``sphinxattention``,
+  - ``sphinxdanger``,
+  - ``sphinxerror``.
+
+  They may be ``\renewenvironment``
   'd individually, and must then be defined with one argument (it is the heading
   of the notice, for example ``Warning:`` for :dudir:`warning` directive, if
   English is the document language). Their default definitions use either the
-  *sphinxheavybox* (for the first listed directives) or the *sphinxlightbox*
+  *sphinxheavybox* (for the last 5 ones) or the *sphinxlightbox*
   environments, configured to use the parameters (colours, border thickness)
   specific to each type, which can be set via ``'sphinxsetup'`` string.
 

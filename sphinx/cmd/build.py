@@ -45,7 +45,7 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
             traceback.print_exc(None, stderr)
             print(file=stderr)
         if isinstance(exception, KeyboardInterrupt):
-            print(__('interrupted!'), file=stderr)
+            print(__('Interrupted!'), file=stderr)
         elif isinstance(exception, SystemMessage):
             print(red(__('reST markup error:')), file=stderr)
             print(terminal_safe(exception.args[0]), file=stderr)

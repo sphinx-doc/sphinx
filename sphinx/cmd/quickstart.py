@@ -506,7 +506,7 @@ def get_parser():
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('path', metavar='PROJECT_DIR', default='.', nargs='?',
-                        help=__('output path'))
+                        help=__('project root'))
 
     group = parser.add_argument_group(__('Structure options'))
     group.add_argument('--sep', action='store_true', default=None,
