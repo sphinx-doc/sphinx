@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #1125: html theme: scrollbar is hard to see on classic theme and macOS
+
 Testing
 --------
 
