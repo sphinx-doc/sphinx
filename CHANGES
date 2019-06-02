@@ -21,11 +21,50 @@ Bugs fixed
 Testing
 --------
 
-Release 2.1.0 (in development)
+Release 2.2.0 (in development)
 ==============================
 
 Dependencies
 ------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 2.1.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 2.1.0 (released Jun 02, 2019)
+=====================================
 
 Incompatible changes
 --------------------
@@ -115,6 +154,8 @@ Features added
   autodoc considers values as a docstring of the attribute
 * #6361: autodoc: Add :confval:`autodoc_typehints` to suppress typehints from
   signature
+* #1063: autodoc: ``automodule`` directive now handles undocumented module level
+  variables
 * #6212 autosummary: Add :confval:`autosummary_imported_members` to display
   imported members on autosummary
 * #6271: ``make clean`` is catastrophically broken if building into '.'
@@ -161,34 +202,9 @@ Bugs fixed
 * #6408: html search: Fix the ranking of search results
 * #6406: Wrong year is returned for ``SOURCE_DATE_EPOCH``
 * #6402: image directive crashes by unknown image format
-
-Testing
---------
-
-Release 2.0.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
 * #6286: C++, allow 8 and 9 in hexadecimal integer literals.
 * #6305: Fix the string in quickstart for 'path' argument of parser
 * LaTeX: Figures in admonitions produced errors (refs: #6364)
-
-Testing
---------
 
 Release 2.0.1 (released Apr 08, 2019)
 =====================================
