@@ -506,32 +506,38 @@ def test_docstring_processing():
     assert process('function', 'f', f) == ['second line', '']
     app.disconnect(lid)
 
-    lid = app.connect('autodoc-process-docstring', between('---', ['function']))
 
-    def g():
-        """
-        first line
-        ---
-        second line
-        ---
-        third line
-        """
-    assert process('function', 'g', g) == ['second line', '']
-    app.disconnect(lid)
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_between(app):
+    app.connect('autodoc-process-docstring',
+                between('---', ['function']))
 
-    lid = app.connect('autodoc-process-docstring',
-                      between('---', ['function'], exclude=True))
+    actual = do_autodoc(app, 'function', 'target.process_docstring.func')
+    assert list(actual) == [
+        '',
+        '.. py:function:: func()',
+        '   :module: target.process_docstring',
+        '',
+        '   second line',
+        '   '
+    ]
 
-    def h():
-        """
-        first line
-        ---
-        second line
-        ---
-        third line
-        """
-    assert process('function', 'h', h) == ['first line', 'third line', '']
-    app.disconnect(lid)
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_between_exclude(app):
+    app.connect('autodoc-process-docstring',
+                between('---', ['function'], exclude=True))
+
+    actual = do_autodoc(app, 'function', 'target.process_docstring.func')
+    assert list(actual) == [
+        '',
+        '.. py:function:: func()',
+        '   :module: target.process_docstring',
+        '',
+        '   first line',
+        '   third line',
+        '   '
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
