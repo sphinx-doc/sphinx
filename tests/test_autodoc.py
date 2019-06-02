@@ -494,17 +494,21 @@ def test_docstring_processing():
     # docstring processing by event handler
     assert process('class', 'bar', E) == ['Init docstring', '', '42', '']
 
-    lid = app.connect('autodoc-process-docstring',
-                      cut_lines(1, 1, ['function']))
 
-    def f():
-        """
-        first line
-        second line
-        third line
-        """
-    assert process('function', 'f', f) == ['second line', '']
-    app.disconnect(lid)
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_cut_lines(app):
+    app.connect('autodoc-process-docstring',
+                cut_lines(2, 2, ['function']))
+
+    actual = do_autodoc(app, 'function', 'target.process_docstring.func')
+    assert list(actual) == [
+        '',
+        '.. py:function:: func()',
+        '   :module: target.process_docstring',
+        '',
+        '   second line',
+        '   '
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
