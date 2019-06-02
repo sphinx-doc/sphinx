@@ -18,6 +18,7 @@ Bugs fixed
 
 * py domain: duplicated warning does not point the location of source code
 * #1125: html theme: scrollbar is hard to see on classic theme and macOS
+* #5502: linkcheck: Consider HTTP 503 response as not an error
 
 Testing
 --------
