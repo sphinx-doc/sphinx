@@ -25,7 +25,7 @@ The :mod:`sphinx.ext.autosummary` extension does this in three parts:
    These files by default contain only the corresponding
    :mod:`sphinx.ext.autodoc` directive, but can be customized with templates.
 
-3. Optionally, :confval:`autosummary_depth_limit` config value can be
+3. Optionally, the :confval:`autosummary_recursive` config value can be
    used to generate "stub" files of modules and sub-packages for packages
    under the :rst:dir:`autosummary` directive.
 
@@ -148,16 +148,12 @@ also use these config values:
    The new files will be placed in the directories specified in the
    ``:toctree:`` options of the directives.
 
-.. confval:: autosummary_depth_limit
+.. confval:: autosummary_recursive
 
-   Integer that determines the maximal depth (starting from root) when adding
-   modules and sub-packages of packages.
-   
-    - ``autosummary_depth_limit = -1``: no limit
-    - ``autosummary_depth_limit = 0``: disable adding sub-packages (default)
-    - ``autosummary_depth_limit > 0``: limited depth starting from root
+   Boolean that determines whether to add modules and sub-packages
+   recursively. It is disabled by default.
 
-   .. versionadded:: 2.1
+   .. versionadded:: 2.2
 
 .. confval:: autosummary_mock_imports
 
@@ -272,14 +268,7 @@ The following variables available in the templates:
    List containing names of "public" modules in the package.  Only available for
    modules that are packages.
 
-   .. versionadded:: 2.1
-
-.. data:: packages
-
-   List containing names of "public" sub-packages in the package.  Only available
-   for modules that are packages.
-
-   .. versionadded:: 2.1
+   .. versionadded:: 2.2
 
 Additionally, the following filters are available
 

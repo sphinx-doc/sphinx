@@ -136,8 +136,8 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                               builder=None,            # type: Builder
                               template_dir=None,       # type: str
                               imported_members=False,  # type: bool
+                              recursive=False,         # type: bool
                               app=None,                # type: Any
-                              depth_limit=0,           # type: int
                               ):
     # type: (...) -> None
     showed_sources = list(sorted(sources))
@@ -180,22 +180,16 @@ def generate_autosummary_docs(sources,                 # type: List[str]
         # ... any module that contains a __path__ attribute is
         # considered a package ...
         ispackage = hasattr(obj, '__path__')
-        if ispackage:
-            depth = len(name.split('.')) - 1
-            add_package_children = depth < depth_limit or depth_limit < 0
-            if add_package_children:
-                info(__('[autosummary] add modules/packages from %s') % repr(name))
-        else:
-            add_package_children = False
+        if ispackage and recursive:
+            info(__('[autosummary] add modules/packages from %s') % repr(name))
 
         fn = os.path.join(path, name + suffix)
 
         # Skip it if it exists and not a package.
         if os.path.isfile(fn):
-            if ispackage and depth_limit != 0:
-                # Overwrite the file because submodules/packages
-                # could have been added/removed from the package
-                # or the depth limit might have changed.
+            if ispackage and recursive:
+                # Overwrite the file because modules/subpackages
+                # could have been added/removed from the package.
                 # Warning: this file could have been created by the user
                 # in which case it is lost.
                 warn('[autosummary] overwriting docs of package %s' % (repr(name)))
@@ -230,10 +224,9 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                           if x in include_public or not x.startswith('_')]
                 return public, items
 
-            def get_package_members(obj, typ, include_public=[]):
+            def get_modules(obj, include_public=[]):
                 # type: (Any, str, List[str]) -> Tuple[List[str], List[str]]
                 items = []  # type: List[str]
-                pkg_required = typ == 'package'
                 for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
                     fullname = name + '.' + modname
                     try:
@@ -241,8 +234,7 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                     except ImportError as e:
                         warn('[autosummary] failed to import %s: %s' % (fullname, e))
                         continue
-                    if ispkg == pkg_required:
-                        items.append(fullname)
+                    items.append(fullname)
                 public = [x for x in items
                           if x in include_public or not x.split('.')[-1].startswith('_')]
                 return public, items
@@ -257,11 +249,9 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                     get_members(obj, {'class'}, imported=imported_members)
                 ns['exceptions'], ns['all_exceptions'] = \
                     get_members(obj,  {'exception'}, imported=imported_members)
-                if add_package_children:
+                if ispackage and recursive:
                     ns['modules'], ns['all_modules'] = \
-                        get_package_members(obj, 'module')
-                    ns['packages'], ns['all_packages'] = \
-                        get_package_members(obj, 'package')
+                        get_modules(obj)
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['inherited_members'] = \
@@ -298,7 +288,7 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                                   base_path=base_path, builder=builder,
                                   template_dir=template_dir,
                                   imported_members=imported_members,
-                                  depth_limit=depth_limit,
+                                  recursive=recursive,
                                   app=app)
 
 
@@ -480,7 +470,7 @@ def main(argv=sys.argv[1:]):
                               '.' + args.suffix,
                               template_dir=args.templates,
                               imported_members=args.imported_members,
-                              depth_limit=args.depth_limit,
+                              recursive=args.recursive,
                               app=app)
 
 

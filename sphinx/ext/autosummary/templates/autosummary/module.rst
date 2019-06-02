@@ -46,15 +46,3 @@
 {%- endfor %}
 {% endif %}
 {% endblock %}
-
-{% block packages %}
-{% if packages %}
-.. rubric:: packages
-
-.. autosummary::
-   :toctree: packages
-{% for item in packages %}
-   {{ item }}
-{%- endfor %}
-{% endif %}
-{% endblock %}
