@@ -225,7 +225,7 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                 return public, items
 
             def get_modules(obj, include_public=[]):
-                # type: (Any, str, List[str]) -> Tuple[List[str], List[str]]
+                # type: (Any, List[str]) -> Tuple[List[str], List[str]]
                 items = []  # type: List[str]
                 for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
                     fullname = name + '.' + modname
@@ -250,8 +250,7 @@ def generate_autosummary_docs(sources,                 # type: List[str]
                 ns['exceptions'], ns['all_exceptions'] = \
                     get_members(obj,  {'exception'}, imported=imported_members)
                 if ispackage and recursive:
-                    ns['modules'], ns['all_modules'] = \
-                        get_modules(obj)
+                    ns['modules'], ns['all_modules'] = get_modules(obj)
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['inherited_members'] = \
