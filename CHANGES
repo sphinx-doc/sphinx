@@ -1,8 +1,5 @@
-Release 2.1.0 (in development)
-==============================
-
-Dependencies
-------------
+Release 2.1.0 (released Jun 02, 2019)
+=====================================
 
 Incompatible changes
 --------------------
@@ -141,9 +138,6 @@ Bugs fixed
 * #6286: C++, allow 8 and 9 in hexadecimal integer literals.
 * #6305: Fix the string in quickstart for 'path' argument of parser
 * LaTeX: Figures in admonitions produced errors (refs: #6364)
-
-Testing
---------
 
 Release 2.0.1 (released Apr 08, 2019)
 =====================================
