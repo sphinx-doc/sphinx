@@ -22,31 +22,6 @@ class CustomEx(Exception):
         """Exception method."""
 
 
-class CustomDataDescriptor(object):
-    """Descriptor class docstring."""
-
-    def __init__(self, doc):
-        self.__doc__ = doc
-
-    def __get__(self, obj, type=None):
-        if obj is None:
-            return self
-        return 42
-
-    def meth(self):
-        """Function."""
-        return "The Answer"
-
-
-class CustomDataDescriptorMeta(type):
-    """Descriptor metaclass docstring."""
-
-
-class CustomDataDescriptor2(CustomDataDescriptor):
-    """Descriptor class with custom metaclass docstring."""
-    __metaclass__ = CustomDataDescriptorMeta
-
-
 def _funky_classmethod(name, b, c, d, docstring=None):
     """Generates a classmethod for a class from a template by filling out
     some arguments."""
@@ -81,8 +56,6 @@ class Derived(Base):
 class Class(Base):
     """Class to document."""
 
-    descr = CustomDataDescriptor("Descriptor instance docstring.")
-
     def meth(self):
         """Function."""
 
@@ -100,10 +73,6 @@ class Class(Base):
 
     #: should be documented -- süß
     attr = 'bar'
-
-    @property
-    def prop(self):
-        """Property."""
 
     docattr = 'baz'
     """should likewise be documented -- süß"""
