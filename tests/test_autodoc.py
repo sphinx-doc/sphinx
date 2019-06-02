@@ -58,7 +58,6 @@ def setup_module(rootdir, sphinx_test_tempdir):
         app = SphinxTestApp(srcdir=srcdir)
         app.builder.env.app = app
         app.builder.env.temp_data['docname'] = 'dummy'
-        app.connect('autodoc-process-docstring', process_docstring)
         app.connect('autodoc-process-signature', process_signature)
         app.connect('autodoc-skip-member', skip_member)
         yield
@@ -73,7 +72,7 @@ directive = options = None
 @pytest.fixture
 def setup_test():
     global options, directive
-    global processed_docstrings, processed_signatures
+    global processed_signatures
 
     options = Options(
         inherited_members = False,
@@ -102,7 +101,6 @@ def setup_test():
     )
     directive.state.document.settings.tab_width = 8
 
-    processed_docstrings = []
     processed_signatures = []
 
     app._status.truncate(0)
@@ -113,14 +111,7 @@ def setup_test():
     app.registry.autodoc_attrgettrs.clear()
 
 
-processed_docstrings = []
 processed_signatures = []
-
-
-def process_docstring(app, what, name, obj, options, lines):
-    processed_docstrings.append((what, name))
-    if name == 'bar':
-        lines.extend(['42', ''])
 
 
 def process_signature(app, what, name, obj, options, args, retann):
@@ -479,20 +470,22 @@ def test_get_doc():
     assert getdocl('method', Derived.inheritedmeth) == ['Inherited function.']
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_docstring_processing():
-    def process(objtype, name, obj):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.object = obj
-        inst.fullname = name
-        return list(inst.process_doc(inst.get_doc()))
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_process_docstring(app):
+    def on_process_docstring(app, what, name, obj, options, lines):
+        lines.clear()
+        lines.append('my docstring')
 
-    class E:
-        def __init__(self):
-            """Init docstring"""
+    app.connect('autodoc-process-docstring', on_process_docstring)
 
-    # docstring processing by event handler
-    assert process('class', 'bar', E) == ['Init docstring', '', '42', '']
+    actual = do_autodoc(app, 'function', 'target.process_docstring.func')
+    assert list(actual) == [
+        '',
+        '.. py:function:: func()',
+        '   :module: target.process_docstring',
+        '',
+        '   my docstring'
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
