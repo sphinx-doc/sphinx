@@ -124,13 +124,9 @@ class TodoList(SphinxDirective):
 
 def process_todo_nodes(app, doctree, fromdocname):
     # type: (Sphinx, nodes.document, str) -> None
-    node = None  # type: nodes.Element
-    if not app.config['todo_include_todos']:
-        for node in doctree.traverse(todo_node):
-            node.parent.remove(node)
-
-    # Replace all todolist nodes with a list of the collected todos.
-    # Augment each todo with a backlink to the original location.
+    """Replace all todolist nodes with a list of the collected todos.
+    Augment each todo with a backlink to the original location.
+    """
     env = app.builder.env
 
     if not hasattr(env, 'todo_all_todos'):
@@ -201,7 +197,10 @@ def merge_info(app, env, docnames, other):
 
 def visit_todo_node(self, node):
     # type: (HTMLTranslator, todo_node) -> None
-    self.visit_admonition(node)
+    if self.config.todo_include_todos:
+        self.visit_admonition(node)
+    else:
+        raise nodes.SkipNode
 
 
 def depart_todo_node(self, node):
@@ -211,11 +210,14 @@ def depart_todo_node(self, node):
 
 def latex_visit_todo_node(self, node):
     # type: (LaTeXTranslator, todo_node) -> None
-    self.body.append('\n\\begin{sphinxadmonition}{note}{')
-    self.body.append(self.hypertarget_to(node))
-    title_node = cast(nodes.title, node[0])
-    self.body.append('%s:}' % title_node.astext().translate(tex_escape_map))
-    node.pop(0)
+    if self.config.todo_include_todos:
+        self.body.append('\n\\begin{sphinxadmonition}{note}{')
+        self.body.append(self.hypertarget_to(node))
+        title_node = cast(nodes.title, node[0])
+        self.body.append('%s:}' % title_node.astext().translate(tex_escape_map))
+        node.pop(0)
+    else:
+        raise nodes.SkipNode
 
 
 def latex_depart_todo_node(self, node):
