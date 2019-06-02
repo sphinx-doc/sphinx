@@ -26,6 +26,21 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.todo.merge_info()``
+     - 2.2
+     - 4.0
+     - ``sphinx.ext.todo.TodoDomain``
+
+   * - ``sphinx.ext.todo.process_todos()``
+     - 2.2
+     - 4.0
+     - ``sphinx.ext.todo.TodoDomain``
+
+   * - ``sphinx.ext.todo.purge_todos()``
+     - 2.2
+     - 4.0
+     - ``sphinx.ext.todo.TodoDomain``
+
    * - ``sphinx.builders.latex.LaTeXBuilder.apply_transforms()``
      - 2.1
      - 4.0

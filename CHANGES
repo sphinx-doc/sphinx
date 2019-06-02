@@ -10,6 +10,10 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.todo.merge_info()``
+* ``sphinx.ext.todo.process_todos()``
+* ``sphinx.ext.todo.purge_todos()``
+
 Features added
 --------------
 
