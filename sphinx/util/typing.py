@@ -23,6 +23,9 @@ TextlikeNode = Union[nodes.Text, nodes.TextElement]
 # type of None
 NoneType = type(None)
 
+# path matcher
+PathMatcher = Callable[[str], bool]
+
 # common role functions
 RoleFunction = Callable[[str, str, str, int, Inliner, Dict, List[str]],
                         Tuple[List[nodes.Node], List[nodes.system_message]]]

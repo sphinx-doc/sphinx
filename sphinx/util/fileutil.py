@@ -10,20 +10,20 @@
 
 import os
 import posixpath
+from typing import Dict
 
 from docutils.utils import relative_path
 
 from sphinx.util.osutil import copyfile, ensuredir
+from sphinx.util.typing import PathMatcher
 
 if False:
     # For type annotation
-    from typing import Callable, Dict, Union  # NOQA
-    from sphinx.util.matching import Matcher  # NOQA
-    from sphinx.util.template import BaseRenderer  # NOQA
+    from sphinx.util.template import BaseRenderer
 
 
-def copy_asset_file(source, destination, context=None, renderer=None):
-    # type: (str, str, Dict, BaseRenderer) -> None
+def copy_asset_file(source: str, destination: str,
+                    context: Dict = None, renderer: "BaseRenderer" = None) -> None:
     """Copy an asset file to destination.
 
     On copying, it expands the template variables if context argument is given and
@@ -55,8 +55,8 @@ def copy_asset_file(source, destination, context=None, renderer=None):
         copyfile(source, destination)
 
 
-def copy_asset(source, destination, excluded=lambda path: False, context=None, renderer=None):
-    # type: (str, str, Union[Callable[[str], bool], Matcher], Dict, BaseRenderer) -> None
+def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda path: False,
+               context: Dict = None, renderer: "BaseRenderer" = None) -> None:
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and
