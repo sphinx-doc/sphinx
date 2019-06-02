@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* py domain: duplicated warning does not point the location of source code
+
 Testing
 --------
 
