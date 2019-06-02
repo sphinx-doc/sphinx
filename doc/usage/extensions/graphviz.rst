@@ -63,13 +63,17 @@ It adds these directives:
 
       .. versionadded:: 1.1
 
-   .. rst:directive:option:: graphviz_dot: dot command of the graph
+   .. rst:directive:option:: layout: layout type of the graph
       :type: text
 
-      The graphviz command (ex. ``dot``, ``neato`` and so on) for rendering the
-      graph.  By default, :confval:`graphviz_dot` is used.
+      The layout of the graph (ex. ``dot``, ``neato`` and so on).  A path to the
+      graphviz commands are also allowed.  By default, :confval:`graphviz_dot`
+      is used.
 
       .. versionadded:: 1.4
+      .. versionchanged:: 2.2
+
+         Renamed from ``graphviz_dot``
 
    .. rst:directive:option:: name: label
       :type: text
@@ -114,10 +118,13 @@ It adds these directives:
 
       .. versionadded:: 1.1
 
-   .. rst:directive:option:: graphviz_dot: dot command of the graph
+   .. rst:directive:option:: layout: layout type of the graph
       :type: text
 
       .. versionadded:: 1.4
+      .. versionchanged:: 2.2
+
+         Renamed from ``graphviz_dot``
 
    .. rst:directive:option:: name: label
       :type: text
@@ -156,10 +163,13 @@ It adds these directives:
 
       .. versionadded:: 1.1
 
-   .. rst:directive:option:: graphviz_dot: dot command of the graph
+   .. rst:directive:option:: layout: layout type of the graph
       :type: text
 
       .. versionadded:: 1.4
+      .. versionchanged:: 2.2
+
+         Renamed from ``graphviz_dot``
 
    .. rst:directive:option:: name: label
       :type: text
