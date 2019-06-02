@@ -16,7 +16,7 @@ from warnings import catch_warnings
 import pytest
 from docutils.statemachine import ViewList
 
-from sphinx.ext.autodoc import ModuleLevelDocumenter, cut_lines, between, ALL, Options
+from sphinx.ext.autodoc import ModuleLevelDocumenter, ALL, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
@@ -462,73 +462,6 @@ def test_get_doc():
     assert getdocl('method', Derived.inheritedmeth) == []
     directive.env.config.autodoc_inherit_docstrings = True
     assert getdocl('method', Derived.inheritedmeth) == ['Inherited function.']
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_process_docstring(app):
-    def on_process_docstring(app, what, name, obj, options, lines):
-        lines.clear()
-        lines.append('my docstring')
-
-    app.connect('autodoc-process-docstring', on_process_docstring)
-
-    actual = do_autodoc(app, 'function', 'target.process_docstring.func')
-    assert list(actual) == [
-        '',
-        '.. py:function:: func()',
-        '   :module: target.process_docstring',
-        '',
-        '   my docstring'
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_cut_lines(app):
-    app.connect('autodoc-process-docstring',
-                cut_lines(2, 2, ['function']))
-
-    actual = do_autodoc(app, 'function', 'target.process_docstring.func')
-    assert list(actual) == [
-        '',
-        '.. py:function:: func()',
-        '   :module: target.process_docstring',
-        '',
-        '   second line',
-        '   '
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_between(app):
-    app.connect('autodoc-process-docstring',
-                between('---', ['function']))
-
-    actual = do_autodoc(app, 'function', 'target.process_docstring.func')
-    assert list(actual) == [
-        '',
-        '.. py:function:: func()',
-        '   :module: target.process_docstring',
-        '',
-        '   second line',
-        '   '
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_between_exclude(app):
-    app.connect('autodoc-process-docstring',
-                between('---', ['function'], exclude=True))
-
-    actual = do_autodoc(app, 'function', 'target.process_docstring.func')
-    assert list(actual) == [
-        '',
-        '.. py:function:: func()',
-        '   :module: target.process_docstring',
-        '',
-        '   first line',
-        '   third line',
-        '   '
-    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
