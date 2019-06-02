@@ -138,28 +138,6 @@ Bugs fixed
 * #6408: html search: Fix the ranking of search results
 * #6406: Wrong year is returned for ``SOURCE_DATE_EPOCH``
 * #6402: image directive crashes by unknown image format
-
-Testing
---------
-
-Release 2.0.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
 * #6286: C++, allow 8 and 9 in hexadecimal integer literals.
 * #6305: Fix the string in quickstart for 'path' argument of parser
 * LaTeX: Figures in admonitions produced errors (refs: #6364)
