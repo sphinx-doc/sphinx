@@ -752,7 +752,6 @@ def test_autodoc_undoc_members(app):
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.descr',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -761,7 +760,6 @@ def test_autodoc_undoc_members(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
@@ -782,7 +780,6 @@ def test_autodoc_inherited_members(app):
         '   .. py:method:: Class.inheritedstaticmeth(cls)',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.skipmeth()'
     ]
 
@@ -833,7 +830,6 @@ def test_autodoc_special_members(app):
         '   .. py:method:: Class.__special1__()',
         '   .. py:method:: Class.__special2__()',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.descr',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -842,7 +838,6 @@ def test_autodoc_special_members(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
@@ -866,9 +861,6 @@ def test_autodoc_ignore_module_all(app):
     actual = do_autodoc(app, 'module', 'target', options)
     assert list(filter(lambda l: 'class::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '.. py:class:: CustomDataDescriptor(doc)',
-        '.. py:class:: CustomDataDescriptor2(doc)',
-        '.. py:class:: CustomDataDescriptorMeta',
         '.. py:class:: CustomDict',
         '.. py:class:: InstAttCls()',
         '.. py:class:: Outer',
@@ -991,14 +983,27 @@ def test_autodoc_staticmethod(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_descriptor(app):
-    actual = do_autodoc(app, 'attribute', 'target.Class.descr')
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'class', 'target.descriptor.Class', options)
     assert list(actual) == [
         '',
-        '.. py:attribute:: Class.descr',
-        '   :module: target',
+        '.. py:class:: Class',
+        '   :module: target.descriptor',
         '',
-        '   Descriptor instance docstring.',
-        '   '
+        '   ',
+        '   .. py:attribute:: Class.descr',
+        '      :module: target.descriptor',
+        '   ',
+        '      Descriptor instance docstring.',
+        '      ',
+        '   ',
+        '   .. py:method:: Class.prop',
+        '      :module: target.descriptor',
+        '      :property:',
+        '   ',
+        '      Property.',
+        '      '
     ]
 
 
@@ -1027,14 +1032,12 @@ def test_autodoc_member_order(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '   .. py:attribute:: Class.descr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.undocmeth()',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:attribute:: Class.attr',
-        '   .. py:method:: Class.prop',
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',
@@ -1062,13 +1065,11 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.undocmeth()',
         '   .. py:attribute:: Class._private_inst_attr',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.descr',
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.inst_attr_comment',
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_string',
         '   .. py:attribute:: Class.mdocattr',
-        '   .. py:method:: Class.prop',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:attribute:: Class.udocattr'
     ]
@@ -1082,7 +1083,6 @@ def test_autodoc_member_order(app):
         '.. py:class:: Class(arg)',
         '   .. py:attribute:: Class._private_inst_attr',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.descr',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -1091,7 +1091,6 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
@@ -1422,26 +1421,26 @@ def test_enum_class(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_descriptor_class(app):
     options = {"members": 'CustomDataDescriptor,CustomDataDescriptor2'}
-    actual = do_autodoc(app, 'module', 'target', options)
+    actual = do_autodoc(app, 'module', 'target.descriptor', options)
     assert list(actual) == [
         '',
-        '.. py:module:: target',
+        '.. py:module:: target.descriptor',
         '',
         '',
         '.. py:class:: CustomDataDescriptor(doc)',
-        '   :module: target',
+        '   :module: target.descriptor',
         '',
         '   Descriptor class docstring.',
         '   ',
         '   ',
         '   .. py:method:: CustomDataDescriptor.meth()',
-        '      :module: target',
+        '      :module: target.descriptor',
         '   ',
         '      Function.',
         '      ',
         '',
         '.. py:class:: CustomDataDescriptor2(doc)',
-        '   :module: target',
+        '   :module: target.descriptor',
         '',
         '   Descriptor class with custom metaclass docstring.',
         '   '
@@ -1888,12 +1887,10 @@ def test_autodoc_default_options_with_values(app):
     actual = do_autodoc(app, 'class', 'target.Class')
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '   .. py:attribute:: Class.descr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.attr',
-        '   .. py:method:: Class.prop',
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',
