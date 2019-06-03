@@ -16,6 +16,7 @@ Features added
 Bugs fixed
 ----------
 
+* py domain: duplicated warning does not point the location of source code
 * #1125: html theme: scrollbar is hard to see on classic theme and macOS
 
 Testing

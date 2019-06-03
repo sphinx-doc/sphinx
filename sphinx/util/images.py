@@ -14,7 +14,7 @@ import warnings
 from collections import OrderedDict
 from io import BytesIO
 from os import path
-from typing import NamedTuple
+from typing import IO, NamedTuple, Tuple
 
 import imagesize
 
@@ -24,10 +24,6 @@ try:
     from PIL import Image
 except ImportError:
     Image = None
-
-if False:
-    # For type annotation
-    from typing import IO, Tuple  # NOQA
 
 mime_suffixes = OrderedDict([
     ('.gif', 'image/gif'),
@@ -43,8 +39,7 @@ DataURI = NamedTuple('DataURI', [('mimetype', str),
                                  ('data', bytes)])
 
 
-def get_image_size(filename):
-    # type: (str) -> Tuple[int, int]
+def get_image_size(filename: str) -> Tuple[int, int]:
     try:
         size = imagesize.get(filename)
         if size[0] == -1:
@@ -63,8 +58,7 @@ def get_image_size(filename):
         return None
 
 
-def guess_mimetype_for_stream(stream, default=None):
-    # type: (IO, str) -> str
+def guess_mimetype_for_stream(stream: IO, default: str = None) -> str:
     imgtype = imghdr.what(stream)  # type: ignore
     if imgtype:
         return 'image/' + imgtype
@@ -72,8 +66,7 @@ def guess_mimetype_for_stream(stream, default=None):
         return default
 
 
-def guess_mimetype(filename='', content=None, default=None):
-    # type: (str, bytes, str) -> str
+def guess_mimetype(filename: str = '', content: bytes = None, default: str = None) -> str:
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
@@ -90,8 +83,7 @@ def guess_mimetype(filename='', content=None, default=None):
     return default
 
 
-def get_image_extension(mimetype):
-    # type: (str) -> str
+def get_image_extension(mimetype: str) -> str:
     for ext, _mimetype in mime_suffixes.items():
         if mimetype == _mimetype:
             return ext
@@ -99,8 +91,7 @@ def get_image_extension(mimetype):
     return None
 
 
-def parse_data_uri(uri):
-    # type: (str) -> DataURI
+def parse_data_uri(uri: str) -> DataURI:
     if not uri.startswith('data:'):
         return None
 
@@ -121,8 +112,7 @@ def parse_data_uri(uri):
     return DataURI(mimetype, charset, image_data)
 
 
-def test_svg(h, f):
-    # type: (bytes, IO) -> str
+def test_svg(h: bytes, f: IO) -> str:
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
         if '<svg' in h.decode().lower():
