@@ -325,34 +325,6 @@ def test_get_doc():
         """Döcstring"""
     assert getdocl('function', f) == ['Döcstring']
 
-    # class docstring: depends on config value which one is taken
-    class C:
-        """Class docstring"""
-        def __init__(self):
-            """Init docstring"""
-
-        def __new__(cls):
-            """New docstring"""
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', C) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', C) == ['Init docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', C) == ['Class docstring', '', 'Init docstring']
-
-    class D:
-        """Class docstring"""
-        def __init__(self):
-            """Init docstring
-
-            Other
-             lines
-            """
-
-    # Indentation is normalized for 'both'
-    assert getdocl('class', D) == ['Class docstring', '', 'Init docstring',
-                                   '', 'Other', ' lines']
-
     # __init__ have signature at first line of docstring
     class E:
         """Class docstring"""
@@ -385,66 +357,6 @@ def test_get_doc():
     assert getdocl('class', E) == ['Init docstring']
     directive.env.config.autoclass_content = 'both'
     assert getdocl('class', E) == ['Class docstring', '', 'Init docstring']
-
-    # class does not have __init__ method
-    class F:
-        """Class docstring"""
-
-    # docstring in the __init__ method of base class will be discard
-    for f in (False, True):
-        directive.env.config.autodoc_docstring_signature = f
-        directive.env.config.autoclass_content = 'class'
-        assert getdocl('class', F) == ['Class docstring']
-        directive.env.config.autoclass_content = 'init'
-        assert getdocl('class', F) == ['Class docstring']
-        directive.env.config.autoclass_content = 'both'
-        assert getdocl('class', F) == ['Class docstring']
-
-    # class has __init__ method with no docstring
-    class G:
-        """Class docstring"""
-        def __init__(self):
-            pass
-
-    # docstring in the __init__ method of base class will not be used
-    for f in (False, True):
-        directive.env.config.autodoc_docstring_signature = f
-        directive.env.config.autoclass_content = 'class'
-        assert getdocl('class', G) == ['Class docstring']
-        directive.env.config.autoclass_content = 'init'
-        assert getdocl('class', G) == ['Class docstring']
-        directive.env.config.autoclass_content = 'both'
-        assert getdocl('class', G) == ['Class docstring']
-
-    # class has __new__ method with docstring
-    # class docstring: depends on config value which one is taken
-    class H:
-        """Class docstring"""
-        def __init__(self):
-            pass
-
-        def __new__(cls):
-            """New docstring"""
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', H) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', H) == ['New docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', H) == ['Class docstring', '', 'New docstring']
-
-    # class has __init__ method without docstring and
-    # __new__ method with docstring
-    # class docstring: depends on config value which one is taken
-    class I:  # NOQA
-        """Class docstring"""
-        def __new__(cls):
-            """New docstring"""
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', I) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', I) == ['New docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', I) == ['Class docstring', '', 'New docstring']
 
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function

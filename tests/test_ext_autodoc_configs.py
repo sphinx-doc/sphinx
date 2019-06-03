@@ -19,6 +19,156 @@ IS_PYPY = platform.python_implementation() == 'PyPy'
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_class(app):
+    app.config.autoclass_content = 'class'
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.autoclass_content',
+        '',
+        '',
+        '.. py:class:: A',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, no __new__',
+        '   ',
+        '',
+        '.. py:class:: B()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__(no docstring), no __new__',
+        '   ',
+        '',
+        '.. py:class:: C()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__, no __new__',
+        '   ',
+        '',
+        '.. py:class:: D',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__(no docstring)',
+        '   ',
+        '',
+        '.. py:class:: E',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__',
+        '   ',
+        '',
+        '.. py:class:: F()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having both __init__ and __new__',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_init(app):
+    app.config.autoclass_content = 'init'
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.autoclass_content',
+        '',
+        '',
+        '.. py:class:: A',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, no __new__',
+        '   ',
+        '',
+        '.. py:class:: B()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__(no docstring), no __new__',
+        '   ',
+        '',
+        '.. py:class:: C()',
+        '   :module: target.autoclass_content',
+        '',
+        '   __init__ docstring',
+        '   ',
+        '',
+        '.. py:class:: D',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__(no docstring)',
+        '   ',
+        '',
+        '.. py:class:: E',
+        '   :module: target.autoclass_content',
+        '',
+        '   __new__ docstring',
+        '   ',
+        '',
+        '.. py:class:: F()',
+        '   :module: target.autoclass_content',
+        '',
+        '   __init__ docstring',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_both(app):
+    app.config.autoclass_content = 'both'
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.autoclass_content',
+        '',
+        '',
+        '.. py:class:: A',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, no __new__',
+        '   ',
+        '',
+        '.. py:class:: B()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__(no docstring), no __new__',
+        '   ',
+        '',
+        '.. py:class:: C()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__, no __new__',
+        '   ',
+        '   __init__ docstring',
+        '   ',
+        '',
+        '.. py:class:: D',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__(no docstring)',
+        '   ',
+        '',
+        '.. py:class:: E',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__',
+        '   ',
+        '   __new__ docstring',
+        '   ',
+        '',
+        '.. py:class:: F()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having both __init__ and __new__',
+        '   ',
+        '   __init__ docstring',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_inherit_docstrings(app):
     assert app.config.autodoc_inherit_docstrings is True  # default
     actual = do_autodoc(app, 'method', 'target.inheritance.Derived.inheritedmeth')
