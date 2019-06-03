@@ -325,39 +325,6 @@ def test_get_doc():
         """Döcstring"""
     assert getdocl('function', f) == ['Döcstring']
 
-    # __init__ have signature at first line of docstring
-    class E:
-        """Class docstring"""
-        def __init__(self, *args, **kw):
-            """
-            __init__(a1, a2, kw1=True, kw2=False)
-
-            Init docstring
-            """
-
-    # signature line in the docstring will be kept when
-    # autodoc_docstring_signature == False
-    directive.env.config.autodoc_docstring_signature = False
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', E) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', E) == ['__init__(a1, a2, kw1=True, kw2=False)',
-                                   '', 'Init docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', E) == ['Class docstring', '',
-                                   '__init__(a1, a2, kw1=True, kw2=False)',
-                                   '', 'Init docstring']
-
-    # signature line in the docstring will be removed when
-    # autodoc_docstring_signature == True
-    directive.env.config.autodoc_docstring_signature = True  # default
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', E) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', E) == ['Init docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', E) == ['Class docstring', '', 'Init docstring']
-
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
     class J:  # NOQA
