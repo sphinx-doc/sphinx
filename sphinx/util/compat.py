@@ -10,23 +10,22 @@
 
 import sys
 import warnings
+from typing import Any, Dict
 
 from docutils.utils import get_source_line
 
 from sphinx import addnodes
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.transforms import SphinxTransform
 from sphinx.util import import_object
 
 if False:
     # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
+    from sphinx.application import Sphinx
 
 
-def deprecate_source_parsers(app, config):
-    # type: (Sphinx, Config) -> None
+def deprecate_source_parsers(app: "Sphinx", config: Config) -> None:
     if config.source_parsers:
         warnings.warn('The config variable "source_parsers" is deprecated. '
                       'Please update your extension for the parser and remove the setting.',
@@ -37,8 +36,7 @@ def deprecate_source_parsers(app, config):
             app.add_source_parser(suffix, parser)
 
 
-def register_application_for_autosummary(app):
-    # type: (Sphinx) -> None
+def register_application_for_autosummary(app: "Sphinx") -> None:
     """Register application object to autosummary module.
 
     Since Sphinx-1.7, documenters and attrgetters are registered into
@@ -55,8 +53,7 @@ class IndexEntriesMigrator(SphinxTransform):
     """Migrating indexentries from old style (4columns) to new style (5columns)."""
     default_priority = 700
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs) -> None:
         for node in self.document.traverse(addnodes.index):
             for i, entries in enumerate(node['entries']):
                 if len(entries) == 4:
@@ -66,8 +63,7 @@ class IndexEntriesMigrator(SphinxTransform):
                     node['entries'][i] = entries + (None,)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(IndexEntriesMigrator)
     app.connect('config-inited', deprecate_source_parsers)
     app.connect('builder-inited', register_application_for_autosummary)
