@@ -19,6 +19,30 @@ IS_PYPY = platform.python_implementation() == 'PyPy'
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_inherit_docstrings(app):
+    assert app.config.autodoc_inherit_docstrings is True  # default
+    actual = do_autodoc(app, 'method', 'target.inheritance.Derived.inheritedmeth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Derived.inheritedmeth()',
+        '   :module: target.inheritance',
+        '',
+        '   Inherited function.',
+        '   '
+    ]
+
+    # disable autodoc_inherit_docstrings
+    app.config.autodoc_inherit_docstrings = False
+    actual = do_autodoc(app, 'method', 'target.inheritance.Derived.inheritedmeth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Derived.inheritedmeth()',
+        '   :module: target.inheritance',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_docstring_signature(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)

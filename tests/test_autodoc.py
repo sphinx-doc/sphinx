@@ -454,15 +454,6 @@ def test_get_doc():
     assert getdocl('method', J.foo) == ['Method docstring']
     assert getdocl('function', J().foo) == ['Method docstring']
 
-    from target.inheritance import Base, Derived
-
-    # NOTE: inspect.getdoc seems not to work with locally defined classes
-    directive.env.config.autodoc_inherit_docstrings = False
-    assert getdocl('method', Base.inheritedmeth) == ['Inherited function.']
-    assert getdocl('method', Derived.inheritedmeth) == []
-    directive.env.config.autodoc_inherit_docstrings = True
-    assert getdocl('method', Derived.inheritedmeth) == ['Inherited function.']
-
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_new_documenter(app):
