@@ -11,22 +11,19 @@
 import re
 from collections import defaultdict
 from contextlib import contextmanager
+from typing import Dict, Generator
 from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
+from docutils.statemachine import StringList
 from docutils.utils import Reporter
+from jinja2 import Environment
 from jinja2 import environmentfilter
 
 from sphinx.locale import __
 from sphinx.util import docutils
 from sphinx.util import logging
-
-if False:
-    # For type annotation
-    from typing import Callable, Dict, Generator  # NOQA
-    from docutils.statemachine import StringList  # NOQA
-    from jinja2 import Environment  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -40,18 +37,15 @@ WIDECHARS = defaultdict(lambda: "WF")   # type: Dict[str, str]
 WIDECHARS["ja"] = "WFA"  # In Japanese, Ambiguous characters also have double width
 
 
-def escape(text):
-    # type: (str) -> str
+def escape(text: str) -> str:
     text = symbols_re.sub(r'\\\1', text)
     text = re.sub(r'^\.', r'\.', text)  # escape a dot at top
     return text
 
 
-def textwidth(text, widechars='WF'):
-    # type: (str, str) -> int
+def textwidth(text: str, widechars: str = 'WF') -> int:
     """Get width of text."""
-    def charwidth(char, widechars):
-        # type: (str, str) -> int
+    def charwidth(char: str, widechars: str) -> int:
         if east_asian_width(char) in widechars:
             return 2
         else:
@@ -61,8 +55,7 @@ def textwidth(text, widechars='WF'):
 
 
 @environmentfilter
-def heading(env, text, level=1):
-    # type: (Environment, str, int) -> str
+def heading(env: Environment, text: str, level: int = 1) -> str:
     """Create a heading for *level*."""
     assert level <= 3
     width = textwidth(text, WIDECHARS[env.language])  # type: ignore
@@ -71,8 +64,7 @@ def heading(env, text, level=1):
 
 
 @contextmanager
-def default_role(docname, name):
-    # type: (str, str) -> Generator
+def default_role(docname: str, name: str) -> Generator[None, None, None]:
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
@@ -86,8 +78,7 @@ def default_role(docname, name):
     docutils.unregister_role('')
 
 
-def prepend_prolog(content, prolog):
-    # type: (StringList, str) -> None
+def prepend_prolog(content: StringList, prolog: str) -> None:
     """Prepend a string to content body as prolog."""
     if prolog:
         pos = 0
@@ -109,8 +100,7 @@ def prepend_prolog(content, prolog):
         content.insert(pos + lineno + 1, '', '<generated>', 0)
 
 
-def append_epilog(content, epilog):
-    # type: (StringList, str) -> None
+def append_epilog(content: StringList, epilog: str) -> None:
     """Append a string to content body as epilog."""
     if epilog:
         content.append('', '<generated>', 0)
