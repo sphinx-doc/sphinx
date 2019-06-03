@@ -34,26 +34,7 @@ def _funky_classmethod(name, b, c, d, docstring=None):
     return classmethod(function)
 
 
-class Base(object):
-    def inheritedmeth(self):
-        """Inherited function."""
-
-    @classmethod
-    def inheritedclassmeth(cls):
-        """Inherited class method."""
-
-    @staticmethod
-    def inheritedstaticmeth(cls):
-        """Inherited static method."""
-
-
-class Derived(Base):
-    def inheritedmeth(self):
-        # no docstring here
-        pass
-
-
-class Class(Base):
+class Class(object):
     """Class to document."""
 
     def meth(self):
