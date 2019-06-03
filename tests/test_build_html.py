@@ -451,7 +451,7 @@ def test_html_download(app):
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5((app.srcdir / 'dummy.dat').encode()).hexdigest()
+    digest = md5(b'dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').text()
