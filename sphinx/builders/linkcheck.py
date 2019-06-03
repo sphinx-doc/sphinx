@@ -159,6 +159,9 @@ class CheckExternalLinksBuilder(Builder):
                 if err.response.status_code == 401:
                     # We'll take "Unauthorized" as working.
                     return 'working', ' - unauthorized', 0
+                elif err.response.status_code == 503:
+                    # We'll take "Service Unavailable" as ignored.
+                    return 'ignored', str(err), 0
                 else:
                     return 'broken', str(err), 0
             except Exception as err:
