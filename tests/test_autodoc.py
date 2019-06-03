@@ -325,127 +325,6 @@ def test_get_doc():
         """Döcstring"""
     assert getdocl('function', f) == ['Döcstring']
 
-    # class docstring: depends on config value which one is taken
-    class C:
-        """Class docstring"""
-        def __init__(self):
-            """Init docstring"""
-
-        def __new__(cls):
-            """New docstring"""
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', C) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', C) == ['Init docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', C) == ['Class docstring', '', 'Init docstring']
-
-    class D:
-        """Class docstring"""
-        def __init__(self):
-            """Init docstring
-
-            Other
-             lines
-            """
-
-    # Indentation is normalized for 'both'
-    assert getdocl('class', D) == ['Class docstring', '', 'Init docstring',
-                                   '', 'Other', ' lines']
-
-    # __init__ have signature at first line of docstring
-    class E:
-        """Class docstring"""
-        def __init__(self, *args, **kw):
-            """
-            __init__(a1, a2, kw1=True, kw2=False)
-
-            Init docstring
-            """
-
-    # signature line in the docstring will be kept when
-    # autodoc_docstring_signature == False
-    directive.env.config.autodoc_docstring_signature = False
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', E) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', E) == ['__init__(a1, a2, kw1=True, kw2=False)',
-                                   '', 'Init docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', E) == ['Class docstring', '',
-                                   '__init__(a1, a2, kw1=True, kw2=False)',
-                                   '', 'Init docstring']
-
-    # signature line in the docstring will be removed when
-    # autodoc_docstring_signature == True
-    directive.env.config.autodoc_docstring_signature = True  # default
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', E) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', E) == ['Init docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', E) == ['Class docstring', '', 'Init docstring']
-
-    # class does not have __init__ method
-    class F:
-        """Class docstring"""
-
-    # docstring in the __init__ method of base class will be discard
-    for f in (False, True):
-        directive.env.config.autodoc_docstring_signature = f
-        directive.env.config.autoclass_content = 'class'
-        assert getdocl('class', F) == ['Class docstring']
-        directive.env.config.autoclass_content = 'init'
-        assert getdocl('class', F) == ['Class docstring']
-        directive.env.config.autoclass_content = 'both'
-        assert getdocl('class', F) == ['Class docstring']
-
-    # class has __init__ method with no docstring
-    class G:
-        """Class docstring"""
-        def __init__(self):
-            pass
-
-    # docstring in the __init__ method of base class will not be used
-    for f in (False, True):
-        directive.env.config.autodoc_docstring_signature = f
-        directive.env.config.autoclass_content = 'class'
-        assert getdocl('class', G) == ['Class docstring']
-        directive.env.config.autoclass_content = 'init'
-        assert getdocl('class', G) == ['Class docstring']
-        directive.env.config.autoclass_content = 'both'
-        assert getdocl('class', G) == ['Class docstring']
-
-    # class has __new__ method with docstring
-    # class docstring: depends on config value which one is taken
-    class H:
-        """Class docstring"""
-        def __init__(self):
-            pass
-
-        def __new__(cls):
-            """New docstring"""
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', H) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', H) == ['New docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', H) == ['Class docstring', '', 'New docstring']
-
-    # class has __init__ method without docstring and
-    # __new__ method with docstring
-    # class docstring: depends on config value which one is taken
-    class I:  # NOQA
-        """Class docstring"""
-        def __new__(cls):
-            """New docstring"""
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', I) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', I) == ['New docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', I) == ['Class docstring', '', 'New docstring']
-
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
     class J:  # NOQA
@@ -453,15 +332,6 @@ def test_get_doc():
             """Method docstring"""
     assert getdocl('method', J.foo) == ['Method docstring']
     assert getdocl('function', J().foo) == ['Method docstring']
-
-    from target import Base, Derived
-
-    # NOTE: inspect.getdoc seems not to work with locally defined classes
-    directive.env.config.autodoc_inherit_docstrings = False
-    assert getdocl('method', Base.inheritedmeth) == ['Inherited function.']
-    assert getdocl('method', Derived.inheritedmeth) == []
-    directive.env.config.autodoc_inherit_docstrings = True
-    assert getdocl('method', Derived.inheritedmeth) == ['Inherited function.']
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -498,6 +368,7 @@ def test_new_documenter(app):
 @pytest.mark.usefixtures('setup_test')
 def test_attrgetter_using():
     from target import Class
+    from target.inheritance import Derived
 
     def assert_getter_works(objtype, name, obj, attrs=[], **kw):
         getattr_spy = []
@@ -527,7 +398,7 @@ def test_attrgetter_using():
         assert_getter_works('class', 'target.Class', Class, ['meth'])
 
         options.inherited_members = True
-        assert_getter_works('class', 'target.Class', Class, ['meth', 'inheritedmeth'])
+        assert_getter_works('class', 'target.inheritance.Derived', Derived, ['inheritedmeth'])
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -630,14 +501,14 @@ def test_autodoc_attributes(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_members(app):
     # default (no-members)
-    actual = do_autodoc(app, 'class', 'target.Base')
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base')
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
     ]
 
     # default ALL-members
     options = {"members": None}
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
         '   .. py:method:: Base.inheritedclassmeth()',
@@ -647,7 +518,7 @@ def test_autodoc_members(app):
 
     # default specific-members
     options = {"members": "inheritedmeth,inheritedstaticmeth"}
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
         '   .. py:method:: Base.inheritedmeth()',
@@ -659,7 +530,7 @@ def test_autodoc_members(app):
 def test_autodoc_exclude_members(app):
     options = {"members": None,
                "exclude-members": "inheritedmeth,inheritedstaticmeth"}
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
         '   .. py:method:: Base.inheritedclassmeth()'
@@ -668,7 +539,7 @@ def test_autodoc_exclude_members(app):
     # members vs exclude-members
     options = {"members": "inheritedmeth",
                "exclude-members": "inheritedmeth"}
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
     ]
@@ -702,15 +573,11 @@ def test_autodoc_undoc_members(app):
 def test_autodoc_inherited_members(app):
     options = {"members": None,
                "inherited-members": None}
-    actual = do_autodoc(app, 'class', 'target.Class', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
     assert list(filter(lambda l: 'method::' in l, actual)) == [
-        '   .. py:method:: Class.excludemeth()',
-        '   .. py:method:: Class.inheritedclassmeth()',
-        '   .. py:method:: Class.inheritedmeth()',
-        '   .. py:method:: Class.inheritedstaticmeth(cls)',
-        '   .. py:method:: Class.meth()',
-        '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.skipmeth()'
+        '   .. py:method:: Derived.inheritedclassmeth()',
+        '   .. py:method:: Derived.inheritedmeth()',
+        '   .. py:method:: Derived.inheritedstaticmeth(cls)',
     ]
 
 
@@ -755,10 +622,12 @@ def test_autodoc_special_members(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
+        '   .. py:attribute:: Class.__dict__',
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:attribute:: Class.__module__',
         '   .. py:method:: Class.__special1__()',
         '   .. py:method:: Class.__special2__()',
+        '   .. py:attribute:: Class.__weakref__',
         '   .. py:attribute:: Class.attr',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
@@ -812,12 +681,12 @@ def test_autodoc_noindex(app):
 
     # TODO: :noindex: should be propagated to children of target item.
 
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(actual) == [
         '',
         '.. py:class:: Base',
         '   :noindex:',
-        '   :module: target',
+        '   :module: target.inheritance',
         ''
     ]
 
@@ -885,11 +754,11 @@ def test_autodoc_inner_class(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_classmethod(app):
-    actual = do_autodoc(app, 'method', 'target.Base.inheritedclassmeth')
+    actual = do_autodoc(app, 'method', 'target.inheritance.Base.inheritedclassmeth')
     assert list(actual) == [
         '',
         '.. py:method:: Base.inheritedclassmeth()',
-        '   :module: target',
+        '   :module: target.inheritance',
         '   :classmethod:',
         '',
         '   Inherited class method.',
@@ -899,11 +768,11 @@ def test_autodoc_classmethod(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_staticmethod(app):
-    actual = do_autodoc(app, 'method', 'target.Base.inheritedstaticmeth')
+    actual = do_autodoc(app, 'method', 'target.inheritance.Base.inheritedstaticmeth')
     assert list(actual) == [
         '',
         '.. py:method:: Base.inheritedstaticmeth(cls)',
-        '   :module: target',
+        '   :module: target.inheritance',
         '   :staticmethod:',
         '',
         '   Inherited static method.',

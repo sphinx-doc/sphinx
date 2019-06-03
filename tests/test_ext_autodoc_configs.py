@@ -19,6 +19,180 @@ IS_PYPY = platform.python_implementation() == 'PyPy'
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_class(app):
+    app.config.autoclass_content = 'class'
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.autoclass_content',
+        '',
+        '',
+        '.. py:class:: A',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, no __new__',
+        '   ',
+        '',
+        '.. py:class:: B()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__(no docstring), no __new__',
+        '   ',
+        '',
+        '.. py:class:: C()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__, no __new__',
+        '   ',
+        '',
+        '.. py:class:: D',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__(no docstring)',
+        '   ',
+        '',
+        '.. py:class:: E',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__',
+        '   ',
+        '',
+        '.. py:class:: F()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having both __init__ and __new__',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_init(app):
+    app.config.autoclass_content = 'init'
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.autoclass_content',
+        '',
+        '',
+        '.. py:class:: A',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, no __new__',
+        '   ',
+        '',
+        '.. py:class:: B()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__(no docstring), no __new__',
+        '   ',
+        '',
+        '.. py:class:: C()',
+        '   :module: target.autoclass_content',
+        '',
+        '   __init__ docstring',
+        '   ',
+        '',
+        '.. py:class:: D',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__(no docstring)',
+        '   ',
+        '',
+        '.. py:class:: E',
+        '   :module: target.autoclass_content',
+        '',
+        '   __new__ docstring',
+        '   ',
+        '',
+        '.. py:class:: F()',
+        '   :module: target.autoclass_content',
+        '',
+        '   __init__ docstring',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_both(app):
+    app.config.autoclass_content = 'both'
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.autoclass_content',
+        '',
+        '',
+        '.. py:class:: A',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, no __new__',
+        '   ',
+        '',
+        '.. py:class:: B()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__(no docstring), no __new__',
+        '   ',
+        '',
+        '.. py:class:: C()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__, no __new__',
+        '   ',
+        '   __init__ docstring',
+        '   ',
+        '',
+        '.. py:class:: D',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__(no docstring)',
+        '   ',
+        '',
+        '.. py:class:: E',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having no __init__, __new__',
+        '   ',
+        '   __new__ docstring',
+        '   ',
+        '',
+        '.. py:class:: F()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having both __init__ and __new__',
+        '   ',
+        '   __init__ docstring',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_inherit_docstrings(app):
+    assert app.config.autodoc_inherit_docstrings is True  # default
+    actual = do_autodoc(app, 'method', 'target.inheritance.Derived.inheritedmeth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Derived.inheritedmeth()',
+        '   :module: target.inheritance',
+        '',
+        '   Inherited function.',
+        '   '
+    ]
+
+    # disable autodoc_inherit_docstrings
+    app.config.autodoc_inherit_docstrings = False
+    actual = do_autodoc(app, 'method', 'target.inheritance.Derived.inheritedmeth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Derived.inheritedmeth()',
+        '   :module: target.inheritance',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_docstring_signature(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
@@ -104,6 +278,97 @@ def test_autodoc_docstring_signature(app):
         '      First line of docstring',
         '      Second line of docstring',
         '      '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_and_docstring_signature_class(app):
+    app.config.autoclass_content = 'class'
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.docstring_signature', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: A(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: B(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: C(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: D()',
+        '   :module: target.docstring_signature',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_and_docstring_signature_init(app):
+    app.config.autoclass_content = 'init'
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.docstring_signature', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: A(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: B(foo, bar, baz)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: C(foo, bar, baz)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: D(foo, bar, baz)',
+        '   :module: target.docstring_signature',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_and_docstring_signature_both(app):
+    app.config.autoclass_content = 'both'
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.docstring_signature', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: A(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: B(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '   B(foo, bar, baz)',
+        '   ',
+        '',
+        '.. py:class:: C(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '   C(foo, bar, baz)',
+        '   ',
+        '',
+        '.. py:class:: D(foo, bar, baz)',
+        '   :module: target.docstring_signature',
+        '',
     ]
 
 
