@@ -128,7 +128,7 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
                 members[name] = Attribute(name, True, value)
 
     # members in __slots__
-    if isclass(subject) and hasattr(subject, '__slots__'):
+    if isclass(subject) and getattr(subject, '__slots__', None) is not None:
         from sphinx.ext.autodoc import SLOTSATTR
 
         for name in subject.__slots__:
