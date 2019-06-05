@@ -1242,7 +1242,7 @@ def test_latex_images(app, status, warning):
     # not found images
     assert '\\sphinxincludegraphics{{NOT_EXIST}.PNG}' not in result
     assert ('WARNING: Could not fetch remote image: '
-            'http://example.com/NOT_EXIST.PNG [404]' in warning.getvalue())
+            'https://www.google.com/NOT_EXIST.PNG [404]' in warning.getvalue())
 
     # an image having target
     assert ('\\sphinxhref{https://www.sphinx-doc.org/}'

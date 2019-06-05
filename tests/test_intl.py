@@ -885,8 +885,8 @@ def test_xml_keep_external_links(app):
     assert_elem(
         para1[0],
         ['LINK TO', 'external2', 'AND', 'external1', '.'],
-        ['http://example.com/external2',
-         'http://example.com/external1'])
+        ['https://www.google.com/external2',
+         'https://www.google.com/external1'])
     assert_elem(
         para1[1],
         ['LINK TO', 'THE PYTHON SITE', 'AND', 'THE SPHINX SITE', '.'],
