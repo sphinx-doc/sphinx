@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6448: autodoc: crashed when autodocumenting classes with ``__slots__ = None``
+
 Testing
 --------
 
