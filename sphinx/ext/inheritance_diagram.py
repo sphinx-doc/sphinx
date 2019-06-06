@@ -403,25 +403,26 @@ def html_visit_inheritance_diagram(self, node):
     Output the graph for HTML.  This will insert a PNG with clickable
     image map.
     """
+    env = self.builder.env
     graph = node['graph']
 
     graph_hash = get_graph_hash(node)
     name = 'inheritance%s' % graph_hash
 
     # Create a mapping from fully-qualified class names to URLs.
-    graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
+    graphviz_output_format = env.config.graphviz_output_format.upper()
     current_filename = self.builder.current_docname + self.builder.out_suffix
     urls = {}
     pending_xrefs = cast(Iterable[addnodes.pending_xref], node)
     for child in pending_xrefs:
         if child.get('refuri') is not None:
             if graphviz_output_format == 'SVG':
-                urls[child['reftitle']] = "../" + child.get('refuri')
+                urls[child['reftitle']] = env.config.svg_link_prefix + child.get('refuri')
             else:
                 urls[child['reftitle']] = child.get('refuri')
         elif child.get('refid') is not None:
             if graphviz_output_format == 'SVG':
-                urls[child['reftitle']] = '../' + current_filename + '#' + child.get('refid')
+                urls[child['reftitle']] = env.config.svg_link_prefix + current_filename + '#' + child.get('refid')
             else:
                 urls[child['reftitle']] = '#' + child.get('refid')
 
@@ -483,4 +484,5 @@ def setup(app):
     app.add_config_value('inheritance_node_attrs', {}, False)
     app.add_config_value('inheritance_edge_attrs', {}, False)
     app.add_config_value('inheritance_alias', {}, False)
+    app.add_config_value('svg_link_prefix', '../', False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
