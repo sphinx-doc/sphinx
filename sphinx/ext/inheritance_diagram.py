@@ -422,7 +422,8 @@ def html_visit_inheritance_diagram(self, node):
                 urls[child['reftitle']] = child.get('refuri')
         elif child.get('refid') is not None:
             if graphviz_output_format == 'SVG':
-                urls[child['reftitle']] = env.config.svg_link_prefix + current_filename + '#' + child.get('refid')
+                urls[child['reftitle']] = (env.config.svg_link_prefix + current_filename +
+                                           '#' + child.get('refid'))
             else:
                 urls[child['reftitle']] = '#' + child.get('refid')
 
