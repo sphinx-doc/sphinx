@@ -35,6 +35,7 @@ Deprecated
 
 Features added
 --------------
+* #6454: An ``svg_link_prefix`` option was added to the inheritance diagram extension
 
 Bugs fixed
 ----------
