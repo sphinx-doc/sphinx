@@ -19,6 +19,7 @@ Bugs fixed
 * #6442: LaTeX: admonitions of :rst:dir:`note` type can get separated from
   immediately preceding section title by pagebreak
 * #6448: autodoc: crashed when autodocumenting classes with ``__slots__ = None``
+* #6452: autosummary: crashed when generating document of properties
 
 Testing
 --------
