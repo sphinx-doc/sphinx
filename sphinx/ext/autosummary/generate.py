@@ -221,7 +221,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     get_members(obj, {'attribute', 'property'})
 
             parts = name.split('.')
-            if doc.objtype in ('method', 'attribute'):
+            if doc.objtype in ('method', 'attribute', 'property'):
                 mod_name = '.'.join(parts[:-2])
                 cls_name = parts[-2]
                 obj_name = '.'.join(parts[-2:])
