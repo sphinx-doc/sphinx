@@ -39,6 +39,11 @@ Features added
 Bugs fixed
 ----------
 
+* py domain: duplicated warning does not point the location of source code
+* #1125: html theme: scrollbar is hard to see on classic theme and macOS
+* #5502: linkcheck: Consider HTTP 503 response as not an error
+* #6439: Make generated download links reproducible
+
 Testing
 --------
 
@@ -59,6 +64,11 @@ Features added
 
 Bugs fixed
 ----------
+
+* #6442: LaTeX: admonitions of :rst:dir:`note` type can get separated from
+  immediately preceding section title by pagebreak
+* #6448: autodoc: crashed when autodocumenting classes with ``__slots__ = None``
+* #6452: autosummary: crashed when generating document of properties
 
 Testing
 --------

@@ -9,10 +9,7 @@
 """
 
 import re
-
-if False:
-    # For type annotation
-    from typing import Dict  # NOQA
+from typing import Dict
 
 tex_replacements = [
     # map TeX special chars
@@ -78,20 +75,17 @@ tex_replace_map = {}
 tex_hl_escape_map_new = {}
 
 
-def escape(s):
-    # type: (str) -> str
+def escape(s: str) -> str:
     """Escape text for LaTeX output."""
     return s.translate(tex_escape_map)
 
 
-def escape_abbr(text):
-    # type: (str) -> str
+def escape_abbr(text: str) -> str:
     """Adjust spacing after abbreviations. Works with @ letter or other."""
     return re.sub(r'\.(?=\s|$)', r'.\@{}', text)
 
 
-def init():
-    # type: () -> None
+def init() -> None:
     for a, b in tex_replacements:
         tex_escape_map[ord(a)] = b
         tex_replace_map[ord(a)] = '_'

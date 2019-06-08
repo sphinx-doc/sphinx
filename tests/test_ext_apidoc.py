@@ -467,7 +467,8 @@ def test_package_file(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
     (outdir / 'testpkg' / '__init__.py').write_text('')
-    (outdir / 'testpkg' / 'example.py').write_text('')
+    (outdir / 'testpkg' / 'hello.py').write_text('')
+    (outdir / 'testpkg' / 'world.py').write_text('')
     (outdir / 'testpkg' / 'subpkg').makedirs()
     (outdir / 'testpkg' / 'subpkg' / '__init__.py').write_text('')
     apidoc_main(['-o', tempdir, tempdir / 'testpkg'])
@@ -488,10 +489,18 @@ def test_package_file(tempdir):
                        "Submodules\n"
                        "----------\n"
                        "\n"
-                       "testpkg.example module\n"
-                       "----------------------\n"
+                       "testpkg.hello module\n"
+                       "--------------------\n"
                        "\n"
-                       ".. automodule:: testpkg.example\n"
+                       ".. automodule:: testpkg.hello\n"
+                       "   :members:\n"
+                       "   :undoc-members:\n"
+                       "   :show-inheritance:\n"
+                       "\n"
+                       "testpkg.world module\n"
+                       "--------------------\n"
+                       "\n"
+                       ".. automodule:: testpkg.world\n"
                        "   :members:\n"
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n"

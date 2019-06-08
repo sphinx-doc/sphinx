@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import platform
 import sys
 from unittest.mock import Mock
 from warnings import catch_warnings
@@ -17,15 +16,13 @@ from warnings import catch_warnings
 import pytest
 from docutils.statemachine import ViewList
 
-from sphinx.ext.autodoc import ModuleLevelDocumenter, cut_lines, between, ALL, Options
+from sphinx.ext.autodoc import ModuleLevelDocumenter, ALL, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
 app = None
-
-IS_PYPY = platform.python_implementation() == 'PyPy'
 
 
 def do_autodoc(app, objtype, name, options=None):
@@ -55,7 +52,6 @@ def setup_module(rootdir, sphinx_test_tempdir):
         app = SphinxTestApp(srcdir=srcdir)
         app.builder.env.app = app
         app.builder.env.temp_data['docname'] = 'dummy'
-        app.connect('autodoc-process-docstring', process_docstring)
         app.connect('autodoc-process-signature', process_signature)
         app.connect('autodoc-skip-member', skip_member)
         yield
@@ -70,7 +66,7 @@ directive = options = None
 @pytest.fixture
 def setup_test():
     global options, directive
-    global processed_docstrings, processed_signatures
+    global processed_signatures
 
     options = Options(
         inherited_members = False,
@@ -99,7 +95,6 @@ def setup_test():
     )
     directive.state.document.settings.tab_width = 8
 
-    processed_docstrings = []
     processed_signatures = []
 
     app._status.truncate(0)
@@ -110,14 +105,7 @@ def setup_test():
     app.registry.autodoc_attrgettrs.clear()
 
 
-processed_docstrings = []
 processed_signatures = []
-
-
-def process_docstring(app, what, name, obj, options, lines):
-    processed_docstrings.append((what, name))
-    if name == 'bar':
-        lines.extend(['42', ''])
 
 
 def process_signature(app, what, name, obj, options, args, retann):
@@ -337,127 +325,6 @@ def test_get_doc():
         """Döcstring"""
     assert getdocl('function', f) == ['Döcstring']
 
-    # class docstring: depends on config value which one is taken
-    class C:
-        """Class docstring"""
-        def __init__(self):
-            """Init docstring"""
-
-        def __new__(cls):
-            """New docstring"""
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', C) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', C) == ['Init docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', C) == ['Class docstring', '', 'Init docstring']
-
-    class D:
-        """Class docstring"""
-        def __init__(self):
-            """Init docstring
-
-            Other
-             lines
-            """
-
-    # Indentation is normalized for 'both'
-    assert getdocl('class', D) == ['Class docstring', '', 'Init docstring',
-                                   '', 'Other', ' lines']
-
-    # __init__ have signature at first line of docstring
-    class E:
-        """Class docstring"""
-        def __init__(self, *args, **kw):
-            """
-            __init__(a1, a2, kw1=True, kw2=False)
-
-            Init docstring
-            """
-
-    # signature line in the docstring will be kept when
-    # autodoc_docstring_signature == False
-    directive.env.config.autodoc_docstring_signature = False
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', E) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', E) == ['__init__(a1, a2, kw1=True, kw2=False)',
-                                   '', 'Init docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', E) == ['Class docstring', '',
-                                   '__init__(a1, a2, kw1=True, kw2=False)',
-                                   '', 'Init docstring']
-
-    # signature line in the docstring will be removed when
-    # autodoc_docstring_signature == True
-    directive.env.config.autodoc_docstring_signature = True  # default
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', E) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', E) == ['Init docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', E) == ['Class docstring', '', 'Init docstring']
-
-    # class does not have __init__ method
-    class F:
-        """Class docstring"""
-
-    # docstring in the __init__ method of base class will be discard
-    for f in (False, True):
-        directive.env.config.autodoc_docstring_signature = f
-        directive.env.config.autoclass_content = 'class'
-        assert getdocl('class', F) == ['Class docstring']
-        directive.env.config.autoclass_content = 'init'
-        assert getdocl('class', F) == ['Class docstring']
-        directive.env.config.autoclass_content = 'both'
-        assert getdocl('class', F) == ['Class docstring']
-
-    # class has __init__ method with no docstring
-    class G:
-        """Class docstring"""
-        def __init__(self):
-            pass
-
-    # docstring in the __init__ method of base class will not be used
-    for f in (False, True):
-        directive.env.config.autodoc_docstring_signature = f
-        directive.env.config.autoclass_content = 'class'
-        assert getdocl('class', G) == ['Class docstring']
-        directive.env.config.autoclass_content = 'init'
-        assert getdocl('class', G) == ['Class docstring']
-        directive.env.config.autoclass_content = 'both'
-        assert getdocl('class', G) == ['Class docstring']
-
-    # class has __new__ method with docstring
-    # class docstring: depends on config value which one is taken
-    class H:
-        """Class docstring"""
-        def __init__(self):
-            pass
-
-        def __new__(cls):
-            """New docstring"""
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', H) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', H) == ['New docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', H) == ['Class docstring', '', 'New docstring']
-
-    # class has __init__ method without docstring and
-    # __new__ method with docstring
-    # class docstring: depends on config value which one is taken
-    class I:  # NOQA
-        """Class docstring"""
-        def __new__(cls):
-            """New docstring"""
-    directive.env.config.autoclass_content = 'class'
-    assert getdocl('class', I) == ['Class docstring']
-    directive.env.config.autoclass_content = 'init'
-    assert getdocl('class', I) == ['New docstring']
-    directive.env.config.autoclass_content = 'both'
-    assert getdocl('class', I) == ['Class docstring', '', 'New docstring']
-
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
     class J:  # NOQA
@@ -465,70 +332,6 @@ def test_get_doc():
             """Method docstring"""
     assert getdocl('method', J.foo) == ['Method docstring']
     assert getdocl('function', J().foo) == ['Method docstring']
-
-    from target import Base, Derived
-
-    # NOTE: inspect.getdoc seems not to work with locally defined classes
-    directive.env.config.autodoc_inherit_docstrings = False
-    assert getdocl('method', Base.inheritedmeth) == ['Inherited function.']
-    assert getdocl('method', Derived.inheritedmeth) == []
-    directive.env.config.autodoc_inherit_docstrings = True
-    assert getdocl('method', Derived.inheritedmeth) == ['Inherited function.']
-
-
-@pytest.mark.usefixtures('setup_test')
-def test_docstring_processing():
-    def process(objtype, name, obj):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.object = obj
-        inst.fullname = name
-        return list(inst.process_doc(inst.get_doc()))
-
-    class E:
-        def __init__(self):
-            """Init docstring"""
-
-    # docstring processing by event handler
-    assert process('class', 'bar', E) == ['Init docstring', '', '42', '']
-
-    lid = app.connect('autodoc-process-docstring',
-                      cut_lines(1, 1, ['function']))
-
-    def f():
-        """
-        first line
-        second line
-        third line
-        """
-    assert process('function', 'f', f) == ['second line', '']
-    app.disconnect(lid)
-
-    lid = app.connect('autodoc-process-docstring', between('---', ['function']))
-
-    def g():
-        """
-        first line
-        ---
-        second line
-        ---
-        third line
-        """
-    assert process('function', 'g', g) == ['second line', '']
-    app.disconnect(lid)
-
-    lid = app.connect('autodoc-process-docstring',
-                      between('---', ['function'], exclude=True))
-
-    def h():
-        """
-        first line
-        ---
-        second line
-        ---
-        third line
-        """
-    assert process('function', 'h', h) == ['first line', 'third line', '']
-    app.disconnect(lid)
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -565,6 +368,7 @@ def test_new_documenter(app):
 @pytest.mark.usefixtures('setup_test')
 def test_attrgetter_using():
     from target import Class
+    from target.inheritance import Derived
 
     def assert_getter_works(objtype, name, obj, attrs=[], **kw):
         getattr_spy = []
@@ -594,7 +398,7 @@ def test_attrgetter_using():
         assert_getter_works('class', 'target.Class', Class, ['meth'])
 
         options.inherited_members = True
-        assert_getter_works('class', 'target.Class', Class, ['meth', 'inheritedmeth'])
+        assert_getter_works('class', 'target.inheritance.Derived', Derived, ['inheritedmeth'])
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -697,14 +501,14 @@ def test_autodoc_attributes(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_members(app):
     # default (no-members)
-    actual = do_autodoc(app, 'class', 'target.Base')
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base')
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
     ]
 
     # default ALL-members
     options = {"members": None}
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
         '   .. py:method:: Base.inheritedclassmeth()',
@@ -714,7 +518,7 @@ def test_autodoc_members(app):
 
     # default specific-members
     options = {"members": "inheritedmeth,inheritedstaticmeth"}
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
         '   .. py:method:: Base.inheritedmeth()',
@@ -726,7 +530,7 @@ def test_autodoc_members(app):
 def test_autodoc_exclude_members(app):
     options = {"members": None,
                "exclude-members": "inheritedmeth,inheritedstaticmeth"}
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
         '   .. py:method:: Base.inheritedclassmeth()'
@@ -735,7 +539,7 @@ def test_autodoc_exclude_members(app):
     # members vs exclude-members
     options = {"members": "inheritedmeth",
                "exclude-members": "inheritedmeth"}
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base',
     ]
@@ -749,7 +553,6 @@ def test_autodoc_undoc_members(app):
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.descr',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -758,7 +561,6 @@ def test_autodoc_undoc_members(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
@@ -771,16 +573,11 @@ def test_autodoc_undoc_members(app):
 def test_autodoc_inherited_members(app):
     options = {"members": None,
                "inherited-members": None}
-    actual = do_autodoc(app, 'class', 'target.Class', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
     assert list(filter(lambda l: 'method::' in l, actual)) == [
-        '   .. py:method:: Class.excludemeth()',
-        '   .. py:method:: Class.inheritedclassmeth()',
-        '   .. py:method:: Class.inheritedmeth()',
-        '   .. py:method:: Class.inheritedstaticmeth(cls)',
-        '   .. py:method:: Class.meth()',
-        '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.prop',
-        '   .. py:method:: Class.skipmeth()'
+        '   .. py:method:: Derived.inheritedclassmeth()',
+        '   .. py:method:: Derived.inheritedmeth()',
+        '   .. py:method:: Derived.inheritedstaticmeth(cls)',
     ]
 
 
@@ -790,7 +587,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: save_traceback(app)' in actual
+    assert '.. py:function:: save_traceback(app: Sphinx) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -825,12 +622,13 @@ def test_autodoc_special_members(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
+        '   .. py:attribute:: Class.__dict__',
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:attribute:: Class.__module__',
         '   .. py:method:: Class.__special1__()',
         '   .. py:method:: Class.__special2__()',
+        '   .. py:attribute:: Class.__weakref__',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.descr',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -839,7 +637,6 @@ def test_autodoc_special_members(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
@@ -863,9 +660,6 @@ def test_autodoc_ignore_module_all(app):
     actual = do_autodoc(app, 'module', 'target', options)
     assert list(filter(lambda l: 'class::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '.. py:class:: CustomDataDescriptor(doc)',
-        '.. py:class:: CustomDataDescriptor2(doc)',
-        '.. py:class:: CustomDataDescriptorMeta',
         '.. py:class:: CustomDict',
         '.. py:class:: InstAttCls()',
         '.. py:class:: Outer',
@@ -887,12 +681,12 @@ def test_autodoc_noindex(app):
 
     # TODO: :noindex: should be propagated to children of target item.
 
-    actual = do_autodoc(app, 'class', 'target.Base', options)
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(actual) == [
         '',
         '.. py:class:: Base',
         '   :noindex:',
-        '   :module: target',
+        '   :module: target.inheritance',
         ''
     ]
 
@@ -960,11 +754,11 @@ def test_autodoc_inner_class(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_classmethod(app):
-    actual = do_autodoc(app, 'method', 'target.Base.inheritedclassmeth')
+    actual = do_autodoc(app, 'method', 'target.inheritance.Base.inheritedclassmeth')
     assert list(actual) == [
         '',
         '.. py:method:: Base.inheritedclassmeth()',
-        '   :module: target',
+        '   :module: target.inheritance',
         '   :classmethod:',
         '',
         '   Inherited class method.',
@@ -974,11 +768,11 @@ def test_autodoc_classmethod(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_staticmethod(app):
-    actual = do_autodoc(app, 'method', 'target.Base.inheritedstaticmeth')
+    actual = do_autodoc(app, 'method', 'target.inheritance.Base.inheritedstaticmeth')
     assert list(actual) == [
         '',
         '.. py:method:: Base.inheritedstaticmeth(cls)',
-        '   :module: target',
+        '   :module: target.inheritance',
         '   :staticmethod:',
         '',
         '   Inherited static method.',
@@ -988,14 +782,27 @@ def test_autodoc_staticmethod(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_descriptor(app):
-    actual = do_autodoc(app, 'attribute', 'target.Class.descr')
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'class', 'target.descriptor.Class', options)
     assert list(actual) == [
         '',
-        '.. py:attribute:: Class.descr',
-        '   :module: target',
+        '.. py:class:: Class',
+        '   :module: target.descriptor',
         '',
-        '   Descriptor instance docstring.',
-        '   '
+        '   ',
+        '   .. py:attribute:: Class.descr',
+        '      :module: target.descriptor',
+        '   ',
+        '      Descriptor instance docstring.',
+        '      ',
+        '   ',
+        '   .. py:method:: Class.prop',
+        '      :module: target.descriptor',
+        '      :property:',
+        '   ',
+        '      Property.',
+        '      '
     ]
 
 
@@ -1024,14 +831,12 @@ def test_autodoc_member_order(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '   .. py:attribute:: Class.descr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.undocmeth()',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:attribute:: Class.attr',
-        '   .. py:method:: Class.prop',
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',
@@ -1059,13 +864,11 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.undocmeth()',
         '   .. py:attribute:: Class._private_inst_attr',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.descr',
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.inst_attr_comment',
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_string',
         '   .. py:attribute:: Class.mdocattr',
-        '   .. py:method:: Class.prop',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:attribute:: Class.udocattr'
     ]
@@ -1079,7 +882,6 @@ def test_autodoc_member_order(app):
         '.. py:class:: Class(arg)',
         '   .. py:attribute:: Class._private_inst_attr',
         '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.descr',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -1088,7 +890,6 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.prop',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
@@ -1125,95 +926,6 @@ def test_autodoc_class_scope(app):
         '',
         '   should be documented as well - süß',
         '   '
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_docstring_signature(app):
-    options = {"members": None}
-    actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
-    assert list(actual) == [
-        '',
-        '.. py:class:: DocstringSig',
-        '   :module: target',
-        '',
-        '   ',
-        '   .. py:method:: DocstringSig.meth(FOO, BAR=1) -> BAZ',
-        '      :module: target',
-        '   ',
-        '      First line of docstring',
-        '      ',
-        '      rest of docstring',
-        '      ',
-        '   ',
-        '   .. py:method:: DocstringSig.meth2()',
-        '      :module: target',
-        '   ',
-        '      First line, no signature',
-        '      Second line followed by indentation::',
-        '      ',
-        '          indented line',
-        '      ',
-        '   ',
-        '   .. py:method:: DocstringSig.prop1',
-        '      :module: target',
-        '      :property:',
-        '   ',
-        '      First line of docstring',
-        '      ',
-        '   ',
-        '   .. py:method:: DocstringSig.prop2',
-        '      :module: target',
-        '      :property:',
-        '   ',
-        '      First line of docstring',
-        '      Second line of docstring',
-        '      '
-    ]
-
-    # disable autodoc_docstring_signature
-    app.config.autodoc_docstring_signature = False
-    actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
-    assert list(actual) == [
-        '',
-        '.. py:class:: DocstringSig',
-        '   :module: target',
-        '',
-        '   ',
-        '   .. py:method:: DocstringSig.meth()',
-        '      :module: target',
-        '   ',
-        '      meth(FOO, BAR=1) -> BAZ',
-        '      First line of docstring',
-        '      ',
-        '              rest of docstring',
-        '              ',
-        '      ',
-        '   ',
-        '   .. py:method:: DocstringSig.meth2()',
-        '      :module: target',
-        '   ',
-        '      First line, no signature',
-        '      Second line followed by indentation::',
-        '      ',
-        '          indented line',
-        '      ',
-        '   ',
-        '   .. py:method:: DocstringSig.prop1',
-        '      :module: target',
-        '      :property:',
-        '   ',
-        '      DocstringSig.prop1(self)',
-        '      First line of docstring',
-        '      ',
-        '   ',
-        '   .. py:method:: DocstringSig.prop2',
-        '      :module: target',
-        '      :property:',
-        '   ',
-        '      First line of docstring',
-        '      Second line of docstring',
-        '      '
     ]
 
 
@@ -1419,26 +1131,26 @@ def test_enum_class(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_descriptor_class(app):
     options = {"members": 'CustomDataDescriptor,CustomDataDescriptor2'}
-    actual = do_autodoc(app, 'module', 'target', options)
+    actual = do_autodoc(app, 'module', 'target.descriptor', options)
     assert list(actual) == [
         '',
-        '.. py:module:: target',
+        '.. py:module:: target.descriptor',
         '',
         '',
         '.. py:class:: CustomDataDescriptor(doc)',
-        '   :module: target',
+        '   :module: target.descriptor',
         '',
         '   Descriptor class docstring.',
         '   ',
         '   ',
         '   .. py:method:: CustomDataDescriptor.meth()',
-        '      :module: target',
+        '      :module: target.descriptor',
         '   ',
         '      Function.',
         '      ',
         '',
         '.. py:class:: CustomDataDescriptor2(doc)',
-        '   :module: target',
+        '   :module: target.descriptor',
         '',
         '   Descriptor class with custom metaclass docstring.',
         '   '
@@ -1469,57 +1181,6 @@ def test_autofunction_for_method(app):
         '   docstring of Callable.method().',
         '   '
     ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_mocked_module_imports(app, warning):
-    # no autodoc_mock_imports
-    options = {"members": 'TestAutodoc,decoratedFunction,func'}
-    actual = do_autodoc(app, 'module', 'target.need_mocks', options)
-    assert list(actual) == []
-    assert "autodoc: failed to import module 'need_mocks'" in warning.getvalue()
-
-    # with autodoc_mock_imports
-    app.config.autodoc_mock_imports = [
-        'missing_module',
-        'missing_package1',
-        'missing_package2',
-        'missing_package3',
-        'sphinx.missing_module4',
-    ]
-
-    warning.truncate(0)
-    actual = do_autodoc(app, 'module', 'target.need_mocks', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: target.need_mocks',
-        '',
-        '',
-        '.. py:class:: TestAutodoc',
-        '   :module: target.need_mocks',
-        '',
-        '   TestAutodoc docstring.',
-        '   ',
-        '   ',
-        '   .. py:method:: TestAutodoc.decoratedMethod()',
-        '      :module: target.need_mocks',
-        '   ',
-        '      TestAutodoc::decoratedMethod docstring',
-        '      ',
-        '',
-        '.. py:function:: decoratedFunction()',
-        '   :module: target.need_mocks',
-        '',
-        '   decoratedFunction docstring',
-        '   ',
-        '',
-        '.. py:function:: func(arg: missing_module.Class)',
-        '   :module: target.need_mocks',
-        '',
-        '   a function takes mocked object as an argument',
-        '   '
-    ]
-    assert warning.getvalue() == ''
 
 
 @pytest.mark.usefixtures('setup_test')
@@ -1708,214 +1369,6 @@ def test_module_variables():
         "   :annotation: = ''",
         '',
     ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_typehints_signature(app):
-    app.config.autodoc_typehints = "signature"
-
-    options = {"members": None,
-               "undoc-members": True}
-    actual = do_autodoc(app, 'module', 'target.typehints', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: target.typehints',
-        '',
-        '',
-        '.. py:class:: Math(s: str, o: object = None)',
-        '   :module: target.typehints',
-        '',
-        '   ',
-        '   .. py:method:: Math.incr(a: int, b: int = 1) -> int',
-        '      :module: target.typehints',
-        '   ',
-        '',
-        '.. py:function:: incr(a: int, b: int = 1) -> int',
-        '   :module: target.typehints',
-        ''
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_typehints_none(app):
-    app.config.autodoc_typehints = "none"
-
-    options = {"members": None,
-               "undoc-members": True}
-    actual = do_autodoc(app, 'module', 'target.typehints', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: target.typehints',
-        '',
-        '',
-        '.. py:class:: Math(s, o = None)',
-        '   :module: target.typehints',
-        '',
-        '   ',
-        '   .. py:method:: Math.incr(a, b = 1) -> int',
-        '      :module: target.typehints',
-        '   ',
-        '',
-        '.. py:function:: incr(a, b = 1) -> int',
-        '   :module: target.typehints',
-        ''
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_options(app):
-    # no settings
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
-    assert '   .. py:attribute:: EnumCls.val1' not in actual
-    assert '   .. py:attribute:: EnumCls.val4' not in actual
-    actual = do_autodoc(app, 'class', 'target.CustomIter')
-    assert '   .. py:method:: target.CustomIter' not in actual
-    actual = do_autodoc(app, 'module', 'target')
-    assert '.. py:function:: save_traceback(app)' not in actual
-
-    # with :members:
-    app.config.autodoc_default_options = {'members': None}
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
-    assert '   .. py:attribute:: EnumCls.val1' in actual
-    assert '   .. py:attribute:: EnumCls.val4' not in actual
-
-    # with :members: = True
-    app.config.autodoc_default_options = {'members': True}
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
-    assert '   .. py:attribute:: EnumCls.val1' in actual
-    assert '   .. py:attribute:: EnumCls.val4' not in actual
-
-    # with :members: and :undoc-members:
-    app.config.autodoc_default_options = {
-        'members': None,
-        'undoc-members': None,
-    }
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
-    assert '   .. py:attribute:: EnumCls.val1' in actual
-    assert '   .. py:attribute:: EnumCls.val4' in actual
-
-    # with :special-members:
-    # Note that :members: must be *on* for :special-members: to work.
-    app.config.autodoc_default_options = {
-        'members': None,
-        'special-members': None
-    }
-    actual = do_autodoc(app, 'class', 'target.CustomIter')
-    assert '   .. py:method:: CustomIter.__init__()' in actual
-    assert '      Create a new `CustomIter`.' in actual
-    assert '   .. py:method:: CustomIter.__iter__()' in actual
-    assert '      Iterate squares of each value.' in actual
-    if not IS_PYPY:
-        assert '   .. py:attribute:: CustomIter.__weakref__' in actual
-        assert '      list of weak references to the object (if defined)' in actual
-
-    # :exclude-members: None - has no effect. Unlike :members:,
-    # :special-members:, etc. where None == "include all", here None means
-    # "no/false/off".
-    app.config.autodoc_default_options = {
-        'members': None,
-        'exclude-members': None,
-    }
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
-    assert '   .. py:attribute:: EnumCls.val1' in actual
-    assert '   .. py:attribute:: EnumCls.val4' not in actual
-    app.config.autodoc_default_options = {
-        'members': None,
-        'special-members': None,
-        'exclude-members': None,
-    }
-    actual = do_autodoc(app, 'class', 'target.CustomIter')
-    assert '   .. py:method:: CustomIter.__init__()' in actual
-    assert '      Create a new `CustomIter`.' in actual
-    assert '   .. py:method:: CustomIter.__iter__()' in actual
-    assert '      Iterate squares of each value.' in actual
-    if not IS_PYPY:
-        assert '   .. py:attribute:: CustomIter.__weakref__' in actual
-        assert '      list of weak references to the object (if defined)' in actual
-    assert '   .. py:method:: CustomIter.snafucate()' in actual
-    assert '      Makes this snafucated.' in actual
-
-    # with :imported-members:
-    app.config.autodoc_default_options = {
-        'members': None,
-        'imported-members': None,
-        'ignore-module-all': None,
-    }
-    actual = do_autodoc(app, 'module', 'target')
-    assert '.. py:function:: save_traceback(app)' in actual
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_options_with_values(app):
-    # with :members:
-    app.config.autodoc_default_options = {'members': 'val1,val2'}
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
-    assert '   .. py:attribute:: EnumCls.val1' in actual
-    assert '   .. py:attribute:: EnumCls.val2' in actual
-    assert '   .. py:attribute:: EnumCls.val3' not in actual
-    assert '   .. py:attribute:: EnumCls.val4' not in actual
-
-    # with :member-order:
-    app.config.autodoc_default_options = {
-        'members': None,
-        'member-order': 'bysource',
-    }
-    actual = do_autodoc(app, 'class', 'target.Class')
-    assert list(filter(lambda l: '::' in l, actual)) == [
-        '.. py:class:: Class(arg)',
-        '   .. py:attribute:: Class.descr',
-        '   .. py:method:: Class.meth()',
-        '   .. py:method:: Class.skipmeth()',
-        '   .. py:method:: Class.excludemeth()',
-        '   .. py:attribute:: Class.attr',
-        '   .. py:method:: Class.prop',
-        '   .. py:attribute:: Class.docattr',
-        '   .. py:attribute:: Class.udocattr',
-        '   .. py:attribute:: Class.mdocattr',
-        '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:attribute:: Class.inst_attr_inline',
-        '   .. py:attribute:: Class.inst_attr_comment',
-        '   .. py:attribute:: Class.inst_attr_string',
-    ]
-
-    # with :special-members:
-    app.config.autodoc_default_options = {
-        'special-members': '__init__,__iter__',
-    }
-    actual = do_autodoc(app, 'class', 'target.CustomIter')
-    assert '   .. py:method:: CustomIter.__init__()' in actual
-    assert '      Create a new `CustomIter`.' in actual
-    assert '   .. py:method:: CustomIter.__iter__()' in actual
-    assert '      Iterate squares of each value.' in actual
-    if not IS_PYPY:
-        assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
-        assert '      list of weak references to the object (if defined)' not in actual
-
-    # with :exclude-members:
-    app.config.autodoc_default_options = {
-        'members': None,
-        'exclude-members': 'val1'
-    }
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
-    assert '   .. py:attribute:: EnumCls.val1' not in actual
-    assert '   .. py:attribute:: EnumCls.val2' in actual
-    assert '   .. py:attribute:: EnumCls.val3' in actual
-    assert '   .. py:attribute:: EnumCls.val4' not in actual
-    app.config.autodoc_default_options = {
-        'members': None,
-        'special-members': None,
-        'exclude-members': '__weakref__,snafucate',
-    }
-    actual = do_autodoc(app, 'class', 'target.CustomIter')
-    assert '   .. py:method:: CustomIter.__init__()' in actual
-    assert '      Create a new `CustomIter`.' in actual
-    assert '   .. py:method:: CustomIter.__iter__()' in actual
-    assert '      Iterate squares of each value.' in actual
-    if not IS_PYPY:
-        assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
-        assert '      list of weak references to the object (if defined)' not in actual
-    assert '   .. py:method:: CustomIter.snafucate()' not in actual
-    assert '      Makes this snafucated.' not in actual
 
 
 @pytest.mark.sphinx('html', testroot='pycode-egg')

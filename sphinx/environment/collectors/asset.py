@@ -137,7 +137,7 @@ class DownloadFileCollector(EnvironmentCollector):
                     logger.warning(__('download file not readable: %s') % filename,
                                    location=node, type='download', subtype='not_readable')
                     continue
-                node['filename'] = app.env.dlfiles.add_file(app.env.docname, filename)
+                node['filename'] = app.env.dlfiles.add_file(app.env.docname, rel_filename)
 
 
 def setup(app):

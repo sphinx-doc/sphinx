@@ -451,8 +451,10 @@ def test_html_download(app):
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5((app.srcdir / 'dummy.dat').encode()).hexdigest()
+    digest = md5(b'dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
+    digest_another = md5(b'another/dummy.dat').hexdigest()
+    assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').text()
     assert (('<li><p><a class="reference download internal" download="" '
@@ -460,6 +462,11 @@ def test_html_download_role(app, status, warning):
              '<code class="xref download docutils literal notranslate">'
              '<span class="pre">dummy.dat</span></code></a></p></li>' % digest)
             in content)
+    assert (('<li><p><a class="reference download internal" download="" '
+             'href="_downloads/%s/dummy.dat">'
+             '<code class="xref download docutils literal notranslate">'
+             '<span class="pre">another/dummy.dat</span></code></a></p></li>' %
+             digest_another) in content)
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><a class="reference download external" download="" '
