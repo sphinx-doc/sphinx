@@ -149,6 +149,21 @@ def test_complex_assignment_py3():
     assert parser.definitions == {}
 
 
+def test_assignment_in_try_clause():
+    source = ('try:\n'
+              '    a = None  #: comment\n'
+              'except:\n'
+              '    b = None  #: ignored\n'
+              'else:\n'
+              '    c = None  #: comment\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('', 'a'): 'comment',
+                               ('', 'c'): 'comment'}
+    assert parser.deforders == {'a': 0,
+                                'c': 1}
+
+
 def test_obj_assignment():
     source = ('obj = SomeObject()  #: some object\n'
               'obj.attr = 1  #: attr1\n'
