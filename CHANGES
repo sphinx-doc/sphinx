@@ -10,6 +10,11 @@ Incompatible changes
 Deprecated
 ----------
 
+* The ``info`` and ``warn`` arguments of
+  ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+* ``sphinx.ext.autosummary.generate._simple_info()``
+* ``sphinx.ext.autosummary.generate._simple_warn()``
+
 Features added
 --------------
 

@@ -754,7 +754,6 @@ def process_generate_options(app):
     imported_members = app.config.autosummary_imported_members
     with mock(app.config.autosummary_mock_imports):
         generate_autosummary_docs(genfiles, builder=app.builder,
-                                  warn=logger.warning, info=logger.info,
                                   suffix=suffix, base_path=app.srcdir,
                                   app=app, imported_members=imported_members)
 
