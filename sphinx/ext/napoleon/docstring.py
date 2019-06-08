@@ -328,6 +328,9 @@ class GoogleDocstring:
 
     def _escape_args_and_kwargs(self, name):
         # type: (str) -> str
+        if name.endswith('_'):
+            name = name[:-1] + r'\_'
+
         if name[:2] == '**':
             return r'\*\*' + name[2:]
         elif name[:1] == '*':

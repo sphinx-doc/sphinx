@@ -1351,8 +1351,8 @@ arg_ : type
 """
 
         expected = """
-:ivar arg_: some description
-:vartype arg_: type
+:ivar arg\\_: some description
+:vartype arg\\_: type
 """
 
         config = Config(napoleon_use_ivar=True)
