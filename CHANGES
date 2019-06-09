@@ -23,6 +23,7 @@ Bugs fixed
 * #6455: napoleon: docstrings for properties are not processed
 * #6436: napoleon: "Unknown target name" error if variable name ends with
   underscore
+* #6440: apidoc: missing blank lines between modules
 
 Testing
 --------
