@@ -20,6 +20,7 @@ Bugs fixed
   immediately preceding section title by pagebreak
 * #6448: autodoc: crashed when autodocumenting classes with ``__slots__ = None``
 * #6452: autosummary: crashed when generating document of properties
+* #6455: napoleon: docstrings for properties are not processed
 * #6436: napoleon: "Unknown target name" error if variable name ends with
   underscore
 
