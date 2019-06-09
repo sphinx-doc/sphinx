@@ -40,8 +40,8 @@ Submodules
 {{- [submodule, "module"] | join(" ") | e | heading(2) }}
 {% endif %}
 {{ automodule(submodule, automodule_options) }}
-{%- endfor %}
-{% endif %}
+{% endfor %}
+{%- endif %}
 {% endif %}
 
 {%- if not modulefirst and not is_namespace %}
