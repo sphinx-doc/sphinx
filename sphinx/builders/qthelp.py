@@ -9,16 +9,13 @@
 """
 
 import warnings
+from typing import Any, Dict
 
 from sphinxcontrib.qthelp import QtHelpBuilder, render_file
 
 import sphinx
+from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
-
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 deprecated_alias('sphinx.builders.qthelp',
@@ -29,8 +26,7 @@ deprecated_alias('sphinx.builders.qthelp',
                  RemovedInSphinx40Warning)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     warnings.warn('sphinx.builders.qthelp has been moved to sphinxcontrib-qthelp.',
                   RemovedInSphinx40Warning)
 
