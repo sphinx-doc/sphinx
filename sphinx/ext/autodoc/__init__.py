@@ -549,10 +549,8 @@ class Documenter:
 
         if self.analyzer:
             attr_docs = self.analyzer.find_attr_docs()
-            tagorder = self.analyzer.tagorder
         else:
             attr_docs = {}
-            tagorder = {}
 
         # process members and determine which to skip
         for (membername, member) in members:
@@ -582,13 +580,12 @@ class Documenter:
                         membername in self.options.special_members:
                     keep = has_doc or self.options.undoc_members
             elif (namespace, membername) in attr_docs:
-                has_doc = bool(attr_docs[namespace, membername])
                 if want_all and membername.startswith('_'):
                     # ignore members whose name starts with _ by default
-                    keep = has_doc and self.options.private_members
+                    keep = self.options.private_members
                 else:
                     # keep documented attributes
-                    keep = has_doc
+                    keep = True
                 isattr = True
             elif want_all and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
@@ -597,8 +594,6 @@ class Documenter:
             else:
                 # ignore undocumented members if :undoc-members: is not given
                 keep = has_doc or self.options.undoc_members
-                # module top level item or not
-                isattr = membername in tagorder
 
             # give the user a chance to decide whether this member
             # should be skipped
@@ -1295,10 +1290,6 @@ class DataDocumenter(ModuleLevelDocumenter):
         # type: () -> str
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
-
-    def get_doc(self, encoding=None, ignore=1):
-        # type: (str, int) -> List[List[str]]
-        return []
 
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore

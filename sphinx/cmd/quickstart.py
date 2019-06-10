@@ -310,7 +310,7 @@ you can select a language here by its language code. Sphinx will then
 translate text that it generates into that language.
 
 For a list of supported codes, see
-http://sphinx-doc.org/config.html#confval-language.'''))
+https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.'''))
         d['language'] = do_prompt(__('Project language'), 'en')
         if d['language'] == 'en':
             d['language'] = None

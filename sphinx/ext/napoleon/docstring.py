@@ -328,6 +328,9 @@ class GoogleDocstring:
 
     def _escape_args_and_kwargs(self, name):
         # type: (str) -> str
+        if name.endswith('_'):
+            name = name[:-1] + r'\_'
+
         if name[:2] == '**':
             return r'\*\*' + name[2:]
         elif name[:1] == '*':
@@ -555,7 +558,7 @@ class GoogleDocstring:
         # type: () -> None
         self._parsed_lines = self._consume_empty()
 
-        if self._name and (self._what == 'attribute' or self._what == 'data'):
+        if self._name and self._what in ('attribute', 'data', 'property'):
             # Implicit stop using StopIteration no longer allowed in
             # Python 3.7; see PEP 479
             res = []  # type: List[str]

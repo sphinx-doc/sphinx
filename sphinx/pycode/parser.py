@@ -357,6 +357,17 @@ class VariableCommentPicker(ast.NodeVisitor):
             except TypeError:
                 pass  # this assignment is not new definition!
 
+    def visit_Try(self, node):
+        # type: (ast.Try) -> None
+        """Handles Try node and processes body and else-clause.
+
+        .. note:: pycode parser ignores objects definition in except-clause.
+        """
+        for subnode in node.body:
+            self.visit(subnode)
+        for subnode in node.orelse:
+            self.visit(subnode)
+
     def visit_ClassDef(self, node):
         # type: (ast.ClassDef) -> None
         """Handles ClassDef node and set context."""

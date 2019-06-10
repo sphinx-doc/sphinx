@@ -33,6 +33,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #6447: autodoc: Stop to generate document for undocumented module variables
+
 Deprecated
 ----------
 
@@ -45,7 +47,12 @@ Bugs fixed
 * #6442: LaTeX: admonitions of :rst:dir:`note` type can get separated from
   immediately preceding section title by pagebreak
 * #6448: autodoc: crashed when autodocumenting classes with ``__slots__ = None``
+* #6451: autodoc: generates docs for "optional import"ed modules as variables
 * #6452: autosummary: crashed when generating document of properties
+* #6455: napoleon: docstrings for properties are not processed
+* #6436: napoleon: "Unknown target name" error if variable name ends with
+  underscore
+* #6440: apidoc: missing blank lines between modules
 
 Testing
 --------

@@ -1451,7 +1451,7 @@ msgid ""
 "translate text that it generates into that language.\n"
 "\n"
 "For a list of supported codes, see\n"
-"http://sphinx-doc.org/config.html#confval-language."
+"https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
 msgstr ""
 
 #: sphinx/cmd/quickstart.py:314
