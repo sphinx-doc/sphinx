@@ -53,7 +53,7 @@ if False:
     # For type annotation
     from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
-    from sphinx.builders import Builder
+
 
 logger = logging.getLogger(__name__)
 
