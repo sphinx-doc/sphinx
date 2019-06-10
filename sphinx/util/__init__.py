@@ -51,7 +51,7 @@ from sphinx.util.matching import patfilter  # noqa
 if False:
     # For type annotation
     from sphinx.application import Sphinx
-    from sphinx.builders import Builder
+
 
 logger = logging.getLogger(__name__)
 

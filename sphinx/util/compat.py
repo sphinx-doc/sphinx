@@ -15,7 +15,6 @@ from typing import Any, Dict
 from docutils.utils import get_source_line
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.transforms import SphinxTransform
 
