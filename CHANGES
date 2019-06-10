@@ -1,19 +1,10 @@
-Release 2.1.1 (in development)
-==============================
-
-Dependencies
-------------
+Release 2.1.1 (released Jun 10, 2019)
+=====================================
 
 Incompatible changes
 --------------------
 
 * #6447: autodoc: Stop to generate document for undocumented module variables
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -27,9 +18,6 @@ Bugs fixed
 * #6436: napoleon: "Unknown target name" error if variable name ends with
   underscore
 * #6440: apidoc: missing blank lines between modules
-
-Testing
---------
 
 Release 2.1.0 (released Jun 02, 2019)
 =====================================
