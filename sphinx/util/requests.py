@@ -35,16 +35,6 @@ except ImportError:
         # for requests < 2.4.0
         InsecureRequestWarning = None  # type: ignore
 
-try:
-    from requests.packages.urllib3.exceptions import InsecurePlatformWarning
-except ImportError:
-    try:
-        # for Debian-jessie
-        from urllib3.exceptions import InsecurePlatformWarning  # type: ignore
-    except ImportError:
-        # for requests < 2.4.0
-        InsecurePlatformWarning = None  # type: ignore
-
 # try to load requests[security] (but only if SSL is available)
 try:
     import ssl  # NOQA
