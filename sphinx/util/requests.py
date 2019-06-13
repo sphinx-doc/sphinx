@@ -13,7 +13,6 @@ from contextlib import contextmanager
 from typing import Generator, Union
 from urllib.parse import urlsplit
 
-import pkg_resources
 import requests
 
 from sphinx.config import Config
@@ -34,18 +33,6 @@ except ImportError:
     except ImportError:
         # for requests < 2.4.0
         InsecureRequestWarning = None  # type: ignore
-
-# try to load requests[security] (but only if SSL is available)
-try:
-    import ssl  # NOQA
-except ImportError:
-    pass
-else:
-    try:
-        pkg_resources.require(['requests[security]'])
-    except (pkg_resources.DistributionNotFound,
-            pkg_resources.VersionConflict):
-        pass  # ignored
 
 
 useragent_header = [('User-Agent',
