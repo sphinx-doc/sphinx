@@ -34,16 +34,6 @@ except ImportError:
         # for requests < 2.4.0
         InsecureRequestWarning = None  # type: ignore
 
-try:
-    from requests.packages.urllib3.exceptions import InsecurePlatformWarning
-except ImportError:
-    try:
-        # for Debian-jessie
-        from urllib3.exceptions import InsecurePlatformWarning  # type: ignore
-    except ImportError:
-        # for requests < 2.4.0
-        InsecurePlatformWarning = None  # type: ignore
-
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
