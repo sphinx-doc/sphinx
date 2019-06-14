@@ -71,7 +71,7 @@ class ObjectDescription(SphinxDirective):
     _doc_field_type_map = {}  # type: Dict[str, Tuple[Field, bool]]
 
     def _process_type_map(self, typelist):
-        # type: () -> Dict[str, Tuple[Field, bool]]
+        # type: (List[Field]) -> Dict[str, Tuple[Field, bool]]
         typemap = {}
         for field in typelist:
             for name in field.names:
@@ -83,6 +83,7 @@ class ObjectDescription(SphinxDirective):
         return typemap
 
     def __init__(self, *args, **kwargs):
+        # type: (*Any, **Any) -> None
         SphinxDirective.__init__(self, *args, **kwargs)
         self._doc_field_type_map = self._process_type_map(self.doc_field_types)
 
