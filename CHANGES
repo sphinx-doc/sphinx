@@ -18,6 +18,8 @@ Deprecated
 Features added
 --------------
 
+* #5124: graphviz: ``:graphviz_dot:`` option is renamed to ``:layout:``
+
 Bugs fixed
 ----------
 
