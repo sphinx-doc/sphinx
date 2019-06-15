@@ -188,7 +188,7 @@ class sphinx_domains:
 
     def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
         self.disable()
-        return True
+        return False
 
     def enable(self) -> None:
         self.directive_func = directives.directive
