@@ -14,26 +14,24 @@ from datetime import datetime, tzinfo, timedelta
 from io import StringIO
 from os import path, walk, getenv
 from time import time
+from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple, Union
 from uuid import uuid4
 
+from docutils import nodes
+from docutils.nodes import Element
+
 from sphinx import addnodes
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.i18n import docname_to_domain
+from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import relpath, ensuredir, canon_path
 from sphinx.util.tags import Tags
-
-if False:
-    # For type annotation
-    from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple, Union  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.i18n import CatalogInfo  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -63,15 +61,13 @@ msgstr ""
 class Catalog:
     """Catalog of translatable messages."""
 
-    def __init__(self):
-        # type: () -> None
+    def __init__(self) -> None:
         self.messages = []  # type: List[str]
                             # retain insertion order, a la OrderedDict
         self.metadata = OrderedDict()   # type: Dict[str, List[Tuple[str, int, str]]]
                                         # msgid -> file, line, uid
 
-    def add(self, msg, origin):
-        # type: (str, Union[nodes.Element, MsgOrigin]) -> None
+    def add(self, msg: str, origin: Union[Element, "MsgOrigin"]) -> None:
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
             # however i18n is also unnecessary.
@@ -87,8 +83,7 @@ class MsgOrigin:
     Origin holder for Catalog message origin.
     """
 
-    def __init__(self, source, line):
-        # type: (str, int) -> None
+    def __init__(self, source: str, line: int) -> None:
         self.source = source
         self.line = line
         self.uid = uuid4().hex
@@ -100,8 +95,7 @@ class I18nTags(Tags):
     To translate all text inside of only nodes, this class
     always returns True value even if no tags are defined.
     """
-    def eval_condition(self, condition):
-        # type: (Any) -> bool
+    def eval_condition(self, condition: Any) -> bool:
         return True
 
 
@@ -115,32 +109,26 @@ class I18nBuilder(Builder):
                                 # be set by `gettext_uuid`
     use_message_catalog = False
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         super().init()
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
         self.catalogs = defaultdict(Catalog)  # type: DefaultDict[str, Catalog]
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
 
-    def get_outdated_docs(self):
-        # type: () -> Set[str]
+    def get_outdated_docs(self) -> Set[str]:
         return self.env.found_docs
 
-    def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+    def prepare_writing(self, docnames: Set[str]) -> None:
         return
 
-    def compile_catalogs(self, catalogs, message):
-        # type: (Set[CatalogInfo], str) -> None
+    def compile_catalogs(self, catalogs: Set[CatalogInfo], message: str) -> None:
         return
 
-    def write_doc(self, docname, doctree):
-        # type: (str, nodes.document) -> None
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
         catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
 
         for toctree in self.env.tocs[docname].traverse(addnodes.toctree):
@@ -176,26 +164,21 @@ if source_date_epoch is not None:
 
 
 class LocalTimeZone(tzinfo):
-
-    def __init__(self, *args, **kw):
-        # type: (Any, Any) -> None
+    def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)  # type: ignore
         self.tzdelta = tzdelta
 
-    def utcoffset(self, dt):
-        # type: (datetime) -> timedelta
+    def utcoffset(self, dt: datetime) -> timedelta:
         return self.tzdelta
 
-    def dst(self, dt):
-        # type: (datetime) -> timedelta
+    def dst(self, dt: datetime) -> timedelta:
         return timedelta(0)
 
 
 ltz = LocalTimeZone()
 
 
-def should_write(filepath, new_content):
-    # type: (str, str) -> bool
+def should_write(filepath: str, new_content: str):
     if not path.exists(filepath):
         return True
     try:
@@ -220,14 +203,12 @@ class MessageCatalogBuilder(I18nBuilder):
     name = 'gettext'
     epilog = __('The message catalogs are in %(outdir)s.')
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         super().init()
         self.create_template_bridge()
         self.templates.init(self)
 
-    def _collect_templates(self):
-        # type: () -> Set[str]
+    def _collect_templates(self) -> Set[str]:
         template_files = set()
         for template_path in self.config.templates_path:
             tmpl_abs_path = path.join(self.app.srcdir, template_path)
@@ -238,8 +219,7 @@ class MessageCatalogBuilder(I18nBuilder):
                         template_files.add(filename)
         return template_files
 
-    def _extract_from_template(self):
-        # type: () -> None
+    def _extract_from_template(self) -> None:
         files = list(self._collect_templates())
         files.sort()
         logger.info(bold(__('building [%s]: ') % self.name), nonl=True)
@@ -258,13 +238,11 @@ class MessageCatalogBuilder(I18nBuilder):
             except Exception as exc:
                 raise ThemeError('%s: %r' % (template, exc))
 
-    def build(self, docnames, summary=None, method='update'):
-        # type: (Iterable[str], str, str) -> None
+    def build(self, docnames: Iterable[str], summary: str = None, method: str = 'update') -> None:  # NOQA
         self._extract_from_template()
         super().build(docnames, summary, method)
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         super().finish()
         data = {
             'version': self.config.version,
@@ -310,8 +288,7 @@ class MessageCatalogBuilder(I18nBuilder):
                     pofile.write(content)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value('gettext_compact', True, 'gettext')

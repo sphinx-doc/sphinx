@@ -23,6 +23,7 @@ import os
 import pydoc
 import re
 import sys
+import warnings
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -30,10 +31,12 @@ from jinja2.sandbox import SandboxedEnvironment
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx import package_dir
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
+from sphinx.util import logging
 from sphinx.util import rst
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
@@ -45,12 +48,17 @@ if False:
     from sphinx.ext.autodoc import Documenter  # NOQA
 
 
+logger = logging.getLogger(__name__)
+
+
 class DummyApplication:
     """Dummy Application class for sphinx-autogen command."""
 
     def __init__(self):
         # type: () -> None
         self.registry = SphinxComponentRegistry()
+        self.messagelog = []  # type: List[str]
+        self.verbosity = 0
 
 
 def setup_documenters(app):
@@ -127,10 +135,20 @@ class AutosummaryRenderer:
 # -- Generating output ---------------------------------------------------------
 
 def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
-                              warn=_simple_warn, info=_simple_info,
-                              base_path=None, builder=None, template_dir=None,
-                              imported_members=False, app=None):
+                              warn=None, info=None, base_path=None, builder=None,
+                              template_dir=None, imported_members=False, app=None):
     # type: (List[str], str, str, Callable, Callable, str, Builder, str, bool, Any) -> None
+    if info:
+        warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
+                      RemovedInSphinx40Warning)
+    else:
+        info = logger.info
+
+    if warn:
+        warnings.warn('warn argument for generate_autosummary_docs() is deprecated.',
+                      RemovedInSphinx40Warning)
+    else:
+        warn = logger.warning
 
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
@@ -221,7 +239,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     get_members(obj, {'attribute', 'property'})
 
             parts = name.split('.')
-            if doc.objtype in ('method', 'attribute'):
+            if doc.objtype in ('method', 'attribute', 'property'):
                 mod_name = '.'.join(parts[:-2])
                 cls_name = parts[-2]
                 obj_name = '.'.join(parts[-2:])
@@ -420,6 +438,7 @@ def main(argv=sys.argv[1:]):
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
     app = DummyApplication()
+    logging.setup(app, sys.stdout, sys.stderr)  # type: ignore
     setup_documenters(app)
     args = get_parser().parse_args(argv)
     generate_autosummary_docs(args.source_file, args.output_dir,

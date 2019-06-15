@@ -250,7 +250,7 @@ the source and the compiled catalogs.
 
 When a new locale is submitted, add a new directory with the ISO 639-1 language
 identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
-values for :confval:`language` in ``doc/config.rst``.
+values for :confval:`language` in ``doc/usage/configuration.rst``.
 
 The Sphinx core messages can also be translated on `Transifex
 <https://www.transifex.com/>`_.  There exists a client tool named ``tx`` in the

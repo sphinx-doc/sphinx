@@ -337,7 +337,8 @@ class PyObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
 
             domain = cast(PythonDomain, self.env.get_domain('py'))
-            domain.note_object(fullname, self.objtype)
+            domain.note_object(fullname, self.objtype,
+                               location=(self.env.docname, self.lineno))
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
@@ -752,7 +753,7 @@ class PyModule(SphinxDirective):
                                self.options.get('synopsis', ''),
                                self.options.get('platform', ''),
                                'deprecated' in self.options)
-            domain.note_object(modname, 'module')
+            domain.note_object(modname, 'module', location=(self.env.docname, self.lineno))
 
             targetnode = nodes.target('', '', ids=['module-' + modname],
                                       ismod=True)

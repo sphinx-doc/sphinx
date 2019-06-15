@@ -14,11 +14,14 @@ import socket
 import threading
 from html.parser import HTMLParser
 from os import path
+from typing import Any, Dict, List, Set, Tuple
 from urllib.parse import unquote
 
 from docutils import nodes
+from docutils.nodes import Node
 from requests.exceptions import HTTPError
 
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import encode_uri, requests, logging
@@ -28,12 +31,6 @@ from sphinx.util.console import (  # type: ignore
 from sphinx.util.nodes import get_node_line
 from sphinx.util.requests import is_ssl_error
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Set, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.requests.requests import Response  # NOQA
-
 
 logger = logging.getLogger(__name__)
 
@@ -41,23 +38,20 @@ logger = logging.getLogger(__name__)
 class AnchorCheckParser(HTMLParser):
     """Specialized HTML parser that looks for a specific anchor."""
 
-    def __init__(self, search_anchor):
-        # type: (str) -> None
+    def __init__(self, search_anchor: str) -> None:
         super().__init__()
 
         self.search_anchor = search_anchor
         self.found = False
 
-    def handle_starttag(self, tag, attrs):
-        # type: (Any, Any) -> None
+    def handle_starttag(self, tag: Any, attrs: Any) -> None:
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
                 break
 
 
-def check_anchor(response, anchor):
-    # type: (Response, str) -> bool
+def check_anchor(response: requests.requests.Response, anchor: str) -> bool:
     """Reads HTML data from a response object `response` searching for `anchor`.
     Returns True if anchor was found, False otherwise.
     """
@@ -80,8 +74,7 @@ class CheckExternalLinksBuilder(Builder):
     epilog = __('Look for any errors in the above output or in '
                 '%(outdir)s/output.txt')
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
         self.anchors_ignore = [re.compile(x)
                                for x in self.app.config.linkcheck_anchors_ignore]
@@ -103,8 +96,7 @@ class CheckExternalLinksBuilder(Builder):
             thread.start()
             self.workers.append(thread)
 
-    def check_thread(self):
-        # type: () -> None
+    def check_thread(self) -> None:
         kwargs = {
             'allow_redirects': True,
             'headers': {
@@ -115,8 +107,7 @@ class CheckExternalLinksBuilder(Builder):
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
-        def check_uri():
-            # type: () -> Tuple[str, str, int]
+        def check_uri() -> Tuple[str, str, int]:
             # split off anchor
             if '#' in uri:
                 req_url, anchor = uri.split('#', 1)
@@ -159,6 +150,9 @@ class CheckExternalLinksBuilder(Builder):
                 if err.response.status_code == 401:
                     # We'll take "Unauthorized" as working.
                     return 'working', ' - unauthorized', 0
+                elif err.response.status_code == 503:
+                    # We'll take "Service Unavailable" as ignored.
+                    return 'ignored', str(err), 0
                 else:
                     return 'broken', str(err), 0
             except Exception as err:
@@ -179,8 +173,7 @@ class CheckExternalLinksBuilder(Builder):
                 else:
                     return 'redirected', new_url, 0
 
-        def check():
-            # type: () -> Tuple[str, str, int]
+        def check() -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
             if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
                 return 'unchecked', '', 0
@@ -218,8 +211,7 @@ class CheckExternalLinksBuilder(Builder):
             status, info, code = check()
             self.rqueue.put((uri, docname, lineno, status, info, code))
 
-    def process_result(self, result):
-        # type: (Tuple[str, str, int, str, str, int]) -> None
+    def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
         uri, docname, lineno, status, info, code = result
         if status == 'unchecked':
             return
@@ -256,20 +248,16 @@ class CheckExternalLinksBuilder(Builder):
                              uri + ' to ' + info)
             logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
 
-    def get_outdated_docs(self):
-        # type: () -> Set[str]
+    def get_outdated_docs(self) -> Set[str]:
         return self.env.found_docs
 
-    def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+    def prepare_writing(self, docnames: Set[str]) -> None:
         return
 
-    def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+    def write_doc(self, docname: str, doctree: Node) -> None:
         logger.info('')
         n = 0
 
@@ -298,20 +286,17 @@ class CheckExternalLinksBuilder(Builder):
         if self.broken:
             self.app.statuscode = 1
 
-    def write_entry(self, what, docname, line, uri):
-        # type: (str, str, int, str) -> None
+    def write_entry(self, what: str, docname: str, line: int, uri: str) -> None:
         with open(path.join(self.outdir, 'output.txt'), 'a', encoding='utf-8') as output:
             output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
                                                line, what, uri))
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         for worker in self.workers:
             self.wqueue.put((None, None, None), False)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(CheckExternalLinksBuilder)
 
     app.add_config_value('linkcheck_ignore', [], None)

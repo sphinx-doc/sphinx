@@ -337,15 +337,13 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 def detect_encoding(readline: Callable[[], bytes]) -> str:
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
 
-    def read_or_stop():
-        # type: () -> bytes
+    def read_or_stop() -> bytes:
         try:
             return readline()
         except StopIteration:
             return None
 
-    def get_normal_name(orig_enc):
-        # type: (str) -> str
+    def get_normal_name(orig_enc: str) -> str:
         """Imitates get_normal_name in tokenizer.c."""
         # Only care about the first 12 characters.
         enc = orig_enc[:12].lower().replace('_', '-')
@@ -356,8 +354,7 @@ def detect_encoding(readline: Callable[[], bytes]) -> str:
             return 'iso-8859-1'
         return orig_enc
 
-    def find_cookie(line):
-        # type: (bytes) -> str
+    def find_cookie(line: bytes) -> str:
         try:
             line_string = line.decode('ascii')
         except UnicodeDecodeError:
