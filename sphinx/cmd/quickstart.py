@@ -306,7 +306,7 @@ def ask_user(d):
                  'translate text that it generates into that language.\n'
                  '\n'
                  'For a list of supported codes, see\n'
-                 'http://sphinx-doc.org/config.html#confval-language.'))
+                 'https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.'))  # NOQA
         d['language'] = do_prompt(__('Project language'), 'en')
         if d['language'] == 'en':
             d['language'] = None

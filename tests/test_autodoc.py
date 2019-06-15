@@ -1347,30 +1347,6 @@ def test_partialmethod(app):
     assert list(actual) == expected
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_module_variables():
-    options = {"members": None,
-               "undoc-members": True}
-    actual = do_autodoc(app, 'module', 'target.module', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: target.module',
-        '',
-        '',
-        '.. py:data:: CONSTANT1',
-        '   :module: target.module',
-        "   :annotation: = ''",
-        '',
-        '   docstring for CONSTANT1',
-        '   ',
-        '',
-        '.. py:data:: CONSTANT2',
-        '   :module: target.module',
-        "   :annotation: = ''",
-        '',
-    ]
-
-
 @pytest.mark.sphinx('html', testroot='pycode-egg')
 def test_autodoc_for_egged_code(app):
     options = {"members": None,

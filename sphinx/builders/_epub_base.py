@@ -14,9 +14,11 @@ import re
 import warnings
 from collections import namedtuple
 from os import path
+from typing import Any, Dict, List, Set, Tuple
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
+from docutils.nodes import Element, Node
 from docutils.utils import smartquotes
 
 from sphinx import addnodes
@@ -33,10 +35,6 @@ try:
     from PIL import Image
 except ImportError:
     Image = None
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Set, Tuple  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -93,8 +91,7 @@ Guide = namedtuple('Guide', ['type', 'title', 'uri'])
 NavPoint = namedtuple('NavPoint', ['navpoint', 'playorder', 'text', 'refuri', 'children'])
 
 
-def sphinx_smarty_pants(t, language='en'):
-    # type: (str, str) -> str
+def sphinx_smarty_pants(t: str, language: str = 'en') -> str:
     t = t.replace('&quot;', '"')
     t = smartquotes.educateDashesOldSchool(t)
     t = smartquotes.educateQuotes(t, language)
@@ -145,8 +142,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     template_dir = ""
     doctype = ""
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         super().init()
         # the output files for epub must be .html only
         self.out_suffix = '.xhtml'
@@ -157,17 +153,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.use_index = self.get_builder_config('use_index', 'epub')
         self.refnodes = []  # type: List[Dict[str, Any]]
 
-    def create_build_info(self):
-        # type: () -> BuildInfo
+    def create_build_info(self) -> BuildInfo:
         return BuildInfo(self.config, self.tags, ['html', 'epub'])
 
-    def get_theme_config(self):
-        # type: () -> Tuple[str, Dict]
+    def get_theme_config(self) -> Tuple[str, Dict]:
         return self.config.epub_theme, self.config.epub_theme_options
 
     # generic support functions
-    def make_id(self, name):
-        # type: (str) -> str
+    def make_id(self, name: str) -> str:
         # id_cache is intentionally mutable
         """Return a unique id for name."""
         id = self.id_cache.get(name)
@@ -176,8 +169,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             self.id_cache[name] = id
         return id
 
-    def esc(self, name):
-        # type: (str) -> str
+    def esc(self, name: str) -> str:
         """Replace all characters not allowed in text an attribute values."""
         warnings.warn(
             '%s.esc() is deprecated. Use html.escape() instead.' % self.__class__.__name__,
@@ -189,8 +181,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         name = name.replace('\'', '&#39;')
         return name
 
-    def get_refnodes(self, doctree, result):
-        # type: (nodes.Node, List[Dict[str, Any]]) -> List[Dict[str, Any]]
+    def get_refnodes(self, doctree: Node, result: List[Dict[str, Any]]) -> List[Dict[str, Any]]:  # NOQA
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?
@@ -213,8 +204,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 result = self.get_refnodes(elem, result)
         return result
 
-    def check_refnodes(self, nodes):
-        # type: (List[Dict[str, Any]]) -> None
+    def check_refnodes(self, nodes: List[Dict[str, Any]]) -> None:
         appeared = set()  # type: Set[str]
         for node in nodes:
             if node['refuri'] in appeared:
@@ -222,8 +212,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             else:
                 appeared.add(node['refuri'])
 
-    def get_toc(self):
-        # type: () -> None
+    def get_toc(self) -> None:
         """Get the total table of contents, containing the master_doc
         and pre and post files not managed by sphinx.
         """
@@ -238,8 +227,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 item['refuri'] = master_dir + item['refuri']
         self.toc_add_files(self.refnodes)
 
-    def toc_add_files(self, refnodes):
-        # type: (List[Dict[str, Any]]) -> None
+    def toc_add_files(self, refnodes: List[Dict[str, Any]]) -> None:
         """Add the master_doc, pre and post files to a list of refnodes.
         """
         refnodes.insert(0, {
@@ -261,13 +249,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 'text': ssp(html.escape(text))
             })
 
-    def fix_fragment(self, prefix, fragment):
-        # type: (str, str) -> str
+    def fix_fragment(self, prefix: str, fragment: str) -> str:
         """Return a href/id attribute with colons replaced by hyphens."""
         return prefix + fragment.replace(':', '-')
 
-    def fix_ids(self, tree):
-        # type: (nodes.document) -> None
+    def fix_ids(self, tree: nodes.document) -> None:
         """Replace colons with hyphens in href and id attributes.
 
         Some readers crash because they interpret the part as a
@@ -286,7 +272,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 if ':' in node_id:
                     target['ids'][i] = self.fix_fragment('', node_id)
 
-            next_node = target.next_node(siblings=True)  # type: nodes.Node
+            next_node = target.next_node(siblings=True)  # type: Node
             if isinstance(next_node, nodes.Element):
                 for i, node_id in enumerate(next_node['ids']):
                     if ':' in node_id:
@@ -299,20 +285,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 newids.append(self.fix_fragment('', id))
             desc_signature.attributes['ids'] = newids
 
-    def add_visible_links(self, tree, show_urls='inline'):
-        # type: (nodes.document, str) -> None
+    def add_visible_links(self, tree: nodes.document, show_urls: str = 'inline') -> None:
         """Add visible link targets for external links"""
 
-        def make_footnote_ref(doc, label):
-            # type: (nodes.document, str) -> nodes.footnote_reference
+        def make_footnote_ref(doc: nodes.document, label: str) -> nodes.footnote_reference:
             """Create a footnote_reference node with children"""
             footnote_ref = nodes.footnote_reference('[#]_')
             footnote_ref.append(nodes.Text(label))
             doc.note_autofootnote_ref(footnote_ref)
             return footnote_ref
 
-        def make_footnote(doc, label, uri):
-            # type: (nodes.document, str, str) -> nodes.footnote
+        def make_footnote(doc: nodes.document, label: str, uri: str) -> nodes.footnote:
             """Create a footnote node with children"""
             footnote = nodes.footnote(uri)
             para = nodes.paragraph()
@@ -322,8 +305,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             doc.note_autofootnote(footnote)
             return footnote
 
-        def footnote_spot(tree):
-            # type: (nodes.document) -> Tuple[nodes.Element, int]
+        def footnote_spot(tree: nodes.document) -> Tuple[Element, int]:
             """Find or create a spot to place footnotes.
 
             The function returns the tuple (parent, index)."""
@@ -371,8 +353,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     footnote.add_backref(footnote_ref['ids'][0])
                     fn_idx += 1
 
-    def write_doc(self, docname, doctree):
-        # type: (str, nodes.document) -> None
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
         """Write one document file.
 
         This method is overwritten in order to fix fragment identifiers
@@ -382,8 +363,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.add_visible_links(doctree, self.config.epub_show_urls)
         super().write_doc(docname, doctree)
 
-    def fix_genindex(self, tree):
-        # type: (List[Tuple[str, List[Tuple[str, Any]]]]) -> None
+    def fix_genindex(self, tree: List[Tuple[str, List[Tuple[str, Any]]]]) -> None:
         """Fix href attributes for genindex pages."""
         # XXX: modifies tree inline
         # Logic modeled from themes/basic/genindex.html
@@ -401,14 +381,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
                             subentrylinks[i] = (ismain,
                                                 self.fix_fragment(m.group(1), m.group(2)))
 
-    def is_vector_graphics(self, filename):
-        # type: (str) -> bool
+    def is_vector_graphics(self, filename: str) -> bool:
         """Does the filename extension indicate a vector graphic format?"""
         ext = path.splitext(filename)[-1]
         return ext in VECTOR_GRAPHICS_EXTENSIONS
 
-    def copy_image_files_pil(self):
-        # type: () -> None
+    def copy_image_files_pil(self) -> None:
         """Copy images using Pillow, the Python Imaging Libary.
         The method tries to read and write the files with Pillow, converting
         the format and resizing the image if necessary/possible.
@@ -447,8 +425,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 logger.warning(__('cannot write image file %r: %s'),
                                path.join(self.srcdir, src), err)
 
-    def copy_image_files(self):
-        # type: () -> None
+    def copy_image_files(self) -> None:
         """Copy image files to destination directory.
         This overwritten method can use Pillow to convert image files.
         """
@@ -462,13 +439,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
             else:
                 super().copy_image_files()
 
-    def copy_download_files(self):
-        # type: () -> None
+    def copy_download_files(self) -> None:
         pass
 
-    def handle_page(self, pagename, addctx, templatename='page.html',
-                    outfilename=None, event_arg=None):
-        # type: (str, Dict, str, str, Any) -> None
+    def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
+                    outfilename: str = None, event_arg: Any = None) -> None:
         """Create a rendered page.
 
         This method is overwritten for genindex pages in order to fix href link
@@ -481,8 +456,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         addctx['doctype'] = self.doctype
         super().handle_page(pagename, addctx, templatename, outfilename, event_arg)
 
-    def build_mimetype(self, outdir=None, outname='mimetype'):
-        # type: (str, str) -> None
+    def build_mimetype(self, outdir: str = None, outname: str = 'mimetype') -> None:
         """Write the metainfo file mimetype."""
         if outdir:
             warnings.warn('The arguments of EpubBuilder.build_mimetype() is deprecated.',
@@ -494,8 +468,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         copy_asset_file(path.join(self.template_dir, 'mimetype'),
                         path.join(outdir, outname))
 
-    def build_container(self, outdir=None, outname='META-INF/container.xml'):
-        # type: (str, str) -> None
+    def build_container(self, outdir: str = None, outname: str = 'META-INF/container.xml') -> None:  # NOQA
         """Write the metainfo file META-INF/container.xml."""
         if outdir:
             warnings.warn('The arguments of EpubBuilder.build_container() is deprecated.',
@@ -508,8 +481,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         ensuredir(path.dirname(filename))
         copy_asset_file(path.join(self.template_dir, 'container.xml'), filename)
 
-    def content_metadata(self):
-        # type: () -> Dict[str, Any]
+    def content_metadata(self) -> Dict[str, Any]:
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
@@ -528,8 +500,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['guides'] = []
         return metadata
 
-    def build_content(self, outdir=None, outname='content.opf'):
-        # type: (str, str) -> None
+    def build_content(self, outdir: str = None, outname: str = 'content.opf') -> None:
         """Write the metainfo file content.opf It contains bibliographic data,
         a file list and the spine (the reading order).
         """
@@ -648,8 +619,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         path.join(outdir, outname),
                         metadata)
 
-    def new_navpoint(self, node, level, incr=True):
-        # type: (Dict[str, Any], int, bool) -> NavPoint
+    def new_navpoint(self, node: Dict[str, Any], level: int, incr: bool = True) -> NavPoint:
         """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
         if incr:
@@ -658,8 +628,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return NavPoint('navPoint%d' % self.tocid, self.playorder,
                         node['text'], node['refuri'], [])
 
-    def build_navpoints(self, nodes):
-        # type: (List[Dict[str, Any]]) -> List[NavPoint]
+    def build_navpoints(self, nodes: List[Dict[str, Any]]) -> List[NavPoint]:
         """Create the toc navigation structure.
 
         Subelements of a node are nested inside the navpoint.  For nested nodes
@@ -703,8 +672,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         return navstack[0].children
 
-    def toc_metadata(self, level, navpoints):
-        # type: (int, List[NavPoint]) -> Dict[str, Any]
+    def toc_metadata(self, level: int, navpoints: List[NavPoint]) -> Dict[str, Any]:
         """Create a dictionary with all metadata for the toc.ncx file
         properly escaped.
         """
@@ -715,8 +683,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['navpoints'] = navpoints
         return metadata
 
-    def build_toc(self, outdir=None, outname='toc.ncx'):
-        # type: (str, str) -> None
+    def build_toc(self, outdir: str = None, outname: str = 'toc.ncx') -> None:
         """Write the metainfo file toc.ncx."""
         if outdir:
             warnings.warn('The arguments of EpubBuilder.build_toc() is deprecated.',
@@ -743,8 +710,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         path.join(outdir, outname),
                         self.toc_metadata(level, navpoints))
 
-    def build_epub(self, outdir=None, outname=None):
-        # type: (str, str) -> None
+    def build_epub(self, outdir: str = None, outname: str = None) -> None:
         """Write the epub file.
 
         It is a zip file with the mimetype file stored uncompressed as the first

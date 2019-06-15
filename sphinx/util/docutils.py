@@ -15,7 +15,7 @@ from copy import copy
 from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
-from typing import Any, Callable, Dict, Generator, IO, List, Set, Tuple, Type
+from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple, Type
 from typing import cast
 
 import docutils
@@ -184,14 +184,14 @@ class sphinx_domains:
 
     def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
         self.disable()
-        return True
+        return False
 
     def enable(self) -> None:
         self.directive_func = directives.directive
         self.role_func = roles.role
 
-        directives.directive = self.lookup_directive  # type: ignore
-        roles.role = self.lookup_role  # type: ignore
+        directives.directive = self.lookup_directive
+        roles.role = self.lookup_role
 
     def disable(self) -> None:
         directives.directive = self.directive_func
@@ -225,17 +225,17 @@ class sphinx_domains:
 
         raise ElementLookupError
 
-    def lookup_directive(self, name: str, lang_module: ModuleType, document: nodes.document) -> Tuple[Type[Directive], List[system_message]]:  # NOQA
+    def lookup_directive(self, directive_name: str, language_module: ModuleType, document: nodes.document) -> Tuple[Optional[Type[Directive]], List[system_message]]:  # NOQA
         try:
-            return self.lookup_domain_element('directive', name)
+            return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
-            return self.directive_func(name, lang_module, document)
+            return self.directive_func(directive_name, language_module, document)
 
-    def lookup_role(self, name: str, lang_module: ModuleType, lineno: int, reporter: Reporter) -> Tuple[RoleFunction, List[system_message]]:  # NOQA
+    def lookup_role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter) -> Tuple[RoleFunction, List[system_message]]:  # NOQA
         try:
-            return self.lookup_domain_element('role', name)
+            return self.lookup_domain_element('role', role_name)
         except ElementLookupError:
-            return self.role_func(name, lang_module, lineno, reporter)
+            return self.role_func(role_name, language_module, lineno, reporter)
 
 
 class WarningStream:

@@ -11,6 +11,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
 from typing import cast
 
 from docutils import nodes
@@ -18,6 +19,8 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 import sphinx
+from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.domains import Domain
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -69,6 +72,7 @@ class Todo(BaseAdmonition, SphinxDirective):
             return [todo]
         elif isinstance(todo, todo_node):
             todo.insert(0, nodes.title(text=_('Todo')))
+            todo['docname'] = self.env.docname
             self.add_name(todo)
             self.set_source_info(todo)
             self.state.document.note_explicit_target(todo)
@@ -77,8 +81,39 @@ class Todo(BaseAdmonition, SphinxDirective):
             raise RuntimeError  # never reached here
 
 
+class TodoDomain(Domain):
+    name = 'todo'
+    label = 'todo'
+
+    @property
+    def todos(self):
+        # type: () -> Dict[str, List[todo_node]]
+        return self.data.setdefault('todos', {})
+
+    def clear_doc(self, docname):
+        # type: (str) -> None
+        self.todos.pop(docname, None)
+
+    def merge_domaindata(self, docnames, otherdata):
+        # type: (List[str], Dict) -> None
+        for docname in docnames:
+            self.todos[docname] = otherdata['todos'][docname]
+
+    def process_doc(self, env, docname, document):
+        # type: (BuildEnvironment, str, nodes.document) -> None
+        todos = self.todos.setdefault(docname, [])
+        for todo in document.traverse(todo_node):
+            env.app.emit('todo-defined', todo)
+            todos.append(todo)
+
+            if env.config.todo_emit_warnings:
+                logger.warning(__("TODO entry found: %s"), todo[1].astext(),
+                               location=todo)
+
+
 def process_todos(app, doctree):
     # type: (Sphinx, nodes.document) -> None
+    warnings.warn('process_todos() is deprecated.', RemovedInSphinx40Warning)
     # collect all todos in the environment
     # this is not done in the directive itself because it some transformations
     # must have already been run, e.g. substitutions
@@ -122,19 +157,82 @@ class TodoList(SphinxDirective):
         return [todolist('')]
 
 
+class TodoListProcessor:
+    def __init__(self, app, doctree, docname):
+        # type: (Sphinx, nodes.document, str) -> None
+        self.builder = app.builder
+        self.config = app.config
+        self.env = app.env
+        self.domain = cast(TodoDomain, app.env.get_domain('todo'))
+
+        self.process(doctree, docname)
+
+    def process(self, doctree, docname):
+        # type: (nodes.document, str) -> None
+        todos = sum(self.domain.todos.values(), [])
+        for node in doctree.traverse(todolist):
+            if not self.config.todo_include_todos:
+                node.parent.remove(node)
+                continue
+
+            if node.get('ids'):
+                content = [nodes.target()]  # type: List[nodes.Element]
+            else:
+                content = []
+
+            for todo in todos:
+                # Create a copy of the todo node
+                new_todo = todo.deepcopy()
+                new_todo['ids'].clear()
+
+                # (Recursively) resolve references in the todo content
+                self.env.resolve_references(new_todo, todo['docname'], self.builder)  # type: ignore  # NOQA
+                content.append(new_todo)
+
+                todo_ref = self.create_todo_reference(todo, docname)
+                content.append(todo_ref)
+
+            node.replace_self(content)
+
+    def create_todo_reference(self, todo, docname):
+        # type: (todo_node, str) -> nodes.paragraph
+        if self.config.todo_link_only:
+            description = _('<<original entry>>')
+        else:
+            description = (_('(The <<original entry>> is located in %s, line %d.)') %
+                           (todo.source, todo.line))
+
+        prefix = description[:description.find('<<')]
+        suffix = description[description.find('>>') + 2:]
+
+        para = nodes.paragraph(classes=['todo-source'])
+        para += nodes.Text(prefix, prefix)
+
+        # Create a reference
+        linktext = nodes.emphasis(_('original entry'), _('original entry'))
+        reference = nodes.reference('', '', linktext, internal=True)
+        try:
+            reference['refuri'] = self.builder.get_relative_uri(docname, todo['docname'])
+            reference['refuri'] += '#' + todo['ids'][0]
+        except NoUri:
+            # ignore if no URI can be determined, e.g. for LaTeX output
+            pass
+
+        para += reference
+        para += nodes.Text(suffix, suffix)
+
+        return para
+
+
 def process_todo_nodes(app, doctree, fromdocname):
     # type: (Sphinx, nodes.document, str) -> None
-    node = None  # type: nodes.Element
-    if not app.config['todo_include_todos']:
-        for node in doctree.traverse(todo_node):
-            node.parent.remove(node)
+    """Replace all todolist nodes with a list of the collected todos.
+    Augment each todo with a backlink to the original location.
+    """
+    warnings.warn('process_todo_nodes() is deprecated.', RemovedInSphinx40Warning)
 
-    # Replace all todolist nodes with a list of the collected todos.
-    # Augment each todo with a backlink to the original location.
-    env = app.builder.env
-
-    if not hasattr(env, 'todo_all_todos'):
-        env.todo_all_todos = []  # type: ignore
+    domain = cast(TodoDomain, app.env.get_domain('todo'))
+    todos = sum(domain.todos.values(), [])
 
     for node in doctree.traverse(todolist):
         if node.get('ids'):
@@ -146,14 +244,14 @@ def process_todo_nodes(app, doctree, fromdocname):
             node.replace_self(content)
             continue
 
-        for todo_info in env.todo_all_todos:  # type: ignore
+        for todo_info in todos:
             para = nodes.paragraph(classes=['todo-source'])
             if app.config['todo_link_only']:
                 description = _('<<original entry>>')
             else:
                 description = (
                     _('(The <<original entry>> is located in %s, line %d.)') %
-                    (todo_info['source'], todo_info['lineno'])
+                    (todo_info.source, todo_info.line)
                 )
             desc1 = description[:description.find('<<')]
             desc2 = description[description.find('>>') + 2:]
@@ -163,17 +261,17 @@ def process_todo_nodes(app, doctree, fromdocname):
             innernode = nodes.emphasis(_('original entry'), _('original entry'))
             try:
                 para += make_refnode(app.builder, fromdocname, todo_info['docname'],
-                                     todo_info['target'], innernode)
+                                     todo_info['ids'][0], innernode)
             except NoUri:
                 # ignore if no URI can be determined, e.g. for LaTeX output
                 pass
             para += nodes.Text(desc2, desc2)
 
-            todo_entry = todo_info['todo']
+            todo_entry = todo_info.deepcopy()
+            todo_entry['ids'].clear()
 
             # (Recursively) resolve references in the todo content
-            env.resolve_references(todo_entry, todo_info['docname'],
-                                   app.builder)
+            app.env.resolve_references(todo_entry, todo_info['docname'], app.builder)  # type: ignore  # NOQA
 
             # Insert into the todolist
             content.append(todo_entry)
@@ -184,6 +282,7 @@ def process_todo_nodes(app, doctree, fromdocname):
 
 def purge_todos(app, env, docname):
     # type: (Sphinx, BuildEnvironment, str) -> None
+    warnings.warn('purge_todos() is deprecated.', RemovedInSphinx40Warning)
     if not hasattr(env, 'todo_all_todos'):
         return
     env.todo_all_todos = [todo for todo in env.todo_all_todos  # type: ignore
@@ -192,6 +291,7 @@ def purge_todos(app, env, docname):
 
 def merge_info(app, env, docnames, other):
     # type: (Sphinx, BuildEnvironment, Iterable[str], BuildEnvironment) -> None
+    warnings.warn('merge_info() is deprecated.', RemovedInSphinx40Warning)
     if not hasattr(other, 'todo_all_todos'):
         return
     if not hasattr(env, 'todo_all_todos'):
@@ -201,7 +301,10 @@ def merge_info(app, env, docnames, other):
 
 def visit_todo_node(self, node):
     # type: (HTMLTranslator, todo_node) -> None
-    self.visit_admonition(node)
+    if self.config.todo_include_todos:
+        self.visit_admonition(node)
+    else:
+        raise nodes.SkipNode
 
 
 def depart_todo_node(self, node):
@@ -211,11 +314,14 @@ def depart_todo_node(self, node):
 
 def latex_visit_todo_node(self, node):
     # type: (LaTeXTranslator, todo_node) -> None
-    self.body.append('\n\\begin{sphinxadmonition}{note}{')
-    self.body.append(self.hypertarget_to(node))
-    title_node = cast(nodes.title, node[0])
-    self.body.append('%s:}' % title_node.astext().translate(tex_escape_map))
-    node.pop(0)
+    if self.config.todo_include_todos:
+        self.body.append('\n\\begin{sphinxadmonition}{note}{')
+        self.body.append(self.hypertarget_to(node))
+        title_node = cast(nodes.title, node[0])
+        self.body.append('%s:}' % title_node.astext().translate(tex_escape_map))
+        node.pop(0)
+    else:
+        raise nodes.SkipNode
 
 
 def latex_depart_todo_node(self, node):
@@ -240,12 +346,10 @@ def setup(app):
 
     app.add_directive('todo', Todo)
     app.add_directive('todolist', TodoList)
-    app.connect('doctree-read', process_todos)
-    app.connect('doctree-resolved', process_todo_nodes)
-    app.connect('env-purge-doc', purge_todos)
-    app.connect('env-merge-info', merge_info)
+    app.add_domain(TodoDomain)
+    app.connect('doctree-resolved', TodoListProcessor)
     return {
         'version': sphinx.__display_version__,
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True
     }

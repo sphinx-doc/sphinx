@@ -33,8 +33,19 @@ Incompatible changes
 Deprecated
 ----------
 
+* The ``info`` and ``warn`` arguments of
+  ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+* ``sphinx.ext.autosummary.generate._simple_info()``
+* ``sphinx.ext.autosummary.generate._simple_warn()``
+* ``sphinx.ext.todo.merge_info()``
+* ``sphinx.ext.todo.process_todo_nodes()``
+* ``sphinx.ext.todo.process_todos()``
+* ``sphinx.ext.todo.purge_todos()``
+
 Features added
 --------------
+
+* #5124: graphviz: ``:graphviz_dot:`` option is renamed to ``:layout:``
 
 Bugs fixed
 ----------
@@ -43,11 +54,12 @@ Bugs fixed
 * #1125: html theme: scrollbar is hard to see on classic theme and macOS
 * #5502: linkcheck: Consider HTTP 503 response as not an error
 * #6439: Make generated download links reproducible
+* #6486: UnboundLocalError is raised if broken extension installed
 
 Testing
 --------
 
-Release 2.1.1 (in development)
+Release 2.1.2 (in development)
 ==============================
 
 Dependencies
@@ -65,13 +77,29 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 2.1.1 (released Jun 10, 2019)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #6447: autodoc: Stop to generate document for undocumented module variables
+
+Bugs fixed
+----------
+
 * #6442: LaTeX: admonitions of :rst:dir:`note` type can get separated from
   immediately preceding section title by pagebreak
 * #6448: autodoc: crashed when autodocumenting classes with ``__slots__ = None``
+* #6451: autodoc: generates docs for "optional import"ed modules as variables
 * #6452: autosummary: crashed when generating document of properties
-
-Testing
---------
+* #6455: napoleon: docstrings for properties are not processed
+* #6436: napoleon: "Unknown target name" error if variable name ends with
+  underscore
+* #6440: apidoc: missing blank lines between modules
 
 Release 2.1.0 (released Jun 02, 2019)
 =====================================

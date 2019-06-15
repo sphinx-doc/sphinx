@@ -10,9 +10,11 @@
 
 import html
 from os import path
+from typing import Any, Dict, List, Tuple
 from typing import cast
 
 from sphinx import package_dir
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.domains.changeset import ChangeSetDomain
 from sphinx.locale import _, __
@@ -21,11 +23,6 @@ from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -38,15 +35,13 @@ class ChangesBuilder(Builder):
     name = 'changes'
     epilog = __('The overview file is in %(outdir)s.')
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         self.create_template_bridge()
         theme_factory = HTMLThemeFactory(self.app)
         self.theme = theme_factory.create('default')
         self.templates.init(self, self.theme)
 
-    def get_outdated_docs(self):
-        # type: () -> str
+    def get_outdated_docs(self) -> str:
         return self.outdir
 
     typemap = {
@@ -55,8 +50,7 @@ class ChangesBuilder(Builder):
         'deprecated': 'deprecated',
     }
 
-    def write(self, *ignored):
-        # type: (Any) -> None
+    def write(self, *ignored) -> None:
         version = self.config.version
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         libchanges = {}     # type: Dict[str, List[Tuple[str, str, int]]]
@@ -121,8 +115,7 @@ class ChangesBuilder(Builder):
                   '.. versionchanged:: %s' % version,
                   '.. deprecated:: %s' % version]
 
-        def hl(no, line):
-            # type: (int, str) -> str
+        def hl(no: int, line: str) -> str:
             line = '<a name="L%s"> </a>' % no + html.escape(line)
             for x in hltext:
                 if x in line:
@@ -155,21 +148,18 @@ class ChangesBuilder(Builder):
         copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
                         self.outdir)
 
-    def hl(self, text, version):
-        # type: (str, str) -> str
+    def hl(self, text: str, version: str) -> str:
         text = html.escape(text)
         for directive in ['versionchanged', 'versionadded', 'deprecated']:
             text = text.replace('.. %s:: %s' % (directive, version),
                                 '<b>.. %s:: %s</b>' % (directive, version))
         return text
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         pass
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(ChangesBuilder)
 
     return {

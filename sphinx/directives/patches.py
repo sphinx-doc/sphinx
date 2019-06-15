@@ -6,10 +6,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict, List, Tuple
 from typing import cast
 
 from docutils import nodes
-from docutils.nodes import make_id
+from docutils.nodes import Node, make_id, system_message
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, html, tables
 
@@ -20,8 +21,7 @@ from sphinx.util.nodes import set_source_info
 
 if False:
     # For type annotation
-    from typing import Dict, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from sphinx.application import Sphinx
 
 
 class Figure(images.Figure):
@@ -29,8 +29,7 @@ class Figure(images.Figure):
     instead of the image node.
     """
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         name = self.options.pop('name', None)
         result = super().run()
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
@@ -52,8 +51,7 @@ class Figure(images.Figure):
 
 
 class Meta(html.Meta, SphinxDirective):
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         result = super().run()
         for node in result:
             if (isinstance(node, nodes.pending) and
@@ -74,8 +72,7 @@ class RSTTable(tables.RSTTable):
 
     Only for docutils-0.13 or older version."""
 
-    def make_title(self):
-        # type: () -> Tuple[nodes.title, List[nodes.system_message]]
+    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
         if title:
             set_source_info(self, title)
@@ -88,8 +85,7 @@ class CSVTable(tables.CSVTable):
 
     Only for docutils-0.13 or older version."""
 
-    def make_title(self):
-        # type: () -> Tuple[nodes.title, List[nodes.system_message]]
+    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
         if title:
             set_source_info(self, title)
@@ -102,8 +98,7 @@ class ListTable(tables.ListTable):
 
     Only for docutils-0.13 or older version."""
 
-    def make_title(self):
-        # type: () -> Tuple[nodes.title, List[nodes.system_message]]
+    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
         if title:
             set_source_info(self, title)
@@ -125,8 +120,7 @@ class Code(SphinxDirective):
     }
     has_content = True
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         self.assert_has_content()
 
         code = '\n'.join(self.content)
@@ -169,8 +163,7 @@ class MathDirective(SphinxDirective):
         'nowrap': directives.flag,
     }
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
@@ -184,12 +177,11 @@ class MathDirective(SphinxDirective):
         self.add_name(node)
         self.set_source_info(node)
 
-        ret = [node]  # type: List[nodes.Node]
+        ret = [node]  # type: List[Node]
         self.add_target(ret)
         return ret
 
-    def add_target(self, ret):
-        # type: (List[nodes.Node]) -> None
+    def add_target(self, ret: List[Node]) -> None:
         node = cast(nodes.math_block, ret[0])
 
         # assign label automatically if math_number_all enabled
@@ -216,8 +208,7 @@ class MathDirective(SphinxDirective):
             self.state_machine.reporter.warning(exc, line=self.lineno)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict
+def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('table', RSTTable)

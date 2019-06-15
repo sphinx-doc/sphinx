@@ -10,18 +10,14 @@
 """
 
 import warnings
+from typing import Any, Dict
 
 from sphinxcontrib.htmlhelp import (
     chm_locales, chm_htmlescape, HTMLHelpBuilder, default_htmlhelp_basename
 )
 
+from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
-
-
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 deprecated_alias('sphinx.builders.htmlhelp',
@@ -34,8 +30,7 @@ deprecated_alias('sphinx.builders.htmlhelp',
                  RemovedInSphinx40Warning)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     warnings.warn('sphinx.builders.htmlhelp has been moved to sphinxcontrib-htmlhelp.',
                   RemovedInSphinx40Warning)
     app.setup_extension('sphinxcontrib.htmlhelp')
