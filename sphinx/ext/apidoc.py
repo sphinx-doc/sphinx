@@ -22,6 +22,7 @@ import sys
 import warnings
 from fnmatch import fnmatch
 from os import path
+from typing import Any, List, Tuple
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -31,10 +32,6 @@ from sphinx.locale import __
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
-
-if False:
-    # For type annotation
-    from typing import Any, List, Tuple  # NOQA
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -53,8 +50,7 @@ PY_SUFFIXES = {'.py', '.pyx'}
 template_dir = path.join(package_dir, 'templates', 'apidoc')
 
 
-def makename(package, module):
-    # type: (str, str) -> str
+def makename(package: str, module: str) -> str:
     """Join package and module with a dot."""
     warnings.warn('makename() is deprecated.',
                   RemovedInSphinx40Warning)
@@ -68,14 +64,12 @@ def makename(package, module):
     return name
 
 
-def module_join(*modnames):
-    # type: (*str) -> str
+def module_join(*modnames: str) -> str:
     """Join module names with dots."""
     return '.'.join(filter(None, modnames))
 
 
-def write_file(name, text, opts):
-    # type: (str, str, Any) -> None
+def write_file(name: str, text: str, opts: Any) -> None:
     """Write the output file for module/package <name>."""
     fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
     if opts.dryrun:
@@ -89,8 +83,7 @@ def write_file(name, text, opts):
             f.write(text)
 
 
-def format_heading(level, text, escape=True):
-    # type: (int, str, bool) -> str
+def format_heading(level: int, text: str, escape: bool = True) -> str:
     """Create a heading of <level> [1, 2 or 3 supported]."""
     warnings.warn('format_warning() is deprecated.',
                   RemovedInSphinx40Warning)
@@ -100,8 +93,7 @@ def format_heading(level, text, escape=True):
     return '%s\n%s\n\n' % (text, underlining)
 
 
-def format_directive(module, package=None):
-    # type: (str, str) -> str
+def format_directive(module: str, package: str = None) -> str:
     """Create the automodule directive and add the options."""
     warnings.warn('format_directive() is deprecated.',
                   RemovedInSphinx40Warning)
@@ -111,8 +103,8 @@ def format_directive(module, package=None):
     return directive
 
 
-def create_module_file(package, basename, opts, user_template_dir=None):
-    # type: (str, str, Any, str) -> None
+def create_module_file(package: str, basename: str, opts: Any,
+                       user_template_dir: str = None) -> None:
     """Build the text of the file and write the file."""
     qualname = module_join(package, basename)
     context = {
@@ -125,9 +117,9 @@ def create_module_file(package, basename, opts, user_template_dir=None):
     write_file(qualname, text, opts)
 
 
-def create_package_file(root, master_package, subroot, py_files, opts, subs,
-                        is_namespace, excludes=[], user_template_dir=None):
-    # type: (str, str, str, List[str], Any, List[str], bool, List[str], str) -> None
+def create_package_file(root: str, master_package: str, subroot: str, py_files: List[str],
+                        opts: Any, subs: List[str], is_namespace: bool,
+                        excludes: List[str] = [], user_template_dir: str = None) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an INITPY file)
     subpackages = [sub for sub in subs if not
@@ -160,8 +152,8 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs,
             create_module_file(None, submodule, opts, user_template_dir)
 
 
-def create_modules_toc_file(modules, opts, name='modules', user_template_dir=None):
-    # type: (List[str], Any, str, str) -> None
+def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules',
+                            user_template_dir: str = None) -> None:
     """Create the module's index."""
     modules.sort()
     prev_module = ''
@@ -181,8 +173,7 @@ def create_modules_toc_file(modules, opts, name='modules', user_template_dir=Non
     write_file(name, text, opts)
 
 
-def shall_skip(module, opts, excludes=[]):
-    # type: (str, Any, List[str]) -> bool
+def shall_skip(module: str, opts: Any, excludes: List[str] = []) -> bool:
     """Check if we want to skip this module."""
     # skip if the file doesn't exist and not using implicit namespaces
     if not opts.implicit_namespaces and not path.exists(module):
@@ -208,8 +199,7 @@ def shall_skip(module, opts, excludes=[]):
     return False
 
 
-def is_skipped_module(filename, opts, excludes):
-    # type: (str, Any, List[str]) -> bool
+def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
     """Check if we want to skip this module."""
     if not path.exists(filename):
         # skip if the file doesn't exist
@@ -221,8 +211,8 @@ def is_skipped_module(filename, opts, excludes):
         return False
 
 
-def recurse_tree(rootpath, excludes, opts, user_template_dir=None):
-    # type: (str, List[str], Any, str) -> List[str]
+def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
+                 user_template_dir: str = None) -> List[str]:
     """
     Look for every file in the directory tree and create the corresponding
     ReST files.
@@ -287,8 +277,7 @@ def recurse_tree(rootpath, excludes, opts, user_template_dir=None):
     return toplevels
 
 
-def is_excluded(root, excludes):
-    # type: (str, List[str]) -> bool
+def is_excluded(root: str, excludes: List[str]) -> bool:
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
@@ -300,8 +289,7 @@ def is_excluded(root, excludes):
     return False
 
 
-def get_parser():
-    # type: () -> argparse.ArgumentParser
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
               '[EXCLUDE_PATTERN, ...]',
@@ -396,8 +384,7 @@ Note: By default this script will not overwrite already created files."""))
     return parser
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
+def main(argv: List[str] = sys.argv[1:]) -> int:
     """Parse and check the command line arguments."""
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
