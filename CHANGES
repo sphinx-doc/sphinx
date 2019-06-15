@@ -10,6 +10,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.domains.math.MathDomain.add_equation()``
+* ``sphinx.domains.math.MathDomain.get_next_equation_number()``
 * The ``info`` and ``warn`` arguments of
   ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
 * ``sphinx.ext.autosummary.generate._simple_info()``

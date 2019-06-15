@@ -26,6 +26,16 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.domains.math.MathDomain.add_equation()``
+     - 2.2
+     - 4.0
+     - ``sphinx.domains.math.MathDomain.note_equation()``
+
+   * - ``sphinx.domains.math.MathDomain.get_next_equation_number()``
+     - 2.2
+     - 4.0
+     - ``sphinx.domains.math.MathDomain.note_equation()``
+
    * - The ``info`` and ``warn`` arguments of
        ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
      - 2.2
