@@ -18,30 +18,25 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 class ExtBabel(Babel):
     cyrillic_languages = ('bulgarian', 'kazakh', 'mongolian', 'russian', 'ukrainian')
 
-    def __init__(self, language_code, use_polyglossia=False):
-        # type: (str, bool) -> None
+    def __init__(self, language_code: str, use_polyglossia: bool = False) -> None:
         self.language_code = language_code
         self.use_polyglossia = use_polyglossia
         self.supported = True
         super().__init__(language_code or '')
 
-    def get_shorthandoff(self):
-        # type: () -> str
+    def get_shorthandoff(self) -> str:
         warnings.warn('ExtBabel.get_shorthandoff() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         from sphinx.writers.latex import SHORTHANDOFF
         return SHORTHANDOFF
 
-    def uses_cyrillic(self):
-        # type: () -> bool
+    def uses_cyrillic(self) -> bool:
         return self.language in self.cyrillic_languages
 
-    def is_supported_language(self):
-        # type: () -> bool
+    def is_supported_language(self) -> bool:
         return self.supported
 
-    def language_name(self, language_code):
-        # type: (str) -> str
+    def language_name(self, language_code: str) -> str:
         language = super().language_name(language_code)
         if language == 'ngerman' and self.use_polyglossia:
             # polyglossia calls new orthography (Neue Rechtschreibung) as
@@ -55,8 +50,7 @@ class ExtBabel(Babel):
             self.supported = False
             return 'english'  # fallback to english
 
-    def get_mainlanguage_options(self):
-        # type: () -> str
+    def get_mainlanguage_options(self) -> str:
         """Return options for polyglossia's ``\\setmainlanguage``."""
         if self.use_polyglossia is False:
             return None
