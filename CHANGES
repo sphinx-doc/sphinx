@@ -27,6 +27,7 @@ Features added
 --------------
 
 * #5124: graphviz: ``:graphviz_dot:`` option is renamed to ``:layout:``
+* #5602: apidoc: Add ``--templatedir`` option
 
 Bugs fixed
 ----------
