@@ -815,10 +815,6 @@ class StandaloneHTMLBuilder(Builder):
 
             for extra_path in self.config.html_extra_path:
                 entry = path.join(self.confdir, extra_path)
-                if not path.exists(entry):
-                    logger.warning(__('html_extra_path entry %r does not exist'), entry)
-                    continue
-
                 copy_asset(entry, self.outdir, excluded)
             logger.info(__('done'))
         except OSError as err:
@@ -1163,6 +1159,14 @@ def validate_math_renderer(app: Sphinx) -> None:
         raise ConfigError(__('Unknown math_renderer %r is given.') % name)
 
 
+def validate_html_extra_path(app: Sphinx, config: Config) -> None:
+    """Check html_extra_paths setting."""
+    for entry in config.html_extra_path[:]:
+        if not path.exists(path.join(app.confdir, entry)):
+            logger.warning(__('html_extra_path entry %r does not exist'), entry)
+            config.html_extra_path.remove(entry)
+
+
 def validate_html_static_path(app: Sphinx, config: Config) -> None:
     """Check html_static_paths setting."""
     for entry in config.html_static_path[:]:
@@ -1226,6 +1230,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # event handlers
     app.connect('config-inited', convert_html_css_files)
     app.connect('config-inited', convert_html_js_files)
+    app.connect('config-inited', validate_html_extra_path)
     app.connect('config-inited', validate_html_static_path)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
