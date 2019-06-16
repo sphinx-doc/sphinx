@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* apidoc: template files are renamed to ``.rst_t``
+
 Deprecated
 ----------
 

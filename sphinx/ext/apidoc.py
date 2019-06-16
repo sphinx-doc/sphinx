@@ -121,7 +121,7 @@ def create_module_file(package, basename, opts):
         'qualname': qualname,
         'automodule_options': OPTIONS,
     }
-    text = ReSTRenderer(template_dir).render('module.rst', context)
+    text = ReSTRenderer(template_dir).render('module.rst_t', context)
     write_file(qualname, text, opts)
 
 
@@ -151,7 +151,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
         'automodule_options': OPTIONS,
         'show_headings': not opts.noheadings,
     }
-    text = ReSTRenderer(template_dir).render('package.rst', context)
+    text = ReSTRenderer(template_dir).render('package.rst_t', context)
     write_file(pkgname, text, opts)
 
     if submodules and opts.separatemodules:
@@ -176,7 +176,7 @@ def create_modules_toc_file(modules, opts, name='modules'):
         'maxdepth': opts.maxdepth,
         'docnames': modules,
     }
-    text = ReSTRenderer(template_dir).render('toc.rst', context)
+    text = ReSTRenderer(template_dir).render('toc.rst_t', context)
     write_file(name, text, opts)
 
 
