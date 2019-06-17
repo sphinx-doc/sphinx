@@ -795,10 +795,7 @@ class StandaloneHTMLBuilder(Builder):
             if self.config.html_favicon:
                 iconbase = path.basename(self.config.html_favicon)
                 icontarget = path.join(self.outdir, '_static', iconbase)
-                if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
-                    logger.warning(__('favicon file %r does not exist'),
-                                   self.config.html_favicon)
-                elif not path.isfile(icontarget):
+                if not path.isfile(icontarget):
                     copyfile(path.join(self.confdir, self.config.html_favicon),
                              icontarget)
             logger.info(__('done'))
@@ -1180,6 +1177,13 @@ def validate_html_logo(app: Sphinx, config: Config) -> None:
         config.html_logo = None  # type: ignore
 
 
+def validate_html_favicon(app: Sphinx, config: Config) -> None:
+    """Check html_favicon setting."""
+    if config.html_favicon and not path.isfile(path.join(app.confdir, config.html_favicon)):
+        logger.warning(__('favicon file %r does not exist'), config.html_favicon)
+        config.html_favicon = None  # type: ignore
+
+
 # for compatibility
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
@@ -1238,6 +1242,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_html_extra_path)
     app.connect('config-inited', validate_html_static_path)
     app.connect('config-inited', validate_html_logo)
+    app.connect('config-inited', validate_html_favicon)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
 
