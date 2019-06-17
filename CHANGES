@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6497: custom lexers fails highlighting when syntax error
+
 Testing
 --------
 
