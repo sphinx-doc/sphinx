@@ -789,9 +789,7 @@ class StandaloneHTMLBuilder(Builder):
             if self.config.html_logo:
                 logobase = path.basename(self.config.html_logo)
                 logotarget = path.join(self.outdir, '_static', logobase)
-                if not path.isfile(path.join(self.confdir, self.config.html_logo)):
-                    logger.warning(__('logo file %r does not exist'), self.config.html_logo)
-                elif not path.isfile(logotarget):
+                if not path.isfile(logotarget):
                     copyfile(path.join(self.confdir, self.config.html_logo),
                              logotarget)
             if self.config.html_favicon:
@@ -1175,6 +1173,13 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             config.html_static_path.remove(entry)
 
 
+def validate_html_logo(app: Sphinx, config: Config) -> None:
+    """Check html_logo setting."""
+    if config.html_logo and not path.isfile(path.join(app.confdir, config.html_logo)):
+        logger.warning(__('logo file %r does not exist'), config.html_logo)
+        config.html_logo = None  # type: ignore
+
+
 # for compatibility
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
@@ -1232,6 +1237,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', convert_html_js_files)
     app.connect('config-inited', validate_html_extra_path)
     app.connect('config-inited', validate_html_static_path)
+    app.connect('config-inited', validate_html_logo)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
 
