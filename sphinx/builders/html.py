@@ -1157,16 +1157,24 @@ def validate_math_renderer(app: Sphinx) -> None:
 def validate_html_extra_path(app: Sphinx, config: Config) -> None:
     """Check html_extra_paths setting."""
     for entry in config.html_extra_path[:]:
-        if not path.exists(path.join(app.confdir, entry)):
+        extra_path = path.normpath(path.join(app.confdir, entry))
+        if not path.exists(extra_path):
             logger.warning(__('html_extra_path entry %r does not exist'), entry)
+            config.html_extra_path.remove(entry)
+        elif path.commonpath([app.outdir, extra_path]) == app.outdir:
+            logger.warning(__('html_extra_path entry %r is placed inside outdir'), entry)
             config.html_extra_path.remove(entry)
 
 
 def validate_html_static_path(app: Sphinx, config: Config) -> None:
     """Check html_static_paths setting."""
     for entry in config.html_static_path[:]:
-        if not path.exists(path.join(app.confdir, entry)):
+        static_path = path.normpath(path.join(app.confdir, entry))
+        if not path.exists(static_path):
             logger.warning(__('html_static_path entry %r does not exist'), entry)
+            config.html_static_path.remove(entry)
+        elif path.commonpath([app.outdir, static_path]) == app.outdir:
+            logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
             config.html_static_path.remove(entry)
 
 
