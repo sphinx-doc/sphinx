@@ -77,10 +77,12 @@ class ObjectDescription(SphinxDirective):
             for field in self.doc_field_types:
                 for name in field.names:
                     self._doc_field_type_map[name] = (field, False)
+
                 if field.is_typed:
                     typed_field = cast(TypedField, field)
                     for name in typed_field.typenames:
                         self._doc_field_type_map[name] = (field, True)
+
         return self._doc_field_type_map
 
     def get_signatures(self):
