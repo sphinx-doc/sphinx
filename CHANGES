@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* apidoc: template files are renamed to ``.rst_t``
+
 Deprecated
 ----------
 
@@ -27,6 +29,7 @@ Features added
 * #5124: graphviz: ``:graphviz_dot:`` option is renamed to ``:layout:``
 * #1464: html: emit a warning if :confval:`html_static_path` and
   :confval:`html_extra_path` directories are inside output directory
+* #5602: apidoc: Add ``--templatedir`` option
 
 Bugs fixed
 ----------

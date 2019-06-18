@@ -9,7 +9,7 @@
 """
 
 import os
-from typing import Dict
+from typing import Dict, List, Union
 
 from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
@@ -34,7 +34,13 @@ class BaseRenderer:
 
 
 class FileRenderer(BaseRenderer):
-    def __init__(self, search_path: str) -> None:
+    def __init__(self, search_path: Union[str, List[str]]) -> None:
+        if isinstance(search_path, str):
+            search_path = [search_path]
+        else:
+            # filter "None" paths
+            search_path = list(filter(None, search_path))
+
         loader = SphinxFileSystemLoader(search_path)
         super().__init__(loader)
 
@@ -46,7 +52,7 @@ class FileRenderer(BaseRenderer):
 
 
 class SphinxRenderer(FileRenderer):
-    def __init__(self, template_path: str = None) -> None:
+    def __init__(self, template_path: Union[str, List[str]] = None) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
         super().__init__(template_path)
@@ -76,7 +82,7 @@ class LaTeXRenderer(SphinxRenderer):
 
 
 class ReSTRenderer(SphinxRenderer):
-    def __init__(self, template_path: str = None, language: str = None) -> None:
+    def __init__(self, template_path: Union[str, List[str]] = None, language: str = None) -> None:  # NOQA
         super().__init__(template_path)
 
         # add language to environment
