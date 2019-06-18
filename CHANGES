@@ -41,6 +41,7 @@ Bugs fixed
 * #5502: linkcheck: Consider HTTP 503 response as not an error
 * #6439: Make generated download links reproducible
 * #6486: UnboundLocalError is raised if broken extension installed
+* #6507: autosummary: crashes without no autosummary_generate setting
 
 Testing
 --------

@@ -256,19 +256,26 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
+                    location = self.state_machine.get_source_and_line(self.lineno)
                     if excluded(self.env.doc2path(docname, None)):
-                        logger.warning(__('toctree references excluded document %r'), docname)
+                        msg = __('autosummary references excluded document %r. Ignored.')
                     else:
-                        logger.warning(__('toctree references unknown document %r'), docname)
+                        msg = __('autosummary: stub file not found %r. '
+                                 'Check your autosummary_generate setting.')
+
+                    logger.warning(msg, real_name, location=location)
+                    continue
+
                 docnames.append(docname)
 
-            tocnode = addnodes.toctree()
-            tocnode['includefiles'] = docnames
-            tocnode['entries'] = [(None, docn) for docn in docnames]
-            tocnode['maxdepth'] = -1
-            tocnode['glob'] = None
+            if docnames:
+                tocnode = addnodes.toctree()
+                tocnode['includefiles'] = docnames
+                tocnode['entries'] = [(None, docn) for docn in docnames]
+                tocnode['maxdepth'] = -1
+                tocnode['glob'] = None
 
-            nodes.append(autosummary_toc('', '', tocnode))
+                nodes.append(autosummary_toc('', '', tocnode))
 
         return nodes
 
