@@ -787,17 +787,11 @@ class StandaloneHTMLBuilder(Builder):
                            context=ctx, renderer=self.templates)
             # copy logo and favicon files if not already in static path
             if self.config.html_logo:
-                logobase = path.basename(self.config.html_logo)
-                logotarget = path.join(self.outdir, '_static', logobase)
-                if not path.isfile(logotarget):
-                    copyfile(path.join(self.confdir, self.config.html_logo),
-                             logotarget)
+                entry = path.join(self.confdir, self.config.html_logo)
+                copy_asset(entry, path.join(self.outdir, '_static'))
             if self.config.html_favicon:
-                iconbase = path.basename(self.config.html_favicon)
-                icontarget = path.join(self.outdir, '_static', iconbase)
-                if not path.isfile(icontarget):
-                    copyfile(path.join(self.confdir, self.config.html_favicon),
-                             icontarget)
+                entry = path.join(self.confdir, self.config.html_favicon)
+                copy_asset(entry, path.join(self.outdir, '_static'))
             logger.info(__('done'))
         except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
