@@ -16,6 +16,7 @@ from itertools import cycle, chain
 import pytest
 from html5lib import HTMLParser
 
+from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
@@ -1496,3 +1497,29 @@ def test_html_pygments_style_manually(app):
 def test_html_pygments_for_classic_theme(app):
     style = app.builder.highlighter.formatter_args.get('style')
     assert style.__name__ == 'SphinxStyle'
+
+
+@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
+def test_validate_html_extra_path(app):
+    (app.confdir / '_static').makedirs()
+    app.config.html_extra_path = [
+        '/path/to/not_found',       # not found
+        '_static',
+        app.outdir,                 # outdir
+        app.outdir / '_static',     # inside outdir
+    ]
+    validate_html_extra_path(app, app.config)
+    assert app.config.html_extra_path == ['_static']
+
+
+@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_static_path')
+def test_validate_html_static_path(app):
+    (app.confdir / '_static').makedirs()
+    app.config.html_static_path = [
+        '/path/to/not_found',       # not found
+        '_static',
+        app.outdir,                 # outdir
+        app.outdir / '_static',     # inside outdir
+    ]
+    validate_html_static_path(app, app.config)
+    assert app.config.html_static_path == ['_static']

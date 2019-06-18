@@ -27,12 +27,16 @@ Features added
 --------------
 
 * #5124: graphviz: ``:graphviz_dot:`` option is renamed to ``:layout:``
+* #1464: html: emit a warning if :confval:`html_static_path` and
+  :confval:`html_extra_path` directories are inside output directory
 * #5602: apidoc: Add ``--templatedir`` option
 
 Bugs fixed
 ----------
 
 * py domain: duplicated warning does not point the location of source code
+* #6499: html: Sphinx never updates a copy of :confval:`html_logo` even if
+  original file has changed
 * #1125: html theme: scrollbar is hard to see on classic theme and macOS
 * #5502: linkcheck: Consider HTTP 503 response as not an error
 * #6439: Make generated download links reproducible
