@@ -70,25 +70,17 @@ class ObjectDescription(SphinxDirective):
     # Warning: this might be removed in future version. Don't touch this from extensions.
     _doc_field_type_map = {}  # type: Dict[str, Tuple[Field, bool]]
 
-    def _process_type_map(self, typelist):
-        # type: (List[Field]) -> Dict[str, Tuple[Field, bool]]
-        typemap = {}
-        for field in typelist:
-            for name in field.names:
-                typemap[name] = (field, False)
-            if field.is_typed:
-                typed_field = cast(TypedField, field)
-                for name in typed_field.typenames:
-                    typemap[name] = (field, True)
-        return typemap
-
-    def __init__(self, *args, **kwargs):
-        # type: (*Any, **Any) -> None
-        SphinxDirective.__init__(self, *args, **kwargs)
-        self._doc_field_type_map = self._process_type_map(self.doc_field_types)
-
     def get_field_type_map(self):
         # type: () -> Dict[str, Tuple[Field, bool]]
+        if self._doc_field_type_map == {}:
+            self._doc_field_type_map = {}
+            for field in self.doc_field_types:
+                for name in field.names:
+                    self._doc_field_type_map[name] = (field, False)
+                if field.is_typed:
+                    typed_field = cast(TypedField, field)
+                    for name in typed_field.typenames:
+                        self._doc_field_type_map[name] = (field, True)
         return self._doc_field_type_map
 
     def get_signatures(self):
