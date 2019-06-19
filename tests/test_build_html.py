@@ -1240,25 +1240,25 @@ def test_html_entity(app):
 def test_html_inventory(app):
     app.builder.build_all()
     with open(app.outdir / 'objects.inv', 'rb') as f:
-        invdata = InventoryFile.load(f, 'http://example.com', os.path.join)
+        invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
     assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
     assert invdata['std:label']['modindex'] == ('Python',
                                                 '',
-                                                'http://example.com/py-modindex.html',
+                                                'https://www.google.com/py-modindex.html',
                                                 'Module Index')
     assert invdata['std:label']['genindex'] == ('Python',
                                                 '',
-                                                'http://example.com/genindex.html',
+                                                'https://www.google.com/genindex.html',
                                                 'Index')
     assert invdata['std:label']['search'] == ('Python',
                                               '',
-                                              'http://example.com/search.html',
+                                              'https://www.google.com/search.html',
                                               'Search Page')
     assert set(invdata['std:doc'].keys()) == {'index'}
     assert invdata['std:doc']['index'] == ('Python',
                                            '',
-                                           'http://example.com/index.html',
+                                           'https://www.google.com/index.html',
                                            'The basic Sphinx documentation for testing')
 
 
