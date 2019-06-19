@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #6497: custom lexers fails highlighting when syntax error
+* #6478, #6488: info field lists are incorrectly recognized
 
 Testing
 --------
