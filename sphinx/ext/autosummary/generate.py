@@ -208,23 +208,25 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     if info:
         warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx40Warning)
+        _info = info
     else:
-        info = logger.info
+        _info = logger.info
 
     if warn:
         warnings.warn('warn argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx40Warning)
+        _warn = warn
     else:
-        warn = logger.warning
+        _warn = logger.warning
 
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
-    info(__('[autosummary] generating autosummary for: %s') %
-         ', '.join(showed_sources))
+    _info(__('[autosummary] generating autosummary for: %s') %
+          ', '.join(showed_sources))
 
     if output_dir:
-        info(__('[autosummary] writing to %s') % output_dir)
+        _info(__('[autosummary] writing to %s') % output_dir)
 
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
@@ -250,7 +252,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         try:
             name, obj, parent, mod_name = import_by_name(name)
         except ImportError as e:
-            warn('[autosummary] failed to import %r: %s' % (name, e))
+            _warn('[autosummary] failed to import %r: %s' % (name, e))
             continue
 
         fn = os.path.join(path, name + suffix)
