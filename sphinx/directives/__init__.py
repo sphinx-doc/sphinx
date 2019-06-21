@@ -73,6 +73,7 @@ class ObjectDescription(SphinxDirective):
 
     def get_field_type_map(self) -> Dict[str, Tuple[Field, bool]]:
         if self._doc_field_type_map == {}:
+            self._doc_field_type_map = {}
             for field in self.doc_field_types:
                 for name in field.names:
                     self._doc_field_type_map[name] = (field, False)

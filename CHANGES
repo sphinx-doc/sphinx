@@ -41,12 +41,13 @@ Bugs fixed
 * #5502: linkcheck: Consider HTTP 503 response as not an error
 * #6439: Make generated download links reproducible
 * #6486: UnboundLocalError is raised if broken extension installed
+* #6498: autosummary: crashed with wrong autosummary_generate setting
 * #6507: autosummary: crashes without no autosummary_generate setting
 
 Testing
 --------
 
-Release 2.1.2 (in development)
+Release 2.1.3 (in development)
 ==============================
 
 Dependencies
@@ -66,6 +67,15 @@ Bugs fixed
 
 Testing
 --------
+
+Release 2.1.2 (released Jun 19, 2019)
+=====================================
+
+Bugs fixed
+----------
+
+* #6497: custom lexers fails highlighting when syntax error
+* #6478, #6488: info field lists are incorrectly recognized
 
 Release 2.1.1 (released Jun 10, 2019)
 =====================================

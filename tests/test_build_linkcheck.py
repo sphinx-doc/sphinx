@@ -25,8 +25,8 @@ def test_defaults(app, status, warning):
     # looking for non-existent URL should fail
     assert " Max retries exceeded with url: /doesnotexist" in content
     # images should fail
-    assert "Not Found for url: http://example.com/image.png" in content
-    assert "Not Found for url: http://example.com/image2.png" in content
+    assert "Not Found for url: https://www.google.com/image.png" in content
+    assert "Not Found for url: https://www.google.com/image2.png" in content
     assert len(content.splitlines()) == 5
 
 
@@ -36,8 +36,8 @@ def test_defaults(app, status, warning):
                    'linkcheck_ignore': [
                        'https://localhost:7777/doesnotexist',
                        'http://www.sphinx-doc.org/en/1.7/intro.html#',
-                       'http://example.com/image.png',
-                       'http://example.com/image2.png']
+                       'https://www.google.com/image.png',
+                       'https://www.google.com/image2.png']
                    })
 def test_anchors_ignored(app, status, warning):
     app.builder.build_all()

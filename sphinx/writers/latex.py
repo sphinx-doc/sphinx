@@ -2598,7 +2598,7 @@ class LaTeXTranslator(SphinxTranslator):
                       RemovedInSphinx30Warning)
 
         def visit_admonition(self, node):
-            # type: (nodes.Element) -> None
+            # type: (LaTeXTranslator, nodes.Element) -> None
             self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition
