@@ -30,7 +30,7 @@ class PyStemmer(BaseStemmer):
         return self.stemmer.stemWord(word)
 
 
-class StandardStemmer(PorterStemmer, BaseStemmer):  # type: ignore
+class StandardStemmer(PorterStemmer, BaseStemmer):
     """All those porter stemmer implementations look hideous;
     make at least the stem method nicer.
     """

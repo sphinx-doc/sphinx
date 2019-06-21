@@ -16,6 +16,7 @@ from docutils.parsers.rst.directives import images, html, tables
 
 from sphinx import addnodes
 from sphinx.directives import optional_int
+from sphinx.domains.math import MathDomain
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
@@ -194,18 +195,15 @@ class MathDirective(SphinxDirective):
             return
 
         # register label to domain
-        domain = self.env.get_domain('math')
-        try:
-            eqno = domain.add_equation(self.env, self.env.docname, node['label'])  # type: ignore  # NOQA
-            node['number'] = eqno
+        domain = cast(MathDomain, self.env.get_domain('math'))
+        domain.note_equation(self.env.docname, node['label'], location=node)
+        node['number'] = domain.get_equation_number_for(node['label'])
 
-            # add target node
-            node_id = make_id('equation-%s' % node['label'])
-            target = nodes.target('', '', ids=[node_id])
-            self.state.document.note_explicit_target(target)
-            ret.insert(0, target)
-        except UserWarning as exc:
-            self.state_machine.reporter.warning(exc, line=self.lineno)
+        # add target node
+        node_id = make_id('equation-%s' % node['label'])
+        target = nodes.target('', '', ids=[node_id])
+        self.state.document.note_explicit_target(target)
+        ret.insert(0, target)
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

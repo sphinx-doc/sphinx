@@ -8,9 +8,12 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from docutils import nodes
 from docutils.nodes import make_id
 
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain
 from sphinx.locale import __
 from sphinx.roles import XRefRole
@@ -43,7 +46,7 @@ class MathDomain(Domain):
     initial_data = {
         'objects': {},  # labelid -> (docname, eqno)
         'has_equations': {},  # docname -> bool
-    }  # type: Dict[str, Dict[str, Tuple[str, int]]]
+    }  # type: Dict
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
     }
@@ -53,6 +56,27 @@ class MathDomain(Domain):
     roles = {
         'numref': MathReferenceRole(),
     }
+
+    @property
+    def equations(self):
+        # type: () -> Dict[str, Tuple[str, int]]
+        return self.data.setdefault('objects', {})  # labelid -> (docname, eqno)
+
+    def note_equation(self, docname, labelid, location=None):
+        # type: (str, str, Any) -> None
+        if labelid in self.equations:
+            other = self.equations[labelid][0]
+            logger.warning(__('duplicate label of equation %s, other instance in %s') %
+                           (labelid, other), location=location)
+
+        self.equations[labelid] = (docname, self.env.new_serialno('eqno') + 1)
+
+    def get_equation_number_for(self, labelid):
+        # type: (str) -> int
+        if labelid in self.equations:
+            return self.equations[labelid][1]
+        else:
+            return None
 
     def process_doc(self, env, docname, document):
         # type: (BuildEnvironment, str, nodes.document) -> None
@@ -64,9 +88,9 @@ class MathDomain(Domain):
 
     def clear_doc(self, docname):
         # type: (str) -> None
-        for equation_id, (doc, eqno) in list(self.data['objects'].items()):
+        for equation_id, (doc, eqno) in list(self.equations.items()):
             if doc == docname:
-                del self.data['objects'][equation_id]
+                del self.equations[equation_id]
 
         self.data['has_equations'].pop(docname, None)
 
@@ -74,7 +98,7 @@ class MathDomain(Domain):
         # type: (Iterable[str], Dict) -> None
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
-                self.data['objects'][labelid] = (doc, eqno)
+                self.equations[labelid] = (doc, eqno)
 
         for docname in docnames:
             self.data['has_equations'][docname] = otherdata['has_equations'][docname]
@@ -82,19 +106,22 @@ class MathDomain(Domain):
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         assert typ in ('eq', 'numref')
-        docname, number = self.data['objects'].get(target, (None, None))
+        docname, number = self.equations.get(target, (None, None))
         if docname:
             # TODO: perhaps use rather a sphinx-core provided prefix here?
             node_id = make_id('equation-%s' % target)
             if env.config.math_numfig and env.config.numfig:
                 if docname in env.toc_fignumbers:
-                    number = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
-                    number = '.'.join(map(str, number))
+                    numbers = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
+                    eqno = '.'.join(map(str, numbers))
                 else:
-                    number = ''
+                    eqno = ''
+            else:
+                eqno = str(number)
+
             try:
                 eqref_format = env.config.math_eqref_format or "({number})"
-                title = nodes.Text(eqref_format.format(number=number))
+                title = nodes.Text(eqref_format.format(number=eqno))
             except KeyError as exc:
                 logger.warning(__('Invalid math_eqref_format: %r'), exc,
                                location=node)
@@ -118,19 +145,22 @@ class MathDomain(Domain):
 
     def add_equation(self, env, docname, labelid):
         # type: (BuildEnvironment, str, str) -> int
-        equations = self.data['objects']
-        if labelid in equations:
-            path = env.doc2path(equations[labelid][0])
+        warnings.warn('MathDomain.add_equation() is deprecated.',
+                      RemovedInSphinx40Warning)
+        if labelid in self.equations:
+            path = env.doc2path(self.equations[labelid][0])
             msg = __('duplicate label of equation %s, other instance in %s') % (labelid, path)
             raise UserWarning(msg)
         else:
             eqno = self.get_next_equation_number(docname)
-            equations[labelid] = (docname, eqno)
+            self.equations[labelid] = (docname, eqno)
             return eqno
 
     def get_next_equation_number(self, docname):
         # type: (str) -> int
-        targets = [eq for eq in self.data['objects'].values() if eq[0] == docname]
+        warnings.warn('MathDomain.get_next_equation_number() is deprecated.',
+                      RemovedInSphinx40Warning)
+        targets = [eq for eq in self.equations.values() if eq[0] == docname]
         return len(targets) + 1
 
     def has_equations(self):

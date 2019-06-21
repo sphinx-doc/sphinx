@@ -16,6 +16,7 @@ from itertools import cycle, chain
 import pytest
 from html5lib import HTMLParser
 
+from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
@@ -1239,25 +1240,25 @@ def test_html_entity(app):
 def test_html_inventory(app):
     app.builder.build_all()
     with open(app.outdir / 'objects.inv', 'rb') as f:
-        invdata = InventoryFile.load(f, 'http://example.com', os.path.join)
+        invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
     assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
     assert invdata['std:label']['modindex'] == ('Python',
                                                 '',
-                                                'http://example.com/py-modindex.html',
+                                                'https://www.google.com/py-modindex.html',
                                                 'Module Index')
     assert invdata['std:label']['genindex'] == ('Python',
                                                 '',
-                                                'http://example.com/genindex.html',
+                                                'https://www.google.com/genindex.html',
                                                 'Index')
     assert invdata['std:label']['search'] == ('Python',
                                               '',
-                                              'http://example.com/search.html',
+                                              'https://www.google.com/search.html',
                                               'Search Page')
     assert set(invdata['std:doc'].keys()) == {'index'}
     assert invdata['std:doc']['index'] == ('Python',
                                            '',
-                                           'http://example.com/index.html',
+                                           'https://www.google.com/index.html',
                                            'The basic Sphinx documentation for testing')
 
 
@@ -1496,3 +1497,29 @@ def test_html_pygments_style_manually(app):
 def test_html_pygments_for_classic_theme(app):
     style = app.builder.highlighter.formatter_args.get('style')
     assert style.__name__ == 'SphinxStyle'
+
+
+@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
+def test_validate_html_extra_path(app):
+    (app.confdir / '_static').makedirs()
+    app.config.html_extra_path = [
+        '/path/to/not_found',       # not found
+        '_static',
+        app.outdir,                 # outdir
+        app.outdir / '_static',     # inside outdir
+    ]
+    validate_html_extra_path(app, app.config)
+    assert app.config.html_extra_path == ['_static']
+
+
+@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_static_path')
+def test_validate_html_static_path(app):
+    (app.confdir / '_static').makedirs()
+    app.config.html_static_path = [
+        '/path/to/not_found',       # not found
+        '_static',
+        app.outdir,                 # outdir
+        app.outdir / '_static',     # inside outdir
+    ]
+    validate_html_static_path(app, app.config)
+    assert app.config.html_static_path == ['_static']

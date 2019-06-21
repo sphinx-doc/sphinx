@@ -754,29 +754,15 @@ class StandaloneHTMLBuilder(Builder):
             excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
             for static_path in self.config.html_static_path:
                 entry = path.join(self.confdir, static_path)
-                if not path.exists(entry):
-                    logger.warning(__('html_static_path entry %r does not exist'), entry)
-                    continue
                 copy_asset(entry, path.join(self.outdir, '_static'), excluded,
                            context=ctx, renderer=self.templates)
             # copy logo and favicon files if not already in static path
             if self.config.html_logo:
-                logobase = path.basename(self.config.html_logo)
-                logotarget = path.join(self.outdir, '_static', logobase)
-                if not path.isfile(path.join(self.confdir, self.config.html_logo)):
-                    logger.warning(__('logo file %r does not exist'), self.config.html_logo)
-                elif not path.isfile(logotarget):
-                    copyfile(path.join(self.confdir, self.config.html_logo),
-                             logotarget)
+                entry = path.join(self.confdir, self.config.html_logo)
+                copy_asset(entry, path.join(self.outdir, '_static'))
             if self.config.html_favicon:
-                iconbase = path.basename(self.config.html_favicon)
-                icontarget = path.join(self.outdir, '_static', iconbase)
-                if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
-                    logger.warning(__('favicon file %r does not exist'),
-                                   self.config.html_favicon)
-                elif not path.isfile(icontarget):
-                    copyfile(path.join(self.confdir, self.config.html_favicon),
-                             icontarget)
+                entry = path.join(self.confdir, self.config.html_favicon)
+                copy_asset(entry, path.join(self.outdir, '_static'))
             logger.info(__('done'))
         except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
@@ -789,10 +775,6 @@ class StandaloneHTMLBuilder(Builder):
 
             for extra_path in self.config.html_extra_path:
                 entry = path.join(self.confdir, extra_path)
-                if not path.exists(entry):
-                    logger.warning(__('html_extra_path entry %r does not exist'), entry)
-                    continue
-
                 copy_asset(entry, self.outdir, excluded)
             logger.info(__('done'))
         except OSError as err:
@@ -1128,6 +1110,44 @@ def validate_math_renderer(app: Sphinx) -> None:
         raise ConfigError(__('Unknown math_renderer %r is given.') % name)
 
 
+def validate_html_extra_path(app: Sphinx, config: Config) -> None:
+    """Check html_extra_paths setting."""
+    for entry in config.html_extra_path[:]:
+        extra_path = path.normpath(path.join(app.confdir, entry))
+        if not path.exists(extra_path):
+            logger.warning(__('html_extra_path entry %r does not exist'), entry)
+            config.html_extra_path.remove(entry)
+        elif path.commonpath([app.outdir, extra_path]) == app.outdir:
+            logger.warning(__('html_extra_path entry %r is placed inside outdir'), entry)
+            config.html_extra_path.remove(entry)
+
+
+def validate_html_static_path(app: Sphinx, config: Config) -> None:
+    """Check html_static_paths setting."""
+    for entry in config.html_static_path[:]:
+        static_path = path.normpath(path.join(app.confdir, entry))
+        if not path.exists(static_path):
+            logger.warning(__('html_static_path entry %r does not exist'), entry)
+            config.html_static_path.remove(entry)
+        elif path.commonpath([app.outdir, static_path]) == app.outdir:
+            logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
+            config.html_static_path.remove(entry)
+
+
+def validate_html_logo(app: Sphinx, config: Config) -> None:
+    """Check html_logo setting."""
+    if config.html_logo and not path.isfile(path.join(app.confdir, config.html_logo)):
+        logger.warning(__('logo file %r does not exist'), config.html_logo)
+        config.html_logo = None  # type: ignore
+
+
+def validate_html_favicon(app: Sphinx, config: Config) -> None:
+    """Check html_favicon setting."""
+    if config.html_favicon and not path.isfile(path.join(app.confdir, config.html_favicon)):
+        logger.warning(__('favicon file %r does not exist'), config.html_favicon)
+        config.html_favicon = None  # type: ignore
+
+
 # for compatibility
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
@@ -1183,6 +1203,10 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # event handlers
     app.connect('config-inited', convert_html_css_files)
     app.connect('config-inited', convert_html_js_files)
+    app.connect('config-inited', validate_html_extra_path)
+    app.connect('config-inited', validate_html_static_path)
+    app.connect('config-inited', validate_html_logo)
+    app.connect('config-inited', validate_html_favicon)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
 

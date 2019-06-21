@@ -279,9 +279,9 @@ def get_verifier(verify, verify_re):
     (
         # in URIs
         'verify_re',
-        '`test <http://example.com/~me/>`_',
+        '`test <https://www.google.com/~me/>`_',
         None,
-        r'\\sphinxhref{http://example.com/~me/}{test}.*',
+        r'\\sphinxhref{https://www.google.com/~me/}{test}.*',
     ),
     (
         # description list: simple

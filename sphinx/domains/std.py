@@ -886,12 +886,13 @@ class StandardDomain(Domain):
         # type: (nodes.Node) -> str
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
-            _, title_getter = self.enumerable_nodes.get(node.__class__, (None, None))
+            elem = cast(nodes.Element, node)
+            _, title_getter = self.enumerable_nodes.get(elem.__class__, (None, None))
             if title_getter:
-                return title_getter(node)
+                return title_getter(elem)
             else:
-                for subnode in node:
-                    if subnode.tagname in ('caption', 'title'):
+                for subnode in elem:
+                    if isinstance(subnode, (nodes.caption, nodes.title)):
                         return clean_astext(subnode)
 
         return None

@@ -116,7 +116,8 @@ class PygmentsBridge:
                 lexer = lexers['none']
 
         if lang in lexers:
-            lexer = lexers[lang]
+            # just return custom lexers here (without installing raiseonerror filter)
+            return lexers[lang]
         elif lang in lexer_classes:
             lexer = lexer_classes[lang](**opts)
         else:
