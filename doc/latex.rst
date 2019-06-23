@@ -520,9 +520,21 @@ LaTeX boolean keys require *lowercase* ``true`` or ``false`` values.
 Spaces around the commas and equal signs are ignored, spaces inside LaTeX
 macros may be significant.
 
+``latexlistlabels``
+    Defaults to ``false``.  It means that enumerated list items will follow
+    the format (alphabetical or numerical) from the source.
+
+    Setting to ``true`` means to let LaTeX decide itself (depending on the
+    document class and language, and/or packages) the style of labels (this
+    was Sphinx behaviour prior to release 1.8.0).  This may be useful in
+    conjunction with some dedicated LaTeX package such as ``enumitem`` to
+    configure how enumerated lists are labeled, depending on nesting level.
+
+    .. versionadded:: 2.1.3
+
 .. _latexsphinxsetuphmargin:
 
-``hmargin, vmargin``
+``hmargin``, ``vmargin``
     The dimensions of the horizontal (resp. vertical) margins, passed as
     ``hmargin`` (resp. ``vmargin``) option to
     the ``geometry`` package. The default is ``1in``, which is equivalent to
