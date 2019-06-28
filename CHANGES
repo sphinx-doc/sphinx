@@ -29,6 +29,7 @@ Features added
 * #5124: graphviz: ``:graphviz_dot:`` option is renamed to ``:layout:``
 * #1464: html: emit a warning if :confval:`html_static_path` and
   :confval:`html_extra_path` directories are inside output directory
+* #6514: html: Add a label to search input for accessability purposes
 * #5602: apidoc: Add ``--templatedir`` option
 
 Bugs fixed
