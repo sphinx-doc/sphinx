@@ -157,7 +157,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs,
 
     if submodules and opts.separatemodules:
         for submodule in submodules:
-            create_module_file(None, submodule, opts)
+            create_module_file(None, submodule, opts, user_template_dir)
 
 
 def create_modules_toc_file(modules, opts, name='modules', user_template_dir=None):
