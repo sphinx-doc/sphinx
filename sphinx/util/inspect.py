@@ -123,7 +123,7 @@ def isenumattribute(x: Any) -> bool:
 
 def ispartial(obj: Any) -> bool:
     """Check if the object is partial."""
-    return isinstance(obj, (partial, partialmethod))  # type: ignore
+    return isinstance(obj, (partial, partialmethod))
 
 
 def isclassmethod(obj: Any) -> bool:
