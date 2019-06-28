@@ -58,6 +58,7 @@ import posixpath
 import re
 import sys
 import warnings
+from os import path
 from types import ModuleType
 from typing import List, cast
 
@@ -256,19 +257,26 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
+                    location = self.state_machine.get_source_and_line(self.lineno)
                     if excluded(self.env.doc2path(docname, None)):
-                        logger.warning(__('toctree references excluded document %r'), docname)
+                        msg = __('autosummary references excluded document %r. Ignored.')
                     else:
-                        logger.warning(__('toctree references unknown document %r'), docname)
+                        msg = __('autosummary: stub file not found %r. '
+                                 'Check your autosummary_generate setting.')
+
+                    logger.warning(msg, real_name, location=location)
+                    continue
+
                 docnames.append(docname)
 
-            tocnode = addnodes.toctree()
-            tocnode['includefiles'] = docnames
-            tocnode['entries'] = [(None, docn) for docn in docnames]
-            tocnode['maxdepth'] = -1
-            tocnode['glob'] = None
+            if docnames:
+                tocnode = addnodes.toctree()
+                tocnode['includefiles'] = docnames
+                tocnode['entries'] = [(None, docn) for docn in docnames]
+                tocnode['maxdepth'] = -1
+                tocnode['glob'] = None
 
-            nodes.append(autosummary_toc('', '', tocnode))
+                nodes.append(autosummary_toc('', '', tocnode))
 
         return nodes
 
@@ -731,25 +739,30 @@ def process_generate_options(app):
     # type: (Sphinx) -> None
     genfiles = app.config.autosummary_generate
 
-    if genfiles and not hasattr(genfiles, '__len__'):
+    if genfiles is True:
         env = app.builder.env
         genfiles = [env.doc2path(x, base=None) for x in env.found_docs
                     if os.path.isfile(env.doc2path(x))]
+    else:
+        ext = list(app.config.source_suffix)
+        genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
+                    for genfile in genfiles]
+
+        for entry in genfiles[:]:
+            if not path.isfile(path.join(app.srcdir, entry)):
+                logger.warning(__('autosummary_generate: file not found: %s'), entry)
+                genfiles.remove(entry)
 
     if not genfiles:
         return
-
-    from sphinx.ext.autosummary.generate import generate_autosummary_docs
-
-    ext = list(app.config.source_suffix)
-    genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
-                for genfile in genfiles]
 
     suffix = get_rst_suffix(app)
     if suffix is None:
         logger.warning(__('autosummary generats .rst files internally. '
                           'But your source_suffix does not contain .rst. Skipped.'))
         return
+
+    from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
     imported_members = app.config.autosummary_imported_members
     with mock(app.config.autosummary_mock_imports):
