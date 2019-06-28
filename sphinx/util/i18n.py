@@ -286,7 +286,7 @@ def format_date(format, date=None, language=None):
         if source_date_epoch is not None:
             date = datetime.utcfromtimestamp(float(source_date_epoch))
         else:
-            date = datetime.now()
+            date = datetime.utcnow()
 
     result = []
     tokens = date_format_re.split(format)
