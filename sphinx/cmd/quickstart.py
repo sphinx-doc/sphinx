@@ -17,6 +17,7 @@ import time
 import warnings
 from collections import OrderedDict
 from os import path
+from typing import Any, Callable, Dict, List, Pattern, Union
 
 # try to import readline, unix specific enhancement
 try:
@@ -41,10 +42,6 @@ from sphinx.util.console import (  # type: ignore
 )
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
-
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, List, Pattern, Union  # NOQA
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)  # RemovedInSphinx40Warning
 
@@ -84,8 +81,7 @@ else:
 
 
 # function to get input from terminal -- overridden by the test suite
-def term_input(prompt):
-    # type: (str) -> str
+def term_input(prompt: str) -> str:
     if sys.platform == 'win32':
         # Important: On windows, readline is not enabled by default.  In these
         #            environment, escape sequences have been broken.  To avoid the
@@ -100,58 +96,49 @@ class ValidationError(Exception):
     """Raised for validation errors."""
 
 
-def is_path(x):
-    # type: (str) -> str
+def is_path(x: str) -> str:
     x = path.expanduser(x)
     if not path.isdir(x):
         raise ValidationError(__("Please enter a valid path name."))
     return x
 
 
-def allow_empty(x):
-    # type: (str) -> str
+def allow_empty(x: str) -> str:
     return x
 
 
-def nonempty(x):
-    # type: (str) -> str
+def nonempty(x: str) -> str:
     if not x:
         raise ValidationError(__("Please enter some text."))
     return x
 
 
-def choice(*l):
-    # type: (str) -> Callable[[str], str]
-    def val(x):
-        # type: (str) -> str
+def choice(*l: str) -> Callable[[str], str]:
+    def val(x: str) -> str:
         if x not in l:
             raise ValidationError(__('Please enter one of %s.') % ', '.join(l))
         return x
     return val
 
 
-def boolean(x):
-    # type: (str) -> bool
+def boolean(x: str) -> bool:
     if x.upper() not in ('Y', 'YES', 'N', 'NO'):
         raise ValidationError(__("Please enter either 'y' or 'n'."))
     return x.upper() in ('Y', 'YES')
 
 
-def suffix(x):
-    # type: (str) -> str
+def suffix(x: str) -> str:
     if not (x[0:1] == '.' and len(x) > 1):
         raise ValidationError(__("Please enter a file suffix, "
                                  "e.g. '.rst' or '.txt'."))
     return x
 
 
-def ok(x):
-    # type: (str) -> str
+def ok(x: str) -> str:
     return x
 
 
-def term_decode(text):
-    # type: (Union[bytes,str]) -> str
+def term_decode(text: Union[bytes, str]) -> str:
     warnings.warn('term_decode() is deprecated.',
                   RemovedInSphinx40Warning, stacklevel=2)
 
@@ -175,8 +162,7 @@ def term_decode(text):
         return text.decode('latin1')
 
 
-def do_prompt(text, default=None, validator=nonempty):
-    # type: (str, str, Callable[[str], Any]) -> Union[str, bool]
+def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = nonempty) -> Union[str, bool]:  # NOQA
     while True:
         if default is not None:
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
@@ -201,8 +187,7 @@ def do_prompt(text, default=None, validator=nonempty):
     return x
 
 
-def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
-    # type: (str, Pattern) -> str
+def convert_python_source(source: str, rex: Pattern = re.compile(r"[uU]('.*?')")) -> str:
     # remove Unicode literal prefixes
     warnings.warn('convert_python_source() is deprecated.',
                   RemovedInSphinx40Warning)
@@ -210,13 +195,11 @@ def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
 
 
 class QuickstartRenderer(SphinxRenderer):
-    def __init__(self, templatedir):
-        # type: (str) -> None
+    def __init__(self, templatedir: str) -> None:
         self.templatedir = templatedir or ''
         super().__init__()
 
-    def render(self, template_name, context):
-        # type: (str, Dict) -> str
+    def render(self, template_name: str, context: Dict) -> str:
         user_template = path.join(self.templatedir, path.basename(template_name))
         if self.templatedir and path.exists(user_template):
             return self.render_from_file(user_template, context)
@@ -224,8 +207,7 @@ class QuickstartRenderer(SphinxRenderer):
             return super().render(template_name, context)
 
 
-def ask_user(d):
-    # type: (Dict) -> None
+def ask_user(d: Dict) -> None:
     """Ask the user for quickstart values missing from *d*.
 
     Values are:
@@ -367,8 +349,8 @@ directly.'''))
     print()
 
 
-def generate(d, overwrite=True, silent=False, templatedir=None):
-    # type: (Dict, bool, bool, str) -> None
+def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir: str = None
+             ) -> None:
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir=templatedir)
 
@@ -401,8 +383,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     ensuredir(path.join(srcdir, d['dot'] + 'templates'))
     ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
-    def write_file(fpath, content, newline=None):
-        # type: (str, str, str) -> None
+    def write_file(fpath: str, content: str, newline: str = None) -> None:
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)
@@ -460,8 +441,7 @@ where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
 '''))
 
 
-def valid_dir(d):
-    # type: (Dict) -> bool
+def valid_dir(d: Dict) -> bool:
     dir = d['path']
     if not path.exists(dir):
         return True
@@ -490,8 +470,7 @@ def valid_dir(d):
     return True
 
 
-def get_parser():
-    # type: () -> argparse.ArgumentParser
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
         epilog=__("For more information, visit <http://sphinx-doc.org/>."),
@@ -572,8 +551,7 @@ Makefile to be used with sphinx-build.
     return parser
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
+def main(argv: List[str] = sys.argv[1:]) -> int:
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
