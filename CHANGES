@@ -31,6 +31,7 @@ Features added
   :confval:`html_extra_path` directories are inside output directory
 * #6514: html: Add a label to search input for accessability purposes
 * #5602: apidoc: Add ``--templatedir`` option
+* #6475: Add ``override`` argument to ``app.add_autodocumenter()``
 
 Bugs fixed
 ----------
