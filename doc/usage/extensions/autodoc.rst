@@ -243,20 +243,22 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
    These work exactly like :rst:dir:`autoclass` etc.,
    but do not offer the options used for automatic member documentation.
 
-   :rst:dir:`autodata` and :rst:dir:`autoattribute` support
-   the ``annotation`` option.
-   Without this option, the representation of the object
-   will be shown in the documentation.
-   When the option is given without arguments,
-   only the name of the object will be printed::
+   :rst:dir:`autodata` and :rst:dir:`autoattribute` support the ``annotation``
+   option.  The option controls how the value of variable is shown.  If specified
+   without arguments, only the name of the variable will be printed, and its value
+   is not shown::
 
       .. autodata:: CD_DRIVE
          :annotation:
 
-   You can tell sphinx what should be printed after the name::
+   If the option specified with arguments, it is printed after the name as a value
+   of the variable::
 
       .. autodata:: CD_DRIVE
          :annotation: = your CD device name
+
+   By default, without ``annotation`` option, Sphinx tries to obtain the value of
+   the variable and print it after the name.
 
    For module data members and class attributes, documentation can either be put
    into a comment with special formatting (using a ``#:`` to start the comment

@@ -10,23 +10,22 @@
 
 import re
 import string
+from typing import Any, Dict, Iterator, List, Tuple
 
 from docutils import nodes
+from docutils.nodes import Element
 
 from sphinx import addnodes
+from sphinx.addnodes import pending_xref, desc_signature
+from sphinx.application import Sphinx
+from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
+from sphinx.environment import BuildEnvironment
 from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 # RE to split at word boundaries
@@ -79,23 +78,20 @@ class CObject(ObjectDescription):
         'struct', '_Bool',
     }
 
-    def _parse_type(self, node, ctype):
-        # type: (nodes.Element, str) -> None
+    def _parse_type(self, node: Element, ctype: str) -> None:
         # add cross-ref nodes for all words
         for part in [_f for _f in wsplit_re.split(ctype) if _f]:
             tnode = nodes.Text(part, part)
             if part[0] in string.ascii_letters + '_' and \
                part not in self.stopwords:
-                pnode = addnodes.pending_xref(
-                    '', refdomain='c', reftype='type', reftarget=part,
-                    modname=None, classname=None)
+                pnode = pending_xref('', refdomain='c', reftype='type', reftarget=part,
+                                     modname=None, classname=None)
                 pnode += tnode
                 node += pnode
             else:
                 node += tnode
 
-    def _parse_arglist(self, arglist):
-        # type: (str) -> Iterator[str]
+    def _parse_arglist(self, arglist: str) -> Iterator[str]:
         while True:
             m = c_funcptr_arg_sig_re.match(arglist)
             if m:
@@ -113,8 +109,7 @@ class CObject(ObjectDescription):
                     yield arglist
                     break
 
-    def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> str
+    def handle_signature(self, sig: str, signode: desc_signature) -> str:
         """Transform a C signature into RST nodes."""
         # first try the function pointer signature regex, it's more specific
         m = c_funcptr_sig_re.match(sig)
@@ -183,8 +178,7 @@ class CObject(ObjectDescription):
             signode += addnodes.desc_addname(const, const)
         return fullname
 
-    def get_index_text(self, name):
-        # type: (str) -> str
+    def get_index_text(self, name: str) -> str:
         if self.objtype == 'function':
             return _('%s (C function)') % name
         elif self.objtype == 'member':
@@ -198,8 +192,7 @@ class CObject(ObjectDescription):
         else:
             return ''
 
-    def add_target_and_index(self, name, sig, signode):
-        # type: (str, str, addnodes.desc_signature) -> None
+    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
         # for C API items we add a prefix since names are usually not qualified
         # by a module name and so easily clash with e.g. section titles
         targetname = 'c.' + name
@@ -221,23 +214,21 @@ class CObject(ObjectDescription):
             self.indexnode['entries'].append(('single', indextext,
                                               targetname, '', None))
 
-    def before_content(self):
-        # type: () -> None
+    def before_content(self) -> None:
         self.typename_set = False
         if self.name == 'c:type':
             if self.names:
                 self.env.ref_context['c:type'] = self.names[0]
                 self.typename_set = True
 
-    def after_content(self):
-        # type: () -> None
+    def after_content(self) -> None:
         if self.typename_set:
             self.env.ref_context.pop('c:type', None)
 
 
 class CXRefRole(XRefRole):
-    def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
+    def process_link(self, env: BuildEnvironment, refnode: Element,
+                     has_explicit_title: bool, title: str, target: str) -> Tuple[str, str]:
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
             # if the first character is a tilde, don't display the module/class
@@ -280,22 +271,20 @@ class CDomain(Domain):
         'objects': {},  # fullname -> docname, objtype
     }  # type: Dict[str, Dict[str, Tuple[str, Any]]]
 
-    def clear_doc(self, docname):
-        # type: (str) -> None
+    def clear_doc(self, docname: str) -> None:
         for fullname, (fn, _l) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][fullname]
 
-    def merge_domaindata(self, docnames, otherdata):
-        # type: (List[str], Dict) -> None
+    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
                 self.data['objects'][fullname] = (fn, objtype)
 
-    def resolve_xref(self, env, fromdocname, builder,
-                     typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
+    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                     typ: str, target: str, node: pending_xref, contnode: Element
+                     ) -> Element:
         # strip pointer asterisk
         target = target.rstrip(' *')
         # becase TypedField can generate xrefs
@@ -307,9 +296,9 @@ class CDomain(Domain):
         return make_refnode(builder, fromdocname, obj[0], 'c.' + target,
                             contnode, target)
 
-    def resolve_any_xref(self, env, fromdocname, builder, target,
-                         node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, addnodes.pending_xref, nodes.Element) -> List[Tuple[str, nodes.Element]]  # NOQA
+    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                         target: str, node: pending_xref, contnode: Element
+                         ) -> List[Tuple[str, Element]]:
         # strip pointer asterisk
         target = target.rstrip(' *')
         if target not in self.data['objects']:
@@ -319,14 +308,12 @@ class CDomain(Domain):
                  make_refnode(builder, fromdocname, obj[0], 'c.' + target,
                               contnode, target))]
 
-    def get_objects(self):
-        # type: () -> Iterator[Tuple[str, str, str, str, str, int]]
+    def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
         for refname, (docname, type) in list(self.data['objects'].items()):
             yield (refname, refname, type, docname, 'c.' + refname, 1)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(CDomain)
 
     return {
