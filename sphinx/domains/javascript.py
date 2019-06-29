@@ -9,6 +9,7 @@
 """
 
 from typing import Any, Dict, Iterator, List, Tuple
+from typing import cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -22,11 +23,15 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.domains.python import _pseudo_parse_arglist
 from sphinx.environment import BuildEnvironment
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.roles import XRefRole
+from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
+
+
+logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription):
@@ -106,14 +111,10 @@ class JSObject(ObjectDescription):
             signode['ids'].append(fullname.replace('$', '_S_'))
             signode['first'] = not self.names
             self.state.document.note_explicit_target(signode)
-            objects = self.env.domaindata['js']['objects']
-            if fullname in objects:
-                self.state_machine.reporter.warning(
-                    'duplicate object description of %s, ' % fullname +
-                    'other instance in ' +
-                    self.env.doc2path(objects[fullname][0]),
-                    line=self.lineno)
-            objects[fullname] = self.env.docname, self.objtype
+
+            domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+            domain.note_object(fullname, self.objtype,
+                               location=(self.env.docname, self.lineno))
 
         indextext = self.get_index_text(mod_name, name_obj)
         if indextext:
@@ -248,10 +249,13 @@ class JSModule(SphinxDirective):
         noindex = 'noindex' in self.options
         ret = []  # type: List[Node]
         if not noindex:
-            self.env.domaindata['js']['modules'][mod_name] = self.env.docname
+            domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+
+            domain.note_module(mod_name)
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
-            self.env.domaindata['js']['objects'][mod_name] = (self.env.docname, 'module')
+            domain.note_object(mod_name, 'module', location=(self.env.docname, self.lineno))
+
             targetnode = nodes.target('', '', ids=['module-' + mod_name],
                                       ismod=True)
             self.state.document.note_explicit_target(targetnode)
@@ -314,31 +318,48 @@ class JavaScriptDomain(Domain):
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
-        'modules': {},  # mod_name -> docname
+        'modules': {},  # modname  -> docname
     }  # type: Dict[str, Dict[str, Tuple[str, str]]]
 
+    @property
+    def objects(self) -> Dict[str, Tuple[str, str]]:
+        return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+
+    def note_object(self, fullname: str, objtype: str, location: Any = None) -> None:
+        if fullname in self.objects:
+            docname = self.objects[fullname][0]
+            logger.warning(__('duplicate object description of %s, other instance in %s'),
+                           fullname, docname, location=location)
+        self.objects[fullname] = (self.env.docname, objtype)
+
+    @property
+    def modules(self) -> Dict[str, str]:
+        return self.data.setdefault('modules', {})  # modname -> docname
+
+    def note_module(self, modname: str) -> None:
+        self.modules[modname] = self.env.docname
+
     def clear_doc(self, docname: str) -> None:
-        for fullname, (pkg_docname, _l) in list(self.data['objects'].items()):
+        for fullname, (pkg_docname, _l) in list(self.objects.items()):
             if pkg_docname == docname:
-                del self.data['objects'][fullname]
-        for mod_name, pkg_docname in list(self.data['modules'].items()):
+                del self.objects[fullname]
+        for modname, pkg_docname in list(self.modules.items()):
             if pkg_docname == docname:
-                del self.data['modules'][mod_name]
+                del self.modules[modname]
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                self.data['objects'][fullname] = (fn, objtype)
+                self.objects[fullname] = (fn, objtype)
         for mod_name, pkg_docname in otherdata['modules'].items():
             if pkg_docname in docnames:
-                self.data['modules'][mod_name] = pkg_docname
+                self.modules[mod_name] = pkg_docname
 
     def find_obj(self, env: BuildEnvironment, mod_name: str, prefix: str, name: str,
                  typ: str, searchorder: int = 0) -> Tuple[str, Tuple[str, str]]:
         if name[-2:] == '()':
             name = name[:-2]
-        objects = self.data['objects']
 
         searches = []
         if mod_name and prefix:
@@ -354,10 +375,10 @@ class JavaScriptDomain(Domain):
 
         newname = None
         for search_name in searches:
-            if search_name in objects:
+            if search_name in self.objects:
                 newname = search_name
 
-        return newname, objects.get(newname)
+        return newname, self.objects.get(newname)
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
@@ -384,9 +405,8 @@ class JavaScriptDomain(Domain):
                               name.replace('$', '_S_'), contnode, name))]
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
-        for refname, (docname, type) in list(self.data['objects'].items()):
-            yield refname, refname, type, docname, \
-                refname.replace('$', '_S_'), 1
+        for refname, (docname, type) in list(self.objects.items()):
+            yield refname, refname, type, docname, refname.replace('$', '_S_'), 1
 
     def get_full_qualified_name(self, node: Element) -> str:
         modname = node.get('js:module')
