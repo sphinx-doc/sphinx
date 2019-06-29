@@ -8,25 +8,25 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict, Iterator, List, Tuple
+
 from docutils import nodes
+from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.addnodes import desc_signature, pending_xref
+from sphinx.application import Sphinx
+from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.domains.python import _pseudo_parse_arglist
+from sphinx.environment import BuildEnvironment
 from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 class JSObject(ObjectDescription):
@@ -44,8 +44,7 @@ class JSObject(ObjectDescription):
     #: based on directive nesting
     allow_nesting = False
 
-    def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> Tuple[str, str]
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         """Breaks down construct signatures
 
         Parses out prefix and argument list from construct definition. The
@@ -98,8 +97,8 @@ class JSObject(ObjectDescription):
                 _pseudo_parse_arglist(signode, arglist)
         return fullname, prefix
 
-    def add_target_and_index(self, name_obj, sig, signode):
-        # type: (Tuple[str, str], str, addnodes.desc_signature) -> None
+    def add_target_and_index(self, name_obj: Tuple[str, str], sig: str,
+                             signode: desc_signature) -> None:
         mod_name = self.env.ref_context.get('js:module')
         fullname = (mod_name and mod_name + '.' or '') + name_obj[0]
         if fullname not in self.state.document.ids:
@@ -122,8 +121,7 @@ class JSObject(ObjectDescription):
                                               fullname.replace('$', '_S_'),
                                               '', None))
 
-    def get_index_text(self, objectname, name_obj):
-        # type: (str, Tuple[str, str]) -> str
+    def get_index_text(self, objectname: str, name_obj: Tuple[str, str]) -> str:
         name, obj = name_obj
         if self.objtype == 'function':
             if not obj:
@@ -137,8 +135,7 @@ class JSObject(ObjectDescription):
             return _('%s (%s attribute)') % (name, obj)
         return ''
 
-    def before_content(self):
-        # type: () -> None
+    def before_content(self) -> None:
         """Handle object nesting before content
 
         :py:class:`JSObject` represents JavaScript language constructs. For
@@ -174,8 +171,7 @@ class JSObject(ObjectDescription):
                 objects = self.env.ref_context.setdefault('js:objects', [])
                 objects.append(prefix)
 
-    def after_content(self):
-        # type: () -> None
+    def after_content(self) -> None:
         """Handle object de-nesting after content
 
         If this class is a nestable object, removing the last nested class prefix
@@ -246,12 +242,11 @@ class JSModule(SphinxDirective):
         'noindex': directives.flag
     }
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
-        ret = []  # type: List[nodes.Node]
+        ret = []  # type: List[Node]
         if not noindex:
             self.env.domaindata['js']['modules'][mod_name] = self.env.docname
             # Make a duplicate entry in 'objects' to facilitate searching for
@@ -269,8 +264,8 @@ class JSModule(SphinxDirective):
 
 
 class JSXRefRole(XRefRole):
-    def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
+    def process_link(self, env: BuildEnvironment, refnode: Element,
+                     has_explicit_title: bool, title: str, target: str) -> Tuple[str, str]:
         # basically what sphinx.domains.python.PyXRefRole does
         refnode['js:object'] = env.ref_context.get('js:object')
         refnode['js:module'] = env.ref_context.get('js:module')
@@ -322,8 +317,7 @@ class JavaScriptDomain(Domain):
         'modules': {},  # mod_name -> docname
     }  # type: Dict[str, Dict[str, Tuple[str, str]]]
 
-    def clear_doc(self, docname):
-        # type: (str) -> None
+    def clear_doc(self, docname: str) -> None:
         for fullname, (pkg_docname, _l) in list(self.data['objects'].items()):
             if pkg_docname == docname:
                 del self.data['objects'][fullname]
@@ -331,8 +325,7 @@ class JavaScriptDomain(Domain):
             if pkg_docname == docname:
                 del self.data['modules'][mod_name]
 
-    def merge_domaindata(self, docnames, otherdata):
-        # type: (List[str], Dict) -> None
+    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
@@ -341,8 +334,8 @@ class JavaScriptDomain(Domain):
             if pkg_docname in docnames:
                 self.data['modules'][mod_name] = pkg_docname
 
-    def find_obj(self, env, mod_name, prefix, name, typ, searchorder=0):
-        # type: (BuildEnvironment, str, str, str, str, int) -> Tuple[str, Tuple[str, str]]
+    def find_obj(self, env: BuildEnvironment, mod_name: str, prefix: str, name: str,
+                 typ: str, searchorder: int = 0) -> Tuple[str, Tuple[str, str]]:
         if name[-2:] == '()':
             name = name[:-2]
         objects = self.data['objects']
@@ -366,9 +359,9 @@ class JavaScriptDomain(Domain):
 
         return newname, objects.get(newname)
 
-    def resolve_xref(self, env, fromdocname, builder, typ, target, node,
-                     contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
+    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                     typ: str, target: str, node: pending_xref, contnode: Element
+                     ) -> Element:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         searchorder = node.hasattr('refspecific') and 1 or 0
@@ -378,9 +371,9 @@ class JavaScriptDomain(Domain):
         return make_refnode(builder, fromdocname, obj[0],
                             name.replace('$', '_S_'), contnode, name)
 
-    def resolve_any_xref(self, env, fromdocname, builder, target, node,
-                         contnode):
-        # type: (BuildEnvironment, str, Builder, str, addnodes.pending_xref, nodes.Element) -> List[Tuple[str, nodes.Element]]  # NOQA
+    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                         target: str, node: pending_xref, contnode: Element
+                         ) -> List[Tuple[str, Element]]:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
@@ -390,14 +383,12 @@ class JavaScriptDomain(Domain):
                  make_refnode(builder, fromdocname, obj[0],
                               name.replace('$', '_S_'), contnode, name))]
 
-    def get_objects(self):
-        # type: () -> Iterator[Tuple[str, str, str, str, str, int]]
+    def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
         for refname, (docname, type) in list(self.data['objects'].items()):
             yield refname, refname, type, docname, \
                 refname.replace('$', '_S_'), 1
 
-    def get_full_qualified_name(self, node):
-        # type: (nodes.Element) -> str
+    def get_full_qualified_name(self, node: Element) -> str:
         modname = node.get('js:module')
         prefix = node.get('js:object')
         target = node.get('reftarget')
@@ -407,8 +398,7 @@ class JavaScriptDomain(Domain):
             return '.'.join(filter(None, [modname, prefix, target]))
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(JavaScriptDomain)
 
     return {
