@@ -12,20 +12,16 @@ import sys
 import traceback
 import warnings
 from collections import namedtuple
+from typing import Any, Callable, Dict, List
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
 from sphinx.util.inspect import isclass, isenumclass, safe_getattr
 
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, List  # NOQA
-
 logger = logging.getLogger(__name__)
 
 
-def import_module(modname, warningiserror=False):
-    # type: (str, bool) -> Any
+def import_module(modname: str, warningiserror: bool = False) -> Any:
     """
     Call __import__(modname), convert exceptions to ImportError
     """
@@ -41,8 +37,9 @@ def import_module(modname, warningiserror=False):
         raise ImportError(exc, traceback.format_exc())
 
 
-def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warningiserror=False):
-    # type: (str, List[str], str, Callable[[Any, str], Any], bool) -> Any
+def import_object(modname: str, objpath: List[str], objtype: str = '',
+                  attrgetter: Callable[[Any, str], Any] = safe_getattr,
+                  warningiserror: bool = False) -> Any:
     if objpath:
         logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
     else:
@@ -108,8 +105,8 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
 Attribute = namedtuple('Attribute', ['name', 'directly_defined', 'value'])
 
 
-def get_object_members(subject, objpath, attrgetter, analyzer=None):
-    # type: (Any, List[str], Callable, Any) -> Dict[str, Attribute]  # NOQA
+def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
+                       analyzer: Any = None) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
