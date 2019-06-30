@@ -14,6 +14,7 @@ import multiprocessing
 import os
 import sys
 import traceback
+from typing import Any, IO, List
 
 from docutils.utils import SystemMessage
 
@@ -26,13 +27,8 @@ from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 
-if False:
-    # For type annotation
-    from typing import Any, IO, List, Union  # NOQA
 
-
-def handle_exception(app, args, exception, stderr=sys.stderr):
-    # type: (Sphinx, Any, Union[Exception, KeyboardInterrupt], IO) -> None
+def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
     if args.pdb:
         import pdb
         print(red(__('Exception occurred while building, starting debugger:')),
@@ -82,8 +78,7 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
                   file=stderr)
 
 
-def jobs_argument(value):
-    # type: (str) -> int
+def jobs_argument(value: str) -> int:
     """
     Special type to handle 'auto' flags passed to 'sphinx-build' via -j flag. Can
     be expanded to handle other special scaling requests, such as setting job count
@@ -99,8 +94,7 @@ def jobs_argument(value):
             return jobs
 
 
-def get_parser():
-    # type: () -> argparse.ArgumentParser
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
         epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
@@ -195,15 +189,13 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
+def make_main(argv: List[str] = sys.argv[1:]) -> int:
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def build_main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
+def build_main(argv: List[str] = sys.argv[1:]) -> int:
     """Sphinx build "main" command-line entry."""
 
     parser = get_parser()
@@ -288,8 +280,7 @@ def build_main(argv=sys.argv[1:]):
         return 2
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
+def main(argv: List[str] = sys.argv[1:]) -> int:
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
