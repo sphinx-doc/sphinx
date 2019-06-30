@@ -11,7 +11,30 @@ import pytest
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.environment import CONFIG_OK, CONFIG_CHANGED, CONFIG_EXTENSIONS_CHANGED, CONFIG_NEW
 from sphinx.testing.comparer import PathComparer
+
+
+@pytest.mark.sphinx('dummy', testroot='basic')
+def test_config_status(make_app, app_params):
+    args, kwargs = app_params
+
+    # clean build
+    app1 = make_app(*args, freshenv=True, **kwargs)
+    assert app1.env.config_status == CONFIG_NEW
+    app1.build()
+
+    # incremental build (no config changed)
+    app2 = make_app(*args, **kwargs)
+    assert app2.env.config_status == CONFIG_OK
+
+    # incremental build (config entry changed)
+    app3 = make_app(*args, confoverrides={'master_doc': 'content'}, **kwargs)
+    assert app3.env.config_status == CONFIG_CHANGED
+
+    # incremental build (extension changed)
+    app4 = make_app(*args, confoverrides={'extensions': ['sphinx.ext.autodoc']}, **kwargs)
+    assert app4.env.config_status == CONFIG_EXTENSIONS_CHANGED
 
 
 @pytest.mark.sphinx('dummy')

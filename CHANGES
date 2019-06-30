@@ -48,6 +48,7 @@ Bugs fixed
 * #6507: autosummary: crashes without no autosummary_generate setting
 * #6511: LaTeX: autonumbered list can not be customized in LaTeX
   since Sphinx 1.8.0 (refs: #6533)
+* #6531: Failed to load last environment object when extension added
 
 Testing
 --------
