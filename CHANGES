@@ -49,6 +49,7 @@ Bugs fixed
 * #6511: LaTeX: autonumbered list can not be customized in LaTeX
   since Sphinx 1.8.0 (refs: #6533)
 * #6531: Failed to load last environment object when extension added
+* #736: Invalid sort in pair index
 
 Testing
 --------
