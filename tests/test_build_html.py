@@ -28,9 +28,9 @@ ENV_WARNINGS = """\
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file '%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
+%(root)s/index.rst:\\d+: WARNING: invalid single index entry ''
 %(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
-%(root)s/index.rst:\\d+: WARNING: invalid single index entry ''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """

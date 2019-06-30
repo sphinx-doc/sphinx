@@ -10,6 +10,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.environment.BuildEnvironment.indexentries``
+* ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
 * ``sphinx.io.FiletypeNotFoundError``
 * ``sphinx.io.get_filetype()``
 
