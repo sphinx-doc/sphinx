@@ -107,7 +107,7 @@ def test_text_emit_warnings(app, warning):
     # test warnings in translation
     warnings = getwarning(warning)
     warning_expr = ('.*/warnings.txt:4:<translated>:1: '
-                   'WARNING: Inline literal start-string without end-string.\n')
+                    'WARNING: Inline literal start-string without end-string.\n')
     assert_re_search(warning_expr, warnings)
 
 

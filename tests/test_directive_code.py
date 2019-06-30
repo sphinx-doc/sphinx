@@ -617,6 +617,6 @@ def test_linenothreshold(app, status, warning):
     # literal include not using linenothreshold
     html, matched, _ = html.partition(lineos_head +
                                       '1\n'
-                                      '2\n' 
+                                      '2\n'
                                       '3' + lineos_tail)
     assert not matched

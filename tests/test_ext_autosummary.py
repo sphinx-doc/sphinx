@@ -311,7 +311,7 @@ def test_empty_autosummary_generate(app, status, warning):
     assert ("WARNING: autosummary: stub file not found 'autosummary_importfail'"
             in warning.getvalue())
 
-    
+
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',
                     confoverrides={'autosummary_generate': ['unknown']})
 def test_invalid_autosummary_generate(app, status, warning):
