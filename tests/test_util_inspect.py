@@ -13,7 +13,6 @@ import datetime
 import functools
 import sys
 import types
-from textwrap import dedent
 
 import pytest
 

@@ -129,14 +129,14 @@ def test_expressions():
                 '5e42', '5e+42', '5e-42',
                 '5.', '5.e42', '5.e+42', '5.e-42',
                 '.5', '.5e42', '.5e+42', '.5e-42',
-                '5.0', '5.0e42','5.0e+42', '5.0e-42']:
+                '5.0', '5.0e42', '5.0e+42', '5.0e-42']:
             expr = e + suffix
             exprCheck(expr, 'L' + expr + 'E')
         for e in [
                 'ApF', 'Ap+F', 'Ap-F',
                 'A.', 'A.pF', 'A.p+F', 'A.p-F',
                 '.A', '.ApF', '.Ap+F', '.Ap-F',
-                'A.B', 'A.BpF','A.Bp+F', 'A.Bp-F']:
+                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']:
             expr = "0x" + e + suffix
             exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
@@ -676,7 +676,7 @@ def test_template_args():
 
 
 def test_initializers():
-    idsMember = {1: 'v__T', 2:'1v'}
+    idsMember = {1: 'v__T', 2: '1v'}
     idsFunction = {1: 'f__T', 2: '1f1T'}
     idsTemplate = {2: 'I_1TE1fv', 4: 'I_1TE1fvv'}
     # no init
@@ -748,7 +748,7 @@ def test_attributes():
           {1: 'f', 2: '1fv'},
           output='[[attr1]] [[attr2]] void f()')
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i__iP', 2:'1i'})
+    check('member', 'int *[[attr]] i', {1: 'i__iP', 2: '1i'})
     check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
           output='int *[[attr]] volatile const i')
     check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
