@@ -117,22 +117,9 @@ class ChangeSetDomain(Domain):
         'changes': {},      # version -> list of ChangeSet
     }  # type: Dict
 
-    def clear_doc(self, docname: str) -> None:
-        for version, changes in self.data['changes'].items():
-            for changeset in changes[:]:
-                if changeset.docname == docname:
-                    changes.remove(changeset)
-
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
-        # XXX duplicates?
-        for version, otherchanges in otherdata['changes'].items():
-            changes = self.data['changes'].setdefault(version, [])
-            for changeset in otherchanges:
-                if changeset.docname in docnames:
-                    changes.append(changeset)
-
-    def process_doc(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
-        pass  # nothing to do here. All changesets are registered on calling directive.
+    @property
+    def changesets(self) -> Dict[str, List[ChangeSet]]:
+        return self.data.setdefault('changes', {})  # version -> list of ChangeSet
 
     def note_changeset(self, node: addnodes.versionmodified) -> None:
         version = node['version']
@@ -140,10 +127,27 @@ class ChangeSetDomain(Domain):
         objname = self.env.temp_data.get('object')
         changeset = ChangeSet(node['type'], self.env.docname, node.line,
                               module, objname, node.astext())
-        self.data['changes'].setdefault(version, []).append(changeset)
+        self.changesets.setdefault(version, []).append(changeset)
+
+    def clear_doc(self, docname: str) -> None:
+        for version, changes in self.changesets.items():
+            for changeset in changes[:]:
+                if changeset.docname == docname:
+                    changes.remove(changeset)
+
+    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
+        # XXX duplicates?
+        for version, otherchanges in otherdata['changes'].items():
+            changes = self.changesets.setdefault(version, [])
+            for changeset in otherchanges:
+                if changeset.docname in docnames:
+                    changes.append(changeset)
+
+    def process_doc(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
+        pass  # nothing to do here. All changesets are registered on calling directive.
 
     def get_changesets_for(self, version: str) -> List[ChangeSet]:
-        return self.data['changes'].get(version, [])
+        return self.changesets.get(version, [])
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

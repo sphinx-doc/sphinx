@@ -11,6 +11,7 @@
 import re
 import string
 from typing import Any, Dict, Iterator, List, Tuple
+from typing import cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -22,11 +23,14 @@ from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.roles import XRefRole
+from sphinx.util import logging
 from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
+
+logger = logging.getLogger(__name__)
 
 # RE to split at word boundaries
 wsplit_re = re.compile(r'(\W+)')
@@ -201,13 +205,9 @@ class CObject(ObjectDescription):
             signode['ids'].append(targetname)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            inv = self.env.domaindata['c']['objects']
-            if name in inv:
-                self.state_machine.reporter.warning(
-                    'duplicate C object description of %s, ' % name +
-                    'other instance in ' + self.env.doc2path(inv[name][0]),
-                    line=self.lineno)
-            inv[name] = (self.env.docname, self.objtype)
+
+            domain = cast(CDomain, self.env.get_domain('c'))
+            domain.note_object(name, self.objtype)
 
         indextext = self.get_index_text(name)
         if indextext:
@@ -271,10 +271,22 @@ class CDomain(Domain):
         'objects': {},  # fullname -> docname, objtype
     }  # type: Dict[str, Dict[str, Tuple[str, Any]]]
 
+    @property
+    def objects(self) -> Dict[str, Tuple[str, str]]:
+        return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+
+    def note_object(self, name: str, objtype: str, location: Any = None) -> None:
+        if name in self.objects:
+            docname = self.objects[name][0]
+            logger.warning(__('duplicate C object description of %s, '
+                              'other instance in %s, use :noindex: for one of them'),
+                           name, docname, location=location)
+        self.objects[name] = (self.env.docname, objtype)
+
     def clear_doc(self, docname: str) -> None:
-        for fullname, (fn, _l) in list(self.data['objects'].items()):
+        for fullname, (fn, _l) in list(self.objects.items()):
             if fn == docname:
-                del self.data['objects'][fullname]
+                del self.objects[fullname]
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
@@ -290,9 +302,9 @@ class CDomain(Domain):
         # becase TypedField can generate xrefs
         if target in CObject.stopwords:
             return contnode
-        if target not in self.data['objects']:
+        if target not in self.objects:
             return None
-        obj = self.data['objects'][target]
+        obj = self.objects[target]
         return make_refnode(builder, fromdocname, obj[0], 'c.' + target,
                             contnode, target)
 
@@ -301,15 +313,15 @@ class CDomain(Domain):
                          ) -> List[Tuple[str, Element]]:
         # strip pointer asterisk
         target = target.rstrip(' *')
-        if target not in self.data['objects']:
+        if target not in self.objects:
             return []
-        obj = self.data['objects'][target]
+        obj = self.objects[target]
         return [('c:' + self.role_for_objtype(obj[1]),
                  make_refnode(builder, fromdocname, obj[0], 'c.' + target,
                               contnode, target))]
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
-        for refname, (docname, type) in list(self.data['objects'].items()):
+        for refname, (docname, type) in list(self.objects.items()):
             yield (refname, refname, type, docname, 'c.' + refname, 1)
 
 
