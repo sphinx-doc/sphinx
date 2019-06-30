@@ -1395,6 +1395,7 @@ def test_latex_figure_in_admonition(app, status, warning):
     result = (app.outdir / 'python.tex').text(encoding='utf8')
     assert(r'\begin{figure}[H]' in result)
 
+
 def test_default_latex_documents():
     from sphinx.util import texescape
     texescape.init()

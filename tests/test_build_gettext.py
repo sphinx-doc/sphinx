@@ -52,7 +52,8 @@ def test_msgfmt(app):
 
         assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
-            args = ['msgfmt', 'en_US.po', '-o', os.path.join('en', 'LC_MESSAGES', 'test_root.mo')]
+            args = ['msgfmt', 'en_US.po',
+                    '-o', os.path.join('en', 'LC_MESSAGES', 'test_root.mo')]
             subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
         except OSError:
             pytest.skip()  # most likely msgfmt was not found
