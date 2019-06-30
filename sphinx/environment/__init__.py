@@ -234,6 +234,8 @@ class BuildEnvironment:
         self.config_status = CONFIG_OK
         if self.config is None:
             self.config_status = CONFIG_NEW
+        elif self.config.extensions != config.extensions:
+            self.config_status = CONFIG_EXTENSIONS_CHANGED
         else:
             # check if a config value was changed that affects how
             # doctrees are read
@@ -241,11 +243,6 @@ class BuildEnvironment:
                 if self.config[item.name] != item.value:
                     self.config_status = CONFIG_CHANGED
                     break
-
-            # this value is not covered by the above loop because it is handled
-            # specially by the config class
-            if self.config.extensions != config.extensions:
-                self.config_status = CONFIG_EXTENSIONS_CHANGED
 
         self.config = config
 

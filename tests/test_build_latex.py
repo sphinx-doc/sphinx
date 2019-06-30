@@ -1292,25 +1292,15 @@ def test_latex_nested_enumerated_list(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'python.tex').text(encoding='utf8')
-    assert ('\\def\\theenumi{\\arabic{enumi}}\n'
-            '\\def\\labelenumi{\\theenumi .}\n'
-            '\\makeatletter\\def\\p@enumii{\\p@enumi \\theenumi .}\\makeatother\n'
+    assert ('\\sphinxsetlistlabels{\\arabic}{enumi}{enumii}{}{.}%\n'
             '\\setcounter{enumi}{4}\n' in result)
-    assert ('\\def\\theenumii{\\alph{enumii}}\n'
-            '\\def\\labelenumii{\\theenumii .}\n'
-            '\\makeatletter\\def\\p@enumiii{\\p@enumii \\theenumii .}\\makeatother\n'
+    assert ('\\sphinxsetlistlabels{\\alph}{enumii}{enumiii}{}{.}%\n'
             '\\setcounter{enumii}{3}\n' in result)
-    assert ('\\def\\theenumiii{\\arabic{enumiii}}\n'
-            '\\def\\labelenumiii{\\theenumiii )}\n'
-            '\\makeatletter\\def\\p@enumiv{\\p@enumiii \\theenumiii )}\\makeatother\n'
+    assert ('\\sphinxsetlistlabels{\\arabic}{enumiii}{enumiv}{}{)}%\n'
             '\\setcounter{enumiii}{9}\n' in result)
-    assert ('\\def\\theenumiv{\\arabic{enumiv}}\n'
-            '\\def\\labelenumiv{(\\theenumiv )}\n'
-            '\\makeatletter\\def\\p@enumv{\\p@enumiv (\\theenumiv )}\\makeatother\n'
+    assert ('\\sphinxsetlistlabels{\\arabic}{enumiv}{enumv}{(}{)}%\n'
             '\\setcounter{enumiv}{23}\n' in result)
-    assert ('\\def\\theenumii{\\roman{enumii}}\n'
-            '\\def\\labelenumii{\\theenumii .}\n'
-            '\\makeatletter\\def\\p@enumiii{\\p@enumii \\theenumii .}\\makeatother\n'
+    assert ('\\sphinxsetlistlabels{\\roman}{enumii}{enumiii}{}{.}%\n'
             '\\setcounter{enumii}{2}\n' in result)
 
 
