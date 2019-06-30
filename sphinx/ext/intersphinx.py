@@ -28,24 +28,23 @@ import posixpath
 import sys
 import time
 from os import path
+from typing import Any, Dict, IO, List, Tuple
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
+from docutils.nodes import Element, TextElement
 from docutils.utils import relative_path
 
 import sphinx
+from sphinx.application import Sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.config import Config
+from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
+from sphinx.util.typing import Inventory
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, IO, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import Inventory  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +52,7 @@ logger = logging.getLogger(__name__)
 class InventoryAdapter:
     """Inventory adapter for environment"""
 
-    def __init__(self, env):
-        # type: (BuildEnvironment) -> None
+    def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
 
         if not hasattr(env, 'intersphinx_cache'):
@@ -63,28 +61,23 @@ class InventoryAdapter:
             self.env.intersphinx_named_inventory = {}  # type: ignore
 
     @property
-    def cache(self):
-        # type: () -> Dict[str, Tuple[str, int, Inventory]]
+    def cache(self) -> Dict[str, Tuple[str, int, Inventory]]:
         return self.env.intersphinx_cache  # type: ignore
 
     @property
-    def main_inventory(self):
-        # type: () -> Inventory
+    def main_inventory(self) -> Inventory:
         return self.env.intersphinx_inventory  # type: ignore
 
     @property
-    def named_inventory(self):
-        # type: () -> Dict[str, Inventory]
+    def named_inventory(self) -> Dict[str, Inventory]:
         return self.env.intersphinx_named_inventory  # type: ignore
 
-    def clear(self):
-        # type: () -> None
+    def clear(self) -> None:
         self.env.intersphinx_inventory.clear()  # type: ignore
         self.env.intersphinx_named_inventory.clear()  # type: ignore
 
 
-def _strip_basic_auth(url):
-    # type: (str) -> str
+def _strip_basic_auth(url: str) -> str:
     """Returns *url* with basic auth credentials removed. Also returns the
     basic auth username and password if they're present in *url*.
 
@@ -105,8 +98,7 @@ def _strip_basic_auth(url):
     return urlunsplit(frags)
 
 
-def _read_from_url(url, config=None):
-    # type: (str, Config) -> IO
+def _read_from_url(url: str, config: Config = None) -> IO:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -131,8 +123,7 @@ def _read_from_url(url, config=None):
     return r.raw
 
 
-def _get_safe_url(url):
-    # type: (str) -> str
+def _get_safe_url(url: str) -> str:
     """Gets version of *url* with basic auth passwords obscured. This function
     returns results suitable for printing and logging.
 
@@ -157,8 +148,7 @@ def _get_safe_url(url):
         return urlunsplit(frags)
 
 
-def fetch_inventory(app, uri, inv):
-    # type: (Sphinx, str, Any) -> Any
+def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
@@ -197,8 +187,7 @@ def fetch_inventory(app, uri, inv):
         return invdata
 
 
-def load_mappings(app):
-    # type: (Sphinx) -> None
+def load_mappings(app: Sphinx) -> None:
     """Load all intersphinx mappings into the environment."""
     now = int(time.time())
     cache_time = now - app.config.intersphinx_cache_limit * 86400
@@ -258,8 +247,8 @@ def load_mappings(app):
                 inventories.main_inventory.setdefault(type, {}).update(objects)
 
 
-def missing_reference(app, env, node, contnode):
-    # type: (Sphinx, BuildEnvironment, nodes.Element, nodes.TextElement) -> nodes.reference
+def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnode: TextElement
+                      ) -> nodes.reference:
     """Attempt to resolve a missing reference via intersphinx references."""
     target = node['reftarget']
     inventories = InventoryAdapter(env)
@@ -336,8 +325,7 @@ def missing_reference(app, env, node, contnode):
     return None
 
 
-def normalize_intersphinx_mapping(app, config):
-    # type: (Sphinx, Config) -> None
+def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
     for key, value in config.intersphinx_mapping.copy().items():
         try:
             if isinstance(value, (list, tuple)):
@@ -361,8 +349,7 @@ def normalize_intersphinx_mapping(app, config):
             config.intersphinx_mapping.pop(key)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
@@ -376,8 +363,7 @@ def setup(app):
     }
 
 
-def inspect_main(argv):
-    # type: (List[str]) -> None
+def inspect_main(argv: List[str]) -> None:
     """Debug functionality to print out an inventory"""
     if len(argv) < 1:
         print("Print out an inventory file.\n"
@@ -393,8 +379,7 @@ def inspect_main(argv):
         srcdir = ''
         config = MockConfig()
 
-        def warn(self, msg):
-            # type: (str) -> None
+        def warn(self, msg: str) -> None:
             print(msg, file=sys.stderr)
 
     try:

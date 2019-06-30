@@ -15,13 +15,10 @@ import warnings
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import FunctionType, MethodType, ModuleType
+from typing import Any, Generator, Iterator, List, Sequence, Tuple, Union
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.util import logging
-
-if False:
-    # For type annotation
-    from typing import Any, Generator, Iterator, List, Sequence, Tuple, Union  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +28,7 @@ class _MockObject:
 
     __display_name__ = '_MockObject'
 
-    def __new__(cls, *args, **kwargs):
-        # type: (Any, Any) -> Any
+    def __new__(cls, *args, **kwargs) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
             superclass = args[1][-1].__class__
             if superclass is cls:
@@ -42,48 +38,39 @@ class _MockObject:
 
         return super().__new__(cls)
 
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
+    def __init__(self, *args, **kwargs) -> None:
         self.__qualname__ = ''
 
-    def __len__(self):
-        # type: () -> int
+    def __len__(self) -> int:
         return 0
 
-    def __contains__(self, key):
-        # type: (str) -> bool
+    def __contains__(self, key: str) -> bool:
         return False
 
-    def __iter__(self):
-        # type: () -> Iterator
+    def __iter__(self) -> Iterator:
         return iter([])
 
-    def __mro_entries__(self, bases):
-        # type: (Tuple) -> Tuple
+    def __mro_entries__(self, bases: Tuple) -> Tuple:
         return (self.__class__,)
 
-    def __getitem__(self, key):
-        # type: (str) -> _MockObject
+    def __getitem__(self, key: str) -> "_MockObject":
         return _make_subclass(key, self.__display_name__, self.__class__)()
 
-    def __getattr__(self, key):
-        # type: (str) -> _MockObject
+    def __getattr__(self, key: str) -> "_MockObject":
         return _make_subclass(key, self.__display_name__, self.__class__)()
 
-    def __call__(self, *args, **kw):
-        # type: (Any, Any) -> Any
+    def __call__(self, *args, **kw) -> Any:
         if args and type(args[0]) in [FunctionType, MethodType]:
             # Appears to be a decorator, pass through unchanged
             return args[0]
         return self
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return self.__display_name__
 
 
-def _make_subclass(name, module, superclass=_MockObject, attributes=None):
-    # type: (str, str, Any, dict) -> Any
+def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
+                   attributes: Any = None) -> Any:
     attrs = {'__module__': module, '__display_name__': module + '.' + name}
     attrs.update(attributes or {})
 
@@ -94,8 +81,7 @@ class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
     __file__ = os.devnull
 
-    def __init__(self, name, loader=None):
-        # type: (str, _MockImporter) -> None
+    def __init__(self, name: str, loader: "_MockImporter" = None) -> None:
         super().__init__(name)
         self.__all__ = []  # type: List[str]
         self.__path__ = []  # type: List[str]
@@ -104,18 +90,15 @@ class _MockModule(ModuleType):
             warnings.warn('The loader argument for _MockModule is deprecated.',
                           RemovedInSphinx30Warning)
 
-    def __getattr__(self, name):
-        # type: (str) -> _MockObject
+    def __getattr__(self, name: str) -> _MockObject:
         return _make_subclass(name, self.__name__)()
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return self.__name__
 
 
 class _MockImporter(MetaPathFinder):
-    def __init__(self, names):
-        # type: (List[str]) -> None
+    def __init__(self, names: List[str]) -> None:
         self.names = names
         self.mocked_modules = []  # type: List[str]
         # enable hook by adding itself to meta_path
@@ -124,8 +107,7 @@ class _MockImporter(MetaPathFinder):
         warnings.warn('_MockImporter is now deprecated.',
                       RemovedInSphinx30Warning)
 
-    def disable(self):
-        # type: () -> None
+    def disable(self) -> None:
         # remove `self` from `sys.meta_path` to disable import hook
         sys.meta_path = [i for i in sys.meta_path if i is not self]
         # remove mocked modules from sys.modules to avoid side effects after
@@ -134,16 +116,14 @@ class _MockImporter(MetaPathFinder):
             if m in sys.modules:
                 del sys.modules[m]
 
-    def find_module(self, name, path=None):
-        # type: (str, Sequence[Union[bytes, str]]) -> Any
+    def find_module(self, name: str, path: Sequence[Union[bytes, str]] = None) -> Any:
         # check if name is (or is a descendant of) one of our base_packages
         for n in self.names:
             if n == name or name.startswith(n + '.'):
                 return self
         return None
 
-    def load_module(self, name):
-        # type: (str) -> ModuleType
+    def load_module(self, name: str) -> ModuleType:
         if name in sys.modules:
             # module has already been imported, return it
             return sys.modules[name]
@@ -157,34 +137,30 @@ class _MockImporter(MetaPathFinder):
 
 class MockLoader(Loader):
     """A loader for mocking."""
-    def __init__(self, finder):
-        # type: (MockFinder) -> None
+    def __init__(self, finder: "MockFinder") -> None:
         super().__init__()
         self.finder = finder
 
-    def create_module(self, spec):
-        # type: (ModuleSpec) -> ModuleType
+    def create_module(self, spec: ModuleSpec) -> ModuleType:
         logger.debug('[autodoc] adding a mock module as %s!', spec.name)
         self.finder.mocked_modules.append(spec.name)
         return _MockModule(spec.name)
 
-    def exec_module(self, module):
-        # type: (ModuleType) -> None
+    def exec_module(self, module: ModuleType) -> None:
         pass  # nothing to do
 
 
 class MockFinder(MetaPathFinder):
     """A finder for mocking."""
 
-    def __init__(self, modnames):
-        # type: (List[str]) -> None
+    def __init__(self, modnames: List[str]) -> None:
         super().__init__()
         self.modnames = modnames
         self.loader = MockLoader(self)
         self.mocked_modules = []  # type: List[str]
 
-    def find_spec(self, fullname, path, target=None):
-        # type: (str, Sequence[Union[bytes, str]], ModuleType) -> ModuleSpec
+    def find_spec(self, fullname: str, path: Sequence[Union[bytes, str]],
+                  target: ModuleType = None) -> ModuleSpec:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
             if modname == fullname or fullname.startswith(modname + '.'):
@@ -192,16 +168,14 @@ class MockFinder(MetaPathFinder):
 
         return None
 
-    def invalidate_caches(self):
-        # type: () -> None
+    def invalidate_caches(self) -> None:
         """Invalidate mocked modules on sys.modules."""
         for modname in self.mocked_modules:
             sys.modules.pop(modname, None)
 
 
 @contextlib.contextmanager
-def mock(modnames):
-    # type: (List[str]) -> Generator[None, None, None]
+def mock(modnames: List[str]) -> Generator[None, None, None]:
     """Insert mock modules during context::
 
         with mock(['target.module.name']):
