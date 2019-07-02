@@ -24,6 +24,7 @@ import pydoc
 import re
 import sys
 import warnings
+from typing import Any, Callable, Dict, List, Set, Tuple, Type
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -31,7 +32,9 @@ from jinja2.sandbox import SandboxedEnvironment
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx import package_dir
+from sphinx.builders import Builder
 from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.locale import __
@@ -41,12 +44,6 @@ from sphinx.util import rst
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
 
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, List, Set, Tuple, Type, Union  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.ext.autodoc import Documenter  # NOQA
-
 
 logger = logging.getLogger(__name__)
 
@@ -54,15 +51,13 @@ logger = logging.getLogger(__name__)
 class DummyApplication:
     """Dummy Application class for sphinx-autogen command."""
 
-    def __init__(self):
-        # type: () -> None
+    def __init__(self) -> None:
         self.registry = SphinxComponentRegistry()
         self.messagelog = []  # type: List[str]
         self.verbosity = 0
 
 
-def setup_documenters(app):
-    # type: (Any) -> None
+def setup_documenters(app: Any) -> None:
     from sphinx.ext.autodoc import (
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
@@ -79,18 +74,15 @@ def setup_documenters(app):
         app.registry.add_documenter(documenter.objtype, documenter)
 
 
-def _simple_info(msg):
-    # type: (str) -> None
+def _simple_info(msg: str) -> None:
     print(msg)
 
 
-def _simple_warn(msg):
-    # type: (str) -> None
+def _simple_warn(msg: str) -> None:
     print('WARNING: ' + msg, file=sys.stderr)
 
 
-def _underline(title, line='='):
-    # type: (str, str) -> str
+def _underline(title: str, line: str = '=') -> str:
     if '\n' in title:
         raise ValueError('Can only underline single lines')
     return title + '\n' + line * len(title)
@@ -99,8 +91,7 @@ def _underline(title, line='='):
 class AutosummaryRenderer:
     """A helper class for rendering."""
 
-    def __init__(self, builder, template_dir):
-        # type: (Builder, str) -> None
+    def __init__(self, builder: Builder, template_dir: str) -> None:
         loader = None  # type: BaseLoader
         template_dirs = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
         if builder is None:
@@ -117,8 +108,7 @@ class AutosummaryRenderer:
         self.env.filters['e'] = rst.escape
         self.env.filters['underline'] = _underline
 
-    def exists(self, template_name):
-        # type: (str) -> bool
+    def exists(self, template_name: str) -> bool:
         """Check if template file exists."""
         try:
             self.env.get_template(template_name)
@@ -126,8 +116,7 @@ class AutosummaryRenderer:
         except TemplateNotFound:
             return False
 
-    def render(self, template_name, context):
-        # type: (str, Dict) -> str
+    def render(self, template_name: str, context: Dict) -> str:
         """Render a template file."""
         return self.env.get_template(template_name).render(context)
 
@@ -135,9 +124,9 @@ class AutosummaryRenderer:
 # -- Generating output ---------------------------------------------------------
 
 
-def generate_autosummary_content(name, obj, parent, template, template_name,
-                                 imported_members, app):
-    # type: (str, Any, Any, AutosummaryRenderer, str, bool, Any) -> str
+def generate_autosummary_content(name: str, obj: Any, parent: Any,
+                                 template: AutosummaryRenderer, template_name: str,
+                                 imported_members: bool, app: Any) -> str:
     doc = get_documenter(app, obj, parent)
 
     if template_name is None:
@@ -145,8 +134,8 @@ def generate_autosummary_content(name, obj, parent, template, template_name,
         if not template.exists(template_name):
             template_name = 'autosummary/base.rst'
 
-    def get_members(obj, types, include_public=[], imported=True):
-        # type: (Any, Set[str], List[str], bool) -> Tuple[List[str], List[str]]  # NOQA
+    def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
+                    imported: bool = True) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
         for name in dir(obj):
             try:
@@ -201,10 +190,11 @@ def generate_autosummary_content(name, obj, parent, template, template_name,
     return template.render(template_name, ns)
 
 
-def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
-                              warn=None, info=None, base_path=None, builder=None,
-                              template_dir=None, imported_members=False, app=None):
-    # type: (List[str], str, str, Callable, Callable, str, Builder, str, bool, Any) -> None
+def generate_autosummary_docs(sources: List[str], output_dir: str = None,
+                              suffix: str = '.rst', warn: Callable = None,
+                              info: Callable = None, base_path: str = None,
+                              builder: Builder = None, template_dir: str = None,
+                              imported_members: bool = False, app: Any = None) -> None:
     if info:
         warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx40Warning)
@@ -279,8 +269,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
 
 # -- Finding documented entries in files ---------------------------------------
 
-def find_autosummary_in_files(filenames):
-    # type: (List[str]) -> List[Tuple[str, str, str]]
+def find_autosummary_in_files(filenames: List[str]) -> List[Tuple[str, str, str]]:
     """Find out what items are documented in source/*.rst.
 
     See `find_autosummary_in_lines`.
@@ -293,8 +282,8 @@ def find_autosummary_in_files(filenames):
     return documented
 
 
-def find_autosummary_in_docstring(name, module=None, filename=None):
-    # type: (str, Any, str) -> List[Tuple[str, str, str]]
+def find_autosummary_in_docstring(name: str, module: Any = None, filename: str = None
+                                  ) -> List[Tuple[str, str, str]]:
     """Find out what items are documented in the given object's docstring.
 
     See `find_autosummary_in_lines`.
@@ -313,8 +302,8 @@ def find_autosummary_in_docstring(name, module=None, filename=None):
     return []
 
 
-def find_autosummary_in_lines(lines, module=None, filename=None):
-    # type: (List[str], Any, str) -> List[Tuple[str, str, str]]
+def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: str = None
+                              ) -> List[Tuple[str, str, str]]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
 
@@ -400,8 +389,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
     return documented
 
 
-def get_parser():
-    # type: () -> argparse.ArgumentParser
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
         epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
@@ -443,8 +431,7 @@ The format of the autosummary directive is documented in the
     return parser
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> None
+def main(argv: List[str] = sys.argv[1:]) -> None:
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
