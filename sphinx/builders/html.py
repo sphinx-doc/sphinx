@@ -1166,6 +1166,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])
     app.add_config_value('html_add_permalinks', '¶', 'html')
+    app.add_config_value('html_add_permalinks_html', None, 'html')
     app.add_config_value('html_use_index', True, 'html')
     app.add_config_value('html_split_index', False, 'html')
     app.add_config_value('html_copy_source', True, 'html')

@@ -1034,6 +1034,12 @@ that use Sphinx's HTMLWriter class.
       This can now be a string to select the actual text of the link.
       Previously, only boolean values were accepted.
 
+.. confval:: html_add_permalinks_html
+
+   The text for the permalink can also be specified as an HTML string. If both
+   ``html_add_permalinks`` and ``html_add_permalinks_html`` are specified,
+   ``html_add_permalinks_html`` wins.
+
 .. confval:: html_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to

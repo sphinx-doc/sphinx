@@ -63,6 +63,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if not isinstance(self.permalink_text, str):
             self.permalink_text = self.permalink_text and '¶' or ''
         self.permalink_text = self.encode(self.permalink_text)
+        if self.config.html_add_permalinks_html:
+            self.permalink_text = self.config.html_add_permalinks_html
+        self.viewcode_source = self.config.viewcode_source_html
+        if not self.viewcode_source:
+            self.viewcode_source = '<span class="viewcode-link">%s</span>' % _('[source]')
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0
@@ -217,6 +222,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_versionmodified(self, node):
         # type: (nodes.Element) -> None
         self.body.append('</div>\n')
+
+    def visit_viewcode_source(self, node):
+        self.body.append(self.viewcode_source)
+        raise nodes.SkipNode
+
+    def depart_viewcode_source(self, node):
+        pass
 
     # overwritten
     def visit_reference(self, node):
