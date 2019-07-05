@@ -382,6 +382,12 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
      .. versionadded:: 1.5
         Previously this was done from inside :file:`sphinx.sty`.
 
+  ``'glossaries'``
+     "glossaries" package inclusion, defaults to
+     ``'\\usepackage[acronym,toc]{glossaries}'``.
+
+     .. versionadded:: 2.1.2
+
   ``'maketitle'``
      "maketitle" call, default ``'\\sphinxmaketitle'``. Override
      if you want to generate a differently styled title page.
@@ -399,6 +405,13 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
      .. versionadded:: 1.8.3
         ``\sphinxbackoftitlepage`` optional macro.  It can also be defined
         inside ``'preamble'`` key rather than this one.
+
+  ``'printacronyms'``
+    "printacronyms" call, defaults to ``'\\printacronyms'``. Override if
+    you want to print the list of acronyms differently or append some
+    content afterwards.
+
+    .. versionadded:: 2.1.2
 
   ``'releasename'``
      value that prefixes ``'release'`` element on title page, default
