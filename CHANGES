@@ -50,6 +50,7 @@ Bugs fixed
   since Sphinx 1.8.0 (refs: #6533)
 * #6531: Failed to load last environment object when extension added
 * #736: Invalid sort in pair index
+* #6527: :confval:`last_updated` wrongly assumes timezone as UTC
 
 Testing
 --------
