@@ -11,15 +11,12 @@
 import re
 from io import StringIO
 from os import path
+from typing import Any, Dict, IO, List, Tuple
 from zipfile import ZipFile
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
 from sphinx.util import get_module_source, detect_encoding
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, IO, List, Tuple  # NOQA
 
 
 class ModuleAnalyzer:
@@ -27,13 +24,12 @@ class ModuleAnalyzer:
     cache = {}  # type: Dict[Tuple[str, str], Any]
 
     @classmethod
-    def for_string(cls, string, modname, srcname='<string>'):
-        # type: (str, str, str) -> ModuleAnalyzer
+    def for_string(cls, string: str, modname: str, srcname: str = '<string>'
+                   ) -> "ModuleAnalyzer":
         return cls(StringIO(string), modname, srcname, decoded=True)
 
     @classmethod
-    def for_file(cls, filename, modname):
-        # type: (str, str) -> ModuleAnalyzer
+    def for_file(cls, filename: str, modname: str) -> "ModuleAnalyzer":
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
@@ -48,8 +44,7 @@ class ModuleAnalyzer:
         return obj
 
     @classmethod
-    def for_egg(cls, filename, modname):
-        # type: (str, str) -> ModuleAnalyzer
+    def for_egg(cls, filename: str, modname: str) -> "ModuleAnalyzer":
         SEP = re.escape(path.sep)
         eggpath, relpath = re.split('(?<=\\.egg)' + SEP, filename)
         try:
@@ -60,8 +55,7 @@ class ModuleAnalyzer:
             raise PycodeError('error opening %r' % filename, exc)
 
     @classmethod
-    def for_module(cls, modname):
-        # type: (str) -> ModuleAnalyzer
+    def for_module(cls, modname: str) -> "ModuleAnalyzer":
         if ('module', modname) in cls.cache:
             entry = cls.cache['module', modname]
             if isinstance(entry, PycodeError):
@@ -80,8 +74,7 @@ class ModuleAnalyzer:
         cls.cache['module', modname] = obj
         return obj
 
-    def __init__(self, source, modname, srcname, decoded=False):
-        # type: (IO, str, str, bool) -> None
+    def __init__(self, source: IO, modname: str, srcname: str, decoded: bool = False) -> None:
         self.modname = modname  # name of the module
         self.srcname = srcname  # name of the source file
 
@@ -100,8 +93,7 @@ class ModuleAnalyzer:
         self.tagorder = None    # type: Dict[str, int]
         self.tags = None        # type: Dict[str, Tuple[str, int, int]]
 
-    def parse(self):
-        # type: () -> None
+    def parse(self) -> None:
         """Parse the source code."""
         try:
             parser = Parser(self.code, self.encoding)
@@ -119,16 +111,14 @@ class ModuleAnalyzer:
         except Exception as exc:
             raise PycodeError('parsing %r failed: %r' % (self.srcname, exc))
 
-    def find_attr_docs(self):
-        # type: () -> Dict[Tuple[str, str], List[str]]
+    def find_attr_docs(self) -> Dict[Tuple[str, str], List[str]]:
         """Find class and module-level attributes and their documentation."""
         if self.attr_docs is None:
             self.parse()
 
         return self.attr_docs
 
-    def find_tags(self):
-        # type: () -> Dict[str, Tuple[str, int, int]]
+    def find_tags(self) -> Dict[str, Tuple[str, int, int]]:
         """Find class, function and method definitions and their location."""
         if self.tags is None:
             self.parse()
