@@ -166,7 +166,7 @@ class DownloadFiles(dict):
                    Hence don't hack this directly.
     """
 
-    def add_file(self, docname: str, filename: str) -> None:
+    def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
             digest = md5(filename.encode()).hexdigest()
             dest = '%s/%s' % (digest, os.path.basename(filename))
