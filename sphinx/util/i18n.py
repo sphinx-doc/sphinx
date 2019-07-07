@@ -12,7 +12,7 @@ import os
 import re
 import warnings
 from collections import namedtuple
-from datetime import datetime
+from datetime import datetime, timezone
 from os import path
 from typing import Callable, Generator, List, Set, Tuple
 
@@ -270,7 +270,7 @@ def format_date(format: str, date: datetime = None, language: str = None) -> str
         if source_date_epoch is not None:
             date = datetime.utcfromtimestamp(float(source_date_epoch))
         else:
-            date = datetime.utcnow()
+            date = datetime.now(timezone.utc).astimezone()
 
     result = []
     tokens = date_format_re.split(format)

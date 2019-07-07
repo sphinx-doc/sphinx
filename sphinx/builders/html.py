@@ -712,52 +712,66 @@ class StandaloneHTMLBuilder(Builder):
                     logger.warning(__('cannot copy downloadable file %r: %s'),
                                    path.join(self.srcdir, src), err)
 
+    def create_pygments_style_file(self) -> None:
+        """create a style file for pygments."""
+        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
+            f.write(self.highlighter.get_stylesheet())
+
+    def copy_translation_js(self) -> None:
+        """Copy a JavaScript file for translations."""
+        if self.config.language is not None:
+            jsfile = self._get_translations_js()
+            if jsfile:
+                copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
+
+    def copy_stemmer_js(self) -> None:
+        """Copy a JavaScript file for stemmer."""
+        if self.indexer is not None:
+            jsfile = self.indexer.get_js_stemmer_rawcode()
+            if jsfile:
+                copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+
+    def copy_theme_static_files(self, context: Dict) -> None:
+        if self.theme:
+            for entry in self.theme.get_theme_dirs()[::-1]:
+                copy_asset(path.join(entry, 'static'),
+                           path.join(self.outdir, '_static'),
+                           excluded=DOTFILES, context=context, renderer=self.templates)
+
+    def copy_html_static_files(self, context: Dict) -> None:
+        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+        for entry in self.config.html_static_path:
+            copy_asset(path.join(self.confdir, entry),
+                       path.join(self.outdir, '_static'),
+                       excluded, context=context, renderer=self.templates)
+
+    def copy_html_logo(self) -> None:
+        if self.config.html_logo:
+            copy_asset(path.join(self.confdir, self.config.html_logo),
+                       path.join(self.outdir, '_static'))
+
+    def copy_html_favicon(self) -> None:
+        if self.config.html_favicon:
+            copy_asset(path.join(self.confdir, self.config.html_favicon),
+                       path.join(self.outdir, '_static'))
+
     def copy_static_files(self) -> None:
         try:
-            # copy static files
             with progress_message(__('copying static files... ')):
                 ensuredir(path.join(self.outdir, '_static'))
-                # first, create pygments style file
-                with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
-                    f.write(self.highlighter.get_stylesheet())
-                # then, copy translations JavaScript file
-                if self.config.language is not None:
-                    jsfile = self._get_translations_js()
-                    if jsfile:
-                        copyfile(jsfile, path.join(self.outdir, '_static',
-                                                   'translations.js'))
 
-                # copy non-minified stemmer JavaScript file
+                # prepare context for templates
+                context = self.globalcontext.copy()
                 if self.indexer is not None:
-                    jsfile = self.indexer.get_js_stemmer_rawcode()
-                    if jsfile:
-                        copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+                    context.update(self.indexer.context_for_searchtool())
 
-                ctx = self.globalcontext.copy()
-
-                # add context items for search function used in searchtools.js_t
-                if self.indexer is not None:
-                    ctx.update(self.indexer.context_for_searchtool())
-
-                # then, copy over theme-supplied static files
-                if self.theme:
-                    for theme_path in self.theme.get_theme_dirs()[::-1]:
-                        entry = path.join(theme_path, 'static')
-                        copy_asset(entry, path.join(self.outdir, '_static'), excluded=DOTFILES,
-                                   context=ctx, renderer=self.templates)
-                # then, copy over all user-supplied static files
-                excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
-                for static_path in self.config.html_static_path:
-                    entry = path.join(self.confdir, static_path)
-                    copy_asset(entry, path.join(self.outdir, '_static'), excluded,
-                               context=ctx, renderer=self.templates)
-                # copy logo and favicon files if not already in static path
-                if self.config.html_logo:
-                    entry = path.join(self.confdir, self.config.html_logo)
-                    copy_asset(entry, path.join(self.outdir, '_static'))
-                if self.config.html_favicon:
-                    entry = path.join(self.confdir, self.config.html_favicon)
-                    copy_asset(entry, path.join(self.outdir, '_static'))
+                self.create_pygments_style_file()
+                self.copy_translation_js()
+                self.copy_stemmer_js()
+                self.copy_theme_static_files(context)
+                self.copy_html_static_files(context)
+                self.copy_html_logo()
+                self.copy_html_favicon()
         except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
 

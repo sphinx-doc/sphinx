@@ -8,21 +8,16 @@
 
 from os import path
 
+from docutils import nodes
 from docutils.core import publish_doctree
 
+from sphinx.application import Sphinx
 from sphinx.io import SphinxStandaloneReader
 from sphinx.parsers import RSTParser
 from sphinx.util.docutils import sphinx_domains
 
 
-if False:
-    # For type annotation
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-
-
-def parse(app, text, docname='index'):
-    # type: (Sphinx, str, str) -> nodes.document
+def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
     """Parse a string as reStructuredText with Sphinx application."""
     try:
         app.env.temp_data['docname'] = docname
