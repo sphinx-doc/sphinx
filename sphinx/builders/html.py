@@ -38,8 +38,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import logging, status_iterator
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util import logging, progress_message, status_iterator
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
@@ -626,6 +625,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def finish(self) -> None:
         self.finish_tasks.add_task(self.gen_indices)
+        self.finish_tasks.add_task(self.gen_pages_from_extensions)
         self.finish_tasks.add_task(self.gen_additional_pages)
         self.finish_tasks.add_task(self.copy_image_files)
         self.finish_tasks.add_task(self.copy_download_files)
@@ -636,9 +636,8 @@ class StandaloneHTMLBuilder(Builder):
         # dump the search index
         self.handle_finish()
 
+    @progress_message(__('generating indices'))
     def gen_indices(self) -> None:
-        logger.info(bold(__('generating indices...')), nonl=True)
-
         # the global general index
         if self.use_index:
             self.write_genindex()
@@ -646,16 +645,14 @@ class StandaloneHTMLBuilder(Builder):
         # the global domain-specific indices
         self.write_domain_indices()
 
-        logger.info('')
-
-    def gen_additional_pages(self) -> None:
+    def gen_pages_from_extensions(self) -> None:
         # pages from extensions
         for pagelist in self.events.emit('html-collect-pages'):
             for pagename, context, template in pagelist:
                 self.handle_page(pagename, context, template)
 
-        logger.info(bold(__('writing additional pages...')), nonl=True)
-
+    @progress_message(__('writing additional pages'))
+    def gen_additional_pages(self) -> None:
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
             logger.info(' ' + pagename, nonl=True)
@@ -671,8 +668,6 @@ class StandaloneHTMLBuilder(Builder):
             logger.info(' opensearch', nonl=True)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
-
-        logger.info('')
 
     def write_genindex(self) -> None:
         # the total count of lines for each index letter, used to distribute
@@ -746,84 +741,77 @@ class StandaloneHTMLBuilder(Builder):
                     logger.warning(__('cannot copy downloadable file %r: %s'),
                                    path.join(self.srcdir, src), err)
 
+    def create_pygments_style_file(self) -> None:
+        """create a style file for pygments."""
+        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
+            f.write(self.highlighter.get_stylesheet())
+
+    def copy_translation_js(self) -> None:
+        """Copy a JavaScript file for translations."""
+        if self.config.language is not None:
+            jsfile = self._get_translations_js()
+            if jsfile:
+                copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
+
+    def copy_stemmer_js(self) -> None:
+        """Copy a JavaScript file for stemmer."""
+        if self.indexer is not None:
+            jsfile = self.indexer.get_js_stemmer_rawcode()
+            if jsfile:
+                copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+
+    def copy_theme_static_files(self, context: Dict) -> None:
+        if self.theme:
+            for entry in self.theme.get_theme_dirs()[::-1]:
+                copy_asset(path.join(entry, 'static'),
+                           path.join(self.outdir, '_static'),
+                           excluded=DOTFILES, context=context, renderer=self.templates)
+
+    def copy_html_static_files(self, context: Dict) -> None:
+        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+        for entry in self.config.html_static_path:
+            copy_asset(path.join(self.confdir, entry),
+                       path.join(self.outdir, '_static'),
+                       excluded, context=context, renderer=self.templates)
+
+    def copy_html_logo(self) -> None:
+        if self.config.html_logo:
+            copy_asset(path.join(self.confdir, self.config.html_logo),
+                       path.join(self.outdir, '_static'))
+
+    def copy_html_favicon(self) -> None:
+        if self.config.html_favicon:
+            copy_asset(path.join(self.confdir, self.config.html_favicon),
+                       path.join(self.outdir, '_static'))
+
     def copy_static_files(self) -> None:
         try:
-            # copy static files
-            logger.info(bold(__('copying static files... ')), nonl=True)
-            ensuredir(path.join(self.outdir, '_static'))
-            # first, create pygments style file
-            with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
-                f.write(self.highlighter.get_stylesheet())
-            # then, copy translations JavaScript file
-            if self.config.language is not None:
-                jsfile = self._get_translations_js()
-                if jsfile:
-                    copyfile(jsfile, path.join(self.outdir, '_static',
-                                               'translations.js'))
+            with progress_message(__('copying static files... ')):
+                ensuredir(path.join(self.outdir, '_static'))
 
-            # copy non-minified stemmer JavaScript file
-            if self.indexer is not None:
-                jsfile = self.indexer.get_js_stemmer_rawcode()
-                if jsfile:
-                    copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+                # prepare context for templates
+                context = self.globalcontext.copy()
+                if self.indexer is not None:
+                    context.update(self.indexer.context_for_searchtool())
 
-            ctx = self.globalcontext.copy()
-
-            # add context items for search function used in searchtools.js_t
-            if self.indexer is not None:
-                ctx.update(self.indexer.context_for_searchtool())
-
-            # then, copy over theme-supplied static files
-            if self.theme:
-                for theme_path in self.theme.get_theme_dirs()[::-1]:
-                    entry = path.join(theme_path, 'static')
-                    copy_asset(entry, path.join(self.outdir, '_static'), excluded=DOTFILES,
-                               context=ctx, renderer=self.templates)
-            # then, copy over all user-supplied static files
-            excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
-            for static_path in self.config.html_static_path:
-                entry = path.join(self.confdir, static_path)
-                if not path.exists(entry):
-                    logger.warning(__('html_static_path entry %r does not exist'), entry)
-                    continue
-                copy_asset(entry, path.join(self.outdir, '_static'), excluded,
-                           context=ctx, renderer=self.templates)
-            # copy logo and favicon files if not already in static path
-            if self.config.html_logo:
-                logobase = path.basename(self.config.html_logo)
-                logotarget = path.join(self.outdir, '_static', logobase)
-                if not path.isfile(path.join(self.confdir, self.config.html_logo)):
-                    logger.warning(__('logo file %r does not exist'), self.config.html_logo)
-                elif not path.isfile(logotarget):
-                    copyfile(path.join(self.confdir, self.config.html_logo),
-                             logotarget)
-            if self.config.html_favicon:
-                iconbase = path.basename(self.config.html_favicon)
-                icontarget = path.join(self.outdir, '_static', iconbase)
-                if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
-                    logger.warning(__('favicon file %r does not exist'),
-                                   self.config.html_favicon)
-                elif not path.isfile(icontarget):
-                    copyfile(path.join(self.confdir, self.config.html_favicon),
-                             icontarget)
-            logger.info(__('done'))
+                self.create_pygments_style_file()
+                self.copy_translation_js()
+                self.copy_stemmer_js()
+                self.copy_theme_static_files(context)
+                self.copy_html_static_files(context)
+                self.copy_html_logo()
+                self.copy_html_favicon()
         except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
 
     def copy_extra_files(self) -> None:
+        """copy html_extra_path files."""
         try:
-            # copy html_extra_path files
-            logger.info(bold(__('copying extra files... ')), nonl=True)
-            excluded = Matcher(self.config.exclude_patterns)
-
-            for extra_path in self.config.html_extra_path:
-                entry = path.join(self.confdir, extra_path)
-                if not path.exists(entry):
-                    logger.warning(__('html_extra_path entry %r does not exist'), entry)
-                    continue
-
-                copy_asset(entry, self.outdir, excluded)
-            logger.info(__('done'))
+            with progress_message(__('copying extra files')):
+                excluded = Matcher(self.config.exclude_patterns)
+                for extra_path in self.config.html_extra_path:
+                    entry = path.join(self.confdir, extra_path)
+                    copy_asset(entry, self.outdir, excluded)
         except OSError as err:
             logger.warning(__('cannot copy extra file %r'), err)
 
@@ -1067,27 +1055,23 @@ class StandaloneHTMLBuilder(Builder):
             self.finish_tasks.add_task(self.dump_search_index)
         self.finish_tasks.add_task(self.dump_inventory)
 
+    @progress_message(__('dumping object inventory'))
     def dump_inventory(self) -> None:
-        logger.info(bold(__('dumping object inventory... ')), nonl=True)
         InventoryFile.dump(path.join(self.outdir, INVENTORY_FILENAME), self.env, self)
-        logger.info(__('done'))
 
     def dump_search_index(self) -> None:
-        logger.info(
-            bold(__('dumping search index in %s ... ') % self.indexer.label()),
-            nonl=True)
-        self.indexer.prune(self.env.all_docs)
-        searchindexfn = path.join(self.outdir, self.searchindex_filename)
-        # first write to a temporary file, so that if dumping fails,
-        # the existing index won't be overwritten
-        if self.indexer_dumps_unicode:
-            with open(searchindexfn + '.tmp', 'w', encoding='utf-8') as ft:
-                self.indexer.dump(ft, self.indexer_format)
-        else:
-            with open(searchindexfn + '.tmp', 'wb') as fb:
-                self.indexer.dump(fb, self.indexer_format)
-        movefile(searchindexfn + '.tmp', searchindexfn)
-        logger.info(__('done'))
+        with progress_message(__('dumping search index in %s') % self.indexer.label()):
+            self.indexer.prune(self.env.all_docs)
+            searchindexfn = path.join(self.outdir, self.searchindex_filename)
+            # first write to a temporary file, so that if dumping fails,
+            # the existing index won't be overwritten
+            if self.indexer_dumps_unicode:
+                with open(searchindexfn + '.tmp', 'w', encoding='utf-8') as ft:
+                    self.indexer.dump(ft, self.indexer_format)
+            else:
+                with open(searchindexfn + '.tmp', 'wb') as fb:
+                    self.indexer.dump(fb, self.indexer_format)
+            movefile(searchindexfn + '.tmp', searchindexfn)
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
@@ -1166,6 +1150,44 @@ def validate_math_renderer(app: Sphinx) -> None:
         raise ConfigError(__('Unknown math_renderer %r is given.') % name)
 
 
+def validate_html_extra_path(app: Sphinx, config: Config) -> None:
+    """Check html_extra_paths setting."""
+    for entry in config.html_extra_path[:]:
+        extra_path = path.normpath(path.join(app.confdir, entry))
+        if not path.exists(extra_path):
+            logger.warning(__('html_extra_path entry %r does not exist'), entry)
+            config.html_extra_path.remove(entry)
+        elif path.commonpath([app.outdir, extra_path]) == app.outdir:
+            logger.warning(__('html_extra_path entry %r is placed inside outdir'), entry)
+            config.html_extra_path.remove(entry)
+
+
+def validate_html_static_path(app: Sphinx, config: Config) -> None:
+    """Check html_static_paths setting."""
+    for entry in config.html_static_path[:]:
+        static_path = path.normpath(path.join(app.confdir, entry))
+        if not path.exists(static_path):
+            logger.warning(__('html_static_path entry %r does not exist'), entry)
+            config.html_static_path.remove(entry)
+        elif path.commonpath([app.outdir, static_path]) == app.outdir:
+            logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
+            config.html_static_path.remove(entry)
+
+
+def validate_html_logo(app: Sphinx, config: Config) -> None:
+    """Check html_logo setting."""
+    if config.html_logo and not path.isfile(path.join(app.confdir, config.html_logo)):
+        logger.warning(__('logo file %r does not exist'), config.html_logo)
+        config.html_logo = None  # type: ignore
+
+
+def validate_html_favicon(app: Sphinx, config: Config) -> None:
+    """Check html_favicon setting."""
+    if config.html_favicon and not path.isfile(path.join(app.confdir, config.html_favicon)):
+        logger.warning(__('favicon file %r does not exist'), config.html_favicon)
+        config.html_favicon = None  # type: ignore
+
+
 # for compatibility
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
@@ -1221,6 +1243,10 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # event handlers
     app.connect('config-inited', convert_html_css_files)
     app.connect('config-inited', convert_html_js_files)
+    app.connect('config-inited', validate_html_extra_path)
+    app.connect('config-inited', validate_html_static_path)
+    app.connect('config-inited', validate_html_logo)
+    app.connect('config-inited', validate_html_favicon)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
 

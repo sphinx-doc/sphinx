@@ -47,19 +47,30 @@ def test_create_pair_index(app):
     app.env.indexentries.clear()
     text = (".. index:: pair: docutils; reStructuredText\n"
             ".. index:: pair: Python; interpreter\n"
-            ".. index:: pair: Sphinx; documentation tool\n")
+            ".. index:: pair: Sphinx; documentation tool\n"
+            ".. index:: pair: Sphinx; :+1:\n"
+            ".. index:: pair: Sphinx; Ель\n"
+            ".. index:: pair: Sphinx; ёлка\n")
     restructuredtext.parse(app, text)
     index = IndexEntries(app.env).create_index(app.builder)
-    assert len(index) == 5
-    assert index[0] == ('D',
+    assert len(index) == 7
+    assert index[0] == ('Symbols', [(':+1:', [[], [('Sphinx', [('', '#index-3')])], None])])
+    assert index[1] == ('D',
                         [('documentation tool', [[], [('Sphinx', [('', '#index-2')])], None]),
                          ('docutils', [[], [('reStructuredText', [('', '#index-0')])], None])])
-    assert index[1] == ('I', [('interpreter', [[], [('Python', [('', '#index-1')])], None])])
-    assert index[2] == ('P', [('Python', [[], [('interpreter', [('', '#index-1')])], None])])
-    assert index[3] == ('R',
+    assert index[2] == ('I', [('interpreter', [[], [('Python', [('', '#index-1')])], None])])
+    assert index[3] == ('P', [('Python', [[], [('interpreter', [('', '#index-1')])], None])])
+    assert index[4] == ('R',
                         [('reStructuredText', [[], [('docutils', [('', '#index-0')])], None])])
-    assert index[4] == ('S',
-                        [('Sphinx', [[], [('documentation tool', [('', '#index-2')])], None])])
+    assert index[5] == ('S',
+                        [('Sphinx', [[],
+                                     [(':+1:', [('', '#index-3')]),
+                                      ('documentation tool', [('', '#index-2')]),
+                                      ('ёлка', [('', '#index-5')]),
+                                      ('Ель', [('', '#index-4')])],
+                                     None])])
+    assert index[6] == ('Е', [('ёлка', [[], [('Sphinx', [('', '#index-5')])], None]),
+                               ('Ель', [[], [('Sphinx', [('', '#index-4')])], None])])
 
 
 @pytest.mark.sphinx('dummy')

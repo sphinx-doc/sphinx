@@ -1373,11 +1373,8 @@ class LaTeXTranslator(SphinxTranslator):
         suffix = node.get('suffix', '.')
 
         self.body.append('\\begin{enumerate}\n')
-        self.body.append('\\def\\the%s{%s{%s}}\n' % (enum, style, enum))
-        self.body.append('\\def\\label%s{%s\\the%s %s}\n' %
-                         (enum, prefix, enum, suffix))
-        self.body.append('\\makeatletter\\def\\p@%s{\\p@%s %s\\the%s %s}\\makeatother\n' %
-                         (enumnext, enum, prefix, enum, suffix))
+        self.body.append('\\sphinxsetlistlabels{%s}{%s}{%s}{%s}{%s}%%\n' %
+                         (style, enum, enumnext, prefix, suffix))
         if 'start' in node:
             self.body.append('\\setcounter{%s}{%d}\n' % (enum, node['start'] - 1))
         if self.table:
@@ -2598,7 +2595,7 @@ class LaTeXTranslator(SphinxTranslator):
                       RemovedInSphinx30Warning)
 
         def visit_admonition(self, node):
-            # type: (nodes.Element) -> None
+            # type: (LaTeXTranslator, nodes.Element) -> None
             self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition

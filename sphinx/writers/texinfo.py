@@ -1752,6 +1752,6 @@ class TexinfoTranslator(SphinxTranslator):
                       RemovedInSphinx30Warning)
 
         def visit(self, node):
-            # type: (nodes.Element) -> None
+            # type: (TexinfoTranslator, nodes.Element) -> None
             self.visit_admonition(node, admonitionlabels[name])
         return visit

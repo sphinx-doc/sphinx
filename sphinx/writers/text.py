@@ -1375,6 +1375,6 @@ class TextTranslator(SphinxTranslator):
                       RemovedInSphinx30Warning)
 
         def depart_admonition(self, node):
-            # type: (nodes.Element) -> None
+            # type: (TextTranslator, nodes.Element) -> None
             self.end_state(first=admonitionlabels[name] + ': ')
         return depart_admonition

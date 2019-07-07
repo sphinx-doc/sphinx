@@ -8,8 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import tempfile
-
 from sphinx.testing.util import strip_escseq
 from sphinx.util import logging
 from sphinx.util.pycompat import execfile_

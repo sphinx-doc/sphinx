@@ -23,8 +23,8 @@ link to external1_ and external2_.
 
 link to `Sphinx Site <http://sphinx-doc.org>`_ and `Python Site <http://python.org>`_.
 
-.. _external1: http://example.com/external1
-.. _external2: http://example.com/external2
+.. _external1: https://www.google.com/external1
+.. _external2: https://www.google.com/external2
 
 
 Multiple references in the same line

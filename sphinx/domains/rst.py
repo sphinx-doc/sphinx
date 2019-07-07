@@ -9,25 +9,23 @@
 """
 
 import re
+from typing import Any, Dict, Iterator, List, Tuple
 from typing import cast
 
+from docutils.nodes import Element
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.addnodes import desc_signature, pending_xref
+from sphinx.application import Sphinx
+from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
+from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -40,8 +38,7 @@ class ReSTMarkup(ObjectDescription):
     Description of generic reST markup.
     """
 
-    def add_target_and_index(self, name, sig, signode):
-        # type: (str, str, addnodes.desc_signature) -> None
+    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
         targetname = self.objtype + '-' + name
         if targetname not in self.state.document.ids:
             signode['names'].append(targetname)
@@ -57,13 +54,11 @@ class ReSTMarkup(ObjectDescription):
             self.indexnode['entries'].append(('single', indextext,
                                               targetname, '', None))
 
-    def get_index_text(self, objectname, name):
-        # type: (str, str) -> str
+    def get_index_text(self, objectname: str, name: str) -> str:
         return ''
 
 
-def parse_directive(d):
-    # type: (str) -> Tuple[str, str]
+def parse_directive(d: str) -> Tuple[str, str]:
     """Parse a directive signature.
 
     Returns (directive, arguments) string tuple.  If no arguments are given,
@@ -87,8 +82,7 @@ class ReSTDirective(ReSTMarkup):
     """
     Description of a reST directive.
     """
-    def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> str
+    def handle_signature(self, sig: str, signode: desc_signature) -> str:
         name, args = parse_directive(sig)
         desc_name = '.. %s::' % name
         signode += addnodes.desc_name(desc_name, desc_name)
@@ -96,18 +90,15 @@ class ReSTDirective(ReSTMarkup):
             signode += addnodes.desc_addname(args, args)
         return name
 
-    def get_index_text(self, objectname, name):
-        # type: (str, str) -> str
+    def get_index_text(self, objectname: str, name: str) -> str:
         return _('%s (directive)') % name
 
-    def before_content(self):
-        # type: () -> None
+    def before_content(self) -> None:
         if self.names:
             directives = self.env.ref_context.setdefault('rst:directives', [])
             directives.append(self.names[0])
 
-    def after_content(self):
-        # type: () -> None
+    def after_content(self) -> None:
         directives = self.env.ref_context.setdefault('rst:directives', [])
         if directives:
             directives.pop()
@@ -122,8 +113,7 @@ class ReSTDirectiveOption(ReSTMarkup):
         'type': directives.unchanged,
     })
 
-    def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> str
+    def handle_signature(self, sig: str, signode: desc_signature) -> str:
         try:
             name, argument = re.split(r'\s*:\s+', sig.strip(), 1)
         except ValueError:
@@ -137,8 +127,7 @@ class ReSTDirectiveOption(ReSTMarkup):
             signode += addnodes.desc_annotation(text, text)
         return name
 
-    def add_target_and_index(self, name, sig, signode):
-        # type: (str, str, addnodes.desc_signature) -> None
+    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
         directive_name = self.current_directive
         targetname = '-'.join([self.objtype, self.current_directive, name])
         if targetname not in self.state.document.ids:
@@ -162,8 +151,7 @@ class ReSTDirectiveOption(ReSTMarkup):
             self.indexnode['entries'].append(('single', text, targetname, '', key))
 
     @property
-    def current_directive(self):
-        # type: () -> str
+    def current_directive(self) -> str:
         directives = self.env.ref_context.get('rst:directives')
         if directives:
             return directives[-1]
@@ -175,13 +163,11 @@ class ReSTRole(ReSTMarkup):
     """
     Description of a reST role.
     """
-    def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> str
+    def handle_signature(self, sig: str, signode: desc_signature) -> str:
         signode += addnodes.desc_name(':%s:' % sig, ':%s:' % sig)
         return sig
 
-    def get_index_text(self, objectname, name):
-        # type: (str, str) -> str
+    def get_index_text(self, objectname: str, name: str) -> str:
         return _('%s (role)') % name
 
 
@@ -209,12 +195,10 @@ class ReSTDomain(Domain):
     }  # type: Dict[str, Dict[Tuple[str, str], str]]
 
     @property
-    def objects(self):
-        # type: () -> Dict[Tuple[str, str], str]
+    def objects(self) -> Dict[Tuple[str, str], str]:
         return self.data.setdefault('objects', {})  # (objtype, fullname) -> docname
 
-    def note_object(self, objtype, name, location=None):
-        # type: (str, str, Any) -> None
+    def note_object(self, objtype: str, name: str, location: Any = None) -> None:
         if (objtype, name) in self.objects:
             docname = self.objects[objtype, name]
             logger.warning(__('duplicate description of %s %s, other instance in %s') %
@@ -222,21 +206,20 @@ class ReSTDomain(Domain):
 
         self.objects[objtype, name] = self.env.docname
 
-    def clear_doc(self, docname):
-        # type: (str) -> None
+    def clear_doc(self, docname: str) -> None:
         for (typ, name), doc in list(self.objects.items()):
             if doc == docname:
                 del self.objects[typ, name]
 
-    def merge_domaindata(self, docnames, otherdata):
-        # type: (List[str], Dict) -> None
+    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
         for (typ, name), doc in otherdata['objects'].items():
             if doc in docnames:
                 self.objects[typ, name] = doc
 
-    def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
+    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                     typ: str, target: str, node: pending_xref, contnode: Element
+                     ) -> Element:
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
             todocname = self.objects.get((objtype, target))
@@ -246,9 +229,10 @@ class ReSTDomain(Domain):
                                     contnode, target + ' ' + objtype)
         return None
 
-    def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, addnodes.pending_xref, nodes.Element) -> List[Tuple[str, nodes.Element]]  # NOQA
-        results = []  # type: List[Tuple[str, nodes.Element]]
+    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                         target: str, node: pending_xref, contnode: Element
+                         ) -> List[Tuple[str, Element]]:
+        results = []  # type: List[Tuple[str, Element]]
         for objtype in self.object_types:
             todocname = self.objects.get((objtype, target))
             if todocname:
@@ -258,14 +242,12 @@ class ReSTDomain(Domain):
                                              contnode, target + ' ' + objtype)))
         return results
 
-    def get_objects(self):
-        # type: () -> Iterator[Tuple[str, str, str, str, str, int]]
+    def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
         for (typ, name), docname in self.data['objects'].items():
             yield name, name, typ, docname, typ + '-' + name, 1
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(ReSTDomain)
 
     return {

@@ -15,5 +15,3 @@ class Derived(Base):
     def inheritedmeth(self):
         # no docstring here
         pass
-
-
