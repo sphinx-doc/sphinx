@@ -31,6 +31,7 @@ default_kw = {
     'confoverrides': {
         'extensions': ['sphinx.ext.autosummary'],
         'autosummary_generate': True,
+        'autosummary_generate_overwrite': False,
         'source_suffix': '.rst'
     }
 }
@@ -221,6 +222,36 @@ def test_autosummary_generate(app, status, warning):
             '   \n'
             '      ~Foo.baz\n'
             '   \n' in Foo)
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary',
+                    confoverrides={'autosummary_generate_overwrite': False})
+def test_autosummary_generate_overwrite1(app_params, make_app):
+    args, kwargs = app_params
+    srcdir = kwargs.get('srcdir')
+
+    (srcdir / 'generated').makedirs(exist_ok=True)
+    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
+
+    app = make_app(*args, **kwargs)
+    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
+    assert content == ''
+    assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary',
+                    confoverrides={'autosummary_generate_overwrite': True})
+def test_autosummary_generate_overwrite2(app_params, make_app):
+    args, kwargs = app_params
+    srcdir = kwargs.get('srcdir')
+
+    (srcdir / 'generated').makedirs(exist_ok=True)
+    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
+
+    app = make_app(*args, **kwargs)
+    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
+    assert content != ''
+    assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
 
 
 @pytest.mark.sphinx('latex', **default_kw)

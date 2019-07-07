@@ -8,12 +8,17 @@ Incompatible changes
 --------------------
 
 * Drop features and APIs deprecated in 1.8.x
+* #247: autosummary: stub files are overwritten automatically by default.  see
+  :confval:`autosummary_generate_overwrite` to change the behavior
 
 Deprecated
 ----------
 
 Features added
 --------------
+
+* #247: autosummary: Add :confval:`autosummary_generate_overwrite` to overwrite
+  old stub file
 
 Bugs fixed
 ----------
