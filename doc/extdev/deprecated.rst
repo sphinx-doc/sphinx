@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.domains.std.StandardDomain.add_object()``
+     - 3.0
+     - 5.0
+     - ``sphinx.domains.std.StandardDomain.note_object()``
+
    * - ``sphinx.environment.BuildEnvironment.indexentries``
      - 2.4
      - 4.0
