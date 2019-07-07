@@ -49,6 +49,10 @@ Bugs fixed
 * #6511: LaTeX: autonumbered list can not be customized in LaTeX
   since Sphinx 1.8.0 (refs: #6533)
 * #6531: Failed to load last environment object when extension added
+* #736: Invalid sort in pair index
+* #6527: :confval:`last_updated` wrongly assumes timezone as UTC
+* #5592: std domain: :rst:dir:`option` directive registers an index entry for
+  each comma separated option
 * #6549: sphinx-build: Escaped characters in error messages
 
 Testing

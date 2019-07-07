@@ -198,12 +198,14 @@ class Cmdoption(ObjectDescription):
             domain.add_program_option(currprogram, optname,
                                       self.env.docname, signode['ids'][0])
 
-            # create only one index entry for the whole option
-            if optname == firstname:
-                self.indexnode['entries'].append(
-                    ('pair', _('%scommand line option; %s') %
-                     ((currprogram and currprogram + ' ' or ''), sig),
-                     signode['ids'][0], '', None))
+        # create an index entry
+        if currprogram:
+            descr = _('%s command line option') % currprogram
+        else:
+            descr = _('command line option')
+        for option in sig.split(', '):
+            entry = '; '.join([descr, option])
+            self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
 
 
 class Program(SphinxDirective):

@@ -133,11 +133,21 @@ class IndexEntries:
                 oldsubitems = subitems
                 i += 1
 
+        # sort the sub-index entries
+        def keyfunc2(entry: Tuple[str, List]) -> str:
+            key = unicodedata.normalize('NFD', entry[0].lower())
+            if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
+                key = key[1:]
+            if key[0:1].isalpha() or key.startswith('_'):
+                key = chr(127) + key
+            return key
+
         # group the entries by letter
-        def keyfunc2(item: Tuple[str, List]) -> str:
+        def keyfunc3(item: Tuple[str, List]) -> str:
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
-            v[1] = sorted((si, se) for (si, (se, void, void)) in v[1].items())
+            v[1] = sorted(((si, se) for (si, (se, void, void)) in v[1].items()),
+                          key=keyfunc2)
             if v[2] is None:
                 # now calculate the key
                 if k.startswith('\N{RIGHT-TO-LEFT MARK}'):
@@ -151,4 +161,4 @@ class IndexEntries:
             else:
                 return v[2]
         return [(key_, list(group))
-                for (key_, group) in groupby(newlist, keyfunc2)]
+                for (key_, group) in groupby(newlist, keyfunc3)]
