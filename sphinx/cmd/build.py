@@ -47,7 +47,7 @@ def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: I
             print(terminal_safe(exception.args[0]), file=stderr)
         elif isinstance(exception, SphinxError):
             print(red('%s:' % exception.category), file=stderr)
-            print(terminal_safe(str(exception)), file=stderr)
+            print(str(exception), file=stderr)
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)
             print(terminal_safe(str(exception)), file=stderr)
