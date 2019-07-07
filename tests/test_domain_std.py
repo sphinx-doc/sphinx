@@ -261,22 +261,24 @@ def test_cmdoption(app):
 
 
 def test_multiple_cmdoptions(app):
-    text = (".. program:: ls\n"
+    text = (".. program:: cmd\n"
             "\n"
-            ".. option:: -h, --help\n")
+            ".. option:: -o directory, --output directory\n")
     domain = app.env.get_domain('std')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_name, "-h"],
-                                                    [desc_addname, ()],
+                          [desc, ([desc_signature, ([desc_name, "-o"],
+                                                    [desc_addname, " directory"],
                                                     [desc_addname, ", "],
-                                                    [desc_name, "--help"],
-                                                    [desc_addname, ()])],
+                                                    [desc_name, "--output"],
+                                                    [desc_addname, " directory"])],
                                   [desc_content, ()])]))
     assert_node(doctree[0], addnodes.index,
-                entries=[('pair', 'ls command line option; -h, --help',
-                          'cmdoption-ls-h', '', None)])
-    assert ('ls', '-h') in domain.progoptions
-    assert ('ls', '--help') in domain.progoptions
-    assert domain.progoptions[('ls', '-h')] == ('index', 'cmdoption-ls-h')
-    assert domain.progoptions[('ls', '--help')] == ('index', 'cmdoption-ls-h')
+                entries=[('pair', 'cmd command line option; -o directory',
+                          'cmdoption-cmd-o', '', None),
+                         ('pair', 'cmd command line option; --output directory',
+                          'cmdoption-cmd-o', '', None)])
+    assert ('cmd', '-o') in domain.progoptions
+    assert ('cmd', '--output') in domain.progoptions
+    assert domain.progoptions[('cmd', '-o')] == ('index', 'cmdoption-cmd-o')
+    assert domain.progoptions[('cmd', '--output')] == ('index', 'cmdoption-cmd-o')
