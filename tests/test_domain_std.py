@@ -244,6 +244,17 @@ def test_glossary_sorted(app):
                 [nodes.definition, nodes.paragraph, "description"])
 
 
+def test_glossary_alphanumeric(app):
+    text = (".. glossary::\n"
+            "\n"
+            "   1\n"
+            "   /\n")
+    restructuredtext.parse(app, text)
+    objects = list(app.env.get_domain("std").get_objects())
+    assert ("1", "1", "term", "index", "term-1", -1) in objects
+    assert ("/", "/", "term", "index", "term-0", -1) in objects
+
+
 def test_cmdoption(app):
     text = (".. program:: ls\n"
             "\n"
