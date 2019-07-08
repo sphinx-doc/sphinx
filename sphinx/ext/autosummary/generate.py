@@ -153,15 +153,10 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                   if x in include_public or not x.startswith('_')]
         return public, items
 
-    def get_modules(obj: Any, include_public: List[str] = [])\
-        -> Tuple[List[str], List[str]]:
+    def get_modules(obj: Any, include_public: List[str] = []) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
-            try:
-                import_by_name(fullname)
-            except ImportError:
-                continue
             items.append(fullname)
         public = [x for x in items
                   if x in include_public or
@@ -215,7 +210,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                               info: Callable = None, base_path: str = None,
                               builder: Builder = None, template_dir: str = None,
                               imported_members: bool = False, app: Any = None,
-                              overwrite: bool = True, recursive: bool=True) -> None:
+                              overwrite: bool = True, recursive: bool = True) -> None:
     if info:
         warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx40Warning)
