@@ -373,8 +373,7 @@ Docutils supports the following directives:
 * HTML specifics:
 
   - :dudir:`meta`
-    (generation of HTML ``<meta>`` tags, see also `HTML Metadata <html-meta_>`__
-    below)
+    (generation of HTML ``<meta>`` tags, see also :ref:`html-meta` below)
   - :dudir:`title <metadata-document-title>` (override document title)
 
 * Influencing markup:
@@ -557,8 +556,7 @@ will generate the following HTML output:
 
 .. code:: html
 
-   <meta name="description"
-      content="The Sphinx documentation builder">
+   <meta name="description" content="The Sphinx documentation builder">
    <meta name="keywords" content="Sphinx, documentation, builder">
 
 Also, Sphinx will add the keywords as specified in the meta directive to the
