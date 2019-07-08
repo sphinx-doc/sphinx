@@ -308,6 +308,12 @@ def test_code_block(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
+def test_force_option(app, status, warning):
+    app.builder.build(['force'])
+    assert 'force.rst' not in warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='directive-code')
 def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
     html = (app.outdir / 'caption.html').text()
@@ -611,6 +617,6 @@ def test_linenothreshold(app, status, warning):
     # literal include not using linenothreshold
     html, matched, _ = html.partition(lineos_head +
                                       '1\n'
-                                      '2\n' 
+                                      '2\n'
                                       '3' + lineos_tail)
     assert not matched

@@ -36,8 +36,8 @@ tables of contents.  The ``toctree`` directive is the central element.
 
 .. note::
 
-   For local tables of contents, use the standard reST :dudir:`contents
-   directive <table-of-contents>`.
+   To create table of contents for current document (.rst file), use the
+   standard reST :dudir:`contents directive <table-of-contents>`.
 
 .. rst:directive:: toctree
 
@@ -463,6 +463,12 @@ __ http://pygments.org/docs/lexers/
 
    This will produce line numbers for all code blocks longer than five lines.
 
+   To ignore minor errors on highlighting, you can specifiy ``:force:`` option.
+
+   .. versionchanged:: 2.1
+
+      ``:force:`` option.
+
 .. rst:directive:: .. code-block:: [language]
 
    Example::
@@ -525,6 +531,8 @@ __ http://pygments.org/docs/lexers/
 
              some ruby code
 
+   A ``force`` option can ignore minor errors on highlighting.
+
    .. versionchanged:: 1.1
       The ``emphasize-lines`` option has been added.
 
@@ -537,6 +545,10 @@ __ http://pygments.org/docs/lexers/
 
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.
+
+   .. versionchanged:: 2.1
+
+      ``:force:`` option has been added.
 
 .. rst:directive:: .. literalinclude:: filename
 
@@ -630,6 +642,8 @@ __ http://pygments.org/docs/lexers/
    This shows the diff between ``example.py`` and ``example.py.orig`` with
    unified diff format.
 
+   A ``force`` option can ignore minor errors on highlighting.
+
    .. versionchanged:: 0.4.3
       Added the ``encoding`` option.
 
@@ -650,6 +664,9 @@ __ http://pygments.org/docs/lexers/
    .. versionchanged:: 1.6
       With both ``start-after`` and ``lines`` in use, the first line as per
       ``start-after`` is considered to be with line number ``1`` for ``lines``.
+
+   .. versionchanged:: 2.1
+      Added the ``force`` option.
 
 .. _glossary-directive:
 

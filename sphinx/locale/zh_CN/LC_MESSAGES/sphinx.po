@@ -1456,8 +1456,8 @@ msgid ""
 "translate text that it generates into that language.\n"
 "\n"
 "For a list of supported codes, see\n"
-"http://sphinx-doc.org/config.html#confval-language."
-msgstr "\n如果用英语以外的语言编写文档，你可以在此按语言代码选择语种。\nSphinx 会把内置文本翻译成相应语言的版本。\n\n支持的语言代码列表见：\nhttp://sphinx-doc.org/config.html#confval-language。"
+"https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
+msgstr "\n如果用英语以外的语言编写文档，你可以在此按语言代码选择语种。\nSphinx 会把内置文本翻译成相应语言的版本。\n\n支持的语言代码列表见：\nhttps://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language。"
 
 #: sphinx/cmd/quickstart.py:314
 msgid "Project language"

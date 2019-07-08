@@ -37,7 +37,7 @@
 
 {% block modules %}
 {% if modules %}
-.. rubric:: modules
+.. rubric:: Modules
 
 .. autosummary::
    :toctree: modules

@@ -1448,8 +1448,8 @@ msgid ""
 "translate text that it generates into that language.\n"
 "\n"
 "For a list of supported codes, see\n"
-"http://sphinx-doc.org/config.html#confval-language."
-msgstr "\nWe xetz'ib'an ri wuj pa jun ch'abäl man Q'anch' ta,\nyatikïr nacha' jun chïk runuk'unem ch'ab'äl wawe' chi Sphinx tiq'ax\nruch'abäl ri wuj xtik'iyij pa ri ch'ab'äl re.\n\nChi natz'u rucholajem runuk'unem ch'ab'äl k'o chïk pa Sphinx, tab'e pa\nhttp://sphinx-doc.org/config.html#confval-language."
+"https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
+msgstr "\nWe xetz'ib'an ri wuj pa jun ch'abäl man Q'anch' ta,\nyatikïr nacha' jun chïk runuk'unem ch'ab'äl wawe' chi Sphinx tiq'ax\nruch'abäl ri wuj xtik'iyij pa ri ch'ab'äl re.\n\nChi natz'u rucholajem runuk'unem ch'ab'äl k'o chïk pa Sphinx, tab'e pa\nhttps://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
 
 #: sphinx/cmd/quickstart.py:314
 msgid "Project language"

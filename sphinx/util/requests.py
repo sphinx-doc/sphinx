@@ -10,10 +10,12 @@
 
 import warnings
 from contextlib import contextmanager
+from typing import Generator, Union
 from urllib.parse import urlsplit
 
-import pkg_resources
 import requests
+
+from sphinx.config import Config
 
 try:
     from requests.packages.urllib3.exceptions import SSLError
@@ -32,39 +34,12 @@ except ImportError:
         # for requests < 2.4.0
         InsecureRequestWarning = None  # type: ignore
 
-try:
-    from requests.packages.urllib3.exceptions import InsecurePlatformWarning
-except ImportError:
-    try:
-        # for Debian-jessie
-        from urllib3.exceptions import InsecurePlatformWarning  # type: ignore
-    except ImportError:
-        # for requests < 2.4.0
-        InsecurePlatformWarning = None  # type: ignore
-
-# try to load requests[security] (but only if SSL is available)
-try:
-    import ssl  # NOQA
-except ImportError:
-    pass
-else:
-    try:
-        pkg_resources.require(['requests[security]'])
-    except (pkg_resources.DistributionNotFound,
-            pkg_resources.VersionConflict):
-        pass  # ignored
-
-if False:
-    # For type annotation
-    from typing import Any, Generator, Union  # NOQA
-    from sphinx.config import Config  # NOQA
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
 
 
-def is_ssl_error(exc):
-    # type: (Exception) -> bool
+def is_ssl_error(exc: Exception) -> bool:
     """Check an exception is SSLError."""
     if isinstance(exc, SSLError):
         return True
@@ -77,8 +52,7 @@ def is_ssl_error(exc):
 
 
 @contextmanager
-def ignore_insecure_warning(**kwargs):
-    # type: (Any) -> Generator
+def ignore_insecure_warning(**kwargs) -> Generator[None, None, None]:
     with warnings.catch_warnings():
         if not kwargs.get('verify') and InsecureRequestWarning:
             # ignore InsecureRequestWarning if verify=False
@@ -86,8 +60,7 @@ def ignore_insecure_warning(**kwargs):
         yield
 
 
-def _get_tls_cacert(url, config):
-    # type: (str, Config) -> Union[str, bool]
+def _get_tls_cacert(url: str, config: Config) -> Union[str, bool]:
     """Get additional CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.
@@ -109,8 +82,7 @@ def _get_tls_cacert(url, config):
         return certs.get(hostname, True)
 
 
-def get(url, **kwargs):
-    # type: (str, Any) -> requests.Response
+def get(url: str, **kwargs) -> requests.Response:
     """Sends a GET request like requests.get().
 
     This sets up User-Agent header and TLS verification automatically."""
@@ -123,8 +95,7 @@ def get(url, **kwargs):
         return requests.get(url, **kwargs)
 
 
-def head(url, **kwargs):
-    # type: (str, Any) -> requests.Response
+def head(url: str, **kwargs) -> requests.Response:
     """Sends a HEAD request like requests.head().
 
     This sets up User-Agent header and TLS verification automatically."""

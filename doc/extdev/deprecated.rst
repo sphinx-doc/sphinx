@@ -26,6 +26,52 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.domains.math.MathDomain.add_equation()``
+     - 2.2
+     - 4.0
+     - ``sphinx.domains.math.MathDomain.note_equation()``
+
+   * - ``sphinx.domains.math.MathDomain.get_next_equation_number()``
+     - 2.2
+     - 4.0
+     - ``sphinx.domains.math.MathDomain.note_equation()``
+
+   * - The ``info`` and ``warn`` arguments of
+       ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 2.2
+     - 4.0
+     - ``logging.info()`` and ``logging.warning()``
+
+   * - ``sphinx.ext.autosummary.generate._simple_info()``
+     - 2.2
+     - 4.0
+     - ``logging.info()``
+
+   * - ``sphinx.ext.autosummary.generate._simple_warn()``
+     - 2.2
+     - 4.0
+     - ``logging.warning()``
+
+   * - ``sphinx.ext.todo.merge_info()``
+     - 2.2
+     - 4.0
+     - ``sphinx.ext.todo.TodoDomain``
+
+   * - ``sphinx.ext.todo.process_todo_nodes()``
+     - 2.2
+     - 4.0
+     - ``sphinx.ext.todo.TodoDomain``
+
+   * - ``sphinx.ext.todo.process_todos()``
+     - 2.2
+     - 4.0
+     - ``sphinx.ext.todo.TodoDomain``
+
+   * - ``sphinx.ext.todo.purge_todos()``
+     - 2.2
+     - 4.0
+     - ``sphinx.ext.todo.TodoDomain``
+
    * - ``sphinx.builders.latex.LaTeXBuilder.apply_transforms()``
      - 2.1
      - 4.0

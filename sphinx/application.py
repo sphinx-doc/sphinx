@@ -19,6 +19,7 @@ from io import StringIO
 from os import path
 
 from docutils.parsers.rst import Directive, roles
+from pygments.lexer import Lexer
 
 import sphinx
 from sphinx import package_dir, locale
@@ -27,6 +28,7 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
+from sphinx.highlighting import lexer_classes, lexers
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
@@ -969,22 +971,27 @@ class Sphinx:
         self.registry.add_latex_package(packagename, options)
 
     def add_lexer(self, alias, lexer):
-        # type: (str, Any) -> None
+        # type: (str, Union[Lexer, Type[Lexer]]) -> None
         """Register a new lexer for source code.
 
-        Use *lexer*, which must be an instance of a Pygments lexer class, to
-        highlight code blocks with the given language *alias*.
+        Use *lexer* to highlight code blocks with the given language *alias*.
 
         .. versionadded:: 0.6
+        .. versionchanged:: 2.1
+           Take a lexer class as an argument.  An instance of lexers are
+           still supported until Sphinx-3.x.
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
-        from sphinx.highlighting import lexers
-        if lexers is None:
-            return
-        lexers[alias] = lexer
+        if isinstance(lexer, Lexer):
+            warnings.warn('app.add_lexer() API changed; '
+                          'Please give lexer class instead instance',
+                          RemovedInSphinx40Warning)
+            lexers[alias] = lexer
+        else:
+            lexer_classes[alias] = lexer
 
-    def add_autodocumenter(self, cls):
-        # type: (Any) -> None
+    def add_autodocumenter(self, cls, override=False):
+        # type: (Any, bool) -> None
         """Register a new documenter class for the autodoc extension.
 
         Add *cls* as a new documenter class for the :mod:`sphinx.ext.autodoc`
@@ -996,11 +1003,13 @@ class Sphinx:
         .. todo:: Add real docs for Documenter and subclassing
 
         .. versionadded:: 0.6
+        .. versionchanged:: 2.2
+           Add *override* keyword.
         """
         logger.debug('[app] adding autodocumenter: %r', cls)
         from sphinx.ext.autodoc.directive import AutodocDirective
         self.registry.add_documenter(cls.objtype, cls)
-        self.add_directive('auto' + cls.objtype, AutodocDirective)
+        self.add_directive('auto' + cls.objtype, AutodocDirective, override=override)
 
     def add_autodoc_attrgetter(self, typ, getter):
         # type: (Type, Callable[[Any, str, Any], Any]) -> None

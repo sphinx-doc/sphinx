@@ -9,7 +9,9 @@
 """
 
 import os
+from typing import Dict, List, Union
 
+from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx import package_dir
@@ -17,58 +19,51 @@ from sphinx.jinja2glue import SphinxFileSystemLoader
 from sphinx.locale import get_translator
 from sphinx.util import rst, texescape
 
-if False:
-    # For type annotation
-    from typing import Dict  # NOQA
-    from jinja2.loaders import BaseLoader  # NOQA
-
 
 class BaseRenderer:
-    def __init__(self, loader=None):
-        # type: (BaseLoader) -> None
+    def __init__(self, loader: BaseLoader = None) -> None:
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
         self.env.filters['repr'] = repr
         self.env.install_gettext_translations(get_translator())  # type: ignore
 
-    def render(self, template_name, context):
-        # type: (str, Dict) -> str
+    def render(self, template_name: str, context: Dict) -> str:
         return self.env.get_template(template_name).render(context)
 
-    def render_string(self, source, context):
-        # type: (str, Dict) -> str
+    def render_string(self, source: str, context: Dict) -> str:
         return self.env.from_string(source).render(context)
 
 
 class FileRenderer(BaseRenderer):
-    def __init__(self, search_path):
-        # type: (str) -> None
+    def __init__(self, search_path: Union[str, List[str]]) -> None:
+        if isinstance(search_path, str):
+            search_path = [search_path]
+        else:
+            # filter "None" paths
+            search_path = list(filter(None, search_path))
+
         loader = SphinxFileSystemLoader(search_path)
         super().__init__(loader)
 
     @classmethod
-    def render_from_file(cls, filename, context):
-        # type: (str, Dict) -> str
+    def render_from_file(cls, filename: str, context: Dict) -> str:
         dirname = os.path.dirname(filename)
         basename = os.path.basename(filename)
         return cls(dirname).render(basename, context)
 
 
 class SphinxRenderer(FileRenderer):
-    def __init__(self, template_path=None):
-        # type: (str) -> None
+    def __init__(self, template_path: Union[str, List[str]] = None) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
         super().__init__(template_path)
 
     @classmethod
-    def render_from_file(cls, filename, context):
-        # type: (str, Dict) -> str
+    def render_from_file(cls, filename: str, context: Dict) -> str:
         return FileRenderer.render_from_file(filename, context)
 
 
 class LaTeXRenderer(SphinxRenderer):
-    def __init__(self, template_path=None):
-        # type: (str) -> None
+    def __init__(self, template_path: str = None) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates', 'latex')
         super().__init__(template_path)
@@ -87,8 +82,7 @@ class LaTeXRenderer(SphinxRenderer):
 
 
 class ReSTRenderer(SphinxRenderer):
-    def __init__(self, template_path=None, language=None):
-        # type: (str, str) -> None
+    def __init__(self, template_path: Union[str, List[str]] = None, language: str = None) -> None:  # NOQA
         super().__init__(template_path)
 
         # add language to environment

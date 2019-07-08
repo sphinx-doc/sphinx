@@ -72,10 +72,9 @@ PyPI
    https://pythonhosted.org/.
 
 GitHub Pages
-   Directories starting with underscores are ignored by default which breaks
-   static files in Sphinx.  GitHub's preprocessor can be `disabled
-   <https://github.com/blog/572-bypassing-jekyll-on-github-pages>`_ to support
-   Sphinx HTML output properly.
+   Please add :py:mod:`sphinx.ext.githubpages` to your project.  It allows you
+   to publish your document in GitHub Pages.  It generates helper files for
+   GitHub Pages on building HTML document automatically.
 
 MediaWiki
    See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by

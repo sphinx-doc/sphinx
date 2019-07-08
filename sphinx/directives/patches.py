@@ -6,22 +6,23 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict, List, Tuple
 from typing import cast
 
 from docutils import nodes
-from docutils.nodes import make_id
+from docutils.nodes import Node, make_id, system_message
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, html, tables
 
 from sphinx import addnodes
 from sphinx.directives import optional_int
+from sphinx.domains.math import MathDomain
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
 if False:
     # For type annotation
-    from typing import Dict, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from sphinx.application import Sphinx
 
 
 class Figure(images.Figure):
@@ -29,8 +30,7 @@ class Figure(images.Figure):
     instead of the image node.
     """
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         name = self.options.pop('name', None)
         result = super().run()
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
@@ -52,8 +52,7 @@ class Figure(images.Figure):
 
 
 class Meta(html.Meta, SphinxDirective):
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         result = super().run()
         for node in result:
             if (isinstance(node, nodes.pending) and
@@ -74,8 +73,7 @@ class RSTTable(tables.RSTTable):
 
     Only for docutils-0.13 or older version."""
 
-    def make_title(self):
-        # type: () -> Tuple[nodes.title, List[nodes.system_message]]
+    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
         if title:
             set_source_info(self, title)
@@ -88,8 +86,7 @@ class CSVTable(tables.CSVTable):
 
     Only for docutils-0.13 or older version."""
 
-    def make_title(self):
-        # type: () -> Tuple[nodes.title, List[nodes.system_message]]
+    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
         if title:
             set_source_info(self, title)
@@ -102,8 +99,7 @@ class ListTable(tables.ListTable):
 
     Only for docutils-0.13 or older version."""
 
-    def make_title(self):
-        # type: () -> Tuple[nodes.title, List[nodes.system_message]]
+    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
         if title:
             set_source_info(self, title)
@@ -119,18 +115,19 @@ class Code(SphinxDirective):
     optional_arguments = 1
     option_spec = {
         'class': directives.class_option,
+        'force': directives.flag,
         'name': directives.unchanged,
         'number-lines': optional_int,
     }
     has_content = True
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         self.assert_has_content()
 
         code = '\n'.join(self.content)
         node = nodes.literal_block(code, code,
                                    classes=self.options.get('classes', []),
+                                   force='force' in self.options,
                                    highlight_args={})
         self.add_name(node)
         set_source_info(self, node)
@@ -138,14 +135,12 @@ class Code(SphinxDirective):
         if self.arguments:
             # highlight language specified
             node['language'] = self.arguments[0]
-            node['force_highlighting'] = True
         else:
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
             node['language'] = self.env.temp_data.get('highlight_language',
                                                       self.config.highlight_language)
-            node['force_highlighting'] = False
 
         if 'number-lines' in self.options:
             node['linenos'] = True
@@ -169,8 +164,7 @@ class MathDirective(SphinxDirective):
         'nowrap': directives.flag,
     }
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
@@ -184,12 +178,11 @@ class MathDirective(SphinxDirective):
         self.add_name(node)
         self.set_source_info(node)
 
-        ret = [node]  # type: List[nodes.Node]
+        ret = [node]  # type: List[Node]
         self.add_target(ret)
         return ret
 
-    def add_target(self, ret):
-        # type: (List[nodes.Node]) -> None
+    def add_target(self, ret: List[Node]) -> None:
         node = cast(nodes.math_block, ret[0])
 
         # assign label automatically if math_number_all enabled
@@ -202,22 +195,18 @@ class MathDirective(SphinxDirective):
             return
 
         # register label to domain
-        domain = self.env.get_domain('math')
-        try:
-            eqno = domain.add_equation(self.env, self.env.docname, node['label'])  # type: ignore  # NOQA
-            node['number'] = eqno
+        domain = cast(MathDomain, self.env.get_domain('math'))
+        domain.note_equation(self.env.docname, node['label'], location=node)
+        node['number'] = domain.get_equation_number_for(node['label'])
 
-            # add target node
-            node_id = make_id('equation-%s' % node['label'])
-            target = nodes.target('', '', ids=[node_id])
-            self.state.document.note_explicit_target(target)
-            ret.insert(0, target)
-        except UserWarning as exc:
-            self.state_machine.reporter.warning(exc, line=self.lineno)
+        # add target node
+        node_id = make_id('equation-%s' % node['label'])
+        target = nodes.target('', '', ids=[node_id])
+        self.state.document.note_explicit_target(target)
+        ret.insert(0, target)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict
+def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('table', RSTTable)

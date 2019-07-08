@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2019/01/12 v1.8.4 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2019/06/04 v2.1.1 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -411,6 +411,18 @@
 \DisableKeyvalOption{sphinx}{mathnumfig}
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
+
+
+%% ALPHANUMERIC LIST ITEMS
+\newcommand\sphinxsetlistlabels[5]
+{% #1 = style, #2 = enum, #3 = enumnext, #4 = prefix, #5 = suffix
+ % #2 and #3 are counters used by enumerate environement e.g. enumi, enumii.
+ % #1 is a macro such as \arabic or \alph
+ % prefix and suffix are strings (by default empty and a dot).
+ \@namedef{the#2}{#1{#2}}%
+ \@namedef{label#2}{#4\@nameuse{the#2}#5}%
+ \@namedef{p@#3}{\@nameuse{p@#2}#4\@nameuse{the#2}#5}%
+}%
 
 
 %% MAXLISTDEPTH
@@ -1444,7 +1456,7 @@
 % Some are quite plain
 % the spx@notice@bordercolor etc are set in the sphinxadmonition environment
 \newenvironment{sphinxlightbox}{%
-  \par\allowbreak
+  \par
   \noindent{\color{spx@notice@bordercolor}%
             \rule{\linewidth}{\spx@notice@border}}\par\nobreak
   {\parskip\z@skip\noindent}%

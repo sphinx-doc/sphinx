@@ -9,23 +9,24 @@
 """
 
 import re
-from typing import List, cast
+from typing import Any, Dict, List, Tuple
+from typing import cast
 
 from docutils import nodes
+from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
+from sphinx.addnodes import desc_signature
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import docutils
-from sphinx.util.docfields import DocFieldTransformer, TypedField
+from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.typing import DirectiveOption
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.docfields import Field  # NOQA
-    from sphinx.util.typing import DirectiveOption  # NOQA
+    from sphinx.application import Sphinx
 
 
 # RE to strip backslash escapes
@@ -70,9 +71,9 @@ class ObjectDescription(SphinxDirective):
     # Warning: this might be removed in future version. Don't touch this from extensions.
     _doc_field_type_map = {}  # type: Dict[str, Tuple[Field, bool]]
 
-    def get_field_type_map(self):
-        # type: () -> Dict[str, Tuple[Field, bool]]
+    def get_field_type_map(self) -> Dict[str, Tuple[Field, bool]]:
         if self._doc_field_type_map == {}:
+            self._doc_field_type_map = {}
             for field in self.doc_field_types:
                 for name in field.names:
                     self._doc_field_type_map[name] = (field, False)
@@ -84,8 +85,7 @@ class ObjectDescription(SphinxDirective):
 
         return self._doc_field_type_map
 
-    def get_signatures(self):
-        # type: () -> List[str]
+    def get_signatures(self) -> List[str]:
         """
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
@@ -96,8 +96,7 @@ class ObjectDescription(SphinxDirective):
         # remove backslashes to support (dummy) escapes; helps Vim highlighting
         return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
 
-    def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> Any
+    def handle_signature(self, sig: str, signode: desc_signature) -> Any:
         """
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
@@ -109,8 +108,7 @@ class ObjectDescription(SphinxDirective):
         """
         raise ValueError
 
-    def add_target_and_index(self, name, sig, signode):
-        # type: (Any, str, addnodes.desc_signature) -> None
+    def add_target_and_index(self, name: Any, sig: str, signode: desc_signature) -> None:
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
 
@@ -118,24 +116,21 @@ class ObjectDescription(SphinxDirective):
         """
         return  # do nothing by default
 
-    def before_content(self):
-        # type: () -> None
+    def before_content(self) -> None:
         """
         Called before parsing content. Used to set information about the current
         directive context on the build environment.
         """
         pass
 
-    def after_content(self):
-        # type: () -> None
+    def after_content(self) -> None:
         """
         Called after parsing content. Used to reset information about the
         current directive context on the build environment.
         """
         pass
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         """
         Main directive entry function, called by docutils upon encountering the
         directive.
@@ -212,8 +207,7 @@ class DefaultRole(SphinxDirective):
     optional_arguments = 1
     final_argument_whitespace = False
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         if not self.arguments:
             docutils.unregister_role('')
             return []
@@ -244,8 +238,7 @@ class DefaultDomain(SphinxDirective):
     final_argument_whitespace = False
     option_spec = {}  # type: Dict
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         domain_name = self.arguments[0].lower()
         # if domain_name not in env.domains:
         #     # try searching by label
@@ -294,8 +287,7 @@ deprecated_alias('sphinx.directives',
 DescDirective = ObjectDescription
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)

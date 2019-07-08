@@ -13,7 +13,10 @@ from unittest import mock
 from docutils import nodes
 from docutils.nodes import definition, definition_list, definition_list_item, term
 
-from sphinx.addnodes import glossary, index
+from sphinx import addnodes
+from sphinx.addnodes import (
+    desc, desc_addname, desc_content, desc_name, desc_signature, glossary, index
+)
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -239,3 +242,43 @@ def test_glossary_sorted(app):
                 [nodes.definition, nodes.paragraph, "description"])
     assert_node(doctree[0][0][1][1],
                 [nodes.definition, nodes.paragraph, "description"])
+
+
+def test_cmdoption(app):
+    text = (".. program:: ls\n"
+            "\n"
+            ".. option:: -l\n")
+    domain = app.env.get_domain('std')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "-l"],
+                                                    [desc_addname, ()])],
+                                  [desc_content, ()])]))
+    assert_node(doctree[0], addnodes.index,
+                entries=[('pair', 'ls command line option; -l', 'cmdoption-ls-l', '', None)])
+    assert ('ls', '-l') in domain.progoptions
+    assert domain.progoptions[('ls', '-l')] == ('index', 'cmdoption-ls-l')
+
+
+def test_multiple_cmdoptions(app):
+    text = (".. program:: cmd\n"
+            "\n"
+            ".. option:: -o directory, --output directory\n")
+    domain = app.env.get_domain('std')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "-o"],
+                                                    [desc_addname, " directory"],
+                                                    [desc_addname, ", "],
+                                                    [desc_name, "--output"],
+                                                    [desc_addname, " directory"])],
+                                  [desc_content, ()])]))
+    assert_node(doctree[0], addnodes.index,
+                entries=[('pair', 'cmd command line option; -o directory',
+                          'cmdoption-cmd-o', '', None),
+                         ('pair', 'cmd command line option; --output directory',
+                          'cmdoption-cmd-o', '', None)])
+    assert ('cmd', '-o') in domain.progoptions
+    assert ('cmd', '--output') in domain.progoptions
+    assert domain.progoptions[('cmd', '-o')] == ('index', 'cmdoption-cmd-o')
+    assert domain.progoptions[('cmd', '--output')] == ('index', 'cmdoption-cmd-o')

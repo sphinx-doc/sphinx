@@ -11,7 +11,7 @@
 import sys
 from io import StringIO
 import os
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from docutils import nodes
@@ -20,6 +20,7 @@ from sphinx import addnodes
 from sphinx.ext.autosummary import (
     autosummary_table, autosummary_toc, mangle_signature, import_by_name, extract_summary
 )
+from sphinx.ext.autosummary.generate import generate_autosummary_docs
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
 
@@ -31,6 +32,7 @@ default_kw = {
     'confoverrides': {
         'extensions': ['sphinx.ext.autosummary'],
         'autosummary_generate': True,
+        'autosummary_generate_overwrite': False,
         'source_suffix': '.rst'
     }
 }
@@ -108,7 +110,6 @@ def test_get_items_summary(make_app, app_params):
     import sphinx.ext.autosummary.generate
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
-
     sphinx.ext.autosummary.generate.setup_documenters(app)
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..
@@ -224,113 +225,85 @@ def test_autosummary_generate(app, status, warning):
             '   \n' in Foo)
 
 
-def _assert_autosummary_recursive(app):
-    app.builder.build_all()
-
-    # All packages, modules and classes have the same name
-    package_name = 'package'
-    module_name = 'module'
-    class_name = 'Foo'
-    extension = 'rst'
-    nsuffix = len(extension)+1
-
-    # Expected module.rst template formatting
-    recursive = app.config.autosummary_recursive
-    module_rubic_name = 'modules'
-    module_rubic = '.. rubric:: ' + module_rubic_name
-    module_summary = '.. autosummary::\n'\
-                     '   :toctree: {}\n'\
-                     '\n'\
-                     '   {{}}.{}\n'\
-                     '   {{}}.{}\n'.format(module_rubic_name,
-                                           module_name,
-                                           package_name)
-    last_module_summary = '.. autosummary::\n'\
-                          '   :toctree: {}\n'\
-                          '\n'\
-                          '   {{}}.{}\n'.format(module_rubic_name,
-                                                module_name)
-    class_summary = '   .. autosummary::\n'\
-                    '   \n'\
-                    '      {}\n'\
-                    '   \n'.format(class_name)
-
-    def assert_package_content(file):
-        pkgroot = file.basename()[:-nsuffix]
-        content = file.text()
-        expected = ['.. automodule:: ' + pkgroot]
-        unexpected = []
-        if recursive:
-            lst = expected
-        else:
-            lst = unexpected
-        lst.append(module_rubic)
-        if depth == max_depth:
-            lst.append(last_module_summary.format(pkgroot))
-        else:
-            lst.append(module_summary.format(pkgroot, pkgroot))
-        for text in expected:
-            assert text in content
-        for text in unexpected:
-            assert text not in content
-
-    def assert_module_content(file):
-        modname = file.basename()[:-nsuffix]
-        content = file.text()
-        assert '.. automodule:: '+modname in content
-        assert '   .. rubric:: Classes' in content
-        assert class_summary in content
-
-    root = app.srcdir / 'generated'
-    pkgroot = ''
-    expected_paths = []
-    if app.config.autosummary_recursive:
-        max_depth = 3
-    else:
-        max_depth = 0
-    for depth in range(max_depth+1):
-        if pkgroot:
-            pkgroot = '.'.join((pkgroot, package_name))
-        else:
-            pkgroot = package_name
-        package = root / '.'.join((pkgroot, extension))
-        expected_paths.append(package)
-        assert_package_content(package)
-        if recursive:
-            module = root / module_rubic_name / \
-                '.'.join((pkgroot, module_name, extension))
-            expected_paths.append(root / module_rubic_name)
-            expected_paths.append(module)
-            assert_module_content(module)
-        root /= module_rubic_name
-
-    # Check generated files and directories
-    generated_paths = []
-    root = app.srcdir / 'generated'
-    for dir, subdirs, files in os.walk(str(root)):
-        root = root / dir
-        for name in files:
-            generated_paths.append(root / name)
-        for name in subdirs:
-            generated_paths.append(root / name)
-    assert set(generated_paths) == set(expected_paths)
-
-
-@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
-def test_autosummary_recursive(make_app, app_params):
-    import sphinx.ext.autosummary
-    import sphinx.ext.autosummary.generate
-    logger = sphinx.ext.autosummary.logger
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary',
+                    confoverrides={'autosummary_generate_overwrite': False})
+def test_autosummary_generate_overwrite1(app_params, make_app):
     args, kwargs = app_params
-    confoverrides = {'autosummary_recursive': False}
-    kwargs['confoverrides'] = confoverrides
-    # Remarks: non-recursive after recursive doesn't work
-    # recursively generated files are not deleted
-    for recursive in False, True:
-        logger.info('autosummary_recursive = {}'.format(recursive))
-        confoverrides['autosummary_recursive'] = recursive
-        app = make_app(*args, **kwargs)
-        _assert_autosummary_recursive(app)
+    srcdir = kwargs.get('srcdir')
+
+    (srcdir / 'generated').makedirs(exist_ok=True)
+    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
+
+    app = make_app(*args, **kwargs)
+    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
+    assert content == ''
+    assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary',
+                    confoverrides={'autosummary_generate_overwrite': True})
+def test_autosummary_generate_overwrite2(app_params, make_app):
+    args, kwargs = app_params
+    srcdir = kwargs.get('srcdir')
+
+    (srcdir / 'generated').makedirs(exist_ok=True)
+    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
+
+    app = make_app(*args, **kwargs)
+    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
+    assert content != ''
+    assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
+                    srcdir='ext-autosummary-recursive-enabled',
+                    confoverrides={'autosummary_recursive': True})
+def test_autosummary_recursive_enabled(app, status, warning):
+    app.build()
+
+    # Top-level package
+    generated = app.srcdir / 'generated'
+    assert (generated / 'package.rst').exists()
+    content = (generated / 'package.rst').text()
+    assert 'package.module' in content
+    assert 'package.package' in content
+
+    # Recursively generate modules of top-level package
+    generated /= 'modules'
+    assert (generated / 'package.module.rst').exists()
+    assert (generated / 'package.package.rst').exists()
+    content = (generated / 'package.package.rst').text()
+    assert 'package.package.module' in content
+    assert 'package.package.package' in content
+
+    # Recursively generate modules of sub-package
+    generated /= 'modules'
+    assert (generated / 'package.package.module.rst').exists()
+    assert (generated / 'package.package.package.rst').exists()
+    content = (generated / 'package.package.package.rst').text()
+    assert 'package.package.package.module' in content
+    assert 'package.package.package.package' not in content
+
+    # Last sub-package has no modules
+    generated /= 'modules'
+    assert (generated / 'package.package.package.module.rst').exists()
+    assert not (generated / 'package.package.package.package.rst').exists()
+    assert not (generated / 'modules').exists()
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
+                    srcdir='ext-autosummary-recursive-disabled',
+                    confoverrides={'autosummary_recursive': False})
+def test_autosummary_recursive_disabled(app, status, warning):
+    app.build()
+
+    # Modules should not be generated
+    generated = app.srcdir / 'generated'
+    assert (generated / 'package.rst').exists()
+    content = (generated / 'package.rst').text()
+    assert 'package.module' not in content
+    assert 'package.package' not in content
+    assert not (generated / 'modules').exists()
 
 
 @pytest.mark.sphinx('latex', **default_kw)
@@ -397,3 +370,32 @@ def test_autosummary_imported_members(app, status, warning):
                 '   \n' in module)
     finally:
         sys.modules.pop('autosummary_dummy_package', None)
+
+
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_generate_autosummary_docs_property(app):
+    with patch('sphinx.ext.autosummary.generate.find_autosummary_in_files') as mock:
+        mock.return_value = [('target.methods.Base.prop', 'prop', None)]
+        generate_autosummary_docs([], output_dir=app.srcdir, builder=app.builder, app=app)
+
+    content = (app.srcdir / 'target.methods.Base.prop.rst').text()
+    assert content == ("target.methods.Base.prop\n"
+                       "========================\n"
+                       "\n"
+                       ".. currentmodule:: target.methods\n"
+                       "\n"
+                       ".. autoproperty:: Base.prop")
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary',
+                    confoverrides={'autosummary_generate': []})
+def test_empty_autosummary_generate(app, status, warning):
+    app.build()
+    assert ("WARNING: autosummary: stub file not found 'autosummary_importfail'"
+            in warning.getvalue())
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary',
+                    confoverrides={'autosummary_generate': ['unknown']})
+def test_invalid_autosummary_generate(app, status, warning):
+    assert 'WARNING: autosummary_generate: file not found: unknown.rst' in warning.getvalue()

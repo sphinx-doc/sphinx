@@ -13,6 +13,11 @@
 
 /* -- page layout ----------------------------------------------------------- */
 
+html {
+    /* CSS hack for macOS's scrollbar (see #1125) */
+    background-color: #FFFFFF;
+}
+
 body {
     font-family: {{ theme_bodyfont }};
     font-size: 100%;
