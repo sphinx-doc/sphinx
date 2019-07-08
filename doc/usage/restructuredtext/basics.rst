@@ -372,7 +372,8 @@ Docutils supports the following directives:
 
 * HTML specifics:
 
-  - :dudir:`meta` (generation of HTML ``<meta>`` tags)
+  - :dudir:`meta`
+    (generation of HTML ``<meta>`` tags, see also :ref:`html-meta` below)
   - :dudir:`title <metadata-document-title>` (override document title)
 
 * Influencing markup:
@@ -536,6 +537,45 @@ You can indent text after a comment start to form multiline comments::
       is a comment.
 
       Still in the comment.
+
+
+.. _html-meta:
+
+HTML Metadata
+-------------
+
+The :rst:dir:`meta` directive (:dudir:`ref <meta>`) allows specifying the HTML
+`metadata element`_ of a Sphinx documentation page.  For example, the
+directive::
+
+   .. meta::
+      :description: The Sphinx documentation builder
+      :keywords: Sphinx, documentation, builder
+
+will generate the following HTML output:
+
+.. code:: html
+
+   <meta name="description" content="The Sphinx documentation builder">
+   <meta name="keywords" content="Sphinx, documentation, builder">
+
+Also, Sphinx will add the keywords as specified in the meta directive to the
+search index.  Thereby, the ``lang`` attribute of the meta element is
+considered.  For example, the directive::
+
+   .. meta::
+      :keywords: backup
+      :keywords lang=en: pleasefindthiskey pleasefindthiskeytoo
+      :keywords lang=de: bittediesenkeyfinden
+
+adds the following words to the search indices of builds with different language
+configurations:
+
+* ``pleasefindthiskey``, ``pleasefindthiskeytoo`` to *English* builds;
+* ``bittediesenkeyfinden`` to *German* builds;
+* ``backup`` to builds in all languages.
+
+.. _metadata element: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
 
 
 Source encoding
