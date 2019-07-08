@@ -54,6 +54,7 @@ Bugs fixed
 * #5592: std domain: :rst:dir:`option` directive registers an index entry for
   each comma separated option
 * #6549: sphinx-build: Escaped characters in error messages
+* #6545: doctest comments not getting trimmed since Sphinx 1.8.0
 
 Testing
 --------
