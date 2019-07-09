@@ -1128,8 +1128,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring
         if content in ('both', 'init'):
-            initdocstring = self.get_attr(
-                self.get_attr(self.object, '__init__', None), '__doc__')
+            __init__ = self.get_attr(self.object, '__init__', None)
+            initdocstring = getdoc(__init__, self.get_attr,
+                                   self.env.config.autodoc_inherit_docstrings)
             # for new-style classes, no __init__ means default __init__
             if (initdocstring is not None and
                 (initdocstring == object.__init__.__doc__ or  # for pypy
@@ -1137,8 +1138,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 initdocstring = None
             if not initdocstring:
                 # try __new__
-                initdocstring = self.get_attr(
-                    self.get_attr(self.object, '__new__', None), '__doc__')
+                __new__ = self.get_attr(self.object, '__new__', None)
+                initdocstring = getdoc(__new__, self.get_attr,
+                                       self.env.config.autodoc_inherit_docstrings)
                 # for new-style classes, no __new__ means default __new__
                 if (initdocstring is not None and
                     (initdocstring == object.__new__.__doc__ or  # for pypy
