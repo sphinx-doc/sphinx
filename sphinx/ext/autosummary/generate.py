@@ -245,7 +245,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir, app=app)
+                                  template_dir=template_dir, app=app,
+                                  imported_members=imported_members)
 
 
 # -- Finding documented entries in files ---------------------------------------

@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #6568: autosummary: missing imported members in auto-generated documentation
+  located in a module docstring
+
 Testing
 --------
 

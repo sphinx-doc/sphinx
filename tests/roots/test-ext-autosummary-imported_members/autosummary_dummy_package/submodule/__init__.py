@@ -1,0 +1,1 @@
+from .autosummary_dummy_submodule import BarSubmodule, foo_submodule

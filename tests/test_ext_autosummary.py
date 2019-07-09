@@ -285,6 +285,21 @@ def test_autosummary_imported_members(app, status, warning):
                 '   \n'
                 '      foo\n'
                 '   \n' in module)
+
+        # generated/foo_submodule is also generated successfully
+        assert app.env.get_doctree('generated/autosummary_dummy_package.submodule')
+
+        submodule = (app.srcdir / 'generated' / 'autosummary_dummy_package.submodule.rst').text()
+
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      BarSubmodule\n'
+                '   \n' in submodule)
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      foo_submodule\n'
+                '   \n' in submodule)
+
     finally:
         sys.modules.pop('autosummary_dummy_package', None)
 
