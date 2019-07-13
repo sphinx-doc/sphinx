@@ -377,7 +377,7 @@ class TextWriter(writers.Writer):
     settings_spec = ('No options here.', '', ())
     settings_defaults = {}  # type: Dict
 
-    output = None
+    output = None  # type: str
 
     def __init__(self, builder):
         # type: (TextBuilder) -> None
