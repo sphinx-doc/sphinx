@@ -9,7 +9,7 @@
 """
 
 import sys
-from typing import NamedTuple
+from typing import NamedTuple, Union
 
 from docutils import nodes
 from pygments.lexers import PythonConsoleLexer, guess_lexer
@@ -110,13 +110,21 @@ class TrimDoctestFlagsTransform(SphinxTransform):
         if not self.config.trim_doctest_flags:
             return
 
-        for node in self.document.traverse(nodes.literal_block):
-            if self.is_pyconsole(node):
-                source = node.rawsource
-                source = doctest.blankline_re.sub('', source)
-                source = doctest.doctestopt_re.sub('', source)
-                node.rawsource = source
-                node[:] = [nodes.Text(source)]
+        for lbnode in self.document.traverse(nodes.literal_block):  # type: nodes.literal_block
+            if self.is_pyconsole(lbnode):
+                self.strip_doctest_flags(lbnode)
+
+        for dbnode in self.document.traverse(nodes.doctest_block):  # type: nodes.doctest_block
+            self.strip_doctest_flags(dbnode)
+
+    @staticmethod
+    def strip_doctest_flags(node):
+        # type: (Union[nodes.literal_block, nodes.doctest_block]) -> None
+        source = node.rawsource
+        source = doctest.blankline_re.sub('', source)
+        source = doctest.doctestopt_re.sub('', source)
+        node.rawsource = source
+        node[:] = [nodes.Text(source)]
 
     @staticmethod
     def is_pyconsole(node):

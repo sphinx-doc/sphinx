@@ -21,3 +21,8 @@ test-trim_doctest_flags
 
    >>> datetime.date.now()   # doctest: +QUX
    datetime.date(2008, 1, 1)
+
+.. doctest_block::
+
+   >>> datetime.date.now()   # doctest: +QUUX
+   datetime.date(2008, 1, 1)

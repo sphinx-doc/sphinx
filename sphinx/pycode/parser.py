@@ -274,7 +274,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
-            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])
+            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])  # type: List[str]  # NOQA
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
