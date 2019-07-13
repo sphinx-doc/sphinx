@@ -12,7 +12,7 @@ import re
 import unicodedata
 import warnings
 from copy import copy
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 from typing import cast
 
 from docutils import nodes
@@ -35,6 +35,7 @@ from sphinx.util.typing import RoleFunction
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -910,7 +911,7 @@ class StandardDomain(Domain):
 
     def get_enumerable_node_type(self, node: Node) -> str:
         """Get type of enumerable nodes."""
-        def has_child(node: Element, cls: Type) -> bool:
+        def has_child(node: Element, cls: "Type") -> bool:
             return any(isinstance(child, cls) for child in node)
 
         if isinstance(node, nodes.section):

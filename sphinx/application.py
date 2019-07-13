@@ -48,7 +48,8 @@ from sphinx.util.tags import Tags
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Union  # NOQA
+    from typing import Type  # for python3.5.1
     from docutils import nodes  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transforms import Transform  # NOQA

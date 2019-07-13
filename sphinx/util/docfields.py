@@ -10,7 +10,7 @@
 """
 
 import warnings
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, Dict, List, Tuple, Union
 from typing import cast
 
 from docutils import nodes
@@ -22,6 +22,7 @@ from sphinx.util.typing import TextlikeNode
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.environment import BuildEnvironment
     from sphinx.directive import ObjectDescription
 
@@ -65,7 +66,7 @@ class Field:
         self.bodyrolename = bodyrolename
 
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
+                  innernode: "Type[TextlikeNode]" = addnodes.literal_emphasis,
                   contnode: Node = None, env: "BuildEnvironment" = None) -> Node:
         if not rolename:
             return contnode or innernode(target, target)
@@ -77,7 +78,7 @@ class Field:
         return refnode
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
-                   innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
+                   innernode: "Type[TextlikeNode]" = addnodes.literal_emphasis,
                    contnode: Node = None, env: "BuildEnvironment" = None) -> List[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode, env)]
 

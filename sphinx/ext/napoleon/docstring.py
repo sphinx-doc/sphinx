@@ -13,12 +13,16 @@
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Tuple, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
+
+if False:
+    # For type annotation
+    from typing import Type  # for python3.5.1
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
@@ -735,7 +739,7 @@ class GoogleDocstring:
                 colon,
                 "".join(after_colon).strip())
 
-    def _qualify_name(self, attr_name: str, klass: Type) -> str:
+    def _qualify_name(self, attr_name: str, klass: "Type") -> str:
         if klass and '.' not in attr_name:
             if attr_name.startswith('~'):
                 attr_name = attr_name[1:]

@@ -23,7 +23,8 @@ from sphinx.util import jsdump, rpartition
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, Iterable, List, Tuple, Type, Set  # NOQA
+    from typing import Any, Dict, IO, Iterable, List, Tuple, Set  # NOQA
+    from typing import Type  # for python3.5.1
     from docutils import nodes  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 

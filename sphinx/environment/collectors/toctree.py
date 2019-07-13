@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Set, Tuple, Type, TypeVar
+from typing import Any, Dict, List, Set, Tuple, TypeVar
 from typing import cast
 
 from docutils import nodes
@@ -22,6 +22,10 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import url_re, logging
+
+if False:
+    # For type annotation
+    from typing import Type  # for python3.5.1
 
 
 N = TypeVar('N')
@@ -64,7 +68,7 @@ class TocTreeCollector(EnvironmentCollector):
         docname = app.env.docname
         numentries = [0]  # nonlocal again...
 
-        def traverse_in_section(node: Element, cls: Type[N]) -> List[N]:
+        def traverse_in_section(node: Element, cls: "Type[N]") -> List[N]:
             """Like traverse(), but stay within the same section."""
             result = []  # type: List[N]
             if isinstance(node, cls):
