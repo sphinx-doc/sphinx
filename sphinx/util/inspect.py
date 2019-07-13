@@ -535,25 +535,18 @@ class Signature:
         else:
             qualname = repr(annotation)
 
-        if (hasattr(typing, 'TupleMeta') and
-                isinstance(annotation, typing.TupleMeta) and
-                not hasattr(annotation, '__tuple_params__')):
-            # This is for Python 3.6+, 3.5 case is handled below
+        if (isinstance(annotation, typing.TupleMeta) and
+                not hasattr(annotation, '__tuple_params__')):  # for Python 3.6
             params = annotation.__args__
             if params:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
                 return '%s[%s]' % (qualname, param_str)
             else:
                 return qualname
-        elif (hasattr(typing, 'GenericMeta') and  # for py36 or below
-              isinstance(annotation, typing.GenericMeta)):
-            # In Python 3.5.2+, all arguments are stored in __args__,
-            # whereas __parameters__ only contains generic parameters.
-            #
-            # Prior to Python 3.5.2, __args__ is not available, and all
-            # arguments are in __parameters__.
+        elif isinstance(annotation, typing.GenericMeta):
             params = None
             if hasattr(annotation, '__args__'):
+                # for Python 3.5.2+
                 if annotation.__args__ is None or len(annotation.__args__) <= 2:  # type: ignore  # NOQA
                     params = annotation.__args__  # type: ignore
                 else:  # typing.Callable
@@ -562,13 +555,14 @@ class Signature:
                     result = self.format_annotation(annotation.__args__[-1])  # type: ignore
                     return '%s[[%s], %s]' % (qualname, args, result)
             elif hasattr(annotation, '__parameters__'):
+                # for Python 3.5.0 and 3.5.1
                 params = annotation.__parameters__  # type: ignore
             if params is not None:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
                 return '%s[%s]' % (qualname, param_str)
-        elif (hasattr(typing, 'UnionMeta') and  # for py35 or below
+        elif (hasattr(typing, 'UnionMeta') and
               isinstance(annotation, typing.UnionMeta) and
-              hasattr(annotation, '__union_params__')):
+              hasattr(annotation, '__union_params__')):  # for Python 3.5
             params = annotation.__union_params__
             if params is not None:
                 if len(params) == 2 and params[1] is NoneType:  # type: ignore
@@ -576,9 +570,8 @@ class Signature:
                 else:
                     param_str = ', '.join(self.format_annotation(p) for p in params)
                     return '%s[%s]' % (qualname, param_str)
-        elif (hasattr(typing, 'Union') and  # for py36
-              hasattr(annotation, '__origin__') and
-              annotation.__origin__ is typing.Union):
+        elif (hasattr(annotation, '__origin__') and
+              annotation.__origin__ is typing.Union):  # for Python 3.5.2+
             params = annotation.__args__
             if params is not None:
                 if len(params) == 2 and params[1] is NoneType:  # type: ignore
@@ -586,10 +579,9 @@ class Signature:
                 else:
                     param_str = ', '.join(self.format_annotation(p) for p in params)
                     return 'Union[%s]' % param_str
-        elif (hasattr(typing, 'CallableMeta') and  # for py36 or below
-              isinstance(annotation, typing.CallableMeta) and
+        elif (isinstance(annotation, typing.CallableMeta) and
               getattr(annotation, '__args__', None) is not None and
-              hasattr(annotation, '__result__')):
+              hasattr(annotation, '__result__')):  # for Python 3.5
             # Skipped in the case of plain typing.Callable
             args = annotation.__args__
             if args is None:
@@ -602,10 +594,9 @@ class Signature:
             return '%s[%s, %s]' % (qualname,
                                    args_str,
                                    self.format_annotation(annotation.__result__))
-        elif (hasattr(typing, 'TupleMeta') and  # for py36 or below
-              isinstance(annotation, typing.TupleMeta) and
+        elif (isinstance(annotation, typing.TupleMeta) and
               hasattr(annotation, '__tuple_params__') and
-              hasattr(annotation, '__tuple_use_ellipsis__')):
+              hasattr(annotation, '__tuple_use_ellipsis__')):  # for Python 3.5
             params = annotation.__tuple_params__
             if params is not None:
                 param_strings = [self.format_annotation(p) for p in params]
