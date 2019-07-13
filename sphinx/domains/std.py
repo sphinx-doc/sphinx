@@ -255,9 +255,9 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
         new_id = nodes.make_id('term-' + termtext)
         if new_id == 'term':
             # the term is not good for node_id.  Generate it by sequence number instead.
-            new_id = 'term-' + str(len(gloss_entries))
-    if new_id in gloss_entries:
-        new_id = 'term-' + str(len(gloss_entries))
+            new_id = 'term-%d' % env.new_serialno('glossary')
+    while new_id in gloss_entries:
+        new_id = 'term-%d' % env.new_serialno('glossary')
     gloss_entries.add(new_id)
 
     std = cast(StandardDomain, env.get_domain('std'))
