@@ -414,6 +414,6 @@ def inspect_main(argv):
 
 if __name__ == '__main__':
     import logging  # type: ignore
-    logging.basicConfig()  # type: ignore
+    logging.basicConfig()
 
     inspect_main(argv=sys.argv[1:])

@@ -54,13 +54,13 @@ def docutils_namespace():
     # type: () -> Generator[None, None, None]
     """Create namespace for reST parsers."""
     try:
-        _directives = copy(directives._directives)  # type: ignore
-        _roles = copy(roles._roles)  # type: ignore
+        _directives = copy(directives._directives)
+        _roles = copy(roles._roles)
 
         yield
     finally:
-        directives._directives = _directives  # type: ignore
-        roles._roles = _roles  # type: ignore
+        directives._directives = _directives
+        roles._roles = _roles
 
         for node in list(additional_nodes):
             unregister_node(node)
@@ -70,7 +70,7 @@ def docutils_namespace():
 def is_directive_registered(name):
     # type: (str) -> bool
     """Check the *name* directive is already registered."""
-    return name in directives._directives  # type: ignore
+    return name in directives._directives
 
 
 def register_directive(name, directive):
@@ -86,7 +86,7 @@ def register_directive(name, directive):
 def is_role_registered(name):
     # type: (str) -> bool
     """Check the *name* role is already registered."""
-    return name in roles._roles  # type: ignore
+    return name in roles._roles
 
 
 def register_role(name, role):
@@ -102,7 +102,7 @@ def register_role(name, role):
 def unregister_role(name):
     # type: (str) -> None
     """Unregister a role from docutils."""
-    roles._roles.pop(name, None)  # type: ignore
+    roles._roles.pop(name, None)
 
 
 def is_node_registered(node):
@@ -119,7 +119,7 @@ def register_node(node):
     inside ``docutils_namespace()`` to prevent side-effects.
     """
     if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-        nodes._add_node_class_names([node.__name__])  # type: ignore
+        nodes._add_node_class_names([node.__name__])
         additional_nodes.add(node)
 
 
