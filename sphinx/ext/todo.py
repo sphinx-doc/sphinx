@@ -159,7 +159,7 @@ class TodoListProcessor:
         self.process(doctree, docname)
 
     def process(self, doctree: nodes.document, docname: str) -> None:
-        todos = sum(self.domain.todos.values(), [])
+        todos = sum(self.domain.todos.values(), [])  # type: List[todo_node]
         for node in doctree.traverse(todolist):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
@@ -220,7 +220,7 @@ def process_todo_nodes(app: Sphinx, doctree: nodes.document, fromdocname: str) -
     warnings.warn('process_todo_nodes() is deprecated.', RemovedInSphinx40Warning)
 
     domain = cast(TodoDomain, app.env.get_domain('todo'))
-    todos = sum(domain.todos.values(), [])
+    todos = sum(domain.todos.values(), [])  # type: List[todo_node]
 
     for node in doctree.traverse(todolist):
         if node.get('ids'):
