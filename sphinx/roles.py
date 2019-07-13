@@ -400,7 +400,7 @@ class GUILabel(SphinxRole):
 class MenuSelection(GUILabel):
     def run(self):
         # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
-        self.text = self.text.replace('-->', '\N{TRIANGULAR BULLET}')  # type: ignore
+        self.text = self.text.replace('-->', '\N{TRIANGULAR BULLET}')
         return super().run()
 
 

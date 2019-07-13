@@ -514,7 +514,7 @@ class Signature:
             qualname = repr(annotation)
 
         if (hasattr(typing, 'TupleMeta') and
-                isinstance(annotation, typing.TupleMeta) and  # type: ignore
+                isinstance(annotation, typing.TupleMeta) and
                 not hasattr(annotation, '__tuple_params__')):
             # This is for Python 3.6+, 3.5 case is handled below
             params = annotation.__args__
@@ -545,7 +545,7 @@ class Signature:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
                 return '%s[%s]' % (qualname, param_str)
         elif (hasattr(typing, 'UnionMeta') and  # for py35 or below
-              isinstance(annotation, typing.UnionMeta) and  # type: ignore
+              isinstance(annotation, typing.UnionMeta) and
               hasattr(annotation, '__union_params__')):
             params = annotation.__union_params__
             if params is not None:
@@ -565,7 +565,7 @@ class Signature:
                     param_str = ', '.join(self.format_annotation(p) for p in params)
                     return 'Union[%s]' % param_str
         elif (hasattr(typing, 'CallableMeta') and  # for py36 or below
-              isinstance(annotation, typing.CallableMeta) and  # type: ignore
+              isinstance(annotation, typing.CallableMeta) and
               getattr(annotation, '__args__', None) is not None and
               hasattr(annotation, '__result__')):
             # Skipped in the case of plain typing.Callable
@@ -581,7 +581,7 @@ class Signature:
                                    args_str,
                                    self.format_annotation(annotation.__result__))
         elif (hasattr(typing, 'TupleMeta') and  # for py36 or below
-              isinstance(annotation, typing.TupleMeta) and  # type: ignore
+              isinstance(annotation, typing.TupleMeta) and
               hasattr(annotation, '__tuple_params__') and
               hasattr(annotation, '__tuple_use_ellipsis__')):
             params = annotation.__tuple_params__

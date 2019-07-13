@@ -18,6 +18,7 @@ def test_trim_doctest_flags_html(app, status, warning):
     assert 'BAR' in result
     assert 'BAZ' not in result
     assert 'QUX' not in result
+    assert 'QUUX' not in result
 
 
 @pytest.mark.sphinx('latex', testroot='trim_doctest_flags')
@@ -29,3 +30,4 @@ def test_trim_doctest_flags_latex(app, status, warning):
     assert 'BAR' in result
     assert 'BAZ' not in result
     assert 'QUX' not in result
+    assert 'QUUX' not in result
