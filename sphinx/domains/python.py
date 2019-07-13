@@ -10,7 +10,7 @@
 
 import re
 import warnings
-from typing import Any, Dict, Iterable, Iterator, List, Tuple, Type
+from typing import Any, Dict, Iterable, Iterator, List, Tuple
 from typing import cast
 
 from docutils import nodes
@@ -34,6 +34,10 @@ from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import TextlikeNode
+
+if False:
+    # For type annotation
+    from typing import Type  # for python3.5.1
 
 
 logger = logging.getLogger(__name__)
@@ -119,7 +123,7 @@ def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
 # when it comes to handling "." and "~" prefixes.
 class PyXrefMixin:
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = nodes.emphasis,
+                  innernode: "Type[TextlikeNode]" = nodes.emphasis,
                   contnode: Node = None, env: BuildEnvironment = None) -> Node:
         result = super().make_xref(rolename, domain, target,  # type: ignore
                                    innernode, contnode, env)
@@ -136,7 +140,7 @@ class PyXrefMixin:
         return result
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
-                   innernode: Type[TextlikeNode] = nodes.emphasis,
+                   innernode: "Type[TextlikeNode]" = nodes.emphasis,
                    contnode: Node = None, env: BuildEnvironment = None) -> List[Node]:
         delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+)'
         delims_re = re.compile(delims)
@@ -160,7 +164,7 @@ class PyXrefMixin:
 
 class PyField(PyXrefMixin, Field):
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = nodes.emphasis,
+                  innernode: "Type[TextlikeNode]" = nodes.emphasis,
                   contnode: Node = None, env: BuildEnvironment = None) -> Node:
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
@@ -175,7 +179,7 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 
 class PyTypedField(PyXrefMixin, TypedField):
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = nodes.emphasis,
+                  innernode: "Type[TextlikeNode]" = nodes.emphasis,
                   contnode: Node = None, env: BuildEnvironment = None) -> Node:
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.

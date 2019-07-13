@@ -15,7 +15,7 @@ import sys
 import warnings
 from hashlib import md5
 from os import path
-from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Type, Tuple
+from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -47,6 +47,11 @@ from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, movefile, copyfile
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
+
+if False:
+    # For type annotation
+    from typing import Type  # for python3.5.1
+
 
 # HTML5 Writer is avialable or not
 if is_html5_writer_available():
@@ -331,7 +336,7 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files.append(JavaScript(filename, **kwargs))
 
     @property
-    def default_translator_class(self) -> Type[nodes.NodeVisitor]:  # type: ignore
+    def default_translator_class(self) -> "Type[nodes.NodeVisitor]":  # type: ignore
         if not html5_ready or self.config.html4_writer:
             return HTMLTranslator
         else:

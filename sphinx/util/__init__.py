@@ -24,9 +24,7 @@ from datetime import datetime
 from hashlib import md5
 from os import path
 from time import mktime, strptime
-from typing import (
-    Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Type
-)
+from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from docutils.utils import relative_path
@@ -53,6 +51,7 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
 
@@ -655,7 +654,7 @@ class progress_message:
     def __enter__(self) -> None:
         logger.info(bold(self.message + '... '), nonl=True)
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
         if isinstance(exc_value, SkipProgressMessage):
             logger.info(__('skipped'))
             if exc_value.args:

@@ -10,7 +10,7 @@
 
 import re
 import warnings
-from typing import Any, Callable, Iterable, List, Set, Tuple, Type
+from typing import Any, Callable, Iterable, List, Set, Tuple
 from typing import cast
 
 from docutils import nodes
@@ -26,6 +26,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.builders import Builder
     from sphinx.utils.tags import Tags
 
@@ -59,7 +60,7 @@ class NodeMatcher:
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *classes: Type[Node], **attrs) -> None:
+    def __init__(self, *classes: "Type[Node]", **attrs) -> None:
         self.classes = classes
         self.attrs = attrs
 
