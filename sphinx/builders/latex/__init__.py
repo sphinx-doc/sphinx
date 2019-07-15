@@ -144,7 +144,7 @@ class LaTeXBuilder(Builder):
     def get_target_uri(self, docname, typ=None):
         # type: (str, str) -> str
         if docname not in self.docnames:
-            raise NoUri
+            raise NoUri(docname)
         else:
             return '%' + docname
 
