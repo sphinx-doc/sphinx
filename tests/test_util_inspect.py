@@ -285,6 +285,10 @@ def test_Signature_annotations():
     sig = inspect.Signature(Node.__init__).format_args()
     assert sig == '(self, parent: Optional[Node]) -> None'
 
+    # show_annotation is False
+    sig = inspect.Signature(f7).format_args(show_annotation=False)
+    assert sig == '(x=None, y={})'
+
 
 def test_safe_getattr_with_default():
     class Foo:

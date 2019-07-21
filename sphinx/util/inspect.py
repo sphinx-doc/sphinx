@@ -428,7 +428,7 @@ class Signature:
                         arg.write(': ')
                         arg.write(self.format_annotation(param.annotation))
                 if param.default is not param.empty:
-                    if param.annotation is param.empty:
+                    if param.annotation is param.empty or show_annotation is False:
                         arg.write('=')
                         arg.write(object_description(param.default))
                     else:
@@ -444,7 +444,7 @@ class Signature:
             args.append(arg.getvalue())
             last_kind = param.kind
 
-        if self.return_annotation is inspect.Parameter.empty:
+        if self.return_annotation is inspect.Parameter.empty or show_annotation is False:
             return '(%s)' % ', '.join(args)
         else:
             if 'return' in self.annotations:
