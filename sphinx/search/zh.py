@@ -16,6 +16,7 @@ from sphinx.util.stemmer import get_stemmer
 
 try:
     import jieba
+
     JIEBA = True
 except ImportError:
     JIEBA = False
@@ -35,6 +36,8 @@ such
 that  the  their  then  there  these  they  this  to
 was  will  with
 """.split())
+
+chinese_stopwords = None
 
 js_porter_stemmer = """
 /**
@@ -231,7 +234,6 @@ class SearchChinese(SearchLanguage):
     lang = 'zh'
     language_name = 'Chinese'
     js_stemmer_code = js_porter_stemmer
-    stopwords = english_stopwords
     latin1_letters = re.compile(r'[a-zA-Z0-9_]+')
     latin_terms = []  # type: List[str]
 
@@ -243,6 +245,17 @@ class SearchChinese(SearchLanguage):
                 jieba.load_userdict(dict_path)
 
         self.stemmer = get_stemmer()
+
+    @property
+    def stopwords(self):
+        global chinese_stopwords
+        if not chinese_stopwords:
+            script_path = os.path.split(os.path.realpath(__file__))[0]
+            with open(os.path.join(script_path, 'stopwords', 'chinese_stopwords.txt'), 'r', encoding='utf8') as f:
+                words = f.readlines()
+            words = map(lambda e: e.replace('\r', '').replace('\n', ''), words)
+            chinese_stopwords = set(words)
+        return chinese_stopwords
 
     def split(self, input):
         # type: (str) -> List[str]
@@ -257,7 +270,7 @@ class SearchChinese(SearchLanguage):
 
     def word_filter(self, stemmed_word):
         # type: (str) -> bool
-        return len(stemmed_word) > 1
+        return len(stemmed_word) > 1 and stemmed_word not in self.stopwords
 
     def stem(self, word):
         # type: (str) -> str
@@ -266,9 +279,9 @@ class SearchChinese(SearchLanguage):
         # if not stemmed, but would be too short after being stemmed
         # avoids some issues with acronyms
         should_not_be_stemmed = (
-            word in self.latin_terms and
-            len(word) >= 3 and
-            len(self.stemmer.stem(word.lower())) < 3
+                word in self.latin_terms and
+                len(word) >= 3 and
+                len(self.stemmer.stem(word.lower())) < 3
         )
         if should_not_be_stemmed:
             return word.lower()
