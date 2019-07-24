@@ -1,5 +1,3 @@
-:tocdepth: 2
-
 i18n with definition terms
 ==========================
 
