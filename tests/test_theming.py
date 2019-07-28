@@ -74,7 +74,7 @@ def test_js_source(app, status, warning):
 
     app.builder.build(['contents'])
 
-    v = '3.2.1'
+    v = '3.4.1'
     msg = 'jquery.js version does not match to {v}'.format(v=v)
     jquery_min = (app.outdir / '_static' / 'jquery.js').text()
     assert 'jQuery v{v}'.format(v=v) in jquery_min, msg
