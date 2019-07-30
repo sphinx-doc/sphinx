@@ -12,6 +12,7 @@
 
 import re
 import warnings
+from collections import namedtuple
 from types import ModuleType
 from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
 
@@ -64,7 +65,7 @@ def identity(x: Any) -> Any:
 
 ALL = object()
 INSTANCEATTR = object()
-SLOTSATTR = object()
+SlotAttribute = namedtuple('SlotAttribute', ['annotation'])
 
 
 def members_option(arg: Any) -> Union[object, List[str]]:
@@ -628,7 +629,11 @@ class Documenter:
             # of inner classes can be documented
             full_mname = self.modname + '::' + \
                 '.'.join(self.objpath + [mname])
-            documenter = classes[-1](self.directive, full_mname, self.indent)
+            if isinstance(member, SlotAttribute):
+                documenter = classes[-1](self.directive, full_mname, self.indent, \
+                    annotation=member.annotation)
+            else:
+                documenter = classes[-1](self.directive, full_mname, self.indent)
             memberdocumenters.append((documenter, isattr))
         member_order = self.options.member_order or \
             self.env.config.autodoc_member_order
@@ -1316,6 +1321,12 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     # some non-data descriptors as methods
     priority = 10
 
+    def __init__(self, *args, **kwargs):
+        self.annotation = kwargs.get('annotation', None)
+        if 'annotation' in kwargs:
+            kwargs.pop('annotation')
+        super().__init__(*args, **kwargs)
+
     @staticmethod
     def is_function_or_method(obj: Any) -> bool:
         return inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
@@ -1323,6 +1334,8 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
+        if isinstance(member, SlotAttribute):
+            return True
         if inspect.isattributedescriptor(member):
             return True
         elif (not isinstance(parent, ModuleDocumenter) and
@@ -1354,13 +1367,22 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
         if not self.options.annotation:
+            from typing import _type_repr
+            annotation = f": {_type_repr(self.annotation)}" if hasattr(self, 'annotation') \
+                and self.annotation is not None else ''
+            if self.module:
+                import re
+                pattern = self.module.__package__.replace(".", "\\.") + "(\\._[\w]+)*(\\.)?"
+                annotation = re.sub(pattern, "", annotation)
             if not self._datadescriptor:
                 try:
-                    objrepr = object_description(self.object)
+                    objrepr = f' = {object_description(self.object)}' if self.object is not None else ''
                 except ValueError:
                     pass
                 else:
-                    self.add_line('   :annotation: = ' + objrepr, sourcename)
+                    self.add_line('   :annotation: %s' % annotation + objrepr, sourcename)
+            else:
+                self.add_line('   :annotation: %s' % annotation, sourcename)
         elif self.options.annotation is SUPPRESS:
             pass
         else:
@@ -1447,17 +1469,26 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
     # must be higher than AttributeDocumenter
     priority = 11
 
+    """
+    def __init__(self, *args, **kwargs):
+        self.annotation = kwargs.get('annotation', None)
+        if 'annotation' in kwargs:
+            kwargs.pop('annotation')
+        super().__init__(*args, **kwargs)
+    """
+
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        """This documents only SLOTSATTR members."""
-        return member is SLOTSATTR
+        """This documents only SlotAttribute members."""
+        #return isinstance(member, SlotAttribute)
+        return False
 
     def import_object(self) -> Any:
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
-        self._datadescriptor = True
+        self._datadescriptor = False
 
         with mock(self.env.config.autodoc_mock_imports):
             try:

@@ -123,13 +123,13 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
         for name, value in obj_dict.items():
             if name not in superclass.__dict__:
                 members[name] = Attribute(name, True, value)
-
     # members in __slots__
     if isclass(subject) and getattr(subject, '__slots__', None) is not None:
-        from sphinx.ext.autodoc import SLOTSATTR
-
+        from sphinx.ext.autodoc import SlotAttribute
+        annotations = getattr(subject, '__annotations__', None)
         for name in subject.__slots__:
-            members[name] = Attribute(name, True, SLOTSATTR)
+            annotation = annotations[name] if annotations and name in annotations else None
+            members[name] = Attribute(name, True, SlotAttribute(annotation))
 
     # other members
     for name in dir(subject):
