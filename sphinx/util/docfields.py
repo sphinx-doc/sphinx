@@ -218,7 +218,14 @@ class DocFieldTransformer:
 
     def __init__(self, directive: "ObjectDescription") -> None:
         self.directive = directive
-        self.typemap = directive.get_field_type_map()
+
+        try:
+            self.typemap = directive.get_field_type_map()
+        except Exception:
+            # for 3rd party extensions directly calls this transformer.
+            warnings.warn('DocFieldTransformer expects given directive object is a subclass '
+                          'of ObjectDescription.', RemovedInSphinx40Warning)
+            self.typemap = self.preprocess_fieldtypes(directive.__class__.doc_field_types)
 
     def preprocess_fieldtypes(self, types: List[Field]) -> Dict[str, Tuple[Field, bool]]:
         warnings.warn('DocFieldTransformer.preprocess_fieldtypes() is deprecated.',

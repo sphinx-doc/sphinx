@@ -64,6 +64,8 @@ Bugs fixed
 * #6561: glossary: Wrong hyperlinks are generated for non alphanumeric terms
 * #6620: i18n: classifiers of definition list are not translated with
   docutils-0.15
+* #6474: ``DocFieldTransformer`` raises AttributeError when given directive is
+  not a subclass of ObjectDescription
 
 Testing
 --------
