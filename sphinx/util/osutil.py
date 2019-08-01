@@ -18,10 +18,14 @@ import sys
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Tuple, Type
+from typing import Any, Generator, Iterator, List, Tuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.testing.path import path as Path
+
+if False:
+    # For type annotation
+    from typing import Type  # for python3.5.1
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
@@ -226,7 +230,7 @@ class FileAvoidWrite:
     def __enter__(self) -> "FileAvoidWrite":
         return self
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
         self.close()
         return True
 

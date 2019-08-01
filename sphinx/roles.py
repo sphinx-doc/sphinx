@@ -23,7 +23,8 @@ from sphinx.util.nodes import split_explicit_title, process_index_entry, \
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Type  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Type  # for python3.5.1
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

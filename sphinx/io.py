@@ -31,7 +31,8 @@ from sphinx.versioning import UIDTransform
 
 if False:
     # For type annotation
-    from typing import Dict, List, Tuple, Type  # NOQA
+    from typing import Dict, List, Tuple  # NOQA
+    from typing import Type  # for python3.5.1
     from docutils import nodes  # NOQA
     from docutils.frontend import Values  # NOQA
     from docutils.io import Input  # NOQA

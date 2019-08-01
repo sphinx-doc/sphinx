@@ -60,7 +60,7 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Tuple
 from typing import cast
 
 from docutils import nodes
@@ -87,6 +87,10 @@ from sphinx.util.docutils import (
 )
 from sphinx.util.matching import Matcher
 from sphinx.writers.html import HTMLTranslator
+
+if False:
+    # For type annotation
+    from typing import Type  # for python3.5.1
 
 
 logger = logging.getLogger(__name__)
@@ -173,7 +177,7 @@ class FakeDirective(DocumenterBridge):
         super().__init__({}, None, Options(), 0, state)  # type: ignore
 
 
-def get_documenter(app: Sphinx, obj: Any, parent: Any) -> Type[Documenter]:
+def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 

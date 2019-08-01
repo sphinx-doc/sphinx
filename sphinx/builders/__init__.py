@@ -11,7 +11,7 @@
 import pickle
 import time
 from os import path
-from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union
+from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -44,6 +44,7 @@ except ImportError:
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 
@@ -117,7 +118,7 @@ class Builder:
         self.env.set_versioning_method(self.versioning_method,
                                        self.versioning_compare)
 
-    def get_translator_class(self, *args) -> Type[nodes.NodeVisitor]:
+    def get_translator_class(self, *args) -> "Type[nodes.NodeVisitor]":
         """Return a class of translator."""
         return self.app.registry.get_translator_class(self)
 

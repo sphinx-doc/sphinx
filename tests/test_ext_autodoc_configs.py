@@ -61,6 +61,18 @@ def test_autoclass_content_class(app):
         '   :module: target.autoclass_content',
         '',
         '   A class having both __init__ and __new__',
+        '   ',
+        '',
+        '.. py:class:: G()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class inherits __init__ without docstring.',
+        '   ',
+        '',
+        '.. py:class:: H()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class inherits __new__ without docstring.',
         '   '
     ]
 
@@ -109,6 +121,18 @@ def test_autoclass_content_init(app):
         '   :module: target.autoclass_content',
         '',
         '   __init__ docstring',
+        '   ',
+        '',
+        '.. py:class:: G()',
+        '   :module: target.autoclass_content',
+        '',
+        '   __init__ docstring',
+        '   ',
+        '',
+        '.. py:class:: H()',
+        '   :module: target.autoclass_content',
+        '',
+        '   __new__ docstring',
         '   '
     ]
 
@@ -163,6 +187,22 @@ def test_autoclass_content_both(app):
         '   A class having both __init__ and __new__',
         '   ',
         '   __init__ docstring',
+        '   ',
+        '',
+        '.. py:class:: G()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class inherits __init__ without docstring.',
+        '   ',
+        '   __init__ docstring',
+        '   ',
+        '',
+        '.. py:class:: H()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class inherits __new__ without docstring.',
+        '   ',
+        '   __new__ docstring',
         '   '
     ]
 

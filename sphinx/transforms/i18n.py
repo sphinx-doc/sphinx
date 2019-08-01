@@ -29,7 +29,8 @@ from sphinx.util.nodes import (
 
 if False:
     # For type annotation
-    from typing import Dict, List, Tuple, Type  # NOQA
+    from typing import Dict, List, Tuple  # NOQA
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
 

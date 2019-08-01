@@ -26,7 +26,8 @@ from sphinx.util.logging import prefixed_warnings
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Tuple, Union  # NOQA
+    from typing import Type  # for python3.5.1
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA

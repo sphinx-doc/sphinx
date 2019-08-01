@@ -14,7 +14,8 @@ from importlib import import_module
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Type  # NOQA
+    from typing import Any, Dict  # NOQA
+    from typing import Type  # for python3.5.1
 
 
 class RemovedInSphinx40Warning(DeprecationWarning):
