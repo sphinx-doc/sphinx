@@ -299,7 +299,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def add_secnumber(self, node):
         secnumber = self.get_secnumber(node)
         if secnumber:
-            self.body.append('.'.join(map(str, secnumber)) + self.secnumber_suffix)
+            self.body.append('<span class="sectnum">%s</span>' %
+                '.'.join(map(str, secnumber)) + self.secnumber_suffix)
 
     def add_fignumber(self, node):
         # type: (nodes.Element) -> None
