@@ -344,6 +344,22 @@ def test_async_function_and_method():
                                   'Foo.method': ('def', 6, 7)}
 
 
+def test_imports():
+    source = ('import sys\n'
+              'from os import environment, path\n'
+              '\n'
+              'import sphinx as Sphinx\n'
+              'from sphinx.application import Sphinx as App\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.definitions == {}
+    assert parser.deforders == {'sys': 0,
+                                'environment': 1,
+                                'path': 2,
+                                'Sphinx': 3,
+                                'App': 4}
+
+
 def test_formfeed_char():
     source = ('class Foo:\n'
               '\f\n'
