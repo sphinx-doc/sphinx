@@ -111,7 +111,8 @@ def write_svg_depth(filename: str, depth:int) -> None:
         f.write('\n<!-- DEPTH=%s -->' % depth)
 
 
-def generate_latex_macro(math: str, config: Config, confdir: str = '') -> str:
+def generate_latex_macro(image_format: str,
+                         math: str, config: Config, confdir: str = '') -> str:
     """Generate LaTeX macro."""
     variables = {
         'fontsize': config.imgmath_font_size,
