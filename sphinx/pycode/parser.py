@@ -270,6 +270,22 @@ class VariableCommentPicker(ast.NodeVisitor):
         super().visit(node)
         self.previous = node
 
+    def visit_Import(self, node: ast.Import) -> None:
+        """Handles Import node and record it to definition orders."""
+        for name in node.names:
+            if name.asname:
+                self.add_entry(name.asname)
+            else:
+                self.add_entry(name.name)
+
+    def visit_ImportFrom(self, node: ast.Import) -> None:
+        """Handles Import node and record it to definition orders."""
+        for name in node.names:
+            if name.asname:
+                self.add_entry(name.asname)
+            else:
+                self.add_entry(name.name)
+
     def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
         try:

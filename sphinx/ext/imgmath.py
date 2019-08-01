@@ -104,7 +104,7 @@ def read_svg_depth(filename: str) -> int:
         return None
 
 
-def write_svg_depth(filename: str, depth:int) -> None:
+def write_svg_depth(filename: str, depth: int) -> None:
     """Write the depth to SVG file as a comment at end of file
     """
     with open(filename, 'a') as f:
