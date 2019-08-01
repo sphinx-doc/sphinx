@@ -16,7 +16,7 @@ import time
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type
+from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
@@ -35,6 +35,7 @@ from sphinx.util.osutil import relpath
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 

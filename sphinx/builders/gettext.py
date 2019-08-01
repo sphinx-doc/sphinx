@@ -14,7 +14,7 @@ from datetime import datetime, tzinfo, timedelta
 from io import StringIO
 from os import path, walk, getenv
 from time import time
-from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes
@@ -33,6 +33,9 @@ from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import relpath, ensuredir, canon_path
 from sphinx.util.tags import Tags
 
+if False:
+    # For type annotation
+    from typing import DefaultDict  # for python3.5.1
 
 logger = logging.getLogger(__name__)
 

@@ -10,7 +10,7 @@
 
 import re
 import warnings
-from typing import Any, Callable, Iterable, List, Set, Tuple, Type
+from typing import Any, Callable, Iterable, List, Set, Tuple
 from typing import cast
 
 from docutils import nodes
@@ -26,6 +26,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.builders import Builder
     from sphinx.utils.tags import Tags
 
@@ -59,7 +60,7 @@ class NodeMatcher:
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *classes: Type[Node], **attrs) -> None:
+    def __init__(self, *classes: "Type[Node]", **attrs) -> None:
         self.classes = classes
         self.attrs = attrs
 
@@ -132,6 +133,9 @@ def apply_source_workaround(node: Element) -> None:
         node.source = definition_list_item.source
         node.line = definition_list_item.line - 1
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
+    elif isinstance(node, nodes.classifier) and not node.source:
+        # docutils-0.15 fills in rawsource attribute, but not in source.
+        node.source = node.parent.source
     if isinstance(node, nodes.image) and node.source is None:
         logger.debug('[i18n] PATCH: %r to have source, line: %s',
                      get_full_module_name(node), repr_domxml(node))

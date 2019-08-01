@@ -33,3 +33,15 @@ class F:
 
     def __new__(cls):
         """__new__ docstring"""
+
+
+class G(C):
+    """A class inherits __init__ without docstring."""
+    def __init__(self):
+        pass
+
+
+class H(E):
+    """A class inherits __new__ without docstring."""
+    def __init__(self):
+        pass
