@@ -50,7 +50,7 @@ are built:
    ``preview-latex-style`` on Ubuntu xenial).  Therefore, the default for this
    option is ``False`` but it is strongly recommended to set it to ``True``.
 
-   .. versionchanged:: 2.1
+   .. versionchanged:: 2.2
 
       This option can be used with the ``'svg'`` :confval:`imgmath_image_format`.
 
