@@ -400,6 +400,12 @@ class Signature:
             return None
 
     def format_args(self, show_annotation: bool = True) -> str:
+        def format_param_annotation(param: inspect.Parameter) -> str:
+            if isinstance(param.annotation, str) and param.name in self.annotations:
+                return self.format_annotation(self.annotations[param.name])
+            else:
+                return self.format_annotation(param.annotation)
+
         args = []
         last_kind = None
         for i, param in enumerate(self.parameters.values()):
@@ -421,12 +427,8 @@ class Signature:
                               param.KEYWORD_ONLY):
                 arg.write(param.name)
                 if show_annotation and param.annotation is not param.empty:
-                    if isinstance(param.annotation, str) and param.name in self.annotations:
-                        arg.write(': ')
-                        arg.write(self.format_annotation(self.annotations[param.name]))
-                    else:
-                        arg.write(': ')
-                        arg.write(self.format_annotation(param.annotation))
+                    arg.write(': ')
+                    arg.write(format_param_annotation(param))
                 if param.default is not param.empty:
                     if param.annotation is param.empty or show_annotation is False:
                         arg.write('=')
@@ -437,9 +439,15 @@ class Signature:
             elif param.kind == param.VAR_POSITIONAL:
                 arg.write('*')
                 arg.write(param.name)
+                if show_annotation and param.annotation is not param.empty:
+                    arg.write(': ')
+                    arg.write(format_param_annotation(param))
             elif param.kind == param.VAR_KEYWORD:
                 arg.write('**')
                 arg.write(param.name)
+                if show_annotation and param.annotation is not param.empty:
+                    arg.write(': ')
+                    arg.write(format_param_annotation(param))
 
             args.append(arg.getvalue())
             last_kind = param.kind
