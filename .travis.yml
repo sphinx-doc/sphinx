@@ -19,7 +19,7 @@ matrix:
         - TOXENV=du13
     - python: '3.7'
       env:
-        - TOXENV=py37
+        - TOXENV=du14
         - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
     - python: 'nightly'
       env: TOXENV=py38
