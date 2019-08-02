@@ -501,15 +501,15 @@ def test_autodoc_typehints_none(app):
         '.. py:module:: target.typehints',
         '',
         '',
-        '.. py:class:: Math(s, o = None)',
+        '.. py:class:: Math(s, o=None)',
         '   :module: target.typehints',
         '',
         '   ',
-        '   .. py:method:: Math.incr(a, b = 1) -> int',
+        '   .. py:method:: Math.incr(a, b=1)',
         '      :module: target.typehints',
         '   ',
         '',
-        '.. py:function:: incr(a, b = 1) -> int',
+        '.. py:function:: incr(a, b=1)',
         '   :module: target.typehints',
         ''
     ]
