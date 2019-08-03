@@ -80,6 +80,14 @@ are built:
    This value should only contain the path to the latex executable, not further
    arguments; use :confval:`imgmath_latex_args` for that purpose.
 
+   .. hint::
+
+      Some fancy LaTeX mark-up (an example was reported which used TikZ to add
+      various decorations to the equation) require multiple runs of the LaTeX
+      executable.  To handle this, set this configuration setting to
+      ``'latexmk'`` (or a full path to it) as this Perl script reliably
+      chooses dynamically how many latex runs are needed.
+
 .. confval:: imgmath_latex_args
 
    Additional arguments to give to latex, as a list.  The default is an empty
