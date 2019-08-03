@@ -279,10 +279,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.depart_admonition(node)
 
     def get_secnumber(self, node):
-        # type: (nodes.Element) -> None
+        # type: (nodes.Element) -> Tuple[int, ...]
         if node.get('secnumber'):
             return node['secnumber']
-        elif isinstance(node.parent, nodes.section):
+
+        if isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
                 anchorname = "%s/#%s" % (docname, node.parent['ids'][0])
@@ -292,15 +293,18 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 anchorname = '#' + node.parent['ids'][0]
                 if anchorname not in self.builder.secnumbers:
                     anchorname = ''  # try first heading which has no anchor
+
             if self.builder.secnumbers.get(anchorname):
                 return self.builder.secnumbers[anchorname]
+
         return None
 
     def add_secnumber(self, node):
+        # type: (nodes.Element) -> None
         secnumber = self.get_secnumber(node)
         if secnumber:
-            self.body.append('<span class="sectnum">%s</span>' %
-                '.'.join(map(str, secnumber)) + self.secnumber_suffix)
+            self.body.append('<span class="section-number">%s</span>' %
+                ('.'.join(map(str, secnumber)) + self.secnumber_suffix))
 
     def add_fignumber(self, node):
         # type: (nodes.Element) -> None

@@ -17,7 +17,7 @@ import pytest
 from html5lib import HTMLParser
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
-from sphinx.errors import ConfigError
+from sphinx .errors import ConfigError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
 from sphinx.util.inventory import InventoryFile
@@ -82,6 +82,7 @@ def tail_check(check):
 
 def check_xpath(etree, fname, path, check, be_found=True):
     nodes = list(etree.findall(path))
+
     if check is None:
         assert nodes == [], ('found any nodes matching xpath '
                              '%r in file %s' % (path, fname))
@@ -96,15 +97,15 @@ def check_xpath(etree, fname, path, check, be_found=True):
         pass
     else:
         def get_text(node):
-            if node.text is not None:
-                return node.text
-            else:
-                # Since pygments-2.1.1, empty <span> tag is inserted at top of
-                # highlighting block
-                if len(node) == 1 and node[0].tag == 'span' and node[0].text is None:
-                    if node[0].tail is not None:
-                        return node[0].tail
-                return ''
+            """ Get all text inside an HTML tag:
+            <foo>My <span>1</span>dog <span>1</span>likes bones</foo> --> My dog likes bones
+            """
+            return ''.join(
+                filter(
+                    lambda x: x and not re.match(r'^\s+$', x),
+                    [node.text] + [n.tail for n in node.getchildren()]
+                )
+            )
 
         rex = re.compile(check)
         if be_found:
@@ -116,7 +117,7 @@ def check_xpath(etree, fname, path, check, be_found=True):
 
         assert False, ('%r not found in any node matching '
                        'path %s in %s: %r' % (check, path, fname,
-                                              [node.text for node in nodes]))
+                                              [get_all_text(node) for node in nodes]))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
@@ -491,28 +492,40 @@ def test_html_translator(app):
         (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
     ],
     'foo.html': [
-        (".//h1", '1. Foo', True),
-        (".//h2", '1.1. Foo A', True),
-        (".//h3", '1.1.1. Foo A1', True),
-        (".//h2", '1.2. Foo B', True),
-        (".//h3", '1.2.1. Foo B1', True),
+        (".//h1", 'Foo', True),
+        (".//h2", 'Foo A', True),
+        (".//h3", 'Foo A1', True),
+        (".//h2", 'Foo B', True),
+        (".//h3", 'Foo B1', True),
+
+        (".//h1//span[@class='section-number']", '1. ', True),
+        (".//h2//span[@class='section-number']", '1.1. ', True),
+        (".//h3//span[@class='section-number']", '1.1.1. ', True),
+        (".//h2//span[@class='section-number']", '1.2. ', True),
+        (".//h3//span[@class='section-number']", '1.2.1. ', True),
+
         (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1. Foo A', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1.1. Foo A1', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2. Foo B', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2.1. Foo B1', True),
     ],
     'bar.html': [
-        (".//h1", '2. Bar', True),
-        (".//h2", '2.1. Bar A', True),
-        (".//h2", '2.2. Bar B', True),
-        (".//h3", '2.2.1. Bar B1', True),
+        (".//h1", 'Bar', True),
+        (".//h2", 'Bar A', True),
+        (".//h2", 'Bar B', True),
+        (".//h3", 'Bar B1', True),
+        (".//h1//span[@class='section-number']", '2. ', True),
+        (".//h2//span[@class='section-number']", '2.1. ', True),
+        (".//h2//span[@class='section-number']", '2.2. ', True),
+        (".//h3//span[@class='section-number']", '2.2.1. ', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '2. Bar', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '2.1. Bar A', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2. Bar B', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2.1. Bar B1', False),
     ],
     'baz.html': [
-        (".//h1", '2.1.1. Baz A', True),
+        (".//h1", 'Baz A', True),
+        (".//h1//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -536,20 +549,30 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
         (".//h1", 'test-tocdepth', True),
 
         # foo.rst
-        (".//h2", '1. Foo', True),
-        (".//h3", '1.1. Foo A', True),
-        (".//h4", '1.1.1. Foo A1', True),
-        (".//h3", '1.2. Foo B', True),
-        (".//h4", '1.2.1. Foo B1', True),
+        (".//h2", 'Foo', True),
+        (".//h3", 'Foo A', True),
+        (".//h4", 'Foo A1', True),
+        (".//h3", 'Foo B', True),
+        (".//h4", 'Foo B1', True),
+        (".//h2//span[@class='section-number']", '1. ', True),
+        (".//h3//span[@class='section-number']", '1.1. ', True),
+        (".//h4//span[@class='section-number']", '1.1.1. ', True),
+        (".//h3//span[@class='section-number']", '1.2. ', True),
+        (".//h4//span[@class='section-number']", '1.2.1. ', True),
 
         # bar.rst
-        (".//h2", '2. Bar', True),
-        (".//h3", '2.1. Bar A', True),
-        (".//h3", '2.2. Bar B', True),
-        (".//h4", '2.2.1. Bar B1', True),
+        (".//h2", 'Bar', True),
+        (".//h3", 'Bar A', True),
+        (".//h3", 'Bar B', True),
+        (".//h4", 'Bar B1', True),
+        (".//h2//span[@class='section-number']", '2. ', True),
+        (".//h3//span[@class='section-number']", '2.1. ', True),
+        (".//h3//span[@class='section-number']", '2.2. ', True),
+        (".//h4//span[@class='section-number']", '2.2.1. ', True),
 
         # baz.rst
-        (".//h4", '2.1.1. Baz A', True),
+        (".//h4", 'Baz A', True),
+        (".//h4//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
