@@ -35,6 +35,8 @@ Features added
 * #6310: imgmath: let :confval:`imgmath_use_preview` work also with the SVG
   format for images rendering inline math
 * #6533: LaTeX: refactor visit_enumerated_list() to use ``\sphinxsetlistlabels``
+* #6628: quickstart: Use ``https://docs.python.org/3/`` for default setting of
+  :confval:`intersphinx_mapping`
 
 Bugs fixed
 ----------
