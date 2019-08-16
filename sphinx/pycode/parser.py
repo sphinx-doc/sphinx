@@ -140,7 +140,7 @@ class TokenProcessor:
     def fetch_token(self) -> Token:
         """Fetch a next token from source code.
 
-        Returns ``False`` if sequence finished.
+        Returns ``None`` if sequence finished.
         """
         try:
             self.previous = self.current
