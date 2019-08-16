@@ -42,12 +42,8 @@ def get_image_size(filename: str) -> Tuple[int, int]:
             size = None
 
         if size is None and Image:  # fallback to Pillow
-            im = Image.open(filename)
-            size = im.size
-            try:
-                im.fp.close()
-            except Exception:
-                pass
+            with Image.open(filename) as im:
+                size = im.size
 
         return size
     except Exception:
