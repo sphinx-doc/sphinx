@@ -930,7 +930,7 @@ that use Sphinx's HTMLWriter class.
 
    Example::
 
-       html_css_files = ['custom.css'
+       html_css_files = ['custom.css',
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
 
