@@ -38,8 +38,8 @@ r"""
 import builtins
 import inspect
 import re
-import sys
 from hashlib import md5
+from importlib import import_module
 from typing import Any, Dict, Iterable, List, Tuple
 from typing import cast
 
@@ -74,8 +74,10 @@ def try_import(objname: str) -> Any:
     Returns imported object or module.  If failed, returns None value.
     """
     try:
-        __import__(objname)
-        return sys.modules.get(objname)
+        return import_module(objname)
+    except TypeError:
+        # Relative import
+        return None
     except ImportError:
         matched = module_sig_re.match(objname)
 
@@ -87,8 +89,8 @@ def try_import(objname: str) -> Any:
         if modname is None:
             return None
         try:
-            __import__(modname)
-            return getattr(sys.modules.get(modname), attrname, None)
+            module = import_module(modname)
+            return getattr(module, attrname, None)
         except ImportError:
             return None
 
