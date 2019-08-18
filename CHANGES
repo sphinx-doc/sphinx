@@ -56,6 +56,7 @@ Bugs fixed
   imports when ``'bysource'`` order
 * #6574: autodoc: missing type annotation for variadic and keyword parameters
 * #6589: autodoc: Formatting issues with autodoc_typehints='none'
+* #6605: autodoc: crashed when target code contains custom method-like objects
 * #6498: autosummary: crashed with wrong autosummary_generate setting
 * #6507: autosummary: crashes without no autosummary_generate setting
 * #6511: LaTeX: autonumbered list can not be customized in LaTeX
