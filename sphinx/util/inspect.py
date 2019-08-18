@@ -205,9 +205,12 @@ def isbuiltin(obj: Any) -> bool:
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
-    if inspect.iscoroutinefunction(obj):
+    if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
+        # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
+        # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
         return True
-    elif ispartial(obj) and inspect.iscoroutinefunction(obj.func):
+    elif (ispartial(obj) and hasattr(obj.func, '__code__') and
+          inspect.iscoroutinefunction(obj.func)):
         # partialed
         return True
     else:
@@ -378,6 +381,12 @@ class Signature:
             return None
 
     def format_args(self, show_annotation: bool = True) -> str:
+        def format_param_annotation(param: inspect.Parameter) -> str:
+            if isinstance(param.annotation, str) and param.name in self.annotations:
+                return self.format_annotation(self.annotations[param.name])
+            else:
+                return self.format_annotation(param.annotation)
+
         args = []
         last_kind = None
         for i, param in enumerate(self.parameters.values()):
@@ -399,14 +408,10 @@ class Signature:
                               param.KEYWORD_ONLY):
                 arg.write(param.name)
                 if show_annotation and param.annotation is not param.empty:
-                    if isinstance(param.annotation, str) and param.name in self.annotations:
-                        arg.write(': ')
-                        arg.write(self.format_annotation(self.annotations[param.name]))
-                    else:
-                        arg.write(': ')
-                        arg.write(self.format_annotation(param.annotation))
+                    arg.write(': ')
+                    arg.write(format_param_annotation(param))
                 if param.default is not param.empty:
-                    if param.annotation is param.empty:
+                    if param.annotation is param.empty or show_annotation is False:
                         arg.write('=')
                         arg.write(object_description(param.default))
                     else:
@@ -415,14 +420,20 @@ class Signature:
             elif param.kind == param.VAR_POSITIONAL:
                 arg.write('*')
                 arg.write(param.name)
+                if show_annotation and param.annotation is not param.empty:
+                    arg.write(': ')
+                    arg.write(format_param_annotation(param))
             elif param.kind == param.VAR_KEYWORD:
                 arg.write('**')
                 arg.write(param.name)
+                if show_annotation and param.annotation is not param.empty:
+                    arg.write(': ')
+                    arg.write(format_param_annotation(param))
 
             args.append(arg.getvalue())
             last_kind = param.kind
 
-        if self.return_annotation is inspect.Parameter.empty:
+        if self.return_annotation is inspect.Parameter.empty or show_annotation is False:
             return '(%s)' % ', '.join(args)
         else:
             if 'return' in self.annotations:

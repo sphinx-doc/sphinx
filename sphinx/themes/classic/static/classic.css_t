@@ -292,7 +292,7 @@ code {
     font-size: 0.95em;
 }
 
-th {
+th, dl.field-list > dt {
     background-color: #ede;
 }
 

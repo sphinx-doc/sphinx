@@ -9,6 +9,7 @@
 """
 
 from functools import partial
+from importlib import import_module
 
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -83,7 +84,7 @@ class PygmentsBridge:
             return NoneStyle
         elif '.' in stylename:
             module, stylename = stylename.rsplit('.', 1)
-            return getattr(__import__(module, None, None, ['__name__']), stylename)
+            return getattr(import_module(module), stylename)
         else:
             return get_style_by_name(stylename)
 

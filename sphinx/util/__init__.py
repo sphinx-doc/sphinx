@@ -22,6 +22,7 @@ from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
 from hashlib import md5
+from importlib import import_module
 from os import path
 from time import mktime, strptime
 from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
@@ -238,12 +239,10 @@ def get_module_source(modname: str) -> Tuple[str, str]:
     Can return ('file', 'filename') in which case the source is in the given
     file, or ('string', 'source') which which case the source is the string.
     """
-    if modname not in sys.modules:
-        try:
-            __import__(modname)
-        except Exception as err:
-            raise PycodeError('error importing %r' % modname, err)
-    mod = sys.modules[modname]
+    try:
+        mod = import_module(modname)
+    except Exception as err:
+        raise PycodeError('error importing %r' % modname, err)
     filename = getattr(mod, '__file__', None)
     loader = getattr(mod, '__loader__', None)
     if loader and getattr(loader, 'get_filename', None):
@@ -284,8 +283,7 @@ def get_full_modname(modname: str, attribute: str) -> str:
         # Prevents a TypeError: if the last getattr() call will return None
         # then it's better to return it directly
         return None
-    __import__(modname)
-    module = sys.modules[modname]
+    module = import_module(modname)
 
     # Allow an attribute to have multiple parts and incidentially allow
     # repeated .s in the attribute.
@@ -540,14 +538,13 @@ def import_object(objname: str, source: str = None) -> Any:
     try:
         objpath = objname.split('.')
         modname = objpath.pop(0)
-        obj = __import__(modname)
+        obj = import_module(modname)
         for name in objpath:
             modname += '.' + name
             try:
                 obj = getattr(obj, name)
             except AttributeError:
-                __import__(modname)
-                obj = getattr(obj, name)
+                obj = import_module(modname)
 
         return obj
     except (AttributeError, ImportError) as exc:

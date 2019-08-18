@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
+import importlib
 import traceback
 import warnings
 from collections import namedtuple
@@ -23,14 +23,13 @@ logger = logging.getLogger(__name__)
 
 def import_module(modname: str, warningiserror: bool = False) -> Any:
     """
-    Call __import__(modname), convert exceptions to ImportError
+    Call importlib.import_module(modname), convert exceptions to ImportError
     """
     try:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=ImportWarning)
             with logging.skip_warningiserror(not warningiserror):
-                __import__(modname)
-                return sys.modules[modname]
+                return importlib.import_module(modname)
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.

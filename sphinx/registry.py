@@ -9,6 +9,7 @@
 """
 
 import traceback
+from importlib import import_module
 from types import MethodType
 
 from docutils.parsers.rst import Directive
@@ -419,18 +420,19 @@ class SphinxComponentRegistry:
         prefix = __('while setting up extension %s:') % extname
         with prefixed_warnings(prefix):
             try:
-                mod = __import__(extname, None, None, ['setup'])
+                mod = import_module(extname)
             except ImportError as err:
                 logger.verbose(__('Original exception:\n') + traceback.format_exc())
                 raise ExtensionError(__('Could not import extension %s') % extname, err)
 
-            if not hasattr(mod, 'setup'):
+            setup = getattr(mod, 'setup', None)
+            if setup is None:
                 logger.warning(__('extension %r has no setup() function; is it really '
                                   'a Sphinx extension module?'), extname)
                 metadata = {}  # type: Dict[str, Any]
             else:
                 try:
-                    metadata = mod.setup(app)
+                    metadata = setup(app)
                 except VersionRequirementError as err:
                     # add the extension name to the version required
                     raise VersionRequirementError(
