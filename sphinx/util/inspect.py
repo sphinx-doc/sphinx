@@ -207,9 +207,12 @@ def isbuiltin(obj: Any) -> bool:
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
-    if inspect.iscoroutinefunction(obj):
+    if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
+        # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
+        # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
         return True
-    elif ispartial(obj) and inspect.iscoroutinefunction(obj.func):
+    elif (ispartial(obj) and hasattr(obj.func, '__code__') and
+          inspect.iscoroutinefunction(obj.func)):
         # partialed
         return True
     else:
