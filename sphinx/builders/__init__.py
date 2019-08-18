@@ -388,9 +388,11 @@ class Builder:
             # ... but not those that already were removed
             changed.update(self.env.glob_toctrees & self.env.found_docs)
 
-        if changed:
-            reason = CONFIG_CHANGED_REASON.get(self.env.config_status, '')
+        if updated:  # explain the change iff build config status was not ok
+            reason = (CONFIG_CHANGED_REASON.get(self.env.config_status, '') +
+                      (self.env.config_status_extra or ''))
             logger.info('[%s] ', reason, nonl=True)
+
         logger.info(__('%s added, %s changed, %s removed'),
                     len(added), len(changed), len(removed))
 
