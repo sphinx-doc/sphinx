@@ -13,6 +13,7 @@ import glob
 import inspect
 import pickle
 import re
+from importlib import import_module
 from os import path
 from typing import Any, Dict, IO, List, Pattern, Set, Tuple
 
@@ -144,7 +145,7 @@ class CoverageBuilder(Builder):
                 continue
 
             try:
-                mod = __import__(mod_name, fromlist=['foo'])
+                mod = import_module(mod_name)
             except ImportError as err:
                 logger.warning(__('module %s could not be imported: %s'), mod_name, err)
                 self.py_undoc[mod_name] = {'error': err}

@@ -11,6 +11,7 @@ import html
 import pickle
 import re
 import warnings
+from importlib import import_module
 from os import path
 
 from docutils import nodes
@@ -278,8 +279,7 @@ class IndexBuilder:
             self.lang = SearchEnglish(options)  # type: SearchLanguage
         elif isinstance(lang_class, str):
             module, classname = lang_class.rsplit('.', 1)
-            lang_class = getattr(__import__(module, None, None, [classname]),
-                                 classname)
+            lang_class = getattr(import_module(module), classname)
             self.lang = lang_class(options)
         else:
             # it's directly a class (e.g. added by app.add_search_language)
