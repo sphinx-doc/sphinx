@@ -1,8 +1,5 @@
-Release 2.2.0 (in development)
-==============================
-
-Dependencies
-------------
+Release 2.2.0 (released Aug 19, 2019)
+=====================================
 
 Incompatible changes
 --------------------
@@ -40,7 +37,6 @@ Features added
   :confval:`intersphinx_mapping`
 * #6419: sphinx-build: give reasons why rebuilded
 
-
 Bugs fixed
 ----------
 
@@ -74,30 +70,6 @@ Bugs fixed
   docutils-0.15
 * #6474: ``DocFieldTransformer`` raises AttributeError when given directive is
   not a subclass of ObjectDescription
-
-Testing
---------
-
-Release 2.1.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 2.1.2 (released Jun 19, 2019)
 =====================================
