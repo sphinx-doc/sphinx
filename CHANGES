@@ -8,6 +8,7 @@ Incompatible changes
 --------------------
 
 * apidoc: template files are renamed to ``.rst_t``
+* html: Field lists will be styled by grid layout
 
 Deprecated
 ----------
