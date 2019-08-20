@@ -10,6 +10,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.io.SphinxStandaloneReader.app``
+* ``sphinx.io.SphinxStandaloneReader.env``
+
 Features added
 --------------
 
