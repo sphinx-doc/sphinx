@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6655: image URLs containing ``data:`` causes gettext builder crashed
+
 Testing
 --------
 
