@@ -10,25 +10,51 @@
 <%- if table.caption -%>
 \sphinxthelongtablecaptionisattop
 \caption{<%= ''.join(table.caption) %>\strut}<%= labels %>\\*[\sphinxlongtablecapskipadjust]
-\hline
-<% elif labels -%>
-\hline\noalign{\phantomsection<%= labels %>}%
+<%- if table.booktabs -%>
+\toprule
 <% else -%>
 \hline
+<% endif -%>
+<% elif labels -%>
+<%- if table.booktabs -%>
+\toprule\noalign{\phantomsection<%= labels %>}%
+<% else -%>
+\hline\noalign{\phantomsection<%= labels %>}%
+<% endif -%>
+<% else -%>
+<%- if table.booktabs -%>
+\toprule
+<% else -%>
+\hline
+<% endif -%>
 <% endif -%>
 <%= ''.join(table.header) %>
 \endfirsthead
 
 \multicolumn{<%= table.colcount %>}{c}%
 {\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} <%= _('continued from previous page') %>}}}\\
+<%- if table.booktabs -%>
+\toprule
+<% else -%>
 \hline
+<% endif -%>
 <%= ''.join(table.header) %>
+<%- if table.header and table.booktabs -%>
+\midrule
+<% endif -%>
 \endhead
 
+<%- if table.booktabs -%>
+\bottomrule
+<% else -%>
 \hline
+<% endif -%>
 \multicolumn{<%= table.colcount %>}{r}{\makebox[0pt][r]{\sphinxtablecontinued{<%= _('continues on next page') %>}}}\\
 \endfoot
 
 \endlastfoot
 <%= ''.join(table.body) %>
+<%- if table.booktabs -%>
+\bottomrule
+<% endif -%>
 \end{longtable}\sphinxatlongtableend\end{savenotes}

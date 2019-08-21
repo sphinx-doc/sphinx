@@ -517,6 +517,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
     app.add_config_value('latex_use_xindy', default_latex_use_xindy, None, [bool])
+    app.add_config_value('latex_booktabs', False, None)
     app.add_config_value('latex_toplevel_sectioning', None, None,
                          ENUM(None, 'part', 'chapter', 'section'))
     app.add_config_value('latex_domain_indices', True, None, [list])

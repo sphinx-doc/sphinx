@@ -19,9 +19,19 @@
 \phantomsection<%= labels %>\nobreak
 <% endif -%>
 \begin{tabular}[t]<%= table.get_colspec() -%>
+<%- if table.booktabs -%>
+\toprule
+<%- else -%>
 \hline
+<%- endif -%>
 <%= ''.join(table.header) %>
+<%- if table.header and table.booktabs -%>
+\midrule
+<%- endif -%>
 <%=- ''.join(table.body) %>
+<%- if table.booktabs -%>
+\bottomrule
+<%- endif -%>
 \end{tabular}
 \par
 \sphinxattableend\end{savenotes}
