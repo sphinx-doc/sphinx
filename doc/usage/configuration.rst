@@ -2004,6 +2004,15 @@ These options influence LaTeX output.
 
    .. versionadded:: 1.8
 
+.. confval:: latex_zebra_stripes
+
+   If ``True``, render tables with alternating background colors for even and
+   odd rows (so called "zebra striping"). See :ref:`latexsphinxsetup`
+   ``RowEvenColor`` and ``RowOddColor`` for changing the default white-grey
+   color scheme.
+
+   .. versionadded:: 2.1
+
 .. confval:: latex_elements
 
    .. versionadded:: 0.5

@@ -646,6 +646,18 @@ macros may be significant.
 
     .. versionadded:: 1.6.6
 
+``RowEvenColor``
+    default ``{rgb}{0.85,0.85,0.85}``. Background color for even rows in
+    tables, if option :confval:`latex_zebra_stripes` is set to ``True``.
+
+    .. versionadded:: 2.1
+
+``RowOddColor``
+    default ``{rgb}{1,1,1}``. Background color for odd rows in tables, if
+    option :confval:`latex_zebra_stripes` is set to ``True``.
+
+    .. versionadded:: 2.1
+
 .. note::
 
    Starting with this colour key, and for all others coming next, the actual

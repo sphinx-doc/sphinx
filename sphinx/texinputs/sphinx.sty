@@ -201,7 +201,7 @@
 \RequirePackage{framed}
 % The xcolor package draws better fcolorboxes around verbatim code
 \IfFileExists{xcolor.sty}{
-    \RequirePackage{xcolor}
+    \RequirePackage[table]{xcolor}
 }{
     \RequirePackage{color}
 }
@@ -376,6 +376,8 @@
 \sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
 \sphinxDeclareColorOption{VerbatimColor}{{rgb}{1,1,1}}
 \sphinxDeclareColorOption{VerbatimBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareColorOption{RowEvenColor}{{rgb}{0.85,0.85,0.85}}
+\sphinxDeclareColorOption{RowOddColor}{{rgb}{1,1,1}}
 % now the colours defined with "sphinx" prefix in their names
 \newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
    % set the initial default
