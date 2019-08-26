@@ -841,6 +841,18 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     Default: ``{rgb}{0.216,0.439,0.388}``
 
+``RowEvenColor``
+    default ``{rgb}{0.85,0.85,0.85}``. Background color for even rows in
+    tables, if option :confval:`latex_zebra_stripes` is set to ``True``.
+
+    .. versionadded:: 2.1
+
+``RowOddColor``
+    default ``{rgb}{1,1,1}``. Background color for odd rows in tables, if
+    option :confval:`latex_zebra_stripes` is set to ``True``.
+
+    .. versionadded:: 2.1
+
 ``VerbatimColor``
     The background colour for :rst:dir:`code-block`\ s.
 
