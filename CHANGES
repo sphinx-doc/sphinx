@@ -16,7 +16,7 @@ Features added
 Bugs fixed
 ----------
 
-* #6641: LaTeX: Undefined control sequence `\sphinxmaketitle`
+* #6641: LaTeX: Undefined control sequence ``\sphinxmaketitle``
 
 Testing
 --------
