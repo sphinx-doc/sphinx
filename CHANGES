@@ -4,6 +4,10 @@ Release 3.0.0 (in development)
 Dependencies
 ------------
 
+* LaTeX: drop dependency on :program:`extractbb` for image inclusion in
+  Japanese documents as ``.xbb`` files are unneeded by :program:`dvipdfmx`
+  since TeXLive2015 (refs: #6189)
+
 Incompatible changes
 --------------------
 
