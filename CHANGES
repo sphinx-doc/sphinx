@@ -19,6 +19,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6618: LaTeX: Avoid section names at the end of a page
+
 Testing
 --------
 
