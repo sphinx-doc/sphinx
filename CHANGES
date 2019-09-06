@@ -19,6 +19,10 @@ Features added
 Bugs fixed
 ----------
 
+* #6668: LaTeX: Longtable before header has incorrect distance
+  (refs: `latex3/latex2e#173`_)
+
+  .. _latex3/latex2e#173: https://github.com/latex3/latex2e/issues/173
 * #6618: LaTeX: Avoid section names at the end of a page
 
 Testing
