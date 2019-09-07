@@ -1,0 +1,1 @@
+latex_docclassprefix = 'test'

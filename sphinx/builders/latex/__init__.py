@@ -465,7 +465,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_show_pagerefs', False, None)
     app.add_config_value('latex_elements', {}, None)
     app.add_config_value('latex_additional_files', [], None)
-
+    app.add_config_value('latex_docclassprefix', 'sphinx', None)
     app.add_config_value('latex_docclass', default_latex_docclass, None)
 
     return {

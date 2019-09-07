@@ -165,6 +165,13 @@ def test_latex_basic(app, status, warning):
     assert r'\renewcommand{\releasename}{}' in result
 
 
+@pytest.mark.sphinx('latex', testroot='latex-docclassprefix')
+def test_latex_docclassprefix(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').text(encoding='utf8')
+    assert(r'\documentclass[letterpaper,10pt,english]{testmanual}' in result)
+
+
 @pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language': 'zh'})
 def test_latex_additional_settings_for_language_code(app, status, warning):
     app.builder.build_all()

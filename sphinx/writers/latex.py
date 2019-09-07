@@ -690,7 +690,7 @@ class LaTeXTranslator(SphinxTranslator):
         """ prepends prefix to sphinx document classes
         """
         if docclass in self.docclasses:
-            docclass = 'sphinx' + docclass
+            docclass = self.config.latex_docclassprefix + docclass
         return docclass
 
     def astext(self):

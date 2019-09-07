@@ -16,6 +16,8 @@ Deprecated
 Features added
 --------------
 
+* LaTeX: add :confval:`latex_docclassprefix` (refs: #6672) 
+
 Bugs fixed
 ----------
 

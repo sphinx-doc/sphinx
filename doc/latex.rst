@@ -65,6 +65,48 @@ avoid interpretation as escape sequences, or use raw strings (as is done here).
    }
    latex_show_urls = 'footnote'
 
+.. _latex-documentclass:
+
+The LaTeX document class
+------------------------
+
+LaTeX document classes are files (with extension ``.cls``) containing LaTeX
+macros, often devoted to custom layout definitions.  They are loaded via
+the ``\documentclass{<classname>}`` line in a LaTeX source file.
+
+Sphinx provides two LaTeX classes ``sphinxhowto`` and ``sphinxmanual`` of its
+own (the two ``.cls`` files are automatically copied over to the LaTeX build
+directory).  Which one is used depends on whether ``'howto'`` or ``'manual'``
+is encountered in the :confval:`latex_documents` variable (the default uses
+``'manual'``).  Any string distinct from these two is interpreted as the name
+of a LaTeX class which will be loaded in place of the Sphinx custom ones.  In
+this case, ``sphinx.sty`` will let ``\sphinxmaketitle``,
+``\sphinxtableofcontents``, ``sphinxthebibliography`` and ``sphinxtheindex``
+default to the LaTeX commands and environments without ``'sphinx'`` prefix.
+
+The Sphinx classes are slim wrappers around the standard LaTeX classes
+``article`` and ``report`` respectively (Japanese documents use ``jreport``
+and ``jsbook`` instead).  It is possible to alter the mapping between Sphinx
+and base classes via the :confval:`latex_docclass` dictionary.
+
+As explained above, ``'howto'`` and ``'manual'`` are special keywords, and in
+particular with ``'howto'`` the Sphinx LaTeX writer is told not to use the
+``\chapter`` mark-up (except for Japanese).  With
+:confval:`latex_docclassprefix`, one can leverage this special treatment of
+``'howto'`` and ``'manual'`` in custom classes.  If for example
+:confval:`latex_docclassprefix` is set to ``'my'`` then ``myhowto.cls`` or
+``mymanual.cls`` respectively will be loaded.  Such a custom user LaTeX class
+is free to ``\LoadClass`` either ``sphinxhowto`` or ``sphinxmanual`` to
+keep some of its custom settings and override others at will, and will then
+inherit from the base class as specified via :confval:`latex_docclass`; else
+it is the responsibility of the custom LaTeX class to load an appropriate base
+class if necessary.
+
+:confval:`latex_additional_files` will be useful to get such custom class
+files be copied over to the LaTeX build directory (this is for portability of
+a project but any given TeX distribution also offers appropriate permanent
+locations for making custom classes available to all LaTeX build jobs).
+
 .. highlight:: latex
 
 .. _latex_elements_confval:
@@ -117,7 +159,7 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
      .. hint::
 
         After modifiying a core LaTeX key like this one, clean up the LaTeX
-        build repertory before next PDF build, else left-over auxiliary
+        build directory before next PDF build, else left-over auxiliary
         files are likely to break the build.
 
      .. _`polyglossia`: https://ctan.org/pkg/polyglossia
@@ -200,7 +242,7 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
   ``'preamble'``
      Additional preamble content, default empty.  One may move all needed
      macros into some file :file:`mystyle.tex.txt` of the project source
-     repertory, and get LaTeX to import it at run time::
+     directory, and get LaTeX to import it at run time::
 
        'preamble': r'\input{mystyle.tex.txt}',
        # or, if the \ProvidesPackage LaTeX macro is used in a file mystyle.sty

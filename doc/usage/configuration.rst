@@ -1880,12 +1880,18 @@ These options influence LaTeX output.
      ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
 
    *documentclass*
-     Normally, one of ``'manual'`` or ``'howto'`` (provided by Sphinx and based
-     on ``'report'``, resp. ``'article'``; Japanese documents use ``'jsbook'``,
-     resp. ``'jreport'``.) "howto" (non-Japanese) documents will not get
-     appendices. Also they have a simpler title page.  Other document classes
-     can be given. Independently of the document class, the "sphinx" package is
-     always loaded in order to define Sphinx's custom LaTeX commands.
+     Normally, one of ``'manual'`` or ``'howto'`` (provided by Sphinx and
+     based on ``'report'``, resp. ``'article'``; see
+     :confval:`latex_docclass`).  ``'howto'`` documents do not use the
+     ``\chapter`` macro and get a simpler title page and no appendices (except
+     with Japanese language).
+
+     Other LaTeX document classes can be given, and will then be used
+     directly.  In all cases, the ``sphinx.sty`` "package" file is always
+     used in the produced document, and the chosen document class has to be
+     compatible with it.
+
+     See :ref:`latex-documentclass` for more information.
 
    *toctree_only*
      Must be ``True`` or ``False``.  If true, the *startdoc* document itself is
@@ -2022,6 +2028,14 @@ These options influence LaTeX output.
 
       In Japanese docs (:confval:`language` is ``'ja'``), by default
       ``'jreport'`` is used for ``'howto'`` and ``'jsbook'`` for ``'manual'``.
+
+.. confval:: latex_docclassprefix
+
+   A string (defaults to ``'sphinx'``) which serves as a prefix to map
+   ``'howto'`` and ``'manual'`` to the actual names of LaTeX class files.
+   See :ref:`latex-documentclass`.
+
+   .. versionadded:: 2.3.0
 
 .. confval:: latex_additional_files
 
