@@ -63,7 +63,7 @@ class TexinfoBuilder(Builder):
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         if docname not in self.docnames:
-            raise NoUri
+            raise NoUri(docname)
         else:
             return '%' + docname
 
