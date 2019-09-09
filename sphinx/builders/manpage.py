@@ -59,7 +59,7 @@ class ManualPageBuilder(Builder):
         # type: (str, str) -> str
         if typ == 'token':
             return ''
-        raise NoUri
+        raise NoUri(docname)
 
     @progress_message(__('writing'))
     def write(self, *ignored):
