@@ -1,6 +1,6 @@
 ========
  Sphinx
-========
+=========
 
 .. image:: https://img.shields.io/pypi/v/sphinx.svg
    :target: https://pypi.org/project/Sphinx/
