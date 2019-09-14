@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2019/09/01 v2.3.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2019/09/02 v2.3.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -528,6 +528,7 @@
 \fi
 
 % make commands known to non-Sphinx document classes
+\providecommand*{\sphinxmaketitle}{\maketitle}
 \providecommand*{\sphinxtableofcontents}{\tableofcontents}
 \ltx@ifundefined{sphinxthebibliography}
  {\newenvironment
