@@ -90,6 +90,12 @@ Get in touch
 .. _on GitHub: https://github.com/sphinx-doc/sphinx
 .. _mailing list: https://groups.google.com/forum/#!forum/sphinx-users
 
+Please adhere to our `code of conduct`__.
+
+__ http://www.sphinx-doc.org/en/master/code_of_conduct.html
+
+__
+
 Testing
 =======
 
