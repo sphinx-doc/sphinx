@@ -16,6 +16,8 @@ Deprecated
 Features added
 --------------
 
+* #6707: C++, support bit-fields.
+
 Bugs fixed
 ----------
 
