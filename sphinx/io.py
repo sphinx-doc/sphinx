@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 import codecs
+import warnings
 from typing import Any
 
 from docutils.core import Publisher
