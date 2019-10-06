@@ -418,7 +418,7 @@ def default_latex_engine(config: Config) -> str:
         return 'platex'
     elif (config.language or '').startswith('zh'):
         return 'xelatex'
-    elif (config.language or '') == 'el':
+    elif config.language == 'el':
         return 'xelatex'
     else:
         return 'pdflatex'
