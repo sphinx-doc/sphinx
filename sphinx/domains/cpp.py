@@ -3191,6 +3191,52 @@ class ASTDeclaratorNameParamQual(ASTBase):
             self.paramQual.describe_signature(signode, mode, env, symbol)
 
 
+class ASTDeclaratorNameBitField(ASTBase):
+    def __init__(self, declId, size):
+        self.declId = declId
+        self.size = size
+
+    @property
+    def name(self):
+        # type: () -> ASTNestedName
+        return self.declId
+
+    def get_param_id(self, version):  # only the parameters (if any)
+        # type: (int) -> str
+        return ''
+
+    def get_ptr_suffix_id(self, version):  # only the array specifiers
+        # type: (int) -> str
+        return ''
+
+    # ------------------------------------------------------------------------
+
+    def require_space_after_declSpecs(self):
+        # type: () -> bool
+        return self.declId is not None
+
+    def is_function_type(self):
+        # type: () -> bool
+        return False
+
+    def _stringify(self, transform):
+        # type: (Callable[[Any], str]) -> str
+        res = []
+        if self.declId:
+            res.append(transform(self.declId))
+        res.append(" : ")
+        res.append(transform(self.size))
+        return ''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
+        _verify_description_mode(mode)
+        if self.declId:
+            self.declId.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(' : ', ' : '))
+        self.size.describe_signature(signode, mode, env, symbol)
+
+
 class ASTParenExprList(ASTBase):
     def __init__(self, exprs):
         # type: (List[Any]) -> None
@@ -5716,8 +5762,12 @@ class DefinitionParser:
             trailing = None
         return ASTDeclSpecs(outer, leftSpecs, rightSpecs, trailing)
 
-    def _parse_declarator_name_param_qual(self, named, paramMode, typed):
-        # type: (Union[bool, str], str, bool) -> ASTDeclaratorNameParamQual
+    def _parse_declarator_name_suffix(self,
+                                      named,      # type: Union[bool, str]
+                                      paramMode,  # type: str
+                                      typed       # type: bool
+                                      ):
+        # type: (...) -> Union[ASTDeclaratorNameParamQual, ASTDeclaratorNameBitField]
         # now we should parse the name, and then suffixes
         if named == 'maybe':
             pos = self.pos
@@ -5760,6 +5810,13 @@ class DefinitionParser:
             else:
                 break
         paramQual = self._parse_parameters_and_qualifiers(paramMode)
+        if paramQual is None and len(arrayOps) == 0:
+            # perhaps a bit-field
+            if named and paramMode == 'type' and typed:
+                self.skip_ws()
+                if self.skip_string(':'):
+                    size = self._parse_constant_expression(inTemplate=False)
+                    return ASTDeclaratorNameBitField(declId=declId, size=size)
         return ASTDeclaratorNameParamQual(declId=declId, arrayOps=arrayOps,
                                           paramQual=paramQual)
 
@@ -5842,8 +5899,8 @@ class DefinitionParser:
             pos = self.pos
             try:
                 # assume this is params and quals
-                res = self._parse_declarator_name_param_qual(named, paramMode,
-                                                             typed)
+                res = self._parse_declarator_name_suffix(named, paramMode,
+                                                         typed)
                 return res
             except DefinitionError as exParamQual:
                 prevErrors.append((exParamQual, "If declId, parameters, and qualifiers"))
@@ -5868,7 +5925,7 @@ class DefinitionParser:
                     raise self._make_multi_error(prevErrors, header)
         pos = self.pos
         try:
-            return self._parse_declarator_name_param_qual(named, paramMode, typed)
+            return self._parse_declarator_name_suffix(named, paramMode, typed)
         except DefinitionError as e:
             self.pos = pos
             prevErrors.append((e, "If declarator-id"))
