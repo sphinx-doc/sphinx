@@ -330,10 +330,10 @@ def read_doc(app, env, filename):
         # Sphinx-1.8 style
         source = input_class(app, env, source=None, source_path=filename,  # type: ignore
                              encoding=env.config.source_encoding)
-        pub = Publisher(reader=reader,  # type: ignore
+        pub = Publisher(reader=reader,
                         parser=parser,
                         writer=SphinxDummyWriter(),
-                        source_class=SphinxDummySourceClass,
+                        source_class=SphinxDummySourceClass,  # type: ignore
                         destination=NullOutput())
         pub.process_programmatic_settings(None, env.settings, None)
         pub.set_source(source, filename)

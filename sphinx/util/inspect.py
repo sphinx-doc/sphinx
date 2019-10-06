@@ -546,7 +546,7 @@ class Signature:
         else:
             qualname = repr(annotation)
 
-        if (isinstance(annotation, typing.TupleMeta) and
+        if (isinstance(annotation, typing.TupleMeta) and  # type: ignore
                 not hasattr(annotation, '__tuple_params__')):  # for Python 3.6
             params = annotation.__args__
             if params:
@@ -572,7 +572,7 @@ class Signature:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
                 return '%s[%s]' % (qualname, param_str)
         elif (hasattr(typing, 'UnionMeta') and
-              isinstance(annotation, typing.UnionMeta) and
+              isinstance(annotation, typing.UnionMeta) and  # type: ignore
               hasattr(annotation, '__union_params__')):  # for Python 3.5
             params = annotation.__union_params__
             if params is not None:
@@ -590,7 +590,7 @@ class Signature:
                 else:
                     param_str = ', '.join(self.format_annotation(p) for p in params)
                     return 'Union[%s]' % param_str
-        elif (isinstance(annotation, typing.CallableMeta) and
+        elif (isinstance(annotation, typing.CallableMeta) and  # type: ignore
               getattr(annotation, '__args__', None) is not None and
               hasattr(annotation, '__result__')):  # for Python 3.5
             # Skipped in the case of plain typing.Callable
@@ -605,7 +605,7 @@ class Signature:
             return '%s[%s, %s]' % (qualname,
                                    args_str,
                                    self.format_annotation(annotation.__result__))
-        elif (isinstance(annotation, typing.TupleMeta) and
+        elif (isinstance(annotation, typing.TupleMeta) and  # type: ignore
               hasattr(annotation, '__tuple_params__') and
               hasattr(annotation, '__tuple_use_ellipsis__')):  # for Python 3.5
             params = annotation.__tuple_params__

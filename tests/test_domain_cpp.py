@@ -334,6 +334,16 @@ def test_member_definitions():
     check('member', 'thread_local extern int myInt', {1: 'myInt__i', 2: '5myInt'},
           'extern thread_local int myInt')
 
+    # tests based on https://en.cppreference.com/w/cpp/language/bit_field
+    check('member', 'int b : 3', {1: 'b__i', 2: '1b'})
+    check('member', 'int b : 8 = 42', {1: 'b__i', 2: '1b'})
+    check('member', 'int b : 8{42}', {1: 'b__i', 2: '1b'})
+    # TODO: enable once the ternary operator is supported
+    #check('member', 'int b : true ? 8 : a = 42', {1: 'b__i', 2: '1b'})
+    # TODO: enable once the ternary operator is supported
+    #check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
+    check('member', 'int b : 1 || new int{0}', {1: 'b__i', 2: '1b'})
+
 
 def test_function_definitions():
     check('function', 'void f(volatile int)', {1: "f__iV", 2: "1fVi"})
