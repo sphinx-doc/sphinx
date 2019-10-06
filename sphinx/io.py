@@ -166,8 +166,6 @@ class SphinxI18nReader(SphinxBaseReader):
             if transform in self.transforms:
                 self.transforms.remove(transform)
 
-        super().__init__(app, *args, **kwargs)
-
 
 class SphinxDummyWriter(UnfilteredWriter):
     """Dummy writer module used for generating doctree."""
