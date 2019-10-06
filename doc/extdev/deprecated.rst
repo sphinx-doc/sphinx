@@ -26,6 +26,16 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.io.SphinxStandaloneReader.app``
+     - 2.3
+     - 4.0
+     - ``sphinx.io.SphinxStandaloneReader.setup()``
+
+   * - ``sphinx.io.SphinxStandaloneReader.env``
+     - 2.3
+     - 4.0
+     - ``sphinx.io.SphinxStandaloneReader.setup()``
+
    * - ``sphinx.domains.math.MathDomain.add_equation()``
      - 2.2
      - 4.0

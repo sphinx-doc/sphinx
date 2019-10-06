@@ -42,11 +42,43 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.io.SphinxStandaloneReader.app``
+* ``sphinx.io.SphinxStandaloneReader.env``
+
 Features added
 --------------
 
 Bugs fixed
 ----------
+
+* #6668: LaTeX: Longtable before header has incorrect distance
+  (refs: `latex3/latex2e#173`_)
+
+  .. _latex3/latex2e#173: https://github.com/latex3/latex2e/issues/173
+* #6618: LaTeX: Avoid section names at the end of a page
+
+Testing
+--------
+
+Release 2.2.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+* #6641: LaTeX: Undefined control sequence ``\sphinxmaketitle``
 
 Testing
 --------

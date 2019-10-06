@@ -32,7 +32,7 @@ class _TranslationProxy(UserString):
     """
     __slots__ = ('_func', '_args')
 
-    def __new__(cls, func, *args):
+    def __new__(cls, func, *args):  # type: ignore
         # type: (Callable, str) -> object
         if not args:
             # not called with "function" and "arguments", but a plain string

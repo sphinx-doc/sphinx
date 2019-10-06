@@ -210,7 +210,7 @@ class TexinfoTranslator(SphinxTranslator):
         for index in self.indices:
             name, content = index
             pointers = tuple([name] + self.rellinks[name])
-            self.body.append('\n@node %s,%s,%s,%s\n' % pointers)  # type: ignore
+            self.body.append('\n@node %s,%s,%s,%s\n' % pointers)
             self.body.append('@unnumbered %s\n\n%s\n' % (name, content))
 
         while self.referenced_ids:
@@ -616,7 +616,7 @@ class TexinfoTranslator(SphinxTranslator):
 
         node_name = node['node_name']
         pointers = tuple([node_name] + self.rellinks[node_name])
-        self.body.append('\n@node %s,%s,%s,%s\n' % pointers)  # type: ignore
+        self.body.append('\n@node %s,%s,%s,%s\n' % pointers)
         for id in sorted(self.next_section_ids):
             self.add_anchor(id, node)
 
