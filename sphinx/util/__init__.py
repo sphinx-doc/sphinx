@@ -252,7 +252,7 @@ def save_traceback(app: "Sphinx") -> str:
                    platform.python_version(),
                    platform.python_implementation(),
                    docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__,
+                   jinja2.__version__,  # type: ignore
                    last_msgs)).encode())
     if app is not None:
         for ext in app.extensions.values():

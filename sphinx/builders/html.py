@@ -90,7 +90,7 @@ class Stylesheet(str):
     attributes = None   # type: Dict[str, str]
     filename = None     # type: str
 
-    def __new__(cls, filename: str, *args: str, **attributes: str) -> None:
+    def __new__(cls, filename: str, *args: str, **attributes: str) -> "Stylesheet":
         self = str.__new__(cls, filename)  # type: ignore
         self.filename = filename
         self.attributes = attributes
@@ -142,7 +142,7 @@ class JavaScript(str):
     attributes = None   # type: Dict[str, str]
     filename = None     # type: str
 
-    def __new__(cls, filename: str, **attributes: str) -> None:
+    def __new__(cls, filename: str, **attributes: str) -> "JavaScript":
         self = str.__new__(cls, filename)  # type: ignore
         self.filename = filename
         self.attributes = attributes
