@@ -24,6 +24,7 @@ Bugs fixed
 
   .. _latex3/latex2e#173: https://github.com/latex3/latex2e/issues/173
 * #6618: LaTeX: Avoid section names at the end of a page
+* #6709: autodoc: mock object does not work as a class decorator
 
 Testing
 --------
