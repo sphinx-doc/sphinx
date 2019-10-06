@@ -286,7 +286,7 @@ class DocTestBuilder(Builder):
         # for doctest examples but unusable for multi-statement code such
         # as setup code -- to be able to use doctest error reporting with
         # that code nevertheless, we monkey-patch the "compile" it uses.
-        doctest.compile = self.compile
+        doctest.compile = self.compile  # type: ignore
 
         sys.path[0:0] = self.config.doctest_path
 
@@ -507,7 +507,7 @@ Doctest summary
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
                 try:
-                    test = parser.get_doctest(code[0].code, {}, group.name,  # type: ignore
+                    test = parser.get_doctest(code[0].code, {}, group.name,
                                               code[0].filename, code[0].lineno)
                 except Exception:
                     logger.warning(__('ignoring invalid doctest code: %r'), code[0].code,
