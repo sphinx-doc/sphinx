@@ -1841,7 +1841,17 @@ These options influence LaTeX output.
    ``'xelatex'`` or ``'lualatex'`` and making sure to use an OpenType font
    with wide-enough glyph coverage is often easier than trying to make
    ``'pdflatex'`` work with the extra Unicode characters.  Since Sphinx 2.0
-   the default is the GNU FreeFont which covers well Latin, Cyrillic and Greek.
+   the default is the GNU FreeFont which covers well Latin, Cyrillic and
+   Greek.
+
+   .. versionchanged:: 2.1.0
+
+      Use ``xelatex`` (and LaTeX package ``xeCJK``) by default for Chinese
+      documents.
+
+   .. versionchanged:: 2.2.1
+
+      Use ``xelatex`` by default for Greek documents.
 
    Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
    LaTeX requires some extra configuration to support Unicode literals in

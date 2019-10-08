@@ -116,6 +116,10 @@ XELATEX_DEFAULT_FONTPKG = r'''
   BoldItalicFont = *BoldOblique,
 ]
 '''
+XELATEX_GREEK_DEFAULT_FONTPKG = (XELATEX_DEFAULT_FONTPKG +
+                                 '\n\\newfontfamily\\greekfont{FreeSerif}' +
+                                 '\n\\newfontfamily\\greekfontsf{FreeSans}' +
+                                 '\n\\newfontfamily\\greekfonttt{FreeMono}')
 LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
 
 DEFAULT_SETTINGS = {
@@ -225,6 +229,9 @@ ADDITIONAL_SETTINGS = {
     },
     ('xelatex', 'zh'): {
         'fontenc':      '\\usepackage{xeCJK}',
+    },
+    ('xelatex', 'el'): {
+        'fontpkg':      XELATEX_GREEK_DEFAULT_FONTPKG,
     },
 }  # type: Dict[Any, Dict[str, Any]]
 
