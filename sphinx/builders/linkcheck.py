@@ -237,13 +237,16 @@ class CheckExternalLinksBuilder(Builder):
             else:
                 logger.info(red('broken    ') + uri + red(' - ' + info))
         elif status == 'redirected':
-            text, color = {
-                301: ('permanently', darkred),
-                302: ('with Found', purple),
-                303: ('with See Other', purple),
-                307: ('temporarily', turquoise),
-                0:   ('with unknown code', purple),
-            }[code]
+            try:
+                text, color = {
+                    301: ('permanently', darkred),
+                    302: ('with Found', purple),
+                    303: ('with See Other', purple),
+                    307: ('temporarily', turquoise),
+                    0:   ('with unknown code', purple),
+                }[code]
+            except KeyError:
+                text, color = ('with unknown code', purple)
             self.write_entry('redirected ' + text, docname, lineno,
                              uri + ' to ' + info)
             logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
