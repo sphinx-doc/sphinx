@@ -120,7 +120,7 @@ class DataURIExtractor(BaseImageConverter):
         elif self.app.builder.supported_data_uri_images is True:
             return False
         else:
-            return 'data:' in node['uri']
+            return node['uri'].startswith('data:')
 
     def handle(self, node: nodes.image) -> None:
         image = parse_data_uri(node['uri'])

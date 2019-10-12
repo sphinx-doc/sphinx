@@ -27,6 +27,7 @@ Bugs fixed
   .. _latex3/latex2e#173: https://github.com/latex3/latex2e/issues/173
 * #6618: LaTeX: Avoid section names at the end of a page
 * #6704: linkcheck: Be defensive and handle newly defined HTTP error code
+* #6655: image URLs containing ``data:`` causes gettext builder crashed
 
 Testing
 --------
