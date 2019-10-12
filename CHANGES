@@ -29,6 +29,7 @@ Bugs fixed
 * #6704: linkcheck: Be defensive and handle newly defined HTTP error code
 * #6655: image URLs containing ``data:`` causes gettext builder crashed
 * #6584: i18n: Error when compiling message catalogs on Hindi
+* #6718: i18n: KeyError is raised if section title and table title are same
 
 Testing
 --------
