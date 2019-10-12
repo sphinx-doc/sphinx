@@ -10,13 +10,47 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.io.SphinxStandaloneReader.app``
+* ``sphinx.io.SphinxStandaloneReader.env``
+
+Features added
+--------------
+
+* #6707: C++, support bit-fields.
+
+Bugs fixed
+----------
+
+* #6668: LaTeX: Longtable before header has incorrect distance
+  (refs: `latex3/latex2e#173`_)
+
+  .. _latex3/latex2e#173: https://github.com/latex3/latex2e/issues/173
+* #6618: LaTeX: Avoid section names at the end of a page
+* #6704: linkcheck: Be defensive and handle newly defined HTTP error code
+* #6655: image URLs containing ``data:`` causes gettext builder crashed
+
+Testing
+--------
+
+Release 2.2.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
 Features added
 --------------
 
 Bugs fixed
 ----------
 
-* #6655: image URLs containing ``data:`` causes gettext builder crashed
+* #6641: LaTeX: Undefined control sequence ``\sphinxmaketitle``
 
 Testing
 --------

@@ -11,20 +11,17 @@
 import os
 from hashlib import sha1
 from math import ceil
+from typing import Any, Dict, List, Tuple
 
 from docutils import nodes
 
+from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util import logging, requests
 from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
 from sphinx.util.osutil import ensuredir, movefile
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -33,31 +30,26 @@ MAX_FILENAME_LEN = 32
 
 
 class BaseImageConverter(SphinxTransform):
-    def apply(self, **kwargsj):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.image):
             if self.match(node):
                 self.handle(node)
 
-    def match(self, node):
-        # type: (nodes.image) -> bool
+    def match(self, node: nodes.image) -> bool:
         return True
 
-    def handle(self, node):
-        # type: (nodes.image) -> None
+    def handle(self, node: nodes.image) -> None:
         pass
 
     @property
-    def imagedir(self):
-        # type: () -> str
+    def imagedir(self) -> str:
         return os.path.join(self.app.doctreedir, 'images')
 
 
 class ImageDownloader(BaseImageConverter):
     default_priority = 100
 
-    def match(self, node):
-        # type: (nodes.image) -> bool
+    def match(self, node: nodes.image) -> bool:
         if self.app.builder.supported_image_types == []:
             return False
         elif self.app.builder.supported_remote_images:
@@ -65,8 +57,7 @@ class ImageDownloader(BaseImageConverter):
         else:
             return '://' in node['uri']
 
-    def handle(self, node):
-        # type: (nodes.image) -> None
+    def handle(self, node: nodes.image) -> None:
         try:
             basename = os.path.basename(node['uri'])
             if '?' in basename:
@@ -123,8 +114,7 @@ class ImageDownloader(BaseImageConverter):
 class DataURIExtractor(BaseImageConverter):
     default_priority = 150
 
-    def match(self, node):
-        # type: (nodes.image) -> bool
+    def match(self, node: nodes.image) -> bool:
         if self.app.builder.supported_remote_images == []:
             return False
         elif self.app.builder.supported_data_uri_images is True:
@@ -132,8 +122,7 @@ class DataURIExtractor(BaseImageConverter):
         else:
             return node['uri'].startswith('data:')
 
-    def handle(self, node):
-        # type: (nodes.image) -> None
+    def handle(self, node: nodes.image) -> None:
         image = parse_data_uri(node['uri'])
         ext = get_image_extension(image.mimetype)
         if ext is None:
@@ -155,8 +144,7 @@ class DataURIExtractor(BaseImageConverter):
         self.app.env.images.add_file(self.env.docname, path)
 
 
-def get_filename_for(filename, mimetype):
-    # type: (str, str) -> str
+def get_filename_for(filename: str, mimetype: str) -> str:
     basename = os.path.basename(filename)
     return os.path.splitext(basename)[0] + get_image_extension(mimetype)
 
@@ -195,15 +183,13 @@ class ImageConverter(BaseImageConverter):
     #:     ]
     conversion_rules = []  # type: List[Tuple[str, str]]
 
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
+    def __init__(self, *args, **kwargs) -> None:
         self.available = None   # type: bool
                                 # the converter is available or not.
                                 # Will be checked at first conversion
         super().__init__(*args, **kwargs)
 
-    def match(self, node):
-        # type: (nodes.image) -> bool
+    def match(self, node: nodes.image) -> bool:
         if self.available is None:
             self.available = self.is_available()
 
@@ -219,8 +205,7 @@ class ImageConverter(BaseImageConverter):
             else:
                 return False
 
-    def get_conversion_rule(self, node):
-        # type: (nodes.image) -> Tuple[str, str]
+    def get_conversion_rule(self, node: nodes.image) -> Tuple[str, str]:
         for candidate in self.guess_mimetypes(node):
             for supported in self.app.builder.supported_image_types:
                 rule = (candidate, supported)
@@ -229,13 +214,11 @@ class ImageConverter(BaseImageConverter):
 
         return None
 
-    def is_available(self):
-        # type: () -> bool
+    def is_available(self) -> bool:
         """Return the image converter is available or not."""
         raise NotImplementedError()
 
-    def guess_mimetypes(self, node):
-        # type: (nodes.image) -> List[str]
+    def guess_mimetypes(self, node: nodes.image) -> List[str]:
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
@@ -244,8 +227,7 @@ class ImageConverter(BaseImageConverter):
         else:
             return node['candidates'].keys()
 
-    def handle(self, node):
-        # type: (nodes.image) -> None
+    def handle(self, node: nodes.image) -> None:
         _from, _to = self.get_conversion_rule(node)
 
         if _from in node['candidates']:
@@ -268,8 +250,7 @@ class ImageConverter(BaseImageConverter):
             self.env.original_image_uri[destpath] = srcpath
             self.env.images.add_file(self.env.docname, destpath)
 
-    def convert(self, _from, _to):
-        # type: (str, str) -> bool
+    def convert(self, _from: str, _to: str) -> bool:
         """Convert a image file to expected format.
 
         *_from* is a path for source image file, and *_to* is a path for
@@ -278,8 +259,7 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError()
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(ImageDownloader)
     app.add_post_transform(DataURIExtractor)
 
