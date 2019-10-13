@@ -237,6 +237,8 @@ These themes are:
   - **documentwidth** (CSS length): Width of the document (without sidebar),
     default 50em.
   - **sidebarwidth** (CSS length): Width of the sidebar, default 20em.
+  - **rightsidebar** (true or false): Put the sidebar on the right side.
+    Defaults to ``True``.
   - **bgcolor** (CSS color): Background color.
   - **headerbg** (CSS value for "background"): background for the header area,
     default a grayish gradient.
