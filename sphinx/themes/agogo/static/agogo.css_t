@@ -175,7 +175,11 @@ div.document {
 }
 
 div.body {
+  {%- if theme_rightsidebar|tobool %}
   padding-right: 2em;
+  {%- else %}
+  padding-left: 2em;
+  {% endif %}
   text-align: {{ theme_textalign }};
 }
 
@@ -270,7 +274,11 @@ div.document ol {
 
 div.sidebar {
   width: {{ theme_sidebarwidth|todim }};
+  {%- if theme_rightsidebar|tobool %}
   float: right;
+  {%- else %}
+  float: left;
+  {%- endif %}
   font-size: .9em;
 }
 
