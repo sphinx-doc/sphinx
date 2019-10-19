@@ -32,6 +32,7 @@ Bugs fixed
 * #6655: image URLs containing ``data:`` causes gettext builder crashed
 * #6584: i18n: Error when compiling message catalogs on Hindi
 * #6718: i18n: KeyError is raised if section title and table title are same
+* #6743: i18n: :confval:`rst_prolog` breaks the translation
 * #6708: mathbase: Some deprecated functions have removed
 * #6709: autodoc: mock object does not work as a class decorator
 * #6712: Allow not to install sphinx.testing as runtime (mainly for ALT Linux)
