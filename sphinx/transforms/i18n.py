@@ -134,7 +134,7 @@ class Locale(SphinxTransform):
             processed = False  # skip flag
 
             # update title(section) target name-id mapping
-            if isinstance(node, nodes.title):
+            if isinstance(node, nodes.title) and isinstance(node.parent, nodes.section):
                 section_node = node.parent
                 new_name = nodes.fully_normalize_name(patch.astext())
                 old_name = nodes.fully_normalize_name(node.astext())
