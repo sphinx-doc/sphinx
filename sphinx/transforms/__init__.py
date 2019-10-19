@@ -269,6 +269,16 @@ class UnreferencedFootnotesDetector(SphinxTransform):
                                location=node)
 
 
+class DoctestTransform(SphinxTransform):
+    """Set "doctest" style to each doctest_block node"""
+    default_priority = 500
+
+    def apply(self, **kwargs):
+        # type: (Any) -> None
+        for node in self.document.traverse(nodes.doctest_block):
+            node['classes'].append('doctest')
+
+
 class FigureAligner(SphinxTransform):
     """
     Align figures to center by default.
@@ -402,6 +412,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(MoveModuleTargets)
     app.add_transform(HandleCodeBlocks)
     app.add_transform(SortIds)
+    app.add_transform(DoctestTransform)
     app.add_transform(FigureAligner)
     app.add_transform(AutoNumbering)
     app.add_transform(AutoIndexUpgrader)

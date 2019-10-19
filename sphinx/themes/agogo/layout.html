@@ -33,15 +33,7 @@
     </div>
 {% endblock %}
 
-{% block content %}
-    <div class="content-wrapper">
-      <div class="content">
-        <div class="document">
-          {%- block document %}
-            {{ super() }}
-          {%- endblock %}
-        </div>
-        <div class="sidebar">
+{%- macro agogo_sidebar() %}
           {%- block sidebartoc %}
           <h3>{{ _('Table of Contents') }}</h3>
           {{ toctree() }}
@@ -55,7 +47,26 @@
             </form>
           </div>
           {%- endblock %}
+{% endmacro %}
+
+{% block content %}
+    <div class="content-wrapper">
+      <div class="content">
+        {%- if not theme_rightsidebar|tobool %}
+        <div class="sidebar">
+          {{ agogo_sidebar() }}
         </div>
+        {%- endif %}
+        <div class="document">
+          {%- block document %}
+            {{ super() }}
+          {%- endblock %}
+        </div>
+        {%- if theme_rightsidebar|tobool %}
+        <div class="sidebar">
+          {{ agogo_sidebar() }}
+        </div>
+        {%- endif %}
         <div class="clearer"></div>
       </div>
     </div>
