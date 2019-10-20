@@ -289,6 +289,11 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
 
      .. attention::
 
+        If Greek is main language, do not use this key.  Since Sphinx 2.2.1,
+        ``xelatex`` will be used automatically as :confval:`latex_engine`.
+        Formerly, Sphinx did not support producing PDF via LaTeX with Greek as
+        main language.
+
         Prior to 2.0, Unicode Greek letters were escaped to use LaTeX math
         mark-up.  This is not the case anymore, and the above must be used
         (only in case of ``'pdflatex'`` engine) if the source contains such

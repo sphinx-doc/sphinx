@@ -49,6 +49,8 @@ Features added
 --------------
 
 * #6707: C++, support bit-fields.
+* #267: html: Eliminate prompt characters of doctest block from copyable text
+* #6729: html theme: agogo theme now supports ``rightsidebar`` option
 
 Bugs fixed
 ----------
@@ -62,6 +64,8 @@ Bugs fixed
 * #6655: image URLs containing ``data:`` causes gettext builder crashed
 * #6584: i18n: Error when compiling message catalogs on Hindi
 * #6718: i18n: KeyError is raised if section title and table title are same
+* #6708: mathbase: Some deprecated functions have removed
+* #6709: autodoc: mock object does not work as a class decorator
 
 Testing
 --------
@@ -85,6 +89,7 @@ Bugs fixed
 ----------
 
 * #6641: LaTeX: Undefined control sequence ``\sphinxmaketitle``
+* #6710: LaTeX not well configured for Greek language as main language
 
 Testing
 --------
