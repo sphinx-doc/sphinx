@@ -175,6 +175,17 @@ def test_latex_additional_settings_for_language_code(app, status, warning):
     assert r'\usepackage{xeCJK}' in result
 
 
+@pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language': 'el'})
+def test_latex_additional_settings_for_greek(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\usepackage{polyglossia}\n\\setmainlanguage{greek}' in result
+    assert '\\newfontfamily\\greekfonttt{FreeMono}' in result
+
+
 @pytest.mark.sphinx('latex', testroot='latex-title')
 def test_latex_title_after_admonitions(app, status, warning):
     app.builder.build_all()

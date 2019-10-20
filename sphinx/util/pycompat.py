@@ -55,7 +55,7 @@ class UnicodeMixin:
     def __str__(self):
         warnings.warn('UnicodeMixin is deprecated',
                       RemovedInSphinx40Warning, stacklevel=2)
-        return self.__unicode__()
+        return self.__unicode__()  # type: ignore
 
 
 def execfile_(filepath: str, _globals: Any, open: Callable = open) -> None:

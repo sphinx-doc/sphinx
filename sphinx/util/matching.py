@@ -9,7 +9,7 @@
 """
 
 import re
-from typing import Callable, Dict, List, Match, Pattern
+from typing import Callable, Dict, Iterable, List, Match, Pattern
 
 from sphinx.util.osutil import canon_path
 
@@ -96,7 +96,7 @@ def patmatch(name: str, pat: str) -> Match[str]:
     return _pat_cache[pat].match(name)
 
 
-def patfilter(names: List[str], pat: str) -> List[str]:
+def patfilter(names: Iterable[str], pat: str) -> List[str]:
     """Return the subset of the list NAMES that match PAT.
 
     Adapted from fnmatch module.

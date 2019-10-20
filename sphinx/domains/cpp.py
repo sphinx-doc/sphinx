@@ -32,7 +32,8 @@ from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Union  # NOQA
+    from docutils.nodes import TextElement
+    from typing import Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
@@ -7037,7 +7038,7 @@ class CPPExprRole:
         if asCode:
             # render the expression as inline code
             self.class_type = 'cpp-expr'
-            self.node_type = nodes.literal
+            self.node_type = nodes.literal  # type: Type[TextElement]
         else:
             # render the expression as inline text
             self.class_type = 'cpp-texpr'
