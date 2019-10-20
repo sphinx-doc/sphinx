@@ -34,6 +34,7 @@ Bugs fixed
 * #6718: i18n: KeyError is raised if section title and table title are same
 * #6708: mathbase: Some deprecated functions have removed
 * #6709: autodoc: mock object does not work as a class decorator
+* #5070: epub: Wrong internal href fragment links
 * #6712: Allow not to install sphinx.testing as runtime (mainly for ALT Linux)
 
 Testing
