@@ -36,6 +36,7 @@ Bugs fixed
 * #6709: autodoc: mock object does not work as a class decorator
 * #5070: epub: Wrong internal href fragment links
 * #6712: Allow not to install sphinx.testing as runtime (mainly for ALT Linux)
+* #6741: html: search result was broken with empty :confval:`html_file_suffix`
 
 Testing
 --------
