@@ -92,6 +92,10 @@ def _underline(title: str, line: str = '=') -> str:
     return title + '\n' + line * len(title)
 
 
+def _is_submodule(module, parent):
+    return module.startswith(parent + ".")
+
+
 class AutosummaryRenderer:
     """A helper class for rendering."""
 
@@ -148,7 +152,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                 continue
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
-                if imported or getattr(value, '__module__', None) == obj.__name__:
+                if imported or getattr(value, '__module__', None) == obj.__name__ or\
+                        (documenter.objtype == 'module' and _is_submodule(value.__name__, obj.__name__)):
                     # skip imported members if expected
                     items.append(name)
         public = [x for x in items
@@ -159,6 +164,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
     if doc.objtype == 'module':
         ns['members'] = dir(obj)
+        ns['modules'], ns['all_modules'] = \
+            get_members(obj, {'module'}, imported=imported_members)
         ns['functions'], ns['all_functions'] = \
             get_members(obj, {'function'}, imported=imported_members)
         ns['classes'], ns['all_classes'] = \
