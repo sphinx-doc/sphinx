@@ -32,7 +32,7 @@ from sphinx.util import split_into, logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
-from sphinx.util.texescape import escape, tex_replace_map
+from sphinx.util.texescape import get_escape_func, tex_replace_map
 
 try:
     from docutils.utils.roman import toRoman
@@ -500,7 +500,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.first_param = 0
 
         # escape helper
-        self.escape = escape
+        self.escape = get_escape_func(self.config.latex_engine)
 
         # sort out some elements
         self.elements = self.builder.context.copy()
@@ -795,13 +795,14 @@ class LaTeXTranslator(SphinxTranslator):
 
     def render(self, template_name, variables):
         # type: (str, Dict) -> str
+        renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.builder.config.templates_path:
             template = path.join(self.builder.confdir, template_dir,
                                  template_name)
             if path.exists(template):
-                return LaTeXRenderer().render(template, variables)
+                return renderer.render(template, variables)
 
-        return LaTeXRenderer().render(template_name, variables)
+        return renderer.render(template_name, variables)
 
     def visit_document(self, node):
         # type: (nodes.Element) -> None

@@ -9,7 +9,7 @@
 """
 
 import re
-from typing import Dict
+from typing import Callable, Dict
 
 tex_replacements = [
     # map TeX special chars
@@ -46,6 +46,14 @@ tex_replacements = [
     ('|', r'\textbar{}'),
     ('ℯ', r'e'),
     ('ⅈ', r'i'),
+    # Greek alphabet not escaped: pdflatex handles it via textalpha and inputenc
+    # OHM SIGN U+2126 is handled by LaTeX textcomp package
+]
+
+# A map Unicode characters to LaTeX representation
+# (for LaTeX engines which don't support unicode)
+unicode_tex_replacements = [
+    # superscript
     ('⁰', r'\(\sp{\text{0}}\)'),
     ('¹', r'\(\sp{\text{1}}\)'),
     ('²', r'\(\sp{\text{2}}\)'),
@@ -56,6 +64,7 @@ tex_replacements = [
     ('⁷', r'\(\sp{\text{7}}\)'),
     ('⁸', r'\(\sp{\text{8}}\)'),
     ('⁹', r'\(\sp{\text{9}}\)'),
+    # subscript
     ('₀', r'\(\sb{\text{0}}\)'),
     ('₁', r'\(\sb{\text{1}}\)'),
     ('₂', r'\(\sb{\text{2}}\)'),
@@ -66,18 +75,30 @@ tex_replacements = [
     ('₇', r'\(\sb{\text{7}}\)'),
     ('₈', r'\(\sb{\text{8}}\)'),
     ('₉', r'\(\sb{\text{9}}\)'),
-    # Greek alphabet not escaped: pdflatex handles it via textalpha and inputenc
-    # OHM SIGN U+2126 is handled by LaTeX textcomp package
 ]
 
 tex_escape_map = {}  # type: Dict[int, str]
+tex_escape_map_without_unicode = {}  # type: Dict[int, str]
 tex_replace_map = {}
 tex_hl_escape_map_new = {}
+
+
+def get_escape_func(latex_engine: str) -> Callable[[str], str]:
+    """Get escape() function for given latex_engine."""
+    if latex_engine in ('lualatex', 'xelatex'):
+        return escape_for_unicode_latex_engine
+    else:
+        return escape
 
 
 def escape(s: str) -> str:
     """Escape text for LaTeX output."""
     return s.translate(tex_escape_map)
+
+
+def escape_for_unicode_latex_engine(s: str) -> str:
+    """Escape text for unicode supporting LaTeX engine."""
+    return s.translate(tex_escape_map_without_unicode)
 
 
 def escape_abbr(text: str) -> str:
@@ -87,6 +108,11 @@ def escape_abbr(text: str) -> str:
 
 def init() -> None:
     for a, b in tex_replacements:
+        tex_escape_map[ord(a)] = b
+        tex_escape_map_without_unicode[ord(a)] = b
+        tex_replace_map[ord(a)] = '_'
+
+    for a, b in unicode_tex_replacements:
         tex_escape_map[ord(a)] = b
         tex_replace_map[ord(a)] = '_'
 
