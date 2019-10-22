@@ -374,6 +374,7 @@ def inspect_main(argv: List[str]) -> None:
     class MockConfig:
         intersphinx_timeout = None  # type: int
         tls_verify = False
+        user_agent = None
 
     class MockApp:
         srcdir = ''

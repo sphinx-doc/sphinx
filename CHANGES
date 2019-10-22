@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #1331: Change default User-Agent header to ``"Sphinx/X.Y.Z requests/X.Y.Z
+  python/X.Y.Z"``.  It can be changed via :confval:`user_agent`.
+
 Deprecated
 ----------
 
@@ -19,6 +22,7 @@ Features added
 * #6707: C++, support bit-fields.
 * #267: html: Eliminate prompt characters of doctest block from copyable text
 * #6729: html theme: agogo theme now supports ``rightsidebar`` option
+* #1331: Add new config variable: :confval:`user_agent`
 
 Bugs fixed
 ----------
