@@ -10,6 +10,8 @@
 
 import re
 
+from hashlib import sha512
+
 import pytest
 
 from sphinx.ext.graphviz import ClickableMapDefinition
@@ -129,7 +131,7 @@ def test_graphviz_parse_mapfile():
                '</map>')
     cmap = ClickableMapDefinition('dummy.map', content, code)
     assert cmap.filename == 'dummy.map'
-    assert cmap.id == 'grapvizb08107169e'
+    assert cmap.id == 'grapviz%s' % sha512(code.encode()).hexdigest()[-10:]
     assert len(cmap.clickable) == 0
     assert cmap.generate_clickable_map() == ''
 
@@ -145,7 +147,7 @@ def test_graphviz_parse_mapfile():
                '</map>')
     cmap = ClickableMapDefinition('dummy.map', content, code)
     assert cmap.filename == 'dummy.map'
-    assert cmap.id == 'grapviza4ccdd48ce'
+    assert cmap.id == 'grapviz%s' % sha512(code.encode()).hexdigest()[-10:]
     assert len(cmap.clickable) == 1
     assert cmap.generate_clickable_map() == content.replace('%3', cmap.id)
 

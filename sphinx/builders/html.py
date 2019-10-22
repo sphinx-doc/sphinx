@@ -13,7 +13,7 @@ import posixpath
 import re
 import sys
 import warnings
-from hashlib import md5
+from hashlib import sha512
 from os import path
 from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
 
@@ -70,14 +70,14 @@ return_codes_re = re.compile('[\r\n]+')
 def get_stable_hash(obj: Any) -> str:
     """
     Return a stable hash for a Python data structure.  We can't just use
-    the md5 of str(obj) since for example dictionary items are enumerated
+    the sha512 of str(obj) since for example dictionary items are enumerated
     in unpredictable order due to hash randomization in newer Pythons.
     """
     if isinstance(obj, dict):
         return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
-    return md5(str(obj).encode()).hexdigest()
+    return sha512(str(obj).encode()).hexdigest()
 
 
 class Stylesheet(str):

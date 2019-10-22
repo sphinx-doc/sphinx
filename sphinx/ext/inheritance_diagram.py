@@ -38,7 +38,7 @@ r"""
 import builtins
 import inspect
 import re
-from hashlib import md5
+from hashlib import sha512
 from importlib import import_module
 from typing import Any, Dict, Iterable, List, Tuple
 from typing import cast
@@ -385,7 +385,7 @@ class InheritanceDiagram(SphinxDirective):
 
 def get_graph_hash(node: inheritance_diagram) -> str:
     encoded = (node['content'] + str(node['parts'])).encode()
-    return md5(encoded).hexdigest()[-10:]
+    return sha512(encoded).hexdigest()[-10:]
 
 
 def html_visit_inheritance_diagram(self: HTMLTranslator, node: inheritance_diagram) -> None:

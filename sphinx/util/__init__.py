@@ -21,7 +21,7 @@ import warnings
 from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
-from hashlib import md5
+from hashlib import sha512
 from importlib import import_module
 from os import path
 from time import mktime, strptime
@@ -168,7 +168,7 @@ class DownloadFiles(dict):
 
     def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
-            digest = md5(filename.encode()).hexdigest()
+            digest = sha512(filename.encode()).hexdigest()
             dest = '%s/%s' % (digest, os.path.basename(filename))
             self[filename] = (set(), dest)
 

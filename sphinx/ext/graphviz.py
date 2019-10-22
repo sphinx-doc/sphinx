@@ -12,7 +12,7 @@
 import posixpath
 import re
 import subprocess
-from hashlib import sha1
+from hashlib import sha512
 from os import path
 from subprocess import CalledProcessError, PIPE
 from typing import Any, Dict, List, Tuple
@@ -66,7 +66,7 @@ class ClickableMapDefinition:
         if self.id == '%3':
             # graphviz generates wrong ID if graph name not specified
             # https://gitlab.com/graphviz/graphviz/issues/1327
-            hashed = sha1(dot.encode()).hexdigest()
+            hashed = sha512(dot.encode()).hexdigest()
             self.id = 'grapviz%s' % hashed[-10:]
             self.content[0] = self.content[0].replace('%3', self.id)
 
@@ -212,7 +212,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
     hashkey = (code + str(options) + str(graphviz_dot) +
                str(self.builder.config.graphviz_dot_args)).encode()
 
-    fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
+    fname = '%s-%s.%s' % (prefix, sha512(hashkey).hexdigest(), format)
     relfn = posixpath.join(self.builder.imgpath, fname)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
 

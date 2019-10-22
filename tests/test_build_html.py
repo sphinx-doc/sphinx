@@ -10,7 +10,7 @@
 
 import os
 import re
-from hashlib import md5
+from hashlib import sha512
 from itertools import cycle, chain
 
 import pytest
@@ -452,9 +452,9 @@ def test_html_download(app):
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5(b'dummy.dat').hexdigest()
+    digest = sha512(b'dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
-    digest_another = md5(b'another/dummy.dat').hexdigest()
+    digest_another = sha512(b'another/dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').text()

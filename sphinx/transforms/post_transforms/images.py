@@ -9,7 +9,7 @@
 """
 
 import os
-from hashlib import sha1
+from hashlib import sha512
 from math import ceil
 from typing import Any, Dict, List, Tuple
 
@@ -64,12 +64,12 @@ class ImageDownloader(BaseImageConverter):
                 basename = basename.split('?')[0]
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
-                basename = sha1(filename.encode()).hexdigest() + ext
+                basename = sha512(filename.encode()).hexdigest() + ext
 
             dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
                                                                  ord("&"): "/"})
             if len(dirname) > MAX_FILENAME_LEN:
-                dirname = sha1(dirname.encode()).hexdigest()
+                dirname = sha512(dirname.encode()).hexdigest()
             ensuredir(os.path.join(self.imagedir, dirname))
             path = os.path.join(self.imagedir, dirname, basename)
 
@@ -131,7 +131,7 @@ class DataURIExtractor(BaseImageConverter):
             return
 
         ensuredir(os.path.join(self.imagedir, 'embeded'))
-        digest = sha1(image.data).hexdigest()
+        digest = sha512(image.data).hexdigest()
         path = os.path.join(self.imagedir, 'embeded', digest + ext)
         self.app.env.original_image_uri[path] = node['uri']
 

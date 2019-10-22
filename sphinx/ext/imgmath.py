@@ -14,7 +14,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from hashlib import sha1
+from hashlib import sha512
 from os import path
 from subprocess import CalledProcessError, PIPE
 from typing import Any, Dict, List, Tuple
@@ -262,7 +262,7 @@ def render_math(self: HTMLTranslator, math: str) -> Tuple[str, int]:
                                  self.builder.config,
                                  self.builder.confdir)
 
-    filename = "%s.%s" % (sha1(latex.encode()).hexdigest(), image_format)
+    filename = "%s.%s" % (sha512(latex.encode()).hexdigest(), image_format)
     relfn = posixpath.join(self.builder.imgpath, 'math', filename)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
     if path.isfile(outfn):
