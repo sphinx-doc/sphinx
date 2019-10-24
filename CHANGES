@@ -90,6 +90,7 @@ Bugs fixed
 
 * #6641: LaTeX: Undefined control sequence ``\sphinxmaketitle``
 * #6710: LaTeX not well configured for Greek language as main language
+* #6759: validation of html static paths and extra paths no longer throws an error if the paths are in different directories
 
 Testing
 --------
