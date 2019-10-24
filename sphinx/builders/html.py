@@ -1165,7 +1165,9 @@ def validate_html_extra_path(app: Sphinx, config: Config) -> None:
         else:
             try:
                 common_path = path.commonpath([app.outdir, extra_path])
-            except ValueError:  # different directories, can skip to next
+            except ValueError as e:  # different directories, can skip to next
+                if e.args[0] != "Paths don't have the same drive":
+                    raise e
                 continue
             if common_path == app.outdir:
                 logger.warning(__('html_extra_path entry %r is placed inside outdir'), entry)
@@ -1182,7 +1184,9 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
         else:
             try:
                 common_path = path.commonpath([app.outdir, static_path])
-            except ValueError:  # different directories, can skip to next
+            except ValueError as e:  # different directories, can skip to next
+                if e.args[0] != "Paths don't have the same drive":
+                    raise e
                 continue
             if common_path == app.outdir:
                 logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
