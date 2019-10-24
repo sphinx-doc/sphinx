@@ -1,0 +1,110 @@
+{%- set members = get_members() %}
+{%- set all = get_members(in_list='__all__', include_imported=True) %}
+{%- set all_refs = get_members(in_list='__all__', include_imported=True, out_format='refs', known_refs='__known_refs__') -%}
+{%- set exceptions = get_members(typ='exception') -%}
+{%- set classes = get_members(typ='class') -%}
+{%- set functions = get_members(typ='function') -%}
+{%- set data = get_members(typ='data', in_list='__all__') -%}
+{%- set members_complete = get_members(include_imported=True, include_private=True) -%}{# DEBUG #}
+{%- set members_complete_table = get_members(include_imported=True, include_private=True, out_format='table') -%}{# DEBUG #}
+{%- set members_complete_refs = get_members(include_imported=True, include_private=True, out_format='refs', known_refs={'CONST2': ':data:`CONST2 <foopackage.subbar.foo.CONST2>`'}) -%}{# DEBUG #}
+{%- set members_complete_fullnames = get_members(include_imported=True, include_private=True, out_format='fullnames') -%}{# DEBUG #}
+{%- set private_refs = get_members(in_list='__private__', include_private=True, out_format='refs') -%}{# DEBUG #}
+{%- set private = get_members(in_list='__private__', include_private=True) -%}{# DEBUG #}
+{%- set all_private = get_members(in_list=('__all__', '__private__'), include_private=True) -%}{# DEBUG #}
+
+.. DEBUG
+     members={{ members }}
+     all={{ all }}
+     all_refs={{ all_refs }}
+     exceptions={{ exceptions }}
+     classes={{ classes }}
+     functions={{ functions }}
+     data={{ data }}
+     private_refs={{ private_refs }}
+     members_complete={{ members_complete }}
+     members_complete_table={{ members_complete_table }}
+     members_complete_refs={{ members_complete_refs }}
+     members_complete_fullnames={{ members_complete_fullnames }}
+     private={{ private }}
+     (all + private)={{ all + private }}
+     all_private={{ all_private }}
+     basename={{ basename }}
+     qualname={{ qualname }}
+   END DEBUG
+
+{{ [qualname, "module"] | join(" ") | e | heading }}
+
+.. currentmodule:: {{ qualname }}
+
+.. automodule:: {{ qualname }}
+{%-   if members %}
+    :members: {{ members|join(", ") }}
+    :undoc-members:
+    :show-inheritance:
+{%    endif -%}
+
+{%-   if members or all %}{# summary_members_or_all #}
+
+    Summary
+    -------
+
+{%-     if exceptions %}
+
+    Exceptions:
+
+    .. autosummary::
+        :nosignatures:
+{%        for item in exceptions %}
+        {{ item }}
+{%-       endfor %}
+{%-     endif %}
+
+{%-     if classes %}
+
+    Classes:
+
+    .. autosummary::
+        :nosignatures:
+{%        for item in classes %}
+        {{ item }}
+{%-       endfor %}
+{%-     endif %}
+
+{%-     if functions %}
+
+    Functions:
+
+    .. autosummary::
+        :nosignatures:
+{%        for item in functions %}
+        {{ item }}
+{%-       endfor %}
+{%-     endif %}
+
+{%-     if data %}
+
+    Data:
+
+    .. autosummary::
+        :nosignatures:
+{%        for item in data %}
+        {{ item }}
+{%-       endfor %}
+{%-     endif %}
+
+{%-     if all_refs %}
+
+    ``__all__``: {{ all_refs|join(", ") }}
+{%-     endif %}
+
+
+{%-   endif %}{# summary_members_or_all #}
+
+
+{%-   if members %}
+
+    Reference
+    ---------
+
+{%    endif %}

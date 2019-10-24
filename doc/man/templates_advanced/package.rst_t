@@ -1,0 +1,107 @@
+{%- set members = get_members() %}
+{%- set all = get_members(in_list='__all__', include_imported=True) %}
+{%- set all_refs = get_members(in_list='__all__', include_imported=True, out_format='refs', known_refs='__known_refs__') -%}
+{%- set exceptions = get_members(typ='exception') -%}
+{%- set classes = get_members(typ='class') -%}
+{%- set functions = get_members(typ='function') -%}
+{%- set data = get_members(typ='data', in_list='__all__') -%}
+
+{{ [pkgname, "package"] | join(" ") | e | heading }}
+
+.. currentmodule:: {{ pkgname }}
+
+.. automodule:: {{ pkgname }}
+{%-   if members %}
+    :members: {{ members|join(", ") }}
+    :undoc-members:
+    :show-inheritance:
+{%    endif -%}
+
+{%-   if submodules %}
+
+    Submodules:
+
+    .. toctree::
+       :maxdepth: 1
+{%      for item in submodules %}
+       {{ item }}
+{%-     endfor %}
+
+{%    endif -%}
+
+{%-   if subpackages %}
+
+    Subpackages:
+
+    .. toctree::
+       :maxdepth: 1
+{%      for item in subpackages %}
+       {{ item }}
+{%-     endfor %}
+{%-   endif -%}
+
+
+{%-   if members or all %}{# summary_members_or_all #}
+
+    Summary
+    -------
+
+{%-     if exceptions %}
+
+    Exceptions:
+
+    .. autosummary::
+        :nosignatures:
+{%        for item in exceptions %}
+        {{ item }}
+{%-       endfor %}
+{%-     endif %}
+
+{%-     if classes %}
+
+    Classes:
+
+    .. autosummary::
+        :nosignatures:
+{%        for item in classes %}
+        {{ item }}
+{%-       endfor %}
+{%-     endif %}
+
+{%-     if functions %}
+
+    Functions:
+
+    .. autosummary::
+        :nosignatures:
+{%        for item in functions %}
+        {{ item }}
+{%-       endfor %}
+{%-     endif %}
+
+{%-     if data %}
+
+    Data:
+
+    .. autosummary::
+        :nosignatures:
+{%        for item in data %}
+        {{ item }}
+{%-       endfor %}
+{%-     endif %}
+
+{%-     if all_refs %}
+
+    ``__all__``: {{ all_refs|join(", ") }}
+{%-     endif %}
+
+
+{%-   endif %}{# summary_members_or_all #}
+
+
+{%-   if members %}
+
+    Reference
+    ---------
+
+{%    endif %}

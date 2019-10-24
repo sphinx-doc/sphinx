@@ -16,20 +16,39 @@
 
 import argparse
 import glob
+import importlib
+import inspect
 import locale
 import os
+import re
 import sys
 import warnings
 from fnmatch import fnmatch
+from functools import partial
 from os import path
-from typing import Any, List, Tuple
+from types import ModuleType
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
+import jinja2
+from docutils import nodes
+from docutils.parsers.rst.states import RSTStateMachine, state_classes
+from docutils.utils import new_document, Reporter as NullReporter
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.ext.autodoc import (AttributeDocumenter, ClassDocumenter,
+                                DataDocumenter, DecoratorDocumenter,
+                                Documenter, ExceptionDocumenter,
+                                FunctionDocumenter,
+                                InstanceAttributeDocumenter, MethodDocumenter,
+                                ModuleDocumenter, PropertyDocumenter,
+                                SlotsAttributeDocumenter)
+from sphinx.ext.autosummary import FakeDirective
 from sphinx.locale import __
 from sphinx.util import rst
+from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
 
@@ -103,7 +122,7 @@ def format_directive(module: str, package: str = None) -> str:
     return directive
 
 
-def create_module_file(package: str, basename: str, opts: Any,
+def create_module_file(package: Optional[str], basename: str, opts: Any,
                        user_template_dir: str = None) -> None:
     """Build the text of the file and write the file."""
     qualname = module_join(package, basename)
@@ -111,9 +130,10 @@ def create_module_file(package: str, basename: str, opts: Any,
         'show_headings': not opts.noheadings,
         'basename': basename,
         'qualname': qualname,
-        'automodule_options': OPTIONS,
-    }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst_t', context)
+        'automodule_options': OPTIONS}
+    renderer = ReSTRenderer([user_template_dir, template_dir])
+    _add_get_members_to_template_env(renderer.env, qualname, opts)
+    text = renderer.render('module.rst_t', context)
     write_file(qualname, text, opts)
 
 
@@ -144,7 +164,9 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
         'automodule_options': OPTIONS,
         'show_headings': not opts.noheadings,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
+    renderer = ReSTRenderer([user_template_dir, template_dir])
+    _add_get_members_to_template_env(renderer.env, pkgname, opts)
+    text = renderer.render('package.rst_t', context)
     write_file(pkgname, text, opts)
 
     if submodules and opts.separatemodules:
@@ -169,7 +191,8 @@ def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules'
         'maxdepth': opts.maxdepth,
         'docnames': modules,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst_t', context)
+    renderer = ReSTRenderer([user_template_dir, template_dir])
+    text = renderer.render('toc.rst_t', context)
     write_file(name, text, opts)
 
 
@@ -289,6 +312,294 @@ def is_excluded(root: str, excludes: List[str]) -> bool:
     return False
 
 
+def _get_default_documenter(obj: Any, parent: Any) -> Type[Documenter]:
+    """Get default Sphinx documenter for the given `parent.obj`.
+
+    This is useful for determining the "type" of `obj` (module, class,
+    exception, data, function, method, attribute, property, ...)
+    """
+
+    documenters = [
+        ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
+        FunctionDocumenter, DecoratorDocumenter, MethodDocumenter,
+        AttributeDocumenter, PropertyDocumenter, InstanceAttributeDocumenter,
+        SlotsAttributeDocumenter
+    ]  # type: List[Type[Documenter]]
+
+    if inspect.ismodule(obj):
+        # ModuleDocumenter.can_document_member always returns False
+        return ModuleDocumenter
+
+    # Construct a fake documenter for *parent*
+    if parent is None:
+        parent_doc_cls = ModuleDocumenter  # type: Type[Documenter]
+    else:
+        parent_doc_cls = _get_default_documenter(parent, None)
+
+    if hasattr(parent, '__name__'):
+        parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
+    else:
+        parent_doc = parent_doc_cls(FakeDirective(), "")
+
+    classes = [
+        cls for cls in documenters
+        if cls.can_document_member(obj, '', False, parent_doc)
+    ]
+    if classes:
+        classes.sort(key=lambda cls: cls.priority)
+        return classes[-1]
+    else:
+        return DataDocumenter
+
+
+def _get_fullname(name: str, obj: Any) -> str:
+    if hasattr(obj, '__qualname__'):
+        try:
+            ref = obj.__module__ + '.' + obj.__qualname__
+        except AttributeError:
+            ref = obj.__name__
+        except TypeError:  # e.g. obj.__name__ is None
+            ref = name
+    elif hasattr(obj, '__name__'):
+        try:
+            ref = obj.__module__ + '.' + obj.__name__
+        except AttributeError:
+            ref = obj.__name__
+        except TypeError:  # e.g. obj.__name__ is None
+            ref = name
+    else:
+        ref = name
+    return ref
+
+
+def _get_member_ref_str(
+        name: str,
+        obj: Any,
+        role: str = 'obj',
+        known_refs: Optional[Dict] = None) -> str:
+    """generate a ReST-formmated reference link to the given `obj` of type
+    `role`, using `name` as the link text"""
+    if known_refs is not None:
+        if name in known_refs:
+            return known_refs[name]
+    ref = _get_fullname(name, obj)
+    return ":%s:`%s <%s>`" % (role, name, ref)
+
+
+def _get_members(
+        mod: ModuleType,
+        typ: Optional[str] = None,
+        include_imported: bool = False,
+        out_format: str = 'names',
+        in_list: Optional[Union[str, Tuple[str]]] = None,
+        known_refs: Optional[Union[str, Dict]] = None) \
+        -> Tuple[List[str], List[str]]:
+    """Get (filtered) public/total members of the module or package `mod`.
+
+    See the documentation of the `get_members` function inside
+    :func:`_add_get_members_to_template_env` for details.
+
+    Returns:
+        lists `public` and `items`. The lists contains the public and private +
+        public members, as strings.
+    """
+    roles = {'function': 'func', 'module': 'mod', 'class': 'class',
+             'exception': 'exc', 'data': 'data'}
+    # not included, because they cannot occur at module level:
+    #   'method': 'meth', 'attribute': 'attr', 'instanceattribute': 'attr'
+
+    out_formats = ['names', 'fullnames', 'refs', 'table']
+    if out_format not in out_formats:
+        raise ValueError("out_format %s not in %r" % (out_format, out_formats))
+
+    def check_typ(typ, mod, member):
+        """Check if mod.member is of the desired typ"""
+        if inspect.ismodule(member):
+            return False
+        documenter = _get_default_documenter(obj=member, parent=mod)
+        if typ is None:
+            return True
+        if typ == getattr(documenter, 'objtype', None):
+            return True
+        if hasattr(documenter, 'directivetype'):
+            return roles[typ] == getattr(documenter, 'directivetype')
+
+    def is_local(mod, member, name):
+        """Check whether mod.member is defined locally in module mod"""
+        if hasattr(member, '__module__'):
+            return getattr(member, '__module__') == mod.__name__
+        else:
+            # we take missing __module__ to mean the member is a data object;
+            # it is recommended to filter data by e.g. __all__
+            return True
+
+    if typ is not None and typ not in roles:
+        raise ValueError("typ must be None or one of %s"
+                         % str(list(roles.keys())))
+    items = []  # type: List[str]
+    public = []  # type: List[str]
+    item_table_tuples = []  # type: List[Tuple[str, str]]
+    public_table_tuples = []  # type: List[Tuple[str, str]]
+    known_refs_dict = {}  # type: Dict[str, str]
+    if isinstance(known_refs, str):
+        known_refs_dict = getattr(mod, known_refs, {})
+    elif isinstance(known_refs, dict):
+        known_refs_dict = known_refs
+    listed_members = []  # type: List[str]
+    if in_list is not None:
+        # combine the lists mod.<attr> for each <attr> in `in_list` into the
+        # combined list `listed_members`
+        if isinstance(in_list, str):
+            in_list = (in_list, )
+        for attr_name in in_list:
+            try:
+                listed_members.extend(getattr(mod, attr_name))
+            except AttributeError:
+                pass
+    for name in dir(mod):
+        if name.startswith('__'):
+            continue
+        try:
+            member = safe_getattr(mod, name)
+        except AttributeError:
+            continue
+        if check_typ(typ, mod, member):
+            if in_list is not None:
+                if name not in listed_members:
+                    continue
+            if not (include_imported or is_local(mod, member, name)):
+                continue
+            if out_format in ['table', 'refs']:
+                documenter = _get_default_documenter(obj=member, parent=mod)
+                role = roles.get(documenter.objtype, 'obj')
+                ref = _get_member_ref_str(name, obj=member, role=role,
+                                          known_refs=known_refs_dict)
+            if out_format == 'table':
+                docsummary = _extract_summary(member)
+                item_table_tuples.append((ref, docsummary))
+                if not name.startswith('_'):
+                    public_table_tuples.append((ref, docsummary))
+            elif out_format == 'refs':
+                items.append(ref)
+                if not name.startswith('_'):
+                    public.append(ref)
+            elif out_format == 'fullnames':
+                fullname = _get_fullname(name, obj=member)
+                items.append(fullname)
+                if not name.startswith('_'):
+                    public.append(fullname)
+            else:
+                items.append(name)
+                if not name.startswith('_'):
+                    public.append(name)
+    if out_format == 'table':
+        return (_assemble_table(public_table_tuples),
+                _assemble_table(item_table_tuples))
+    else:
+        return public, items
+
+
+def _assemble_table(rows: List[Tuple[str, str]]) -> List[str]:
+    if len(rows) == 0:
+        return []
+    lines = []
+    lines.append('.. list-table::')
+    lines.append('')
+    for row in rows:
+        lines.append('   * - %s' % row[0])
+        for col in row[1:]:
+            lines.append('     - %s' % col)
+    lines.append('')
+    return lines
+
+
+def _extract_summary(obj: Any) -> str:
+    """Extract summary from docstring.
+
+    This is used for the "table" output of ``get_members``.
+    """
+
+    periods_re = re.compile(r'\.(?:\s+)')
+
+    try:
+        doc = inspect.getdoc(obj).split("\n")
+    except AttributeError:
+        doc = []
+
+    # Skip a blank lines at the top
+    while doc and not doc[0].strip():
+        doc.pop(0)
+
+    # If there's a blank line, then we can assume the first sentence /
+    # paragraph has ended, so anything after shouldn't be part of the
+    # summary
+    for i, piece in enumerate(doc):
+        if not piece.strip():
+            doc = doc[:i]
+            break
+
+    # Try to find the "first sentence", which may span multiple lines
+    sentences = periods_re.split(" ".join(doc))
+    if len(sentences) == 1:
+        summary = sentences[0].strip()
+    else:
+        summary = ''
+        state_machine = RSTStateMachine(state_classes, 'Body')
+        while sentences:
+            summary += sentences.pop(0) + '.'
+            node = new_document('')
+            node.reporter = NullReporter('', 999, 4)
+            node.settings.pep_references = None
+            node.settings.rfc_references = None
+            node.settings.character_level_inline_markup = False
+            state_machine.run([summary], node)
+            if not node.traverse(nodes.system_message):
+                # considered as that splitting by period does not break inline
+                # markups
+                break
+
+    return summary
+
+
+def _add_get_members_to_template_env(
+        template_env: jinja2.Environment,
+        fullname: str,
+        opts: argparse.Namespace):
+    """Add `get_members` function to Jinja environment."""
+
+    def get_members(
+            fullname, typ=None, include_imported=False, out_format='names',
+            in_list=None, include_private=opts.includeprivate,
+            known_refs=None):
+        """Return a list of members.
+
+        See the apidoc manpage in the Sphinx documentation for details.
+        """
+        try:
+            mod = importlib.import_module(fullname)
+        except ImportError as exc_info:
+            warnings.warn(
+                "Cannot get members of %s: %s. Use --append-syspath, "
+                "or make sure the packages/modules processed by apidoc are "
+                "properly installed." % (fullname, exc_info)
+            )
+            return []
+        if include_private:
+            return _get_members(
+                mod, typ=typ, include_imported=include_imported,
+                out_format=out_format, in_list=in_list, known_refs=known_refs
+            )[1]
+        else:
+            return _get_members(
+                mod, typ=typ, include_imported=include_imported,
+                out_format=out_format, in_list=in_list, known_refs=known_refs
+            )[0]
+
+    template_env.globals['get_members'] = partial(
+        get_members, fullname=fullname
+    )
+
+
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
@@ -357,7 +668,7 @@ Note: By default this script will not overwrite already created files."""))
                         help=__('generate a full project with sphinx-quickstart'))
     parser.add_argument('-a', '--append-syspath', action='store_true',
                         dest='append_syspath',
-                        help=__('append module_path to sys.path, used when --full is given'))
+                        help=__('append module_path to sys.path'))
     parser.add_argument('-H', '--doc-project', action='store', dest='header',
                         help=__('project name (default: root module name)'))
     parser.add_argument('-A', '--doc-author', action='store', dest='author',
@@ -393,6 +704,9 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
     args = parser.parse_args(argv)
 
     rootpath = path.abspath(args.module_path)
+    if args.append_syspath:
+        # required for `get_members`
+        sys.path.append(rootpath)
 
     # normalize opts
 

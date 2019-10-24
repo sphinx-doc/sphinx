@@ -32,6 +32,7 @@ Other contributors, listed alphabetically, are:
 * Josip Dzolonga -- coverage builder
 * Buck Evan -- dummy builder
 * Matthew Fernandez -- todo extension fix
+* Michael Goerz -- apidoc templating
 * Hernan Grecco -- search improvements
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements

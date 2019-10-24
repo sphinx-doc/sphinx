@@ -8,6 +8,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import glob
+import os
+import re
 from collections import namedtuple
 
 import pytest
@@ -25,6 +28,37 @@ def apidoc(rootdir, tempdir, apidoc_params):
     args = ['-o', outdir, '-F', coderoot] + excludes + kwargs.get('options', [])
     apidoc_main(args)
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
+
+
+@pytest.fixture()
+def apidoc_with_templates(rootdir, tempdir, apidoc_params):
+    # like apidoc fixture, but passes "templatedir" keyword argument of
+    # pytest.mark.apidoc (or default coderoot/_templates) to apidoc_main as
+    # --templatedir (-t)
+    _, kwargs = apidoc_params
+    coderoot = rootdir / kwargs.get('coderoot', 'test-root')
+    try:
+        templatedir = rootdir / kwargs['templatedir']
+    except KeyError:
+        templatedir = coderoot / '_templates'
+    if not templatedir.isdir():
+        raise ValueError("templatedir %s does not exist" % templatedir)
+    try:
+        expected_rst = rootdir / kwargs['expected_rst']
+    except KeyError:
+        expected_rst = coderoot / '_expected_rst'
+    if not expected_rst.isdir():
+        raise ValueError("expected_rst %s does not exist" % expected_rst)
+    outdir = tempdir / 'out'
+    excludes = [coderoot / e for e in kwargs.get('excludes', [])]
+    args = (
+        ['-o', outdir, '-t', templatedir, '-a', '-F', coderoot] + excludes
+        + kwargs.get('options', [])
+    )
+    apidoc_main(args)
+    return namedtuple('apidoc', 'coderoot,outdir,expected_rst')(
+        coderoot, outdir, expected_rst
+    )
 
 
 @pytest.fixture
@@ -636,3 +670,28 @@ def test_namespace_package_file(tempdir):
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n"
                        "\n")
+
+
+@pytest.mark.apidoc(
+    coderoot='test-apidoc-templates',
+    options=['--separate', '--no-toc'],
+)
+def test_apidoc_with_templates(make_app, apidoc_with_templates):
+    """Test apidoc with a custom template using `get_members`.
+
+    The templates are in test-apidoc-templates/_templates, and the generated
+    rst files are compared against those in
+    test-apidoc-templates/_expected_rst.
+    """
+    outdir = apidoc_with_templates.outdir
+    expected_rst = apidoc_with_templates.expected_rst
+    assert (outdir / 'conf.py').isfile()
+    for file in glob.glob(expected_rst / '*.rst'):
+        file_in_out = outdir / os.path.split(file)[1]
+        assert file_in_out.isfile()
+        with open(file) as fh1, open(file_in_out) as fh2:
+            # there are some slight differences in the output between different
+            # versions of python, so we normalize the files.
+            rst1 = re.sub(r'- int\(.*? -> integer', 'xxx', fh1.read())
+            rst2 = re.sub(r'- int\(.*? -> integer', 'xxx', fh2.read())
+            assert rst1 == rst2
