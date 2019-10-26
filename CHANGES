@@ -1,17 +1,5 @@
-Release 2.2.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 2.2.1 (released Oct 26, 2019)
+=====================================
 
 Bugs fixed
 ----------
@@ -20,9 +8,6 @@ Bugs fixed
 * #6710: LaTeX not well configured for Greek language as main language
 * #6759: validation of html static paths and extra paths no longer throws
   an error if the paths are in different directories
-
-Testing
---------
 
 Release 2.2.0 (released Aug 19, 2019)
 =====================================
