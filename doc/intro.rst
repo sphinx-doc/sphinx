@@ -55,9 +55,7 @@ See the :ref:`pertinent section in the FAQ list <usingwith>`.
 Prerequisites
 -------------
 
-Sphinx needs at least **Python 3.5** to run, as well as the docutils_ and
-Jinja2_ libraries. Sphinx should work with docutils version 0.12 or some (not
-broken) SVN trunk snapshot.
+Sphinx needs at least **Python 3.5** to run. It also depends on 3rd party libraries such as docutils_ and jinja2_, but it is automatically installed when sphinx is installed.
 
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
 .. _docutils: http://docutils.sourceforge.net/
