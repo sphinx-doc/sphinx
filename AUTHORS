@@ -25,6 +25,7 @@ Other contributors, listed alphabetically, are:
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
 * Marco Buttu -- doctest extension (pyversion option)
+* Nathan Damon -- bugfix in validation of static paths in html builders
 * Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
