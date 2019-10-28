@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #6742: ``end-before`` option of :rst:dir:`literalinclude` directive does not
+  match the first line of the code block.
+
 Deprecated
 ----------
 
