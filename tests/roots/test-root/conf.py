@@ -41,6 +41,7 @@ html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
 latex_additional_files = ['svgimg.svg']
+latex_elements = {'fontenc':'\\usepackage[X2,LGR,T1]{fontenc}'}
 
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
