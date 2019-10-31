@@ -216,6 +216,9 @@ setup(
     ],
     platforms='any',
     packages=find_packages(exclude=['tests', 'utils']),
+    package_data = {
+        'sphinx': ['py.typed'],
+    },
     include_package_data=True,
     entry_points={
         'console_scripts': [
