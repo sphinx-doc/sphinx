@@ -22,6 +22,7 @@ Features added
 * #6707: C++, support bit-fields.
 * #267: html: Eliminate prompt characters of doctest block from copyable text
 * #6729: html theme: agogo theme now supports ``rightsidebar`` option
+* #6780: Add PEP-561 Support
 
 Bugs fixed
 ----------
