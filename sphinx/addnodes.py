@@ -63,20 +63,38 @@ class toctree(nodes.General, nodes.Element, translatable):
 
     def preserve_original_messages(self):
         # type: () -> None
+        # toctree entries
+        rawentries = self.setdefault('rawentries', [])
+        for title, docname in self['entries']:
+            if title:
+                rawentries.append(title)
+
+        # :caption: option
         if self.get('caption'):
             self['rawcaption'] = self['caption']
 
     def apply_translated_message(self, original_message, translated_message):
         # type: (str, str) -> None
+        # toctree entries
+        for i, (title, docname) in enumerate(self['entries']):
+            if title == original_message:
+                self['entries'][i] = (translated_message, docname)
+
+        # :caption: option
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
     def extract_original_messages(self):
         # type: () -> List[str]
+        messages = []  # type: List[str]
+
+        # toctree entries
+        messages.extend(self.get('rawentries', []))
+
+        # :caption: option
         if 'rawcaption' in self:
-            return [self['rawcaption']]
-        else:
-            return []
+            messages.append(self['rawcaption'])
+        return messages
 
 
 # domain-specific object descriptions (class, function etc.)

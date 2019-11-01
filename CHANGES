@@ -23,6 +23,7 @@ Features added
 * #267: html: Eliminate prompt characters of doctest block from copyable text
 * #6729: html theme: agogo theme now supports ``rightsidebar`` option
 * #6780: Add PEP-561 Support
+* #6483: i18n: make explicit titles in toctree translatable
 
 Bugs fixed
 ----------
