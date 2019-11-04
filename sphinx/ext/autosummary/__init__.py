@@ -587,6 +587,9 @@ def import_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, A
     """
     tried = []
     for prefix in prefixes:
+        if prefix is not None and name.startswith(prefix):
+            # Catch and avoid module cycles (e.g., sphinx.ext.sphinx.ext...)
+            continue
         try:
             if prefix:
                 prefixed_name = '.'.join([prefix, name])
