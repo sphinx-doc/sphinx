@@ -226,6 +226,25 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
 
      .. versionadded:: 1.5
 
+  ``'extrapackages'``
+     Additional LaTeX packages.  For example:
+
+     .. code-block:: python
+
+         latex_elements = {
+             'packages': r'\usepackage{isodate}'
+         }
+
+     It defaults to empty.
+
+     The specified LaTeX packages will be loaded before
+     hyperref package and packages loaded from Sphinx extensions.
+
+     .. hint:: If you'd like to load additional LaTeX packages after hyperref, use
+               ``'preamble'`` key instead.
+
+     .. versionadded:: 2.3
+
   ``'footer'``
      Additional footer content (before the indices), default empty.
 
