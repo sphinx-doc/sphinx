@@ -45,6 +45,7 @@
 <%- endfor %>
 
 <%= hyperref %>
+<%= glossaries %>
 <%= contentsname %>
 \usepackage{sphinxmessages}
 <%= tocdepth %>
@@ -66,6 +67,8 @@
 \renewcommand{\releasename}{}
 <%- endif %>
 <%= makeindex %>
+<%= abbreviations %>
+<%= makeglossaries %>
 \begin{document}
 <%= shorthandoff %>
 \pagestyle{empty}
@@ -73,6 +76,7 @@
 \pagestyle{plain}
 <%= tableofcontents %>
 \pagestyle{normal}
+<%= printacronyms %>
 <%= body %>
 <%= atendofbody %>
 <%= indices %>

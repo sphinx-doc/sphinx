@@ -151,6 +151,7 @@ DEFAULT_SETTINGS = {
                         '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
                         '% Set up styles of URL: it should be placed after hyperref.\n'
                         '\\urlstyle{same}'),
+    'glossaries':      '\\usepackage[acronym,toc]{glossaries}',
     'contentsname':    '',
     'preamble':        '',
     'title':           '',
@@ -158,11 +159,13 @@ DEFAULT_SETTINGS = {
     'author':          '',
     'releasename':     '',
     'makeindex':       '\\makeindex',
+    'makeglossaries':  '\\makeglossaries',
     'shorthandoff':    '',
     'maketitle':       '\\sphinxmaketitle',
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
     'printindex':      '\\printindex',
+    'printacronyms':   '\\printacronyms',
     'transition':      '\n\n\\bigskip\\hrule\\bigskip\n\n',
     'figure_align':    'htbp',
     'tocdepth':        '',
@@ -277,6 +280,7 @@ class Table:
         # type: (nodes.Element) -> None
         self.header = []                        # type: List[str]
         self.body = []                          # type: List[str]
+
         self.align = node.get('align')
         self.colcount = 0
         self.colspec = None                     # type: str
@@ -464,6 +468,7 @@ class LaTeXTranslator(SphinxTranslator):
         # type: (nodes.document, LaTeXBuilder) -> None
         super().__init__(document, builder)
         self.body = []  # type: List[str]
+        self.abbreviations = {}  # type: Dict[unicode, unicode]
 
         # flags
         self.in_title = 0
@@ -641,7 +646,6 @@ class LaTeXTranslator(SphinxTranslator):
         self.footnote_restricted = None     # type: nodes.Element
         self.pending_footnotes = []         # type: List[nodes.footnote_reference]
         self.curfilestack = []              # type: List[str]
-        self.handled_abbrs = set()          # type: Set[str]
 
     def pushbody(self, newbody):
         # type: (List[str]) -> None
@@ -666,7 +670,8 @@ class LaTeXTranslator(SphinxTranslator):
         # type: () -> str
         self.elements.update({
             'body': ''.join(self.body),
-            'indices': self.generate_indices()
+            'indices': self.generate_indices(),
+            'abbreviations': self.generate_abbreviations()
         })
         return self.render('latex.tex_t', self.elements)
 
@@ -752,6 +757,15 @@ class LaTeXTranslator(SphinxTranslator):
                     generate(content, collapsed)
 
         return ''.join(ret)
+
+    def generate_abbreviations(self):
+        # type: (Builder) -> unicode
+        gen_abbrs = ''
+        for abbr, explanation in self.abbreviations.items():
+            gen_abbrs += '\\newacronym{%s}{%s}{%s}\n' % (
+                    abbr, abbr, self.encode(explanation)
+            )
+        return gen_abbrs
 
     def render(self, template_name, variables):
         # type: (str, Dict) -> str
@@ -1982,13 +1996,12 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_abbreviation(self, node):
         # type: (nodes.Element) -> None
         abbr = node.astext()
-        self.body.append(r'\sphinxstyleabbreviation{')
-        # spell out the explanation once
-        if node.hasattr('explanation') and abbr not in self.handled_abbrs:
-            self.context.append('} (%s)' % self.encode(node['explanation']))
-            self.handled_abbrs.add(abbr)
+        if node.hasattr('explanation'):
+            self.body.append(r'\gls{')
+            self.abbreviations[abbr] = node['explanation']
         else:
-            self.context.append('}')
+            self.body.append('{')
+        self.context.append('}')
 
     def depart_abbreviation(self, node):
         # type: (nodes.Element) -> None
