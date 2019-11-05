@@ -510,6 +510,14 @@ General configuration
 
    .. versionadded:: 1.6.6
 
+.. confval:: user_agent
+
+   A User-Agent of Sphinx.  It is used for a header on HTTP access (ex.
+   linkcheck, intersphinx and so on).  Default is ``"Sphinx/X.Y.Z
+   requests/X.Y.Z python/X.Y.Z"``.
+
+   .. versionadded:: 2.3
+
 .. confval:: tls_verify
 
    If true, Sphinx verifies server certifications.  Default is ``True``.

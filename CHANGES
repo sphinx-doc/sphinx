@@ -9,6 +9,8 @@ Incompatible changes
 
 * #6742: ``end-before`` option of :rst:dir:`literalinclude` directive does not
   match the first line of the code block.
+* #1331: Change default User-Agent header to ``"Sphinx/X.Y.Z requests/X.Y.Z
+  python/X.Y.Z"``.  It can be changed via :confval:`user_agent`.
 
 Deprecated
 ----------
@@ -25,6 +27,7 @@ Features added
 * #6780: Add PEP-561 Support
 * #6762: latex: Allow to load additonal LaTeX packages via ``extrapackages`` key
   of :confval:`latex_elements`
+* #1331: Add new config variable: :confval:`user_agent`
 
 Bugs fixed
 ----------

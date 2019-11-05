@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 import warnings
 from contextlib import contextmanager
 from typing import Generator, Union
@@ -16,6 +17,7 @@ from urllib.parse import urlsplit
 import pkg_resources
 import requests
 
+import sphinx
 from sphinx.config import Config
 
 try:
@@ -105,14 +107,28 @@ def _get_tls_cacert(url: str, config: Config) -> Union[str, bool]:
         return certs.get(hostname, True)
 
 
+def _get_user_agent(config: Config) -> str:
+    if config.user_agent:
+        return config.user_agent
+    else:
+        return ' '.join([
+            'Sphinx/%s' % sphinx.__version__,
+            'requests/%s' % requests.__version__,
+            'python/%s' % '.'.join(map(str, sys.version_info[:3])),
+        ])
+
+
 def get(url: str, **kwargs) -> requests.Response:
     """Sends a GET request like requests.get().
 
     This sets up User-Agent header and TLS verification automatically."""
-    kwargs.setdefault('headers', dict(useragent_header))
+    headers = kwargs.setdefault('headers', {})
     config = kwargs.pop('config', None)
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
+        headers.setdefault('User-Agent', _get_user_agent(config))
+    else:
+        headers.setdefault('User-Agent', useragent_header[0][1])
 
     with ignore_insecure_warning(**kwargs):
         return requests.get(url, **kwargs)
@@ -122,10 +138,13 @@ def head(url: str, **kwargs) -> requests.Response:
     """Sends a HEAD request like requests.head().
 
     This sets up User-Agent header and TLS verification automatically."""
-    kwargs.setdefault('headers', dict(useragent_header))
+    headers = kwargs.setdefault('headers', {})
     config = kwargs.pop('config', None)
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
+        headers.setdefault('User-Agent', _get_user_agent(config))
+    else:
+        headers.setdefault('User-Agent', useragent_header[0][1])
 
     with ignore_insecure_warning(**kwargs):
         return requests.get(url, **kwargs)
