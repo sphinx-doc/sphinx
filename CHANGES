@@ -28,6 +28,8 @@ Features added
 * #6762: latex: Allow to load additonal LaTeX packages via ``extrapackages`` key
   of :confval:`latex_elements`
 * #1331: Add new config variable: :confval:`user_agent`
+* #6000: LaTeX: have backslash also be an inline literal word wrap break
+  character
 
 Bugs fixed
 ----------
@@ -47,6 +49,7 @@ Bugs fixed
 * #5070: epub: Wrong internal href fragment links
 * #6712: Allow not to install sphinx.testing as runtime (mainly for ALT Linux)
 * #6741: html: search result was broken with empty :confval:`html_file_suffix`
+* #6001: LaTeX does not wrap long code lines at backslash character
 
 Testing
 --------

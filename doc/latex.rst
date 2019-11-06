@@ -619,11 +619,14 @@ macros may be significant.
     default ``true``. Allows linebreaks inside inline literals: but extra
     potential break-points (additionally to those allowed by LaTeX at spaces
     or for hyphenation) are currently inserted only after the characters
-    ``. , ; ? ! /``. Due to TeX internals, white space in the line will be
-    stretched (or shrunk) in order to accomodate the linebreak.
+    ``. , ; ? ! /`` and ``\``. Due to TeX internals, white space in the line
+    will be stretched (or shrunk) in order to accomodate the linebreak.
 
     .. versionadded:: 1.5
        set this option value to ``false`` to recover former behaviour.
+
+    .. versionchanged:: 2.3.0
+       added potential breakpoint at ``\`` characters.
 
 ``verbatimvisiblespace``
     default ``\textcolor{red}{\textvisiblespace}``. When a long code line is
