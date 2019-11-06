@@ -69,6 +69,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6776: LaTeX: 2019-10-01 LaTeX release breaks :file:`sphinxcyrillic.sty`
+
 Testing
 --------
 

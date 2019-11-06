@@ -11,7 +11,7 @@
 \ProcessLocalKeyvalOptions* % ignore class options
 
 \ifspx@cyropt@Xtwo
-% original code by tex.sx user egreg:
+% original code by tex.sx user egreg (updated 2019/10/28):
 %   https://tex.stackexchange.com/a/460325/
 % 159 Cyrillic glyphs as available in X2 TeX 8bit font encoding
 % This assumes inputenc loaded with utf8 option, or LaTeX release
@@ -27,7 +27,9 @@
     {Ӎ}{ӎ}{Ӕ}{ӕ}{Ә}{ә}{Ӡ}{ӡ}{Ө}{ө}\do
   {%
     \begingroup\def\IeC{\protect\DeclareTextSymbolDefault}%
-    \protected@edef\@temp{\endgroup\next{X2}}\@temp
+    \protected@edef\@temp{\endgroup
+    \@ifl@t@r{\fmtversion}{2019/10/01}{\csname u8:\next\endcsname}{\next}}%
+    \@temp{X2}%
   }%
 \else
 \ifspx@cyropt@TtwoA
