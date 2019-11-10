@@ -50,6 +50,8 @@ Bugs fixed
 * #6712: Allow not to install sphinx.testing as runtime (mainly for ALT Linux)
 * #6741: html: search result was broken with empty :confval:`html_file_suffix`
 * #6001: LaTeX does not wrap long code lines at backslash character
+* #6804: LaTeX: PDF build breaks if admonition of danger type contains
+  code-block long enough not to fit on one page
 
 Testing
 --------
