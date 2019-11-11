@@ -54,6 +54,8 @@ Bugs fixed
 * #6001: LaTeX does not wrap long code lines at backslash character
 * #6804: LaTeX: PDF build breaks if admonition of danger type contains
   code-block long enough not to fit on one page
+* #6809: LaTeX: code-block in a danger type admonition can easily spill over
+  bottom of page
 
 Testing
 --------

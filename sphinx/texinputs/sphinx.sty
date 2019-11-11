@@ -1290,12 +1290,26 @@
   \endOriginalVerbatim
   \ifspx@inframed
    \egroup % finish \sphinxVerbatim@ContentsBox vbox
+   \nobreak % update page totals
    \ifdim\dimexpr\ht\sphinxVerbatim@ContentsBox+
          \dp\sphinxVerbatim@ContentsBox+
          \ht\sphinxVerbatim@TitleBox+
-         \dp\sphinxVerbatim@TitleBox>.9\textheight
+         \dp\sphinxVerbatim@TitleBox+
+         2\fboxsep+2\fboxrule+
+         % try to account for external frame parameters
+         \FrameSep+\FrameRule+
+         % Usage here of 2 baseline distances is empirical.
+         % In border case where code-block fits barely in remaining space,
+         % it gets framed and looks good but the outer frame may continue
+         % on top of next page and give (if no contents after code-block)
+         % an empty framed line, as testing showed.
+         2\baselineskip+
+         % now add all to accumulated page totals and compare to \pagegoal
+         \pagetotal+\pagedepth>\pagegoal
     % long contents: do not \MakeFramed. Do make a caption (either before or
     % after) if title exists. Continuation hints across pagebreaks dropped.
+    % FIXME? a bottom caption may end up isolated at top of next page
+    %        (no problem with a top caption, which is default)
     \spx@opt@verbatimwithframefalse
     \def\sphinxVerbatim@Title{\noindent\box\sphinxVerbatim@TitleBox\par}%
     \sphinxVerbatim@Before
