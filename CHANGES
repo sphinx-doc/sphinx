@@ -30,6 +30,7 @@ Features added
 * #1331: Add new config variable: :confval:`user_agent`
 * #6000: LaTeX: have backslash also be an inline literal word wrap break
   character
+* #6812: Improve a warning message when extensions are not parallel safe
 
 Bugs fixed
 ----------
