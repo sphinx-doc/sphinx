@@ -33,6 +33,7 @@ Features added
   character
 * #6812: Improve a warning message when extensions are not parallel safe
 * #6818: Improve Intersphinx performance for multiple remote inventories.
+* #6798: autosummary: emit ``autodoc-skip-member`` event on generating stub file
 
 Bugs fixed
 ----------
