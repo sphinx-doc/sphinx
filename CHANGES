@@ -39,6 +39,8 @@ Features added
 * #2546: apidoc: .so file support
 * #6798: autosummary: emit ``autodoc-skip-member`` event on generating stub file
 * #6483: i18n: make explicit titles in toctree translatable
+* #6816: linkcheck: Add :confval:`linkcheck_auth` option to provide
+  authentication information when doing ``linkcheck`` builds
 
 Bugs fixed
 ----------
