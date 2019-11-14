@@ -15,6 +15,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.builders.gettext.POHEADER``
 * ``sphinx.io.SphinxStandaloneReader.app``
 * ``sphinx.io.SphinxStandaloneReader.env``
 

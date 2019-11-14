@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.builders.gettext.POHEADER``
+     - 2.3
+     - 4.0
+     - ``sphinx/templates/gettext/message.pot_t`` (template file)
+
    * - ``sphinx.io.SphinxStandaloneReader.app``
      - 2.3
      - 4.0
