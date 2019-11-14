@@ -5,6 +5,7 @@
 # Translators:
 # Arif Budiman <arifpedia@gmail.com>, 2016-2017
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009
+# oon arfiandwi <oon.arfiandwi@gmail.com>, 2019
 # Sakti Dwi Cahyono <54krpl@gmail.com>, 2013,2015
 # Tumpal Gemelli, 2018
 msgid ""
@@ -12,8 +13,8 @@ msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-03-29 01:05+0900\n"
-"PO-Revision-Date: 2019-03-28 16:09+0000\n"
-"Last-Translator: Arif Budiman <arifpedia@gmail.com>\n"
+"PO-Revision-Date: 2019-11-14 15:35+0000\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
 "Language-Team: Indonesian (http://www.transifex.com/sphinx-doc/sphinx-1/language/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -50,12 +51,12 @@ msgstr "Proyek ini memerlukan sedikitnya Sphinx v%s dan maka itu tidak bisa diba
 
 #: sphinx/application.py:234
 msgid "making output directory"
-msgstr ""
+msgstr "membuat direktori keluaran"
 
 #: sphinx/application.py:239 sphinx/registry.py:470
 #, python-format
 msgid "while setting up extension %s:"
-msgstr ""
+msgstr "saat menyiapkan ekstensi %s:"
 
 #: sphinx/application.py:245
 msgid ""
@@ -81,7 +82,7 @@ msgstr "tidak tersedia untuk built-in messages"
 
 #: sphinx/application.py:298
 msgid "loading pickled environment"
-msgstr ""
+msgstr "memuat lingkungan yang diawetkan"
 
 #: sphinx/application.py:303
 #, python-format
@@ -113,17 +114,17 @@ msgstr "build %s."
 #: sphinx/application.py:557
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
-msgstr ""
+msgstr "kelas simpul %r sudah terdaftar, pengunjungnya akan diganti"
 
 #: sphinx/application.py:654
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
-msgstr ""
+msgstr "pengarahan %r sudah terdaftar, itu akan diganti"
 
 #: sphinx/application.py:677 sphinx/application.py:696
 #, python-format
 msgid "role %r is already registered, it will be overridden"
-msgstr ""
+msgstr "peran %r sudah terdaftar, itu akan diganti"
 
 #: sphinx/application.py:1179
 #, python-format
@@ -181,7 +182,7 @@ msgstr "Nilai konfigurasi %r sudah ada"
 #: sphinx/config.py:363
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
-msgstr ""
+msgstr "Ada kesalahan sintaksis dalam file konfigurasi Anda: %s\n"
 
 #: sphinx/config.py:366
 msgid ""
@@ -201,7 +202,7 @@ msgstr "Terdapat kesalahan programmable dalam berkas konfigurasi anda:\n\n%s"
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
-msgstr ""
+msgstr "Nilai konfigurasi `source_suffix 'mengharapkan sebuah string, daftar string, atau kamus. Tetapi `%r' diberikan."
 
 #: sphinx/config.py:405
 #, python-format
@@ -233,7 +234,7 @@ msgstr "Nilai konfigurasi `{name}` harus salah satu dari {candidates}, tapi `{cu
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
-msgstr ""
+msgstr "Nilai konfigurasi `{name}' memiliki tipe `{current.__name__}'; diharapkan {permitted}."
 
 #: sphinx/config.py:478
 msgid ""
@@ -257,7 +258,7 @@ msgstr "primary_domain %r tidak ditemukan, diabaikan."
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as master_doc by default. Please add "
 "\"master_doc = 'contents'\" to your conf.py."
-msgstr ""
+msgstr "Sejak v2.0, Sphinx menggunakan \"index\" sebagai master_doc secara bawaan. Silakan tambahkan \"master_doc = 'contents'\" ke conf.py Anda"
 
 #: sphinx/events.py:54
 #, python-format
@@ -295,7 +296,7 @@ msgstr "Tidak dapat menjalankan lex literal_block sebagai \"%s\". Menyoroti yang
 
 #: sphinx/project.py:59
 msgid "document not readable. Ignored."
-msgstr ""
+msgstr "dokumen tidak dapat dibaca. Diabaikan."
 
 #: sphinx/registry.py:131
 #, python-format
@@ -330,17 +331,17 @@ msgstr "domain %s belum didaftarkan"
 #: sphinx/registry.py:201
 #, python-format
 msgid "The %r directive is already registered to domain %s"
-msgstr ""
+msgstr "Pengarahan %r sudah terdaftar di domain %s"
 
 #: sphinx/registry.py:215
 #, python-format
 msgid "The %r role is already registered to domain %s"
-msgstr ""
+msgstr "Peran %r sudah terdaftar di domain %s"
 
 #: sphinx/registry.py:226
 #, python-format
 msgid "The %r index is already registered to domain %s"
-msgstr ""
+msgstr "Indeks %r sudah terdaftar ke domain %s"
 
 #: sphinx/registry.py:250
 #, python-format
@@ -375,7 +376,7 @@ msgstr "source_input untuk %r telah didaftarkan"
 #: sphinx/registry.py:363
 #, python-format
 msgid "Translator for %r already exists"
-msgstr ""
+msgstr "Penerjemah untuk %r sudah ada"
 
 #: sphinx/registry.py:375
 #, python-format
@@ -554,11 +555,11 @@ msgstr "tidak ditemukan apapun"
 
 #: sphinx/builders/__init__.py:354
 msgid "pickling environment"
-msgstr ""
+msgstr "lingkungan pengawetan"
 
 #: sphinx/builders/__init__.py:360
 msgid "checking consistency"
-msgstr ""
+msgstr "memeriksa konsistensi"
 
 #: sphinx/builders/__init__.py:364
 msgid "no targets are out of date."
@@ -566,16 +567,16 @@ msgstr "tidak ada target yang usang."
 
 #: sphinx/builders/__init__.py:404
 msgid "updating environment: "
-msgstr ""
+msgstr "memperbarui lingkungan:"
 
 #: sphinx/builders/__init__.py:423
 #, python-format
 msgid "%s added, %s changed, %s removed"
-msgstr ""
+msgstr "%s ditambahkan, %s diubah, %s dihapus"
 
 #: sphinx/builders/__init__.py:462 sphinx/builders/__init__.py:492
 msgid "reading sources... "
-msgstr ""
+msgstr "membaca sumber... "
 
 #: sphinx/builders/__init__.py:497 sphinx/builders/__init__.py:612
 msgid "waiting for workers..."
@@ -588,12 +589,12 @@ msgstr "docnames yang akan ditulis: %s"
 
 #: sphinx/builders/__init__.py:560 sphinx/builders/singlehtml.py:166
 msgid "preparing documents"
-msgstr ""
+msgstr "menyiapkan dokumen"
 
 #: sphinx/builders/_epub_base.py:218
 #, python-format
 msgid "duplicated ToC entry found: %s"
-msgstr ""
+msgstr "entri ToC ganda ditemukan: %s"
 
 #: sphinx/builders/_epub_base.py:414 sphinx/builders/html.py:761
 #: sphinx/builders/latex/__init__.py:415 sphinx/builders/texinfo.py:190
@@ -618,7 +619,7 @@ msgstr "tidak dapat menulis berkas gambar %r: %s"
 
 #: sphinx/builders/_epub_base.py:455
 msgid "Pillow not found - copying image files"
-msgstr ""
+msgstr "Pillow tidak ditemukan - menyalin berkas gambar"
 
 #: sphinx/builders/_epub_base.py:490 sphinx/builders/_epub_base.py:503
 #: sphinx/builders/_epub_base.py:539 sphinx/builders/_epub_base.py:724
@@ -644,7 +645,7 @@ msgstr "tidak ada pengubahan dalam versi %s."
 
 #: sphinx/builders/changes.py:70
 msgid "writing summary file..."
-msgstr ""
+msgstr "menulis berkas ringkasan..."
 
 #: sphinx/builders/changes.py:86
 msgid "Builtins"
@@ -899,7 +900,7 @@ msgstr "math_renderer %r yang tidak diketahui diberikan."
 #: sphinx/builders/html.py:1264
 #, python-format
 msgid "%s %s documentation"
-msgstr "dokumentasi %s %s"
+msgstr "Dokumentasi %s %s"
 
 #: sphinx/builders/linkcheck.py:80
 #, python-format
@@ -928,12 +929,12 @@ msgstr "tidak ditemukan nilai konfigurasi \"man_pages\"; halaman manual tidak ak
 #: sphinx/builders/latex/__init__.py:272 sphinx/builders/manpage.py:64
 #: sphinx/builders/singlehtml.py:174 sphinx/builders/texinfo.py:120
 msgid "writing"
-msgstr ""
+msgstr "penulisan"
 
 #: sphinx/builders/manpage.py:76
 #, python-format
 msgid "\"man_pages\" config value references unknown document %s"
-msgstr ""
+msgstr "\"man_pages\" nilai konfigurasi mengacu pada dokumen tidak diketahui %s"
 
 #: sphinx/builders/singlehtml.py:37
 #, python-format
@@ -942,11 +943,11 @@ msgstr "Halaman HTML berada di %(outdir)s."
 
 #: sphinx/builders/singlehtml.py:169
 msgid "assembling single document"
-msgstr ""
+msgstr "merakit dokumen tunggal"
 
 #: sphinx/builders/singlehtml.py:188
 msgid "writing additional files"
-msgstr ""
+msgstr "menulis file tambahan"
 
 #: sphinx/builders/texinfo.py:50
 #, python-format
@@ -972,7 +973,7 @@ msgstr "nilai konfigurasi \"texinfo_documents\" mereferensikan dokumen yang tida
 #: sphinx/builders/latex/__init__.py:255 sphinx/builders/texinfo.py:116
 #, python-format
 msgid "processing %s"
-msgstr ""
+msgstr "memroses %s"
 
 #: sphinx/builders/latex/__init__.py:323 sphinx/builders/texinfo.py:164
 msgid "resolving references..."
@@ -984,12 +985,12 @@ msgstr " (dalam "
 
 #: sphinx/builders/texinfo.py:205
 msgid "copying Texinfo support files"
-msgstr ""
+msgstr "menyalin berkas pendukung Texinfo"
 
 #: sphinx/builders/texinfo.py:209
 #, python-format
 msgid "error writing file Makefile: %s"
-msgstr ""
+msgstr "kesalahan menulis berkas Makefile: %s"
 
 #: sphinx/builders/text.py:33
 #, python-format
@@ -1046,11 +1047,11 @@ msgstr "Rilis"
 #: sphinx/builders/latex/__init__.py:224 sphinx/writers/latex.py:549
 #, python-format
 msgid "no Babel option known for language %r"
-msgstr ""
+msgstr "tidak ada opsi Babel yang dikenal untuk bahasa %r"
 
 #: sphinx/builders/latex/__init__.py:363
 msgid "copying TeX support files"
-msgstr ""
+msgstr "menyalin berkas pendukung TeX"
 
 #: sphinx/builders/latex/__init__.py:384
 msgid "copying TeX support files..."
@@ -1058,7 +1059,7 @@ msgstr "menyalin berkas pendukung TeX... "
 
 #: sphinx/builders/latex/__init__.py:404
 msgid "copying additional files"
-msgstr ""
+msgstr "menyalin berkas tambahan"
 
 #: sphinx/builders/latex/__init__.py:447
 #, python-format
@@ -1090,7 +1091,7 @@ msgstr "Traceback lengkap telah disimpan di %s, bila ingin melaporkan masalah in
 
 #: sphinx/cmd/build.py:63
 msgid "Recursion error:"
-msgstr "Kesalahan recursion:"
+msgstr "Kesalahan rekursi:"
 
 #: sphinx/cmd/build.py:66
 msgid ""
@@ -1437,11 +1438,11 @@ msgstr "\nSphinx punya gagasan sebuah \"version\" dan \"release\" untuk\nperanti
 
 #: sphinx/cmd/quickstart.py:302
 msgid "Project version"
-msgstr ""
+msgstr "Versi proyek"
 
 #: sphinx/cmd/quickstart.py:304
 msgid "Project release"
-msgstr ""
+msgstr "Rilis proyek"
 
 #: sphinx/cmd/quickstart.py:307
 msgid ""
@@ -1456,18 +1457,18 @@ msgstr ""
 
 #: sphinx/cmd/quickstart.py:314
 msgid "Project language"
-msgstr ""
+msgstr "Bahasa proyek"
 
 #: sphinx/cmd/quickstart.py:319
 msgid ""
 "\n"
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
 "or \".rst\".  Only files with this suffix are considered documents."
-msgstr ""
+msgstr "\nAkhiran nama file untuk file sumber. Biasanya, ini adalah \".txt\" \natau \".rst\". Hanya file dengan akhiran ini yang dianggap dokumen."
 
 #: sphinx/cmd/quickstart.py:322
 msgid "Source file suffix"
-msgstr ""
+msgstr "Akhiran berkas sumber"
 
 #: sphinx/cmd/quickstart.py:325
 msgid ""
@@ -1476,36 +1477,36 @@ msgid ""
 "\"contents tree\", that is, it is the root of the hierarchical structure\n"
 "of the documents. Normally, this is \"index\", but if your \"index\"\n"
 "document is a custom template, you can also set this to another filename."
-msgstr ""
+msgstr "\nSatu dokumen istimewa karena dianggap sebagai simpul teratas \ndari \"pohon isi\", yaitu akar dari struktur hierarki \ndokumen. Biasanya, ini adalah \"indeks\", tetapi jika dokumen \"indeks\" \nAnda adalah template khusus, Anda juga dapat mengatur ini ke nama berkas lain."
 
 #: sphinx/cmd/quickstart.py:330
 msgid "Name of your master document (without suffix)"
-msgstr ""
+msgstr "Nama dokumen master Anda (tanpa akhiran)"
 
 #: sphinx/cmd/quickstart.py:336
 #, python-format
 msgid ""
 "Error: the master file %s has already been found in the selected root path."
-msgstr ""
+msgstr "Kesalahan: file master %s telah ditemukan di jalur utama yang dipilih."
 
 #: sphinx/cmd/quickstart.py:338
 msgid "sphinx-quickstart will not overwrite the existing file."
-msgstr ""
+msgstr "sphinx-quickstart tidak akan menimpa berkas yang sudah ada."
 
 #: sphinx/cmd/quickstart.py:340
 msgid ""
 "Please enter a new file name, or rename the existing file and press Enter"
-msgstr ""
+msgstr "Silakan masukkan nama file baru, atau ganti nama file yang ada dan tekan Enter"
 
 #: sphinx/cmd/quickstart.py:344
 msgid "Indicate which of the following Sphinx extensions should be enabled:"
-msgstr ""
+msgstr "Tunjukkan ekstensi Sphinx berikut mana yang harus diaktifkan:"
 
 #: sphinx/cmd/quickstart.py:353
 msgid ""
 "Note: imgmath and mathjax cannot be enabled at the same time. imgmath has "
 "been deselected."
-msgstr ""
+msgstr "Catatan: imgmath dan mathjax tidak dapat diaktifkan secara bersamaan. imgmath telah diubah tidak pilih."
 
 #: sphinx/cmd/quickstart.py:358
 msgid ""
@@ -1513,29 +1514,29 @@ msgid ""
 "A Makefile and a Windows command file can be generated for you so that you\n"
 "only have to run e.g. `make html' instead of invoking sphinx-build\n"
 "directly."
-msgstr ""
+msgstr "\nBerkas Makefile dan perintah Windows dapat dibuat untuk Anda sehingga Anda \nhanya perlu menjalankan mis. `make html' alih-alih memanggil sphinx-build \nsecara langsung."
 
 #: sphinx/cmd/quickstart.py:362
 msgid "Create Makefile? (y/n)"
-msgstr ""
+msgstr "Buat Makefile? (y/n)"
 
 #: sphinx/cmd/quickstart.py:365
 msgid "Create Windows command file? (y/n)"
-msgstr ""
+msgstr "Buat berkas perintah Windows? (y/n)"
 
 #: sphinx/cmd/quickstart.py:408 sphinx/ext/apidoc.py:74
 #, python-format
 msgid "Creating file %s."
-msgstr ""
+msgstr "Membuat file %s."
 
 #: sphinx/cmd/quickstart.py:413 sphinx/ext/apidoc.py:72
 #, python-format
 msgid "File %s already exists, skipping."
-msgstr ""
+msgstr "File %s sudah ada, lewati."
 
 #: sphinx/cmd/quickstart.py:449
 msgid "Finished: An initial directory structure has been created."
-msgstr ""
+msgstr "Selesai: Struktur direktori awal telah dibuat."
 
 #: sphinx/cmd/quickstart.py:450
 #, python-format
@@ -1543,26 +1544,26 @@ msgid ""
 "\n"
 "You should now populate your master file %s and create other documentation\n"
 "source files. "
-msgstr ""
+msgstr "\nAnda sekarang harus mengisi file master Anda %s dan membuat file sumber \ndokumentasi lainnya."
 
 #: sphinx/cmd/quickstart.py:452
 msgid ""
 "Use the Makefile to build the docs, like so:\n"
 "   make builder\n"
-msgstr ""
+msgstr "Gunakan Makefile untuk membangun dokumen, seperti: \n   make builder\n"
 
 #: sphinx/cmd/quickstart.py:455
 #, python-format
 msgid ""
 "Use the sphinx-build command to build the docs, like so:\n"
 "   sphinx-build -b builder %s %s\n"
-msgstr ""
+msgstr "Gunakan perintah sphinx-build untuk membangun dokumen, seperti: \n   sphinx-build -b builder %s %s\n"
 
 #: sphinx/cmd/quickstart.py:458
 msgid ""
 "where \"builder\" is one of the supported builders, e.g. html, latex or "
 "linkcheck.\n"
-msgstr ""
+msgstr "di mana \"pembangun\" adalah salah satu pembangun yang didukung, mis. html, lateks, atau centang tautan.\n"
 
 #: sphinx/cmd/quickstart.py:498
 msgid ""
@@ -1572,140 +1573,140 @@ msgid ""
 "sphinx-quickstart is an interactive tool that asks some questions about your\n"
 "project and then generates a complete documentation directory and sample\n"
 "Makefile to be used with sphinx-build.\n"
-msgstr ""
+msgstr "\nHasilkan file yang diperlukan untuk proyek Sphinx. \n\nsphinx-quickstart adalah alat interaktif yang menanyakan beberapa pertanyaan tentang proyek Anda \ndan kemudian menghasilkan direktori dokumentasi lengkap dan contoh \nMakefile untuk digunakan dengan sphinx-build.\n"
 
 #: sphinx/cmd/quickstart.py:508
 msgid "quiet mode"
-msgstr ""
+msgstr "mode diam"
 
 #: sphinx/cmd/quickstart.py:513
 msgid "output path"
-msgstr ""
+msgstr "jalur keluaran"
 
 #: sphinx/cmd/quickstart.py:515
 msgid "Structure options"
-msgstr ""
+msgstr "Opsi struktur"
 
 #: sphinx/cmd/quickstart.py:517
 msgid "if specified, separate source and build dirs"
-msgstr ""
+msgstr "jika ditentukan, pisahkan direktori sumber dan pembangunan"
 
 #: sphinx/cmd/quickstart.py:519
 msgid "replacement for dot in _templates etc."
-msgstr ""
+msgstr "pengganti dot di _templates dll."
 
 #: sphinx/cmd/quickstart.py:521
 msgid "Project basic options"
-msgstr ""
+msgstr "Opsi dasar proyek"
 
 #: sphinx/cmd/quickstart.py:523
 msgid "project name"
-msgstr ""
+msgstr "nama proyek"
 
 #: sphinx/cmd/quickstart.py:525
 msgid "author names"
-msgstr ""
+msgstr "nama penulis"
 
 #: sphinx/cmd/quickstart.py:527
 msgid "version of project"
-msgstr ""
+msgstr "versi proyek"
 
 #: sphinx/cmd/quickstart.py:529
 msgid "release of project"
-msgstr ""
+msgstr "rilis proyek"
 
 #: sphinx/cmd/quickstart.py:531
 msgid "document language"
-msgstr ""
+msgstr "bahasa dokumen"
 
 #: sphinx/cmd/quickstart.py:533
 msgid "source file suffix"
-msgstr ""
+msgstr "akhiran berkas sumber"
 
 #: sphinx/cmd/quickstart.py:535
 msgid "master document name"
-msgstr ""
+msgstr "nama dokumen utama"
 
 #: sphinx/cmd/quickstart.py:537
 msgid "use epub"
-msgstr ""
+msgstr "gunakan epub"
 
 #: sphinx/cmd/quickstart.py:539
 msgid "Extension options"
-msgstr ""
+msgstr "Opsi ekstensi"
 
 #: sphinx/cmd/quickstart.py:543 sphinx/ext/apidoc.py:379
 #, python-format
 msgid "enable %s extension"
-msgstr ""
+msgstr "aktifkan ekstensi %s"
 
 #: sphinx/cmd/quickstart.py:545 sphinx/ext/apidoc.py:375
 msgid "enable arbitrary extensions"
-msgstr ""
+msgstr "aktifkan ekstensi berubah-ubah"
 
 #: sphinx/cmd/quickstart.py:547
 msgid "Makefile and Batchfile creation"
-msgstr ""
+msgstr "Pembuatan Makefile dan Batchfile"
 
 #: sphinx/cmd/quickstart.py:549
 msgid "create makefile"
-msgstr ""
+msgstr "buat makefile"
 
 #: sphinx/cmd/quickstart.py:551
 msgid "do not create makefile"
-msgstr ""
+msgstr "jangan membuat makefile"
 
 #: sphinx/cmd/quickstart.py:553
 msgid "create batchfile"
-msgstr ""
+msgstr "buat batchfile"
 
 #: sphinx/cmd/quickstart.py:556
 msgid "do not create batchfile"
-msgstr ""
+msgstr "jangan membuat batchfile"
 
 #: sphinx/cmd/quickstart.py:559
 msgid "use make-mode for Makefile/make.bat"
-msgstr ""
+msgstr "gunakan mode-make untuk Makefile/make.bat"
 
 #: sphinx/cmd/quickstart.py:562
 msgid "do not use make-mode for Makefile/make.bat"
-msgstr ""
+msgstr "jangan gunakan make-mode untuk Makefile/make.bat"
 
 #: sphinx/cmd/quickstart.py:564
 msgid "Project templating"
-msgstr ""
+msgstr "Membuat templat proyek"
 
 #: sphinx/cmd/quickstart.py:567
 msgid "template directory for template files"
-msgstr ""
+msgstr "direktori templat untuk berkas templat"
 
 #: sphinx/cmd/quickstart.py:570
 msgid "define a template variable"
-msgstr ""
+msgstr "mendefinisikan variabel templat"
 
 #: sphinx/cmd/quickstart.py:604
 msgid "\"quiet\" is specified, but any of \"project\" or \"author\" is not specified."
-msgstr ""
+msgstr "\"quiet\" ditentukan, tetapi tidak ada \"project\" atau \"author\" yang ditentukan."
 
 #: sphinx/cmd/quickstart.py:618
 msgid ""
 "Error: specified path is not a directory, or sphinx files already exist."
-msgstr ""
+msgstr "Kesalahan: jalur yang ditentukan bukan direktori, atau file sphinx sudah ada."
 
 #: sphinx/cmd/quickstart.py:620
 msgid ""
 "sphinx-quickstart only generate into a empty directory. Please specify a new"
 " root path."
-msgstr ""
+msgstr "sphinx-quickstart hanya menghasilkan direktori kosong. Silakan tentukan jalur utama baru."
 
 #: sphinx/cmd/quickstart.py:635
 #, python-format
 msgid "Invalid template variable: %s"
-msgstr ""
+msgstr "Variabel templat tidak valid: %s"
 
 #: sphinx/directives/code.py:74
 msgid "Over dedent has detected"
-msgstr ""
+msgstr "Pendeteksian kelebihan telah terdeteksi"
 
 #: sphinx/directives/code.py:94
 #, python-format
@@ -1716,38 +1717,38 @@ msgstr "Keterangan tidak valid: %s"
 #: sphinx/directives/code.py:462
 #, python-format
 msgid "line number spec is out of range(1-%d): %r"
-msgstr ""
+msgstr "spesifikasi nomor baris di luar kisaran (1-%d): %r"
 
 #: sphinx/directives/code.py:222
 #, python-format
 msgid "Cannot use both \"%s\" and \"%s\" options"
-msgstr ""
+msgstr "Tidak dapat menggunakan kedua opsi \"%s\" dan \"%s\""
 
 #: sphinx/directives/code.py:235
 #, python-format
 msgid "Include file %r not found or reading it failed"
-msgstr ""
+msgstr "Berkas yang disertakan %r tidak ditemukan atau gagal membacanya"
 
 #: sphinx/directives/code.py:237
 #, python-format
 msgid ""
 "Encoding %r used for reading included file %r seems to be wrong, try giving "
 "an :encoding: option"
-msgstr ""
+msgstr "Pengkodean %r yang digunakan untuk membaca file yang disertakan %r tampaknya salah, mencoba berikan opsi :encoding:"
 
 #: sphinx/directives/code.py:275
 #, python-format
 msgid "Object named %r not found in include file %r"
-msgstr ""
+msgstr "Objek bernama %r tidak ditemukan disertakan di berkas %r"
 
 #: sphinx/directives/code.py:301
 msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
-msgstr ""
+msgstr "Tidak dapat menggunakan \"lineno-match\" dengan rangkaian \"baris\" yang terpisah"
 
 #: sphinx/directives/code.py:306
 #, python-format
 msgid "Line spec %r: no lines pulled from include file %r"
-msgstr ""
+msgstr "Spesifikasi baris %r: tidak ada baris yang ditarik dari berkas %r"
 
 #: sphinx/directives/other.py:172
 msgid "Section author: "
@@ -1851,7 +1852,7 @@ msgstr "Ditinggalkan sejak versi %s"
 msgid ""
 "Duplicate declaration, also defined in '%s'.\n"
 "Declaration is '%s'."
-msgstr ""
+msgstr "Deklarasi rangkap, juga didefinisikan dalam '%s'.\nDeklarasi adalah '%s'."
 
 #: sphinx/domains/cpp.py:6448
 msgid "Template Parameters"
@@ -1864,7 +1865,7 @@ msgstr "Throws"
 #: sphinx/domains/cpp.py:6579
 #, python-format
 msgid "%s (C++ %s)"
-msgstr ""
+msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7027 sphinx/domains/javascript.py:299
 #: sphinx/domains/python.py:744
@@ -1873,7 +1874,7 @@ msgstr "class"
 
 #: sphinx/domains/cpp.py:7028
 msgid "union"
-msgstr ""
+msgstr "union"
 
 #: sphinx/domains/cpp.py:7032
 msgid "concept"
@@ -1892,7 +1893,7 @@ msgstr "enumerator"
 msgid ""
 "Duplicate declaration, also defined in '%s'.\n"
 "Name of declaration is '%s'."
-msgstr ""
+msgstr "Deklarasi rangkap, juga didefinisikan dalam '%s'.\nNama deklarasi adalah '%s'."
 
 #: sphinx/domains/javascript.py:130 sphinx/domains/python.py:430
 #, python-format
@@ -1948,7 +1949,7 @@ msgstr "modul"
 #: sphinx/domains/math.py:101 sphinx/writers/latex.py:2459
 #, python-format
 msgid "Invalid math_eqref_format: %r"
-msgstr ""
+msgstr "Math_eqref_format tidak valid: %r"
 
 #: sphinx/domains/math.py:126
 #, python-format
@@ -2066,7 +2067,7 @@ msgstr "method static"
 #: sphinx/domains/python.py:880
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
-msgstr ""
+msgstr "lebih dari satu target ditemukan untuk referensi silang %r: %s"
 
 #: sphinx/domains/python.py:918
 msgid " (deprecated)"
@@ -2100,7 +2101,7 @@ msgstr "variabel environment; %s"
 msgid ""
 "Malformed option description %r, should look like \"opt\", \"-opt args\", \""
 "--opt args\", \"/opt args\" or \"+opt args\""
-msgstr ""
+msgstr "Deskripsi opsi salah bentuk %r, seharusnya terlihat seperti \"opt\", \"-opt args\", \"--opt args\", \"/opt args\" atau \"+opt args\""
 
 #: sphinx/domains/std.py:207
 #, python-format
@@ -2129,7 +2130,7 @@ msgstr "opsi program"
 
 #: sphinx/domains/std.py:464
 msgid "document"
-msgstr ""
+msgstr "dokumen"
 
 #: sphinx/domains/std.py:502
 msgid "Module Index"
@@ -2142,85 +2143,85 @@ msgstr "Pencarian Halaman"
 #: sphinx/domains/std.py:598
 #, python-format
 msgid "duplicate citation %s, other instance in %s"
-msgstr ""
+msgstr "kutipan rangkap %s, contoh lain dalam %s"
 
 #: sphinx/domains/std.py:631 sphinx/ext/autosectionlabel.py:56
 #, python-format
 msgid "duplicate label %s, other instance in %s"
-msgstr ""
+msgstr "label rangkap %s, contoh lain dalam %s"
 
 #: sphinx/domains/std.py:665
 #, python-format
 msgid "Citation [%s] is not referenced."
-msgstr ""
+msgstr "Kutipan [%s] tidak dirujuk."
 
 #: sphinx/domains/std.py:748
 msgid "numfig is disabled. :numref: is ignored."
-msgstr ""
+msgstr "numfig dinonaktifkan. :numref: diabaikan."
 
 #: sphinx/domains/std.py:756
 #, python-format
 msgid "no number is assigned for %s: %s"
-msgstr ""
+msgstr "tidak ada nomor yang ditetapkan untuk %s:%s"
 
 #: sphinx/domains/std.py:767
 #, python-format
 msgid "the link has no caption: %s"
-msgstr ""
+msgstr "tautan tidak memiliki teks: %s"
 
 #: sphinx/domains/std.py:781
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
-msgstr ""
+msgstr "numfig_format tidak valid: %s (%r)"
 
 #: sphinx/domains/std.py:784
 #, python-format
 msgid "invalid numfig_format: %s"
-msgstr ""
+msgstr "numfig_format tidak valid: %s"
 
 #: sphinx/environment/__init__.py:69
 msgid "new config"
-msgstr ""
+msgstr "konfigurasi baru"
 
 #: sphinx/environment/__init__.py:70
 msgid "config changed"
-msgstr ""
+msgstr "konfigurasi berubah"
 
 #: sphinx/environment/__init__.py:71
 msgid "extensions changed"
-msgstr ""
+msgstr "ekstensi berubah"
 
 #: sphinx/environment/__init__.py:210
 msgid "build environment version not current"
-msgstr ""
+msgstr "membangun lingkungan bukan versi saat ini"
 
 #: sphinx/environment/__init__.py:212
 msgid "source directory has changed"
-msgstr ""
+msgstr "direktori sumber telah berubah"
 
 #: sphinx/environment/__init__.py:283
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
-msgstr ""
+msgstr "Lingkungan ini tidak kompatibel dengan pembangun yang dipilih, silakan pilih direktori doctree lain."
 
 #: sphinx/environment/__init__.py:404
 #, python-format
 msgid "Failed to scan documents in %s: %r"
-msgstr ""
+msgstr "Gagal memindai dokumen dalam %s: %r"
 
 #: sphinx/environment/__init__.py:532
 #, python-format
 msgid "Domain %r is not registered"
-msgstr ""
+msgstr "Domain %r tidak terdaftar"
 
 #: sphinx/environment/__init__.py:617
 msgid "self referenced toctree found. Ignored."
-msgstr ""
+msgstr "totree referensikan sendiri ditemukan. Diabaikan"
 
 #: sphinx/environment/__init__.py:658
 msgid "document isn't included in any toctree"
-msgstr ""
+msgstr "dokumen tidak termasuk dalam toctree"
 
 #: sphinx/environment/adapters/indexentries.py:82
 #, python-format
@@ -2235,7 +2236,7 @@ msgstr "lihat juga %s"
 #: sphinx/environment/adapters/indexentries.py:89
 #, python-format
 msgid "unknown index entry type %r"
-msgstr ""
+msgstr "tipe entri indeks tidak dikenal %r"
 
 #: sphinx/environment/adapters/indexentries.py:156
 #: sphinx/templates/latex/sphinxmessages.sty_t:11
@@ -2245,49 +2246,49 @@ msgstr "Simbol"
 #: sphinx/environment/adapters/toctree.py:153
 #, python-format
 msgid "circular toctree references detected, ignoring: %s <- %s"
-msgstr ""
+msgstr "referensi toctree melingkar terdeteksi, mengabaikan: %s <- %s"
 
 #: sphinx/environment/adapters/toctree.py:172
 #, python-format
 msgid ""
 "toctree contains reference to document %r that doesn't have a title: no link"
 " will be generated"
-msgstr ""
+msgstr "toctree berisi referensi ke dokumen %r yang tidak memiliki judul: tidak ada tautan yang akan dihasilkan"
 
 #: sphinx/environment/adapters/toctree.py:178
 #, python-format
 msgid "toctree contains reference to excluded document %r"
-msgstr ""
+msgstr "toctree berisi referensi ke dokumen yang dikecualikan %r"
 
 #: sphinx/environment/adapters/toctree.py:180
 #, python-format
 msgid "toctree contains reference to nonexisting document %r"
-msgstr ""
+msgstr "toctree berisi referensi ke dokumen yang tidak ada %r"
 
 #: sphinx/environment/collectors/asset.py:90
 #, python-format
 msgid "image file not readable: %s"
-msgstr ""
+msgstr "berkas gambar tidak dapat dibaca: %s"
 
 #: sphinx/environment/collectors/asset.py:106
 #, python-format
 msgid "image file %s not readable: %s"
-msgstr ""
+msgstr "berkas gambar %s tidak dapat dibaca: %s"
 
 #: sphinx/environment/collectors/asset.py:134
 #, python-format
 msgid "download file not readable: %s"
-msgstr ""
+msgstr "berkas unduhan tidak dapat dibaca: %s"
 
 #: sphinx/environment/collectors/toctree.py:196
 #, python-format
 msgid "%s is already assigned section numbers (nested numbered toctree?)"
-msgstr ""
+msgstr "%s sudah diberi nomor bagian (penomoran bersarang toctree?)"
 
 #: sphinx/ext/apidoc.py:69
 #, python-format
 msgid "Would create file %s."
-msgstr ""
+msgstr "Akan membuat berkas %s."
 
 #: sphinx/ext/apidoc.py:299
 msgid ""
@@ -2299,178 +2300,178 @@ msgid ""
 "excluded from generation.\n"
 "\n"
 "Note: By default this script will not overwrite already created files."
-msgstr ""
+msgstr "\nLihat secara rekursif dalam <MODULE_PATH> untuk modul dan paket Python dan buat \nsatu berkas reST dengan arahan automodule per paket di <OUTPUT_PATH>. \n\n<EXCLUDE_PATTERN> dapat berupa pola berkas dan/atau direktori yang akan \ndikecualikan dari pembuatan. \n\nCatatan: Secara bawaan skrip ini tidak akan menimpa berkas yang sudah dibuat."
 
 #: sphinx/ext/apidoc.py:312
 msgid "path to module to document"
-msgstr ""
+msgstr "jalur ke modul ke dokumen"
 
 #: sphinx/ext/apidoc.py:314
 msgid ""
 "fnmatch-style file and/or directory patterns to exclude from generation"
-msgstr ""
+msgstr "Berkas gaya-fnmatch dan/atau pola direktori untuk dikecualikan dari pembuatan"
 
 #: sphinx/ext/apidoc.py:319
 msgid "directory to place all output"
-msgstr ""
+msgstr "direktori untuk menempatkan semua keluaran"
 
 #: sphinx/ext/apidoc.py:322
 msgid "maximum depth of submodules to show in the TOC (default: 4)"
-msgstr ""
+msgstr "kedalaman maksimum submodul untuk ditampilkan di TOC (bawaan: 4)"
 
 #: sphinx/ext/apidoc.py:325
 msgid "overwrite existing files"
-msgstr ""
+msgstr "menimpa file yang ada"
 
 #: sphinx/ext/apidoc.py:328
 msgid ""
 "follow symbolic links. Powerful when combined with "
 "collective.recipe.omelette."
-msgstr ""
+msgstr "ikuti tautan simbolik. Berdaya bila digabungkan dengan collective.recipe.omelette."
 
 #: sphinx/ext/apidoc.py:331
 msgid "run the script without creating files"
-msgstr ""
+msgstr "operasikan skrip tanpa membuat file"
 
 #: sphinx/ext/apidoc.py:334
 msgid "put documentation for each module on its own page"
-msgstr ""
+msgstr "letakkan dokumentasi untuk setiap modul di halamannya sendiri"
 
 #: sphinx/ext/apidoc.py:337
 msgid "include \"_private\" modules"
-msgstr ""
+msgstr "termasuk modul \"_private\""
 
 #: sphinx/ext/apidoc.py:339
 msgid "filename of table of contents (default: modules)"
-msgstr ""
+msgstr "nama file daftar isi (bawaan: modul)"
 
 #: sphinx/ext/apidoc.py:341
 msgid "don't create a table of contents file"
-msgstr ""
+msgstr "jangan membuat berkas daftar isi"
 
 #: sphinx/ext/apidoc.py:344
 msgid ""
 "don't create headings for the module/package packages (e.g. when the "
 "docstrings already contain them)"
-msgstr ""
+msgstr "jangan membuat judul untuk paket modul/paket (mis. ketika docstrings sudah berisi hal tersebut)"
 
 #: sphinx/ext/apidoc.py:349
 msgid "put module documentation before submodule documentation"
-msgstr ""
+msgstr "letakkan dokumentasi modul sebelum dokumentasi submodul"
 
 #: sphinx/ext/apidoc.py:353
 msgid ""
 "interpret module paths according to PEP-0420 implicit namespaces "
 "specification"
-msgstr ""
+msgstr "menafsirkan jalur modul sesuai dengan spesifikasi namespaces implisit PEP-0420"
 
 #: sphinx/ext/apidoc.py:357
 msgid "file suffix (default: rst)"
-msgstr ""
+msgstr "akhiran berkas (bawaan: rst)"
 
 #: sphinx/ext/apidoc.py:359
 msgid "generate a full project with sphinx-quickstart"
-msgstr ""
+msgstr "menghasilkan proyek penuh dengan sphinx-quickstart"
 
 #: sphinx/ext/apidoc.py:362
 msgid "append module_path to sys.path, used when --full is given"
-msgstr ""
+msgstr "menambahkan module_path ke sys.path, digunakan ketika --full diberikan"
 
 #: sphinx/ext/apidoc.py:364
 msgid "project name (default: root module name)"
-msgstr ""
+msgstr "nama proyek (bawaan: nama modul utama)"
 
 #: sphinx/ext/apidoc.py:366
 msgid "project author(s), used when --full is given"
-msgstr ""
+msgstr "penulis-(penulis) proyek, digunakan ketika --full diberikan"
 
 #: sphinx/ext/apidoc.py:368
 msgid "project version, used when --full is given"
-msgstr ""
+msgstr "versi proyek, digunakan ketika --full diberikan"
 
 #: sphinx/ext/apidoc.py:370
 msgid "project release, used when --full is given, defaults to --doc-version"
-msgstr ""
+msgstr "rilis proyek, digunakan ketika --full diberikan, bawaan ke --doc-version"
 
 #: sphinx/ext/apidoc.py:373
 msgid "extension options"
-msgstr ""
+msgstr "opsi ekstensi"
 
 #: sphinx/ext/apidoc.py:402
 #, python-format
 msgid "%s is not a directory."
-msgstr ""
+msgstr "%s bukan direktori."
 
 #: sphinx/ext/coverage.py:46
 #, python-format
 msgid "invalid regex %r in %s"
-msgstr ""
+msgstr "regex tidak valid %r dalam %s"
 
 #: sphinx/ext/coverage.py:55
 #, python-format
 msgid ""
 "Testing of coverage in the sources finished, look at the results in "
 "%(outdir)spython.txt."
-msgstr ""
+msgstr "Pengujian cakupan di sumber selesai, lihat hasilnya dalam %(outdir)spython.txt."
 
 #: sphinx/ext/coverage.py:70
 #, python-format
 msgid "invalid regex %r in coverage_c_regexes"
-msgstr ""
+msgstr "%r regex tidak valid di coverage_c_regexes"
 
 #: sphinx/ext/coverage.py:152
 #, python-format
 msgid "module %s could not be imported: %s"
-msgstr ""
+msgstr "modul %s tidak dapat diimpor: %s"
 
 #: sphinx/ext/doctest.py:132
 #, python-format
 msgid "missing '+' or '-' in '%s' option."
-msgstr ""
+msgstr "tidak ada '+' atau '-' dalam opsi '%s'."
 
 #: sphinx/ext/doctest.py:137
 #, python-format
 msgid "'%s' is not a valid option."
-msgstr ""
+msgstr "'%s' bukan opsi yang valid."
 
 #: sphinx/ext/doctest.py:151
 #, python-format
 msgid "'%s' is not a valid pyversion option"
-msgstr ""
+msgstr "'%s' bukan opsi pyversion yang valid"
 
 #: sphinx/ext/doctest.py:222
 msgid "invalid TestCode type"
-msgstr ""
+msgstr "tipe TestCode tidak valid"
 
 #: sphinx/ext/doctest.py:283
 #, python-format
 msgid ""
 "Testing of doctests in the sources finished, look at the results in "
 "%(outdir)s/output.txt."
-msgstr ""
+msgstr "Pengujian dokumen di sumber selesai, lihat hasil dalam %(outdir)s/output.txt."
 
 #: sphinx/ext/doctest.py:446
 #, python-format
 msgid "no code/output in %s block at %s:%s"
-msgstr ""
+msgstr "tidak ada kode/keluaran dalam blok %s pada %s:%s"
 
 #: sphinx/ext/doctest.py:535
 #, python-format
 msgid "ignoring invalid doctest code: %r"
-msgstr ""
+msgstr "mengabaikan kode dokumen yang tidak valid: %r"
 
 #: sphinx/ext/graphviz.py:140
 msgid "Graphviz directive cannot have both content and a filename argument"
-msgstr ""
+msgstr "Pengarahan Graphviz tidak dapat memiliki konten dan argumen nama berkas sekaligus"
 
 #: sphinx/ext/graphviz.py:150
 #, python-format
 msgid "External Graphviz file %r not found or reading it failed"
-msgstr ""
+msgstr "Berkas Graphviz eksternal %r tidak ditemukan atau gagal dibaca"
 
 #: sphinx/ext/graphviz.py:156
 msgid "Ignoring \"graphviz\" directive without content."
-msgstr ""
+msgstr "Mengabaikan pengarahan \"graphviz\" tanpa konten."
 
 #: sphinx/ext/graphviz.py:250
 #, python-format
@@ -2480,14 +2481,14 @@ msgid ""
 "%r\n"
 "[stdout]\n"
 "%r"
-msgstr ""
+msgstr "dot tidak menghasilkan berkas output: \n[stderr]\n%r\n[stdout]\n%r"
 
 #: sphinx/ext/graphviz.py:254
 #, python-format
 msgid ""
 "dot command %r cannot be run (needed for graphviz output), check the "
 "graphviz_dot setting"
-msgstr ""
+msgstr "perintah dot %r tidak dapat dioperasikan (diperlukan untuk keluaran graphviz), periksa pengaturan graphviz_dot"
 
 #: sphinx/ext/graphviz.py:261
 #, python-format
@@ -2497,18 +2498,18 @@ msgid ""
 "%r\n"
 "[stdout]\n"
 "%r"
-msgstr ""
+msgstr "dot keluar dengan kesalahan: \n[stderr]\n%r\n[stdout]\n%r"
 
 #: sphinx/ext/graphviz.py:271
 #, python-format
 msgid "graphviz_output_format must be one of 'png', 'svg', but is %r"
-msgstr ""
+msgstr "graphviz_output_format harus salah satu dari 'png', 'svg', tetapi %r"
 
 #: sphinx/ext/graphviz.py:275 sphinx/ext/graphviz.py:329
 #: sphinx/ext/graphviz.py:367
 #, python-format
 msgid "dot code %r: %s"
-msgstr ""
+msgstr "kode dot %r: %s"
 
 #: sphinx/ext/graphviz.py:382 sphinx/ext/graphviz.py:391
 #, python-format
@@ -2522,7 +2523,7 @@ msgstr "[graph]"
 #: sphinx/ext/imgconverter.py:43 sphinx/ext/imgconverter.py:68
 #, python-format
 msgid "convert command %r cannot be run.check the image_converter setting"
-msgstr ""
+msgstr "perintah konversi %r tidak dapat dijalankan. periksa pengaturan image_converter"
 
 #: sphinx/ext/imgconverter.py:48 sphinx/ext/imgconverter.py:73
 #, python-format
@@ -2532,31 +2533,31 @@ msgid ""
 "%r\n"
 "[stdout]\n"
 "%r"
-msgstr ""
+msgstr "convert keluar dengan kesalahan: \n[stderr]\n%r\n[stdout]\n%r"
 
 #: sphinx/ext/imgmath.py:139
 #, python-format
 msgid ""
 "LaTeX command %r cannot be run (needed for math display), check the "
 "imgmath_latex setting"
-msgstr ""
+msgstr "Perintah LaTeX %r tidak dapat dioperasikan (diperlukan untuk tampilan matematika), periksa pengaturan imgmath_latex"
 
 #: sphinx/ext/imgmath.py:154
 #, python-format
 msgid ""
 "%s command %r cannot be run (needed for math display), check the imgmath_%s "
 "setting"
-msgstr ""
+msgstr "%s perintah %r tidak dapat dioperasikan (diperlukan untuk tampilan matematika), periksa pengaturan imgmath_%s"
 
 #: sphinx/ext/imgmath.py:289
 #, python-format
 msgid "display latex %r: %s"
-msgstr ""
+msgstr "tampilkan latex %r: %s"
 
 #: sphinx/ext/imgmath.py:316
 #, python-format
 msgid "inline latex %r: %s"
-msgstr ""
+msgstr "inline latex %r: %s"
 
 #: sphinx/ext/imgmath.py:323 sphinx/ext/mathjax.py:54
 msgid "Permalink to this equation"
@@ -2565,22 +2566,22 @@ msgstr "Tautan untuk persamaan ini"
 #: sphinx/ext/intersphinx.py:182
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
-msgstr ""
+msgstr "pengimpanan intersphinx telah dipindahkan: %s -> %s"
 
 #: sphinx/ext/intersphinx.py:217
 #, python-format
 msgid "loading intersphinx inventory from %s..."
-msgstr ""
+msgstr "memuat penyimpanan intersphinx dari %s..."
 
 #: sphinx/ext/intersphinx.py:232
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
-msgstr ""
+msgstr "mengalami beberapa masalah dengan beberapa inventaris, tetapi mereka memiliki alternatif berfungsi:"
 
 #: sphinx/ext/intersphinx.py:238
 msgid "failed to reach any of the inventories with the following issues:"
-msgstr ""
+msgstr "gagal mencapai salah satu inventaris dengan masalah berikut:"
 
 #: sphinx/ext/intersphinx.py:311
 #, python-format
@@ -2590,17 +2591,17 @@ msgstr "(di %s v%s)"
 #: sphinx/ext/intersphinx.py:313
 #, python-format
 msgid "(in %s)"
-msgstr ""
+msgstr "(dalam %s)"
 
 #: sphinx/ext/intersphinx.py:347
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
-msgstr ""
+msgstr "pengenal intersphinx %r bukan string. Diabaikan"
 
 #: sphinx/ext/intersphinx.py:360
 #, python-format
 msgid "Fail to read intersphinx_mapping[%s], Ignored: %r"
-msgstr ""
+msgstr "Gagal membaca intersphinx_mapping [%s], Diabaikan: %r"
 
 #: sphinx/ext/linkcode.py:72 sphinx/ext/viewcode.py:117
 msgid "[source]"
@@ -2613,7 +2614,7 @@ msgstr "Todo"
 #: sphinx/ext/todo.py:111
 #, python-format
 msgid "TODO entry found: %s"
-msgstr ""
+msgstr "Entri TODO ditemukan: %s"
 
 #: sphinx/ext/todo.py:160
 msgid "<<original entry>>"
@@ -2630,7 +2631,7 @@ msgstr "entri asli"
 
 #: sphinx/ext/viewcode.py:158
 msgid "highlighting module code... "
-msgstr ""
+msgstr "menyoroti kode modul..."
 
 #: sphinx/ext/viewcode.py:187
 msgid "[docs]"
@@ -2656,24 +2657,24 @@ msgstr "<h1>Semua modul dimana kode tersedia</h1>"
 #: sphinx/ext/autodoc/__init__.py:300
 #, python-format
 msgid "invalid signature for auto%s (%r)"
-msgstr ""
+msgstr "tanda tangan tidak valid untuk outo %s (%r)"
 
 #: sphinx/ext/autodoc/__init__.py:400
 #, python-format
 msgid "error while formatting arguments for %s: %s"
-msgstr ""
+msgstr "kesalahan saat memformat argumen untuk %s: %s"
 
 #: sphinx/ext/autodoc/__init__.py:512
 #, python-format
 msgid "missing attribute %s in object %s"
-msgstr ""
+msgstr "atribut hilang %s dalam objek %s"
 
 #: sphinx/ext/autodoc/__init__.py:600
 #, python-format
 msgid ""
 "autodoc: failed to determine %r to be documented.the following exception was raised:\n"
 "%s"
-msgstr ""
+msgstr "autodoc: gagal menentukan %r untuk didokumentasikan. Pengecualian berikut ini muncul:\n%s"
 
 #: sphinx/ext/autodoc/__init__.py:692
 #, python-format
@@ -2681,29 +2682,29 @@ msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
 "\"module\" or \"currentmodule\" directive in the document, or giving an "
 "explicit module name)"
-msgstr ""
+msgstr "tidak tahu modul mana yang akan diimpor untuk autodocumenting %r (coba letakkan pengarahan \"module\" atau \"currentmodule\" dalam dokumen, atau berikan nama modul yang eksplisit)"
 
 #: sphinx/ext/autodoc/__init__.py:786
 msgid "\"::\" in automodule name doesn't make sense"
-msgstr ""
+msgstr "\"::\" dalam nama automodule tidak masuk akal"
 
 #: sphinx/ext/autodoc/__init__.py:794
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
-msgstr ""
+msgstr "argumen tanda tangan atau anotasi kembalian diberikan untuk automodule %s"
 
 #: sphinx/ext/autodoc/__init__.py:827
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
-msgstr ""
+msgstr "__all__ harus berupa daftar string, bukan %r (dalam modul %s) -- mengabaikan __all__"
 
 #: sphinx/ext/autodoc/__init__.py:842
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: or __all__: module %s, attribute %s"
-msgstr ""
+msgstr "atribut yang hilang disebutkan dalam :members: atau __all__: modul %s, atribut %s"
 
 #: sphinx/ext/autodoc/__init__.py:1126
 #, python-format
@@ -2718,48 +2719,48 @@ msgstr "alias dari :class:`%s`"
 #: sphinx/ext/autodoc/__init__.py:1468
 #, python-format
 msgid "Ignoring invalid option in autodoc_default_flags: %r"
-msgstr ""
+msgstr "Mengabaikan opsi yang tidak valid di autodoc_default_flags: %r"
 
 #: sphinx/ext/autosummary/__init__.py:256
 #, python-format
 msgid "toctree references excluded document %r"
-msgstr ""
+msgstr "referensi toctree tidak termasuk dokumen %r"
 
 #: sphinx/ext/autosummary/__init__.py:258
 #, python-format
 msgid "toctree references unknown document %r"
-msgstr ""
+msgstr "referensi toctree dokumen tidak diketahui %r"
 
 #: sphinx/ext/autosummary/__init__.py:292
 #, python-format
 msgid "failed to import %s"
-msgstr ""
+msgstr "gagal mengimpor %s"
 
 #: sphinx/ext/autosummary/__init__.py:307
 #, python-format
 msgid "failed to parse name %s"
-msgstr ""
+msgstr "gagal mengurai nama %s"
 
 #: sphinx/ext/autosummary/__init__.py:311
 #, python-format
 msgid "failed to import object %s"
-msgstr ""
+msgstr "gagal mengimpor objek %s"
 
 #: sphinx/ext/autosummary/__init__.py:702
 msgid ""
 "autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
-msgstr ""
+msgstr "autosummary menghasilkan file .rst secara internal. Tapi source_suffix Anda tidak mengandung .rst. Dilewati."
 
 #: sphinx/ext/autosummary/generate.py:100
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
-msgstr ""
+msgstr "[autosummary] menghasilkan autosummary untuk: %s"
 
 #: sphinx/ext/autosummary/generate.py:104
 #, python-format
 msgid "[autosummary] writing to %s"
-msgstr ""
+msgstr "[autosummary] menulis ke %s"
 
 #: sphinx/ext/autosummary/generate.py:364
 msgid ""
@@ -2774,30 +2775,30 @@ msgid ""
 "``sphinx.ext.autosummary`` Python module and can be read using::\n"
 "\n"
 "  pydoc sphinx.ext.autosummary\n"
-msgstr ""
+msgstr "\nHasilkan ReStructuredText menggunakan pengarahan autosummary.\n\nsphinx-autogen adalah tampilan depan ke sphinx.ext.autosummary.generate. Ini menghasilkan \nfile reStructuredText dari pengarahan autosummary yang terkandung dalam \nfile input yang diberikan.\n\nFormat pengarahan autosummary didokumentasikan dalam \nmodul ``sphinx.ext.autosummary`` dan dapat dibaca menggunakan::\n\n  pydoc sphinx.ext.autosummary\n"
 
 #: sphinx/ext/autosummary/generate.py:381
 msgid "source files to generate rST files for"
-msgstr ""
+msgstr "berkas sumber untuk menghasilkan file rST untuk"
 
 #: sphinx/ext/autosummary/generate.py:385
 msgid "directory to place all output in"
-msgstr ""
+msgstr "direktori untuk menempatkan semua keluaran dalam"
 
 #: sphinx/ext/autosummary/generate.py:388
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
-msgstr ""
+msgstr "akhiran bawaan untuk berkas (bawaan: %(default)s)"
 
 #: sphinx/ext/autosummary/generate.py:392
 #, python-format
 msgid "custom template directory (default: %(default)s)"
-msgstr ""
+msgstr "direktori templat ubahsuai (bawaan: %(default)s)"
 
 #: sphinx/ext/autosummary/generate.py:396
 #, python-format
 msgid "document imported members (default: %(default)s)"
-msgstr ""
+msgstr "mendokumentasikan anggota yang diimpor (bawaan: %(default)s)"
 
 #: sphinx/ext/napoleon/__init__.py:330 sphinx/ext/napoleon/docstring.py:669
 msgid "Keyword Arguments"
@@ -2805,31 +2806,31 @@ msgstr "Argumen Kata Kunci"
 
 #: sphinx/ext/napoleon/docstring.py:627
 msgid "Example"
-msgstr ""
+msgstr "Contoh"
 
 #: sphinx/ext/napoleon/docstring.py:628
 msgid "Examples"
-msgstr ""
+msgstr "Contoh-contoh"
 
 #: sphinx/ext/napoleon/docstring.py:684
 msgid "Notes"
-msgstr ""
+msgstr "Catatan"
 
 #: sphinx/ext/napoleon/docstring.py:688
 msgid "Other Parameters"
-msgstr ""
+msgstr "Parameter lainnya"
 
 #: sphinx/ext/napoleon/docstring.py:717
 msgid "References"
-msgstr ""
+msgstr "Referensi"
 
 #: sphinx/ext/napoleon/docstring.py:754
 msgid "Warns"
-msgstr ""
+msgstr "Peringatkan"
 
 #: sphinx/ext/napoleon/docstring.py:759
 msgid "Yields"
-msgstr ""
+msgstr "Hasil"
 
 #: sphinx/locale/__init__.py:307
 msgid "Attention"
@@ -2849,7 +2850,7 @@ msgstr "Kesalahan"
 
 #: sphinx/locale/__init__.py:311
 msgid "Hint"
-msgstr "Hint"
+msgstr "Petunjuk"
 
 #: sphinx/locale/__init__.py:312
 msgid "Important"
@@ -2861,7 +2862,7 @@ msgstr "Catatan"
 
 #: sphinx/locale/__init__.py:314
 msgid "See also"
-msgstr "lihat juga"
+msgstr "Lihat juga"
 
 #: sphinx/locale/__init__.py:315
 msgid "Tip"
@@ -2878,19 +2879,19 @@ msgstr "lanjutan dari halaman sebelumnya"
 
 #: sphinx/templates/latex/longtable.tex_t:29
 msgid "Continued on next page"
-msgstr "Lanjut ke halaman berikutnya"
+msgstr "Dilanjutkan di halaman berikutnya"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:9
 msgid "continues on next page"
-msgstr ""
+msgstr "berlanjut ke halaman berikutnya"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:10
 msgid "Non-alphabetical"
-msgstr ""
+msgstr "Non-abjad"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:12
 msgid "Numbers"
-msgstr ""
+msgstr "Angka"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:13
 msgid "page"
@@ -2899,7 +2900,7 @@ msgstr "laman"
 #: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/globaltoc.html:10
 #: sphinx/themes/basic/localtoc.html:11 sphinx/themes/scrolls/layout.html:41
 msgid "Table of Contents"
-msgstr ""
+msgstr "Daftar Isi"
 
 #: sphinx/themes/agogo/layout.html:51 sphinx/themes/basic/layout.html:153
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:21
@@ -2933,7 +2934,7 @@ msgstr "terakhir diperbarui"
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
-msgstr "Index dan tabel:"
+msgstr "Indeks dan tabel:"
 
 #: sphinx/themes/basic/defindex.html:23
 msgid "Complete Table of Contents"
@@ -2994,7 +2995,7 @@ msgstr "Tentang dokumen ini"
 
 #: sphinx/themes/basic/layout.html:156
 msgid "Copyright"
-msgstr "Copyright"
+msgstr "Hak Cipta"
 
 #: sphinx/themes/basic/layout.html:201
 #, python-format
@@ -3025,7 +3026,7 @@ msgstr "Pencarian %(docstitle)s"
 
 #: sphinx/themes/basic/relations.html:11
 msgid "Previous topic"
-msgstr "Topik sebelum"
+msgstr "Topik sebelumnya"
 
 #: sphinx/themes/basic/relations.html:13
 msgid "previous chapter"
@@ -3158,70 +3159,70 @@ msgstr "Konten"
 #, python-format
 msgid ""
 "4 column based index found. It might be a bug of extensions you use: %r"
-msgstr ""
+msgstr "4 kolom berdasarkan indeks ditemukan. Ini mungkin bug ekstensi yang Anda gunakan: %r"
 
 #: sphinx/transforms/__init__.py:303
 #, python-format
 msgid "Footnote [%s] is not referenced."
-msgstr ""
+msgstr "Catatan kaki [%s] tidak dirujuk."
 
 #: sphinx/transforms/__init__.py:309
 msgid "Footnote [#] is not referenced."
-msgstr ""
+msgstr "Catatan kaki [#] tidak dirujuk."
 
 #: sphinx/transforms/i18n.py:293 sphinx/transforms/i18n.py:363
 msgid ""
 "inconsistent footnote references in translated message. original: {0}, "
 "translated: {1}"
-msgstr ""
+msgstr "referensi catatan kaki yang tidak konsisten dalam pesan yang diterjemahkan. asli: {0}, diterjemahkan: {1}"
 
 #: sphinx/transforms/i18n.py:335
 msgid ""
 "inconsistent references in translated message. original: {0}, translated: "
 "{1}"
-msgstr ""
+msgstr "referensi yang tidak konsisten dalam pesan yang diterjemahkan. asli: {0}, diterjemahkan: {1}"
 
 #: sphinx/transforms/i18n.py:382
 msgid ""
 "inconsistent citation references in translated message. original: {0}, "
 "translated: {1}"
-msgstr ""
+msgstr "referensi kutipan tidak konsisten dalam pesan yang diterjemahkan. asli: {0}, diterjemahkan: {1}"
 
 #: sphinx/transforms/i18n.py:402
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
-msgstr ""
+msgstr "referensi istilah yang tidak konsisten dalam pesan yang diterjemahkan. asli: {0}, diterjemahkan: {1}"
 
 #: sphinx/transforms/post_transforms/__init__.py:110
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
-msgstr ""
+msgstr "lebih dari satu target ditemukan untuk referensi silang 'any' %r: bisa %s"
 
 #: sphinx/transforms/post_transforms/__init__.py:142
 #, python-format
 msgid "%s:%s reference target not found: %%(target)s"
-msgstr ""
+msgstr "%s:%s target referensi tidak ditemukan: %%(target)s"
 
 #: sphinx/transforms/post_transforms/__init__.py:145
 #, python-format
 msgid "%r reference target not found: %%(target)s"
-msgstr ""
+msgstr "%r target referensi tidak ditemukan: %%(target)s"
 
 #: sphinx/transforms/post_transforms/images.py:92
 #, python-format
 msgid "Could not fetch remote image: %s [%d]"
-msgstr ""
+msgstr "Tidak dapat mengambil gambar jarak jauh: %s [%d]"
 
 #: sphinx/transforms/post_transforms/images.py:120
 #, python-format
 msgid "Could not fetch remote image: %s [%s]"
-msgstr ""
+msgstr "Tidak dapat mengambil gambar jarak jauh: %s [%s]"
 
 #: sphinx/transforms/post_transforms/images.py:140
 #, python-format
 msgid "Unknown image format: %s..."
-msgstr ""
+msgstr "Format gambar tidak dikenal: %s..."
 
 #: sphinx/util/__init__.py:415
 #, python-format
@@ -3230,64 +3231,64 @@ msgstr "karakter sumber undecodable, menggantinya dengan \"?\": %r"
 
 #: sphinx/util/__init__.py:695
 msgid "skipped"
-msgstr ""
+msgstr "dilewati"
 
 #: sphinx/util/__init__.py:700
 msgid "failed"
-msgstr ""
+msgstr "gagal"
 
 #: sphinx/util/docutils.py:320
 msgid "when adding directive classes, no additional arguments may be given"
-msgstr ""
+msgstr "saat menambahkan kelas pengarahan, tidak ada argumen tambahan yang diberikan"
 
 #: sphinx/util/i18n.py:74
 #, python-format
 msgid "reading error: %s, %s"
-msgstr ""
+msgstr "kesalahan membaca: %s, %s"
 
 #: sphinx/util/i18n.py:81
 #, python-format
 msgid "writing error: %s, %s"
-msgstr ""
+msgstr "kesalahan menulis: %s, %s"
 
 #: sphinx/util/i18n.py:215
 #, python-format
 msgid ""
 "Invalid date format. Quote the string by single quote if you want to output "
 "it directly: %s"
-msgstr ""
+msgstr "Format tanggal tidak valid. Kutip string dengan kutipan tunggal jika Anda ingin menampilkannya secara langsung: %s"
 
 #: sphinx/util/nodes.py:428
 #, python-format
 msgid "toctree contains ref to nonexisting file %r"
-msgstr ""
+msgstr "toctree berisi ref ke berkas yang tidak ada %r"
 
 #: sphinx/util/nodes.py:501
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
-msgstr ""
+msgstr "pengecualian saat mengevaluasi hanya ekspresi pengarahan: %s"
 
 #: sphinx/util/pycompat.py:82
 #, python-format
 msgid ""
 "Support for evaluating Python 2 syntax is deprecated and will be removed in "
 "Sphinx 4.0. Convert %s to Python 3 syntax."
-msgstr ""
+msgstr "Dukungan untuk mengevaluasi sintaks Python 2 sudah usang dan akan dihapus di Sphinx 4.0. Konversi %s ke sintaksis Python 3."
 
 #: sphinx/util/rst.py:49
 #, python-format
 msgid "default role %s not found"
-msgstr ""
+msgstr "peran bawaan %s tidak ditemukan"
 
 #: sphinx/writers/html.py:345 sphinx/writers/html5.py:313
 #, python-format
 msgid "numfig_format is not defined for %s"
-msgstr ""
+msgstr "numfig_format tidak didefinisikan untuk %s"
 
 #: sphinx/writers/html.py:355 sphinx/writers/html5.py:323
 #, python-format
 msgid "Any IDs not assigned for %s node"
-msgstr ""
+msgstr "Tidak ada ID apa pun yang ditugaskan untuk simpul %s"
 
 #: sphinx/writers/html.py:463 sphinx/writers/html5.py:409
 msgid "Permalink to this table"
@@ -3307,25 +3308,25 @@ msgstr "Tautan ke daftar isi ini"
 
 #: sphinx/writers/html.py:672 sphinx/writers/html5.py:606
 msgid "Could not obtain image size. :scale: option is ignored."
-msgstr ""
+msgstr "Tidak dapat memperoleh ukuran gambar. :scale: option diabaikan."
 
 #: sphinx/writers/latex.py:510
 #, python-format
 msgid "unknown %r toplevel_sectioning for class %r"
-msgstr ""
+msgstr "%r toplevel_sectioning tidak diketahui untuk kelas %r"
 
 #: sphinx/writers/latex.py:603
 msgid "too large :maxdepth:, ignored."
-msgstr ""
+msgstr ":maxdepth: terlalu besar, diabaikan."
 
 #: sphinx/writers/latex.py:893
 msgid "document title is not a single Text node"
-msgstr ""
+msgstr "judul dokumen bukan simpul Text tunggal"
 
 #: sphinx/writers/latex.py:926 sphinx/writers/texinfo.py:658
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
-msgstr ""
+msgstr "simpul judul tidak ditemui dalam bagian, topik, tabel, peringatan atau sisi bilah"
 
 #: sphinx/writers/latex.py:1102 sphinx/writers/manpage.py:277
 #: sphinx/writers/texinfo.py:675
@@ -3335,17 +3336,17 @@ msgstr "Catatan kaki"
 #: sphinx/writers/latex.py:1150
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
-msgstr ""
+msgstr "opsi tabularcolumns dan :widths: opsi diberikan bersamaan. :widths: diabaikan."
 
 #: sphinx/writers/latex.py:1521
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
-msgstr ""
+msgstr "unit dimensi %s tidak valid. Diabaikan"
 
 #: sphinx/writers/latex.py:1847
 #, python-format
 msgid "unknown index entry type %s found"
-msgstr ""
+msgstr "entri indeks tidak diketahui ditemukan tipe %s"
 
 #: sphinx/writers/latex.py:2560
 #, python-format
@@ -3363,14 +3364,14 @@ msgstr "[gambar]"
 
 #: sphinx/writers/texinfo.py:1330
 msgid "caption not inside a figure."
-msgstr ""
+msgstr "keterangan tidak di dalam gambar."
 
 #: sphinx/writers/texinfo.py:1422
 #, python-format
 msgid "unimplemented node type: %r"
-msgstr ""
+msgstr "tipe simpul tidak diterapkan: %r"
 
 #: sphinx/writers/texinfo.py:1427
 #, python-format
 msgid "unknown node type: %r"
-msgstr ""
+msgstr "tipe simpul tidak dikenal: %r"
