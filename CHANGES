@@ -17,6 +17,8 @@ Bugs fixed
 ----------
 
 * #6776: LaTeX: 2019-10-01 LaTeX release breaks :file:`sphinxcyrillic.sty`
+* #6815: i18n: French, Hindi, Japanese and Korean translation messages has been
+  broken
 
 Testing
 --------
