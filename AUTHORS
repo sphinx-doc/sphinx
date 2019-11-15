@@ -36,7 +36,7 @@ Other contributors, listed alphabetically, are:
 * Hernan Grecco -- search improvements
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
-* Zac Hatfield-Dodds -- doctest reporting improvements
+* Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
 * Doug Hellmann -- graphviz improvements
 * Tim Hoffmann -- theme improvements
 * Antti Kaihola -- doctest extension (skipif option)
