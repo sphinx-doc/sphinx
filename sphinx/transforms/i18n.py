@@ -53,21 +53,28 @@ def publish_msgstr(app: "Sphinx", source: str, source_path: str, source_line: in
     :return: document
     :rtype: docutils.nodes.document
     """
-    from sphinx.io import SphinxI18nReader
-    reader = SphinxI18nReader()
-    reader.setup(app)
-    parser = app.registry.create_source_parser(app, 'restructuredtext')
-    doc = reader.read(
-        source=StringInput(source=source,
-                           source_path="%s:%s:<translated>" % (source_path, source_line)),
-        parser=parser,
-        settings=settings,
-    )
     try:
-        doc = doc[0]  # type: ignore
-    except IndexError:  # empty node
-        pass
-    return doc
+        # clear rst_prolog temporarily
+        rst_prolog = config.rst_prolog
+        config.rst_prolog = None  # type: ignore
+
+        from sphinx.io import SphinxI18nReader
+        reader = SphinxI18nReader()
+        reader.setup(app)
+        parser = app.registry.create_source_parser(app, 'restructuredtext')
+        doc = reader.read(
+            source=StringInput(source=source,
+                               source_path="%s:%s:<translated>" % (source_path, source_line)),
+            parser=parser,
+            settings=settings,
+        )
+        try:
+            doc = doc[0]  # type: ignore
+        except IndexError:  # empty node
+            pass
+        return doc
+    finally:
+        config.rst_prolog = rst_prolog  # type: ignore
 
 
 class PreserveTranslatableMessages(SphinxTransform):

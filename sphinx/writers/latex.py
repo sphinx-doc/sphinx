@@ -155,6 +155,7 @@ DEFAULT_SETTINGS = {
                         '% Set up styles of URL: it should be placed after hyperref.\n'
                         '\\urlstyle{same}'),
     'contentsname':    '',
+    'extrapackages':   '',
     'preamble':        '',
     'title':           '',
     'release':         '',

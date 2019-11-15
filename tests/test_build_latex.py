@@ -1461,3 +1461,11 @@ def test_texescape_for_unicode_supported_engine(app, status, warning):
     assert 'double struck italic small i: i' in result
     assert 'superscript: ⁰, ¹' in result
     assert 'subscript: ₀, ₁' in result
+
+    
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={'latex_elements': {'extrapackages': r'\usepackage{foo}'}})
+def test_latex_elements_extrapackages(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text()
+    assert r'\usepackage{foo}' in result

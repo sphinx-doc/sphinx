@@ -176,6 +176,10 @@ setup(
     description='Python documentation generator',
     long_description=long_desc,
     long_description_content_type='text/x-rst',
+    project_urls={
+        "Code": "https://github.com/sphinx-doc/sphinx",
+        "Issue tracker": "https://github.com/sphinx-doc/sphinx/issues",
+    },
     zip_safe=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -216,6 +220,9 @@ setup(
     ],
     platforms='any',
     packages=find_packages(exclude=['tests', 'utils']),
+    package_data = {
+        'sphinx': ['py.typed'],
+    },
     include_package_data=True,
     entry_points={
         'console_scripts': [

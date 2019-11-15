@@ -23,6 +23,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import concurrent.futures
 import functools
 import posixpath
 import sys
@@ -187,21 +188,18 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
         return invdata
 
 
-def load_mappings(app: Sphinx) -> None:
-    """Load all intersphinx mappings into the environment."""
-    now = int(time.time())
+def fetch_inventory_group(
+    name: str, uri: str, invs: Any, cache: Any, app: Any, now: float
+) -> bool:
     cache_time = now - app.config.intersphinx_cache_limit * 86400
-    inventories = InventoryAdapter(app.builder.env)
-    update = False
-    for key, (name, (uri, invs)) in app.config.intersphinx_mapping.items():
-        failures = []
+    failures = []
+    try:
         for inv in invs:
             if not inv:
                 inv = posixpath.join(uri, INVENTORY_FILENAME)
             # decide whether the inventory must be read: always read local
             # files; remote ones only if the cache time is expired
-            if '://' not in inv or uri not in inventories.cache \
-                    or inventories.cache[uri][1] < cache_time:
+            if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)
                 logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
                 try:
@@ -209,12 +207,11 @@ def load_mappings(app: Sphinx) -> None:
                 except Exception as err:
                     failures.append(err.args)
                     continue
-
                 if invdata:
-                    inventories.cache[uri] = (name, now, invdata)
-                    update = True
-                    break
-
+                    cache[uri] = (name, now, invdata)
+                    return True
+        return False
+    finally:
         if failures == []:
             pass
         elif len(failures) < len(invs):
@@ -227,7 +224,21 @@ def load_mappings(app: Sphinx) -> None:
             logger.warning(__("failed to reach any of the inventories "
                               "with the following issues:") + "\n" + issues)
 
-    if update:
+
+def load_mappings(app: Sphinx) -> None:
+    """Load all intersphinx mappings into the environment."""
+    now = int(time.time())
+    inventories = InventoryAdapter(app.builder.env)
+
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        futures = []
+        for name, (uri, invs) in app.config.intersphinx_mapping.values():
+            futures.append(pool.submit(
+                fetch_inventory_group, name, uri, invs, inventories.cache, app, now
+            ))
+        updated = [f.result() for f in concurrent.futures.as_completed(futures)]
+
+    if any(updated):
         inventories.clear()
 
         # Duplicate values in different inventories will shadow each
@@ -374,6 +385,7 @@ def inspect_main(argv: List[str]) -> None:
     class MockConfig:
         intersphinx_timeout = None  # type: int
         tls_verify = False
+        user_agent = None
 
     class MockApp:
         srcdir = ''
