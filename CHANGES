@@ -32,6 +32,7 @@ Features added
 * #6000: LaTeX: have backslash also be an inline literal word wrap break
   character
 * #6812: Improve a warning message when extensions are not parallel safe
+* #6818: Improve Intersphinx performance for multiple remote inventories.
 
 Bugs fixed
 ----------
