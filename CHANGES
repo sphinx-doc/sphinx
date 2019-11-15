@@ -51,6 +51,7 @@ Features added
 * #6707: C++, support bit-fields.
 * #267: html: Eliminate prompt characters of doctest block from copyable text
 * #6729: html theme: agogo theme now supports ``rightsidebar`` option
+* #6826: allow regex patterns as start and end patterns for ``literalinclude``
 
 Bugs fixed
 ----------

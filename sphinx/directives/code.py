@@ -6,6 +6,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 import sys
 import warnings
 from difflib import unified_diff
@@ -309,10 +310,12 @@ class LiteralIncludeReader:
             inclusive = True
         else:
             start = None
+        regex = 'regex' in self.options
 
         if start:
             for lineno, line in enumerate(lines):
-                if start in line:
+                if (not regex and start in line) or \
+                   (regex and re.search(start, line) is not None):
                     if inclusive:
                         if 'lineno-match' in self.options:
                             self.lineno_start += lineno + 1
@@ -340,10 +343,12 @@ class LiteralIncludeReader:
             inclusive = False
         else:
             end = None
+        regex = 'regex' in self.options
 
         if end:
             for lineno, line in enumerate(lines):
-                if end in line:
+                if (not regex and end in line) or \
+                   (regex and re.search(end, line) is not None):
                     if inclusive:
                         return lines[:lineno + 1]
                     else:
@@ -412,6 +417,7 @@ class LiteralInclude(SphinxDirective):
         'class': directives.class_option,
         'name': directives.unchanged,
         'diff': directives.unchanged_required,
+        'regex': directives.flag,
     }
 
     def run(self) -> List[Node]:

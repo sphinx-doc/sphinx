@@ -150,6 +150,18 @@ def test_LiteralIncludeReader_start_at(literal_inc_path):
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+def test_LiteralIncludeReader_start_at_regex(literal_inc_path):
+    options = {'lineno-match': True, 'start-at': '^class Foo', 'end-at': 'Bar', 'regex': True}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("class Foo:\n"
+                       "    pass\n"
+                       "\n"
+                       "class Bar:\n")
+    assert reader.lineno_start == 5
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_start_after(literal_inc_path):
     options = {'lineno-match': True, 'start-after': 'Foo', 'end-before': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)

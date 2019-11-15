@@ -616,6 +616,11 @@ __ http://pygments.org/docs/lexers/
    string are included. The ``start-at`` and ``end-at`` options behave in a
    similar way, but the lines containing the matched string are included.
 
+   By default, ``start-after``, ``start-at``, ``end-before``, and
+   ``end-at`` look for fixed strings. The ``regex`` flag can be added
+   to specify that the arguments given for both start and end lines
+   should be treated as regex patterns.
+
    With lines selected using ``start-after`` it is still possible to use
    ``lines``, the first allowed line having by convention the line number
    ``1``.
