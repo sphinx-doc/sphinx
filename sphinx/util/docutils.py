@@ -452,7 +452,10 @@ class ReferenceRole(SphinxRole):
 class SphinxTranslator(nodes.NodeVisitor):
     """A base class for Sphinx translators.
 
-    This class provides helper methods for Sphinx translators.
+    This class adds a support for visitor/departure method for combination of
+    parent node and current node (ex. ``visit_section_title()``).
+
+    It also provides helper methods for Sphinx translators.
 
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
@@ -463,6 +466,44 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
+
+    def dispatch_visit(self, node):
+        """
+        Dispatch node to appropriate visitor method.
+        The priority of visitor method is:
+
+        1. ``self.visit_{parent_node_class}_{node_class}()``
+        2. ``self.visit_{node_class}()``
+        3. ``self.unknown_visit()``
+        """
+        parent_node_name = node.parent.__class__.__name__
+        node_name = node.__class__.__name__
+        method = getattr(self, 'visit_%s_%s' % (parent_node_name, node_name), None)
+        if method:
+            logger.debug('SphinxTranslator.dispatch_visit calling %s for %s' %
+                         (method.__name__, node_name))
+            return method(node)
+        else:
+            super().dispatch_visit(node)
+
+    def dispatch_departure(self, node):
+        """
+        Dispatch node to appropriate departure method.
+        The priority of departure method is:
+
+        1. ``self.depart_{parent_node_class}_{node_class}()``
+        2. ``self.depart_{node_class}()``
+        3. ``self.unknown_departure()``
+        """
+        parent_node_name = node.parent.__class__.__name__
+        node_name = node.__class__.__name__
+        method = getattr(self, 'depart_%s_%s' % (parent_node_name, node_name), None)
+        if method:
+            logger.debug('SphinxTranslator.dispatch_departure calling %s for %s' %
+                         (method.__name__, node_name))
+            return method(node)
+        else:
+            super().dispatch_departure(node)
 
 
 # cache a vanilla instance of nodes.document

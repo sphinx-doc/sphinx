@@ -348,8 +348,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         super().visit_title(node)
         self.add_secnumber(node)
         self.add_fignumber(node.parent)
-        if isinstance(node.parent, nodes.table):
-            self.body.append('<span class="caption-text">')
 
     def depart_title(self, node: Element) -> None:
         close_tag = self.context[-1]
@@ -370,6 +368,20 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         elif isinstance(node.parent, nodes.table):
             self.body.append('</span>')
 
+        super().depart_title(node)
+
+    def visit_table_title(self, node):
+        # type: (nodes.Element) -> None
+        super().visit_title(node)
+        self.add_fignumber(node.parent)
+        self.body.append('<span class="caption-text">')
+
+    def depart_table_title(self, node):
+        # type: (nodes.Element) -> None
+        self.body.append('</span>')
+        if self.permalink_text and self.builder.add_permalinks and node.parent.get('ids'):
+            # add permalink anchor
+            self.add_permalink_ref(node.parent, _('Permalink to this table'))
         super().depart_title(node)
 
     # overwritten
@@ -398,10 +410,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         raise nodes.SkipNode
 
     def visit_caption(self, node: Element) -> None:
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
-            self.body.append('<div class="code-block-caption">')
-        else:
-            super().visit_caption(node)
+        super().visit_caption(node)
         self.add_fignumber(node.parent)
         self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
 
@@ -409,14 +418,33 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.body.append('</span>')
 
         # append permalink if available
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
-            self.add_permalink_ref(node.parent, _('Permalink to this code'))
-        elif isinstance(node.parent, nodes.figure):
-            self.add_permalink_ref(node.parent, _('Permalink to this image'))
-        elif node.parent.get('toctree'):
+        if node.parent.get('toctree'):
             self.add_permalink_ref(node.parent.parent, _('Permalink to this toctree'))
 
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+        super().depart_caption(node)
+
+    def visit_figure_caption(self, node: Element) -> None:
+        super().visit_caption(node)
+
+    def depart_figure_caption(self, node: Element) -> None:
+        self.body.append('</span>')
+        self.add_permalink_ref(node.parent, _('Permalink to this image'))
+        super().depart_caption(node)
+
+    def visit_container_caption(self, node: Element) -> None:
+        if node.parent.get('literal_block'):
+            self.body.append('<div class="code-block-caption">')
+        else:
+            super().visit_caption(node)
+
+        self.add_fignumber(node.parent)
+        self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
+
+    def depart_container_caption(self, node: Element) -> None:
+        self.body.append('</span>')
+
+        if node.parent.get('literal_block'):
+            self.add_permalink_ref(node.parent, _('Permalink to this code'))
             self.body.append('</div>\n')
         else:
             super().depart_caption(node)
