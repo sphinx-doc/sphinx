@@ -11,6 +11,9 @@
 import re
 from typing import Callable, Dict
 
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+
+
 tex_replacements = [
     # map TeX special chars
     ('$', r'\$'),
@@ -78,11 +81,20 @@ unicode_tex_replacements = [
     ('₉', r'\(\sb{\text{9}}\)'),
 ]
 
-tex_escape_map = {}  # type: Dict[int, str]
-tex_escape_map_without_unicode = {}  # type: Dict[int, str]
-tex_replace_map = {}
-tex_hl_escape_map_new = {}  # type: Dict[int, str]
-tex_hl_escape_map_new_without_unicode = {}  # type: Dict[int, str]
+tex_replace_map = {}  # type: Dict[int, str]
+
+_tex_escape_map = {}  # type: Dict[int, str]
+_tex_escape_map_without_unicode = {}  # type: Dict[int, str]
+_tex_hlescape_map = {}  # type: Dict[int, str]
+_tex_hlescape_map_without_unicode = {}  # type: Dict[int, str]
+
+
+deprecated_alias('sphinx.util.texescape',
+                 {
+                     'tex_escape_map': _tex_escape_map,
+                     'tex_hl_escape_map_new': _tex_hlescape_map,
+                 },
+                 RemovedInSphinx40Warning)
 
 
 def get_escape_func(latex_engine: str) -> Callable[[str], str]:
@@ -95,12 +107,12 @@ def get_escape_func(latex_engine: str) -> Callable[[str], str]:
 
 def escape(s: str) -> str:
     """Escape text for LaTeX output."""
-    return s.translate(tex_escape_map)
+    return s.translate(_tex_escape_map)
 
 
 def escape_for_unicode_latex_engine(s: str) -> str:
     """Escape text for unicode supporting LaTeX engine."""
-    return s.translate(tex_escape_map_without_unicode)
+    return s.translate(_tex_escape_map_without_unicode)
 
 
 def get_hlescape_func(latex_engine: str) -> Callable[[str], str]:
@@ -113,12 +125,12 @@ def get_hlescape_func(latex_engine: str) -> Callable[[str], str]:
 
 def hlescape(s: str) -> str:
     """Escape text for LaTeX highlighter."""
-    return s.translate(tex_hl_escape_map_new)
+    return s.translate(_tex_hlescape_map)
 
 
 def hlescape_for_unicode_latex_engine(s: str) -> str:
     """Escape text for unicode supporting LaTeX engine."""
-    return s.translate(tex_hl_escape_map_new_without_unicode)
+    return s.translate(_tex_hlescape_map_without_unicode)
 
 
 def escape_abbr(text: str) -> str:
@@ -128,19 +140,19 @@ def escape_abbr(text: str) -> str:
 
 def init() -> None:
     for a, b in tex_replacements:
-        tex_escape_map[ord(a)] = b
-        tex_escape_map_without_unicode[ord(a)] = b
+        _tex_escape_map[ord(a)] = b
+        _tex_escape_map_without_unicode[ord(a)] = b
         tex_replace_map[ord(a)] = '_'
 
     for a, b in unicode_tex_replacements:
-        tex_escape_map[ord(a)] = b
+        _tex_escape_map[ord(a)] = b
         tex_replace_map[ord(a)] = '_'
 
     for a, b in tex_replacements:
         if a in '[]{}\\':
             continue
-        tex_hl_escape_map_new[ord(a)] = b
-        tex_hl_escape_map_new_without_unicode[ord(a)] = b
+        _tex_hlescape_map[ord(a)] = b
+        _tex_hlescape_map_without_unicode[ord(a)] = b
 
     for a, b in unicode_tex_replacements:
-        tex_hl_escape_map_new[ord(a)] = b
+        _tex_hlescape_map[ord(a)] = b

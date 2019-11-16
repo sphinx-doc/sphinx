@@ -18,6 +18,8 @@ Deprecated
 * ``sphinx.builders.gettext.POHEADER``
 * ``sphinx.io.SphinxStandaloneReader.app``
 * ``sphinx.io.SphinxStandaloneReader.env``
+* ``sphinx.util.texescape.tex_escape_map``
+* ``sphinx.util.texescape.tex_hl_escape_map_new``
 
 Features added
 --------------
