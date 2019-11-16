@@ -34,6 +34,7 @@ Features added
 * #6812: Improve a warning message when extensions are not parallel safe
 * #6818: Improve Intersphinx performance for multiple remote inventories.
 * #2546: apidoc: .so file support
+* #6483: i18n: make explicit titles in toctree translatable
 
 Bugs fixed
 ----------
