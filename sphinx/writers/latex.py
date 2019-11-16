@@ -653,7 +653,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
 
-        self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
+        self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style,
+                                                       latex_engine=self.config.latex_engine)
         self.context = []                   # type: List[Any]
         self.descstack = []                 # type: List[str]
         self.table = None                   # type: Table
