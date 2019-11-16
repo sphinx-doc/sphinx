@@ -151,6 +151,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
                     imported: bool = True) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
+        public = []  # type: List[str]
         for name in dir(obj):
             try:
                 value = safe_getattr(obj, name)
@@ -160,10 +161,18 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             if documenter.objtype in types:
                 # skip imported members if expected
                 if imported or getattr(value, '__module__', None) == obj.__name__:
-                    if not skip_member(value, name, documenter.objtype):
+                    skipped = skip_member(value, name, documenter.objtype)
+                    if skipped is True:
+                        pass
+                    elif skipped is False:
+                        # show the member forcedly
                         items.append(name)
-        public = [x for x in items
-                  if x in include_public or not x.startswith('_')]
+                        public.append(name)
+                    else:
+                        items.append(name)
+                        if name in include_public or not name.startswith('_'):
+                            # considers member as public
+                            public.append(name)
         return public, items
 
     ns = {}  # type: Dict[str, Any]

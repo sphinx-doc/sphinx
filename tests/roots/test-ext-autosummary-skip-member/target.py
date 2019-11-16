@@ -8,3 +8,7 @@ class Foo:
     def skipmeth(self):
         """docstring of skipmeth."""
         pass
+
+    def _privatemeth(self):
+        """docstring of _privatemeth."""
+        pass

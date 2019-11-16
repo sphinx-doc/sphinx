@@ -12,6 +12,8 @@ autodoc_default_options = {'members': True}
 def skip_member(app, what, name, obj, skip, options):
     if name == 'skipmeth':
         return True
+    elif name == '_privatemeth':
+        return False
 
 
 def setup(app):
