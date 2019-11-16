@@ -312,6 +312,24 @@ def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier(rst, html_expected, latex_expected)
 
 
+@pytest.mark.sphinx(confoverrides={'latex_engine': 'xelatex'})
+@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+    (
+        # in verbatim code fragments
+        'verify',
+        '::\n\n @Γ\\∞${}',
+        None,
+        ('\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+         '@Γ\\PYGZbs{}∞\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
+         '\\end{sphinxVerbatim}'),
+    ),
+])
+def test_inline_for_unicode_latex_engine(get_verifier, type, rst,
+                                         html_expected, latex_expected):
+    verifier = get_verifier(type)
+    verifier(rst, html_expected, latex_expected)
+
+
 def test_samp_role(parse):
     # no braces
     text = ':samp:`a{b}c`'
