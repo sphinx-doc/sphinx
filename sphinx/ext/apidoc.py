@@ -21,6 +21,7 @@ import os
 import sys
 import warnings
 from fnmatch import fnmatch
+from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
 from typing import Any, List, Tuple
 
@@ -45,7 +46,7 @@ else:
     ]
 
 INITPY = '__init__.py'
-PY_SUFFIXES = {'.py', '.pyx'}
+PY_SUFFIXES = ('.py', '.pyx') + tuple(EXTENSION_SUFFIXES)
 
 template_dir = path.join(package_dir, 'templates', 'apidoc')
 
@@ -232,7 +233,7 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
     for root, subs, files in os.walk(rootpath, followlinks=followlinks):
         # document only Python module files (that aren't excluded)
         py_files = sorted(f for f in files
-                          if path.splitext(f)[1] in PY_SUFFIXES and
+                          if f.endswith(PY_SUFFIXES) and
                           not is_excluded(path.join(root, f), excludes))
         is_pkg = INITPY in py_files
         is_namespace = INITPY not in py_files and implicit_namespaces
@@ -270,7 +271,7 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
             assert root == rootpath and root_package is None
             for py_file in py_files:
                 if not is_skipped_module(path.join(rootpath, py_file), opts, excludes):
-                    module = path.splitext(py_file)[0]
+                    module = py_file.split('.')[0]
                     create_module_file(root_package, module, opts, user_template_dir)
                     toplevels.append(module)
 

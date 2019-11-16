@@ -63,14 +63,14 @@ class SphinxRenderer(FileRenderer):
 
 
 class LaTeXRenderer(SphinxRenderer):
-    def __init__(self, template_path: str = None) -> None:
+    def __init__(self, template_path: str = None, latex_engine: str = None) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates', 'latex')
         super().__init__(template_path)
 
         # use texescape as escape filter
-        self.env.filters['e'] = texescape.escape
-        self.env.filters['escape'] = texescape.escape
+        self.env.filters['e'] = texescape.get_escape_func(latex_engine)
+        self.env.filters['escape'] = texescape.get_escape_func(latex_engine)
         self.env.filters['eabbr'] = texescape.escape_abbr
 
         # use JSP/eRuby like tagging instead because curly bracket; the default

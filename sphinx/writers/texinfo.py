@@ -1284,6 +1284,7 @@ class TexinfoTranslator(SphinxTranslator):
         title = cast(nodes.title, node[0])
         self.visit_rubric(title)
         self.body.append('%s\n' % self.escape(title.astext()))
+        self.depart_rubric(title)
 
     def depart_topic(self, node):
         # type: (nodes.Element) -> None
