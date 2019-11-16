@@ -60,6 +60,7 @@ Bugs fixed
   code-block long enough not to fit on one page
 * #6809: LaTeX: code-block in a danger type admonition can easily spill over
   bottom of page
+* #6793: texinfo: Code examples broken following "sidebar"
 
 Testing
 --------
