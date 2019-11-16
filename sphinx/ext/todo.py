@@ -30,7 +30,7 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
-from sphinx.util.texescape import tex_escape_map
+from sphinx.util.texescape import get_escape_func
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
 
@@ -299,10 +299,11 @@ def depart_todo_node(self: HTMLTranslator, node: todo_node) -> None:
 
 def latex_visit_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     if self.config.todo_include_todos:
+        escape = get_escape_func(self.config.latex_engine)
         self.body.append('\n\\begin{sphinxadmonition}{note}{')
         self.body.append(self.hypertarget_to(node))
         title_node = cast(nodes.title, node[0])
-        self.body.append('%s:}' % title_node.astext().translate(tex_escape_map))
+        self.body.append('%s:}' % escape(title_node.astext()))
         node.pop(0)
     else:
         raise nodes.SkipNode

@@ -28,7 +28,7 @@ from sphinx.ext import doctest
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging
-from sphinx.util.texescape import tex_hl_escape_map_new
+from sphinx.util.texescape import get_hlescape_func, tex_hl_escape_map_new
 
 if False:
     # For type annotation
@@ -68,9 +68,11 @@ class PygmentsBridge:
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
-        # type: (str, str, bool) -> None
+    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None,
+                 latex_engine=None):
+        # type: (str, str, bool, str) -> None
         self.dest = dest
+        self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
         self.formatter_args = {'style': style}  # type: Dict[str, Any]
@@ -192,7 +194,8 @@ class PygmentsBridge:
         if self.dest == 'html':
             return hlsource
         else:
-            return hlsource.translate(tex_hl_escape_map_new)
+            escape = get_hlescape_func(self.latex_engine)
+            return escape(hlsource)
 
     def get_stylesheet(self):
         # type: () -> str

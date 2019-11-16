@@ -9,10 +9,13 @@ Incompatible changes
 
 * #6742: ``end-before`` option of :rst:dir:`literalinclude` directive does not
   match the first line of the code block.
+* #1331: Change default User-Agent header to ``"Sphinx/X.Y.Z requests/X.Y.Z
+  python/X.Y.Z"``.  It can be changed via :confval:`user_agent`.
 
 Deprecated
 ----------
 
+* ``sphinx.builders.gettext.POHEADER``
 * ``sphinx.io.SphinxStandaloneReader.app``
 * ``sphinx.io.SphinxStandaloneReader.env``
 
@@ -23,6 +26,13 @@ Features added
 * #267: html: Eliminate prompt characters of doctest block from copyable text
 * #6729: html theme: agogo theme now supports ``rightsidebar`` option
 * #6780: Add PEP-561 Support
+* #6762: latex: Allow to load additonal LaTeX packages via ``extrapackages`` key
+  of :confval:`latex_elements`
+* #1331: Add new config variable: :confval:`user_agent`
+* #6000: LaTeX: have backslash also be an inline literal word wrap break
+  character
+* #6812: Improve a warning message when extensions are not parallel safe
+* #6818: Improve Intersphinx performance for multiple remote inventories.
 
 Bugs fixed
 ----------
@@ -32,6 +42,9 @@ Bugs fixed
 
   .. _latex3/latex2e#173: https://github.com/latex3/latex2e/issues/173
 * #6618: LaTeX: Avoid section names at the end of a page
+* #6738: LaTeX: Do not replace unicode characters by LaTeX macros on unicode
+  supported LaTeX engines: ¶, §, €, ∞, ±, →, ‣, –, superscript and subscript
+  digits go through "as is" (as default OpenType font supports them)
 * #6704: linkcheck: Be defensive and handle newly defined HTTP error code
 * #6655: image URLs containing ``data:`` causes gettext builder crashed
 * #6584: i18n: Error when compiling message catalogs on Hindi
@@ -42,6 +55,11 @@ Bugs fixed
 * #5070: epub: Wrong internal href fragment links
 * #6712: Allow not to install sphinx.testing as runtime (mainly for ALT Linux)
 * #6741: html: search result was broken with empty :confval:`html_file_suffix`
+* #6001: LaTeX does not wrap long code lines at backslash character
+* #6804: LaTeX: PDF build breaks if admonition of danger type contains
+  code-block long enough not to fit on one page
+* #6809: LaTeX: code-block in a danger type admonition can easily spill over
+  bottom of page
 * #6793: texinfo: Code examples broken following "sidebar"
 
 Testing
@@ -64,6 +82,8 @@ Features added
 
 Bugs fixed
 ----------
+
+* #6776: LaTeX: 2019-10-01 LaTeX release breaks :file:`sphinxcyrillic.sty`
 
 Testing
 --------
