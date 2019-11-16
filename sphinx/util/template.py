@@ -9,6 +9,7 @@
 """
 
 import os
+from functools import partial
 from typing import Dict, List, Union
 
 from jinja2.loaders import BaseLoader
@@ -69,8 +70,9 @@ class LaTeXRenderer(SphinxRenderer):
         super().__init__(template_path)
 
         # use texescape as escape filter
-        self.env.filters['e'] = texescape.get_escape_func(latex_engine)
-        self.env.filters['escape'] = texescape.get_escape_func(latex_engine)
+        escape = partial(texescape.escape, latex_engine=latex_engine)
+        self.env.filters['e'] = escape
+        self.env.filters['escape'] = escape
         self.env.filters['eabbr'] = texescape.escape_abbr
 
         # use JSP/eRuby like tagging instead because curly bracket; the default

@@ -9,7 +9,7 @@
 """
 
 import re
-from typing import Callable, Dict
+from typing import Dict
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
@@ -97,40 +97,22 @@ deprecated_alias('sphinx.util.texescape',
                  RemovedInSphinx40Warning)
 
 
-def get_escape_func(latex_engine: str) -> Callable[[str], str]:
-    """Get escape() function for given latex_engine."""
-    if latex_engine in ('lualatex', 'xelatex'):
-        return escape_for_unicode_latex_engine
-    else:
-        return escape
-
-
-def escape(s: str) -> str:
+def escape(s: str, latex_engine: str = None) -> str:
     """Escape text for LaTeX output."""
-    return s.translate(_tex_escape_map)
-
-
-def escape_for_unicode_latex_engine(s: str) -> str:
-    """Escape text for unicode supporting LaTeX engine."""
-    return s.translate(_tex_escape_map_without_unicode)
-
-
-def get_hlescape_func(latex_engine: str) -> Callable[[str], str]:
-    """Get hlescape() function for given latex_engine."""
     if latex_engine in ('lualatex', 'xelatex'):
-        return hlescape_for_unicode_latex_engine
+        # unicode based LaTeX engine
+        return s.translate(_tex_escape_map_without_unicode)
     else:
-        return hlescape
+        return s.translate(_tex_escape_map)
 
 
-def hlescape(s: str) -> str:
+def hlescape(s: str, latex_engine: str = None) -> str:
     """Escape text for LaTeX highlighter."""
-    return s.translate(_tex_hlescape_map)
-
-
-def hlescape_for_unicode_latex_engine(s: str) -> str:
-    """Escape text for unicode supporting LaTeX engine."""
-    return s.translate(_tex_hlescape_map_without_unicode)
+    if latex_engine in ('lualatex', 'xelatex'):
+        # unicode based LaTeX engine
+        return s.translate(_tex_hlescape_map_without_unicode)
+    else:
+        return s.translate(_tex_hlescape_map)
 
 
 def escape_abbr(text: str) -> str:

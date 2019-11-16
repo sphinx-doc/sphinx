@@ -440,10 +440,12 @@ def default_latex_use_xindy(config: Config) -> bool:
 
 def default_latex_documents(config: Config) -> List[Tuple[str, str, str, str, str]]:
     """ Better default latex_documents settings. """
+    project = texescape.escape(config.project, config.latex_engine)
+    author = texescape.escape(config.author, config.latex_engine)
     return [(config.master_doc,
              make_filename_from_project(config.project) + '.tex',
-             texescape.escape_abbr(texescape.escape(config.project)),
-             texescape.escape_abbr(texescape.escape(config.author)),
+             texescape.escape_abbr(project),
+             texescape.escape_abbr(author),
              'manual')]
 
 

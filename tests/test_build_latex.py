@@ -1414,6 +1414,7 @@ def test_default_latex_documents():
                      'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein."})
     config.init_values()
+    config.add('latex_engine', None, True, None)
     expected = [('index', 'stasi.tex', 'STASI™ Documentation',
                  r"Wolfgang Schäuble \& G'Beckstein.\@{}", 'manual')]
     assert default_latex_documents(config) == expected
