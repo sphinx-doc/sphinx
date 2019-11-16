@@ -59,6 +59,9 @@ Bugs fixed
   code-block long enough not to fit on one page
 * #6809: LaTeX: code-block in a danger type admonition can easily spill over
   bottom of page
+* #6813: An orphan warning is emitted for included document on Windows.  Thanks
+  to @drillan
+
 
 Testing
 --------
