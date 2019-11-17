@@ -33,6 +33,8 @@ Features added
   character
 * #6812: Improve a warning message when extensions are not parallel safe
 * #6818: Improve Intersphinx performance for multiple remote inventories.
+* #2546: apidoc: .so file support
+* #6483: i18n: make explicit titles in toctree translatable
 
 Bugs fixed
 ----------
@@ -43,7 +45,8 @@ Bugs fixed
   .. _latex3/latex2e#173: https://github.com/latex3/latex2e/issues/173
 * #6618: LaTeX: Avoid section names at the end of a page
 * #6738: LaTeX: Do not replace unicode characters by LaTeX macros on unicode
-  supported LaTeX engines
+  supported LaTeX engines: ¶, §, €, ∞, ±, →, ‣, –, superscript and subscript
+  digits go through "as is" (as default OpenType font supports them)
 * #6704: linkcheck: Be defensive and handle newly defined HTTP error code
 * #6655: image URLs containing ``data:`` causes gettext builder crashed
 * #6584: i18n: Error when compiling message catalogs on Hindi
@@ -59,9 +62,9 @@ Bugs fixed
   code-block long enough not to fit on one page
 * #6809: LaTeX: code-block in a danger type admonition can easily spill over
   bottom of page
+* #6793: texinfo: Code examples broken following "sidebar"
 * #6813: An orphan warning is emitted for included document on Windows.  Thanks
   to @drillan
-
 
 Testing
 --------

@@ -20,29 +20,28 @@ tex_replacements = [
     ('_', r'\_'),
     ('{', r'\{'),
     ('}', r'\}'),
-    ('[', r'{[}'),
-    (']', r'{]}'),
-    ('`', r'{}`'),
     ('\\', r'\textbackslash{}'),
     ('~', r'\textasciitilde{}'),
+    ('^', r'\textasciicircum{}'),
+    # map chars to avoid mis-interpretation in LaTeX
+    ('[', r'{[}'),
+    (']', r'{]}'),
+    # map chars to avoid TeX ligatures
+    # 1. ' - and , not here for some legacy reason
+    # 2. no effect with lualatex (done otherwise: #5790)
+    ('`', r'{}`'),
     ('<', r'\textless{}'),
     ('>', r'\textgreater{}'),
-    ('^', r'\textasciicircum{}'),
+    # map char for some unknown reason.  TODO: remove this?
+    ('|', r'\textbar{}'),
     # map special Unicode characters to TeX commands
-    ('¶', r'\P{}'),
-    ('§', r'\S{}'),
-    ('€', r'\texteuro{}'),
-    ('±', r'\(\pm\)'),
-    ('→', r'\(\rightarrow\)'),
-    ('‣', r'\(\rightarrow\)'),
     ('✓', r'\(\checkmark\)'),
     ('✔', r'\(\pmb{\checkmark}\)'),
     # used to separate -- in options
     ('﻿', r'{}'),
     # map some special Unicode characters to similar ASCII ones
+    # (even for Unicode LaTeX as may not be supported by OpenType font)
     ('⎽', r'\_'),
-    ('–', r'\textendash{}'),
-    ('|', r'\textbar{}'),
     ('ℯ', r'e'),
     ('ⅈ', r'i'),
     # Greek alphabet not escaped: pdflatex handles it via textalpha and inputenc
@@ -52,8 +51,15 @@ tex_replacements = [
 # A map Unicode characters to LaTeX representation
 # (for LaTeX engines which don't support unicode)
 unicode_tex_replacements = [
-    # map special Unicode characters to TeX commands
+    # map some more common Unicode characters to TeX commands
+    ('¶', r'\P{}'),
+    ('§', r'\S{}'),
+    ('€', r'\texteuro{}'),
     ('∞', r'\(\infty\)'),
+    ('±', r'\(\pm\)'),
+    ('→', r'\(\rightarrow\)'),
+    ('‣', r'\(\rightarrow\)'),
+    ('–', r'\textendash{}'),
     # superscript
     ('⁰', r'\(\sp{\text{0}}\)'),
     ('¹', r'\(\sp{\text{1}}\)'),
