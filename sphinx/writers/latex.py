@@ -699,7 +699,7 @@ class LaTeXTranslator(SphinxTranslator):
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
         if withdoc:
             id = self.curfilestack[-1] + ':' + id
-        return (anchor and '\\phantomsection' or '') + \
+        return ('\\phantomsection' if anchor else '') + \
             '\\label{%s}' % self.idescape(id)
 
     def hypertarget_to(self, node: Element, anchor: bool = False) -> str:
@@ -1525,7 +1525,7 @@ class LaTeXTranslator(SphinxTranslator):
             elif isinstance(node[0], nodes.image) and 'width' in node[0]:
                 length = self.latex_image_length(node[0]['width'])
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
-                             (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
+                             ('r' if node['align'] == 'right' else 'l', length or '0pt'))
             self.context.append('\\end{wrapfigure}\n')
         elif self.in_minipage:
             self.body.append('\n\\begin{center}')

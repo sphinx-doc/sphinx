@@ -242,7 +242,7 @@ class TexinfoTranslator(SphinxTranslator):
         title = self.settings.title  # type: str
         if not title:
             title_node = self.document.next_node(nodes.title)
-            title = (title_node and title_node.astext()) or '<untitled>'
+            title = title_node.astext() if title_node else '<untitled>'
         elements['title'] = self.escape_id(title) or '<untitled>'
         # filename
         if not elements['filename']:
@@ -292,7 +292,7 @@ class TexinfoTranslator(SphinxTranslator):
         # each section is also a node
         for section in self.document.traverse(nodes.section):
             title = cast(nodes.TextElement, section.next_node(nodes.Titular))
-            name = (title and title.astext()) or '<untitled>'
+            name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
 
     def collect_node_menus(self) -> None:
@@ -306,7 +306,7 @@ class TexinfoTranslator(SphinxTranslator):
             node_menus[node['node_name']] = entries
         # try to find a suitable "Top" node
         title = self.document.next_node(nodes.title)
-        top = (title and title.parent) or self.document
+        top = title.parent if title else self.document
         if not isinstance(top, (nodes.document, nodes.section)):
             top = self.document
         if top is not self.document:

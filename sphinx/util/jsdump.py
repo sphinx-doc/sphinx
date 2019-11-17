@@ -83,7 +83,7 @@ def dumps(obj: Any, key: bool = False) -> str:
     if obj is None:
         return 'null'
     elif obj is True or obj is False:
-        return obj and 'true' or 'false'
+        return 'true' if obj else 'false'
     elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, dict):

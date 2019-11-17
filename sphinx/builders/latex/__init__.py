@@ -243,7 +243,7 @@ class LaTeXBuilder(Builder):
 
                 doctree = self.assemble_doctree(
                     docname, toctree_only,
-                    appendices=((docclass != 'howto') and self.config.latex_appendices or []))
+                    appendices=(self.config.latex_appendices if docclass != 'howto' else []))
                 doctree['tocdepth'] = tocdepth
                 self.post_process_images(doctree)
                 self.update_doc_context(title, author)

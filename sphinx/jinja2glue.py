@@ -188,7 +188,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.loaders = [SphinxFileSystemLoader(x) for x in loaderchain]
 
         use_i18n = builder.app.translator is not None
-        extensions = use_i18n and ['jinja2.ext.i18n'] or []
+        extensions = ['jinja2.ext.i18n'] if use_i18n else []
         self.environment = SandboxedEnvironment(loader=self,
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool

@@ -326,7 +326,7 @@ class DocTestBuilder(Builder):
     def finish(self) -> None:
         # write executive summary
         def s(v: int) -> str:
-            return v != 1 and 's' or ''
+            return 's' if v != 1 else ''
         repl = (self.total_tries, s(self.total_tries),
                 self.total_failures, s(self.total_failures),
                 self.setup_failures, s(self.setup_failures),
@@ -523,8 +523,8 @@ Doctest summary
                 self.type = 'single'  # as for ordinary doctests
             else:
                 # testcode and output separate
-                output = code[1] and code[1].code or ''
-                options = code[1] and code[1].options or {}
+                output = code[1].code if code[1] else ''
+                options = code[1].options if code[1] else {}
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
