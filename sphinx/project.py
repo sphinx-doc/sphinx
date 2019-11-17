@@ -13,6 +13,7 @@ import os
 from sphinx.locale import __
 from sphinx.util import get_matching_files
 from sphinx.util import logging
+from sphinx.util import path_stabilize
 from sphinx.util.matching import compile_matchers
 from sphinx.util.osutil import SEP, relpath
 
@@ -71,6 +72,7 @@ class Project:
             filename = relpath(filename, self.srcdir)
         for suffix in self.source_suffix:
             if filename.endswith(suffix):
+                filename = path_stabilize(filename)
                 return filename[:-len(suffix)]
 
         # the file does not have docname
