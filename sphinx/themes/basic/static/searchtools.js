@@ -424,7 +424,7 @@ var Search = {
         for (j = 0; j < _files.length; j++) {
           file = _files[j];
           if (!(file in scoreMap))
-            scoreMap[file] = {}
+            scoreMap[file] = {};
           scoreMap[file][word] = o.score;
         }
       });
@@ -432,7 +432,7 @@ var Search = {
       // create the mapping
       for (j = 0; j < files.length; j++) {
         file = files[j];
-        if (file in fileMap)
+        if (file in fileMap && fileMap[file].indexOf(word) === -1)
           fileMap[file].push(word);
         else
           fileMap[file] = [word];
