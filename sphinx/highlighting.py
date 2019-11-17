@@ -24,7 +24,7 @@ from pygments.util import ClassNotFound
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging
-from sphinx.util.texescape import get_hlescape_func, tex_hl_escape_map_new
+from sphinx.util.texescape import get_hlescape_func
 
 if False:
     # For type annotation
