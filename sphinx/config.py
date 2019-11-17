@@ -148,6 +148,7 @@ class Config:
         'math_numfig': (True, 'env', []),
         'tls_verify': (True, 'env', []),
         'tls_cacerts': (None, 'env', []),
+        'user_agent': (None, 'env', [str]),
         'smartquotes': (True, 'env', []),
         'smartquotes_action': ('qDe', 'env', []),
         'smartquotes_excludes': ({'languages': ['ja'],

@@ -1128,26 +1128,30 @@ class Sphinx:
         """
         if typ == 'read':
             attrname = 'parallel_read_safe'
-            message = __("the %s extension does not declare if it is safe "
-                         "for parallel reading, assuming it isn't - please "
-                         "ask the extension author to check and make it "
-                         "explicit")
+            message_not_declared = __("the %s extension does not declare if it "
+                                      "is safe for parallel reading, assuming "
+                                      "it isn't - please ask the extension author "
+                                      "to check and make it explicit")
+            message_not_safe = __("the %s extension is not safe for parallel reading")
         elif typ == 'write':
             attrname = 'parallel_write_safe'
-            message = __("the %s extension does not declare if it is safe "
-                         "for parallel writing, assuming it isn't - please "
-                         "ask the extension author to check and make it "
-                         "explicit")
+            message_not_declared = __("the %s extension does not declare if it "
+                                      "is safe for parallel writing, assuming "
+                                      "it isn't - please ask the extension author "
+                                      "to check and make it explicit")
+            message_not_safe = __("the %s extension is not safe for parallel writing")
         else:
             raise ValueError('parallel type %s is not supported' % typ)
 
         for ext in self.extensions.values():
             allowed = getattr(ext, attrname, None)
             if allowed is None:
-                logger.warning(message, ext.name)
+                logger.warning(message_not_declared, ext.name)
                 logger.warning(__('doing serial %s'), typ)
                 return False
             elif not allowed:
+                logger.warning(message_not_safe, ext.name)
+                logger.warning(__('doing serial %s'), typ)
                 return False
 
         return True

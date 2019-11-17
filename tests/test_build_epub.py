@@ -321,6 +321,7 @@ def test_epub_anchor_id(app):
 
     html = (app.outdir / 'index.xhtml').text()
     assert '<p id="std-setting-STATICFILES_FINDERS">blah blah blah</p>' in html
+    assert '<span id="std-setting-STATICFILES_SECTION"></span><h1>blah blah blah</h1>' in html
     assert 'see <a class="reference internal" href="#std-setting-STATICFILES_FINDERS">' in html
 
 

@@ -1124,7 +1124,8 @@ def validate_html_extra_path(app: Sphinx, config: Config) -> None:
         if not path.exists(extra_path):
             logger.warning(__('html_extra_path entry %r does not exist'), entry)
             config.html_extra_path.remove(entry)
-        elif path.commonpath([app.outdir, extra_path]) == app.outdir:
+        elif (path.splitdrive(app.outdir)[0] == path.splitdrive(extra_path)[0] and
+              path.commonpath([app.outdir, extra_path]) == app.outdir):
             logger.warning(__('html_extra_path entry %r is placed inside outdir'), entry)
             config.html_extra_path.remove(entry)
 
@@ -1136,7 +1137,8 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
         if not path.exists(static_path):
             logger.warning(__('html_static_path entry %r does not exist'), entry)
             config.html_static_path.remove(entry)
-        elif path.commonpath([app.outdir, static_path]) == app.outdir:
+        elif (path.splitdrive(app.outdir)[0] == path.splitdrive(static_path)[0] and
+              path.commonpath([app.outdir, static_path]) == app.outdir):
             logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
             config.html_static_path.remove(entry)
 

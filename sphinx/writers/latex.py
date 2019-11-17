@@ -29,7 +29,7 @@ from sphinx.util import split_into, logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
-from sphinx.util.texescape import tex_escape_map, tex_replace_map
+from sphinx.util.texescape import get_escape_func, tex_replace_map
 
 try:
     from docutils.utils.roman import toRoman
@@ -152,6 +152,7 @@ DEFAULT_SETTINGS = {
                         '% Set up styles of URL: it should be placed after hyperref.\n'
                         '\\urlstyle{same}'),
     'contentsname':    '',
+    'extrapackages':   '',
     'preamble':        '',
     'title':           '',
     'release':         '',
@@ -482,6 +483,9 @@ class LaTeXTranslator(SphinxTranslator):
         self.compact_list = 0
         self.first_param = 0
 
+        # escape helper
+        self.escape = get_escape_func(self.config.latex_engine)
+
         # sort out some elements
         self.elements = self.builder.context.copy()
 
@@ -632,7 +636,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
 
-        self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
+        self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style,
+                                                       latex_engine=self.config.latex_engine)
         self.context = []                   # type: List[Any]
         self.descstack = []                 # type: List[str]
         self.table = None                   # type: Table
@@ -719,8 +724,7 @@ class LaTeXTranslator(SphinxTranslator):
             for i, (letter, entries) in enumerate(content):
                 if i > 0:
                     ret.append('\\indexspace\n')
-                ret.append('\\bigletter{%s}\n' %
-                           str(letter).translate(tex_escape_map))
+                ret.append('\\bigletter{%s}\n' % self.escape(letter))
                 for entry in entries:
                     if not entry[3]:
                         continue
@@ -755,13 +759,14 @@ class LaTeXTranslator(SphinxTranslator):
 
     def render(self, template_name, variables):
         # type: (str, Dict) -> str
+        renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.builder.config.templates_path:
             template = path.join(self.builder.confdir, template_dir,
                                  template_name)
             if path.exists(template):
-                return LaTeXRenderer().render(template, variables)
+                return renderer.render(template, variables)
 
-        return LaTeXRenderer().render(template_name, variables)
+        return renderer.render(template_name, variables)
 
     def visit_document(self, node):
         # type: (nodes.Element) -> None
@@ -875,14 +880,13 @@ class LaTeXTranslator(SphinxTranslator):
                 if not self.elements['title']:
                     # text needs to be escaped since it is inserted into
                     # the output literally
-                    self.elements['title'] = node.astext().translate(tex_escape_map)
+                    self.elements['title'] = self.escape(node.astext())
                 self.this_is_the_title = 0
                 raise nodes.SkipNode
             else:
                 short = ''
                 if node.traverse(nodes.image):
-                    short = ('[%s]' %
-                             ' '.join(clean_astext(node).split()).translate(tex_escape_map))
+                    short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
                 try:
                     self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
@@ -1912,8 +1916,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             id = node.get('refuri', '')[1:].replace('#', ':')
 
-        title = node.get('title', '%s')
-        title = str(title).translate(tex_escape_map).replace('\\%s', '%s')
+        title = self.escape(node.get('title', '%s')).replace('\\%s', '%s')
         if '\\{name\\}' in title or '\\{number\\}' in title:
             # new style format (cf. "Fig.%{number}")
             title = title.replace('\\{name\\}', '{name}').replace('\\{number\\}', '{number}')
@@ -2361,7 +2364,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def encode(self, text):
         # type: (str) -> str
-        text = str(text).translate(tex_escape_map)
+        text = self.escape(text)
         if self.literal_whitespace:
             # Insert a blank before the newline, to avoid
             # ! LaTeX Error: There's no line here to end.
@@ -2497,33 +2500,31 @@ class LaTeXTranslator(SphinxTranslator):
         ret = []  # type: List[str]
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
-            ret.append('\\def\\fnum@figure{%s}\n' %
-                       str(figure[0]).strip().translate(tex_escape_map))
+            ret.append('\\def\\fnum@figure{%s}\n' % self.escape(figure[0]).strip())
         else:
-            definition = escape_abbr(str(figure[0]).translate(tex_escape_map))
+            definition = escape_abbr(self.escape(figure[0]))
             ret.append(self.babel_renewcommand('\\figurename', definition))
             ret.append('\\makeatletter\n')
             ret.append('\\def\\fnum@figure{\\figurename\\thefigure{}%s}\n' %
-                       str(figure[1]).translate(tex_escape_map))
+                       self.escape(figure[1]))
             ret.append('\\makeatother\n')
 
         table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
-            ret.append('\\def\\fnum@table{%s}\n' %
-                       str(table[0]).strip().translate(tex_escape_map))
+            ret.append('\\def\\fnum@table{%s}\n' % self.escape(table[0]).strip())
         else:
-            definition = escape_abbr(str(table[0]).translate(tex_escape_map))
+            definition = escape_abbr(self.escape(table[0]))
             ret.append(self.babel_renewcommand('\\tablename', definition))
             ret.append('\\makeatletter\n')
             ret.append('\\def\\fnum@table{\\tablename\\thetable{}%s}\n' %
-                       str(table[1]).translate(tex_escape_map))
+                       self.escape(table[1]))
             ret.append('\\makeatother\n')
 
         codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
             pass  # FIXME
         else:
-            definition = str(codeblock[0]).strip().translate(tex_escape_map)
+            definition = self.escape(codeblock[0]).strip()
             ret.append(self.babel_renewcommand('\\literalblockname', definition))
             if codeblock[1]:
                 pass  # FIXME

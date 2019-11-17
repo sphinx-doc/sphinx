@@ -98,6 +98,8 @@ def test_add_is_parallel_allowed(app, status, warning):
 
     app.setup_extension('read_serial')
     assert app.is_parallel_allowed('read') is False
+    assert "the read_serial extension is not safe for parallel reading" in warning.getvalue()
+    warning.truncate(0)  # reset warnings
     assert app.is_parallel_allowed('write') is True
     assert warning.getvalue() == ''
     app.extensions.pop('read_serial')

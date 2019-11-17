@@ -272,7 +272,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 if ':' in node_id:
                     target['ids'][i] = self.fix_fragment('', node_id)
 
-            next_node = target.next_node(siblings=True)  # type: Node
+            next_node = target.next_node(ascend=True)  # type: Node
             if isinstance(next_node, nodes.Element):
                 for i, node_id in enumerate(next_node['ids']):
                     if ':' in node_id:

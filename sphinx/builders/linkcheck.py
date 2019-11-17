@@ -101,7 +101,6 @@ class CheckExternalLinksBuilder(Builder):
             'allow_redirects': True,
             'headers': {
                 'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
-                'User-Agent': requests.useragent_header[0][1],
             },
         }
         if self.app.config.linkcheck_timeout:

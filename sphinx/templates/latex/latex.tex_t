@@ -35,6 +35,7 @@
 <%= sphinxsetup %>
 <%= fvset %>
 <%= geometry %>
+<%= extrapackages %>
 
 <%- for name, option in packages %>
 <%- if option %>
