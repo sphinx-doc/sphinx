@@ -31,6 +31,7 @@ Features added
 * #1331: Add new config variable: :confval:`user_agent`
 * #6000: LaTeX: have backslash also be an inline literal word wrap break
   character
+* #4186: LaTeX: Support upLaTeX as a new :confval:`latex_engine` (experimental)
 * #6812: Improve a warning message when extensions are not parallel safe
 * #6818: Improve Intersphinx performance for multiple remote inventories.
 * #2546: apidoc: .so file support

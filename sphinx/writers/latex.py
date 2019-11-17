@@ -221,6 +221,15 @@ ADDITIONAL_SETTINGS = {
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
+    'uplatex': {
+        'latex_engine': 'uplatex',
+        'babel':        '',
+        'classoptions': ',dvipdfmx',
+        'fontpkg':      '\\usepackage{times}',
+        'textgreek':    '',
+        'fncychap':     '',
+        'geometry':     '\\usepackage[dvipdfm]{geometry}',
+    },
 
     # special settings for latex_engine + language_code
     ('xelatex', 'fr'): {
