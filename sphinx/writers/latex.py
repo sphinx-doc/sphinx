@@ -28,11 +28,11 @@ from sphinx.deprecation import (
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
-from sphinx.util import split_into, logging
+from sphinx.util import split_into, logging, texescape
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
-from sphinx.util.texescape import get_escape_func, tex_replace_map
+from sphinx.util.texescape import tex_replace_map
 
 try:
     from docutils.utils.roman import toRoman
@@ -500,9 +500,6 @@ class LaTeXTranslator(SphinxTranslator):
         self.compact_list = 0
         self.first_param = 0
 
-        # escape helper
-        self.escape = get_escape_func(self.config.latex_engine)
-
         # sort out some elements
         self.elements = self.builder.context.copy()
 
@@ -735,6 +732,9 @@ class LaTeXTranslator(SphinxTranslator):
     def hyperpageref(self, id):
         # type: (str) -> str
         return '\\autopageref*{%s}' % self.idescape(id)
+
+    def escape(self, s: str) -> str:
+        return texescape.escape(s, self.config.latex_engine)
 
     def idescape(self, id):
         # type: (str) -> str
