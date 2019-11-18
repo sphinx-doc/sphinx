@@ -1816,6 +1816,7 @@ class LaTeXTranslator(SphinxTranslator):
             value = value.replace('"', '""')
             value = value.replace('@', '"@')
             value = value.replace('!', '"!')
+            value = value.replace('|', r'\sphinxverticalbar{}')
             return value
 
         def style(string):
