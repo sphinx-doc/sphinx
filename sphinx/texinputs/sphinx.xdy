@@ -109,7 +109,6 @@
 
 (merge-rule "\sphinxleftcurlybrace{}" "{" :string)
 (merge-rule "\sphinxrightcurlybrace{}" "}" :string)
-(merge-rule "\sphinxverticalbar{}" "|" :string)
 (merge-rule "\_" "_" :string)
 (merge-rule "{[}" "[" :string)
 (merge-rule "{]}" "]" :string)
@@ -127,6 +126,7 @@
 (merge-rule "\(\rightarrow\)" "→" :string)
 (merge-rule "\(\checkmark\)" "✓" :string)
 (merge-rule "\textendash{}" "–" :string)
+(merge-rule "\textbar{}" "|" :string)
 (merge-rule "\(\sp{\text{0}}\)" "⁰" :string)
 (merge-rule "\(\sp{\text{1}}\)" "¹" :string)
 (merge-rule "\(\sp{\text{2}}\)" "²" :string)
