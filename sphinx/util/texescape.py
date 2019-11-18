@@ -35,8 +35,6 @@ tex_replacements = [
     ('`', r'{}`'),
     ('<', r'\textless{}'),
     ('>', r'\textgreater{}'),
-    # map char for some unknown reason.  TODO: remove this?
-    ('|', r'\textbar{}'),
     # map special Unicode characters to TeX commands
     ('✓', r'\(\checkmark\)'),
     ('✔', r'\(\pmb{\checkmark}\)'),

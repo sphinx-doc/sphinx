@@ -315,7 +315,7 @@ def test_numref_with_prefix2(app, status, warning):
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
     assert ('\\hyperref[\\detokenize{index:code-1}]{Code-\\ref{\\detokenize{index:code-1}} '
-            '\\textbar{} }') in result
+            '| }') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
             '{Code-\\ref{\\detokenize{baz:code22}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]'
