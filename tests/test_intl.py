@@ -468,6 +468,30 @@ def test_text_table(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
+def test_gettext_toctree(app):
+    app.build()
+    # --- toctree
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
+    actual = read_po(app.outdir / 'toctree.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.id in [m.id for m in actual if m.id]
+
+
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_text_toctree(app):
+    app.build()
+    # --- toctree
+    result = (app.outdir / 'toctree.txt').text()
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.string in result
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_topic(app):
     app.build()
     # --- topic

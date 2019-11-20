@@ -9,7 +9,10 @@
 """
 
 import re
-from typing import Callable, Dict
+from typing import Dict
+
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+
 
 tex_replacements = [
     # map TeX special chars
@@ -20,30 +23,26 @@ tex_replacements = [
     ('_', r'\_'),
     ('{', r'\{'),
     ('}', r'\}'),
-    ('[', r'{[}'),
-    (']', r'{]}'),
-    ('`', r'{}`'),
     ('\\', r'\textbackslash{}'),
     ('~', r'\textasciitilde{}'),
+    ('^', r'\textasciicircum{}'),
+    # map chars to avoid mis-interpretation in LaTeX
+    ('[', r'{[}'),
+    (']', r'{]}'),
+    # map chars to avoid TeX ligatures
+    # 1. ' - and , not here for some legacy reason
+    # 2. no effect with lualatex (done otherwise: #5790)
+    ('`', r'{}`'),
     ('<', r'\textless{}'),
     ('>', r'\textgreater{}'),
-    ('^', r'\textasciicircum{}'),
     # map special Unicode characters to TeX commands
-    ('¶', r'\P{}'),
-    ('§', r'\S{}'),
-    ('€', r'\texteuro{}'),
-    ('∞', r'\(\infty\)'),
-    ('±', r'\(\pm\)'),
-    ('→', r'\(\rightarrow\)'),
-    ('‣', r'\(\rightarrow\)'),
     ('✓', r'\(\checkmark\)'),
     ('✔', r'\(\pmb{\checkmark}\)'),
     # used to separate -- in options
     ('﻿', r'{}'),
     # map some special Unicode characters to similar ASCII ones
+    # (even for Unicode LaTeX as may not be supported by OpenType font)
     ('⎽', r'\_'),
-    ('–', r'\textendash{}'),
-    ('|', r'\textbar{}'),
     ('ℯ', r'e'),
     ('ⅈ', r'i'),
     # Greek alphabet not escaped: pdflatex handles it via textalpha and inputenc
@@ -53,6 +52,15 @@ tex_replacements = [
 # A map Unicode characters to LaTeX representation
 # (for LaTeX engines which don't support unicode)
 unicode_tex_replacements = [
+    # map some more common Unicode characters to TeX commands
+    ('¶', r'\P{}'),
+    ('§', r'\S{}'),
+    ('€', r'\texteuro{}'),
+    ('∞', r'\(\infty\)'),
+    ('±', r'\(\pm\)'),
+    ('→', r'\(\rightarrow\)'),
+    ('‣', r'\(\rightarrow\)'),
+    ('–', r'\textendash{}'),
     # superscript
     ('⁰', r'\(\sp{\text{0}}\)'),
     ('¹', r'\(\sp{\text{1}}\)'),
@@ -77,28 +85,38 @@ unicode_tex_replacements = [
     ('₉', r'\(\sb{\text{9}}\)'),
 ]
 
-tex_escape_map = {}  # type: Dict[int, str]
-tex_escape_map_without_unicode = {}  # type: Dict[int, str]
-tex_replace_map = {}
-tex_hl_escape_map_new = {}
+tex_replace_map = {}  # type: Dict[int, str]
+
+_tex_escape_map = {}  # type: Dict[int, str]
+_tex_escape_map_without_unicode = {}  # type: Dict[int, str]
+_tex_hlescape_map = {}  # type: Dict[int, str]
+_tex_hlescape_map_without_unicode = {}  # type: Dict[int, str]
 
 
-def get_escape_func(latex_engine: str) -> Callable[[str], str]:
-    """Get escape() function for given latex_engine."""
-    if latex_engine in ('lualatex', 'xelatex'):
-        return escape_for_unicode_latex_engine
-    else:
-        return escape
+deprecated_alias('sphinx.util.texescape',
+                 {
+                     'tex_escape_map': _tex_escape_map,
+                     'tex_hl_escape_map_new': _tex_hlescape_map,
+                 },
+                 RemovedInSphinx40Warning)
 
 
-def escape(s: str) -> str:
+def escape(s: str, latex_engine: str = None) -> str:
     """Escape text for LaTeX output."""
-    return s.translate(tex_escape_map)
+    if latex_engine in ('lualatex', 'xelatex'):
+        # unicode based LaTeX engine
+        return s.translate(_tex_escape_map_without_unicode)
+    else:
+        return s.translate(_tex_escape_map)
 
 
-def escape_for_unicode_latex_engine(s: str) -> str:
-    """Escape text for unicode supporting LaTeX engine."""
-    return s.translate(tex_escape_map_without_unicode)
+def hlescape(s: str, latex_engine: str = None) -> str:
+    """Escape text for LaTeX highlighter."""
+    if latex_engine in ('lualatex', 'xelatex'):
+        # unicode based LaTeX engine
+        return s.translate(_tex_hlescape_map_without_unicode)
+    else:
+        return s.translate(_tex_hlescape_map)
 
 
 def escape_abbr(text: str) -> str:
@@ -108,15 +126,19 @@ def escape_abbr(text: str) -> str:
 
 def init() -> None:
     for a, b in tex_replacements:
-        tex_escape_map[ord(a)] = b
-        tex_escape_map_without_unicode[ord(a)] = b
+        _tex_escape_map[ord(a)] = b
+        _tex_escape_map_without_unicode[ord(a)] = b
         tex_replace_map[ord(a)] = '_'
 
     for a, b in unicode_tex_replacements:
-        tex_escape_map[ord(a)] = b
+        _tex_escape_map[ord(a)] = b
         tex_replace_map[ord(a)] = '_'
 
     for a, b in tex_replacements:
         if a in '[]{}\\':
             continue
-        tex_hl_escape_map_new[ord(a)] = b
+        _tex_hlescape_map[ord(a)] = b
+        _tex_hlescape_map_without_unicode[ord(a)] = b
+
+    for a, b in unicode_tex_replacements:
+        _tex_hlescape_map[ord(a)] = b

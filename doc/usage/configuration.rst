@@ -1836,6 +1836,7 @@ These options influence LaTeX output.
    * ``'xelatex'`` -- XeLaTeX
    * ``'lualatex'`` -- LuaLaTeX
    * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
+   * ``'uplatex'`` -- upLaTeX (experimental)
 
    ``'pdflatex'``\ 's support for Unicode characters is limited.
 
@@ -1860,6 +1861,10 @@ These options influence LaTeX output.
    .. versionchanged:: 2.2.1
 
       Use ``xelatex`` by default for Greek documents.
+
+   .. versionchanged:: 2.3
+
+      Add ``uplatex`` support.
 
    Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
    LaTeX requires some extra configuration to support Unicode literals in

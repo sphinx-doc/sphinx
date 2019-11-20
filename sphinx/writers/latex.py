@@ -28,11 +28,11 @@ from sphinx.deprecation import (
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
-from sphinx.util import split_into, logging
+from sphinx.util import split_into, logging, texescape
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
-from sphinx.util.texescape import get_escape_func, tex_replace_map
+from sphinx.util.texescape import tex_replace_map
 
 try:
     from docutils.utils.roman import toRoman
@@ -214,6 +214,15 @@ ADDITIONAL_SETTINGS = {
     },
     'platex': {
         'latex_engine': 'platex',
+        'babel':        '',
+        'classoptions': ',dvipdfmx',
+        'fontpkg':      '\\usepackage{times}',
+        'textgreek':    '',
+        'fncychap':     '',
+        'geometry':     '\\usepackage[dvipdfm]{geometry}',
+    },
+    'uplatex': {
+        'latex_engine': 'uplatex',
         'babel':        '',
         'classoptions': ',dvipdfmx',
         'fontpkg':      '\\usepackage{times}',
@@ -500,9 +509,6 @@ class LaTeXTranslator(SphinxTranslator):
         self.compact_list = 0
         self.first_param = 0
 
-        # escape helper
-        self.escape = get_escape_func(self.config.latex_engine)
-
         # sort out some elements
         self.elements = self.builder.context.copy()
 
@@ -653,7 +659,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
 
-        self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
+        self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style,
+                                                       latex_engine=self.config.latex_engine)
         self.context = []                   # type: List[Any]
         self.descstack = []                 # type: List[str]
         self.table = None                   # type: Table
@@ -734,6 +741,9 @@ class LaTeXTranslator(SphinxTranslator):
     def hyperpageref(self, id):
         # type: (str) -> str
         return '\\autopageref*{%s}' % self.idescape(id)
+
+    def escape(self, s: str) -> str:
+        return texescape.escape(s, self.config.latex_engine)
 
     def idescape(self, id):
         # type: (str) -> str
@@ -1815,6 +1825,7 @@ class LaTeXTranslator(SphinxTranslator):
             value = value.replace('"', '""')
             value = value.replace('@', '"@')
             value = value.replace('!', '"!')
+            value = value.replace('|', r'\textbar{}')
             return value
 
         def style(string):
@@ -2163,8 +2174,6 @@ class LaTeXTranslator(SphinxTranslator):
                 node.rawsource, lang, opts=opts, linenos=linenos,
                 location=(self.curfilestack[-1], node.line), **highlight_args
             )
-            # workaround for Unicode issue
-            hlcode = hlcode.replace('€', '@texteuro[]')
             if self.in_footnote:
                 self.body.append('\n\\sphinxSetupCodeBlockInFootnote')
                 hlcode = hlcode.replace('\\begin{Verbatim}',
