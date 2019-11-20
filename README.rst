@@ -94,8 +94,6 @@ Please adhere to our `code of conduct`__.
 
 __ http://www.sphinx-doc.org/en/master/code_of_conduct.html
 
-__
-
 Testing
 =======
 
