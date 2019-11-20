@@ -67,6 +67,7 @@ Bugs fixed
 * #6793: texinfo: Code examples broken following "sidebar"
 * #6813: An orphan warning is emitted for included document on Windows.  Thanks
   to @drillan
+* #6850: Fix smartypants module calls re.sub() with wrong options
 
 Testing
 --------
