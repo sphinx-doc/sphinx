@@ -26,7 +26,7 @@ from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
 from sphinx.transforms.references import SphinxDomains
-from sphinx.util import logging
+from sphinx.util import logging, get_filetype
 from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
@@ -190,20 +190,6 @@ class SphinxFileInput(FileInput):
         # type: (Any, Any) -> None
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
-
-
-class FiletypeNotFoundError(Exception):
-    pass
-
-
-def get_filetype(source_suffix, filename):
-    # type: (Dict[str, str], str) -> str
-    for suffix, filetype in source_suffix.items():
-        if filename.endswith(suffix):
-            # If default filetype (None), considered as restructuredtext.
-            return filetype or 'restructuredtext'
-    else:
-        raise FiletypeNotFoundError
 
 
 def read_doc(app, env, filename):

@@ -29,7 +29,8 @@ from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, S
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
+from sphinx.errors import (  # noqa
+    PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError)
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
@@ -115,6 +116,16 @@ def get_matching_docs(dirname: str, suffixes: List[str],
             if fnmatch.fnmatch(filename, suffixpattern):
                 yield filename[:-len(suffixpattern) + 1]
                 break
+
+
+def get_filetype(source_suffix, filename):
+    # type: (Dict[str, str], str) -> str
+    for suffix, filetype in source_suffix.items():
+        if filename.endswith(suffix):
+            # If default filetype (None), considered as restructuredtext.
+            return filetype or 'restructuredtext'
+    else:
+        raise FiletypeNotFoundError
 
 
 class FilenameUniqDict(dict):
