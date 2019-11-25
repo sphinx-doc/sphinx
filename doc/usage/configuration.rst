@@ -667,6 +667,7 @@ documentation on :ref:`intl` for details.
    * ``cs`` -- Czech
    * ``da`` -- Danish
    * ``de`` -- German
+   * ``el`` -- Greek
    * ``en`` -- English
    * ``es`` -- Spanish
    * ``et`` -- Estonian
