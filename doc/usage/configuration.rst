@@ -538,7 +538,7 @@ General configuration
             directory pointed ``REQUESTS_CA_BUNDLE`` environment
             variable if ``tls_cacerts`` not set.
 
-            .. _requests: http://docs.python-requests.org/en/master/
+            .. _requests: https://requests.readthedocs.io/en/master/
 
 .. confval:: today
              today_fmt
@@ -2369,6 +2369,34 @@ Options for the linkcheck builder
          ]
 
    .. versionadded:: 1.5
+
+.. confval:: linkcheck_auth
+
+   Pass authentication information when doing a ``linkcheck`` build.
+
+   A list of ``(regex_pattern, auth_info)`` tuples where the items are:
+
+   *regex_pattern*
+     A regular expression that matches a URI.
+   *auth_info*
+     Authentication information to use for that URI. The value can be anything
+     that is understood by the ``requests`` library (see `requests
+     Authentication <requests-auth>`_ for details).
+
+     .. _requests-auth: https://requests.readthedocs.io/en/master/user/authentication/
+
+   The ``linkcheck`` builder will use the first matching ``auth_info`` value
+   it can find in the :confval:`linkcheck_auth` list, so values earlier in the
+   list have higher priority.
+
+   Example::
+
+      linkcheck_auth = [
+        ('https://foo\.yourcompany\.com/.+', ('johndoe', 'secret')),
+        ('https://.+\.yourcompany\.com/.+', HTTPDigestAuth(...)),
+      ]
+
+   .. versionadded:: 2.3
 
 
 Options for the XML builder
