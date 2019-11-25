@@ -662,13 +662,17 @@ documentation on :ref:`intl` for details.
 
    Currently supported languages by Sphinx are:
 
+   * ``ar`` -- Arabic
    * ``bn`` -- Bengali
    * ``ca`` -- Catalan
+   * ``cak`` -- Kaqchikel
    * ``cs`` -- Czech
+   * ``cy`` -- Welsh
    * ``da`` -- Danish
    * ``de`` -- German
    * ``el`` -- Greek
    * ``en`` -- English
+   * ``eo`` -- Esperanto
    * ``es`` -- Spanish
    * ``et`` -- Estonian
    * ``eu`` -- Basque
@@ -676,6 +680,7 @@ documentation on :ref:`intl` for details.
    * ``fi`` -- Finnish
    * ``fr`` -- French
    * ``he`` -- Hebrew
+   * ``hi`` -- Hindi
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
    * ``id`` -- Indonesian
@@ -689,15 +694,20 @@ documentation on :ref:`intl` for details.
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
+   * ``pt`` -- Portuguese
    * ``pt_BR`` -- Brazilian Portuguese
    * ``pt_PT`` -- European Portuguese
+   * ``ro`` -- Romanian
    * ``ru`` -- Russian
    * ``si`` -- Sinhala
    * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
+   * ``sr`` -- Serbian
    * ``sv`` -- Swedish
+   * ``ta`` -- Tamil
    * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
+   * ``ur`` -- Urdu
    * ``vi`` -- Vietnamese
    * ``zh_CN`` -- Simplified Chinese
    * ``zh_TW`` -- Traditional Chinese
