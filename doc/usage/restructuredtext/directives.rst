@@ -1017,7 +1017,7 @@ this reason, the following directive exists:
       cells.
 
       Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``,
-      ``Y{f}`` and tabulary's columns.
+      ``\Y{f}`` and tabulary's columns.
 
    .. note::
 
