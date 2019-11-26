@@ -177,16 +177,16 @@ class Config:
             else:
                 config, overrides = args[:2]
 
-        self.overrides = overrides
+        self.overrides = dict(overrides)
         self.values = Config.config_values.copy()
         self._raw_config = config
         self.setup = config.get('setup', None)  # type: Callable
 
-        if 'extensions' in overrides:
-            if isinstance(overrides['extensions'], str):
-                config['extensions'] = overrides.pop('extensions').split(',')
+        if 'extensions' in self.overrides:
+            if isinstance(self.overrides['extensions'], str):
+                config['extensions'] = self.overrides.pop('extensions').split(',')
             else:
-                config['extensions'] = overrides.pop('extensions')
+                config['extensions'] = self.overrides.pop('extensions')
         self.extensions = config.get('extensions', [])  # type: List[str]
 
     @classmethod
