@@ -427,8 +427,12 @@ def default_latex_engine(config: Config) -> str:
 def default_latex_docclass(config: Config) -> Dict[str, str]:
     """ Better default latex_docclass settings for specific languages. """
     if config.language == 'ja':
-        return {'manual': 'jsbook',
-                'howto': 'jreport'}
+        if config.latex_engine == 'uplatex':
+            return {'manual': 'ujbook',
+                    'howto': 'ujreport'}
+        else:
+            return {'manual': 'jsbook',
+                    'howto': 'jreport'}
     else:
         return {}
 
@@ -456,7 +460,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_config_values)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
-                         ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))
+                         ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
     app.add_config_value('latex_documents', default_latex_documents, None)
     app.add_config_value('latex_logo', None, None, [str])
     app.add_config_value('latex_appendices', [], None)
