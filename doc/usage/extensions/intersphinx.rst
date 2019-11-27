@@ -148,3 +148,13 @@ project. The following example prints the Intersphinx mapping of the Python 3
 documentation::
 
    $ python -msphinx.ext.intersphinx https://docs.python.org/3/objects.inv
+
+Using Intersphinx with inventory file under login
+-------------------------------------------------
+
+If the inventory file is under login,
+you can still use Intersphinx if the site supports Basic Authorization::
+
+      intersphinx_mapping = {'python': ('https://user:password@docs.python.org/3', None)}
+
+The user and password will be stripped from the URL when generating the links.
