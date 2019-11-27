@@ -440,15 +440,14 @@ class TextTranslator(SphinxTranslator):
                 toformat = []
         do_format()
         if first is not None and result:
-            itemindent, item = result[0]
-            result_rest, result = result[1:], []
-            if item:
-                toformat = [first + ' '.join(item)]
-                do_format()  # re-create `result` from `toformat`
-                _dummy, new_item = result[0]
-                result.insert(0, (itemindent - indent, [new_item[0]]))
-                result[1] = (itemindent, new_item[1:])
-                result.extend(result_rest)
+            # insert prefix into first line (ex. *, [1], See also, etc.)
+            newindent = result[0][0] - indent
+            if result[0][1] == ['']:
+                result.insert(0, (newindent, [first]))
+            else:
+                text = first + result[0][1].pop(0)
+                result.insert(0, (newindent, [text]))
+
         self.states[-1].extend(result)
 
     def visit_document(self, node: Element) -> None:
@@ -916,12 +915,20 @@ class TextTranslator(SphinxTranslator):
     def _visit_admonition(self, node: Element) -> None:
         self.new_state(2)
 
-        if isinstance(node.children[0], nodes.Sequential):
-            self.add_text(self.nl)
-
     def _depart_admonition(self, node: Element) -> None:
         label = admonitionlabels[node.tagname]
-        self.end_state(first=label + ': ')
+        indent = sum(self.stateindent) + len(label)
+        print(self.states[-1])
+        if (len(self.states[-1]) == 1 and
+                self.states[-1][0][0] == 0 and
+                MAXWIDTH - indent >= sum(len(s) for s in self.states[-1][0][1])):
+            # short text: append text after admonition label
+            self.stateindent[-1] += len(label)
+            self.end_state(first=label + ': ')
+        else:
+            # long text: append label before the block
+            self.states[-1].insert(0, (0, [self.nl]))
+            self.end_state(first=label + ':')
 
     visit_attention = _visit_admonition
     depart_attention = _depart_admonition
