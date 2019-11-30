@@ -315,7 +315,8 @@ def test_text_seealso(app):
               "\n*********************\n"
               "\nSee also: SHORT TEXT 1\n"
               "\nSee also: LONG TEXT 1\n"
-              "\nSee also: SHORT TEXT 2\n"
+              "\nSee also:\n"
+              "\n  SHORT TEXT 2\n"
               "\n  LONG TEXT 2\n")
     assert result == expect
 
@@ -356,7 +357,9 @@ def test_text_figure_captions(app):
               "14.4. IMAGE UNDER NOTE\n"
               "======================\n"
               "\n"
-              "Note: [image: i18n under note][image]\n"
+              "Note:\n"
+              "\n"
+              "  [image: i18n under note][image]\n"
               "\n"
               "     [image: img under note][image]\n")
     assert result == expect
