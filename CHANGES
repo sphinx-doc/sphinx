@@ -11,6 +11,7 @@ Incompatible changes
   match the first line of the code block.
 * #1331: Change default User-Agent header to ``"Sphinx/X.Y.Z requests/X.Y.Z
   python/X.Y.Z"``.  It can be changed via :confval:`user_agent`.
+* #6867: text: content of admonitions starts after a blank line
 
 Deprecated
 ----------
@@ -78,6 +79,7 @@ Bugs fixed
   fully matched in a text paragraph on the same page, the search does not
   include this match.
 * #6848: config.py shouldn't pop extensions from overrides
+* #6867: text: extra spaces are inserted to hyphenated words on folding lines
 
 Testing
 --------
