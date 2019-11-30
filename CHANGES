@@ -14,6 +14,8 @@ Incompatible changes
 * Drop features and APIs deprecated in 1.8.x
 * #247: autosummary: stub files are overwritten automatically by default.  see
   :confval:`autosummary_generate_overwrite` to change the behavior
+* #5923: autodoc: the members of ``object`` class are not documented by default
+  when ``:inherited-members:`` and ``:special-members:`` are given.
 
 Deprecated
 ----------
@@ -23,6 +25,8 @@ Features added
 
 * #247: autosummary: Add :confval:`autosummary_generate_overwrite` to overwrite
   old stub file
+* #5923: autodoc: ``:inherited-members:`` option takes a name of anchestor class
+  not to document inherited members of the class and uppers
 
 Bugs fixed
 ----------

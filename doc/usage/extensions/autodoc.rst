@@ -157,7 +157,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
-     ``inherited-members`` flag option, in addition to ``members``::
+     ``inherited-members`` option, in addition to ``members``::
 
         .. autoclass:: Noodle
            :members:
@@ -166,10 +166,18 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      This can be combined with ``undoc-members`` to document *all* available
      members of the class or module.
 
+     It can take an anchestor class not to document inherited members from it.
+     By default, members of ``object`` class are not documented.  To show them
+     all, give ``None`` to the option.
+
      Note: this will lead to markup errors if the inherited members come from a
      module whose docstrings are not reST formatted.
 
      .. versionadded:: 0.3
+
+     .. versionchanged:: 3.0
+
+        It takes an anchestor class name as an argument.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will

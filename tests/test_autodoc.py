@@ -582,6 +582,30 @@ def test_autodoc_inherited_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_inherited_members_Base(app):
+    options = {"members": None,
+               "inherited-members": "Base",
+               "special-members": None}
+
+    # check methods for object class are shown
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
+    assert '   .. py:method:: Derived.inheritedmeth()' in actual
+    assert '   .. py:method:: Derived.inheritedclassmeth' not in actual
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_inherited_members_None(app):
+    options = {"members": None,
+               "inherited-members": "None",
+               "special-members": None}
+
+    # check methods for object class are shown
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
+    assert '   .. py:method:: Derived.__init__' in actual
+    assert '   .. py:method:: Derived.__str__' in actual
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_imported_members(app):
     options = {"members": None,
                "imported-members": None,
