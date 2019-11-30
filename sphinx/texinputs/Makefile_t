@@ -36,7 +36,7 @@ XINDYOPTS += -M LatinRules.xdy
 # format: pdf or dvi (used only by archive targets)
 FMT = pdf
 
-{% if latex_engine == 'platex' -%}
+{% if latex_engine in ('platex', 'uplatex') -%}
 # latexmkrc is read then overridden by latexmkjarc
 LATEX = latexmk -r latexmkjarc -dvi
 PDFLATEX = latexmk -r latexmkjarc -pdfdvi -dvi- -ps-

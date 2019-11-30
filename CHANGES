@@ -50,12 +50,15 @@ Deprecated
 * ``sphinx.builders.gettext.POHEADER``
 * ``sphinx.io.SphinxStandaloneReader.app``
 * ``sphinx.io.SphinxStandaloneReader.env``
+* ``sphinx.util.texescape.tex_escape_map``
+* ``sphinx.util.texescape.tex_hl_escape_map_new``
 
 Features added
 --------------
 
 * #6707: C++, support bit-fields.
 * #267: html: Eliminate prompt characters of doctest block from copyable text
+* #6548: html: Use favicon for OpenSearch if available
 * #6729: html theme: agogo theme now supports ``rightsidebar`` option
 * #6780: Add PEP-561 Support
 * #6762: latex: Allow to load additonal LaTeX packages via ``extrapackages`` key
@@ -63,10 +66,14 @@ Features added
 * #1331: Add new config variable: :confval:`user_agent`
 * #6000: LaTeX: have backslash also be an inline literal word wrap break
   character
+* #4186: LaTeX: Support upLaTeX as a new :confval:`latex_engine` (experimental)
 * #6812: Improve a warning message when extensions are not parallel safe
 * #6818: Improve Intersphinx performance for multiple remote inventories.
 * #2546: apidoc: .so file support
+* #6798: autosummary: emit ``autodoc-skip-member`` event on generating stub file
 * #6483: i18n: make explicit titles in toctree translatable
+* #6816: linkcheck: Add :confval:`linkcheck_auth` option to provide
+  authentication information when doing ``linkcheck`` builds
 
 Bugs fixed
 ----------
@@ -80,6 +87,7 @@ Bugs fixed
   supported LaTeX engines: ¶, §, €, ∞, ±, →, ‣, –, superscript and subscript
   digits go through "as is" (as default OpenType font supports them)
 * #6704: linkcheck: Be defensive and handle newly defined HTTP error code
+* #6806: linkcheck: Failure on parsing content
 * #6655: image URLs containing ``data:`` causes gettext builder crashed
 * #6584: i18n: Error when compiling message catalogs on Hindi
 * #6718: i18n: KeyError is raised if section title and table title are same
@@ -95,6 +103,13 @@ Bugs fixed
 * #6809: LaTeX: code-block in a danger type admonition can easily spill over
   bottom of page
 * #6793: texinfo: Code examples broken following "sidebar"
+* #6813: An orphan warning is emitted for included document on Windows.  Thanks
+  to @drillan
+* #6850: Fix smartypants module calls re.sub() with wrong options
+* #6824: HTML search: If a search term is partially matched in the title and
+  fully matched in a text paragraph on the same page, the search does not
+  include this match.
+* #6848: config.py shouldn't pop extensions from overrides
 
 Testing
 --------
