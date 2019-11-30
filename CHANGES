@@ -80,6 +80,7 @@ Bugs fixed
   include this match.
 * #6848: config.py shouldn't pop extensions from overrides
 * #6867: text: extra spaces are inserted to hyphenated words on folding lines
+* #6876: LaTeX: multi-line display of authors on title page has ragged edges
 
 Testing
 --------
