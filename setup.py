@@ -47,7 +47,7 @@ extras_require = {
         'html5lib',
         'flake8>=3.5.0',
         'flake8-import-order',
-        'mypy>=0.740',
+        'mypy>=0.750',
         'docutils-stubs',
     ],
 }
