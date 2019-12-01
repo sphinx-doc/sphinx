@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #6803: For security reason of python, parallel mode is disabled on macOS and
+  Python3.8+
+
 Deprecated
 ----------
 
@@ -19,6 +22,7 @@ Bugs fixed
 * #6776: LaTeX: 2019-10-01 LaTeX release breaks :file:`sphinxcyrillic.sty`
 * #6815: i18n: French, Hindi, Japanese and Korean translation messages has been
   broken
+* #6803: parallel build causes AttributeError on macOS and Python3.8
 
 Testing
 --------
