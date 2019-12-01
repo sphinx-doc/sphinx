@@ -255,7 +255,7 @@ class CheckExternalLinksBuilder(Builder):
                     302: ('with Found', purple),
                     303: ('with See Other', purple),
                     307: ('temporarily', turquoise),
-                    0:   ('with unknown code', purple),
+                    308: ('permanently', darkred),
                 }[code]
             except KeyError:
                 text, color = ('with unknown code', purple)
