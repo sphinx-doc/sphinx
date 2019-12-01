@@ -12,8 +12,8 @@ import os
 import re
 import textwrap
 from itertools import groupby, chain
-from typing import Dict, List, Iterable, Optional, Set, Tuple, Union
 from typing import cast
+from typing import Dict, List, Iterable, Optional, Set, Tuple, Union
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
