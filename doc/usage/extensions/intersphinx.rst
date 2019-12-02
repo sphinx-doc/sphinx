@@ -149,11 +149,10 @@ documentation::
 
    $ python -msphinx.ext.intersphinx https://docs.python.org/3/objects.inv
 
-Using Intersphinx with inventory file under login
--------------------------------------------------
+Using Intersphinx with inventory file under Basic Authorization
+---------------------------------------------------------------
 
-If the inventory file is under login,
-you can still use Intersphinx if the site supports Basic Authorization::
+Intersphinx supports Basic Authorization like this::
 
       intersphinx_mapping = {'python': ('https://user:password@docs.python.org/3',
                                         None)}
