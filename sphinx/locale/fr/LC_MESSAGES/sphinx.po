@@ -29,7 +29,7 @@ msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-03-29 01:05+0900\n"
-"PO-Revision-Date: 2019-12-01 12:34+0000\n"
+"PO-Revision-Date: 2019-12-01 20:35+0000\n"
 "Last-Translator: Jean-François B. <jfbu@free.fr>\n"
 "Language-Team: French (http://www.transifex.com/sphinx-doc/sphinx-1/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -571,7 +571,7 @@ msgstr "aucun résultat"
 
 #: sphinx/builders/__init__.py:354
 msgid "pickling environment"
-msgstr "environnent de sérialisation"
+msgstr "environnement de sérialisation"
 
 #: sphinx/builders/__init__.py:360
 msgid "checking consistency"
@@ -801,7 +801,7 @@ msgstr "précédent"
 
 #: sphinx/builders/html.py:677
 msgid "generating indices..."
-msgstr "génération des indices..."
+msgstr "production des indices..."
 
 #: sphinx/builders/html.py:695
 msgid "writing additional pages..."
