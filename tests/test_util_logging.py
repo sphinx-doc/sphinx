@@ -10,6 +10,8 @@
 
 import codecs
 import os
+import platform
+import sys
 
 import pytest
 from docutils import nodes
@@ -276,6 +278,8 @@ def test_colored_logs(app, status, warning):
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+@pytest.mark.xfail(platform.system() == 'Darwin' and sys.version_info > (3, 8),
+                   reason="Not working on macOS and py38")
 def test_logging_in_ParallelTasks(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)

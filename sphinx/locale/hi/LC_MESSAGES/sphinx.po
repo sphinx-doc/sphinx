@@ -5,12 +5,13 @@
 # Translators:
 # Ajay Singh <ajaysajay@gmail.com>, 2019
 # Purnank H. Ghumalia <me@purnank.in>, 2015-2016
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-03-29 01:05+0900\n"
-"PO-Revision-Date: 2019-03-28 16:08+0000\n"
+"PO-Revision-Date: 2019-11-14 15:35+0000\n"
 "Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
 "MIME-Version: 1.0\n"
@@ -1450,7 +1451,7 @@ msgid ""
 "\n"
 "For a list of supported codes, see\n"
 "https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
-msgstr "\nयदि प्रलेखों को अंग्रेजी के अलावा अन्य किसी भाषा में लिखा जाना है,\nतो यहाँ पर आप भाषा का कूटशब्द दे सकते हैं. स्फिंक्स तदपुरांत,\nजो वाक्यांश बनाता है उसे उस भाषा में अनुवादित करेगा.\n\nमान्य भाषा कूटशब्द सूची यहाँ पर देखें\nhttps://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
+msgstr ""
 
 #: sphinx/cmd/quickstart.py:314
 msgid "Project language"

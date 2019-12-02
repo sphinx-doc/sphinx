@@ -12,6 +12,7 @@
 
 import os
 import pickle
+import platform
 import sys
 import warnings
 from collections import deque
@@ -198,6 +199,12 @@ class Sphinx:
 
         # say hello to the world
         logger.info(bold(__('Running Sphinx v%s') % sphinx.__display_version__))
+
+        # notice for parallel build on macOS and py38+
+        if sys.version_info > (3, 8) and platform.system() == 'Darwin' and parallel > 1:
+            logger.info(bold(__("For security reason, parallel mode is disabled on macOS and "
+                                "python3.8 and above.  For more details, please read "
+                                "https://github.com/sphinx-doc/sphinx/issues/6803")))
 
         # status code for command-line application
         self.statuscode = 0
