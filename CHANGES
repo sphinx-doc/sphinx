@@ -1,20 +1,11 @@
-Release 2.2.2 (in development)
-==============================
-
-Dependencies
-------------
+Release 2.2.2 (released Dec 03, 2019)
+=====================================
 
 Incompatible changes
 --------------------
 
 * #6803: For security reason of python, parallel mode is disabled on macOS and
   Python3.8+
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -23,9 +14,6 @@ Bugs fixed
 * #6815: i18n: French, Hindi, Chinese, Japanese and Korean translation messages
   has been broken
 * #6803: parallel build causes AttributeError on macOS and Python3.8
-
-Testing
---------
 
 Release 2.2.1 (released Oct 26, 2019)
 =====================================
