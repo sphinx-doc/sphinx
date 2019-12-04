@@ -613,6 +613,6 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
         doc = inspect.getdoc(obj)
     elif isinstance(doc, str):
         # clean the docstring for consistency with getdoc above
-        doc = inspect.cleandoc(obj)
+        doc = inspect.cleandoc(doc)
 
     return doc
