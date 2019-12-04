@@ -609,7 +609,10 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
     doc = attrgetter(obj, '__doc__', None)
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)
-    elif doc is None and allow_inherited:
+    elif doc is not None:
+        # clean the docstring for consistency with getdoc below
+        doc = inspect.cleandoc(obj)
+    elif allow_inherited:
         doc = inspect.getdoc(obj)
 
     return doc
