@@ -21,7 +21,12 @@ from os import path
 from typing import Any, Generator, Iterator, List, Tuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.testing.path import path as Path
+
+try:
+    # for ALT Linux (#6712)
+    from sphinx.testing.path import path as Path
+except ImportError:
+    Path = None  # type: ignore
 
 if False:
     # For type annotation
@@ -156,7 +161,7 @@ fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
 def abspath(pathdir: str) -> str:
-    if isinstance(pathdir, Path):
+    if Path is not None and isinstance(pathdir, Path):
         return pathdir.abspath()
     else:
         pathdir = path.abspath(pathdir)

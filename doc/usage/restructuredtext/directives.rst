@@ -441,7 +441,7 @@ If highlighting with the selected language fails (i.e. Pygments emits an
    want to ensure consistent highlighting, you should fix your version of
    Pygments.
 
-__ http://pygments.org/docs/lexers/
+__ http://pygments.org/docs/lexers
 
 .. rst:directive:: .. highlight:: language
 

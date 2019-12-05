@@ -1054,7 +1054,7 @@
 % Take advantage of the already applied Pygments mark-up to insert
 % potential linebreaks for TeX processing.
 %        {, <, #, %, $, ' and ": go to next line.
-%        _, }, ^, &, >, - and ~: stay at end of broken line.
+%        _, }, ^, &, >, -, ~, and \: stay at end of broken line.
 % Use of \textquotesingle for straight quote.
 % FIXME: convert this to package options ?
 \newcommand*\sphinxbreaksbeforelist {%
@@ -1066,6 +1066,7 @@
 \newcommand*\sphinxbreaksafterlist {%
     \do\PYGZus\_\do\PYGZcb\}\do\PYGZca\^\do\PYGZam\&% _, }, ^, &,
     \do\PYGZgt\>\do\PYGZhy\-\do\PYGZti\~% >, -, ~
+    \do\PYGZbs\\% \
 }
 \newcommand*\sphinxbreaksatspecials {%
   \def\do##1##2%
@@ -1110,6 +1111,9 @@
 \newcommand*\sphinxVerbatimTitle {}
 % This box to typeset the caption before framed.sty multiple passes for framing.
 \newbox\sphinxVerbatim@TitleBox
+% This box to measure contents if nested as inner \MakeFramed requires then
+% minipage encapsulation but too long contents then break outer \MakeFramed
+\newbox\sphinxVerbatim@ContentsBox
 % This is a workaround to a "feature" of French lists, when literal block
 % follows immediately; usable generally (does only \par then), a priori...
 \newcommand*\sphinxvspacefixafterfrenchlists{%
@@ -1256,17 +1260,23 @@
   \itemsep   \z@skip
   \topsep    \z@skip
   \partopsep \z@skip
-  % trivlist will set \parsep to \parskip = zero
+  % trivlist will set \parsep to \parskip (which itself is set to zero above)
   % \leftmargin will be set to zero by trivlist
   \rightmargin\z@
   \parindent  \z@% becomes \itemindent. Default zero, but perhaps overwritten.
   \trivlist\item\relax
-     \ifsphinxverbatimwithminipage\spx@inframedtrue\fi
-     % use a minipage if we are already inside a framed environment
-     \ifspx@inframed\noindent\begin{minipage}{\linewidth}\fi
-     \MakeFramed {% adapted over from framed.sty's snugshade environment
+     \ifspx@inframed\setbox\sphinxVerbatim@ContentsBox\vbox\bgroup
+        \@setminipage\hsize\linewidth
+        % use bulk of minipage paragraph shape restores (this is needed
+        % in indented contexts, at least for some)
+        \textwidth\hsize \columnwidth\hsize \@totalleftmargin\z@
+        \leftskip\z@skip \rightskip\z@skip  \@rightskip\z@skip
+     \else
+       \ifsphinxverbatimwithminipage\noindent\begin{minipage}{\linewidth}\fi
+       \MakeFramed {% adapted over from framed.sty's snugshade environment
         \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize\@setminipage
         }%
+     \fi
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
      % active comma should not be overwritten by \@noligs
@@ -1278,8 +1288,49 @@
 }
 {%
   \endOriginalVerbatim
-  \par\unskip\@minipagefalse\endMakeFramed % from framed.sty snugshade
-  \ifspx@inframed\end{minipage}\fi
+  \ifspx@inframed
+   \egroup % finish \sphinxVerbatim@ContentsBox vbox
+   \nobreak % update page totals
+   \ifdim\dimexpr\ht\sphinxVerbatim@ContentsBox+
+         \dp\sphinxVerbatim@ContentsBox+
+         \ht\sphinxVerbatim@TitleBox+
+         \dp\sphinxVerbatim@TitleBox+
+         2\fboxsep+2\fboxrule+
+         % try to account for external frame parameters
+         \FrameSep+\FrameRule+
+         % Usage here of 2 baseline distances is empirical.
+         % In border case where code-block fits barely in remaining space,
+         % it gets framed and looks good but the outer frame may continue
+         % on top of next page and give (if no contents after code-block)
+         % an empty framed line, as testing showed.
+         2\baselineskip+
+         % now add all to accumulated page totals and compare to \pagegoal
+         \pagetotal+\pagedepth>\pagegoal
+    % long contents: do not \MakeFramed. Do make a caption (either before or
+    % after) if title exists. Continuation hints across pagebreaks dropped.
+    % FIXME? a bottom caption may end up isolated at top of next page
+    %        (no problem with a top caption, which is default)
+    \spx@opt@verbatimwithframefalse
+    \def\sphinxVerbatim@Title{\noindent\box\sphinxVerbatim@TitleBox\par}%
+    \sphinxVerbatim@Before
+    \noindent\unvbox\sphinxVerbatim@ContentsBox\par
+    \sphinxVerbatim@After
+   \else
+    % short enough contents: use \MakeFramed. As it is nested, this requires
+    % minipage encapsulation.
+    \noindent\begin{minipage}{\linewidth}%
+     \MakeFramed {% Use it now with the fetched contents
+      \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize\@setminipage
+      }%
+     \unvbox\sphinxVerbatim@ContentsBox
+     % some of this may be superfluous:
+     \par\unskip\@minipagefalse\endMakeFramed
+    \end{minipage}%
+   \fi
+  \else % non-nested \MakeFramed
+    \par\unskip\@minipagefalse\endMakeFramed % from framed.sty snugshade
+    \ifsphinxverbatimwithminipage\end{minipage}\fi
+  \fi
   \endtrivlist
 }
 \newenvironment {sphinxVerbatimNoFrame}
@@ -1314,6 +1365,7 @@
      {\def##1{\discretionary{\char`##2}{\sphinxafterbreak}{\char`##2}}}%
   \do\_\_\do\}\}\do\textasciicircum\^\do\&\&% _, }, ^, &,
   \do\textgreater\>\do\textasciitilde\~% >, ~
+  \do\textbackslash\\% \
 }
 \newcommand*\sphinxbreaksviaactiveinparsedliteral{%
   \sphinxbreaksviaactive % by default handles . , ; ? ! /
@@ -1736,13 +1788,25 @@
 % to obtain straight quotes we execute \@noligs as patched by upquote, and
 % \scantokens is needed in cases where it would be too late for the macro to
 % first set catcodes and then fetch its argument. We also make the contents
-% breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive.
+% breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive,
+% and also at \ character (which is escaped to \textbackslash{}).
+\protected\def\sphinxtextbackslashbreakbefore
+ {\discretionary{}{\sphinxafterbreak\sphinx@textbackslash}{\sphinx@textbackslash}}
+\protected\def\sphinxtextbackslashbreakafter
+ {\discretionary{\sphinx@textbackslash}{\sphinxafterbreak}{\sphinx@textbackslash}}
+\let\sphinxtextbackslash\sphinxtextbackslashbreakafter
 % the macro must be protected if it ends up used in moving arguments,
 % in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
 \protected\def\sphinxupquote#1{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else
    \ifspx@opt@inlineliteralwraps
-      \sphinxbreaksviaactive\let\sphinxafterbreak\empty
+      % break at . , ; ? ! /
+      \sphinxbreaksviaactive
+      % break also at \
+      \let\sphinx@textbackslash\textbackslash
+      \let\textbackslash\sphinxtextbackslash
+      % do not typeset a continuation symbol on next line
+      \let\sphinxafterbreak\sphinxafterbreakofinlineliteral
       % do not overwrite the comma set-up
       \let\verbatim@nolig@list\sphinx@literal@nolig@list
    \fi
@@ -1754,6 +1818,7 @@
 \def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
     \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
 \def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
+\let\sphinxafterbreakofinlineliteral\empty
 
 % Some custom font markup commands.
 \protected\def\sphinxstrong#1{\textbf{#1}}

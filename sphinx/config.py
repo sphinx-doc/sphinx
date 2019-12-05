@@ -148,6 +148,7 @@ class Config:
         'math_numfig': (True, 'env', []),
         'tls_verify': (True, 'env', []),
         'tls_cacerts': (None, 'env', []),
+        'user_agent': (None, 'env', [str]),
         'smartquotes': (True, 'env', []),
         'smartquotes_action': ('qDe', 'env', []),
         'smartquotes_excludes': ({'languages': ['ja'],
@@ -157,16 +158,16 @@ class Config:
 
     def __init__(self, config={}, overrides={}):
         # type: (Dict[str, Any], Dict[str, Any]) -> None
-        self.overrides = overrides
+        self.overrides = dict(overrides)
         self.values = Config.config_values.copy()
         self._raw_config = config
         self.setup = config.get('setup', None)  # type: Callable
 
-        if 'extensions' in overrides:
-            if isinstance(overrides['extensions'], str):
-                config['extensions'] = overrides.pop('extensions').split(',')
+        if 'extensions' in self.overrides:
+            if isinstance(self.overrides['extensions'], str):
+                config['extensions'] = self.overrides.pop('extensions').split(',')
             else:
-                config['extensions'] = overrides.pop('extensions')
+                config['extensions'] = self.overrides.pop('extensions')
         self.extensions = config.get('extensions', [])  # type: List[str]
 
     @classmethod

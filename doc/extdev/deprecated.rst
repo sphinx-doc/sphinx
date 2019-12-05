@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.builders.gettext.POHEADER``
+     - 2.3
+     - 4.0
+     - ``sphinx/templates/gettext/message.pot_t`` (template file)
+
    * - ``sphinx.io.SphinxStandaloneReader.app``
      - 2.3
      - 4.0
@@ -35,6 +40,16 @@ The following is a list of deprecated interfaces.
      - 2.3
      - 4.0
      - ``sphinx.io.SphinxStandaloneReader.setup()``
+
+   * - ``sphinx.util.texescape.tex_escape_map``
+     - 2.3
+     - 4.0
+     - ``sphinx.util.texescape.escape()``
+
+   * - ``sphinx.util.texescape.tex_hl_escape_map_new``
+     - 2.3
+     - 4.0
+     - ``sphinx.util.texescape.hlescape()``
 
    * - ``sphinx.domains.math.MathDomain.add_equation()``
      - 2.2

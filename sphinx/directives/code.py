@@ -348,7 +348,7 @@ class LiteralIncludeReader:
                         return lines[:lineno + 1]
                     else:
                         if lineno == 0:
-                            return []
+                            pass  # end-before ignores first line
                         else:
                             return lines[:lineno]
             if inclusive is True:

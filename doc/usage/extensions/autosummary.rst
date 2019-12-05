@@ -143,6 +143,11 @@ also use these config values:
    The new files will be placed in the directories specified in the
    ``:toctree:`` options of the directives.
 
+   .. versionchanged:: 2.3
+
+      Emits :event:`autodoc-skip-member` event as :mod:`~sphinx.ext.autodoc`
+      does.
+
 .. confval:: autosummary_generate_overwrite
 
    If true, autosummary already overwrites stub files by generated contents.

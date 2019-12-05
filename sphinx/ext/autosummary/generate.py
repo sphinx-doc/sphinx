@@ -138,9 +138,20 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         if not template.exists(template_name):
             template_name = 'autosummary/base.rst'
 
+    def skip_member(obj: Any, name: str, objtype: str) -> bool:
+        try:
+            return app.emit_firstresult('autodoc-skip-member', objtype, name,
+                                        obj, False, {})
+        except Exception as exc:
+            logger.warning(__('autosummary: failed to determine %r to be documented.'
+                              'the following exception was raised:\n%s'),
+                           name, exc, type='autosummary')
+            return False
+
     def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
                     imported: bool = True) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
+        public = []  # type: List[str]
         for name in dir(obj):
             try:
                 value = safe_getattr(obj, name)
@@ -148,11 +159,20 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                 continue
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
+                # skip imported members if expected
                 if imported or getattr(value, '__module__', None) == obj.__name__:
-                    # skip imported members if expected
-                    items.append(name)
-        public = [x for x in items
-                  if x in include_public or not x.startswith('_')]
+                    skipped = skip_member(value, name, documenter.objtype)
+                    if skipped is True:
+                        pass
+                    elif skipped is False:
+                        # show the member forcedly
+                        items.append(name)
+                        public.append(name)
+                    else:
+                        items.append(name)
+                        if name in include_public or not name.startswith('_'):
+                            # considers member as public
+                            public.append(name)
         return public, items
 
     ns = {}  # type: Dict[str, Any]

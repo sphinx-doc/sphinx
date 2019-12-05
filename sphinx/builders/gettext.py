@@ -11,16 +11,16 @@
 from codecs import open
 from collections import defaultdict, OrderedDict
 from datetime import datetime, tzinfo, timedelta
-from io import StringIO
 from os import path, walk, getenv
 from time import time
-from typing import Any, Dict, Iterable, List, Set, Tuple, Union
+from typing import Any, Dict, Iterable, Generator, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes
 from docutils.nodes import Element
 
 from sphinx import addnodes
+from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
@@ -30,8 +30,9 @@ from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import relpath, ensuredir, canon_path
+from sphinx.util.osutil import ensuredir, canon_path
 from sphinx.util.tags import Tags
+from sphinx.util.template import SphinxRenderer
 
 if False:
     # For type annotation
@@ -58,7 +59,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-"""[1:]
+"""[1:]  # RemovedInSphinx40Warning
+
+
+class Message:
+    """An entry of translatable message."""
+    def __init__(self, text: str, locations: List[Tuple[str, int]], uuids: List[str]):
+        self.text = text
+        self.locations = locations
+        self.uuids = uuids
 
 
 class Catalog:
@@ -80,6 +89,12 @@ class Catalog:
             self.metadata[msg] = []
         self.metadata[msg].append((origin.source, origin.line, origin.uid))  # type: ignore
 
+    def __iter__(self) -> Generator[Message, None, None]:
+        for message in self.messages:
+            positions = [(source, line) for source, line, uuid in self.metadata[message]]
+            uuids = [uuid for source, line, uuid in self.metadata[message]]
+            yield Message(message, positions, uuids)
+
 
 class MsgOrigin:
     """
@@ -90,6 +105,22 @@ class MsgOrigin:
         self.source = source
         self.line = line
         self.uid = uuid4().hex
+
+
+class GettextRenderer(SphinxRenderer):
+    def __init__(self, template_path: str = None) -> None:
+        if template_path is None:
+            template_path = path.join(package_dir, 'templates', 'gettext')
+        super().__init__(template_path)
+
+        def escape(s: str) -> str:
+            s = s.replace('\\', r'\\')
+            s = s.replace('"', r'\"')
+            return s.replace('\n', '\\n"\n"')
+
+        # use texescape as escape filter
+        self.env.filters['e'] = escape
+        self.env.filters['escape'] = escape
 
 
 class I18nTags(Tags):
@@ -247,12 +278,13 @@ class MessageCatalogBuilder(I18nBuilder):
 
     def finish(self) -> None:
         super().finish()
-        data = {
+        context = {
             'version': self.config.version,
             'copyright': self.config.copyright,
             'project': self.config.project,
-            'ctime': datetime.fromtimestamp(
-                timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
+            'ctime': datetime.fromtimestamp(timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
+            'display_location': self.config.gettext_location,
+            'display_uuid': self.config.gettext_uuid,
         }
         for textdomain, catalog in status_iterator(self.catalogs.items(),
                                                    __("writing message catalogs... "),
@@ -262,30 +294,10 @@ class MessageCatalogBuilder(I18nBuilder):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
+            context['messages'] = list(catalog)
+            content = GettextRenderer().render('message.pot_t', context)
+
             pofn = path.join(self.outdir, textdomain + '.pot')
-            output = StringIO()
-            output.write(POHEADER % data)
-
-            for message in catalog.messages:
-                positions = catalog.metadata[message]
-
-                if self.config.gettext_location:
-                    # generate "#: file1:line1\n#: file2:line2 ..."
-                    output.write("#: %s\n" % "\n#: ".join(
-                        "%s:%s" % (canon_path(relpath(source, self.outdir)), line)
-                        for source, line, _ in positions))
-                if self.config.gettext_uuid:
-                    # generate "# uuid1\n# uuid2\n ..."
-                    output.write("# %s\n" % "\n# ".join(uid for _, _, uid in positions))
-
-                # message contains *one* line of text ready for translation
-                message = message.replace('\\', r'\\'). \
-                    replace('"', r'\"'). \
-                    replace('\n', '\\n"\n"')
-                output.write('msgid "%s"\nmsgstr ""\n\n' % message)
-
-            content = output.getvalue()
-
             if should_write(pofn, content):
                 with open(pofn, 'w', encoding='utf-8') as pofile:
                     pofile.write(content)

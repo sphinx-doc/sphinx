@@ -37,6 +37,11 @@ default_kw = {
 }
 
 
+@pytest.fixture(scope='function', autouse=True)
+def unload_target_module():
+    sys.modules.pop('target', None)
+
+
 def test_mangle_signature():
     TEST = """
     () :: ()
@@ -333,6 +338,15 @@ def test_generate_autosummary_docs_property(app):
                        ".. currentmodule:: target.methods\n"
                        "\n"
                        ".. autoproperty:: Base.prop")
+
+
+@pytest.mark.sphinx(testroot='ext-autosummary-skip-member')
+def test_autosummary_skip_member(app):
+    app.build()
+
+    content = (app.srcdir / 'generate' / 'target.Foo.rst').text()
+    assert 'Foo.skipmeth' not in content
+    assert 'Foo._privatemeth' in content
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',

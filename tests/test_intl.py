@@ -315,7 +315,8 @@ def test_text_seealso(app):
               "\n*********************\n"
               "\nSee also: SHORT TEXT 1\n"
               "\nSee also: LONG TEXT 1\n"
-              "\nSee also: SHORT TEXT 2\n"
+              "\nSee also:\n"
+              "\n  SHORT TEXT 2\n"
               "\n  LONG TEXT 2\n")
     assert result == expect
 
@@ -356,7 +357,9 @@ def test_text_figure_captions(app):
               "14.4. IMAGE UNDER NOTE\n"
               "======================\n"
               "\n"
-              "Note: [image: i18n under note][image]\n"
+              "Note:\n"
+              "\n"
+              "  [image: i18n under note][image]\n"
               "\n"
               "     [image: img under note][image]\n")
     assert result == expect
@@ -461,6 +464,30 @@ def test_text_table(app):
     # --- toctree
     result = (app.outdir / 'table.txt').text()
     expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'table.po')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.string in result
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.test_params(shared_result='test_intl_gettext')
+def test_gettext_toctree(app):
+    app.build()
+    # --- toctree
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
+    actual = read_po(app.outdir / 'toctree.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.id in [m.id for m in actual if m.id]
+
+
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_text_toctree(app):
+    app.build()
+    # --- toctree
+    result = (app.outdir / 'toctree.txt').text()
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
 
