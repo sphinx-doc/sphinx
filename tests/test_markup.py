@@ -213,7 +213,7 @@ def get_verifier(verify, verify_re):
         ':menuselection:`&Foo -&&- &Bar`',
         ('<p><span class="menuselection"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
-        r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+        r'\sphinxmenuselection{\sphinxaccelerator{F}oo \sphinxhyphen{}\&\sphinxhyphen{} \sphinxaccelerator{B}ar}',
     ),
     (
         # interpolation of ampersands in guilabel
@@ -221,7 +221,7 @@ def get_verifier(verify, verify_re):
         ':guilabel:`&Foo -&&- &Bar`',
         ('<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
-        r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+        r'\sphinxguilabel{\sphinxaccelerator{F}oo \sphinxhyphen{}\&\sphinxhyphen{} \sphinxaccelerator{B}ar}',
     ),
     (
         # no ampersands in guilabel
@@ -236,7 +236,7 @@ def get_verifier(verify, verify_re):
         ':option:`--with-option`',
         ('<p><code( class="xref std std-option docutils literal notranslate")?>'
          '<span class="pre">--with-option</span></code></p>$'),
-        r'\\sphinxcode{\\sphinxupquote{-{-}with-option}}$',
+        r'\\sphinxcode{\\sphinxupquote{\\sphinxhyphen{}\\sphinxhyphen{}with\\sphinxhyphen{}option}}$',
     ),
     (
         # verify smarty-pants quotes

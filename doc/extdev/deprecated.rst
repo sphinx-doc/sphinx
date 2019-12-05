@@ -51,6 +51,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.util.texescape.hlescape()``
 
+   * - ``sphinx.writers.latex.LaTeXTranslator.no_contractions``
+     - 2.3
+     - 4.0
+     - N/A
+
    * - ``sphinx.domains.math.MathDomain.add_equation()``
      - 2.2
      - 4.0

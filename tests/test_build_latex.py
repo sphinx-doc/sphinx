@@ -193,7 +193,7 @@ def test_latex_title_after_admonitions(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\title{test-latex-title}' in result
+    assert '\\title{test\\sphinxhyphen{}latex\\sphinxhyphen{}title}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='basic',
@@ -227,7 +227,7 @@ def test_numref(app, status, warning):
     assert ('\\hyperref[\\detokenize{index:code-1}]'
             '{Listing \\ref{\\detokenize{index:code-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
-            '{Code-\\ref{\\detokenize{baz:code22}}}') in result
+            '{Code\\sphinxhyphen{}\\ref{\\detokenize{baz:code22}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]'
             '{Section \\ref{\\detokenize{foo:foo}}}') in result
     assert ('\\hyperref[\\detokenize{bar:bar-a}]'
@@ -273,13 +273,13 @@ def test_numref_with_prefix1(app, status, warning):
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
     assert ('\\hyperref[\\detokenize{index:code-1}]'
-            '{Code-\\ref{\\detokenize{index:code-1}}}') in result
+            '{Code\\sphinxhyphen{}\\ref{\\detokenize{index:code-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
-            '{Code-\\ref{\\detokenize{baz:code22}}}') in result
+            '{Code\\sphinxhyphen{}\\ref{\\detokenize{baz:code22}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]'
-            '{SECTION-\\ref{\\detokenize{foo:foo}}}') in result
+            '{SECTION\\sphinxhyphen{}\\ref{\\detokenize{foo:foo}}}') in result
     assert ('\\hyperref[\\detokenize{bar:bar-a}]'
-            '{SECTION-\\ref{\\detokenize{bar:bar-a}}}') in result
+            '{SECTION\\sphinxhyphen{}\\ref{\\detokenize{bar:bar-a}}}') in result
     assert ('\\hyperref[\\detokenize{index:fig1}]{Fig.\\ref{\\detokenize{index:fig1}} '
             '\\nameref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
@@ -314,10 +314,10 @@ def test_numref_with_prefix2(app, status, warning):
             '{Tab\\_\\ref{\\detokenize{index:table-1}}:}') in result
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
-    assert ('\\hyperref[\\detokenize{index:code-1}]{Code-\\ref{\\detokenize{index:code-1}} '
+    assert ('\\hyperref[\\detokenize{index:code-1}]{Code\\sphinxhyphen{}\\ref{\\detokenize{index:code-1}} '
             '| }') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
-            '{Code-\\ref{\\detokenize{baz:code22}}}') in result
+            '{Code\\sphinxhyphen{}\\ref{\\detokenize{baz:code22}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]'
             '{SECTION\\_\\ref{\\detokenize{foo:foo}}\\_}') in result
     assert ('\\hyperref[\\detokenize{bar:bar-a}]'
@@ -357,7 +357,7 @@ def test_numref_with_language_ja(app, status, warning):
     assert ('\\hyperref[\\detokenize{index:code-1}]'
             '{\u30ea\u30b9\u30c8 \\ref{\\detokenize{index:code-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
-            '{Code-\\ref{\\detokenize{baz:code22}}}') in result
+            '{Code\\sphinxhyphen{}\\ref{\\detokenize{baz:code22}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]'
             '{\\ref{\\detokenize{foo:foo}} \u7ae0}') in result
     assert ('\\hyperref[\\detokenize{bar:bar-a}]'
@@ -692,7 +692,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             'Foot note in longtable\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
             'Second footnote in caption of longtable\n') in result
-    assert ('This is a reference to the code-block in the footnote:\n'
+    assert ('This is a reference to the code\\sphinxhyphen{}block in the footnote:\n'
             '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}') in result
     assert ('&\nThis is one more footnote with some code in it %\n'
@@ -727,24 +727,24 @@ def test_latex_show_urls_is_inline(app, status, warning):
             'First\n%\n\\end{footnote}') in result
     assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
-    assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
+    assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx} (http://sphinx\\sphinxhyphen{}doc.org/)' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'Third \\sphinxfootnotemark[4]\n%\n\\end{footnote}%\n'
             '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'Footnote inside footnote\n%\n\\end{footnotetext}\\ignorespaces') in result
     assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde} '
-            '(http://sphinx-doc.org/\\textasciitilde{}test/)') in result
+            '(http://sphinx\\sphinxhyphen{}doc.org/\\textasciitilde{}test/)') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
-            '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
+            '(http://sphinx\\sphinxhyphen{}doc.org/)}] \\leavevmode\nDescription' in result)
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[6]}] '
             '\\leavevmode%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
             'Description') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist} '
-            '(http://sphinx-doc.org/)}] \\leavevmode\nDescription') in result
+            '(http://sphinx\\sphinxhyphen{}doc.org/)}] \\leavevmode\nDescription') in result
     assert '\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
-            '{sphinx-dev@googlegroups.com}') in result
+            '{sphinx\\sphinxhyphen{}dev@googlegroups.com}') in result
 
 
 @pytest.mark.sphinx(
@@ -798,7 +798,7 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '\\end{footnotetext}\\ignorespaces \nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
-            '{sphinx-dev@googlegroups.com}\n') in result
+            '{sphinx\\sphinxhyphen{}dev@googlegroups.com}\n') in result
 
 
 @pytest.mark.sphinx(
@@ -841,7 +841,7 @@ def test_latex_show_urls_is_no(app, status, warning):
             '\\leavevmode\nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
-            '{sphinx-dev@googlegroups.com}\n') in result
+            '{sphinx\\sphinxhyphen{}dev@googlegroups.com}\n') in result
 
 
 @pytest.mark.sphinx(
@@ -1416,7 +1416,7 @@ def test_default_latex_documents():
     config.init_values()
     config.add('latex_engine', None, True, None)
     expected = [('index', 'stasi.tex', 'STASI™ Documentation',
-                 r"Wolfgang Schäuble \& G'Beckstein.\@{}", 'manual')]
+                 r"Wolfgang Schäuble \& G\textquotesingle{}Beckstein.\@{}", 'manual')]
     assert default_latex_documents(config) == expected
 
 
