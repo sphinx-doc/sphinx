@@ -334,12 +334,19 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
      .. versionchanged:: 2.0
         ``'lualatex'`` executes
         ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` to disable TeX
-        ligatures.
+        ligatures transforming `<<` and `>>` as escaping working with
+        ``pdflatex/xelatex`` failed with ``lualatex``.
      .. versionchanged:: 2.0
         Detection of ``LGR``, ``T2A``, ``X2`` to trigger support of
         occasional Greek or Cyrillic (``'pdflatex'`` only, as this support
         is provided natively by ``'platex'`` and only requires suitable
         font with ``'xelatex'/'lualatex'``).
+     .. versionchanged:: 2.3.0
+        ``'xelatex'`` also executes
+        ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` in order to avoid
+        contractions of ``--`` into en-dash or transforms of straight quotes
+        into curly ones in PDF (in non-literal text paragraphs) despite
+        :confval:`smartquotes` being set to ``False``.
 
   ``'textgreek'``
      The default (``'pdflatex'`` only) is
