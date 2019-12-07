@@ -20,7 +20,7 @@
 \endfirsthead
 
 \multicolumn{<%= table.colcount %>}{c}%
-{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} -- <%= _('continued from previous page') %>}}}\\
+{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} <%= _('continued from previous page') %>}}}\\
 \hline
 <%= ''.join(table.header) %>
 \endhead
