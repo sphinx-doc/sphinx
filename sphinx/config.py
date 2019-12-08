@@ -65,7 +65,7 @@ class ENUM:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
     def __init__(self, *candidates):
-        # type: (str) -> None
+        # type: (Union[str, bool]) -> None
         self.candidates = candidates
 
     def match(self, value):
