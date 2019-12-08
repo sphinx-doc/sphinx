@@ -7,18 +7,20 @@
 # Hsiaoming Yang <me@lepture.com>, 2018
 # Nomaka <nomakacyx@gmail.com>, 2018
 # Lenville Leo <lenville@gmail.com>, 2013
+# Lenville Leo <lenville@gmail.com>, 2013
 # Nomaka <nomakacyx@gmail.com>, 2018
 # Ryekee Zhong <ryekee@gmail.com>, 2013
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2019
 # Tower Joo<zhutao.iscas@gmail.com>, 2009
-# Yinian Chin <yinian1992@live.com>, 2018
+# Yinian Chin <yinian1992@live.com>, 2013,2018
 # Yinian Chin <yinian1992@live.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-03-29 01:05+0900\n"
-"PO-Revision-Date: 2019-10-08 05:21+0800\n"
-"Last-Translator: dingpengyu <dingpengyu06@gmail.com>\n"
+"PO-Revision-Date: 2019-12-01 16:31+0000\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -194,7 +196,9 @@ msgstr ""
 
 #: sphinx/config.py:397
 #, python-format
-msgid "The config value `source_suffix' expects a string, list of strings, or dictionary. But `%r' is given."
+msgid ""
+"The config value `source_suffix' expects a string, list of strings, or "
+"dictionary. But `%r' is given."
 msgstr "配置值\"source_后缀\"需要字符串、字符串列表或字典。但给出\"%r\"。"
 
 #: sphinx/config.py:405
@@ -222,7 +226,9 @@ msgid "The config value `{name}` has to be a one of {candidates}, but `{current}
 msgstr "配置项 `{name}` 必须设置为 {candidates} 之一，但现在是 `{current}` 。"
 
 #: sphinx/config.py:465
-msgid "The config value `{name}' has type `{current.__name__}'; expected {permitted}."
+msgid ""
+"The config value `{name}' has type `{current.__name__}'; expected "
+"{permitted}."
 msgstr "配置值\"[name]\"的类型为\"[当前._name];但\"当前\"为\"当前\"。\"当前\"为\"当前\"。\"当前\"为\"当前\"。=================================预期 [允许]。"
 
 #: sphinx/config.py:478
@@ -240,7 +246,9 @@ msgid "primary_domain %r not found, ignored."
 msgstr "未找到 primary_domain %r，已忽略。"
 
 #: sphinx/config.py:518
-msgid "Since v2.0, Sphinx uses \"index\" as master_doc by default. Please add \"master_doc = 'contents'\" to your conf.py."
+msgid ""
+"Since v2.0, Sphinx uses \"index\" as master_doc by default. Please add "
+"\"master_doc = 'contents'\" to your conf.py."
 msgstr "自 v2.0 以来，Sphinx 默认使用\"索引\"作为主文档。请在conf.py中添加\"master_doc = \"内容\"。"
 
 #: sphinx/events.py:54
@@ -374,8 +382,10 @@ msgstr "公式渲染器 %s 已注册"
 
 #: sphinx/registry.py:464
 #, python-format
-msgid "the extension %r was already merged with Sphinx since version %s; this extension is ignored."
-msgstr "自版本 %s 开始，扩展 %r 已合并至 Sphinx；该扩展被忽略。"
+msgid ""
+"the extension %r was already merged with Sphinx since version %s; this "
+"extension is ignored."
+msgstr "扩展 %r 已合并至 Sphinx (自版本 %s 开始)；该扩展被忽略。"
 
 #: sphinx/registry.py:475
 msgid "Original exception:\n"
@@ -1430,12 +1440,6 @@ msgid ""
 "For a list of supported codes, see\n"
 "https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
 msgstr ""
-"\n"
-"如果用英语以外的语言编写文档，你可以在此按语言代码选择语种。\n"
-"Sphinx 会把内置文本翻译成相应语言的版本。\n"
-"\n"
-"支持的语言代码列表见：\n"
-"https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language。"
 
 #: sphinx/cmd/quickstart.py:314
 msgid "Project language"
@@ -1532,9 +1536,7 @@ msgid ""
 "\n"
 "You should now populate your master file %s and create other documentation\n"
 "source files. "
-msgstr ""
-"\n"
-"你现在可以填写主文档文件 %s 并创建其他文档源文件了。 "
+msgstr "\n你现在可以填写主文档文件 %s 并创建其他文档源文件了。 "
 
 #: sphinx/cmd/quickstart.py:452
 msgid ""
@@ -1724,7 +1726,9 @@ msgstr "包含的文件 %r 不存在或读取失败"
 
 #: sphinx/directives/code.py:237
 #, python-format
-msgid "Encoding %r used for reading included file %r seems to be wrong, try giving an :encoding: option"
+msgid ""
+"Encoding %r used for reading included file %r seems to be wrong, try giving "
+"an :encoding: option"
 msgstr "用于读取包含文件 %r 的编码 %r 不正确，请重新给定 :encoding: 选项"
 
 #: sphinx/directives/code.py:275
@@ -2458,12 +2462,7 @@ msgid ""
 "%r\n"
 "[stdout]\n"
 "%r"
-msgstr ""
-"dot没有生成输出文件:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
+msgstr "dot没有生成输出文件:\n[stderr]\n%r\n[stdout]\n%r"
 
 #: sphinx/ext/graphviz.py:254
 #, python-format
@@ -2478,12 +2477,7 @@ msgid ""
 "%r\n"
 "[stdout]\n"
 "%r"
-msgstr ""
-"点退出错误:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
+msgstr "点退出错误:\n[stderr]\n%r\n[stdout]\n%r"
 
 #: sphinx/ext/graphviz.py:271
 #, python-format
@@ -2517,12 +2511,7 @@ msgid ""
 "%r\n"
 "[stdout]\n"
 "%r"
-msgstr ""
-"转换退出时出错:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
+msgstr "转换退出时出错:\n[stderr]\n%r\n[stdout]\n%r"
 
 #: sphinx/ext/imgmath.py:139
 #, python-format
@@ -2559,7 +2548,9 @@ msgid "loading intersphinx inventory from %s..."
 msgstr "从中加载intersphinx库存 %s..."
 
 #: sphinx/ext/intersphinx.py:232
-msgid "encountered some issues with some of the inventories, but they had working alternatives:"
+msgid ""
+"encountered some issues with some of the inventories, but they had working "
+"alternatives:"
 msgstr "遇到了一些库存问题，但他们有其他工作方式："
 
 #: sphinx/ext/intersphinx.py:238
@@ -3228,7 +3219,9 @@ msgstr "only 指令表达式求值时抛出异常：%s"
 
 #: sphinx/util/pycompat.py:82
 #, python-format
-msgid "Support for evaluating Python 2 syntax is deprecated and will be removed in Sphinx 4.0. Convert %s to Python 3 syntax."
+msgid ""
+"Support for evaluating Python 2 syntax is deprecated and will be removed in "
+"Sphinx 4.0. Convert %s to Python 3 syntax."
 msgstr "对评估 Python 2 语法的支持已弃用，将在狮身人面像 4.0 中删除。将 %s 转换为 Python 3 语法。"
 
 #: sphinx/util/rst.py:49
@@ -3288,7 +3281,8 @@ msgid "Footnotes"
 msgstr "脚注"
 
 #: sphinx/writers/latex.py:1150
-msgid "both tabularcolumns and :widths: option are given. :widths: is ignored."
+msgid ""
+"both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "给出了表格列和 ：width：选项。：宽度：被忽略。"
 
 #: sphinx/writers/latex.py:1521

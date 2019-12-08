@@ -191,7 +191,8 @@ ADDITIONAL_SETTINGS = {
         'latex_engine': 'xelatex',
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
-        'fontenc':      '\\usepackage{fontspec}',
+        'fontenc':     ('\\usepackage{fontspec}\n'
+                        '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      XELATEX_DEFAULT_FONTPKG,
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
@@ -202,7 +203,7 @@ ADDITIONAL_SETTINGS = {
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
         'fontenc':     ('\\usepackage{fontspec}\n'
-                        '\\defaultfontfeatures[\\rmfamily,\\sffamily]{}'),
+                        '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'

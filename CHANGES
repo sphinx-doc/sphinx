@@ -75,6 +75,7 @@ Features added
 * #6483: i18n: make explicit titles in toctree translatable
 * #6816: linkcheck: Add :confval:`linkcheck_auth` option to provide
   authentication information when doing ``linkcheck`` builds
+* #6872: linkcheck: Handles HTTP 308 Permanent Redirect
 
 Bugs fixed
 ----------
@@ -112,11 +113,14 @@ Bugs fixed
   include this match.
 * #6848: config.py shouldn't pop extensions from overrides
 * #6867: text: extra spaces are inserted to hyphenated words on folding lines
+* #6886: LaTeX: xelatex converts straight double quotes into right curly ones
+  (shows when :confval:`smartquotes` is ``False``)
+* #6876: LaTeX: multi-line display of authors on title page has ragged edges
 
 Testing
 --------
 
-Release 2.2.2 (in development)
+Release 2.2.3 (in development)
 ==============================
 
 Dependencies
@@ -134,10 +138,25 @@ Features added
 Bugs fixed
 ----------
 
-* #6776: LaTeX: 2019-10-01 LaTeX release breaks :file:`sphinxcyrillic.sty`
-
 Testing
 --------
+
+Release 2.2.2 (released Dec 03, 2019)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #6803: For security reason of python, parallel mode is disabled on macOS and
+  Python3.8+
+
+Bugs fixed
+----------
+
+* #6776: LaTeX: 2019-10-01 LaTeX release breaks :file:`sphinxcyrillic.sty`
+* #6815: i18n: French, Hindi, Chinese, Japanese and Korean translation messages
+  has been broken
+* #6803: parallel build causes AttributeError on macOS and Python3.8
 
 Release 2.2.1 (released Oct 26, 2019)
 =====================================

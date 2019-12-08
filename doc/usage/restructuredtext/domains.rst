@@ -1530,7 +1530,7 @@ These roles are provided to refer to the described objects:
 The Math Domain
 ---------------
 
-The math domain (name **math**) provides the following roles::
+The math domain (name **math**) provides the following roles:
 
 .. rst:role:: math:numref
 

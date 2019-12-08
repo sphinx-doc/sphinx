@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-03-29 01:05+0900\n"
-"PO-Revision-Date: 2019-03-28 16:09+0000\n"
-"Last-Translator: Ivar Smolin <okul@linux.ee>\n"
+"PO-Revision-Date: 2019-11-14 15:35+0000\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
 "Language-Team: Estonian (http://www.transifex.com/sphinx-doc/sphinx-1/language/et/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -295,7 +295,7 @@ msgstr ""
 
 #: sphinx/project.py:59
 msgid "document not readable. Ignored."
-msgstr ""
+msgstr "dokument pole loetav ja seda eiratakse."
 
 #: sphinx/registry.py:131
 #, python-format
@@ -468,7 +468,7 @@ msgstr "fail %r teemarajal pole korrektni zip-fail või ei sisalda see teemat"
 msgid ""
 "sphinx_rtd_theme is no longer a hard dependency since version 1.4.0. Please "
 "install it manually.(pip install sphinx_rtd_theme)"
-msgstr ""
+msgstr "sphinx_rtd_theme pole alates versioonist 1.4.0 enam otsene sõltuvus. Palun paigalda see käsitsi. (pip install sphinx_rtd_theme)"
 
 #: sphinx/theming.py:262
 #, python-format
@@ -502,12 +502,12 @@ msgstr ""
 #: sphinx/builders/__init__.py:266
 #, python-format
 msgid "targets for %d po files that are specified"
-msgstr ""
+msgstr "%d määratud po-faili sihtfailid"
 
 #: sphinx/builders/__init__.py:276
 #, python-format
 msgid "targets for %d po files that are out of date"
-msgstr ""
+msgstr "%d po-faili sihtfailid on aegunud"
 
 #: sphinx/builders/__init__.py:284
 msgid "all source files"
@@ -532,7 +532,7 @@ msgstr ""
 #: sphinx/builders/__init__.py:325
 #, python-format
 msgid "targets for %d source files that are out of date"
-msgstr ""
+msgstr "%d lähtefaili sihtfailid on aegunud"
 
 #: sphinx/builders/__init__.py:335
 #, python-format
@@ -562,20 +562,20 @@ msgstr ""
 
 #: sphinx/builders/__init__.py:364
 msgid "no targets are out of date."
-msgstr ""
+msgstr "aegunud sihtfaile pole"
 
 #: sphinx/builders/__init__.py:404
 msgid "updating environment: "
-msgstr ""
+msgstr "keskkonna uuendamine:"
 
 #: sphinx/builders/__init__.py:423
 #, python-format
 msgid "%s added, %s changed, %s removed"
-msgstr ""
+msgstr "lisatud %s, muudetud %s, eemaldatud %s"
 
 #: sphinx/builders/__init__.py:462 sphinx/builders/__init__.py:492
 msgid "reading sources... "
-msgstr ""
+msgstr "lähtefailide lugemine..."
 
 #: sphinx/builders/__init__.py:497 sphinx/builders/__init__.py:612
 msgid "waiting for workers..."
@@ -588,7 +588,7 @@ msgstr ""
 
 #: sphinx/builders/__init__.py:560 sphinx/builders/singlehtml.py:166
 msgid "preparing documents"
-msgstr ""
+msgstr "dokumentide ettevalmistamine"
 
 #: sphinx/builders/_epub_base.py:218
 #, python-format
@@ -609,12 +609,12 @@ msgstr ""
 #: sphinx/builders/latex/__init__.py:423 sphinx/builders/texinfo.py:199
 #, python-format
 msgid "cannot copy image file %r: %s"
-msgstr ""
+msgstr "kujutise faili %r pole võimalik kopeerida: %s"
 
 #: sphinx/builders/_epub_base.py:444
 #, python-format
 msgid "cannot write image file %r: %s"
-msgstr ""
+msgstr "kujutise faili %r pole võimalik kirjutada: %s"
 
 #: sphinx/builders/_epub_base.py:455
 msgid "Pillow not found - copying image files"
@@ -625,7 +625,7 @@ msgstr ""
 #: sphinx/builders/_epub_base.py:757 sphinx/builders/epub3.py:183
 #, python-format
 msgid "writing %s file..."
-msgstr ""
+msgstr "faili %s kirjutamine..."
 
 #: sphinx/builders/_epub_base.py:565
 #, python-format
@@ -644,7 +644,7 @@ msgstr "versioonis %s pole muutusi."
 
 #: sphinx/builders/changes.py:70
 msgid "writing summary file..."
-msgstr ""
+msgstr "kokkuvõttefaili kirjutamine..."
 
 #: sphinx/builders/changes.py:86
 msgid "Builtins"
@@ -715,7 +715,7 @@ msgstr ""
 #: sphinx/builders/epub3.py:256 sphinx/builders/html.py:1166
 #, python-format
 msgid "invalid css_file: %r, ignored"
-msgstr ""
+msgstr "vigane css_file: %r, eiratakse"
 
 #: sphinx/builders/gettext.py:221
 #, python-format
@@ -730,7 +730,7 @@ msgstr "ehitamine [%s]: "
 #: sphinx/builders/gettext.py:246
 #, python-format
 msgid "targets for %d template files"
-msgstr ""
+msgstr "%d mallifaili sihtfailid"
 
 #: sphinx/builders/gettext.py:250
 msgid "reading templates... "
@@ -792,7 +792,7 @@ msgstr "lisalehtede kirjutamine..."
 
 #: sphinx/builders/html.py:780
 msgid "copying downloadable files... "
-msgstr ""
+msgstr "allalaaditavate failide kopeerimine..."
 
 #: sphinx/builders/html.py:788
 #, python-format
@@ -816,7 +816,7 @@ msgstr "logofaili %r pole olemas"
 #: sphinx/builders/html.py:847
 #, python-format
 msgid "favicon file %r does not exist"
-msgstr ""
+msgstr "favicon faili %r pole olemas"
 
 #: sphinx/builders/html.py:854
 #, python-format
@@ -885,7 +885,7 @@ msgstr "otsinguindeksi %s tõmmistamine ... "
 #: sphinx/builders/html.py:1184
 #, python-format
 msgid "invalid js_file: %r, ignored"
-msgstr ""
+msgstr "vigane js_file: %r, eiratakse"
 
 #: sphinx/builders/html.py:1228
 msgid "Many math_renderers are registered. But no math_renderer is selected."
@@ -1452,7 +1452,7 @@ msgid ""
 "\n"
 "For a list of supported codes, see\n"
 "https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
-msgstr "\nKui su dokumendid pole kirjutatud inglise keeles, siis võid siin määrata\nkeele vastava keelekoodi abil. Sel juhul tõlgib Sphinx enda genereeritud\nteksti vastavasse keelde.\n\nToetatud keelekoodide kohta vaata\nhttps://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
+msgstr ""
 
 #: sphinx/cmd/quickstart.py:314
 msgid "Project language"
@@ -1490,12 +1490,12 @@ msgstr ""
 
 #: sphinx/cmd/quickstart.py:338
 msgid "sphinx-quickstart will not overwrite the existing file."
-msgstr ""
+msgstr "sphinx-quickstart ei kirjuta olemasolevat faili üle."
 
 #: sphinx/cmd/quickstart.py:340
 msgid ""
 "Please enter a new file name, or rename the existing file and press Enter"
-msgstr ""
+msgstr "Palun sisesta uus failinimi või nimeta olemasolev fail ümber ja vajuta Enter"
 
 #: sphinx/cmd/quickstart.py:344
 msgid "Indicate which of the following Sphinx extensions should be enabled:"
@@ -1701,7 +1701,7 @@ msgstr ""
 #: sphinx/cmd/quickstart.py:635
 #, python-format
 msgid "Invalid template variable: %s"
-msgstr ""
+msgstr "Vigane mallimuutuja: %s"
 
 #: sphinx/directives/code.py:74
 msgid "Over dedent has detected"
@@ -2411,7 +2411,7 @@ msgstr ""
 msgid ""
 "Testing of coverage in the sources finished, look at the results in "
 "%(outdir)spython.txt."
-msgstr ""
+msgstr "Lähtefailide katvustestimine on lõppenud, vaata tulemusi failist %(outdir)spython.txt."
 
 #: sphinx/ext/coverage.py:70
 #, python-format
@@ -2440,14 +2440,14 @@ msgstr ""
 
 #: sphinx/ext/doctest.py:222
 msgid "invalid TestCode type"
-msgstr ""
+msgstr "vigane TestCode tüüp"
 
 #: sphinx/ext/doctest.py:283
 #, python-format
 msgid ""
 "Testing of doctests in the sources finished, look at the results in "
 "%(outdir)s/output.txt."
-msgstr "Lähtefailide doctest-testimine lõpetas, vaata tulemusi failist %(outdir)s/output.txt."
+msgstr "Lähtefailide doctest-testimine on lõppenud, vaata tulemusi failist %(outdir)s/output.txt."
 
 #: sphinx/ext/doctest.py:446
 #, python-format
@@ -2457,7 +2457,7 @@ msgstr ""
 #: sphinx/ext/doctest.py:535
 #, python-format
 msgid "ignoring invalid doctest code: %r"
-msgstr ""
+msgstr "vigase doctest koodi eiramine: %r"
 
 #: sphinx/ext/graphviz.py:140
 msgid "Graphviz directive cannot have both content and a filename argument"
@@ -2733,7 +2733,7 @@ msgstr ""
 #: sphinx/ext/autosummary/__init__.py:292
 #, python-format
 msgid "failed to import %s"
-msgstr ""
+msgstr "tõrge %s importimisel"
 
 #: sphinx/ext/autosummary/__init__.py:307
 #, python-format
@@ -2743,7 +2743,7 @@ msgstr ""
 #: sphinx/ext/autosummary/__init__.py:311
 #, python-format
 msgid "failed to import object %s"
-msgstr ""
+msgstr "tõrge objekti %s importimisel"
 
 #: sphinx/ext/autosummary/__init__.py:702
 msgid ""
@@ -3243,12 +3243,12 @@ msgstr ""
 #: sphinx/util/i18n.py:74
 #, python-format
 msgid "reading error: %s, %s"
-msgstr ""
+msgstr "viga lugemisel: %s, %s"
 
 #: sphinx/util/i18n.py:81
 #, python-format
 msgid "writing error: %s, %s"
-msgstr ""
+msgstr "viga kirjutamisel: %s, %s"
 
 #: sphinx/util/i18n.py:215
 #, python-format
@@ -3316,7 +3316,7 @@ msgstr ""
 
 #: sphinx/writers/latex.py:603
 msgid "too large :maxdepth:, ignored."
-msgstr ""
+msgstr ":maxdepth: on liiga suur ja seda eiratakse."
 
 #: sphinx/writers/latex.py:893
 msgid "document title is not a single Text node"
