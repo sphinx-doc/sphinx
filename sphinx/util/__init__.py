@@ -277,18 +277,17 @@ def get_module_source(modname: str) -> Tuple[str, str]:
         raise PycodeError('error importing %r' % modname, err)
     filename = getattr(mod, '__file__', None)
     loader = getattr(mod, '__loader__', None)
+    try:  # prefer Native loader, as it respects #coding directive
+        filename = loader.get_source(modname)
+        if filename:
+            return 'string', filename
+    except Exception as err:
+        pass  # Try other "source-mining" method
     if loader and getattr(loader, 'get_filename', None):
         try:
             filename = loader.get_filename(modname)
         except Exception as err:
             raise PycodeError('error getting filename for %r' % filename, err)
-    if filename is None and loader:
-        try:
-            filename = loader.get_source(modname)
-            if filename:
-                return 'string', filename
-        except Exception as err:
-            raise PycodeError('error getting source for %r' % modname, err)
     if filename is None:
         raise PycodeError('no source found for module %r' % modname)
     filename = path.normpath(path.abspath(filename))
