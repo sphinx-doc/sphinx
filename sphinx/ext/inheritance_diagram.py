@@ -247,6 +247,7 @@ class InheritanceGraph:
     default_graph_attrs = {
         'rankdir': 'LR',
         'size': '"8.0, 12.0"',
+        'bgcolor': 'transparent',
     }
     default_node_attrs = {
         'shape': 'box',
@@ -254,7 +255,8 @@ class InheritanceGraph:
         'height': 0.25,
         'fontname': '"Vera Sans, DejaVu Sans, Liberation Sans, '
                     'Arial, Helvetica, sans"',
-        'style': '"setlinewidth(0.5)"',
+        'style': '"setlinewidth(0.5),filled"',
+        'fillcolor': 'white',
     }
     default_edge_attrs = {
         'arrowsize': 0.5,
