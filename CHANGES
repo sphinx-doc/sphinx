@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #6900: Not possible to set :confval:`latex_use_xindy` via ``-D`` option to
+  :program:`sphinx-build`
+
 Testing
 --------
 

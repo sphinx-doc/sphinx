@@ -222,7 +222,7 @@ class Config:
                                  (name, name + '.key=value'))
             elif isinstance(defvalue, list):
                 return value.split(',')
-            elif isinstance(defvalue, int):
+            elif isinstance(defvalue, int) or name == 'latex_use_xindy':
                 try:
                     return int(value)
                 except ValueError:
