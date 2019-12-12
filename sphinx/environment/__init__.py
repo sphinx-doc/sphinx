@@ -46,6 +46,7 @@ logger = logging.getLogger(__name__)
 default_settings = {
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
+    'syntax_highlight': 'short',
     'pep_base_url': 'https://www.python.org/dev/peps/',
     'pep_references': None,
     'rfc_base_url': 'https://tools.ietf.org/html/',

@@ -484,8 +484,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.body.append(self.starttag(node, 'kbd', '',
                                            CLASS='docutils literal notranslate'))
         else:
+            classes = 'docutils literal notranslate'
+            if 'code' in node['classes']:
+                classes += ' highlight'
             self.body.append(self.starttag(node, 'code', '',
-                                           CLASS='docutils literal notranslate'))
+                                           CLASS=classes))
             self.protect_literal_text += 1
 
     def depart_literal(self, node):
