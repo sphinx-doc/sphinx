@@ -519,7 +519,7 @@ __ http://pygments.org/docs/lexers
 
       .. versionadded:: 1.3
 
-   .. rst:directive:option:: emphasized-lines: line numbers
+   .. rst:directive:option:: emphasize-lines: line numbers
       :type: comma separated numbers
 
       Empahsize particular lines of the code block::
