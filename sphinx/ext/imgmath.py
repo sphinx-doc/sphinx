@@ -87,14 +87,38 @@ DOC_BODY_PREVIEW = r'''
 '''
 
 depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
+depthsvg_re = re.compile(br'.*, depth=(.*)pt')
+depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
-def generate_latex_macro(math: str, config: Config, confdir: str = '') -> str:
+def read_svg_depth(filename: str) -> int:
+    """Read the depth from comment at last line of SVG file
+    """
+    with open(filename, 'r') as f:
+        for line in f:
+            pass
+        # Only last line is checked
+        matched = depthsvgcomment_re.match(line)
+        if matched:
+            return int(matched.group(1))
+        return None
+
+
+def write_svg_depth(filename: str, depth: int) -> None:
+    """Write the depth to SVG file as a comment at end of file
+    """
+    with open(filename, 'a') as f:
+        f.write('\n<!-- DEPTH=%s -->' % depth)
+
+
+def generate_latex_macro(image_format: str,
+                         math: str, config: Config, confdir: str = '') -> str:
     """Generate LaTeX macro."""
     variables = {
         'fontsize': config.imgmath_font_size,
         'baselineskip': int(round(config.imgmath_font_size * 1.2)),
         'preamble': config.imgmath_latex_preamble,
+        'tightpage': '' if image_format == 'png' else ',tightpage',
         'math': math
     }
 
@@ -201,8 +225,18 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, int]:
     command.extend(builder.config.imgmath_dvisvgm_args)
     command.append(dvipath)
 
-    convert_dvi_to_image(command, name)
-    return filename, None
+    stdout, stderr = convert_dvi_to_image(command, name)
+
+    depth = None
+    if builder.config.imgmath_use_preview:
+        for line in stderr.splitlines():  # not stdout !
+            matched = depthsvg_re.match(line)
+            if matched:
+                depth = round(float(matched.group(1)) * 100 / 72.27)  # assume 100ppi
+                write_svg_depth(filename, depth)
+                break
+
+    return filename, depth
 
 
 def render_math(self: HTMLTranslator, math: str) -> Tuple[str, int]:
@@ -223,13 +257,19 @@ def render_math(self: HTMLTranslator, math: str) -> Tuple[str, int]:
     if image_format not in SUPPORT_FORMAT:
         raise MathExtError('imgmath_image_format must be either "png" or "svg"')
 
-    latex = generate_latex_macro(math, self.builder.config, self.builder.confdir)
+    latex = generate_latex_macro(image_format,
+                                 math,
+                                 self.builder.config,
+                                 self.builder.confdir)
 
     filename = "%s.%s" % (sha1(latex.encode()).hexdigest(), image_format)
     relfn = posixpath.join(self.builder.imgpath, 'math', filename)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
     if path.isfile(outfn):
-        depth = read_png_depth(outfn)
+        if image_format == 'png':
+            depth = read_png_depth(outfn)
+        elif image_format == 'svg':
+            depth = read_svg_depth(outfn)
         return relfn, depth
 
     # if latex or dvipng (dvisvgm) has failed once, don't bother to try again

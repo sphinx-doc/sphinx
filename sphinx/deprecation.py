@@ -31,10 +31,7 @@ RemovedInNextVersionWarning = RemovedInSphinx30Warning
 
 def deprecated_alias(modname, objects, warning):
     # type: (str, Dict, Type[Warning]) -> None
-    module = sys.modules.get(modname)
-    if module is None:
-        module = import_module(modname)
-
+    module = import_module(modname)
     sys.modules[modname] = _ModuleWrapper(module, modname, objects, warning)  # type: ignore
 
 

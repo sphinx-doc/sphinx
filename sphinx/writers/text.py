@@ -13,9 +13,11 @@ import re
 import textwrap
 import warnings
 from itertools import groupby, chain
-from typing import Iterable, cast
+from typing import Callable, Dict, List, Iterable, Optional, Set, Tuple, Union
+from typing import cast
 
 from docutils import nodes, writers
+from docutils.nodes import Element, Node, Text
 from docutils.utils import column_width
 
 from sphinx import addnodes
@@ -25,8 +27,7 @@ from sphinx.util.docutils import SphinxTranslator
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union  # NOQA
-    from sphinx.builders.text import TextBuilder  # NOQA
+    from sphinx.builders.text import TextBuilder
 
 
 class Cell:
@@ -203,8 +204,7 @@ class Table:
         out = []
         self.rewrap()
 
-        def writesep(char="-", lineno=None):
-            # type: (str, Optional[int]) -> str
+        def writesep(char: str = "-", lineno: Optional[int] = None) -> str:
             """Called on the line *before* lineno.
             Called with no *lineno* for the last sep.
             """
@@ -264,8 +264,7 @@ class TextWrapper(textwrap.TextWrapper):
         r'[^\s\w]*\w+[a-zA-Z]-(?=\w+[a-zA-Z])|'   # hyphenated words
         r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
 
-    def _wrap_chunks(self, chunks):
-        # type: (List[str]) -> List[str]
+    def _wrap_chunks(self, chunks: List[str]) -> List[str]:
         """_wrap_chunks(chunks : [string]) -> [string]
 
         The original _wrap_chunks uses len() to calculate width.
@@ -312,8 +311,7 @@ class TextWrapper(textwrap.TextWrapper):
 
         return lines
 
-    def _break_word(self, word, space_left):
-        # type: (str, int) -> Tuple[str, str]
+    def _break_word(self, word: str, space_left: int) -> Tuple[str, str]:
         """_break_word(word : string, space_left : int) -> (string, string)
 
         Break line by unicode width instead of len(word).
@@ -325,15 +323,13 @@ class TextWrapper(textwrap.TextWrapper):
                 return word[:i - 1], word[i - 1:]
         return word, ''
 
-    def _split(self, text):
-        # type: (str) -> List[str]
+    def _split(self, text: str) -> List[str]:
         """_split(text : string) -> [string]
 
         Override original method that only split by 'wordsep_re'.
         This '_split' split wide-characters into chunk by one character.
         """
-        def split(t):
-            # type: (str) -> List[str]
+        def split(t: str) -> List[str]:
             return super(TextWrapper, self)._split(t)
         chunks = []  # type: List[str]
         for chunk in split(text):
@@ -344,8 +340,8 @@ class TextWrapper(textwrap.TextWrapper):
                     chunks.extend(list(g))
         return chunks
 
-    def _handle_long_word(self, reversed_chunks, cur_line, cur_len, width):
-        # type: (List[str], List[str], int, int) -> None
+    def _handle_long_word(self, reversed_chunks: List[str], cur_line: List[str],
+                          cur_len: int, width: int) -> None:
         """_handle_long_word(chunks : [string],
                              cur_line : [string],
                              cur_len : int, width : int)
@@ -366,8 +362,7 @@ MAXWIDTH = 70
 STDINDENT = 3
 
 
-def my_wrap(text, width=MAXWIDTH, **kwargs):
-    # type: (str, int, Any) -> List[str]
+def my_wrap(text: str, width: int = MAXWIDTH, **kwargs) -> List[str]:
     w = TextWrapper(width=width, **kwargs)
     return w.wrap(text)
 
@@ -379,13 +374,11 @@ class TextWriter(writers.Writer):
 
     output = None  # type: str
 
-    def __init__(self, builder):
-        # type: (TextBuilder) -> None
+    def __init__(self, builder: "TextBuilder") -> None:
         super().__init__()
         self.builder = builder
 
-    def translate(self):
-        # type: () -> None
+    def translate(self) -> None:
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
         self.output = cast(TextTranslator, visitor).body
@@ -394,8 +387,7 @@ class TextWriter(writers.Writer):
 class TextTranslator(SphinxTranslator):
     builder = None  # type: TextBuilder
 
-    def __init__(self, document, builder):
-        # type: (nodes.document, TextBuilder) -> None
+    def __init__(self, document: nodes.document, builder: "TextBuilder") -> None:
         super().__init__(document, builder)
 
         newlines = self.config.text_newlines
@@ -415,25 +407,21 @@ class TextTranslator(SphinxTranslator):
         self.lineblocklevel = 0
         self.table = None       # type: Table
 
-    def add_text(self, text):
-        # type: (str) -> None
+    def add_text(self, text: str) -> None:
         self.states[-1].append((-1, text))
 
-    def new_state(self, indent=STDINDENT):
-        # type: (int) -> None
+    def new_state(self, indent: int = STDINDENT) -> None:
         self.states.append([])
         self.stateindent.append(indent)
 
-    def end_state(self, wrap=True, end=[''], first=None):
-        # type: (bool, List[str], str) -> None
+    def end_state(self, wrap: bool = True, end: List[str] = [''], first: str = None) -> None:
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
         result = []     # type: List[Tuple[int, List[str]]]
         toformat = []   # type: List[str]
 
-        def do_format():
-            # type: () -> None
+        def do_format() -> None:
             if not toformat:
                 return
             if wrap:
@@ -452,84 +440,69 @@ class TextTranslator(SphinxTranslator):
                 toformat = []
         do_format()
         if first is not None and result:
-            itemindent, item = result[0]
-            result_rest, result = result[1:], []
-            if item:
-                toformat = [first + ' '.join(item)]
-                do_format()  # re-create `result` from `toformat`
-                _dummy, new_item = result[0]
-                result.insert(0, (itemindent - indent, [new_item[0]]))
-                result[1] = (itemindent, new_item[1:])
-                result.extend(result_rest)
+            # insert prefix into first line (ex. *, [1], See also, etc.)
+            newindent = result[0][0] - indent
+            if result[0][1] == ['']:
+                result.insert(0, (newindent, [first]))
+            else:
+                text = first + result[0][1].pop(0)
+                result.insert(0, (newindent, [text]))
+
         self.states[-1].extend(result)
 
-    def visit_document(self, node):
-        # type: (nodes.Element) -> None
+    def visit_document(self, node: Element) -> None:
         self.new_state(0)
 
-    def depart_document(self, node):
-        # type: (nodes.Element) -> None
+    def depart_document(self, node: Element) -> None:
         self.end_state()
         self.body = self.nl.join(line and (' ' * indent + line)
                                  for indent, lines in self.states[0]
                                  for line in lines)
         # XXX header/footer?
 
-    def visit_section(self, node):
-        # type: (nodes.Element) -> None
+    def visit_section(self, node: Element) -> None:
         self._title_char = self.sectionchars[self.sectionlevel]
         self.sectionlevel += 1
 
-    def depart_section(self, node):
-        # type: (nodes.Element) -> None
+    def depart_section(self, node: Element) -> None:
         self.sectionlevel -= 1
 
-    def visit_topic(self, node):
-        # type: (nodes.Element) -> None
+    def visit_topic(self, node: Element) -> None:
         self.new_state(0)
 
-    def depart_topic(self, node):
-        # type: (nodes.Element) -> None
+    def depart_topic(self, node: Element) -> None:
         self.end_state()
 
     visit_sidebar = visit_topic
     depart_sidebar = depart_topic
 
-    def visit_rubric(self, node):
-        # type: (nodes.Element) -> None
+    def visit_rubric(self, node: Element) -> None:
         self.new_state(0)
         self.add_text('-[ ')
 
-    def depart_rubric(self, node):
-        # type: (nodes.Element) -> None
+    def depart_rubric(self, node: Element) -> None:
         self.add_text(' ]-')
         self.end_state()
 
-    def visit_compound(self, node):
-        # type: (nodes.Element) -> None
+    def visit_compound(self, node: Element) -> None:
         pass
 
-    def depart_compound(self, node):
-        # type: (nodes.Element) -> None
+    def depart_compound(self, node: Element) -> None:
         pass
 
-    def visit_glossary(self, node):
-        # type: (nodes.Element) -> None
+    def visit_glossary(self, node: Element) -> None:
         pass
 
-    def depart_glossary(self, node):
-        # type: (nodes.Element) -> None
+    def depart_glossary(self, node: Element) -> None:
         pass
 
-    def visit_title(self, node):
-        # type: (nodes.Element) -> None
+    def visit_title(self, node: Element) -> None:
         if isinstance(node.parent, nodes.Admonition):
             self.add_text(node.astext() + ': ')
             raise nodes.SkipNode
         self.new_state(0)
 
-    def get_section_number_string(self, node):
-        # type: (nodes.Element) -> str
+    def get_section_number_string(self, node: Element) -> str:
         if isinstance(node.parent, nodes.section):
             anchorname = '#' + node.parent['ids'][0]
             numbers = self.builder.secnumbers.get(anchorname)
@@ -539,8 +512,7 @@ class TextTranslator(SphinxTranslator):
                 return '.'.join(map(str, numbers)) + self.secnumber_suffix
         return ''
 
-    def depart_title(self, node):
-        # type: (nodes.Element) -> None
+    def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, nodes.section):
             char = self._title_char
         else:
@@ -556,90 +528,69 @@ class TextTranslator(SphinxTranslator):
             title.pop(0)
         self.states[-1].append((0, title))
 
-    def visit_subtitle(self, node):
-        # type: (nodes.Element) -> None
+    def visit_subtitle(self, node: Element) -> None:
         pass
 
-    def depart_subtitle(self, node):
-        # type: (nodes.Element) -> None
+    def depart_subtitle(self, node: Element) -> None:
         pass
 
-    def visit_attribution(self, node):
-        # type: (nodes.Element) -> None
+    def visit_attribution(self, node: Element) -> None:
         self.add_text('-- ')
 
-    def depart_attribution(self, node):
-        # type: (nodes.Element) -> None
+    def depart_attribution(self, node: Element) -> None:
         pass
 
-    def visit_desc(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc(self, node: Element) -> None:
         pass
 
-    def depart_desc(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc(self, node: Element) -> None:
         pass
 
-    def visit_desc_signature(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_signature(self, node: Element) -> None:
         self.new_state(0)
 
-    def depart_desc_signature(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_signature(self, node: Element) -> None:
         # XXX: wrap signatures in a way that makes sense
         self.end_state(wrap=False, end=None)
 
-    def visit_desc_signature_line(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_signature_line(self, node: Element) -> None:
         pass
 
-    def depart_desc_signature_line(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_signature_line(self, node: Element) -> None:
         self.add_text('\n')
 
-    def visit_desc_name(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_name(self, node: Element) -> None:
         pass
 
-    def depart_desc_name(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_name(self, node: Element) -> None:
         pass
 
-    def visit_desc_addname(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_addname(self, node: Element) -> None:
         pass
 
-    def depart_desc_addname(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_addname(self, node: Element) -> None:
         pass
 
-    def visit_desc_type(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_type(self, node: Element) -> None:
         pass
 
-    def depart_desc_type(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_type(self, node: Element) -> None:
         pass
 
-    def visit_desc_returns(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_returns(self, node: Element) -> None:
         self.add_text(' -> ')
 
-    def depart_desc_returns(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_returns(self, node: Element) -> None:
         pass
 
-    def visit_desc_parameterlist(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_parameterlist(self, node: Element) -> None:
         self.add_text('(')
         self.first_param = 1
 
-    def depart_desc_parameterlist(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_parameterlist(self, node: Element) -> None:
         self.add_text(')')
 
-    def visit_desc_parameter(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
             self.add_text(', ')
         else:
@@ -647,49 +598,38 @@ class TextTranslator(SphinxTranslator):
         self.add_text(node.astext())
         raise nodes.SkipNode
 
-    def visit_desc_optional(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_optional(self, node: Element) -> None:
         self.add_text('[')
 
-    def depart_desc_optional(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_optional(self, node: Element) -> None:
         self.add_text(']')
 
-    def visit_desc_annotation(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_annotation(self, node: Element) -> None:
         pass
 
-    def depart_desc_annotation(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_annotation(self, node: Element) -> None:
         pass
 
-    def visit_desc_content(self, node):
-        # type: (nodes.Element) -> None
+    def visit_desc_content(self, node: Element) -> None:
         self.new_state()
         self.add_text(self.nl)
 
-    def depart_desc_content(self, node):
-        # type: (nodes.Element) -> None
+    def depart_desc_content(self, node: Element) -> None:
         self.end_state()
 
-    def visit_figure(self, node):
-        # type: (nodes.Element) -> None
+    def visit_figure(self, node: Element) -> None:
         self.new_state()
 
-    def depart_figure(self, node):
-        # type: (nodes.Element) -> None
+    def depart_figure(self, node: Element) -> None:
         self.end_state()
 
-    def visit_caption(self, node):
-        # type: (nodes.Element) -> None
+    def visit_caption(self, node: Element) -> None:
         pass
 
-    def depart_caption(self, node):
-        # type: (nodes.Element) -> None
+    def depart_caption(self, node: Element) -> None:
         pass
 
-    def visit_productionlist(self, node):
-        # type: (nodes.Element) -> None
+    def visit_productionlist(self, node: Element) -> None:
         self.new_state()
         names = []
         productionlist = cast(Iterable[addnodes.production], node)
@@ -707,173 +647,137 @@ class TextTranslator(SphinxTranslator):
         self.end_state(wrap=False)
         raise nodes.SkipNode
 
-    def visit_footnote(self, node):
-        # type: (nodes.Element) -> None
+    def visit_footnote(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
         self._footnote = label.astext().strip()
         self.new_state(len(self._footnote) + 3)
 
-    def depart_footnote(self, node):
-        # type: (nodes.Element) -> None
+    def depart_footnote(self, node: Element) -> None:
         self.end_state(first='[%s] ' % self._footnote)
 
-    def visit_citation(self, node):
-        # type: (nodes.Element) -> None
+    def visit_citation(self, node: Element) -> None:
         if len(node) and isinstance(node[0], nodes.label):
             self._citlabel = node[0].astext()
         else:
             self._citlabel = ''
         self.new_state(len(self._citlabel) + 3)
 
-    def depart_citation(self, node):
-        # type: (nodes.Element) -> None
+    def depart_citation(self, node: Element) -> None:
         self.end_state(first='[%s] ' % self._citlabel)
 
-    def visit_label(self, node):
-        # type: (nodes.Element) -> None
+    def visit_label(self, node: Element) -> None:
         raise nodes.SkipNode
 
-    def visit_legend(self, node):
-        # type: (nodes.Element) -> None
+    def visit_legend(self, node: Element) -> None:
         pass
 
-    def depart_legend(self, node):
-        # type: (nodes.Element) -> None
+    def depart_legend(self, node: Element) -> None:
         pass
 
     # XXX: option list could use some better styling
 
-    def visit_option_list(self, node):
-        # type: (nodes.Element) -> None
+    def visit_option_list(self, node: Element) -> None:
         pass
 
-    def depart_option_list(self, node):
-        # type: (nodes.Element) -> None
+    def depart_option_list(self, node: Element) -> None:
         pass
 
-    def visit_option_list_item(self, node):
-        # type: (nodes.Element) -> None
+    def visit_option_list_item(self, node: Element) -> None:
         self.new_state(0)
 
-    def depart_option_list_item(self, node):
-        # type: (nodes.Element) -> None
+    def depart_option_list_item(self, node: Element) -> None:
         self.end_state()
 
-    def visit_option_group(self, node):
-        # type: (nodes.Element) -> None
+    def visit_option_group(self, node: Element) -> None:
         self._firstoption = True
 
-    def depart_option_group(self, node):
-        # type: (nodes.Element) -> None
+    def depart_option_group(self, node: Element) -> None:
         self.add_text('     ')
 
-    def visit_option(self, node):
-        # type: (nodes.Element) -> None
+    def visit_option(self, node: Element) -> None:
         if self._firstoption:
             self._firstoption = False
         else:
             self.add_text(', ')
 
-    def depart_option(self, node):
-        # type: (nodes.Element) -> None
+    def depart_option(self, node: Element) -> None:
         pass
 
-    def visit_option_string(self, node):
-        # type: (nodes.Element) -> None
+    def visit_option_string(self, node: Element) -> None:
         pass
 
-    def depart_option_string(self, node):
-        # type: (nodes.Element) -> None
+    def depart_option_string(self, node: Element) -> None:
         pass
 
-    def visit_option_argument(self, node):
-        # type: (nodes.Element) -> None
+    def visit_option_argument(self, node: Element) -> None:
         self.add_text(node['delimiter'])
 
-    def depart_option_argument(self, node):
-        # type: (nodes.Element) -> None
+    def depart_option_argument(self, node: Element) -> None:
         pass
 
-    def visit_description(self, node):
-        # type: (nodes.Element) -> None
+    def visit_description(self, node: Element) -> None:
         pass
 
-    def depart_description(self, node):
-        # type: (nodes.Element) -> None
+    def depart_description(self, node: Element) -> None:
         pass
 
-    def visit_tabular_col_spec(self, node):
-        # type: (nodes.Element) -> None
+    def visit_tabular_col_spec(self, node: Element) -> None:
         raise nodes.SkipNode
 
-    def visit_colspec(self, node):
-        # type: (nodes.Element) -> None
+    def visit_colspec(self, node: Element) -> None:
         self.table.colwidth.append(node["colwidth"])
         raise nodes.SkipNode
 
-    def visit_tgroup(self, node):
-        # type: (nodes.Element) -> None
+    def visit_tgroup(self, node: Element) -> None:
         pass
 
-    def depart_tgroup(self, node):
-        # type: (nodes.Element) -> None
+    def depart_tgroup(self, node: Element) -> None:
         pass
 
-    def visit_thead(self, node):
-        # type: (nodes.Element) -> None
+    def visit_thead(self, node: Element) -> None:
         pass
 
-    def depart_thead(self, node):
-        # type: (nodes.Element) -> None
+    def depart_thead(self, node: Element) -> None:
         pass
 
-    def visit_tbody(self, node):
-        # type: (nodes.Element) -> None
+    def visit_tbody(self, node: Element) -> None:
         self.table.set_separator()
 
-    def depart_tbody(self, node):
-        # type: (nodes.Element) -> None
+    def depart_tbody(self, node: Element) -> None:
         pass
 
-    def visit_row(self, node):
-        # type: (nodes.Element) -> None
+    def visit_row(self, node: Element) -> None:
         if self.table.lines:
             self.table.add_row()
 
-    def depart_row(self, node):
-        # type: (nodes.Element) -> None
+    def depart_row(self, node: Element) -> None:
         pass
 
-    def visit_entry(self, node):
-        # type: (nodes.Element) -> None
+    def visit_entry(self, node: Element) -> None:
         self.entry = Cell(
             rowspan=node.get("morerows", 0) + 1, colspan=node.get("morecols", 0) + 1
         )
         self.new_state(0)
 
-    def depart_entry(self, node):
-        # type: (nodes.Element) -> None
+    def depart_entry(self, node: Element) -> None:
         text = self.nl.join(self.nl.join(x[1]) for x in self.states.pop())
         self.stateindent.pop()
         self.entry.text = text
         self.table.add_cell(self.entry)
         self.entry = None
 
-    def visit_table(self, node):
-        # type: (nodes.Element) -> None
+    def visit_table(self, node: Element) -> None:
         if self.table:
             raise NotImplementedError('Nested tables are not supported.')
         self.new_state(0)
         self.table = Table()
 
-    def depart_table(self, node):
-        # type: (nodes.Element) -> None
+    def depart_table(self, node: Element) -> None:
         self.add_text(str(self.table))
         self.table = None
         self.end_state(wrap=False)
 
-    def visit_acks(self, node):
-        # type: (nodes.Element) -> None
+    def visit_acks(self, node: Element) -> None:
         bullet_list = cast(nodes.bullet_list, node[0])
         list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.new_state(0)
@@ -881,47 +785,38 @@ class TextTranslator(SphinxTranslator):
         self.end_state()
         raise nodes.SkipNode
 
-    def visit_image(self, node):
-        # type: (nodes.Element) -> None
+    def visit_image(self, node: Element) -> None:
         if 'alt' in node.attributes:
             self.add_text(_('[image: %s]') % node['alt'])
         self.add_text(_('[image]'))
         raise nodes.SkipNode
 
-    def visit_transition(self, node):
-        # type: (nodes.Element) -> None
+    def visit_transition(self, node: Element) -> None:
         indent = sum(self.stateindent)
         self.new_state(0)
         self.add_text('=' * (MAXWIDTH - indent))
         self.end_state()
         raise nodes.SkipNode
 
-    def visit_bullet_list(self, node):
-        # type: (nodes.Element) -> None
+    def visit_bullet_list(self, node: Element) -> None:
         self.list_counter.append(-1)
 
-    def depart_bullet_list(self, node):
-        # type: (nodes.Element) -> None
+    def depart_bullet_list(self, node: Element) -> None:
         self.list_counter.pop()
 
-    def visit_enumerated_list(self, node):
-        # type: (nodes.Element) -> None
+    def visit_enumerated_list(self, node: Element) -> None:
         self.list_counter.append(node.get('start', 1) - 1)
 
-    def depart_enumerated_list(self, node):
-        # type: (nodes.Element) -> None
+    def depart_enumerated_list(self, node: Element) -> None:
         self.list_counter.pop()
 
-    def visit_definition_list(self, node):
-        # type: (nodes.Element) -> None
+    def visit_definition_list(self, node: Element) -> None:
         self.list_counter.append(-2)
 
-    def depart_definition_list(self, node):
-        # type: (nodes.Element) -> None
+    def depart_definition_list(self, node: Element) -> None:
         self.list_counter.pop()
 
-    def visit_list_item(self, node):
-        # type: (nodes.Element) -> None
+    def visit_list_item(self, node: Element) -> None:
         if self.list_counter[-1] == -1:
             # bullet list
             self.new_state(2)
@@ -933,8 +828,7 @@ class TextTranslator(SphinxTranslator):
             self.list_counter[-1] += 1
             self.new_state(len(str(self.list_counter[-1])) + 2)
 
-    def depart_list_item(self, node):
-        # type: (nodes.Element) -> None
+    def depart_list_item(self, node: Element) -> None:
         if self.list_counter[-1] == -1:
             self.end_state(first='* ')
         elif self.list_counter[-1] == -2:
@@ -942,117 +836,99 @@ class TextTranslator(SphinxTranslator):
         else:
             self.end_state(first='%s. ' % self.list_counter[-1])
 
-    def visit_definition_list_item(self, node):
-        # type: (nodes.Element) -> None
+    def visit_definition_list_item(self, node: Element) -> None:
         self._classifier_count_in_li = len(node.traverse(nodes.classifier))
 
-    def depart_definition_list_item(self, node):
-        # type: (nodes.Element) -> None
+    def depart_definition_list_item(self, node: Element) -> None:
         pass
 
-    def visit_term(self, node):
-        # type: (nodes.Element) -> None
+    def visit_term(self, node: Element) -> None:
         self.new_state(0)
 
-    def depart_term(self, node):
-        # type: (nodes.Element) -> None
+    def depart_term(self, node: Element) -> None:
         if not self._classifier_count_in_li:
             self.end_state(end=None)
 
-    def visit_classifier(self, node):
-        # type: (nodes.Element) -> None
+    def visit_classifier(self, node: Element) -> None:
         self.add_text(' : ')
 
-    def depart_classifier(self, node):
-        # type: (nodes.Element) -> None
+    def depart_classifier(self, node: Element) -> None:
         self._classifier_count_in_li -= 1
         if not self._classifier_count_in_li:
             self.end_state(end=None)
 
-    def visit_definition(self, node):
-        # type: (nodes.Element) -> None
+    def visit_definition(self, node: Element) -> None:
         self.new_state()
 
-    def depart_definition(self, node):
-        # type: (nodes.Element) -> None
+    def depart_definition(self, node: Element) -> None:
         self.end_state()
 
-    def visit_field_list(self, node):
-        # type: (nodes.Element) -> None
+    def visit_field_list(self, node: Element) -> None:
         pass
 
-    def depart_field_list(self, node):
-        # type: (nodes.Element) -> None
+    def depart_field_list(self, node: Element) -> None:
         pass
 
-    def visit_field(self, node):
-        # type: (nodes.Element) -> None
+    def visit_field(self, node: Element) -> None:
         pass
 
-    def depart_field(self, node):
-        # type: (nodes.Element) -> None
+    def depart_field(self, node: Element) -> None:
         pass
 
-    def visit_field_name(self, node):
-        # type: (nodes.Element) -> None
+    def visit_field_name(self, node: Element) -> None:
         self.new_state(0)
 
-    def depart_field_name(self, node):
-        # type: (nodes.Element) -> None
+    def depart_field_name(self, node: Element) -> None:
         self.add_text(':')
         self.end_state(end=None)
 
-    def visit_field_body(self, node):
-        # type: (nodes.Element) -> None
+    def visit_field_body(self, node: Element) -> None:
         self.new_state()
 
-    def depart_field_body(self, node):
-        # type: (nodes.Element) -> None
+    def depart_field_body(self, node: Element) -> None:
         self.end_state()
 
-    def visit_centered(self, node):
-        # type: (nodes.Element) -> None
+    def visit_centered(self, node: Element) -> None:
         pass
 
-    def depart_centered(self, node):
-        # type: (nodes.Element) -> None
+    def depart_centered(self, node: Element) -> None:
         pass
 
-    def visit_hlist(self, node):
-        # type: (nodes.Element) -> None
+    def visit_hlist(self, node: Element) -> None:
         pass
 
-    def depart_hlist(self, node):
-        # type: (nodes.Element) -> None
+    def depart_hlist(self, node: Element) -> None:
         pass
 
-    def visit_hlistcol(self, node):
-        # type: (nodes.Element) -> None
+    def visit_hlistcol(self, node: Element) -> None:
         pass
 
-    def depart_hlistcol(self, node):
-        # type: (nodes.Element) -> None
+    def depart_hlistcol(self, node: Element) -> None:
         pass
 
-    def visit_admonition(self, node):
-        # type: (nodes.Element) -> None
+    def visit_admonition(self, node: Element) -> None:
         self.new_state(0)
 
-    def depart_admonition(self, node):
-        # type: (nodes.Element) -> None
+    def depart_admonition(self, node: Element) -> None:
         self.end_state()
 
-    def _visit_admonition(self, node):
-        # type: (nodes.Element) -> None
+    def _visit_admonition(self, node: Element) -> None:
         self.new_state(2)
 
-        if isinstance(node.children[0], nodes.Sequential):
-            self.add_text(self.nl)
-
-    def _depart_admonition(self, node):
-        # type: (nodes.Element) -> None
+    def _depart_admonition(self, node: Element) -> None:
         label = admonitionlabels[node.tagname]
-        self.end_state(first=label + ': ')
+        indent = sum(self.stateindent) + len(label)
+        print(self.states[-1])
+        if (len(self.states[-1]) == 1 and
+                self.states[-1][0][0] == 0 and
+                MAXWIDTH - indent >= sum(len(s) for s in self.states[-1][0][1])):
+            # short text: append text after admonition label
+            self.stateindent[-1] += len(label)
+            self.end_state(first=label + ': ')
+        else:
+            # long text: append label before the block
+            self.states[-1].insert(0, (0, [self.nl]))
+            self.end_state(first=label + ':')
 
     visit_attention = _visit_admonition
     depart_attention = _depart_admonition
@@ -1075,306 +951,237 @@ class TextTranslator(SphinxTranslator):
     visit_seealso = _visit_admonition
     depart_seealso = _depart_admonition
 
-    def visit_versionmodified(self, node):
-        # type: (nodes.Element) -> None
+    def visit_versionmodified(self, node: Element) -> None:
         self.new_state(0)
 
-    def depart_versionmodified(self, node):
-        # type: (nodes.Element) -> None
+    def depart_versionmodified(self, node: Element) -> None:
         self.end_state()
 
-    def visit_literal_block(self, node):
-        # type: (nodes.Element) -> None
+    def visit_literal_block(self, node: Element) -> None:
         self.new_state()
 
-    def depart_literal_block(self, node):
-        # type: (nodes.Element) -> None
+    def depart_literal_block(self, node: Element) -> None:
         self.end_state(wrap=False)
 
-    def visit_doctest_block(self, node):
-        # type: (nodes.Element) -> None
+    def visit_doctest_block(self, node: Element) -> None:
         self.new_state(0)
 
-    def depart_doctest_block(self, node):
-        # type: (nodes.Element) -> None
+    def depart_doctest_block(self, node: Element) -> None:
         self.end_state(wrap=False)
 
-    def visit_line_block(self, node):
-        # type: (nodes.Element) -> None
+    def visit_line_block(self, node: Element) -> None:
         self.new_state()
         self.lineblocklevel += 1
 
-    def depart_line_block(self, node):
-        # type: (nodes.Element) -> None
+    def depart_line_block(self, node: Element) -> None:
         self.lineblocklevel -= 1
         self.end_state(wrap=False, end=None)
         if not self.lineblocklevel:
             self.add_text('\n')
 
-    def visit_line(self, node):
-        # type: (nodes.Element) -> None
+    def visit_line(self, node: Element) -> None:
         pass
 
-    def depart_line(self, node):
-        # type: (nodes.Element) -> None
+    def depart_line(self, node: Element) -> None:
         self.add_text('\n')
 
-    def visit_block_quote(self, node):
-        # type: (nodes.Element) -> None
+    def visit_block_quote(self, node: Element) -> None:
         self.new_state()
 
-    def depart_block_quote(self, node):
-        # type: (nodes.Element) -> None
+    def depart_block_quote(self, node: Element) -> None:
         self.end_state()
 
-    def visit_compact_paragraph(self, node):
-        # type: (nodes.Element) -> None
+    def visit_compact_paragraph(self, node: Element) -> None:
         pass
 
-    def depart_compact_paragraph(self, node):
-        # type: (nodes.Element) -> None
+    def depart_compact_paragraph(self, node: Element) -> None:
         pass
 
-    def visit_paragraph(self, node):
-        # type: (nodes.Element) -> None
+    def visit_paragraph(self, node: Element) -> None:
         if not isinstance(node.parent, nodes.Admonition) or \
            isinstance(node.parent, addnodes.seealso):
             self.new_state(0)
 
-    def depart_paragraph(self, node):
-        # type: (nodes.Element) -> None
+    def depart_paragraph(self, node: Element) -> None:
         if not isinstance(node.parent, nodes.Admonition) or \
            isinstance(node.parent, addnodes.seealso):
             self.end_state()
 
-    def visit_target(self, node):
-        # type: (nodes.Element) -> None
+    def visit_target(self, node: Element) -> None:
         raise nodes.SkipNode
 
-    def visit_index(self, node):
-        # type: (nodes.Element) -> None
+    def visit_index(self, node: Element) -> None:
         raise nodes.SkipNode
 
-    def visit_toctree(self, node):
-        # type: (nodes.Element) -> None
+    def visit_toctree(self, node: Element) -> None:
         raise nodes.SkipNode
 
-    def visit_pending_xref(self, node):
-        # type: (nodes.Element) -> None
+    def visit_pending_xref(self, node: Element) -> None:
         pass
 
-    def depart_pending_xref(self, node):
-        # type: (nodes.Element) -> None
+    def depart_pending_xref(self, node: Element) -> None:
         pass
 
-    def visit_reference(self, node):
-        # type: (nodes.Element) -> None
+    def visit_reference(self, node: Element) -> None:
         if self.add_secnumbers:
             numbers = node.get("secnumber")
             if numbers is not None:
                 self.add_text('.'.join(map(str, numbers)) + self.secnumber_suffix)
 
-    def depart_reference(self, node):
-        # type: (nodes.Element) -> None
+    def depart_reference(self, node: Element) -> None:
         pass
 
-    def visit_number_reference(self, node):
-        # type: (nodes.Element) -> None
+    def visit_number_reference(self, node: Element) -> None:
         text = nodes.Text(node.get('title', '#'))
         self.visit_Text(text)
         raise nodes.SkipNode
 
-    def visit_download_reference(self, node):
-        # type: (nodes.Element) -> None
+    def visit_download_reference(self, node: Element) -> None:
         pass
 
-    def depart_download_reference(self, node):
-        # type: (nodes.Element) -> None
+    def depart_download_reference(self, node: Element) -> None:
         pass
 
-    def visit_emphasis(self, node):
-        # type: (nodes.Element) -> None
+    def visit_emphasis(self, node: Element) -> None:
         self.add_text('*')
 
-    def depart_emphasis(self, node):
-        # type: (nodes.Element) -> None
+    def depart_emphasis(self, node: Element) -> None:
         self.add_text('*')
 
-    def visit_literal_emphasis(self, node):
-        # type: (nodes.Element) -> None
+    def visit_literal_emphasis(self, node: Element) -> None:
         self.add_text('*')
 
-    def depart_literal_emphasis(self, node):
-        # type: (nodes.Element) -> None
+    def depart_literal_emphasis(self, node: Element) -> None:
         self.add_text('*')
 
-    def visit_strong(self, node):
-        # type: (nodes.Element) -> None
+    def visit_strong(self, node: Element) -> None:
         self.add_text('**')
 
-    def depart_strong(self, node):
-        # type: (nodes.Element) -> None
+    def depart_strong(self, node: Element) -> None:
         self.add_text('**')
 
-    def visit_literal_strong(self, node):
-        # type: (nodes.Element) -> None
+    def visit_literal_strong(self, node: Element) -> None:
         self.add_text('**')
 
-    def depart_literal_strong(self, node):
-        # type: (nodes.Element) -> None
+    def depart_literal_strong(self, node: Element) -> None:
         self.add_text('**')
 
-    def visit_abbreviation(self, node):
-        # type: (nodes.Element) -> None
+    def visit_abbreviation(self, node: Element) -> None:
         self.add_text('')
 
-    def depart_abbreviation(self, node):
-        # type: (nodes.Element) -> None
+    def depart_abbreviation(self, node: Element) -> None:
         if node.hasattr('explanation'):
             self.add_text(' (%s)' % node['explanation'])
 
-    def visit_manpage(self, node):
-        # type: (nodes.Element) -> None
+    def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)
 
-    def depart_manpage(self, node):
-        # type: (nodes.Element) -> None
+    def depart_manpage(self, node: Element) -> None:
         return self.depart_literal_emphasis(node)
 
-    def visit_title_reference(self, node):
-        # type: (nodes.Element) -> None
+    def visit_title_reference(self, node: Element) -> None:
         self.add_text('*')
 
-    def depart_title_reference(self, node):
-        # type: (nodes.Element) -> None
+    def depart_title_reference(self, node: Element) -> None:
         self.add_text('*')
 
-    def visit_literal(self, node):
-        # type: (nodes.Element) -> None
+    def visit_literal(self, node: Element) -> None:
         self.add_text('"')
 
-    def depart_literal(self, node):
-        # type: (nodes.Element) -> None
+    def depart_literal(self, node: Element) -> None:
         self.add_text('"')
 
-    def visit_subscript(self, node):
-        # type: (nodes.Element) -> None
+    def visit_subscript(self, node: Element) -> None:
         self.add_text('_')
 
-    def depart_subscript(self, node):
-        # type: (nodes.Element) -> None
+    def depart_subscript(self, node: Element) -> None:
         pass
 
-    def visit_superscript(self, node):
-        # type: (nodes.Element) -> None
+    def visit_superscript(self, node: Element) -> None:
         self.add_text('^')
 
-    def depart_superscript(self, node):
-        # type: (nodes.Element) -> None
+    def depart_superscript(self, node: Element) -> None:
         pass
 
-    def visit_footnote_reference(self, node):
-        # type: (nodes.Element) -> None
+    def visit_footnote_reference(self, node: Element) -> None:
         self.add_text('[%s]' % node.astext())
         raise nodes.SkipNode
 
-    def visit_citation_reference(self, node):
-        # type: (nodes.Element) -> None
+    def visit_citation_reference(self, node: Element) -> None:
         self.add_text('[%s]' % node.astext())
         raise nodes.SkipNode
 
-    def visit_Text(self, node):
-        # type: (nodes.Text) -> None
+    def visit_Text(self, node: Text) -> None:
         self.add_text(node.astext())
 
-    def depart_Text(self, node):
-        # type: (nodes.Text) -> None
+    def depart_Text(self, node: Text) -> None:
         pass
 
-    def visit_generated(self, node):
-        # type: (nodes.Element) -> None
+    def visit_generated(self, node: Element) -> None:
         pass
 
-    def depart_generated(self, node):
-        # type: (nodes.Element) -> None
+    def depart_generated(self, node: Element) -> None:
         pass
 
-    def visit_inline(self, node):
-        # type: (nodes.Element) -> None
+    def visit_inline(self, node: Element) -> None:
         if 'xref' in node['classes'] or 'term' in node['classes']:
             self.add_text('*')
 
-    def depart_inline(self, node):
-        # type: (nodes.Element) -> None
+    def depart_inline(self, node: Element) -> None:
         if 'xref' in node['classes'] or 'term' in node['classes']:
             self.add_text('*')
 
-    def visit_container(self, node):
-        # type: (nodes.Element) -> None
+    def visit_container(self, node: Element) -> None:
         pass
 
-    def depart_container(self, node):
-        # type: (nodes.Element) -> None
+    def depart_container(self, node: Element) -> None:
         pass
 
-    def visit_problematic(self, node):
-        # type: (nodes.Element) -> None
+    def visit_problematic(self, node: Element) -> None:
         self.add_text('>>')
 
-    def depart_problematic(self, node):
-        # type: (nodes.Element) -> None
+    def depart_problematic(self, node: Element) -> None:
         self.add_text('<<')
 
-    def visit_system_message(self, node):
-        # type: (nodes.Element) -> None
+    def visit_system_message(self, node: Element) -> None:
         self.new_state(0)
         self.add_text('<SYSTEM MESSAGE: %s>' % node.astext())
         self.end_state()
         raise nodes.SkipNode
 
-    def visit_comment(self, node):
-        # type: (nodes.Element) -> None
+    def visit_comment(self, node: Element) -> None:
         raise nodes.SkipNode
 
-    def visit_meta(self, node):
-        # type: (nodes.Element) -> None
+    def visit_meta(self, node: Element) -> None:
         # only valid for HTML
         raise nodes.SkipNode
 
-    def visit_raw(self, node):
-        # type: (nodes.Element) -> None
+    def visit_raw(self, node: Element) -> None:
         if 'text' in node.get('format', '').split():
             self.new_state(0)
             self.add_text(node.astext())
             self.end_state(wrap = False)
         raise nodes.SkipNode
 
-    def visit_math(self, node):
-        # type: (nodes.Element) -> None
+    def visit_math(self, node: Element) -> None:
         pass
 
-    def depart_math(self, node):
-        # type: (nodes.Element) -> None
+    def depart_math(self, node: Element) -> None:
         pass
 
-    def visit_math_block(self, node):
-        # type: (nodes.Element) -> None
+    def visit_math_block(self, node: Element) -> None:
         self.new_state()
 
-    def depart_math_block(self, node):
-        # type: (nodes.Element) -> None
+    def depart_math_block(self, node: Element) -> None:
         self.end_state()
 
-    def unknown_visit(self, node):
-        # type: (nodes.Node) -> None
+    def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
-    def _make_depart_admonition(name):  # type: ignore
-        # type: (str) -> Callable[[TextTranslator, nodes.Element], None]
+    def _make_depart_admonition(name: str) -> Callable[["TextTranslator", Element], None]:  # type: ignore  # NOQA
         warnings.warn('TextTranslator._make_depart_admonition() is deprecated.',
                       RemovedInSphinx30Warning)
 
-        def depart_admonition(self, node):
-            # type: (TextTranslator, nodes.Element) -> None
+        def depart_admonition(self, node: Element) -> None:
             self.end_state(first=admonitionlabels[name] + ': ')
         return depart_admonition

@@ -439,7 +439,7 @@ There are also config values that you can set:
    * ``'signature'`` -- Show typehints as its signature (default)
    * ``'none'`` -- Do not show typehints
 
-   .. versionadded: 2.1
+   .. versionadded:: 2.1
 
 .. confval:: autodoc_warningiserror
 

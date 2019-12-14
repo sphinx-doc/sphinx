@@ -38,8 +38,8 @@ r"""
 import builtins
 import inspect
 import re
-import sys
 from hashlib import md5
+from importlib import import_module
 from typing import Any, Dict, Iterable, List, Tuple
 from typing import cast
 
@@ -74,8 +74,10 @@ def try_import(objname: str) -> Any:
     Returns imported object or module.  If failed, returns None value.
     """
     try:
-        __import__(objname)
-        return sys.modules.get(objname)
+        return import_module(objname)
+    except TypeError:
+        # Relative import
+        return None
     except ImportError:
         matched = module_sig_re.match(objname)
 
@@ -87,8 +89,8 @@ def try_import(objname: str) -> Any:
         if modname is None:
             return None
         try:
-            __import__(modname)
-            return getattr(sys.modules.get(modname), attrname, None)
+            module = import_module(modname)
+            return getattr(module, attrname, None)
         except ImportError:
             return None
 
@@ -366,7 +368,7 @@ class InheritanceDiagram(SphinxDirective):
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
             refnodes, x = class_role(  # type: ignore
-                'class', ':class:`%s`' % name, name, 0, self.state)
+                'class', ':class:`%s`' % name, name, 0, self.state)  # type: ignore
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
         # dot file later

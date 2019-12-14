@@ -31,16 +31,18 @@ def test_maxwitdh_with_prefix(app, status, warning):
     lines = result.splitlines()
     line_widths = [column_width(line) for line in lines]
     assert max(line_widths) < MAXWIDTH
-    assert lines[0].startswith('See also: ham')
-    assert lines[1].startswith('  ham')
-    assert lines[2] == ''
-    assert lines[3].startswith('* ham')
-    assert lines[4].startswith('  ham')
-    assert lines[5] == ''
-    assert lines[6].startswith('* ham')
-    assert lines[7].startswith('  ham')
-    assert lines[8] == ''
-    assert lines[9].startswith('spam egg')
+    assert lines[0].startswith('See also:')
+    assert lines[1].startswith('')
+    assert lines[2].startswith('  ham')
+    assert lines[3].startswith('  ham')
+    assert lines[4] == ''
+    assert lines[5].startswith('* ham')
+    assert lines[6].startswith('  ham')
+    assert lines[7] == ''
+    assert lines[8].startswith('* ham')
+    assert lines[9].startswith('  ham')
+    assert lines[10] == ''
+    assert lines[11].startswith('spam egg')
 
 
 @with_text_app()

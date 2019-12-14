@@ -510,6 +510,14 @@ General configuration
 
    .. versionadded:: 1.6.6
 
+.. confval:: user_agent
+
+   A User-Agent of Sphinx.  It is used for a header on HTTP access (ex.
+   linkcheck, intersphinx and so on).  Default is ``"Sphinx/X.Y.Z
+   requests/X.Y.Z python/X.Y.Z"``.
+
+   .. versionadded:: 2.3
+
 .. confval:: tls_verify
 
    If true, Sphinx verifies server certifications.  Default is ``True``.
@@ -530,7 +538,7 @@ General configuration
             directory pointed ``REQUESTS_CA_BUNDLE`` environment
             variable if ``tls_cacerts`` not set.
 
-            .. _requests: http://docs.python-requests.org/en/master/
+            .. _requests: https://requests.readthedocs.io/en/master/
 
 .. confval:: today
              today_fmt
@@ -654,12 +662,17 @@ documentation on :ref:`intl` for details.
 
    Currently supported languages by Sphinx are:
 
+   * ``ar`` -- Arabic
    * ``bn`` -- Bengali
    * ``ca`` -- Catalan
+   * ``cak`` -- Kaqchikel
    * ``cs`` -- Czech
+   * ``cy`` -- Welsh
    * ``da`` -- Danish
    * ``de`` -- German
+   * ``el`` -- Greek
    * ``en`` -- English
+   * ``eo`` -- Esperanto
    * ``es`` -- Spanish
    * ``et`` -- Estonian
    * ``eu`` -- Basque
@@ -667,6 +680,7 @@ documentation on :ref:`intl` for details.
    * ``fi`` -- Finnish
    * ``fr`` -- French
    * ``he`` -- Hebrew
+   * ``hi`` -- Hindi
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
    * ``id`` -- Indonesian
@@ -680,15 +694,20 @@ documentation on :ref:`intl` for details.
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
+   * ``pt`` -- Portuguese
    * ``pt_BR`` -- Brazilian Portuguese
    * ``pt_PT`` -- European Portuguese
+   * ``ro`` -- Romanian
    * ``ru`` -- Russian
    * ``si`` -- Sinhala
    * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
+   * ``sr`` -- Serbian
    * ``sv`` -- Swedish
+   * ``ta`` -- Tamil
    * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
+   * ``ur`` -- Urdu
    * ``vi`` -- Vietnamese
    * ``zh_CN`` -- Simplified Chinese
    * ``zh_TW`` -- Traditional Chinese
@@ -1828,6 +1847,7 @@ These options influence LaTeX output.
    * ``'xelatex'`` -- XeLaTeX
    * ``'lualatex'`` -- LuaLaTeX
    * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
+   * ``'uplatex'`` -- upLaTeX (experimental)
 
    ``'pdflatex'``\ 's support for Unicode characters is limited.
 
@@ -1841,7 +1861,21 @@ These options influence LaTeX output.
    ``'xelatex'`` or ``'lualatex'`` and making sure to use an OpenType font
    with wide-enough glyph coverage is often easier than trying to make
    ``'pdflatex'`` work with the extra Unicode characters.  Since Sphinx 2.0
-   the default is the GNU FreeFont which covers well Latin, Cyrillic and Greek.
+   the default is the GNU FreeFont which covers well Latin, Cyrillic and
+   Greek.
+
+   .. versionchanged:: 2.1.0
+
+      Use ``xelatex`` (and LaTeX package ``xeCJK``) by default for Chinese
+      documents.
+
+   .. versionchanged:: 2.2.1
+
+      Use ``xelatex`` by default for Greek documents.
+
+   .. versionchanged:: 2.3
+
+      Add ``uplatex`` support.
 
    Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
    LaTeX requires some extra configuration to support Unicode literals in
@@ -2345,6 +2379,34 @@ Options for the linkcheck builder
          ]
 
    .. versionadded:: 1.5
+
+.. confval:: linkcheck_auth
+
+   Pass authentication information when doing a ``linkcheck`` build.
+
+   A list of ``(regex_pattern, auth_info)`` tuples where the items are:
+
+   *regex_pattern*
+     A regular expression that matches a URI.
+   *auth_info*
+     Authentication information to use for that URI. The value can be anything
+     that is understood by the ``requests`` library (see `requests
+     Authentication <requests-auth>`_ for details).
+
+     .. _requests-auth: https://requests.readthedocs.io/en/master/user/authentication/
+
+   The ``linkcheck`` builder will use the first matching ``auth_info`` value
+   it can find in the :confval:`linkcheck_auth` list, so values earlier in the
+   list have higher priority.
+
+   Example::
+
+      linkcheck_auth = [
+        ('https://foo\.yourcompany\.com/.+', ('johndoe', 'secret')),
+        ('https://.+\.yourcompany\.com/.+', HTTPDigestAuth(...)),
+      ]
+
+   .. versionadded:: 2.3
 
 
 Options for the XML builder

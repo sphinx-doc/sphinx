@@ -9,7 +9,7 @@
 \pagestyle{empty}
 <%= preamble %>
 
-\usepackage[active]{preview}
+\usepackage[active<%= tightpage %>]{preview}
 
 \begin{document}
 \begin{preview}

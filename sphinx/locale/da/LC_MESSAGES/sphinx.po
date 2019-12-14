@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-03-29 01:05+0900\n"
-"PO-Revision-Date: 2019-03-28 16:09+0000\n"
-"Last-Translator: Jakob Lykke Andersen <jakob@caput.dk>\n"
+"PO-Revision-Date: 2019-11-14 15:35+0000\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
 "Language-Team: Danish (http://www.transifex.com/sphinx-doc/sphinx-1/language/da/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -220,7 +220,7 @@ msgstr "tabel %s"
 #: sphinx/config.py:408
 #, python-format
 msgid "Listing %s"
-msgstr "Viser %s"
+msgstr "Kildekode %s"
 
 #: sphinx/config.py:447
 msgid ""
@@ -266,7 +266,7 @@ msgstr ""
 #: sphinx/events.py:60
 #, python-format
 msgid "Unknown event name: %s"
-msgstr ""
+msgstr "Ukendt hændelsesnavn: %s"
 
 #: sphinx/extension.py:52
 #, python-format
@@ -319,7 +319,7 @@ msgstr ""
 #: sphinx/registry.py:163
 #, python-format
 msgid "domain %s already registered"
-msgstr ""
+msgstr "domænet %s er allerede registreret"
 
 #: sphinx/registry.py:197 sphinx/registry.py:212 sphinx/registry.py:223
 #, python-format
@@ -334,7 +334,7 @@ msgstr ""
 #: sphinx/registry.py:215
 #, python-format
 msgid "The %r role is already registered to domain %s"
-msgstr ""
+msgstr "Rollen %r er allerede registreret til domæne %s"
 
 #: sphinx/registry.py:226
 #, python-format
@@ -359,7 +359,7 @@ msgstr ""
 #: sphinx/registry.py:308
 #, python-format
 msgid "source_parser for %r is already registered"
-msgstr ""
+msgstr "source_parser for %r er allerede registreret"
 
 #: sphinx/registry.py:324
 #, python-format
@@ -405,7 +405,7 @@ msgstr ""
 #: sphinx/registry.py:476
 #, python-format
 msgid "Could not import extension %s"
-msgstr ""
+msgstr "Kunne ikke importere udvidelse %s"
 
 #: sphinx/registry.py:479
 #, python-format
@@ -419,7 +419,7 @@ msgstr ""
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
-msgstr ""
+msgstr "Udvidelsen %s brugt af dette projekt kræver mindst Sphinx v%s; den kan derfor ikke bygges med denne version."
 
 #: sphinx/registry.py:496
 #, python-format
@@ -574,7 +574,7 @@ msgstr ""
 
 #: sphinx/builders/__init__.py:462 sphinx/builders/__init__.py:492
 msgid "reading sources... "
-msgstr ""
+msgstr "læser kilder ..."
 
 #: sphinx/builders/__init__.py:497 sphinx/builders/__init__.py:612
 msgid "waiting for workers..."
@@ -587,7 +587,7 @@ msgstr ""
 
 #: sphinx/builders/__init__.py:560 sphinx/builders/singlehtml.py:166
 msgid "preparing documents"
-msgstr ""
+msgstr "forbereder dokumenter"
 
 #: sphinx/builders/_epub_base.py:218
 #, python-format
@@ -689,7 +689,7 @@ msgstr ""
 
 #: sphinx/builders/epub3.py:225
 msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
-msgstr ""
+msgstr "konfigurationsværdien »epub_contributor« bør ikke være tom for EPUB3"
 
 #: sphinx/builders/epub3.py:228
 msgid "conf value \"epub_description\" should not be empty for EPUB3"
@@ -815,7 +815,7 @@ msgstr ""
 #: sphinx/builders/html.py:847
 #, python-format
 msgid "favicon file %r does not exist"
-msgstr ""
+msgstr "favicon-filen %r findes ikke"
 
 #: sphinx/builders/html.py:854
 #, python-format
@@ -1078,7 +1078,7 @@ msgstr ""
 
 #: sphinx/cmd/build.py:56
 msgid "Encoding error:"
-msgstr ""
+msgstr "Kodningsfejl:"
 
 #: sphinx/cmd/build.py:59 sphinx/cmd/build.py:74
 #, python-format
@@ -1259,7 +1259,7 @@ msgstr ""
 #: sphinx/cmd/build.py:227
 #, python-format
 msgid "cannot find files %r"
-msgstr ""
+msgstr "kan ikke finde filer %r"
 
 #: sphinx/cmd/build.py:230
 msgid "cannot combine -a option and filenames"
@@ -1324,7 +1324,7 @@ msgstr ""
 
 #: sphinx/cmd/quickstart.py:119
 msgid "Please enter some text."
-msgstr ""
+msgstr "Indtast venligst noget tekst."
 
 #: sphinx/cmd/quickstart.py:128
 #, python-format
@@ -1333,11 +1333,11 @@ msgstr ""
 
 #: sphinx/cmd/quickstart.py:136
 msgid "Please enter either 'y' or 'n'."
-msgstr ""
+msgstr "Indtast venligst enten »y« eller »n«."
 
 #: sphinx/cmd/quickstart.py:143
 msgid "Please enter a file suffix, e.g. '.rst' or '.txt'."
-msgstr ""
+msgstr "Indtast venligt et filsuffiks, f.eks. ».rst« eller ».txt«"
 
 #: sphinx/cmd/quickstart.py:169
 msgid ""
@@ -1530,7 +1530,7 @@ msgstr ""
 #: sphinx/cmd/quickstart.py:413 sphinx/ext/apidoc.py:72
 #, python-format
 msgid "File %s already exists, skipping."
-msgstr ""
+msgstr "Filen %s findes allerede, udelader."
 
 #: sphinx/cmd/quickstart.py:449
 msgid "Finished: An initial directory structure has been created."
@@ -1652,7 +1652,7 @@ msgstr ""
 
 #: sphinx/cmd/quickstart.py:551
 msgid "do not create makefile"
-msgstr ""
+msgstr "opret ikke makefile"
 
 #: sphinx/cmd/quickstart.py:553
 msgid "create batchfile"
@@ -1676,7 +1676,7 @@ msgstr ""
 
 #: sphinx/cmd/quickstart.py:567
 msgid "template directory for template files"
-msgstr ""
+msgstr "skabelonmappe for skabelonfiler"
 
 #: sphinx/cmd/quickstart.py:570
 msgid "define a template variable"
@@ -1876,7 +1876,7 @@ msgstr ""
 
 #: sphinx/domains/cpp.py:7032
 msgid "concept"
-msgstr ""
+msgstr "koncept"
 
 #: sphinx/domains/cpp.py:7033
 msgid "enum"
@@ -2128,7 +2128,7 @@ msgstr "programtilvalg"
 
 #: sphinx/domains/std.py:464
 msgid "document"
-msgstr ""
+msgstr "dokument"
 
 #: sphinx/domains/std.py:502
 msgid "Module Index"
@@ -2179,7 +2179,7 @@ msgstr ""
 
 #: sphinx/environment/__init__.py:69
 msgid "new config"
-msgstr ""
+msgstr "ny konfiguration"
 
 #: sphinx/environment/__init__.py:70
 msgid "config changed"
@@ -2187,7 +2187,7 @@ msgstr ""
 
 #: sphinx/environment/__init__.py:71
 msgid "extensions changed"
-msgstr ""
+msgstr "udvidelser ændret"
 
 #: sphinx/environment/__init__.py:210
 msgid "build environment version not current"
@@ -2195,7 +2195,7 @@ msgstr ""
 
 #: sphinx/environment/__init__.py:212
 msgid "source directory has changed"
-msgstr ""
+msgstr "kildemappe er ændret"
 
 #: sphinx/environment/__init__.py:283
 msgid ""
@@ -2319,7 +2319,7 @@ msgstr ""
 
 #: sphinx/ext/apidoc.py:325
 msgid "overwrite existing files"
-msgstr ""
+msgstr "overskriv eksisterende filer"
 
 #: sphinx/ext/apidoc.py:328
 msgid ""
@@ -2398,7 +2398,7 @@ msgstr ""
 #: sphinx/ext/apidoc.py:402
 #, python-format
 msgid "%s is not a directory."
-msgstr ""
+msgstr "%s er ikke en mappe"
 
 #: sphinx/ext/coverage.py:46
 #, python-format
@@ -2800,7 +2800,7 @@ msgstr ""
 
 #: sphinx/ext/napoleon/__init__.py:330 sphinx/ext/napoleon/docstring.py:669
 msgid "Keyword Arguments"
-msgstr ""
+msgstr "Nøgleordsargumenter"
 
 #: sphinx/ext/napoleon/docstring.py:627
 msgid "Example"
@@ -2808,7 +2808,7 @@ msgstr ""
 
 #: sphinx/ext/napoleon/docstring.py:628
 msgid "Examples"
-msgstr ""
+msgstr "Eksempler"
 
 #: sphinx/ext/napoleon/docstring.py:684
 msgid "Notes"
@@ -2816,11 +2816,11 @@ msgstr ""
 
 #: sphinx/ext/napoleon/docstring.py:688
 msgid "Other Parameters"
-msgstr ""
+msgstr "Andre parametre"
 
 #: sphinx/ext/napoleon/docstring.py:717
 msgid "References"
-msgstr ""
+msgstr "Referencer"
 
 #: sphinx/ext/napoleon/docstring.py:754
 msgid "Warns"
@@ -2881,7 +2881,7 @@ msgstr "Fortsættes på næste side"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:9
 msgid "continues on next page"
-msgstr ""
+msgstr "fortsætter på næste side"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:10
 msgid "Non-alphabetical"
@@ -2998,12 +2998,12 @@ msgstr "Ophavsret"
 #: sphinx/themes/basic/layout.html:201
 #, python-format
 msgid "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
-msgstr ""
+msgstr "&#169; <a href=\"%(path)s\">Ophavsret</a> %(copyright)s."
 
 #: sphinx/themes/basic/layout.html:203
 #, python-format
 msgid "&#169; Copyright %(copyright)s."
-msgstr ""
+msgstr "&#169; Ophavsret %(copyright)s."
 
 #: sphinx/themes/basic/layout.html:207
 #, python-format
@@ -3083,12 +3083,12 @@ msgstr "Denne side"
 #: sphinx/themes/basic/changes/versionchanges.html:12
 #, python-format
 msgid "Changes in Version %(version)s &#8212; %(docstitle)s"
-msgstr ""
+msgstr "Ændringer i version %(version)s &#8212; %(docstitle)s"
 
 #: sphinx/themes/basic/changes/rstsource.html:5
 #, python-format
 msgid "%(filename)s &#8212; %(docstitle)s"
-msgstr ""
+msgstr "%(filename)s &#8212; %(docstitle)s"
 
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format

@@ -10,6 +10,7 @@
 
 import abc
 import sys
+from importlib import import_module
 
 import pytest
 
@@ -56,27 +57,27 @@ def test_mock():
     submodule = modname + '.submodule'
     assert modname not in sys.modules
     with pytest.raises(ImportError):
-        __import__(modname)
+        import_module(modname)
 
     with mock([modname]):
-        __import__(modname)
+        import_module(modname)
         assert modname in sys.modules
         assert isinstance(sys.modules[modname], _MockModule)
 
         # submodules are also mocked
-        __import__(submodule)
+        import_module(submodule)
         assert submodule in sys.modules
         assert isinstance(sys.modules[submodule], _MockModule)
 
     assert modname not in sys.modules
     with pytest.raises(ImportError):
-        __import__(modname)
+        import_module(modname)
 
 
 def test_mock_does_not_follow_upper_modules():
     with mock(['sphinx.unknown.module']):
         with pytest.raises(ImportError):
-            __import__('sphinx.unknown')
+            import_module('sphinx.unknown')
 
 
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='Only for py37 or above')
@@ -95,3 +96,24 @@ def test_abc_MockObject():
     assert isinstance(obj, Base)
     assert isinstance(obj, _MockObject)
     assert isinstance(obj.some_method(), Derived)
+
+
+def test_mock_decorator():
+    mock = _MockObject()
+
+    @mock.function_deco
+    def func():
+        """docstring"""
+
+    class Foo:
+        @mock.method_deco
+        def meth(self):
+            """docstring"""
+
+    @mock.class_deco
+    class Bar:
+        """docstring"""
+
+    assert func.__doc__ == "docstring"
+    assert Foo.meth.__doc__ == "docstring"
+    assert Bar.__doc__ == "docstring"

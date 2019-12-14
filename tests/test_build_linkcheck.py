@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+from unittest import mock
 import pytest
 
 
@@ -47,3 +48,25 @@ def test_anchors_ignored(app, status, warning):
 
     # expect all ok when excluding #top
     assert not content
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck', freshenv=True,
+    confoverrides={'linkcheck_auth': [
+                        (r'.+google\.com/image.+', 'authinfo1'),
+                        (r'.+google\.com.+', 'authinfo2'),
+                   ]
+                  })
+def test_auth(app, status, warning):
+    mock_req = mock.MagicMock()
+    mock_req.return_value = 'fake-response'
+
+    with mock.patch.multiple('requests', get=mock_req, head=mock_req):
+        app.builder.build_all()
+        for c_args, c_kwargs in mock_req.call_args_list:
+            if 'google.com/image' in c_args[0]:
+                assert c_kwargs['auth'] == 'authinfo1'
+            elif 'google.com' in c_args[0]:
+                assert c_kwargs['auth'] == 'authinfo2'
+            else:
+                assert not c_kwargs['auth']

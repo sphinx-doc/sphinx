@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxmanual}[2018/12/23 v2.0 Document class (Sphinx manual)]
+\ProvidesClass{sphinxmanual}[2019/12/01 v2.3.0 Document class (Sphinx manual)]
 
 % chapters starting at odd pages (overridden by 'openany' document option)
 \PassOptionsToClass{openright}{\sphinxdocclass}
@@ -30,6 +30,17 @@
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{1}
 
+% Adapt \and command to the flushright context of \sphinxmaketitle, to
+% avoid ragged line endings if author names do not fit all on one single line
+\DeclareRobustCommand{\and}{%
+    \end{tabular}\kern-\tabcolsep
+    \allowbreak
+    \hskip\dimexpr1em+\tabcolsep\@plus.17fil\begin{tabular}[t]{c}%
+}%
+% If it is desired that each author name be on its own line, use in preamble:
+%\DeclareRobustCommand{\and}{%
+%   \end{tabular}\kern-\tabcolsep\\\begin{tabular}[t]{c}%
+%}%
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %

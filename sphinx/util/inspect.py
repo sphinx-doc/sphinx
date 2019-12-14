@@ -207,9 +207,12 @@ def isbuiltin(obj: Any) -> bool:
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
-    if inspect.iscoroutinefunction(obj):
+    if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
+        # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
+        # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
         return True
-    elif ispartial(obj) and inspect.iscoroutinefunction(obj.func):
+    elif (ispartial(obj) and hasattr(obj.func, '__code__') and
+          inspect.iscoroutinefunction(obj.func)):
         # partialed
         return True
     else:
@@ -400,6 +403,12 @@ class Signature:
             return None
 
     def format_args(self, show_annotation: bool = True) -> str:
+        def format_param_annotation(param: inspect.Parameter) -> str:
+            if isinstance(param.annotation, str) and param.name in self.annotations:
+                return self.format_annotation(self.annotations[param.name])
+            else:
+                return self.format_annotation(param.annotation)
+
         args = []
         last_kind = None
         for i, param in enumerate(self.parameters.values()):
@@ -421,14 +430,10 @@ class Signature:
                               param.KEYWORD_ONLY):
                 arg.write(param.name)
                 if show_annotation and param.annotation is not param.empty:
-                    if isinstance(param.annotation, str) and param.name in self.annotations:
-                        arg.write(': ')
-                        arg.write(self.format_annotation(self.annotations[param.name]))
-                    else:
-                        arg.write(': ')
-                        arg.write(self.format_annotation(param.annotation))
+                    arg.write(': ')
+                    arg.write(format_param_annotation(param))
                 if param.default is not param.empty:
-                    if param.annotation is param.empty:
+                    if param.annotation is param.empty or show_annotation is False:
                         arg.write('=')
                         arg.write(object_description(param.default))
                     else:
@@ -437,14 +442,20 @@ class Signature:
             elif param.kind == param.VAR_POSITIONAL:
                 arg.write('*')
                 arg.write(param.name)
+                if show_annotation and param.annotation is not param.empty:
+                    arg.write(': ')
+                    arg.write(format_param_annotation(param))
             elif param.kind == param.VAR_KEYWORD:
                 arg.write('**')
                 arg.write(param.name)
+                if show_annotation and param.annotation is not param.empty:
+                    arg.write(': ')
+                    arg.write(format_param_annotation(param))
 
             args.append(arg.getvalue())
             last_kind = param.kind
 
-        if self.return_annotation is inspect.Parameter.empty:
+        if self.return_annotation is inspect.Parameter.empty or show_annotation is False:
             return '(%s)' % ', '.join(args)
         else:
             if 'return' in self.annotations:
@@ -535,7 +546,7 @@ class Signature:
         else:
             qualname = repr(annotation)
 
-        if (isinstance(annotation, typing.TupleMeta) and
+        if (isinstance(annotation, typing.TupleMeta) and  # type: ignore
                 not hasattr(annotation, '__tuple_params__')):  # for Python 3.6
             params = annotation.__args__
             if params:
@@ -561,7 +572,7 @@ class Signature:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
                 return '%s[%s]' % (qualname, param_str)
         elif (hasattr(typing, 'UnionMeta') and
-              isinstance(annotation, typing.UnionMeta) and
+              isinstance(annotation, typing.UnionMeta) and  # type: ignore
               hasattr(annotation, '__union_params__')):  # for Python 3.5
             params = annotation.__union_params__
             if params is not None:
@@ -579,7 +590,7 @@ class Signature:
                 else:
                     param_str = ', '.join(self.format_annotation(p) for p in params)
                     return 'Union[%s]' % param_str
-        elif (isinstance(annotation, typing.CallableMeta) and
+        elif (isinstance(annotation, typing.CallableMeta) and  # type: ignore
               getattr(annotation, '__args__', None) is not None and
               hasattr(annotation, '__result__')):  # for Python 3.5
             # Skipped in the case of plain typing.Callable
@@ -594,7 +605,7 @@ class Signature:
             return '%s[%s, %s]' % (qualname,
                                    args_str,
                                    self.format_annotation(annotation.__result__))
-        elif (isinstance(annotation, typing.TupleMeta) and
+        elif (isinstance(annotation, typing.TupleMeta) and  # type: ignore
               hasattr(annotation, '__tuple_params__') and
               hasattr(annotation, '__tuple_use_ellipsis__')):  # for Python 3.5
             params = annotation.__tuple_params__

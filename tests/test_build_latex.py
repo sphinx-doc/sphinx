@@ -98,7 +98,7 @@ def skip_if_stylefiles_notfound(testfunc):
 @pytest.mark.sphinx('latex')
 def test_build_latex_doc(app, status, warning, engine, docclass):
     app.config.latex_engine = engine
-    app.config.latex_documents[0] = app.config.latex_documents[0][:4] + (docclass,)
+    app.config.latex_documents = [app.config.latex_documents[0][:4] + (docclass,)]
     app.builder.init_context()
 
     LaTeXTranslator.ignore_missing_images = True
@@ -173,6 +173,17 @@ def test_latex_additional_settings_for_language_code(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert r'\usepackage{xeCJK}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language': 'el'})
+def test_latex_additional_settings_for_greek(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\usepackage{polyglossia}\n\\setmainlanguage{greek}' in result
+    assert '\\newfontfamily\\greekfonttt{FreeMono}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-title')
@@ -304,7 +315,7 @@ def test_numref_with_prefix2(app, status, warning):
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
     assert ('\\hyperref[\\detokenize{index:code-1}]{Code-\\ref{\\detokenize{index:code-1}} '
-            '\\textbar{} }') in result
+            '| }') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
             '{Code-\\ref{\\detokenize{baz:code22}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]'
@@ -1403,6 +1414,7 @@ def test_default_latex_documents():
                      'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein."})
     config.init_values()
+    config.add('latex_engine', None, True, None)
     expected = [('index', 'stasi.tex', 'STASI™ Documentation',
                  r"Wolfgang Schäuble \& G'Beckstein.\@{}", 'manual')]
     assert default_latex_documents(config) == expected
@@ -1426,3 +1438,35 @@ def test_index_on_title(app, status, warning):
             '\\label{\\detokenize{contents:test-for-index-in-top-level-title}}'
             '\\index{index@\\spxentry{index}}\n'
             in result)
+
+
+@pytest.mark.sphinx('latex', testroot='latex-unicode',
+                    confoverrides={'latex_engine': 'pdflatex'})
+def test_texescape_for_non_unicode_supported_engine(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').text()
+    print(result)
+    assert 'script small e: e' in result
+    assert 'double struck italic small i: i' in result
+    assert r'superscript: \(\sp{\text{0}}\), \(\sp{\text{1}}\)' in result
+    assert r'subscript: \(\sb{\text{0}}\), \(\sb{\text{1}}\)' in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-unicode',
+                    confoverrides={'latex_engine': 'xelatex'})
+def test_texescape_for_unicode_supported_engine(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').text()
+    print(result)
+    assert 'script small e: e' in result
+    assert 'double struck italic small i: i' in result
+    assert 'superscript: ⁰, ¹' in result
+    assert 'subscript: ₀, ₁' in result
+
+    
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={'latex_elements': {'extrapackages': r'\usepackage{foo}'}})
+def test_latex_elements_extrapackages(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text()
+    assert r'\usepackage{foo}' in result

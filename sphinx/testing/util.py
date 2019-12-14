@@ -120,8 +120,8 @@ class SphinxTestApp(application.Sphinx):
         warningiserror = False
 
         self._saved_path = sys.path[:]
-        self._saved_directives = directives._directives.copy()
-        self._saved_roles = roles._roles.copy()
+        self._saved_directives = directives._directives.copy()  # type: ignore
+        self._saved_roles = roles._roles.copy()  # type: ignore
 
         self._saved_nodeclasses = {v for v in dir(nodes.GenericNodeVisitor)
                                    if v.startswith('visit_')}
@@ -140,8 +140,8 @@ class SphinxTestApp(application.Sphinx):
         locale.translators.clear()
         sys.path[:] = self._saved_path
         sys.modules.pop('autodoc_fodder', None)
-        directives._directives = self._saved_directives
-        roles._roles = self._saved_roles
+        directives._directives = self._saved_directives  # type: ignore
+        roles._roles = self._saved_roles  # type: ignore
         for method in dir(nodes.GenericNodeVisitor):
             if method.startswith('visit_') and \
                method not in self._saved_nodeclasses:

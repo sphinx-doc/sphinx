@@ -95,14 +95,15 @@ class BuildEnvironment:
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
     def __init__(self, app: "Sphinx" = None):
-        self.app = None             # type: Sphinx
-        self.doctreedir = None      # type: str
-        self.srcdir = None          # type: str
-        self.config = None          # type: Config
-        self.config_status = None   # type: int
-        self.events = None          # type: EventManager
-        self.project = None         # type: Project
-        self.version = None         # type: Dict[str, str]
+        self.app = None                  # type: Sphinx
+        self.doctreedir = None           # type: str
+        self.srcdir = None               # type: str
+        self.config = None               # type: Config
+        self.config_status = None        # type: int
+        self.config_status_extra = None  # type: str
+        self.events = None               # type: EventManager
+        self.project = None              # type: Project
+        self.version = None              # type: Dict[str, str]
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None  # type: Union[bool, Callable]
@@ -232,16 +233,25 @@ class BuildEnvironment:
     def _update_config(self, config: Config) -> None:
         """Update configurations by new one."""
         self.config_status = CONFIG_OK
+        self.config_status_extra = ''
         if self.config is None:
             self.config_status = CONFIG_NEW
         elif self.config.extensions != config.extensions:
             self.config_status = CONFIG_EXTENSIONS_CHANGED
+            extensions = sorted(
+                set(self.config.extensions) ^ set(config.extensions))
+            if len(extensions) == 1:
+                extension = extensions[0]
+            else:
+                extension = '%d' % (len(extensions),)
+            self.config_status_extra = ' (%r)' % (extension,)
         else:
             # check if a config value was changed that affects how
             # doctrees are read
             for item in config.filter('env'):
                 if self.config[item.name] != item.value:
                     self.config_status = CONFIG_CHANGED
+                    self.config_status_extra = ' (%r)' % (item.name,)
                     break
 
         self.config = config

@@ -234,14 +234,13 @@ class LaTeXBuilder(Builder):
             destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
                                            encoding='utf-8', overwrite_if_changed=True)
             with progress_message(__("processing %s") % targetname):
-                toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
-                if toctrees:
-                    if toctrees[0].get('maxdepth') > 0:
-                        tocdepth = toctrees[0].get('maxdepth')
-                    else:
-                        tocdepth = None
+                doctree = self.env.get_doctree(docname)
+                toctree = next(iter(doctree.traverse(addnodes.toctree)), None)
+                if toctree and toctree.get('maxdepth') > 0:
+                    tocdepth = toctree.get('maxdepth')
                 else:
                     tocdepth = None
+
                 doctree = self.assemble_doctree(
                     docname, toctree_only,
                     appendices=((docclass != 'howto') and self.config.latex_appendices or []))
@@ -418,6 +417,8 @@ def default_latex_engine(config: Config) -> str:
         return 'platex'
     elif (config.language or '').startswith('zh'):
         return 'xelatex'
+    elif config.language == 'el':
+        return 'xelatex'
     else:
         return 'pdflatex'
 
@@ -425,8 +426,12 @@ def default_latex_engine(config: Config) -> str:
 def default_latex_docclass(config: Config) -> Dict[str, str]:
     """ Better default latex_docclass settings for specific languages. """
     if config.language == 'ja':
-        return {'manual': 'jsbook',
-                'howto': 'jreport'}
+        if config.latex_engine == 'uplatex':
+            return {'manual': 'ujbook',
+                    'howto': 'ujreport'}
+        else:
+            return {'manual': 'jsbook',
+                    'howto': 'jreport'}
     else:
         return {}
 
@@ -438,10 +443,12 @@ def default_latex_use_xindy(config: Config) -> bool:
 
 def default_latex_documents(config: Config) -> List[Tuple[str, str, str, str, str]]:
     """ Better default latex_documents settings. """
+    project = texescape.escape(config.project, config.latex_engine)
+    author = texescape.escape(config.author, config.latex_engine)
     return [(config.master_doc,
              make_filename_from_project(config.project) + '.tex',
-             texescape.escape_abbr(texescape.escape(config.project)),
-             texescape.escape_abbr(texescape.escape(config.author)),
+             texescape.escape_abbr(project),
+             texescape.escape_abbr(author),
              'manual')]
 
 
@@ -452,7 +459,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_config_values)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
-                         ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))
+                         ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
     app.add_config_value('latex_documents', default_latex_documents, None)
     app.add_config_value('latex_logo', None, None, [str])
     app.add_config_value('latex_appendices', [], None)

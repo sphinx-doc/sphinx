@@ -11,6 +11,7 @@
 import html
 import warnings
 from functools import partial
+from importlib import import_module
 
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -26,8 +27,7 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.ext import doctest
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
-from sphinx.util import logging
-from sphinx.util.texescape import tex_hl_escape_map_new
+from sphinx.util import logging, texescape
 
 if False:
     # For type annotation
@@ -67,9 +67,11 @@ class PygmentsBridge:
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
-        # type: (str, str, bool) -> None
+    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None,
+                 latex_engine=None):
+        # type: (str, str, bool, str) -> None
         self.dest = dest
+        self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
         self.formatter_args = {'style': style}  # type: Dict[str, Any]
@@ -92,7 +94,7 @@ class PygmentsBridge:
             return NoneStyle
         elif '.' in stylename:
             module, stylename = stylename.rsplit('.', 1)
-            return getattr(__import__(module, None, None, ['__name__']), stylename)
+            return getattr(import_module(module), stylename)
         else:
             return get_style_by_name(stylename)
 
@@ -111,7 +113,7 @@ class PygmentsBridge:
             # first, escape highlighting characters like Pygments does
             source = source.translate(escape_hl_chars)
             # then, escape all characters nonrepresentable in LaTeX
-            source = source.translate(tex_hl_escape_map_new)
+            source = texescape.escape(source, self.latex_engine)
             return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
@@ -191,7 +193,7 @@ class PygmentsBridge:
         if self.dest == 'html':
             return hlsource
         else:
-            return hlsource.translate(tex_hl_escape_map_new)
+            return texescape.hlescape(hlsource, self.latex_engine)
 
     def get_stylesheet(self):
         # type: () -> str

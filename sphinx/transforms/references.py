@@ -8,6 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict
+
 from docutils import nodes
 from docutils.transforms.references import DanglingReferences, Substitutions
 
@@ -15,8 +17,7 @@ from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from sphinx.application import Sphinx
 
 
 class SubstitutionDefinitionsRemover(SphinxTransform):
@@ -25,8 +26,7 @@ class SubstitutionDefinitionsRemover(SphinxTransform):
     # should be invoked after Substitutions process
     default_priority = Substitutions.default_priority + 1
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs) -> None:
         for node in self.document.traverse(nodes.substitution_definition):
             node.parent.remove(node)
 
@@ -34,8 +34,7 @@ class SubstitutionDefinitionsRemover(SphinxTransform):
 class SphinxDanglingReferences(DanglingReferences):
     """DanglingReferences transform which does not output info messages."""
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs) -> None:
         try:
             reporter = self.document.reporter
             report_level = reporter.report_level
@@ -51,14 +50,12 @@ class SphinxDomains(SphinxTransform):
     """Collect objects to Sphinx domains for cross references."""
     default_priority = 850
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs) -> None:
         for domain in self.env.domains.values():
             domain.process_doc(self.env, self.env.docname, self.document)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(SubstitutionDefinitionsRemover)
     app.add_transform(SphinxDanglingReferences)
     app.add_transform(SphinxDomains)

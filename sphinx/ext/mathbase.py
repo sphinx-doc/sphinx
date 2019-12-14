@@ -23,6 +23,10 @@ from sphinx.directives.patches import MathDirective as MathDirectiveBase
 from sphinx.domains.math import MathDomain  # NOQA  # to keep compatibility
 from sphinx.domains.math import MathReferenceRole as EqXRefRole  # NOQA  # to keep compatibility
 from sphinx.writers.html import HTMLTranslator
+from sphinx.writers.latex import LaTeXTranslator
+from sphinx.writers.manpage import ManualPageTranslator
+from sphinx.writers.texinfo import TexinfoTranslator
+from sphinx.writers.text import TextTranslator
 
 
 class MathDirective(MathDirectiveBase):
@@ -68,6 +72,75 @@ def is_in_section_title(node: Element) -> bool:
            isinstance(ancestor.parent, nodes.section):
             return True
     return False
+
+
+def latex_visit_math(self: LaTeXTranslator, node: Element) -> None:
+    warnings.warn('latex_visit_math() is deprecated. '
+                  'Please use LaTeXTranslator.visit_math() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+    self.visit_math(node)
+
+
+def latex_visit_displaymath(self: LaTeXTranslator, node: Element) -> None:
+    warnings.warn('latex_visit_displaymath() is deprecated. '
+                  'Please use LaTeXTranslator.visit_math_block() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+    self.visit_math_block(node)
+
+
+def man_visit_math(self: ManualPageTranslator, node: Element) -> None:
+    warnings.warn('man_visit_math() is deprecated. '
+                  'Please use ManualPageTranslator.visit_math() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+    self.visit_math(node)
+
+
+def man_visit_displaymath(self: ManualPageTranslator, node: Element) -> None:
+    warnings.warn('man_visit_displaymath() is deprecated. '
+                  'Please use ManualPageTranslator.visit_math_block() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+    self.visit_math_block(node)
+
+
+def man_depart_displaymath(self: ManualPageTranslator, node: Element) -> None:
+    warnings.warn('man_depart_displaymath() is deprecated. '
+                  'Please use ManualPageTranslator.depart_math_block() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+    self.depart_math_block(node)
+
+
+def texinfo_visit_math(self: TexinfoTranslator, node: Element) -> None:
+    warnings.warn('texinfo_visit_math() is deprecated. '
+                  'Please use TexinfoTranslator.visit_math() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+    self.visit_math(node)
+
+
+def texinfo_visit_displaymath(self: TexinfoTranslator, node: Element) -> None:
+    warnings.warn('texinfo_visit_displaymath() is deprecated. '
+                  'Please use TexinfoTranslator.visit_math_block() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+    self.visit_math_block(node)
+
+
+def texinfo_depart_displaymath(self: TexinfoTranslator, node: Element) -> None:
+    warnings.warn('texinfo_depart_displaymath() is deprecated. '
+                  'Please use TexinfoTranslator.depart_math_block() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+
+
+def text_visit_math(self: TextTranslator, node: Element) -> None:
+    warnings.warn('text_visit_math() is deprecated. '
+                  'Please use TextTranslator.visit_math() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+    self.visit_math(node)
+
+
+def text_visit_displaymath(self: TextTranslator, node: Element) -> None:
+    warnings.warn('text_visit_displaymath() is deprecated. '
+                  'Please use TextTranslator.visit_math_block() instead.',
+                  RemovedInSphinx30Warning, stacklevel=2)
+    self.visit_math_block(node)
 
 
 def setup_math(app: Sphinx,

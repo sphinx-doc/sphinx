@@ -133,6 +133,9 @@ def apply_source_workaround(node: Element) -> None:
         node.source = definition_list_item.source
         node.line = definition_list_item.line - 1
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
+    elif isinstance(node, nodes.classifier) and not node.source:
+        # docutils-0.15 fills in rawsource attribute, but not in source.
+        node.source = node.parent.source
     if isinstance(node, nodes.image) and node.source is None:
         logger.debug('[i18n] PATCH: %r to have source, line: %s',
                      get_full_module_name(node), repr_domxml(node))
@@ -145,7 +148,7 @@ def apply_source_workaround(node: Element) -> None:
         logger.debug('[i18n] PATCH: %r to have rawsource: %s',
                      get_full_module_name(node), repr_domxml(node))
         # strip classifier from rawsource of term
-        for classifier in reversed(node.parent.traverse(nodes.classifier)):
+        for classifier in reversed(list(node.parent.traverse(nodes.classifier))):
             node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
                                     '', node.rawsource)
 

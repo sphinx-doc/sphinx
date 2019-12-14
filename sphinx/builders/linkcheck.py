@@ -59,6 +59,9 @@ def check_anchor(response: requests.requests.Response, anchor: str) -> bool:
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
     for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
+        if isinstance(chunk, bytes):    # requests failed to decode
+            chunk = chunk.decode()      # manually try to decode it
+
         parser.feed(chunk)
         if parser.found:
             break
@@ -78,6 +81,8 @@ class CheckExternalLinksBuilder(Builder):
         self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
         self.anchors_ignore = [re.compile(x)
                                for x in self.app.config.linkcheck_anchors_ignore]
+        self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
+                     in self.app.config.linkcheck_auth]
         self.good = set()       # type: Set[str]
         self.broken = {}        # type: Dict[str, str]
         self.redirected = {}    # type: Dict[str, Tuple[str, int]]
@@ -101,7 +106,6 @@ class CheckExternalLinksBuilder(Builder):
             'allow_redirects': True,
             'headers': {
                 'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
-                'User-Agent': requests.useragent_header[0][1],
             },
         }
         if self.app.config.linkcheck_timeout:
@@ -125,11 +129,18 @@ class CheckExternalLinksBuilder(Builder):
             except UnicodeError:
                 req_url = encode_uri(req_url)
 
+            # Get auth info, if any
+            for pattern, auth_info in self.auth:
+                if pattern.match(uri):
+                    break
+            else:
+                auth_info = None
+
             try:
                 if anchor and self.app.config.linkcheck_anchors:
                     # Read the whole document and see if #anchor exists
                     response = requests.get(req_url, stream=True, config=self.app.config,
-                                            **kwargs)
+                                            auth=auth_info, **kwargs)
                     found = check_anchor(response, unquote(anchor))
 
                     if not found:
@@ -138,13 +149,14 @@ class CheckExternalLinksBuilder(Builder):
                     try:
                         # try a HEAD request first, which should be easier on
                         # the server and the network
-                        response = requests.head(req_url, config=self.app.config, **kwargs)
+                        response = requests.head(req_url, config=self.app.config,
+                                                 auth=auth_info, **kwargs)
                         response.raise_for_status()
                     except HTTPError:
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
                         response = requests.get(req_url, stream=True, config=self.app.config,
-                                                **kwargs)
+                                                auth=auth_info, **kwargs)
                         response.raise_for_status()
             except HTTPError as err:
                 if err.response.status_code == 401:
@@ -237,13 +249,16 @@ class CheckExternalLinksBuilder(Builder):
             else:
                 logger.info(red('broken    ') + uri + red(' - ' + info))
         elif status == 'redirected':
-            text, color = {
-                301: ('permanently', darkred),
-                302: ('with Found', purple),
-                303: ('with See Other', purple),
-                307: ('temporarily', turquoise),
-                0:   ('with unknown code', purple),
-            }[code]
+            try:
+                text, color = {
+                    301: ('permanently', darkred),
+                    302: ('with Found', purple),
+                    303: ('with See Other', purple),
+                    307: ('temporarily', turquoise),
+                    308: ('permanently', darkred),
+                }[code]
+            except KeyError:
+                text, color = ('with unknown code', purple)
             self.write_entry('redirected ' + text, docname, lineno,
                              uri + ' to ' + info)
             logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
@@ -300,6 +315,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(CheckExternalLinksBuilder)
 
     app.add_config_value('linkcheck_ignore', [], None)
+    app.add_config_value('linkcheck_auth', [], None)
     app.add_config_value('linkcheck_retries', 1, None)
     app.add_config_value('linkcheck_timeout', None, None, [int])
     app.add_config_value('linkcheck_workers', 5, None)

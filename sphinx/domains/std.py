@@ -612,15 +612,13 @@ class StandardDomain(Domain):
                 sectname = self.get_numfig_title(node)
                 if not sectname:
                     continue
-            elif node.traverse(addnodes.toctree):
-                n = node.traverse(addnodes.toctree)[0]
-                if n.get('caption'):
-                    sectname = n['caption']
-                else:
-                    continue
             else:
-                # anonymous-only labels
-                continue
+                toctree = next(iter(node.traverse(addnodes.toctree)), None)
+                if toctree and toctree.get('caption'):
+                    sectname = toctree.get('caption')
+                else:
+                    # anonymous-only labels
+                    continue
             self.labels[name] = docname, labelid, sectname
 
     def add_object(self, objtype: str, name: str, docname: str, labelid: str) -> None:

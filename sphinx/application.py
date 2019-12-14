@@ -12,6 +12,7 @@
 
 import os
 import pickle
+import platform
 import sys
 import warnings
 from collections import deque
@@ -198,6 +199,12 @@ class Sphinx:
 
         # say hello to the world
         logger.info(bold(__('Running Sphinx v%s') % sphinx.__display_version__))
+
+        # notice for parallel build on macOS and py38+
+        if sys.version_info > (3, 8) and platform.system() == 'Darwin' and parallel > 1:
+            logger.info(bold(__("For security reason, parallel mode is disabled on macOS and "
+                                "python3.8 and above.  For more details, please read "
+                                "https://github.com/sphinx-doc/sphinx/issues/6803")))
 
         # status code for command-line application
         self.statuscode = 0
@@ -1192,26 +1199,30 @@ class Sphinx:
         """
         if typ == 'read':
             attrname = 'parallel_read_safe'
-            message = __("the %s extension does not declare if it is safe "
-                         "for parallel reading, assuming it isn't - please "
-                         "ask the extension author to check and make it "
-                         "explicit")
+            message_not_declared = __("the %s extension does not declare if it "
+                                      "is safe for parallel reading, assuming "
+                                      "it isn't - please ask the extension author "
+                                      "to check and make it explicit")
+            message_not_safe = __("the %s extension is not safe for parallel reading")
         elif typ == 'write':
             attrname = 'parallel_write_safe'
-            message = __("the %s extension does not declare if it is safe "
-                         "for parallel writing, assuming it isn't - please "
-                         "ask the extension author to check and make it "
-                         "explicit")
+            message_not_declared = __("the %s extension does not declare if it "
+                                      "is safe for parallel writing, assuming "
+                                      "it isn't - please ask the extension author "
+                                      "to check and make it explicit")
+            message_not_safe = __("the %s extension is not safe for parallel writing")
         else:
             raise ValueError('parallel type %s is not supported' % typ)
 
         for ext in self.extensions.values():
             allowed = getattr(ext, attrname, None)
             if allowed is None:
-                logger.warning(message, ext.name)
+                logger.warning(message_not_declared, ext.name)
                 logger.warning(__('doing serial %s'), typ)
                 return False
             elif not allowed:
+                logger.warning(message_not_safe, ext.name)
+                logger.warning(__('doing serial %s'), typ)
                 return False
 
         return True

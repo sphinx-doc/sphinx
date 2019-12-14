@@ -195,7 +195,7 @@ def test_Signature_partialmethod():
 
 def test_Signature_annotations():
     from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                                  f11, f12, f13, f14, f15, f16, f17, f18, Node)
+                                  f11, f12, f13, f14, f15, f16, f17, f18, f19, Node)
 
     # Class annotations
     sig = inspect.Signature(f0).format_args()
@@ -275,6 +275,10 @@ def test_Signature_annotations():
     sig = inspect.Signature(f18).format_args()
     assert sig == '(self, arg1: Union[int, Tuple] = 10) -> List[Dict]'
 
+    # annotations for variadic and keyword parameters
+    sig = inspect.Signature(f19).format_args()
+    assert sig == '(*args: int, **kwargs: str)'
+
     # type hints by string
     sig = inspect.Signature(Node.children).format_args()
     if (3, 5, 0) <= sys.version_info < (3, 5, 3):
@@ -284,6 +288,10 @@ def test_Signature_annotations():
 
     sig = inspect.Signature(Node.__init__).format_args()
     assert sig == '(self, parent: Optional[Node]) -> None'
+
+    # show_annotation is False
+    sig = inspect.Signature(f7).format_args(show_annotation=False)
+    assert sig == '(x=None, y={})'
 
 
 def test_safe_getattr_with_default():

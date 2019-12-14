@@ -206,6 +206,14 @@ def test_LiteralIncludeReader_missing_start_and_end(literal_inc_path):
         content, lines = reader.read()
 
 
+def test_LiteralIncludeReader_end_before(literal_inc_path):
+    options = {'end-before': 'nclud'}  # *nclud* matches first and third lines.
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("# Literally included file using Python highlighting\n"
+                       "\n")
+
+
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_prepend(literal_inc_path):
     options = {'lines': '1', 'prepend': 'Hello', 'append': 'Sphinx'}
@@ -565,7 +573,7 @@ def test_literalinclude_pydecorators(app, status, warning):
 def test_code_block_highlighted(app, status, warning):
     app.builder.build(['highlight'])
     doctree = app.env.get_doctree('highlight')
-    codeblocks = doctree.traverse(nodes.literal_block)
+    codeblocks = list(doctree.traverse(nodes.literal_block))
 
     assert codeblocks[0]['language'] == 'default'
     assert codeblocks[1]['language'] == 'python2'
