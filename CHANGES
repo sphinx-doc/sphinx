@@ -44,6 +44,7 @@ Features added
 * #6816: linkcheck: Add :confval:`linkcheck_auth` option to provide
   authentication information when doing ``linkcheck`` builds
 * #6872: linkcheck: Handles HTTP 308 Permanent Redirect
+* #6613: html: Wrap section number in span tag
 
 Bugs fixed
 ----------
