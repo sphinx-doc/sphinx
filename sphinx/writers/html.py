@@ -289,6 +289,8 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             if self.builder.secnumbers.get(anchorname):
                 return self.builder.secnumbers[anchorname]
 
+        return None
+
     def add_secnumber(self, node: Element) -> None:
         secnumber = self.get_secnumber(node)
         if secnumber:
