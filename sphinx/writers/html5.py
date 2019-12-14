@@ -27,7 +27,7 @@ from sphinx.util.images import get_image_size
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Tuple  # NOQA
     from sphinx.builders.html import StandaloneHTMLBuilder  # NOQA
 
 
@@ -304,7 +304,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         secnumber = self.get_secnumber(node)
         if secnumber:
             self.body.append('<span class="section-number">%s</span>' %
-                ('.'.join(map(str, secnumber)) + self.secnumber_suffix))
+                             ('.'.join(map(str, secnumber)) + self.secnumber_suffix))
 
     def add_fignumber(self, node):
         # type: (nodes.Element) -> None
