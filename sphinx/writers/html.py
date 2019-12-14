@@ -28,7 +28,7 @@ from sphinx.util.images import get_image_size
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Tuple  # NOQA
     from sphinx.builders.html import StandaloneHTMLBuilder  # NOQA
 
 
@@ -309,11 +309,10 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         # type: (nodes.Element) -> None
         self.depart_admonition(node)
 
-    def add_secnumber(self, node):
-        # type: (nodes.Element) -> None
+    def get_secnumber(self, node):
+        # type: (nodes.Element) -> Tuple[int, ...]
         if node.get('secnumber'):
-            self.body.append('.'.join(map(str, node['secnumber'])) +
-                             self.secnumber_suffix)
+            return node['secnumber']
         elif isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
@@ -324,10 +323,16 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
                 anchorname = '#' + node.parent['ids'][0]
                 if anchorname not in self.builder.secnumbers:
                     anchorname = ''  # try first heading which has no anchor
+
             if self.builder.secnumbers.get(anchorname):
-                numbers = self.builder.secnumbers[anchorname]
-                self.body.append('.'.join(map(str, numbers)) +
-                                 self.secnumber_suffix)
+                return self.builder.secnumbers[anchorname]
+
+    def add_secnumber(self, node):
+        # type: (nodes.Element) -> None
+        secnumber = self.get_secnumber(node)
+        if secnumber:
+            self.body.append('<span class="section-number">%s</span>' %
+                             ('.'.join(map(str, secnumber)) + self.secnumber_suffix))
 
     def add_fignumber(self, node):
         # type: (nodes.Element) -> None
