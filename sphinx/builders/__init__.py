@@ -304,7 +304,7 @@ class Builder:
         First updates the environment, and then calls :meth:`write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]') % self.name) + ': ' + summary)
+            logger.info(bold(__('building [%s]: ') % self.name) + summary)
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
