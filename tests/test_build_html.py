@@ -17,7 +17,7 @@ import pytest
 from html5lib import HTMLParser
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
-from sphinx .errors import ConfigError
+from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
 from sphinx.util.inventory import InventoryFile
@@ -82,7 +82,6 @@ def tail_check(check):
 
 def check_xpath(etree, fname, path, check, be_found=True):
     nodes = list(etree.findall(path))
-
     if check is None:
         assert nodes == [], ('found any nodes matching xpath '
                              '%r in file %s' % (path, fname))
