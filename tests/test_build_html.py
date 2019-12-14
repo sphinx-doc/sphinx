@@ -96,15 +96,12 @@ def check_xpath(etree, fname, path, check, be_found=True):
         pass
     else:
         def get_text(node):
-            """ Get all text inside an HTML tag:
-            <foo>My <span>1</span>dog <span>1</span>likes bones</foo> --> My dog likes bones
-            """
-            return ''.join(
-                filter(
-                    lambda x: x and not re.match(r'^\s+$', x),
-                    [node.text] + [n.tail for n in node.getchildren()]
-                )
-            )
+            if node.text is not None:
+                # the node has only one text
+                return node.text
+            else:
+                # the node has tags and text; gather texts just under the node
+                return ''.join(n.tail or '' for n in node)
 
         rex = re.compile(check)
         if be_found:
@@ -116,7 +113,7 @@ def check_xpath(etree, fname, path, check, be_found=True):
 
         assert False, ('%r not found in any node matching '
                        'path %s in %s: %r' % (check, path, fname,
-                                              [get_all_text(node) for node in nodes]))
+                                              [node.text for node in nodes]))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
