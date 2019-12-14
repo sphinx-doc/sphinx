@@ -45,6 +45,8 @@ Features added
   authentication information when doing ``linkcheck`` builds
 * #6872: linkcheck: Handles HTTP 308 Permanent Redirect
 * #6613: html: Wrap section number in span tag
+* #6781: gettext: Add :confval:`gettext_last_translator' and
+  :confval:`gettext_language_team` to customize headers of POT file
 
 Bugs fixed
 ----------
