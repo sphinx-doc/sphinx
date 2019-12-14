@@ -234,14 +234,13 @@ class LaTeXBuilder(Builder):
             destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
                                            encoding='utf-8', overwrite_if_changed=True)
             with progress_message(__("processing %s") % targetname):
-                toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
-                if toctrees:
-                    if toctrees[0].get('maxdepth') > 0:
-                        tocdepth = toctrees[0].get('maxdepth')
-                    else:
-                        tocdepth = None
+                doctree = self.env.get_doctree(docname)
+                toctree = next(iter(doctree.traverse(addnodes.toctree)), None)
+                if toctree and toctree.get('maxdepth') > 0:
+                    tocdepth = toctree.get('maxdepth')
                 else:
                     tocdepth = None
+
                 doctree = self.assemble_doctree(
                     docname, toctree_only,
                     appendices=((docclass != 'howto') and self.config.latex_appendices or []))
