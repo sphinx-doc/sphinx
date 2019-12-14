@@ -84,6 +84,7 @@ Bugs fixed
 * #6886: LaTeX: xelatex converts straight double quotes into right curly ones
   (shows when :confval:`smartquotes` is ``False``)
 * #6876: LaTeX: multi-line display of authors on title page has ragged edges
+* #6887: Sphinx crashes with docutils-0.16b0
 
 Testing
 --------

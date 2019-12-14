@@ -573,7 +573,7 @@ def test_literalinclude_pydecorators(app, status, warning):
 def test_code_block_highlighted(app, status, warning):
     app.builder.build(['highlight'])
     doctree = app.env.get_doctree('highlight')
-    codeblocks = doctree.traverse(nodes.literal_block)
+    codeblocks = list(doctree.traverse(nodes.literal_block))
 
     assert codeblocks[0]['language'] == 'default'
     assert codeblocks[1]['language'] == 'python2'

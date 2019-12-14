@@ -148,7 +148,7 @@ def apply_source_workaround(node: Element) -> None:
         logger.debug('[i18n] PATCH: %r to have rawsource: %s',
                      get_full_module_name(node), repr_domxml(node))
         # strip classifier from rawsource of term
-        for classifier in reversed(node.parent.traverse(nodes.classifier)):
+        for classifier in reversed(list(node.parent.traverse(nodes.classifier))):
             node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
                                     '', node.rawsource)
 
