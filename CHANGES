@@ -21,6 +21,7 @@ Deprecated
 * ``sphinx.io.SphinxStandaloneReader.env``
 * ``sphinx.util.texescape.tex_escape_map``
 * ``sphinx.util.texescape.tex_hl_escape_map_new``
+* ``sphinx.writers.latex.LaTeXTranslator.no_contractions``
 
 Features added
 --------------
@@ -86,6 +87,8 @@ Bugs fixed
 * #6867: text: extra spaces are inserted to hyphenated words on folding lines
 * #6886: LaTeX: xelatex converts straight double quotes into right curly ones
   (shows when :confval:`smartquotes` is ``False``)
+* #6890: LaTeX: even with smartquotes off, PDF output transforms straight
+  quotes and consecutive hyphens into curly quotes and dashes
 * #6876: LaTeX: multi-line display of authors on title page has ragged edges
 * #6887: Sphinx crashes with docutils-0.16b0
 * #6920: sphinx-build: A console message is wrongly highlighted

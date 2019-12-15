@@ -193,6 +193,7 @@ class PygmentsBridge:
         if self.dest == 'html':
             return hlsource
         else:
+            # MEMO: this is done to escape Unicode chars with non-Unicode engines
             return texescape.hlescape(hlsource, self.latex_engine)
 
     def get_stylesheet(self):

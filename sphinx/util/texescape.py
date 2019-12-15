@@ -29,12 +29,6 @@ tex_replacements = [
     # map chars to avoid mis-interpretation in LaTeX
     ('[', r'{[}'),
     (']', r'{]}'),
-    # map chars to avoid TeX ligatures
-    # 1. ' - and , not here for some legacy reason
-    # 2. no effect with lualatex (done otherwise: #5790)
-    ('`', r'{}`'),
-    ('<', r'\textless{}'),
-    ('>', r'\textgreater{}'),
     # map special Unicode characters to TeX commands
     ('✓', r'\(\checkmark\)'),
     ('✔', r'\(\pmb{\checkmark}\)'),
@@ -47,6 +41,23 @@ tex_replacements = [
     ('ⅈ', r'i'),
     # Greek alphabet not escaped: pdflatex handles it via textalpha and inputenc
     # OHM SIGN U+2126 is handled by LaTeX textcomp package
+]
+
+# A map to avoid TeX ligatures or character replacements in PDF output
+# xelatex/lualatex/uplatex are handled differently (#5790, #6888)
+ascii_tex_replacements = [
+    # Note: the " renders curly in OT1 encoding but straight in T1, T2A, LY1...
+    #       escaping it to \textquotedbl would break documents using OT1
+    #       Sphinx does \shorthandoff{"} to avoid problems with some languages
+    # There is no \text... LaTeX escape for the hyphen character -
+    ('-', r'\sphinxhyphen{}'),  # -- and --- are TeX ligatures
+    # ,, is a TeX ligature in T1 encoding, but escaping the comma adds
+    # complications (whether by {}, or a macro) and is not done
+    # the next two require textcomp package
+    ("'", r'\textquotesingle{}'),  # else ' renders curly, and '' is a ligature
+    ('`', r'\textasciigrave{}'),   # else \` and \`\` render curly
+    ('<', r'\textless{}'),     # < is inv. exclam in OT1, << is a T1-ligature
+    ('>', r'\textgreater{}'),  # > is inv. quest. mark in 0T1, >> a T1-ligature
 ]
 
 # A map Unicode characters to LaTeX representation
@@ -85,6 +96,11 @@ unicode_tex_replacements = [
     ('₉', r'\(\sb{\text{9}}\)'),
 ]
 
+# TODO: this should be called tex_idescape_map because its only use is in
+#       sphinx.writers.latex.LaTeXTranslator.idescape()
+# %, {, }, \, #, and ~ are the only ones which must be replaced by _ character
+# It would be simpler to define it entirely here rather than in init().
+# Unicode replacements are superfluous, as idescape() uses backslashreplace
 tex_replace_map = {}  # type: Dict[int, str]
 
 _tex_escape_map = {}  # type: Dict[int, str]
@@ -130,8 +146,17 @@ def init() -> None:
         _tex_escape_map_without_unicode[ord(a)] = b
         tex_replace_map[ord(a)] = '_'
 
+    # no reason to do this for _tex_escape_map_without_unicode
+    for a, b in ascii_tex_replacements:
+        _tex_escape_map[ord(a)] = b
+
+    # but the hyphen has a specific PDF bookmark problem
+    # https://github.com/latex3/hyperref/issues/112
+    _tex_escape_map_without_unicode[ord('-')] = r'\sphinxhyphen{}'
+
     for a, b in unicode_tex_replacements:
         _tex_escape_map[ord(a)] = b
+        #  This is actually unneeded:
         tex_replace_map[ord(a)] = '_'
 
     for a, b in tex_replacements:
