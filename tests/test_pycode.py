@@ -36,7 +36,8 @@ def test_ModuleAnalyzer_for_module():
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname in (SPHINX_MODULE_PATH,
                                 os.path.abspath(SPHINX_MODULE_PATH))
-    assert analyzer.encoding == 'utf-8'
+    # source should be loaded via native loader, so don`t know file enconding
+    assert analyzer.encoding == None
 
 
 def test_ModuleAnalyzer_for_file_in_egg(rootdir):
