@@ -119,6 +119,20 @@ def test_overrides():
     assert config.value8 == ['abc', 'def', 'ghi']
 
 
+def test_overrides_boolean():
+    config = Config({}, {'value1': '1',
+                         'value2': '0',
+                         'value3': '0'})
+    config.add('value1', None, 'env', [bool])
+    config.add('value2', None, 'env', [bool])
+    config.add('value3', True, 'env', ())
+    config.init_values()
+
+    assert config.value1 is True
+    assert config.value2 is False
+    assert config.value3 is False
+
+
 @mock.patch("sphinx.config.logger")
 def test_errors_warnings(logger, tempdir):
     # test the error for syntax errors in the config file

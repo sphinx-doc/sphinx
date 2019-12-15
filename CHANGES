@@ -89,6 +89,8 @@ Bugs fixed
 * #6876: LaTeX: multi-line display of authors on title page has ragged edges
 * #6887: Sphinx crashes with docutils-0.16b0
 * #6920: sphinx-build: A console message is wrongly highlighted
+* #6900: sphinx-build: ``-D`` option does not considers ``0`` and ``1`` as a
+  boolean value
 
 Testing
 --------
