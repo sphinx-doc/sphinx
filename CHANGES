@@ -20,6 +20,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6925: html: Remove redundant type="text/javascript" from <script> elements
+
 Testing
 --------
 
