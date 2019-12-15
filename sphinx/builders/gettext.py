@@ -282,6 +282,8 @@ class MessageCatalogBuilder(I18nBuilder):
             'version': self.config.version,
             'copyright': self.config.copyright,
             'project': self.config.project,
+            'last_translator': self.config.gettext_last_translator,
+            'language_team': self.config.gettext_language_team,
             'ctime': datetime.fromtimestamp(timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
             'display_location': self.config.gettext_location,
             'display_uuid': self.config.gettext_uuid,
@@ -311,6 +313,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
     app.add_config_value('gettext_additional_targets', [], 'env')
+    app.add_config_value('gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext')
+    app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
 
     return {
         'version': 'builtin',
