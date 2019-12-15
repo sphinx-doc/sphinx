@@ -473,7 +473,6 @@ class LaTeXTranslator(SphinxTranslator):
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
-        self.no_contractions = 0
         self.in_parsed_literal = 0
         self.compact_list = 0
         self.first_param = 0
@@ -958,13 +957,11 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_desc_name(self, node: Element) -> None:
         self.body.append(r'\sphinxbfcode{\sphinxupquote{')
-        self.no_contractions += 1
         self.literal_whitespace += 1
 
     def depart_desc_name(self, node: Element) -> None:
         self.body.append('}}')
         self.literal_whitespace -= 1
-        self.no_contractions -= 1
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         # close name, open parameterlist
@@ -1806,11 +1803,9 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_literal_emphasis(self, node: Element) -> None:
         self.body.append(r'\sphinxstyleliteralemphasis{\sphinxupquote{')
-        self.no_contractions += 1
 
     def depart_literal_emphasis(self, node: Element) -> None:
         self.body.append('}}')
-        self.no_contractions -= 1
 
     def visit_strong(self, node: Element) -> None:
         self.body.append(r'\sphinxstylestrong{')
@@ -1820,11 +1815,9 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_literal_strong(self, node: Element) -> None:
         self.body.append(r'\sphinxstyleliteralstrong{\sphinxupquote{')
-        self.no_contractions += 1
 
     def depart_literal_strong(self, node: Element) -> None:
         self.body.append('}}')
-        self.no_contractions -= 1
 
     def visit_abbreviation(self, node: Element) -> None:
         abbr = node.astext()
@@ -1884,14 +1877,12 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_literal(self, node: Element) -> None:
-        self.no_contractions += 1
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
         else:
             self.body.append(r'\sphinxcode{\sphinxupquote{')
 
     def depart_literal(self, node: Element) -> None:
-        self.no_contractions -= 1
         self.body.append('}}')
 
     def visit_footnote_reference(self, node: Element) -> None:
@@ -2065,9 +2056,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_option_string(self, node: Element) -> None:
         ostring = node.astext()
-        self.no_contractions += 1
         self.body.append(self.encode(ostring))
-        self.no_contractions -= 1
         raise nodes.SkipNode
 
     def visit_description(self, node: Element) -> None:
@@ -2151,14 +2140,15 @@ class LaTeXTranslator(SphinxTranslator):
             # Insert a blank before the newline, to avoid
             # ! LaTeX Error: There's no line here to end.
             text = text.replace('\n', '~\\\\\n').replace(' ', '~')
-        if self.no_contractions:
-            text = text.replace('--', '-{-}')
-            text = text.replace("''", "'{'}")
         return text
 
     def encode_uri(self, text: str) -> str:
+        # TODO: it is probably wrong that this uses texescape.escape()
+        #       this must be checked against hyperref package exact dealings
+        #       mainly, %, #, {, } and \ need escaping via a \ escape
         # in \href, the tilde is allowed and must be represented literally
-        return self.encode(text).replace('\\textasciitilde{}', '~')
+        return self.encode(text).replace('\\textasciitilde{}', '~').\
+            replace('\\sphinxhyphen{}', '-')
 
     def visit_Text(self, node: Text) -> None:
         text = self.encode(node.astext())
@@ -2246,6 +2236,12 @@ class LaTeXTranslator(SphinxTranslator):
             newnode = collected_footnote('', *fn.children, number=num)
             fnotes[num] = [newnode, False]
         return fnotes
+
+    @property
+    def no_contractions(self) -> int:
+        warnings.warn('LaTeXTranslator.no_contractions is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return 0
 
     def babel_defmacro(self, name: str, definition: str) -> str:
         warnings.warn('babel_defmacro() is deprecated.',

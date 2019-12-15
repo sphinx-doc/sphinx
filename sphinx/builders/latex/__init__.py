@@ -234,14 +234,13 @@ class LaTeXBuilder(Builder):
             destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
                                            encoding='utf-8', overwrite_if_changed=True)
             with progress_message(__("processing %s") % targetname):
-                toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
-                if toctrees:
-                    if toctrees[0].get('maxdepth') > 0:
-                        tocdepth = toctrees[0].get('maxdepth')
-                    else:
-                        tocdepth = None
+                doctree = self.env.get_doctree(docname)
+                toctree = next(iter(doctree.traverse(addnodes.toctree)), None)
+                if toctree and toctree.get('maxdepth') > 0:
+                    tocdepth = toctree.get('maxdepth')
                 else:
                     tocdepth = None
+
                 doctree = self.assemble_doctree(
                     docname, toctree_only,
                     appendices=((docclass != 'howto') and self.config.latex_appendices or []))
@@ -465,7 +464,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_logo', None, None, [str])
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
-    app.add_config_value('latex_use_xindy', default_latex_use_xindy, None)
+    app.add_config_value('latex_use_xindy', default_latex_use_xindy, None, [bool])
     app.add_config_value('latex_toplevel_sectioning', None, None,
                          ENUM(None, 'part', 'chapter', 'section'))
     app.add_config_value('latex_domain_indices', True, None, [list])

@@ -13,7 +13,7 @@ import os
 import posixpath
 import warnings
 from typing import cast
-from typing import Iterable
+from typing import Iterable, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -271,10 +271,9 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def add_secnumber(self, node: Element) -> None:
+    def get_secnumber(self, node: Element) -> Tuple[int, ...]:
         if node.get('secnumber'):
-            self.body.append('.'.join(map(str, node['secnumber'])) +
-                             self.secnumber_suffix)
+            return node['secnumber']
         elif isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
@@ -285,10 +284,17 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
                 anchorname = '#' + node.parent['ids'][0]
                 if anchorname not in self.builder.secnumbers:
                     anchorname = ''  # try first heading which has no anchor
+
             if self.builder.secnumbers.get(anchorname):
-                numbers = self.builder.secnumbers[anchorname]
-                self.body.append('.'.join(map(str, numbers)) +
-                                 self.secnumber_suffix)
+                return self.builder.secnumbers[anchorname]
+
+        return None
+
+    def add_secnumber(self, node: Element) -> None:
+        secnumber = self.get_secnumber(node)
+        if secnumber:
+            self.body.append('<span class="section-number">%s</span>' %
+                             ('.'.join(map(str, secnumber)) + self.secnumber_suffix))
 
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:

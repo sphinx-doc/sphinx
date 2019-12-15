@@ -1078,7 +1078,7 @@
 }
 
 \def\sphinx@verbatim@nolig@list {\do \`}%
-% Some characters . , ; ? ! / are not pygmentized.
+% Some characters . , ; ? ! / are neither pygmentized nor "tex-escaped".
 % This macro makes them "active" and they will insert potential linebreaks.
 % Not compatible with math mode (cf \sphinxunactivateextras).
 \newcommand*\sphinxbreaksbeforeactivelist {}% none
@@ -1369,7 +1369,6 @@
 }
 \newcommand*\sphinxbreaksviaactiveinparsedliteral{%
   \sphinxbreaksviaactive % by default handles . , ; ? ! /
-  \do\-% we need also the hyphen character (ends up "as is" in parsed-literal)
   \lccode`\~`\~ %
   % update \dospecials as it is used by \url
   % but deactivation will already have been done hence this is unneeded:
@@ -1380,7 +1379,7 @@
   \lccode`~32 \lowercase{\let~}\spx@verbatim@space\lccode`\~`\~
 }
 \newcommand*{\sphinxunactivateextras}{\let\do\@makeother
-      \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
+      \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist}%
 % the \catcode13=5\relax (deactivate end of input lines) is left to callers
 \newcommand*{\sphinxunactivateextrasandspace}{\catcode32=10\relax
       \sphinxunactivateextras}%
@@ -1805,12 +1804,20 @@
       % break also at \
       \let\sphinx@textbackslash\textbackslash
       \let\textbackslash\sphinxtextbackslash
-      % do not typeset a continuation symbol on next line
+      % by default, no continuation symbol on next line but may be added
       \let\sphinxafterbreak\sphinxafterbreakofinlineliteral
       % do not overwrite the comma set-up
       \let\verbatim@nolig@list\sphinx@literal@nolig@list
    \fi
    % fix a space-gobbling issue due to LaTeX's original \do@noligs
+% TODO: using \@noligs as patched by upquote.sty is now unneeded because
+% either ` and ' are escaped (non-unicode engines) or they don't build
+% ligatures (unicode engines). Thus remove this and unify handling of `, <, >, 
+% ' and - with the characters . , ; ? ! / as handled via
+% \sphinxbreaksviaactive.
+% Hence \sphinx@do@noligs will be removed, or rather replaced  with code
+% inserting discretionaries, as they allow a continuation symbol on start of
+% next line to achieve common design with code-blocks.
    \let\do@noligs\sphinx@do@noligs
    \@noligs\endlinechar\m@ne\everyeof{}% (<- in case inside \sphinxhref)
    \expandafter\scantokens
@@ -1866,6 +1873,7 @@
 % reduce hyperref "Token not allowed in a PDF string" warnings on PDF builds
 \AtBeginDocument{\pdfstringdefDisableCommands{%
 % all "protected" macros possibly ending up in section titles should be here
+% TODO: examine if \sphinxhref, \sphinxurl, \sphinnolinkurl should be handled
     \let\sphinxstyleemphasis        \@firstofone
     \let\sphinxstyleliteralemphasis \@firstofone
     \let\sphinxstylestrong          \@firstofone
@@ -1879,7 +1887,19 @@
     \let\sphinxemail    \@firstofone
     \let\sphinxcrossref \@firstofone
     \let\sphinxtermref  \@firstofone
+    \let\sphinxhyphen\sphinxhyphenforbookmarks
 }}
+
+% Special characters
+%
+% This definition prevents en-dash and em-dash TeX ligatures.
+% 
+% It inserts a potential breakpoint after the hyphen. This is to keep in sync
+% with behavior in code-blocks, parsed and inline literals. For a breakpoint
+% before the hyphen use \leavevmode\kern\z@- (within \makeatletter/\makeatother)
+\protected\def\sphinxhyphen#1{-\kern\z@}
+% The {} from texescape mark-up is kept, else -- gives en-dash in PDF bookmark
+\def\sphinxhyphenforbookmarks{-}
 
 % For curly braces inside \index macro
 \def\sphinxleftcurlybrace{\{}

@@ -186,6 +186,12 @@ class Config:
             defvalue = self.values[name][0]
             if self.values[name][2] == Any:
                 return value
+            elif type(defvalue) is bool or self.values[name][2] == [bool]:
+                if value == '0':
+                    # given falsy string from command line option
+                    return False
+                else:
+                    return bool(value)
             elif isinstance(defvalue, dict):
                 raise ValueError(__('cannot override dictionary config setting %r, '
                                     'ignoring (use %r to set individual elements)') %

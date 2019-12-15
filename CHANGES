@@ -30,11 +30,29 @@ Bugs fixed
 Testing
 --------
 
-Release 2.3.0 (in development)
+Release 2.4.0 (in development)
 ==============================
 
 Dependencies
 ------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 2.3.0 (released Dec 15, 2019)
+=====================================
 
 Incompatible changes
 --------------------
@@ -53,6 +71,7 @@ Deprecated
 * ``sphinx.io.SphinxStandaloneReader.env``
 * ``sphinx.util.texescape.tex_escape_map``
 * ``sphinx.util.texescape.tex_hl_escape_map_new``
+* ``sphinx.writers.latex.LaTeXTranslator.no_contractions``
 
 Features added
 --------------
@@ -76,6 +95,9 @@ Features added
 * #6816: linkcheck: Add :confval:`linkcheck_auth` option to provide
   authentication information when doing ``linkcheck`` builds
 * #6872: linkcheck: Handles HTTP 308 Permanent Redirect
+* #6613: html: Wrap section number in span tag
+* #6781: gettext: Add :confval:`gettext_last_translator' and
+  :confval:`gettext_language_team` to customize headers of POT file
 
 Bugs fixed
 ----------
@@ -115,31 +137,13 @@ Bugs fixed
 * #6867: text: extra spaces are inserted to hyphenated words on folding lines
 * #6886: LaTeX: xelatex converts straight double quotes into right curly ones
   (shows when :confval:`smartquotes` is ``False``)
+* #6890: LaTeX: even with smartquotes off, PDF output transforms straight
+  quotes and consecutive hyphens into curly quotes and dashes
 * #6876: LaTeX: multi-line display of authors on title page has ragged edges
-
-Testing
---------
-
-Release 2.2.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
+* #6887: Sphinx crashes with docutils-0.16b0
+* #6920: sphinx-build: A console message is wrongly highlighted
+* #6900: sphinx-build: ``-D`` option does not considers ``0`` and ``1`` as a
+  boolean value
 
 Release 2.2.2 (released Dec 03, 2019)
 =====================================
