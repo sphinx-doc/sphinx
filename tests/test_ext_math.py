@@ -70,7 +70,7 @@ def test_mathjax_options(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    assert ('<script async="async" integrity="sha384-0123456789" type="text/javascript" '
+    assert ('<script async="async" integrity="sha384-0123456789" '
             'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?'
             'config=TeX-AMS-MML_HTMLorMML"></script>' in content)
 

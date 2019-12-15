@@ -91,7 +91,7 @@ Google Analytics
 
       {%- block extrahead %}
       {{ super() }}
-      <script type="text/javascript">
+      <script>
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'XXX account number XXX']);
         _gaq.push(['_trackPageview']);
@@ -103,7 +103,7 @@ Google Analytics
       <div class="footer">This page uses <a href="https://analytics.google.com/">
       Google Analytics</a> to collect statistics. You can disable it by blocking
       the JavaScript coming from www.google-analytics.com.
-      <script type="text/javascript">
+      <script>
         (function() {
           var ga = document.createElement('script');
           ga.src = ('https:' == document.location.protocol ?
@@ -134,7 +134,6 @@ Google Search
                (function() {
                   var cx = '......';
                   var gcse = document.createElement('script');
-                  gcse.type = 'text/javascript';
                   gcse.async = true;
                   gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
                   var s = document.getElementsByTagName('script')[0];

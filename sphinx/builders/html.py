@@ -146,7 +146,6 @@ class JavaScript(str):
         self = str.__new__(cls, filename)  # type: ignore
         self.filename = filename
         self.attributes = attributes
-        self.attributes.setdefault('type', 'text/javascript')
 
         return self
 
@@ -1136,7 +1135,6 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatexname: str,
                 attrs.append('src="%s"' % pathto(js.filename, resource=True))
         else:
             # str value (old styled)
-            attrs.append('type="text/javascript"')
             attrs.append('src="%s"' % pathto(js, resource=True))
         return '<script %s>%s</script>' % (' '.join(attrs), body)
 

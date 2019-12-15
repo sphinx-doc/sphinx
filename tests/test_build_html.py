@@ -1216,8 +1216,8 @@ def test_html_assets(app):
             'href="https://example.com/custom.css" />' in content)
 
     # html_js_files
-    assert '<script type="text/javascript" src="_static/js/custom.js"></script>' in content
-    assert ('<script async="async" type="text/javascript" src="https://example.com/script.js">'
+    assert '<script src="_static/js/custom.js"></script>' in content
+    assert ('<script async="async" src="https://example.com/script.js">'
             '</script>' in content)
 
 
