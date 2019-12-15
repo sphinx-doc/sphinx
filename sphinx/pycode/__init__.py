@@ -67,7 +67,7 @@ class ModuleAnalyzer:
             if source is not None:
                 obj = cls.for_string(source, modname, filename if filename is not None else '<string>')
             elif filename is not None:
-                obj = cls.for_file(source, modname)
+                obj = cls.for_file(filename, modname)
         except PycodeError as err:
             cls.cache['module', modname] = err
             raise

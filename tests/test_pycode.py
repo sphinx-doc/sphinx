@@ -31,13 +31,19 @@ def test_ModuleAnalyzer_for_file():
     assert analyzer.encoding is None
 
 
-def test_ModuleAnalyzer_for_module():
+def test_ModuleAnalyzer_for_module(rootdir):
     analyzer = ModuleAnalyzer.for_module('sphinx')
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname in (SPHINX_MODULE_PATH,
                                 os.path.abspath(SPHINX_MODULE_PATH))
     # source should be loaded via native loader, so don`t know file enconding
     assert analyzer.encoding == None
+    path = rootdir / 'test-pycode'
+    sys.path.insert(0, path)
+    analyzer = ModuleAnalyzer.for_module('cp_1251_coded')
+    docs = analyzer.find_attr_docs()
+    sys.path.pop(0)
+    assert docs == {('', 'X'): ['It MUST look like X="\u0425"', '']}
 
 
 def test_ModuleAnalyzer_for_file_in_egg(rootdir):
