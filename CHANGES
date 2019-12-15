@@ -14,6 +14,8 @@ Features added
 --------------
 
 * #6910: inheritance_diagram: Make the background of diagrams transparent
+* #6446: duration: Add ``sphinx.ext.durations`` to inspect which documents slow
+  down the build
 
 Bugs fixed
 ----------
