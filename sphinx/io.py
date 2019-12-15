@@ -19,7 +19,10 @@ from docutils.statemachine import StringList, string2lines
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import (
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
+)
+from sphinx.errors import FiletypeNotFoundError
 from sphinx.transforms import (
     AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
 )
@@ -335,3 +338,11 @@ def read_doc(app, env, filename):
 
     pub.publish()
     return pub.document
+
+
+deprecated_alias('sphinx.io',
+                 {
+                     'FiletypeNotFoundError': FiletypeNotFoundError,
+                     'get_filetype': get_filetype,
+                 },
+                 RemovedInSphinx40Warning)
