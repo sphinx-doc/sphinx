@@ -62,7 +62,7 @@ def test_display_chunk():
 
 
 def test_get_module_source():
-    assert get_module_source('sphinx') == ('file', sphinx.__file__)
+    assert get_module_source('sphinx') == (sphinx.__file__, sphinx.__loader__.get_source('sphinx'))
 
     # failed to obtain source information from builtin modules
     with pytest.raises(PycodeError):

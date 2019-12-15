@@ -63,10 +63,10 @@ class ModuleAnalyzer:
             return entry
 
         try:
-            type, source = get_module_source(modname)
-            if type == 'string':
-                obj = cls.for_string(source, modname)
-            else:
+            filename, source = get_module_source(modname)
+            if source is not None:
+                obj = cls.for_string(source, modname, filename if filename is not None else '<string>')
+            elif filename is not None:
                 obj = cls.for_file(source, modname)
         except PycodeError as err:
             cls.cache['module', modname] = err

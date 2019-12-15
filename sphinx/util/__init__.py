@@ -25,7 +25,7 @@ from hashlib import md5
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
+from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Optional
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from docutils.utils import relative_path
@@ -265,27 +265,27 @@ def save_traceback(app: "Sphinx") -> str:
     return path
 
 
-def get_module_source(modname: str) -> Tuple[str, str]:
+def get_module_source(modname: str) -> Tuple[Optional[str], Optional[str]]:
     """Try to find the source code for a module.
 
-    Can return ('file', 'filename') in which case the source is in the given
-    file, or ('string', 'source') which which case the source is the string.
+    Returns ('filename', 'source'). One of it can be None if
+    no filename or source found
     """
     try:
         mod = import_module(modname)
     except Exception as err:
         raise PycodeError('error importing %r' % modname, err)
     loader = getattr(mod, '__loader__', None)
+    filename = getattr(mod, '__file__', None)
     if loader and getattr(loader, 'get_source', None):
         # prefer Native loader, as it respects #coding directive
         try:  
-            filename = loader.get_source(modname)
-            if filename:
+            source = loader.get_source(modname)
+            if source:
                 # no exception and not None - it must be module source
-                return 'string', filename
+                return filename, source
         except ImportError as err:
             pass  # Try other "source-mining" methods
-    filename = getattr(mod, '__file__', None)
     if filename is None and loader and getattr(loader, 'get_filename', None):
         # have loader, but no filename
         try:
@@ -307,11 +307,11 @@ def get_module_source(modname: str) -> Tuple[str, str]:
         pat = '(?<=\\.egg)' + re.escape(os.path.sep)
         eggpath, _ = re.split(pat, filename, 1)
         if path.isfile(eggpath):
-            return 'file', filename
+            return filename, None
 
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
-    return 'file', filename
+    return filename, None
 
 
 def get_full_modname(modname: str, attribute: str) -> str:
