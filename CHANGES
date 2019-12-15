@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* #6910: inheritance_diagram: Make the background of diagrams transparent
+
 Bugs fixed
 ----------
 
