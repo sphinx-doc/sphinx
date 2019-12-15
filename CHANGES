@@ -10,6 +10,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.io.FiletypeNotFoundError``
+* ``sphinx.io.get_filetype()``
+
 Features added
 --------------
 

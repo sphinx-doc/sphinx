@@ -19,7 +19,10 @@ from docutils.statemachine import StringList, string2lines
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import (
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
+)
+from sphinx.errors import FiletypeNotFoundError
 from sphinx.transforms import (
     AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
 )
@@ -27,7 +30,7 @@ from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
 from sphinx.transforms.references import SphinxDomains
-from sphinx.util import logging
+from sphinx.util import logging, get_filetype
 from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.rst import append_epilog, docinfo_re, prepend_prolog
@@ -292,20 +295,6 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
             return lineno
 
 
-class FiletypeNotFoundError(Exception):
-    pass
-
-
-def get_filetype(source_suffix, filename):
-    # type: (Dict[str, str], str) -> str
-    for suffix, filetype in source_suffix.items():
-        if filename.endswith(suffix):
-            # If default filetype (None), considered as restructuredtext.
-            return filetype or 'restructuredtext'
-    else:
-        raise FiletypeNotFoundError
-
-
 def read_doc(app, env, filename):
     # type: (Sphinx, BuildEnvironment, str) -> nodes.document
     """Parse a document and convert to doctree."""
@@ -349,3 +338,11 @@ def read_doc(app, env, filename):
 
     pub.publish()
     return pub.document
+
+
+deprecated_alias('sphinx.io',
+                 {
+                     'FiletypeNotFoundError': FiletypeNotFoundError,
+                     'get_filetype': get_filetype,
+                 },
+                 RemovedInSphinx40Warning)
