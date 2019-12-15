@@ -1,8 +1,5 @@
-Release 2.3.0 (in development)
-==============================
-
-Dependencies
-------------
+Release 2.3.0 (released Dec 15, 2019)
+=====================================
 
 Incompatible changes
 --------------------
@@ -94,30 +91,6 @@ Bugs fixed
 * #6920: sphinx-build: A console message is wrongly highlighted
 * #6900: sphinx-build: ``-D`` option does not considers ``0`` and ``1`` as a
   boolean value
-
-Testing
---------
-
-Release 2.2.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 2.2.2 (released Dec 03, 2019)
 =====================================
