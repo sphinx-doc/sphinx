@@ -40,10 +40,13 @@ def test_ModuleAnalyzer_for_module(rootdir):
     assert analyzer.encoding == None
     path = rootdir / 'test-pycode'
     sys.path.insert(0, path)
-    analyzer = ModuleAnalyzer.for_module('cp_1251_coded')
-    docs = analyzer.find_attr_docs()
-    sys.path.pop(0)
-    assert docs == {('', 'X'): ['It MUST look like X="\u0425"', '']}
+    try:
+        analyzer = ModuleAnalyzer.for_module('cp_1251_coded')
+        docs = analyzer.find_attr_docs()
+        assert docs == {('', 'X'): ['It MUST look like X="\u0425"', '']}
+    finally:
+        sys.path.pop(0)
+    
 
 
 def test_ModuleAnalyzer_for_file_in_egg(rootdir):
