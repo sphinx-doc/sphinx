@@ -599,6 +599,15 @@ class IndexInSectionTitleTransform(SphinxTransform):
                     node.remove(index)
                     node.parent.insert(i + 1, index)
 
+class InlineCodeTransform(SphinxTransform):
+    default_priority = 200
+
+    def apply(self):
+        for node in self.document.traverse(nodes.literal):
+            for subnode in node:
+                if isinstance(subnode, nodes.inline):
+                    # mark inline nodes just under literal node as "code" to handle them in writer!
+                    subnode['code'] = True
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_transform(FootnoteDocnameUpdater)
@@ -610,6 +619,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(LiteralBlockTransform)
     app.add_post_transform(MathReferenceTransform)
     app.add_post_transform(ShowUrlsTransform)
+    app.add_post_transform(InlineCodeTransform)
 
     return {
         'version': 'builtin',

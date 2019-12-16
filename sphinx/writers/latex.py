@@ -464,7 +464,6 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_footnote = 0
         self.in_caption = 0
         self.in_term = 0
-        self.in_code = 0
         self.needs_linetrimming = 0
         self.in_minipage = 0
         self.no_latex_floats = 0
@@ -2045,8 +2044,6 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_literal(self, node):
         # type: (nodes.Element) -> None
         self.no_contractions += 1
-        if('code' in node.get('classes', [])):
-            self.in_code = 1
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
         else:
@@ -2055,7 +2052,6 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_literal(self, node):
         # type: (nodes.Element) -> None
         self.no_contractions -= 1
-        self.in_code = 0
         self.body.append('}}')
 
     def visit_footnote_reference(self, node):
@@ -2298,7 +2294,7 @@ class LaTeXTranslator(SphinxTranslator):
         elif classes in [['accelerator']]:
             self.body.append(r'\sphinxaccelerator{')
             self.context.append('}')
-        elif classes and self.in_code:
+        elif classes and node.get('code', False):
             self.body.append(r'\PYG{%s}{' % ','.join(classes))
             self.context.append('}')
         elif classes and not self.in_title:
