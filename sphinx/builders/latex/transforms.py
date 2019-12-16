@@ -599,15 +599,17 @@ class IndexInSectionTitleTransform(SphinxTransform):
                     node.remove(index)
                     node.parent.insert(i + 1, index)
 
+
 class InlineCodeTransform(SphinxTransform):
+    """Mark inline nodes just under literal node as "code" to handle them in writer"""
     default_priority = 200
 
     def apply(self):
         for node in self.document.traverse(nodes.literal):
             for subnode in node:
                 if isinstance(subnode, nodes.inline):
-                    # mark inline nodes just under literal node as "code" to handle them in writer!
                     subnode['code'] = True
+
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_transform(FootnoteDocnameUpdater)
