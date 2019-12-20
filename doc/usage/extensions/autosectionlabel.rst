@@ -39,6 +39,13 @@ Configuration
    avoiding ambiguity when the same section heading appears in different
    documents.
 
+   When ``index.rst`` doesn't reside at your docs root directory, the prefix
+   has to contain any directories relative to it.
+
+   Example: if ``index.rst`` lives at ``example/hello/world/index.rst``, use
+   ``:ref:`example/hello/world/index:Introduction```. (Carefull: no leading
+   ``/`` as necessary with ``:doc:``!)
+
 .. confval:: autosectionlabel_maxdepth
 
    If set, autosectionlabel chooses the sections for labeling by its depth. For
