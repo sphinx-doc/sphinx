@@ -14,7 +14,7 @@ import multiprocessing
 import os
 import sys
 import traceback
-from typing import Any, IO, List
+from typing import Any, IO, List, Optional
 
 from docutils.utils import SystemMessage
 
@@ -26,6 +26,28 @@ from sphinx.locale import __
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
+
+DOC_DIRS = ('docs', 'doc', 'Documentation', '')
+
+
+def _find_source_dir() -> Optional[str]:
+    """Check the usual suspects for a config file and return if found.
+
+    This includes both the directories in DOCS_DIR and any subdirectories
+    found therein.
+    """
+    for doc_dir in DOC_DIRS:
+        if not os.path.isdir(doc_dir):
+            continue
+
+        # check not only doc_dir but all immediate subdirectories of same
+        src_dirs = [doc_dir] + [
+            os.path.join(doc_dir, sub_dir) for sub_dir in os.listdir(doc_dir)]
+        for src_dir in src_dirs:
+            if os.path.exists(os.path.join(src_dir, 'conf.py')):
+                return src_dir
+
+    return None
 
 
 def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
@@ -96,7 +118,7 @@ def jobs_argument(value: str) -> int:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] SOURCEDIR [OUTPUTDIR [FILENAMES...]]',
+        usage='%(prog)s [OPTIONS] [SOURCEDIR [OUTPUTDIR [FILENAMES...]]]',
         epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
@@ -118,7 +140,7 @@ files can be built by specifying individual filenames.
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
-    parser.add_argument('sourcedir',
+    parser.add_argument('sourcedir', nargs='?',
                         help=__('path to documentation source files'))
     parser.add_argument('outputdir', nargs='?',
                         help=__('path to output directory. If omitted, the \'output_dir\' '
@@ -201,6 +223,17 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
 
     parser = get_parser()
     args = parser.parse_args(argv)
+
+    # if we haven't specified an outputdir then we need to extract one from the
+    # config file. Clearly we can't do this is no config file is available
+    if not args.outputdir and args.noconfig:
+        parser.error('must specify sourcedir with -C option')
+
+    # get paths by discovery if not provided by args
+    if not args.sourcedir:
+        args.sourcedir = _find_source_dir()
+        if not args.sourcedir:
+            parser.error('no sourcedir provided and none discovered')
 
     if args.noconfig:
         args.confdir = None
