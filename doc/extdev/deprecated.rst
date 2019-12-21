@@ -61,6 +61,11 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``inspect.getargspec()``
 
+   * - ``sphinx.writers.latex.LaTeXWriter.format_docclass()``
+     - 3.0
+     - 5.0
+     - LaTeX Themes
+
    * - ``decode`` argument of ``sphinx.pycode.ModuleAnalyzer()``
      - 2.4
      - 4.0
