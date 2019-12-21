@@ -96,7 +96,7 @@ def jobs_argument(value: str) -> int:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
+        usage='%(prog)s [OPTIONS] SOURCEDIR [OUTPUTDIR [FILENAMES...]]',
         epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
@@ -120,8 +120,9 @@ files can be built by specifying individual filenames.
 
     parser.add_argument('sourcedir',
                         help=__('path to documentation source files'))
-    parser.add_argument('outputdir',
-                        help=__('path to output directory'))
+    parser.add_argument('outputdir', nargs='?',
+                        help=__('path to output directory. If omitted, the \'output_dir\' '
+                                'setting is used'))
     parser.add_argument('filenames', nargs='*',
                         help=__('a list of specific files to rebuild. Ignored '
                                 'if -a is specified'))
@@ -206,7 +207,7 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
     elif not args.confdir:
         args.confdir = args.sourcedir
 
-    if not args.doctreedir:
+    if args.outputdir and not args.doctreedir:
         args.doctreedir = os.path.join(args.outputdir, '.doctrees')
 
     # handle remaining filename arguments

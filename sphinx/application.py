@@ -148,8 +148,15 @@ class Sphinx:
 
         # validate provided directories
         self.srcdir = abspath(srcdir)
-        self.outdir = abspath(outdir)
-        self.doctreedir = abspath(doctreedir)
+
+        self.outdir = outdir
+        if self.outdir:  # outdir can be provided by config files
+            self.outdir = abspath(self.outdir)
+
+        self.doctreedir = doctreedir
+        if self.doctreedir:  # doctreedir can be based on outdir
+            self.doctreedir = abspath(self.doctreedir)
+
         self.confdir = confdir
         if self.confdir:  # confdir is optional
             self.confdir = abspath(self.confdir)
@@ -160,10 +167,6 @@ class Sphinx:
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
                                    self.srcdir)
-
-        if self.srcdir == self.outdir:
-            raise ApplicationError(__('Source directory and destination '
-                                      'directory cannot be identical'))
 
         self.parallel = parallel
 
@@ -240,10 +243,6 @@ class Sphinx:
         # preload builder module (before init config values)
         self.preload_builder(buildername)
 
-        if not path.isdir(outdir):
-            with progress_message(__('making output directory')):
-                ensuredir(outdir)
-
         # the config file itself can be an extension
         if self.config.setup:
             prefix = __('while setting up extension %s:') % "conf.py"
@@ -259,7 +258,36 @@ class Sphinx:
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
+
+        # load the outdir from config, if required
+        if self.outdir is None:
+            if self.config.output_dir is None:
+                raise ConfigError(
+                    __("An output directory must be specified by the command "
+                       "line argument or using the 'output_dir' option.")
+                )
+
+            # if the path is relative, it's relative to the srcdir
+            outdir = self.config.output_dir
+            if not path.isabs(outdir):
+                outdir = os.path.join(self.srcdir, outdir)
+
+            # we can assume that path provided as an argument is already an
+            # abspath but not this
+            self.outdir = abspath(os.path.join(outdir, buildername))
+
+            if not self.doctreedir:
+                self.doctreedir = abspath(os.path.join(outdir, 'doctrees'))
+
+        if self.srcdir == self.outdir:
+            raise ApplicationError('Source directory and destination '
+                                   'directory cannot be identical')
+
         self.events.emit('config-inited', self.config)
+
+        if not path.isdir(self.outdir):
+            logger.info('making output directory...')
+            ensuredir(self.outdir)
 
         # create the project
         self.project = Project(self.srcdir, self.config.source_suffix)

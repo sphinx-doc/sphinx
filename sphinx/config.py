@@ -113,6 +113,7 @@ class Config:
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
 
         'master_doc': ('index', 'env', []),
+        'output_dir': (None, 'env', [str]),
         'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
         'source_encoding': ('utf-8-sig', 'env', []),
         'source_parsers': ({}, 'env', []),
