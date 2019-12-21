@@ -165,6 +165,56 @@ def test_latex_basic(app, status, warning):
     assert r'\renewcommand{\releasename}{}' in result
 
 
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')]
+                    })
+def test_latex_basic_manual(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{report}' in result
+    assert r'\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')]
+                    })
+def test_latex_basic_howto(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{article}' in result
+    assert r'\documentclass[letterpaper,10pt,english]{sphinxhowto}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={
+                        'language': 'ja',
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')]
+                    })
+def test_latex_basic_manual_ja(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{jsbook}' in result
+    assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={
+                        'language': 'ja',
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')]
+                    })
+def test_latex_basic_howto_ja(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{jreport}' in result
+    assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxhowto}' in result
+
+
 @pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language': 'zh'})
 def test_latex_additional_settings_for_language_code(app, status, warning):
     app.builder.build_all()
