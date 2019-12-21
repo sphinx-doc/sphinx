@@ -11,16 +11,16 @@
 {% set title = _('Search') %}
 {%- block scripts %}
     {{ super() }}
-    <script type="text/javascript" src="{{ pathto('_static/searchtools.js', 1) }}"></script>
+    <script src="{{ pathto('_static/searchtools.js', 1) }}"></script>
 {%- endblock %}
 {% block extrahead %}
-  <script type="text/javascript" src="{{ pathto('searchindex.js', 1) }}" defer></script>
+  <script src="{{ pathto('searchindex.js', 1) }}" defer></script>
   {{ super() }}
 {% endblock %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
   <div id="fallback" class="admonition warning">
-  <script type="text/javascript">$('#fallback').hide();</script>
+  <script>$('#fallback').hide();</script>
   <p>
     {% trans %}Please activate JavaScript to enable the search
     functionality.{% endtrans %}

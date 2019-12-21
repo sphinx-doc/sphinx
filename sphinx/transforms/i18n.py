@@ -22,7 +22,7 @@ from sphinx.config import Config
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.locale import __, init as init_locale
 from sphinx.transforms import SphinxTransform
-from sphinx.util import split_index_msg, logging
+from sphinx.util import split_index_msg, logging, get_filetype
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.nodes import (
     LITERAL_TYPE_NODES, IMAGE_TYPE_NODES, NodeMatcher,
@@ -61,7 +61,8 @@ def publish_msgstr(app: "Sphinx", source: str, source_path: str, source_line: in
         from sphinx.io import SphinxI18nReader
         reader = SphinxI18nReader()
         reader.setup(app)
-        parser = app.registry.create_source_parser(app, 'restructuredtext')
+        filetype = get_filetype(config.source_suffix, source_path)
+        parser = app.registry.create_source_parser(app, filetype)
         doc = reader.read(
             source=StringInput(source=source,
                                source_path="%s:%s:<translated>" % (source_path, source_line)),

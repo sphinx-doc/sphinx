@@ -42,6 +42,36 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.io.FiletypeNotFoundError``
+* ``sphinx.io.get_filetype()``
+
+Features added
+--------------
+
+* #6910: inheritance_diagram: Make the background of diagrams transparent
+* #6446: duration: Add ``sphinx.ext.durations`` to inspect which documents slow
+  down the build
+
+Bugs fixed
+----------
+
+* #6925: html: Remove redundant type="text/javascript" from <script> elements
+
+Testing
+--------
+
+Release 2.3.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
 Features added
 --------------
 

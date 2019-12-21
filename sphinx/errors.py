@@ -126,3 +126,8 @@ class PycodeError(Exception):
 class NoUri(Exception):
     """Raised by builder.get_relative_uri() if there is no URI available."""
     pass
+
+
+class FiletypeNotFoundError(Exception):
+    "Raised by get_filetype() if a filename matches no source suffix."
+    pass
