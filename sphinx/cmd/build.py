@@ -231,12 +231,6 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv: List[str] = sys.argv[1:]) -> int:
-    """Sphinx build "make mode" entry."""
-    from sphinx.cmd import make_mode
-    return make_mode.run_make_mode(argv[1:])
-
-
 def build_main(argv: List[str] = sys.argv[1:]) -> int:
     """Sphinx build "main" command-line entry."""
 
@@ -252,7 +246,7 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
         args.doctreedir = os.path.join(args.outputdir, '.doctrees')
 
     if args.force_all and args.filenames:
-        parser.error(__('cannot combine -a option and filenames'))
+        raise argparse.ArgumentTypeError(__('cannot combine -a option and filenames'))
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
@@ -287,6 +281,12 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, error)
         return 2
+
+
+def make_main(argv: List[str] = sys.argv[1:]) -> int:
+    """Sphinx build "make mode" entry."""
+    from sphinx.cmd import make_mode
+    return make_mode.run_make_mode(argv[1:])
 
 
 def main(argv: List[str] = sys.argv[1:]) -> int:
