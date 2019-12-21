@@ -18,8 +18,8 @@ from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
-from sphinx.errors import FiletypeNotFoundError
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.errors import FiletypeNotFoundError
 from sphinx.transforms import (
     AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
 )
