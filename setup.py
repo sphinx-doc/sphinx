@@ -234,6 +234,7 @@ setup(
         ],
         'sphinx.commands': [
             'init = sphinx.cmd.quickstart:InitCommand',
+            'build = sphinx.cmd.build:BuildCommand',
         ],
         'distutils.commands': [
             'build_sphinx = sphinx.setup_command:BuildDoc',
