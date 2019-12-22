@@ -78,6 +78,7 @@ builtin_extensions = (
     'sphinx.domains.changeset',
     'sphinx.domains.citation',
     'sphinx.domains.cpp',
+    'sphinx.domains.index',
     'sphinx.domains.javascript',
     'sphinx.domains.math',
     'sphinx.domains.python',
@@ -106,7 +107,6 @@ builtin_extensions = (
     'sphinx.environment.collectors.metadata',
     'sphinx.environment.collectors.title',
     'sphinx.environment.collectors.toctree',
-    'sphinx.environment.collectors.indexentries',
     # 1st party extensions
     'sphinxcontrib.applehelp',
     'sphinxcontrib.devhelp',
@@ -350,8 +350,8 @@ class Sphinx:
             if self._warncount and self.keep_going:
                 self.statuscode = 1
 
-            status = (self.statuscode == 0 and
-                      __('succeeded') or __('finished with problems'))
+            status = (__('succeeded') if self.statuscode == 0
+                      else __('finished with problems'))
             if self._warncount:
                 if self.warningiserror:
                     msg = __('build %s, %s warning (with warnings treated as errors).',
@@ -494,7 +494,7 @@ class Sphinx:
         logger.debug('[app] adding config value: %r',
                      (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
         if rebuild in (False, True):
-            rebuild = rebuild and 'env' or ''
+            rebuild = 'env' if rebuild else ''
         self.config.add(name, default, rebuild, types)
 
     def add_event(self, name):

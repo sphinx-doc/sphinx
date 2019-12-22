@@ -722,7 +722,7 @@ def process_generate_options(app: Sphinx) -> None:
                     if os.path.isfile(env.doc2path(x))]
     else:
         ext = list(app.config.source_suffix)
-        genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
+        genfiles = [genfile + (ext[0] if not genfile.endswith(tuple(ext)) else '')
                     for genfile in genfiles]
 
         for entry in genfiles[:]:

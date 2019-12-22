@@ -105,7 +105,7 @@ class JSObject(ObjectDescription):
     def add_target_and_index(self, name_obj: Tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         mod_name = self.env.ref_context.get('js:module')
-        fullname = (mod_name and mod_name + '.' or '') + name_obj[0]
+        fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
         if fullname not in self.state.document.ids:
             signode['names'].append(fullname)
             signode['ids'].append(fullname.replace('$', '_S_'))
@@ -385,7 +385,7 @@ class JavaScriptDomain(Domain):
                      ) -> Element:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
-        searchorder = node.hasattr('refspecific') and 1 or 0
+        searchorder = 1 if node.hasattr('refspecific') else 0
         name, obj = self.find_obj(env, mod_name, prefix, target, typ, searchorder)
         if not obj:
             return None

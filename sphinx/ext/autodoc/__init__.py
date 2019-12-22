@@ -301,7 +301,7 @@ class Documenter:
         # support explicit module and class name separation via ::
         if explicit_modname is not None:
             modname = explicit_modname[:-2]
-            parents = path and path.rstrip('.').split('.') or []
+            parents = path.rstrip('.').split('.') if path else []
         else:
             modname = None
             parents = []
@@ -314,7 +314,7 @@ class Documenter:
         self.args = args
         self.retann = retann
         self.fullname = (self.modname or '') + \
-                        (self.objpath and '.' + '.'.join(self.objpath) or '')
+                        ('.' + '.'.join(self.objpath) if self.objpath else '')
         return True
 
     def import_object(self) -> bool:
@@ -405,7 +405,7 @@ class Documenter:
             args, retann = result
 
         if args is not None:
-            return args + (retann and (' -> %s' % retann) or '')
+            return args + ((' -> %s' % retann) if retann else '')
         else:
             return ''
 
@@ -1126,9 +1126,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             sourcename = self.get_sourcename()
             self.add_line('', sourcename)
             if hasattr(self.object, '__bases__') and len(self.object.__bases__):
-                bases = [b.__module__ in ('__builtin__', 'builtins') and
-                         ':class:`%s`' % b.__name__ or
-                         ':class:`%s.%s`' % (b.__module__, b.__name__)
+                bases = [':class:`%s`' % b.__name__
+                         if b.__module__ in ('__builtin__', 'builtins')
+                         else ':class:`%s.%s`' % (b.__module__, b.__name__)
                          for b in self.object.__bases__]
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
                               sourcename)

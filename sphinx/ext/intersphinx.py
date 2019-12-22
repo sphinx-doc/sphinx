@@ -176,7 +176,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
                     uri = path.dirname(newinv)
         with f:
             try:
-                join = localuri and path.join or posixpath.join
+                join = path.join if localuri else posixpath.join
                 invdata = InventoryFile.load(f, uri, join)
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
@@ -401,7 +401,7 @@ def inspect_main(argv: List[str]) -> None:
             print(key)
             for entry, einfo in sorted(invdata[key].items()):
                 print('\t%-40s %s%s' % (entry,
-                                        einfo[3] != '-' and '%-40s: ' % einfo[3] or '',
+                                        '%-40s: ' % einfo[3] if einfo[3] != '-' else '',
                                         einfo[2]))
     except ValueError as exc:
         print(exc.args[0] % exc.args[1:])

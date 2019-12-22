@@ -432,11 +432,8 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.last_updated = None
 
-        logo = self.config.html_logo and \
-            path.basename(self.config.html_logo) or ''
-
-        favicon = self.config.html_favicon and \
-            path.basename(self.config.html_favicon) or ''
+        logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
+        favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
 
         if not isinstance(self.config.html_use_opensearch, str):
             logger.warning(__('html_use_opensearch config value must now be a string'))
@@ -538,7 +535,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # title rendered as HTML
         title_node = self.env.longtitles.get(docname)
-        title = title_node and self.render_partial(title_node)['title'] or ''
+        title = self.render_partial(title_node)['title'] if title_node else ''
 
         # Suffix for the document
         source_suffix = path.splitext(self.env.doc2path(docname))[1]
@@ -595,7 +592,7 @@ class StandaloneHTMLBuilder(Builder):
         self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
         title_node = self.env.longtitles.get(docname)
-        title = title_node and self.render_partial(title_node)['title'] or ''
+        title = self.render_partial(title_node)['title'] if title_node else ''
         self.index_page(docname, doctree, title)
 
     def finish(self) -> None:

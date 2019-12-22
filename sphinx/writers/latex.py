@@ -631,7 +631,7 @@ class LaTeXTranslator(SphinxTranslator):
                                                        latex_engine=self.config.latex_engine)
         self.context = []                   # type: List[Any]
         self.descstack = []                 # type: List[str]
-        self.table = None                   # type: Table
+        self.tables = []                    # type: List[Table]
         self.next_table_colspec = None      # type: str
         self.bodystack = []                 # type: List[List[str]]
         self.footnote_restricted = None     # type: nodes.Element
@@ -665,7 +665,7 @@ class LaTeXTranslator(SphinxTranslator):
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
         if withdoc:
             id = self.curfilestack[-1] + ':' + id
-        return (anchor and '\\phantomsection' or '') + \
+        return ('\\phantomsection' if anchor else '') + \
             '\\label{%s}' % self.idescape(id)
 
     def hypertarget_to(self, node: Element, anchor: bool = False) -> str:
@@ -748,6 +748,14 @@ class LaTeXTranslator(SphinxTranslator):
                 return renderer.render(template, variables)
 
         return renderer.render(template_name, variables)
+
+    @property
+    def table(self) -> Table:
+        """Get current table."""
+        if self.tables:
+            return self.tables[-1]
+        else:
+            return None
 
     def visit_document(self, node: Element) -> None:
         self.curfilestack.append(node.get('docname', ''))
@@ -1045,11 +1053,21 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_table(self, node: Element) -> None:
-        if self.table:
+        if len(self.tables) == 1:
+            if self.table.get_table_type() == 'longtable':
+                raise UnsupportedError(
+                    '%s:%s: longtable does not support nesting a table.' %
+                    (self.curfilestack[-1], node.line or ''))
+            else:
+                # change type of parent table to tabular
+                # see https://groups.google.com/d/msg/sphinx-users/7m3NeOBixeo/9LKP2B4WBQAJ
+                self.table.has_problematic = True
+        elif len(self.tables) > 2:
             raise UnsupportedError(
-                '%s:%s: nested tables are not yet implemented.' %
+                '%s:%s: deeply nested tables are not implemented.' %
                 (self.curfilestack[-1], node.line or ''))
-        self.table = Table(node)
+
+        self.tables.append(Table(node))
         if self.next_table_colspec:
             self.table.colspec = '{%s}\n' % self.next_table_colspec
             if 'colwidths-given' in node.get('classes', []):
@@ -1066,7 +1084,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(table)
         self.body.append("\n")
 
-        self.table = None
+        self.tables.pop()
 
     def visit_colspec(self, node: Element) -> None:
         self.table.colcount += 1
@@ -1491,7 +1509,7 @@ class LaTeXTranslator(SphinxTranslator):
             elif isinstance(node[0], nodes.image) and 'width' in node[0]:
                 length = self.latex_image_length(node[0]['width'])
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
-                             (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
+                             ('r' if node['align'] == 'right' else 'l', length or '0pt'))
             self.context.append('\\end{wrapfigure}\n')
         elif self.in_minipage:
             self.body.append('\n\\begin{center}')

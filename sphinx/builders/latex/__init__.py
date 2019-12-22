@@ -243,7 +243,7 @@ class LaTeXBuilder(Builder):
 
                 doctree = self.assemble_doctree(
                     docname, toctree_only,
-                    appendices=((docclass != 'howto') and self.config.latex_appendices or []))
+                    appendices=(self.config.latex_appendices if docclass != 'howto' else []))
                 doctree['tocdepth'] = tocdepth
                 self.post_process_images(doctree)
                 self.update_doc_context(title, author)
@@ -360,13 +360,6 @@ class LaTeXBuilder(Builder):
             copy_asset_file(path.join(staticdirname, 'Makefile_t'),
                             self.outdir, context=context)
 
-        # the logo is handled differently
-        if self.config.latex_logo:
-            if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
-                raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
-            else:
-                copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
-
     @progress_message(__('copying additional files'))
     def copy_latex_additional_files(self) -> None:
         for filename in self.config.latex_additional_files:
@@ -386,6 +379,11 @@ class LaTeXBuilder(Builder):
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
+        if self.config.latex_logo:
+            if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
+                raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
+            else:
+                copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
 
     def write_message_catalog(self) -> None:
         formats = self.config.numfig_format

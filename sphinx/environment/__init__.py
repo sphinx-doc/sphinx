@@ -14,7 +14,8 @@ import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
+from typing import Any, Callable, Dict, Generator, IO, Iterator, List, Set, Tuple, Union
+from typing import cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -166,11 +167,6 @@ class BuildEnvironment:
         # domain-specific inventories, here to be pickled
         self.domaindata = {}        # type: Dict[str, Dict]
                                     # domainname -> domain-specific dict
-
-        # Other inventories
-        self.indexentries = {}      # type: Dict[str, List[Tuple[str, str, str, str, str]]]
-                                    # docname -> list of
-                                    # (type, str, target, aliasname)
 
         # these map absolute path -> (docnames, unique filename)
         self.images = FilenameUniqDict()    # type: FilenameUniqDict
@@ -640,3 +636,131 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.check_consistency()
         self.events.emit('env-check-consistency', self)
+<<<<<<< HEAD
+=======
+
+    # --------- METHODS FOR COMPATIBILITY --------------------------------------
+
+    def update(self, config: Config, srcdir: str, doctreedir: str) -> List[str]:
+        warnings.warn('env.update() is deprecated. Please use builder.read() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        return self.app.builder.read()
+
+    def _read_serial(self, docnames: List[str], app: "Sphinx") -> None:
+        warnings.warn('env._read_serial() is deprecated. Please use builder.read() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        return self.app.builder._read_serial(docnames)
+
+    def _read_parallel(self, docnames: List[str], app: "Sphinx", nproc: int) -> None:
+        warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        return self.app.builder._read_parallel(docnames, nproc)
+
+    def read_doc(self, docname: str, app: "Sphinx" = None) -> None:
+        warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        self.app.builder.read_doc(docname)
+
+    def write_doctree(self, docname: str, doctree: nodes.document) -> None:
+        warnings.warn('env.write_doctree() is deprecated. '
+                      'Please use builder.write_doctree() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        self.app.builder.write_doctree(docname, doctree)
+
+    @property
+    def _nitpick_ignore(self) -> List[str]:
+        warnings.warn('env._nitpick_ignore is deprecated. '
+                      'Please use config.nitpick_ignore instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        return self.config.nitpick_ignore
+
+    @staticmethod
+    def load(f: IO, app: "Sphinx" = None) -> "BuildEnvironment":
+        warnings.warn('BuildEnvironment.load() is deprecated. '
+                      'Please use pickle.load() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        try:
+            env = pickle.load(f)
+        except Exception as exc:
+            # This can happen for example when the pickle is from a
+            # different version of Sphinx.
+            raise OSError(exc)
+        if app:
+            env.app = app
+            env.config.values = app.config.values
+        return env
+
+    @classmethod
+    def loads(cls, string: bytes, app: "Sphinx" = None) -> "BuildEnvironment":
+        warnings.warn('BuildEnvironment.loads() is deprecated. '
+                      'Please use pickle.loads() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        io = BytesIO(string)
+        return cls.load(io, app)
+
+    @classmethod
+    def frompickle(cls, filename: str, app: "Sphinx") -> "BuildEnvironment":
+        warnings.warn('BuildEnvironment.frompickle() is deprecated. '
+                      'Please use pickle.load() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        with open(filename, 'rb') as f:
+            return cls.load(f, app)
+
+    @staticmethod
+    def dump(env: "BuildEnvironment", f: IO) -> None:
+        warnings.warn('BuildEnvironment.dump() is deprecated. '
+                      'Please use pickle.dump() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
+
+    @classmethod
+    def dumps(cls, env: "BuildEnvironment") -> bytes:
+        warnings.warn('BuildEnvironment.dumps() is deprecated. '
+                      'Please use pickle.dumps() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        io = BytesIO()
+        cls.dump(env, io)
+        return io.getvalue()
+
+    def topickle(self, filename: str) -> None:
+        warnings.warn('env.topickle() is deprecated. '
+                      'Please use pickle.dump() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        with open(filename, 'wb') as f:
+            self.dump(self, f)
+
+    @property
+    def versionchanges(self) -> Dict[str, List[Tuple[str, str, int, str, str, str]]]:
+        warnings.warn('env.versionchanges() is deprecated. '
+                      'Please use ChangeSetDomain instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        return self.domaindata['changeset']['changes']
+
+    def note_versionchange(self, type: str, version: str,
+                           node: addnodes.versionmodified, lineno: int) -> None:
+        warnings.warn('env.note_versionchange() is deprecated. '
+                      'Please use ChangeSetDomain.note_changeset() instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+        node['type'] = type
+        node['version'] = version
+        node.line = lineno
+        self.get_domain('changeset').note_changeset(node)  # type: ignore
+
+    @property
+    def indexentries(self) -> Dict[str, List[Tuple[str, str, str, str, str]]]:
+        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
+                      RemovedInSphinx40Warning)
+        from sphinx.domains.index import IndexDomain
+        domain = cast(IndexDomain, self.get_domain('index'))
+        return domain.entries
+
+
+from sphinx.errors import NoUri  # NOQA
+
+
+deprecated_alias('sphinx.environment',
+                 {
+                     'NoUri': NoUri,
+                 },
+                 RemovedInSphinx30Warning)
+>>>>>>> 2.0

@@ -46,6 +46,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.environment.BuildEnvironment.indexentries``
+* ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
 * ``sphinx.io.FiletypeNotFoundError``
 * ``sphinx.io.get_filetype()``
 
@@ -55,11 +57,13 @@ Features added
 * #6910: inheritance_diagram: Make the background of diagrams transparent
 * #6446: duration: Add ``sphinx.ext.durations`` to inspect which documents slow
   down the build
+* #6837: LaTeX: Support a nested table
 
 Bugs fixed
 ----------
 
 * #6925: html: Remove redundant type="text/javascript" from <script> elements
+* #6906: autodoc: failed to read the source codes encoeded in cp1251
 
 Testing
 --------

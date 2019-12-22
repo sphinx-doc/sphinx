@@ -306,7 +306,7 @@ class PyObject(ObjectDescription):
     def add_target_and_index(self, name_cls: Tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         modname = self.options.get('module', self.env.ref_context.get('py:module'))
-        fullname = (modname and modname + '.' or '') + name_cls[0]
+        fullname = (modname + '.' if modname else '') + name_cls[0]
         # note target
         if fullname not in self.state.document.ids:
             signode['names'].append(fullname)
@@ -821,7 +821,7 @@ class PythonModuleIndex(Index):
                 num_toplevels += 1
                 subtype = 0
 
-            qualifier = deprecated and _('Deprecated') or ''
+            qualifier = _('Deprecated') if deprecated else ''
             entries.append(IndexEntry(stripped + modname, subtype, docname,
                                       'module-' + stripped + modname, platforms,
                                       qualifier, synopsis))
@@ -999,7 +999,7 @@ class PythonDomain(Domain):
                      ) -> Element:
         modname = node.get('py:module')
         clsname = node.get('py:class')
-        searchmode = node.hasattr('refspecific') and 1 or 0
+        searchmode = 1 if node.hasattr('refspecific') else 0
         matches = self.find_obj(env, modname, clsname, target,
                                 type, searchmode)
         if not matches:

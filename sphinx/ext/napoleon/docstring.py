@@ -112,7 +112,7 @@ class GoogleDocstring:
 
         if not self._config:
             from sphinx.ext.napoleon import Config
-            self._config = self._app and self._app.config or Config()  # type: ignore
+            self._config = self._app.config if self._app else Config()  # type: ignore
 
         if not what:
             if inspect.isclass(obj):
@@ -385,7 +385,7 @@ class GoogleDocstring:
     def _format_field(self, _name: str, _type: str, _desc: List[str]) -> List[str]:
         _desc = self._strip_empty(_desc)
         has_desc = any(_desc)
-        separator = has_desc and ' -- ' or ''
+        separator = ' -- ' if has_desc else ''
         if _name:
             if _type:
                 if '`' in _type:
