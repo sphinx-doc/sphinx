@@ -16,6 +16,7 @@ from copy import copy
 from io import BytesIO
 from os import path
 from typing import Any, Callable, Dict, Generator, IO, Iterator, List, Set, Tuple, Union
+from typing import cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -42,6 +43,7 @@ if False:
     # For type annotation
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
+
 
 logger = logging.getLogger(__name__)
 
@@ -168,11 +170,6 @@ class BuildEnvironment:
         # domain-specific inventories, here to be pickled
         self.domaindata = {}        # type: Dict[str, Dict]
                                     # domainname -> domain-specific dict
-
-        # Other inventories
-        self.indexentries = {}      # type: Dict[str, List[Tuple[str, str, str, str, str]]]
-                                    # docname -> list of
-                                    # (type, str, target, aliasname)
 
         # these map absolute path -> (docnames, unique filename)
         self.images = FilenameUniqDict()    # type: FilenameUniqDict
@@ -749,6 +746,14 @@ class BuildEnvironment:
         node['version'] = version
         node.line = lineno
         self.get_domain('changeset').note_changeset(node)  # type: ignore
+
+    @property
+    def indexentries(self) -> Dict[str, List[Tuple[str, str, str, str, str]]]:
+        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
+                      RemovedInSphinx40Warning)
+        from sphinx.domains.index import IndexDomain
+        domain = cast(IndexDomain, self.get_domain('index'))
+        return domain.entries
 
 
 from sphinx.errors import NoUri  # NOQA

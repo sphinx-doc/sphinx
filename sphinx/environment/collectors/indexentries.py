@@ -8,21 +8,28 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
 from typing import Any, Dict, Set
 
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.util import split_index_msg, logging
+
 
 logger = logging.getLogger(__name__)
 
 
 class IndexEntriesCollector(EnvironmentCollector):
     name = 'indices'
+
+    def __init__(self) -> None:
+        warnings.warn('IndexEntriesCollector is deprecated.',
+                      RemovedInSphinx40Warning)
 
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.indexentries.pop(docname, None)

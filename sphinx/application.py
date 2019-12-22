@@ -82,6 +82,7 @@ builtin_extensions = (
     'sphinx.domains.changeset',
     'sphinx.domains.citation',
     'sphinx.domains.cpp',
+    'sphinx.domains.index',
     'sphinx.domains.javascript',
     'sphinx.domains.math',
     'sphinx.domains.python',
@@ -111,7 +112,6 @@ builtin_extensions = (
     'sphinx.environment.collectors.metadata',
     'sphinx.environment.collectors.title',
     'sphinx.environment.collectors.toctree',
-    'sphinx.environment.collectors.indexentries',
     # 1st party extensions
     'sphinxcontrib.applehelp',
     'sphinxcontrib.devhelp',

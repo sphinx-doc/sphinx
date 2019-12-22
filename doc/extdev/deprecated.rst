@@ -26,6 +26,16 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.environment.BuildEnvironment.indexentries``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDomain``
+
+   * - ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDomain``
+
    * - ``sphinx.io.FiletypeNotFoundError``
      - 2.4
      - 4.0
