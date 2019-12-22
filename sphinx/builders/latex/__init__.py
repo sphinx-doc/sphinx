@@ -360,7 +360,6 @@ class LaTeXBuilder(Builder):
             copy_asset_file(path.join(staticdirname, 'Makefile_t'),
                             self.outdir, context=context)
 
-
     @progress_message(__('copying additional files'))
     def copy_latex_additional_files(self) -> None:
         for filename in self.config.latex_additional_files:
