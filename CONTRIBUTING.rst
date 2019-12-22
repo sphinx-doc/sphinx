@@ -317,13 +317,13 @@ Debugging Tips
 Branch Model
 ------------
 
-Sphinx project uses following branches for developing that conforms to Semantic
-Versioning 2.0.0 (refs: https://semver.org/ ).
+Sphinx project uses following branches for developing that conforms to
+`Semantic Versioning 2.0.0 <https://semver.org/>`__.
 
 ``master``
-    Development for MAJOR version.
+    Development for next version.
     All changes including incompatible behaviors and public API updates are
-    allowed.
+    allowed, assuming the :ref:`deprecation-policy` is followed.
 
 ``X.Y``
     Where ``X.Y`` is the ``MAJOR.MINOR`` release.  Used to maintain current
@@ -334,15 +334,18 @@ Versioning 2.0.0 (refs: https://semver.org/ ).
     new MAJOR version is released, the old ``MAJOR.MINOR`` branch will be
     deleted and replaced by an equivalent tag.
 
-``X.Y.Z``
-    Where ``X.Y.Z`` is the ``MAJOR.MINOR.PATCH`` release.  Only
-    backwards-compatible bug fixes are allowed. In Sphinx project, PATCH
-    version is used for urgent bug fix.
+A new MAJOR release can be expected every year, while MINOR releases are made
+roughly every three months. For example:
 
-    ``MAJOR.MINOR.PATCH`` branch will be branched from the ``v`` prefixed
-    release tag (ex. make 2.3.1 that branched from v2.3.0) when a urgent
-    release is needed. When new PATCH version is released, the branch will be
-    deleted and replaced by an equivalent tag (ex. v2.3.1).
+.. csv-table:: Release Schedule
+   :header: "Release Series", "Release Date"
+   :align: center
+
+   "2.0", "March 2019"
+   "2.1", "June 2019"
+   "2.2", "August 2019"
+   "2.3", "December 2019"
+   "3.0", "March 2020"
 
 
 Deprecating a feature
