@@ -300,7 +300,7 @@ class HList(SphinxDirective):
         index = 0
         newnode = addnodes.hlist()
         for column in range(ncolumns):
-            endindex = index + (column < nmore and (npercol + 1) or npercol)
+            endindex = index + ((npercol + 1) if column < nmore else npercol)
             bullet_list = nodes.bullet_list()
             bullet_list += fulllist.children[index:endindex]
             newnode += addnodes.hlistcol('', bullet_list)

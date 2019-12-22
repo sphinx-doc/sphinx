@@ -155,7 +155,7 @@ class ReferencesResolver(SphinxPostTransform):
         if self.config.nitpicky:
             warn = True
             if self.config.nitpick_ignore:
-                dtype = domain and '%s:%s' % (domain.name, typ) or typ
+                dtype = '%s:%s' % (domain.name, typ) if domain else typ
                 if (dtype, target) in self.config.nitpick_ignore:
                     warn = False
                 # for "std" types also try without domain name

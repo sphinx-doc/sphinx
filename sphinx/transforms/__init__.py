@@ -296,7 +296,7 @@ class FilterSystemMessages(SphinxTransform):
     default_priority = 999
 
     def apply(self, **kwargs) -> None:
-        filterlevel = self.config.keep_warnings and 2 or 5
+        filterlevel = 2 if self.config.keep_warnings else 5
         for node in self.document.traverse(nodes.system_message):
             if node['level'] < filterlevel:
                 logger.debug('%s [filtered system message]', node.astext())

@@ -252,7 +252,7 @@ class TocTree:
 
         # prune the tree to maxdepth, also set toc depth and current classes
         _toctree_add_classes(newnode, 1)
-        self._toctree_prune(newnode, 1, prune and maxdepth or 0, collapse)
+        self._toctree_prune(newnode, 1, maxdepth if prune else 0, collapse)
 
         if isinstance(newnode[-1], nodes.Element) and len(newnode[-1]) == 0:  # No titles found
             return None
