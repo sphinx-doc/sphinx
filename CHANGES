@@ -1,25 +1,10 @@
-Release 2.3.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 2.3.1 (released Dec 22, 2019)
+=====================================
 
 Bugs fixed
 ----------
 
 * #6936: sphinx-autogen: raises AttributeError
-
-Testing
---------
 
 Release 2.3.0 (released Dec 15, 2019)
 =====================================
