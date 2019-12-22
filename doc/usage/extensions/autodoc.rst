@@ -170,6 +170,16 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      By default, members of ``object`` class are not documented.  To show them
      all, give ``None`` to the option.
 
+     For example; If your class ``Foo`` is derived from ``list`` class and
+     you don't want to document ``list.__len__()``, you should specify a
+     option ``:inherited-members: list`` to avoid special members of list
+     class.
+
+     Another example; If your class Foo has ``__str__`` special method and
+     autodoc directive has both ``inherited-members`` and ``special-members``,
+     ``__str__`` will be documented as in the past, but other special method
+     that are not implemented in your class ``Foo``.
+
      Note: this will lead to markup errors if the inherited members come from a
      module whose docstrings are not reST formatted.
 
