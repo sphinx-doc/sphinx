@@ -14,7 +14,7 @@ import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import Any, Callable, Dict, Generator, IO, Iterator, List, Set, Tuple, Union
+from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
 from typing import cast
 
 from docutils import nodes
