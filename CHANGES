@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6936: sphinx-autogen: raises AttributeError
+
 Testing
 --------
 
