@@ -267,30 +267,31 @@ class Builder:
 
     def build_specific(self, filenames: List[str]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
-        # bring the filenames to the canonical format, that is,
-        # relative to the source directory and without source_suffix.
-        dirlen = len(self.srcdir) + 1
-        to_write = []
-        suffixes: Tuple[str] = tuple(self.config.source_suffix)  # type: ignore
+        docnames: List[str] = []
+
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
+
             if not filename.startswith(self.srcdir):
                 logger.warning(__('file %r given on command line is not under the '
                                   'source directory, ignoring'), filename)
                 continue
+
             if not path.isfile(filename):
                 logger.warning(__('file %r given on command line does not exist, '
                                   'ignoring'), filename)
                 continue
-            filename = filename[dirlen:]
-            for suffix in suffixes:
-                if filename.endswith(suffix):
-                    filename = filename[:-len(suffix)]
-                    break
-            filename = filename.replace(path.sep, SEP)
-            to_write.append(filename)
-        self.build(to_write, method='specific',
-                   summary=__('%d source files given on command line') % len(to_write))
+
+            docname = self.env.path2doc(filename)
+            if not docname:
+                logger.warning(__('file %r given on command line is not a valid '
+                                  'document, ignoring'), filename)
+                continue
+
+            docnames.append(docname)
+
+        self.build(docnames, method='specific',
+                   summary=__('%d source files given on command line') % len(docnames))
 
     def build_update(self) -> None:
         """Only rebuild what was changed or added since last build."""
