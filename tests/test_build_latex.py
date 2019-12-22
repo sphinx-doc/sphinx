@@ -1470,3 +1470,9 @@ def test_latex_elements_extrapackages(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text()
     assert r'\usepackage{foo}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='nested-tables')
+def test_latex_nested_tables(app, status, warning):
+    app.builder.build_all()
+    assert '' == warning.getvalue()
