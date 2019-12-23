@@ -8,8 +8,7 @@ HTML theming support
 .. note::
 
    This document provides information about creating your own theme. If you
-   simply wish to use a pre-existing HTML themes, refer to
-   :doc:`/usage/theming`.
+   simply wish to use a pre-existing HTML themes, refer to :ref:`html-themes`.
 
 Sphinx supports changing the appearance of its HTML output via *themes*.  A
 theme is a collection of HTML templates, stylesheet(s) and other static files.
