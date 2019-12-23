@@ -2042,7 +2042,7 @@ These options influence LaTeX output.
 
    .. versionadded:: 0.5
 
-   Its :ref:`documentation <latex_elements_confval>` has moved to :doc:`/latex`.
+   Refer to :ref:`latex_elements_confval`.
 
 .. confval:: latex_docclass
 
