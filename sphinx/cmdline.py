@@ -8,42 +8,36 @@
     :license: BSD, see LICENSE for details.
 """
 
+import argparse
 import sys
 import warnings
+from typing import Any, IO, List, Union
 
+from sphinx.application import Sphinx
 from sphinx.cmd import build
 from sphinx.deprecation import RemovedInSphinx30Warning
 
-if False:
-    # For type annotation
-    import argparse  # NOQA
-    from typing import Any, IO, List, Union  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
-
-def handle_exception(app, args, exception, stderr=sys.stderr):
-    # type: (Sphinx, Any, Union[Exception, KeyboardInterrupt], IO) -> None
+def handle_exception(app: Sphinx, args: Any, exception: Union[Exception, KeyboardInterrupt],
+                     stderr: IO = sys.stderr) -> None:
     warnings.warn('sphinx.cmdline module is deprecated. Use sphinx.cmd.build instead.',
                   RemovedInSphinx30Warning, stacklevel=2)
     build.handle_exception(app, args, exception, stderr)
 
 
-def jobs_argument(value):
-    # type: (str) -> int
+def jobs_argument(value: str) -> int:
     warnings.warn('sphinx.cmdline module is deprecated. Use sphinx.cmd.build instead.',
                   RemovedInSphinx30Warning, stacklevel=2)
     return build.jobs_argument(value)
 
 
-def get_parser():
-    # type: () -> argparse.ArgumentParser
+def get_parser() -> argparse.ArgumentParser:
     warnings.warn('sphinx.cmdline module is deprecated. Use sphinx.cmd.build instead.',
                   RemovedInSphinx30Warning, stacklevel=2)
     return build.get_parser()
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
+def main(argv: List[str] = sys.argv[1:]) -> int:
     warnings.warn('sphinx.cmdline module is deprecated. Use sphinx.cmd.build instead.',
                   RemovedInSphinx30Warning, stacklevel=2)
     return build.main(argv)

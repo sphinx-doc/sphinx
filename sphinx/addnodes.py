@@ -9,6 +9,7 @@
 """
 
 import warnings
+from typing import Any, Dict, List, Sequence
 
 from docutils import nodes
 
@@ -16,8 +17,7 @@ from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warnin
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Sequence  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from sphinx.application import Sphinx
 
 
 class translatable(nodes.Node):
@@ -34,18 +34,15 @@ class translatable(nodes.Node):
     Because they are used at final step; extraction.
     """
 
-    def preserve_original_messages(self):
-        # type: () -> None
+    def preserve_original_messages(self) -> None:
         """Preserve original translatable messages."""
         raise NotImplementedError
 
-    def apply_translated_message(self, original_message, translated_message):
-        # type: (str, str) -> None
+    def apply_translated_message(self, original_message: str, translated_message: str) -> None:
         """Apply translated message."""
         raise NotImplementedError
 
-    def extract_original_messages(self):
-        # type: () -> Sequence[str]
+    def extract_original_messages(self) -> Sequence[str]:
         """Extract translation messages.
 
         :returns: list of extracted messages or messages generator
@@ -61,8 +58,7 @@ class not_smartquotable:
 class toctree(nodes.General, nodes.Element, translatable):
     """Node for inserting a "TOC tree"."""
 
-    def preserve_original_messages(self):
-        # type: () -> None
+    def preserve_original_messages(self) -> None:
         # toctree entries
         rawentries = self.setdefault('rawentries', [])
         for title, docname in self['entries']:
@@ -73,8 +69,7 @@ class toctree(nodes.General, nodes.Element, translatable):
         if self.get('caption'):
             self['rawcaption'] = self['caption']
 
-    def apply_translated_message(self, original_message, translated_message):
-        # type: (str, str) -> None
+    def apply_translated_message(self, original_message: str, translated_message: str) -> None:
         # toctree entries
         for i, (title, docname) in enumerate(self['entries']):
             if title == original_message:
@@ -84,8 +79,7 @@ class toctree(nodes.General, nodes.Element, translatable):
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
-    def extract_original_messages(self):
-        # type: () -> List[str]
+    def extract_original_messages(self) -> List[str]:
         messages = []  # type: List[str]
 
         # toctree entries
@@ -143,8 +137,7 @@ class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
-    def astext(self):
-        # type: () -> str
+    def astext(self) -> str:
         return ' -> ' + super().astext()
 
 
@@ -165,8 +158,7 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for marking optional parts of the parameter list."""
     child_text_separator = ', '
 
-    def astext(self):
-        # type: () -> str
+    def astext(self) -> str:
         return '[' + super().astext() + ']'
 
 
@@ -366,8 +358,7 @@ class abbreviation(nodes.abbreviation):
     .. deprecated:: 2.0
     """
 
-    def __init__(self, rawsource='', text='', *children, **attributes):
-        # type: (str, str, *nodes.Node, **Any) -> None
+    def __init__(self, rawsource: str = '', text: str = '', *children, **attributes) -> None:
         warnings.warn("abbrevition node for Sphinx was replaced by docutils'.",
                       RemovedInSphinx40Warning, stacklevel=2)
 
@@ -378,8 +369,7 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(toctree)
     app.add_node(desc)
     app.add_node(desc_signature)

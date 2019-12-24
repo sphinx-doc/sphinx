@@ -9,9 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-if False:
-    # For type annotation
-    from typing import Any  # NOQA
+from typing import Any
 
 
 class SphinxError(Exception):
@@ -51,21 +49,18 @@ class ExtensionError(SphinxError):
     """Extension error."""
     category = 'Extension error'
 
-    def __init__(self, message, orig_exc=None):
-        # type: (str, Exception) -> None
+    def __init__(self, message: str, orig_exc: Exception = None) -> None:
         super().__init__(message)
         self.message = message
         self.orig_exc = orig_exc
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         if self.orig_exc:
             return '%s(%r, %r)' % (self.__class__.__name__,
                                    self.message, self.orig_exc)
         return '%s(%r)' % (self.__class__.__name__, self.message)
 
-    def __str__(self):
-        # type: () -> str
+    def __str__(self) -> str:
         parent_str = super().__str__()
         if self.orig_exc:
             return '%s (exception: %s)' % (parent_str, self.orig_exc)
@@ -102,21 +97,18 @@ class SphinxParallelError(SphinxError):
 
     category = 'Sphinx parallel build error'
 
-    def __init__(self, message, traceback):
-        # type: (str, Any) -> None
+    def __init__(self, message: str, traceback: Any) -> None:
         self.message = message
         self.traceback = traceback
 
-    def __str__(self):
-        # type: () -> str
+    def __str__(self) -> str:
         return self.message
 
 
 class PycodeError(Exception):
     """Pycode Python source code analyser error."""
 
-    def __str__(self):
-        # type: () -> str
+    def __str__(self) -> str:
         res = self.args[0]
         if len(self.args) > 1:
             res += ' (exception was: %r)' % self.args[1]

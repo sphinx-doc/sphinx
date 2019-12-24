@@ -12,6 +12,7 @@
 
 import warnings
 from collections import OrderedDict, defaultdict
+from typing import Any, Callable, Dict, List
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ExtensionError
@@ -20,8 +21,8 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from sphinx.application import Sphinx
+
 
 logger = logging.getLogger(__name__)
 
@@ -50,8 +51,7 @@ core_events = {
 class EventManager:
     """Event manager for Sphinx."""
 
-    def __init__(self, app=None):
-        # type: (Sphinx) -> None
+    def __init__(self, app: "Sphinx" = None) -> None:
         if app is None:
             warnings.warn('app argument is required for EventManager.',
                           RemovedInSphinx40Warning)
@@ -60,15 +60,13 @@ class EventManager:
         self.listeners = defaultdict(OrderedDict)  # type: Dict[str, Dict[int, Callable]]
         self.next_listener_id = 0
 
-    def add(self, name):
-        # type: (str) -> None
+    def add(self, name: str) -> None:
         """Register a custom Sphinx event."""
         if name in self.events:
             raise ExtensionError(__('Event %r already present') % name)
         self.events[name] = ''
 
-    def connect(self, name, callback):
-        # type: (str, Callable) -> int
+    def connect(self, name: str, callback: Callable) -> int:
         """Connect a handler to specific event."""
         if name not in self.events:
             raise ExtensionError(__('Unknown event name: %s') % name)
@@ -78,14 +76,12 @@ class EventManager:
         self.listeners[name][listener_id] = callback
         return listener_id
 
-    def disconnect(self, listener_id):
-        # type: (int) -> None
+    def disconnect(self, listener_id: int) -> None:
         """Disconnect a handler."""
         for event in self.listeners.values():
             event.pop(listener_id, None)
 
-    def emit(self, name, *args):
-        # type: (str, Any) -> List
+    def emit(self, name: str, *args) -> List:
         """Emit a Sphinx event."""
         try:
             logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
@@ -103,8 +99,7 @@ class EventManager:
                 results.append(callback(self.app, *args))
         return results
 
-    def emit_firstresult(self, name, *args):
-        # type: (str, Any) -> Any
+    def emit_firstresult(self, name: str, *args) -> Any:
         """Emit a Sphinx event and returns first result.
 
         This returns the result of the first handler that doesn't return ``None``.
