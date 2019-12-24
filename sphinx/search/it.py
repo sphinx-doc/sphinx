@@ -8,13 +8,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.search import SearchLanguage, parse_stop_word
+from typing import Dict
 
 import snowballstemmer
 
-if False:
-    # For type annotation
-    from typing import Any  # NOQA
+from sphinx.search import SearchLanguage, parse_stop_word
 
 
 italian_stopwords = parse_stop_word('''
@@ -324,10 +322,8 @@ class SearchItalian(SearchLanguage):
     js_stemmer_code = js_stemmer
     stopwords = italian_stopwords
 
-    def init(self, options):
-        # type: (Any) -> None
+    def init(self, options: Dict) -> None:
         self.stemmer = snowballstemmer.stemmer('italian')
 
-    def stem(self, word):
-        # type: (str) -> str
+    def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())
