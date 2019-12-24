@@ -12,14 +12,17 @@ import html
 import warnings
 from functools import partial
 from importlib import import_module
+from typing import Any, Dict
 
 from pygments import highlight
 from pygments.filters import ErrorToken
+from pygments.formatter import Formatter
 from pygments.formatters import HtmlFormatter, LatexFormatter
 from pygments.lexer import Lexer
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
     CLexer, TextLexer, RstLexer
+from pygments.style import Style
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 
@@ -28,12 +31,6 @@ from sphinx.ext import doctest
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging, texescape
-
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from pygments.formatter import Formatter  # NOQA
-    from pygments.style import Style  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -67,9 +64,8 @@ class PygmentsBridge:
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None,
-                 latex_engine=None):
-        # type: (str, str, bool, str) -> None
+    def __init__(self, dest: str = 'html', stylename: str = 'sphinx',
+                 trim_doctest_flags: bool = None, latex_engine: str = None) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
 
@@ -86,8 +82,7 @@ class PygmentsBridge:
             warnings.warn('trim_doctest_flags option for PygmentsBridge is now deprecated.',
                           RemovedInSphinx30Warning, stacklevel=2)
 
-    def get_style(self, stylename):
-        # type: (str) -> Style
+    def get_style(self, stylename: str) -> Style:
         if stylename is None or stylename == 'sphinx':
             return SphinxStyle
         elif stylename == 'none':
@@ -98,13 +93,11 @@ class PygmentsBridge:
         else:
             return get_style_by_name(stylename)
 
-    def get_formatter(self, **kwargs):
-        # type: (Any) -> Formatter
+    def get_formatter(self, **kwargs) -> Formatter:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
-    def unhighlighted(self, source):
-        # type: (str) -> str
+    def unhighlighted(self, source: str) -> str:
         warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         if self.dest == 'html':
@@ -117,8 +110,8 @@ class PygmentsBridge:
             return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
-    def get_lexer(self, source, lang, opts=None, force=False, location=None):
-        # type: (str, str, Dict, bool, Any) -> Lexer
+    def get_lexer(self, source: str, lang: str, opts: Dict = None,
+                  force: bool = False, location: Any = None) -> Lexer:
         if not opts:
             opts = {}
 
@@ -161,8 +154,8 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(self, source, lang, opts=None, force=False, location=None, **kwargs):
-        # type: (str, str, Dict, bool, Any, Any) -> str
+    def highlight_block(self, source: str, lang: str, opts: Dict = None,
+                        force: bool = False, location: Any = None, **kwargs) -> str:
         if not isinstance(source, str):
             source = source.decode()
 
@@ -196,8 +189,7 @@ class PygmentsBridge:
             # MEMO: this is done to escape Unicode chars with non-Unicode engines
             return texescape.hlescape(hlsource, self.latex_engine)
 
-    def get_stylesheet(self):
-        # type: () -> str
+    def get_stylesheet(self) -> str:
         formatter = self.get_formatter()
         if self.dest == 'html':
             return formatter.get_style_defs('.highlight')
