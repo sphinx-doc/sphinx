@@ -28,6 +28,7 @@ Bugs fixed
 
 * #6925: html: Remove redundant type="text/javascript" from <script> elements
 * #6906: autodoc: failed to read the source codes encoeded in cp1251
+* #6961: latex: warning for babel shown twice
 
 Testing
 --------
