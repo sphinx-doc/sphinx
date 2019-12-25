@@ -59,6 +59,11 @@ class DummyApplication:
         self.registry = SphinxComponentRegistry()
         self.messagelog = []  # type: List[str]
         self.verbosity = 0
+        self._warncount = 0
+        self.warningiserror = False
+
+    def emit_firstresult(self, *args) -> None:
+        pass
 
 
 def setup_documenters(app: Any) -> None:

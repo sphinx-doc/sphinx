@@ -119,8 +119,7 @@ def get_matching_docs(dirname: str, suffixes: List[str],
                 break
 
 
-def get_filetype(source_suffix, filename):
-    # type: (Dict[str, str], str) -> str
+def get_filetype(source_suffix: Dict[str, str], filename: str) -> str:
     for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.

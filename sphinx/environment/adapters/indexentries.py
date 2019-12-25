@@ -12,8 +12,10 @@ import re
 import unicodedata
 from itertools import groupby
 from typing import Any, Dict, Pattern, List, Tuple
+from typing import cast
 
 from sphinx.builders import Builder
+from sphinx.domains.index import IndexDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
@@ -53,7 +55,8 @@ class IndexEntries:
                     # maintain links in sorted/deterministic order
                     bisect.insort(entry[0], (main, uri))
 
-        for fn, entries in self.env.indexentries.items():
+        domain = cast(IndexDomain, self.env.get_domain('index'))
+        for fn, entries in domain.entries.items():
             # new entry types must be listed in directives/other.py!
             for type, value, tid, main, index_key in entries:
                 try:

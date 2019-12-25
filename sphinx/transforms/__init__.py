@@ -273,8 +273,7 @@ class DoctestTransform(SphinxTransform):
     """Set "doctest" style to each doctest_block node"""
     default_priority = 500
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs) -> None:
         for node in self.document.traverse(nodes.doctest_block):
             node['classes'].append('doctest')
 

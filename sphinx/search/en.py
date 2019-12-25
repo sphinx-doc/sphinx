@@ -8,12 +8,10 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Dict
+
 from sphinx.search import SearchLanguage
 from sphinx.util.stemmer import get_stemmer
-
-if False:
-    # For type annotation
-    from typing import Dict  # NOQA
 
 english_stopwords = set("""
 a  and  are  as  at
@@ -220,10 +218,8 @@ class SearchEnglish(SearchLanguage):
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
 
-    def init(self, options):
-        # type: (Dict) -> None
+    def init(self, options: Dict) -> None:
         self.stemmer = get_stemmer()
 
-    def stem(self, word):
-        # type: (str) -> str
+    def stem(self, word: str) -> str:
         return self.stemmer.stem(word.lower())
