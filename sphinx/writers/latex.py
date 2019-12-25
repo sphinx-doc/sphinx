@@ -322,12 +322,12 @@ class LaTeXTranslator(SphinxTranslator):
         self.elements = self.builder.context.copy()
 
         # but some have other interface in config file
-        self.elements['wrapperclass'] = self.format_docclass(self.settings.docclass)
+        self.elements['wrapperclass'] = self.format_docclass(document.get('docclass'))
 
         # we assume LaTeX class provides \chapter command except in case
         # of non-Japanese 'howto' case
         self.sectionnames = LATEXSECTIONNAMES[:]
-        if self.settings.docclass == 'howto':
+        if document.get('docclass') == 'howto':
             docclass = self.config.latex_docclass.get('howto', 'article')
             if docclass[0] == 'j':  # Japanese class...
                 pass
@@ -429,7 +429,7 @@ class LaTeXTranslator(SphinxTranslator):
             #   tocdepth =  1: show parts, chapters and sections
             #   tocdepth =  2: show parts, chapters, sections and subsections
             #   ...
-            tocdepth = self.document['tocdepth'] + self.top_sectionlevel - 2
+            tocdepth = self.document.get('tocdepth', 999) + self.top_sectionlevel - 2
             if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
                self.top_sectionlevel > 0:
                 tocdepth += 1  # because top_sectionlevel is shifted by -1
@@ -447,7 +447,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' %\
                                            minsecnumdepth
 
-        contentsname = self.settings.contentsname
+        contentsname = document.get('contentsname')
         if contentsname:
             self.elements['contentsname'] = self.babel_renewcommand('\\contentsname',
                                                                     contentsname)

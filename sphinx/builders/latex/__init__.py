@@ -221,6 +221,7 @@ class LaTeXBuilder(Builder):
             defaults=self.env.settings,
             components=(docwriter,),
             read_config_files=True).get_default_values()  # type: Any
+        patch_settings(docsettings)
 
         self.init_document_data()
         self.write_stylesheet()
@@ -243,16 +244,18 @@ class LaTeXBuilder(Builder):
                 doctree = self.assemble_doctree(
                     docname, toctree_only,
                     appendices=(self.config.latex_appendices if docclass != 'howto' else []))
+                doctree['docclass'] = docclass
+                doctree['contentsname'] = self.get_contentsname(docname)
                 doctree['tocdepth'] = tocdepth
                 self.post_process_images(doctree)
                 self.update_doc_context(title, author)
 
             with progress_message(__("writing")):
-                docsettings.author = author
-                docsettings.title = title
-                docsettings.contentsname = self.get_contentsname(docname)
-                docsettings.docname = docname
-                docsettings.docclass = docclass
+                docsettings._author = author
+                docsettings._title = title
+                docsettings._contentsname = doctree['contentsname']
+                docsettings._docname = docname
+                docsettings._docclass = docclass
 
                 doctree.settings = docsettings
                 docwriter.write(doctree, destination)
@@ -398,6 +401,44 @@ class LaTeXBuilder(Builder):
 
         filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
+
+
+def patch_settings(settings: Any):
+    """Make settings object to show deprecation messages."""
+
+    class Values(type(settings)):  # type: ignore
+        @property
+        def author(self):
+            warnings.warn('settings.author is deprecated',
+                          RemovedInSphinx40Warning, stacklevel=2)
+            return self._author
+
+        @property
+        def title(self):
+            warnings.warn('settings.title is deprecated',
+                          RemovedInSphinx40Warning, stacklevel=2)
+            return self._title
+
+        @property
+        def contentsname(self):
+            warnings.warn('settings.contentsname is deprecated',
+                          RemovedInSphinx40Warning, stacklevel=2)
+            return self._contentsname
+
+        @property
+        def docname(self):
+            warnings.warn('settings.docname is deprecated',
+                          RemovedInSphinx40Warning, stacklevel=2)
+            return self._docname
+
+        @property
+        def docclass(self):
+            warnings.warn('settings.docclass is deprecated',
+                          RemovedInSphinx40Warning, stacklevel=2)
+            return self._docclass
+
+    # dynamic subclassing
+    settings.__class__ = Values
 
 
 def validate_config_values(app: Sphinx, config: Config) -> None:

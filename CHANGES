@@ -18,6 +18,11 @@ Deprecated
 * ``sphinx.pycode.ModuleAnalyzer.encoding``
 * ``sphinx.util.detect_encoding()``
 * ``sphinx.util.get_module_source()``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.author``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.contentsname``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.docclass``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.docname``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.title``
 
 Features added
 --------------
