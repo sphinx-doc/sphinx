@@ -20,6 +20,7 @@ import sphinx.builders.latex.nodes  # NOQA  # Workaround: import this before wri
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
+from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTINGS
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import Config, ENUM
 from sphinx.deprecation import RemovedInSphinx40Warning
@@ -34,9 +35,7 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename_from_project
 from sphinx.util.template import LaTeXRenderer
-from sphinx.writers.latex import (
-    ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
-)
+from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
 # load docutils.nodes after loading sphinx.builders.latex.nodes
 from docutils import nodes  # NOQA
