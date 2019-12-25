@@ -30,6 +30,7 @@ import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError

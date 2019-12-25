@@ -15,7 +15,6 @@ from os import path
 from typing import Any, Dict, Iterator
 from uuid import uuid4
 
-from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx.transforms import SphinxTransform

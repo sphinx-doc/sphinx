@@ -14,8 +14,6 @@ from collections import UserString, defaultdict
 from gettext import NullTranslations
 from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
 
-from sphinx.deprecation import RemovedInSphinx30Warning
-
 
 class _TranslationProxy(UserString):
     """

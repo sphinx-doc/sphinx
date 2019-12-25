@@ -9,7 +9,7 @@
 """
 import codecs
 import warnings
-from typing import Any, List, Tuple
+from typing import Any, List
 from typing import Type  # for python3.5.1
 
 from docutils import nodes
@@ -19,7 +19,6 @@ from docutils.io import FileInput, Input, NullOutput
 from docutils.parsers import Parser
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
-from docutils.statemachine import StringList, string2lines
 from docutils.transforms import Transform
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
@@ -177,7 +176,6 @@ class SphinxFileInput(FileInput):
     def __init__(self, *args, **kwargs) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
-
 
 
 def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.document:
