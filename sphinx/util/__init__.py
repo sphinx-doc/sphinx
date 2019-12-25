@@ -25,7 +25,7 @@ from hashlib import md5
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Optional
+from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from docutils.utils import relative_path
@@ -265,35 +265,31 @@ def save_traceback(app: "Sphinx") -> str:
     return path
 
 
-def get_module_source(modname: str) -> Tuple[Optional[str], Optional[str]]:
+def get_module_source(modname: str) -> Tuple[str, str]:
     """Try to find the source code for a module.
 
-    Returns ('filename', 'source'). One of it can be None if
-    no filename or source found
+    Can return ('file', 'filename') in which case the source is in the given
+    file, or ('string', 'source') which which case the source is the string.
     """
     try:
         mod = import_module(modname)
     except Exception as err:
         raise PycodeError('error importing %r' % modname, err)
-    loader = getattr(mod, '__loader__', None)
     filename = getattr(mod, '__file__', None)
-    if loader and getattr(loader, 'get_source', None):
-        # prefer Native loader, as it respects #coding directive
-        try:  
-            source = loader.get_source(modname)
-            if source:
-                # no exception and not None - it must be module source
-                return filename, source
-        except ImportError as err:
-            pass  # Try other "source-mining" methods
-    if filename is None and loader and getattr(loader, 'get_filename', None):
-        # have loader, but no filename
+    loader = getattr(mod, '__loader__', None)
+    if loader and getattr(loader, 'get_filename', None):
         try:
             filename = loader.get_filename(modname)
-        except ImportError as err:
-            raise PycodeError('error getting filename for %r' % modname, err)
+        except Exception as err:
+            raise PycodeError('error getting filename for %r' % filename, err)
+    if filename is None and loader:
+        try:
+            filename = loader.get_source(modname)
+            if filename:
+                return 'string', filename
+        except Exception as err:
+            raise PycodeError('error getting source for %r' % modname, err)
     if filename is None:
-        # all methods for getting filename failed, so raise...
         raise PycodeError('no source found for module %r' % modname)
     filename = path.normpath(path.abspath(filename))
     lfilename = filename.lower()
@@ -307,11 +303,11 @@ def get_module_source(modname: str) -> Tuple[Optional[str], Optional[str]]:
         pat = '(?<=\\.egg)' + re.escape(os.path.sep)
         eggpath, _ = re.split(pat, filename, 1)
         if path.isfile(eggpath):
-            return filename, None
+            return 'file', filename
 
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
-    return filename, None
+    return 'file', filename
 
 
 def get_full_modname(modname: str, attribute: str) -> str:

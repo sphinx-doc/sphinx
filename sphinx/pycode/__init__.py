@@ -11,8 +11,9 @@
 import re
 from io import StringIO
 from os import path
-from typing import Any, Dict, IO, List, Tuple
+from typing import Any, Dict, IO, List, Tuple, Optional
 from zipfile import ZipFile
+from importlib import import_module
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
@@ -23,6 +24,55 @@ class ModuleAnalyzer:
     # cache for analyzer objects -- caches both by module and file name
     cache = {}  # type: Dict[Tuple[str, str], Any]
 
+    @staticmethod
+    def get_module_source(modname: str) -> Tuple[Optional[str], Optional[str]]:
+        """Try to find the source code for a module.
+
+        Returns ('filename', 'source'). One of it can be None if
+        no filename or source found
+        """
+        try:
+            mod = import_module(modname)
+        except Exception as err:
+            raise PycodeError('error importing %r' % modname, err)
+        loader = getattr(mod, '__loader__', None)
+        filename = getattr(mod, '__file__', None)
+        if loader and getattr(loader, 'get_source', None):
+            # prefer Native loader, as it respects #coding directive
+            try:  
+                source = loader.get_source(modname)
+                if source:
+                    # no exception and not None - it must be module source
+                    return filename, source
+            except ImportError as err:
+                pass  # Try other "source-mining" methods
+        if filename is None and loader and getattr(loader, 'get_filename', None):
+            # have loader, but no filename
+            try:
+                filename = loader.get_filename(modname)
+            except ImportError as err:
+                raise PycodeError('error getting filename for %r' % modname, err)
+        if filename is None:
+            # all methods for getting filename failed, so raise...
+            raise PycodeError('no source found for module %r' % modname)
+        filename = path.normpath(path.abspath(filename))
+        lfilename = filename.lower()
+        if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
+            filename = filename[:-1]
+            if not path.isfile(filename) and path.isfile(filename + 'w'):
+                filename += 'w'
+        elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
+            raise PycodeError('source is not a .py file: %r' % filename)
+        elif ('.egg' + os.path.sep) in filename:
+            pat = '(?<=\\.egg)' + re.escape(os.path.sep)
+            eggpath, _ = re.split(pat, filename, 1)
+            if path.isfile(eggpath):
+                return filename, None
+
+        if not path.isfile(filename):
+            raise PycodeError('source file is not present: %r' % filename)
+        return filename, None
+    
     @classmethod
     def for_string(cls, string: str, modname: str, srcname: str = '<string>'
                    ) -> "ModuleAnalyzer":
@@ -63,7 +113,7 @@ class ModuleAnalyzer:
             return entry
 
         try:
-            filename, source = get_module_source(modname)
+            filename, source = cls.get_module_source(modname)
             if source is not None:
                 obj = cls.for_string(source, modname, filename if filename is not None else '<string>')
             elif filename is not None:
