@@ -492,6 +492,8 @@ class LaTeXTranslator(SphinxTranslator):
         self.compact_list = 0
         self.first_param = 0
 
+        sphinxpkgoptions = []
+
         # sort out some elements
         self.elements = self.builder.context.copy()
 
@@ -535,13 +537,13 @@ class LaTeXTranslator(SphinxTranslator):
                 self.numfig_secnum_depth = min(self.numfig_secnum_depth,
                                                len(LATEXSECTIONNAMES) - 1)
                 # if passed key value is < 1 LaTeX will act as if 0; see sphinx.sty
-                self.elements['sphinxpkgoptions'] += \
-                    (',numfigreset=%s' % self.numfig_secnum_depth)
+                sphinxpkgoptions.append('numfigreset=%s' % self.numfig_secnum_depth)
             else:
-                self.elements['sphinxpkgoptions'] += ',nonumfigreset'
+                sphinxpkgoptions.append('nonumfigreset')
+
             try:
                 if self.config.math_numfig:
-                    self.elements['sphinxpkgoptions'] += ',mathnumfig'
+                    sphinxpkgoptions.append('mathnumfig')
             except AttributeError:
                 pass
 
@@ -630,11 +632,9 @@ class LaTeXTranslator(SphinxTranslator):
                                                                     contentsname)
 
         if self.elements['maxlistdepth']:
-            self.elements['sphinxpkgoptions'] += (',maxlistdepth=%s' %
-                                                  self.elements['maxlistdepth'])
-        if self.elements['sphinxpkgoptions']:
-            self.elements['sphinxpkgoptions'] = ('[%s]' %
-                                                 self.elements['sphinxpkgoptions'])
+            sphinxpkgoptions.append('maxlistdepth=%s' % self.elements['maxlistdepth'])
+        if sphinxpkgoptions:
+            self.elements['sphinxpkgoptions'] = '[,%s]' % ','.join(sphinxpkgoptions)
         if self.elements['sphinxsetup']:
             self.elements['sphinxsetup'] = ('\\sphinxsetup{%s}' %
                                             self.elements['sphinxsetup'])
