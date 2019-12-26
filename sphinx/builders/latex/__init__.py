@@ -20,7 +20,7 @@ import sphinx.builders.latex.nodes  # NOQA  # Workaround: import this before wri
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTINGS
+from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, SHORTHANDOFF
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import Config, ENUM
@@ -133,6 +133,7 @@ class LaTeXBuilder(Builder):
 
         self.init_context()
         self.init_babel()
+        self.init_multilingual()
 
     def get_outdated_docs(self) -> Union[str, List[str]]:
         return 'all documents'  # for now
@@ -207,6 +208,41 @@ class LaTeXBuilder(Builder):
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
                            self.config.language)
+
+    def init_multilingual(self) -> None:
+        if self.context['latex_engine'] == 'pdflatex':
+            if not self.babel.uses_cyrillic():
+                if 'X2' in self.context['fontenc']:
+                    self.context['substitutefont'] = '\\usepackage{substitutefont}'
+                    self.context['textcyrillic'] = '\\usepackage[Xtwo]{sphinxcyrillic}'
+                elif 'T2A' in self.context['fontenc']:
+                    self.context['substitutefont'] = '\\usepackage{substitutefont}'
+                    self.context['textcyrillic'] = '\\usepackage[TtwoA]{sphinxcyrillic}'
+            if 'LGR' in self.context['fontenc']:
+                self.context['substitutefont'] = '\\usepackage{substitutefont}'
+            else:
+                self.context['textgreek'] = ''
+
+        # 'babel' key is public and user setting must be obeyed
+        if self.context['babel']:
+            self.context['classoptions'] += ',' + self.babel.get_language()
+            # this branch is not taken for xelatex/lualatex if default settings
+            self.context['multilingual'] = self.context['babel']
+            if self.config.language:
+                self.context['shorthandoff'] = SHORTHANDOFF
+
+                # Times fonts don't work with Cyrillic languages
+                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
+                    self.context['fontpkg'] = ''
+        elif self.context['polyglossia']:
+            self.context['classoptions'] += ',' + self.babel.get_language()
+            options = self.babel.get_mainlanguage_options()
+            if options:
+                language = r'\setmainlanguage[%s]{%s}' % (options, self.babel.get_language())
+            else:
+                language = r'\setmainlanguage{%s}' % self.babel.get_language()
+
+            self.context['multilingual'] = '%s\n%s' % (self.context['polyglossia'], language)
 
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
