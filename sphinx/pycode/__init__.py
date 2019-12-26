@@ -17,7 +17,7 @@ from importlib import import_module
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
-from sphinx.util import get_module_source, detect_encoding
+from sphinx.util import detect_encoding
 
 
 class ModuleAnalyzer:
@@ -39,12 +39,12 @@ class ModuleAnalyzer:
         filename = getattr(mod, '__file__', None)
         if loader and getattr(loader, 'get_source', None):
             # prefer Native loader, as it respects #coding directive
-            try:  
+            try:
                 source = loader.get_source(modname)
                 if source:
                     # no exception and not None - it must be module source
                     return filename, source
-            except ImportError as err:
+            except ImportError:
                 pass  # Try other "source-mining" methods
         if filename is None and loader and getattr(loader, 'get_filename', None):
             # have loader, but no filename
@@ -63,8 +63,8 @@ class ModuleAnalyzer:
                 filename += 'w'
         elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
             raise PycodeError('source is not a .py file: %r' % filename)
-        elif ('.egg' + os.path.sep) in filename:
-            pat = '(?<=\\.egg)' + re.escape(os.path.sep)
+        elif ('.egg' + path.sep) in filename:
+            pat = '(?<=\\.egg)' + re.escape(path.sep)
             eggpath, _ = re.split(pat, filename, 1)
             if path.isfile(eggpath):
                 return filename, None
@@ -72,7 +72,7 @@ class ModuleAnalyzer:
         if not path.isfile(filename):
             raise PycodeError('source file is not present: %r' % filename)
         return filename, None
-    
+
     @classmethod
     def for_string(cls, string: str, modname: str, srcname: str = '<string>'
                    ) -> "ModuleAnalyzer":
