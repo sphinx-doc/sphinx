@@ -282,6 +282,8 @@ def get_module_source(modname: str) -> Tuple[str, str]:
     Can return ('file', 'filename') in which case the source is in the given
     file, or ('string', 'source') which which case the source is the string.
     """
+    warnings.warn('get_module_source() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     try:
         mod = import_module(modname)
     except Exception as err:
