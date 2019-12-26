@@ -31,6 +31,11 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.domains.std.StandardDomain.note_object()``
 
+   * - ``sphinx.parsers.Parser.app``
+     - 3.0
+     - 5.0
+     - N/A
+
    * - ``sphinx.testing.path.Path.text()``
      - 3.0
      - 5.0
