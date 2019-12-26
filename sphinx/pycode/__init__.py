@@ -56,12 +56,11 @@ class ModuleAnalyzer:
             # all methods for getting filename failed, so raise...
             raise PycodeError('no source found for module %r' % modname)
         filename = path.normpath(path.abspath(filename))
-        lfilename = filename.lower()
-        if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
+        if filename.lower().endswith(('.pyo', '.pyc')):
             filename = filename[:-1]
             if not path.isfile(filename) and path.isfile(filename + 'w'):
                 filename += 'w'
-        elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
+        elif not filename.lower().endswith(('.py', '.pyw')):
             raise PycodeError('source is not a .py file: %r' % filename)
         elif ('.egg' + path.sep) in filename:
             pat = '(?<=\\.egg)' + re.escape(path.sep)
