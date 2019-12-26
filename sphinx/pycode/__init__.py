@@ -9,11 +9,11 @@
 """
 
 import re
+from importlib import import_module
 from io import StringIO
 from os import path
 from typing import Any, Dict, IO, List, Tuple, Optional
 from zipfile import ZipFile
-from importlib import import_module
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
@@ -114,7 +114,7 @@ class ModuleAnalyzer:
         try:
             filename, source = cls.get_module_source(modname)
             if source is not None:
-                obj = cls.for_string(source, modname, filename if filename is not None else '<string>')
+                obj = cls.for_string(source, modname, filename or '<string>')
             elif filename is not None:
                 obj = cls.for_file(filename, modname)
         except PycodeError as err:
