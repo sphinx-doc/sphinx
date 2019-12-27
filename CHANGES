@@ -14,6 +14,7 @@ Deprecated
 * ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
 * ``sphinx.io.FiletypeNotFoundError``
 * ``sphinx.io.get_filetype()``
+* ``sphinx.util.get_module_source()``
 
 Features added
 --------------
