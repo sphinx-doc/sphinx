@@ -346,6 +346,8 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 def detect_encoding(readline: Callable[[], bytes]) -> str:
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
+    warnings.warn('sphinx.util.detect_encoding() is deprecated',
+                  RemovedInSphinx40Warning)
 
     def read_or_stop() -> bytes:
         try:

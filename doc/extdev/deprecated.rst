@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``decode`` argument of ``sphinx.pycode.ModuleAnalyzer()``
+     - 2.4
+     - 4.0
+     - N/A
+
    * - ``sphinx.environment.BuildEnvironment.indexentries``
      - 2.4
      - 4.0
@@ -50,6 +55,16 @@ The following is a list of deprecated interfaces.
      - 2.4
      - 4.0
      - N/A
+
+   * - ``sphinx.pycode.ModuleAnalyzer.encoding``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.detect_encoding()``
+     - 2.4
+     - 4.0
+     - ``tokenize.detect_encoding()``
 
    * - ``sphinx.builders.gettext.POHEADER``
      - 2.3

@@ -32,14 +32,12 @@ def test_ModuleAnalyzer_for_string():
     analyzer = ModuleAnalyzer.for_string('print("Hello world")', 'module_name')
     assert analyzer.modname == 'module_name'
     assert analyzer.srcname == '<string>'
-    assert analyzer.encoding is None
 
 
 def test_ModuleAnalyzer_for_file():
     analyzer = ModuleAnalyzer.for_string(SPHINX_MODULE_PATH, 'sphinx')
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname == '<string>'
-    assert analyzer.encoding is None
 
 
 def test_ModuleAnalyzer_for_module(rootdir):
@@ -47,8 +45,7 @@ def test_ModuleAnalyzer_for_module(rootdir):
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname in (SPHINX_MODULE_PATH,
                                 os.path.abspath(SPHINX_MODULE_PATH))
-    # source should be loaded via native loader, so don`t know file enconding
-    assert analyzer.encoding == None
+
     path = rootdir / 'test-pycode'
     sys.path.insert(0, path)
     try:
@@ -57,7 +54,6 @@ def test_ModuleAnalyzer_for_module(rootdir):
         assert docs == {('', 'X'): ['It MUST look like X="\u0425"', '']}
     finally:
         sys.path.pop(0)
-    
 
 
 def test_ModuleAnalyzer_for_file_in_egg(rootdir):
