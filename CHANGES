@@ -26,6 +26,7 @@ Features added
 * #6446: duration: Add ``sphinx.ext.durations`` to inspect which documents slow
   down the build
 * #6837: LaTeX: Support a nested table
+* #6966: graphviz: Support ``:class:`` option
 
 Bugs fixed
 ----------
