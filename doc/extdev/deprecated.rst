@@ -51,11 +51,6 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.util.get_filetype()``
 
-   * - ``sphinx.util.get_module_source()``
-     - 2.4
-     - 4.0
-     - N/A
-
    * - ``sphinx.pycode.ModuleAnalyzer.encoding``
      - 2.4
      - 4.0
@@ -65,6 +60,11 @@ The following is a list of deprecated interfaces.
      - 2.4
      - 4.0
      - ``tokenize.detect_encoding()``
+
+   * - ``sphinx.util.get_module_source()``
+     - 2.4
+     - 4.0
+     - N/A
 
    * - ``sphinx.builders.gettext.POHEADER``
      - 2.3
