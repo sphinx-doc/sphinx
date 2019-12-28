@@ -493,7 +493,7 @@ def default_latex_documents(config: Config) -> List[Tuple[str, str, str, str, st
              make_filename_from_project(config.project) + '.tex',
              texescape.escape_abbr(project),
              texescape.escape_abbr(author),
-             'manual')]
+             config.latex_theme)]
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -516,6 +516,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_show_pagerefs', False, None)
     app.add_config_value('latex_elements', {}, None)
     app.add_config_value('latex_additional_files', [], None)
+    app.add_config_value('latex_theme', 'manual', None, [str])
+    app.add_config_value('latex_theme_path', [], None, [list])
 
     app.add_config_value('latex_docclass', default_latex_docclass, None)
 

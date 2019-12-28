@@ -8,10 +8,17 @@
     :license: BSD, see LICENSE for details.
 """
 
+import configparser
+from os import path
 from typing import Dict
 
 from sphinx.application import Sphinx
 from sphinx.config import Config
+from sphinx.errors import ThemeError
+from sphinx.locale import __
+from sphinx.util import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Theme:
@@ -56,11 +63,30 @@ class BuiltInTheme(Theme):
             return 'chapter'
 
 
+class UserTheme(Theme):
+    """A user defined LaTeX theme."""
+
+    def __init__(self, name: str, filename: str) -> None:
+        self.name = name
+        self.config = configparser.RawConfigParser()
+        self.config.read(path.join(filename))
+
+        try:
+            self.docclass = self.config.get('theme', 'docclass')
+            self.wrapperclass = self.config.get('theme', 'wrapperclass')
+            self.toplevel_sectioning = self.config.get('theme', 'toplevel_sectioning')
+        except configparser.NoSectionError:
+            raise ThemeError(__('%r doesn\'t have "theme" setting') % filename)
+        except configparser.NoOptionError as exc:
+            raise ThemeError(__('%r doesn\'t have "%s" setting') % (filename, exc.args[0]))
+
+
 class ThemeFactory:
     """A factory class for LaTeX Themes."""
 
     def __init__(self, app: Sphinx) -> None:
         self.themes = {}  # type: Dict[str, Theme]
+        self.theme_paths = [path.join(app.srcdir, p) for p in app.config.latex_theme_path]
         self.load_builtin_themes(app.config)
 
     def load_builtin_themes(self, config: Config) -> None:
@@ -70,7 +96,23 @@ class ThemeFactory:
 
     def get(self, name: str) -> Theme:
         """Get a theme for given *name*."""
-        if name not in self.themes:
-            return Theme(name)
-        else:
+        if name in self.themes:
             return self.themes[name]
+        else:
+            theme = self.find_user_theme(name)
+            if theme:
+                return theme
+            else:
+                return Theme(name)
+
+    def find_user_theme(self, name: str) -> Theme:
+        """Find a theme named as *name* from latex_theme_path."""
+        for theme_path in self.theme_paths:
+            config_path = path.join(theme_path, name, 'theme.conf')
+            if path.isfile(config_path):
+                try:
+                    return UserTheme(name, config_path)
+                except ThemeError as exc:
+                    logger.warning(exc)
+
+        return None
