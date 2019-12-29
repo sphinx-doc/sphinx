@@ -22,7 +22,7 @@ from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
@@ -81,7 +81,8 @@ class GenericObject(ObjectDescription):
                                               targetname, '', None))
 
         std = cast(StandardDomain, self.env.get_domain('std'))
-        std.add_object(self.objtype, name, self.env.docname, targetname)
+        std.note_object(self.objtype, name, targetname,
+                        location=(self.env.docname, self.lineno))
 
 
 class EnvVar(GenericObject):
@@ -143,7 +144,7 @@ class Target(SphinxDirective):
             _, name = self.name.split(':', 1)
 
         std = cast(StandardDomain, self.env.get_domain('std'))
-        std.add_object(name, fullname, self.env.docname, targetname)
+        std.note_object(name, fullname, targetname, location=(self.env.docname, self.lineno))
 
         return ret
 
@@ -261,7 +262,7 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
     gloss_entries.add(new_id)
 
     std = cast(StandardDomain, env.get_domain('std'))
-    std.add_object('term', termtext.lower(), env.docname, new_id)
+    std.note_object('term', termtext.lower(), new_id, location=(env.docname, lineno))
 
     # add an index entry too
     indexnode = addnodes.index()
@@ -443,7 +444,8 @@ class ProductionList(SphinxDirective):
                 if idname not in self.state.document.ids:
                     subnode['ids'].append(idname)
                 self.state.document.note_implicit_target(subnode, subnode)
-                domain.add_object('token', subnode['tokenname'], self.env.docname, idname)
+                domain.note_object('token', subnode['tokenname'], idname,
+                                   location=(self.env.docname, self.lineno))
             subnode.extend(token_xrefs(tokens))
             node.append(subnode)
         return [node]
@@ -539,6 +541,23 @@ class StandardDomain(Domain):
     def objects(self) -> Dict[Tuple[str, str], Tuple[str, str]]:
         return self.data.setdefault('objects', {})  # (objtype, name) -> docname, labelid
 
+    def note_object(self, objtype: str, name: str, labelid: str, location: Any = None
+                    ) -> None:
+        """Note a generic object for cross reference.
+
+        .. versionadded:: 3.0
+        """
+        if (objtype, name) in self.objects:
+            docname = self.objects[objtype, name][0]
+            logger.warning(__('duplicate %s description of %s, other instance in %s'),
+                           objtype, name, docname, location=location)
+        self.objects[objtype, name] = (self.env.docname, labelid)
+
+    def add_object(self, objtype: str, name: str, docname: str, labelid: str) -> None:
+        warnings.warn('StandardDomain.add_object() is deprecated.',
+                      RemovedInSphinx50Warning)
+        self.objects[objtype, name] = (docname, labelid)
+
     @property
     def progoptions(self) -> Dict[Tuple[str, str], Tuple[str, str]]:
         return self.data.setdefault('progoptions', {})  # (program, name) -> docname, labelid
@@ -619,9 +638,6 @@ class StandardDomain(Domain):
                     # anonymous-only labels
                     continue
             self.labels[name] = docname, labelid, sectname
-
-    def add_object(self, objtype: str, name: str, docname: str, labelid: str) -> None:
-        self.objects[objtype, name] = (docname, labelid)
 
     def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:
         self.progoptions[program, name] = (docname, labelid)
