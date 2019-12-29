@@ -146,6 +146,9 @@ def setup(app):
     app.add_object_type('confval', 'confval',
                         objname='configuration value',
                         indextemplate='pair: %s; configuration value')
+    app.add_object_type('setuptools-confval', 'setuptools-confval',
+                        objname='setuptools configuration value',
+                        indextemplate='pair: %s; setuptools configuration value')
     fdesc = GroupedField('parameter', label='Parameters',
                          names=['param'], can_collapse=True)
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,

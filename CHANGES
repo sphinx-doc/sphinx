@@ -1975,7 +1975,7 @@ Features removed
 
 * ``termsep`` node
 * defindex.html template
-* LDML format support in `today`, `today_fmt` and `html_last_updated_fmt`
+* LDML format support in ``today``, ``today_fmt`` and ``html_last_updated_fmt``
 * ``:inline:`` option for the directives of sphinx.ext.graphviz extension
 * sphinx.ext.pngmath extension
 * ``sphinx.util.compat.make_admonition()``
@@ -4779,7 +4779,7 @@ Features added
 
   - Added a "nitpicky" mode that emits warnings for all missing
     references.  It is activated by the :option:`sphinx-build -n` command-line
-    switch or the `nitpicky` config value.
+    switch or the :confval:`nitpicky` config value.
   - Added ``latexpdf`` target in quickstart Makefile.
 
 * Markup:
