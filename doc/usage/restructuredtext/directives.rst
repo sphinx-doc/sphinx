@@ -852,6 +852,8 @@ mainly contained in information units, such as the language reference.
       creates the entries ``module; hashlib`` and ``hashlib; module``.  (These
       are Python-specific and therefore deprecated.)
 
+      .. deprecated:: 1.0
+
    You can mark up "main" index entries by prefixing them with an exclamation
    mark.  The references to "main" entries are emphasized in the generated
    index.  For example, if two pages contain ::

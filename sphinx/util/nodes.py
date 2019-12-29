@@ -363,7 +363,8 @@ indextypes = [
 ]
 
 
-def process_index_entry(entry: str, targetid: str) -> List[Tuple[str, str, str, str, str]]:
+def process_index_entry(entry: str, targetid: str, location: Any = None
+                        ) -> List[Tuple[str, str, str, str, str]]:
     from sphinx.domains.python import pairindextypes
 
     indexentries = []  # type: List[Tuple[str, str, str, str, str]]
@@ -375,6 +376,11 @@ def process_index_entry(entry: str, targetid: str) -> List[Tuple[str, str, str, 
         entry = entry[1:].lstrip()
     for type in pairindextypes:
         if entry.startswith(type + ':'):
+            logger.warning(__('indextype "%s" is deprecated. '
+                              'Please use "pair: %s; %s" instead.'),
+                           type, type, entry[len(type) + 1:].strip(),
+                           location=location)  # RemovedInSphinx50Warning
+
             value = entry[len(type) + 1:].strip()
             value = pairindextypes[type] + '; ' + value
             indexentries.append(('pair', value, targetid, main, None))

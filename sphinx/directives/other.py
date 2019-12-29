@@ -202,7 +202,7 @@ class Index(SphinxDirective):
         indexnode['inline'] = False
         self.set_source_info(indexnode)
         for entry in arguments:
-            indexnode['entries'].extend(process_index_entry(entry, targetid))
+            indexnode['entries'].extend(process_index_entry(entry, targetid, indexnode))
         return [indexnode, targetnode]
 
 

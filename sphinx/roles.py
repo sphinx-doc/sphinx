@@ -554,7 +554,8 @@ def index_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
     target = utils.unescape(target)
     # if an explicit target is given, we can process it as a full entry
     if has_explicit_title:
-        entries = process_index_entry(target, targetid)
+        source, line = inliner.reporter.get_source_and_line(lineno)  # type: ignore
+        entries = process_index_entry(target, targetid, (source, line))
     # otherwise we just create a "single" entry
     else:
         # but allow giving main entry
@@ -573,24 +574,25 @@ def index_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
 
 class Index(ReferenceRole):
     def run(self) -> Tuple[List[Node], List[system_message]]:
+        index = addnodes.index(entries=[])
+        self.set_source_info(index)
+
         target_id = 'index-%s' % self.env.new_serialno('index')
         if self.has_explicit_title:
             # if an explicit target is given, process it as a full entry
             title = self.title
-            entries = process_index_entry(self.target, target_id)
+            index['entries'].extend(process_index_entry(self.target, target_id, index))
         else:
             # otherwise we just create a single entry
             if self.target.startswith('!'):
                 title = self.title[1:]
-                entries = [('single', self.target[1:], target_id, 'main', None)]
+                index['entries'].append(('single', self.target[1:], target_id, 'main', None))
             else:
                 title = self.title
-                entries = [('single', self.target, target_id, '', None)]
+                index['entries'].append(('single', self.target, target_id, '', None))
 
-        index = addnodes.index(entries=entries)
         target = nodes.target('', '', ids=[target_id])
         text = nodes.Text(title, title)
-        self.set_source_info(index)
         return [index, target, text], []
 
 

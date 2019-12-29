@@ -27,6 +27,8 @@ Features added
   old stub file
 * #5923: autodoc: ``:inherited-members:`` option takes a name of anchestor class
   not to document inherited members of the class and uppers
+* :rst:dir:`index` and :rst:role:`index` emit deprecation warnings for python
+  specific index-types
 
 Bugs fixed
 ----------
