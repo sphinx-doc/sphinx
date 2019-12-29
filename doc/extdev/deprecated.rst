@@ -61,6 +61,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.roles.Index``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexRole``
+
    * - ``sphinx.util.detect_encoding()``
      - 2.4
      - 4.0

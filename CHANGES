@@ -17,6 +17,7 @@ Deprecated
 * ``sphinx.io.FiletypeNotFoundError``
 * ``sphinx.io.get_filetype()``
 * ``sphinx.pycode.ModuleAnalyzer.encoding``
+* ``sphinx.roles.Index``
 * ``sphinx.util.detect_encoding()``
 * ``sphinx.util.get_module_source()``
 
