@@ -10,14 +10,20 @@
 
 from typing import Any, Dict, Iterable, List, Tuple
 
+from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
 from sphinx.util import logging
 from sphinx.util import split_index_msg
+from sphinx.util.docutils import SphinxDirective
+from sphinx.util.nodes import process_index_entry
+
+if False:
+    # For type annotation
+    from sphinx.application import Sphinx
 
 
 logger = logging.getLogger(__name__)
@@ -54,8 +60,33 @@ class IndexDomain(Domain):
                     entries.append(entry)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+class IndexDirective(SphinxDirective):
+    """
+    Directive to add entries to the index.
+    """
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        arguments = self.arguments[0].split('\n')
+        targetid = 'index-%s' % self.env.new_serialno('index')
+        targetnode = nodes.target('', '', ids=[targetid])
+        self.state.document.note_explicit_target(targetnode)
+        indexnode = addnodes.index()
+        indexnode['entries'] = []
+        indexnode['inline'] = False
+        self.set_source_info(indexnode)
+        for entry in arguments:
+            indexnode['entries'].extend(process_index_entry(entry, targetid))
+        return [indexnode, targetnode]
+
+
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_domain(IndexDomain)
+    app.add_directive('index', IndexDirective)
 
     return {
         'version': 'builtin',

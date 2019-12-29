@@ -11,6 +11,7 @@ Deprecated
 ----------
 
 * The ``decode`` argument of ``sphinx.pycode.ModuleAnalyzer()``
+* ``sphinx.directives.other.Index``
 * ``sphinx.environment.BuildEnvironment.indexentries``
 * ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
 * ``sphinx.io.FiletypeNotFoundError``
