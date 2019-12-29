@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Extension:
-    def __init__(self, name: str, module: Any, **kwargs) -> None:
+    def __init__(self, name: str, module: Any, **kwargs: Any) -> None:
         self.name = name
         self.module = module
         self.metadata = kwargs

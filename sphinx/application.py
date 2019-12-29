@@ -438,7 +438,7 @@ class Sphinx:
         logger.debug('[app] disconnecting event: [id=%s]', listener_id)
         self.events.disconnect(listener_id)
 
-    def emit(self, event: str, *args) -> List:
+    def emit(self, event: str, *args: Any) -> List:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
@@ -446,7 +446,7 @@ class Sphinx:
         """
         return self.events.emit(event, *args)
 
-    def emit_firstresult(self, event: str, *args) -> Any:
+    def emit_firstresult(self, event: str, *args: Any) -> Any:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
@@ -524,7 +524,8 @@ class Sphinx:
         """
         self.registry.add_translator(name, translator_class, override=override)
 
-    def add_node(self, node: "Type[Element]", override: bool = False, **kwds) -> None:
+    def add_node(self, node: "Type[Element]", override: bool = False,
+                 **kwds: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class.
 
         This is necessary for Docutils internals.  It may also be used in the
@@ -564,7 +565,7 @@ class Sphinx:
 
     def add_enumerable_node(self, node: "Type[Element]", figtype: str,
                             title_getter: TitleGetter = None, override: bool = False,
-                            **kwds) -> None:
+                            **kwds: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class as a numfig target.
 
         Sphinx numbers the node automatically. And then the users can refer it
@@ -600,7 +601,7 @@ class Sphinx:
 
     def add_directive(self, name: str, obj: Any, content: bool = None,
                       arguments: Tuple[int, int, bool] = None, override: bool = False,
-                      **options) -> None:
+                      **options: Any) -> None:
         """Register a Docutils directive.
 
         *name* must be the prospective directive name.  There are two possible
@@ -729,7 +730,7 @@ class Sphinx:
 
     def add_directive_to_domain(self, domain: str, name: str, obj: Any,
                                 has_content: bool = None, argument_spec: Any = None,
-                                override: bool = False, **option_spec) -> None:
+                                override: bool = False, **option_spec: Any) -> None:
         """Register a Docutils directive in a domain.
 
         Like :meth:`add_directive`, but the directive is added to the domain
@@ -1099,7 +1100,7 @@ class Sphinx:
         """
         self.registry.add_source_suffix(suffix, filetype, override=override)
 
-    def add_source_parser(self, *args, **kwargs) -> None:
+    def add_source_parser(self, *args: Any, **kwargs: Any) -> None:
         """Register a parser class.
 
         .. versionadded:: 1.4

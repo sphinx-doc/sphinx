@@ -81,7 +81,7 @@ class EventManager:
         for event in self.listeners.values():
             event.pop(listener_id, None)
 
-    def emit(self, name: str, *args) -> List:
+    def emit(self, name: str, *args: Any) -> List:
         """Emit a Sphinx event."""
         try:
             logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
@@ -99,7 +99,7 @@ class EventManager:
                 results.append(callback(self.app, *args))
         return results
 
-    def emit_firstresult(self, name: str, *args) -> Any:
+    def emit_firstresult(self, name: str, *args: Any) -> Any:
         """Emit a Sphinx event and returns first result.
 
         This returns the result of the first handler that doesn't return ``None``.

@@ -93,7 +93,7 @@ class PygmentsBridge:
         else:
             return get_style_by_name(stylename)
 
-    def get_formatter(self, **kwargs) -> Formatter:
+    def get_formatter(self, **kwargs: Any) -> Formatter:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
@@ -155,7 +155,7 @@ class PygmentsBridge:
         return lexer
 
     def highlight_block(self, source: str, lang: str, opts: Dict = None,
-                        force: bool = False, location: Any = None, **kwargs) -> str:
+                        force: bool = False, location: Any = None, **kwargs: Any) -> str:
         if not isinstance(source, str):
             source = source.decode()
 

@@ -32,7 +32,7 @@ class FootnoteDocnameUpdater(SphinxTransform):
     default_priority = 700
     TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(*self.TARGET_NODES)
         for node in self.document.traverse(matcher):  # type: nodes.Element
             node['docname'] = self.env.docname
@@ -51,7 +51,7 @@ class ShowUrlsTransform(SphinxPostTransform):
     # references are expanded to footnotes (or not)
     expanded = False
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         try:
             # replace id_prefix temporarily
             settings = self.document.settings  # type: Any
@@ -338,7 +338,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
     default_priority = 600
     builders = ('latex',)
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         footnotes = list(self.document.traverse(nodes.footnote))
         for node in footnotes:
             node.parent.remove(node)
@@ -490,7 +490,7 @@ class BibliographyTransform(SphinxPostTransform):
     default_priority = 750
     builders = ('latex',)
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         citations = thebibliography()
         for node in self.document.traverse(nodes.citation):
             node.parent.remove(node)
@@ -509,7 +509,7 @@ class CitationReferenceTransform(SphinxPostTransform):
     default_priority = 5  # before ReferencesResolver
     builders = ('latex',)
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
         matcher = NodeMatcher(addnodes.pending_xref, refdomain='citation', reftype='ref')
         for node in self.document.traverse(matcher):  # type: addnodes.pending_xref
@@ -529,7 +529,7 @@ class MathReferenceTransform(SphinxPostTransform):
     default_priority = 5  # before ReferencesResolver
     builders = ('latex',)
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         equations = self.env.get_domain('math').data['objects']
         for node in self.document.traverse(addnodes.pending_xref):
             if node['refdomain'] == 'math' and node['reftype'] in ('eq', 'numref'):
@@ -544,7 +544,7 @@ class LiteralBlockTransform(SphinxPostTransform):
     default_priority = 400
     builders = ('latex',)
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.container, literal_block=True)
         for node in self.document.traverse(matcher):  # type: nodes.container
             newnode = captioned_literal_block('', *node.children, **node.attributes)
@@ -556,7 +556,7 @@ class DocumentTargetTransform(SphinxPostTransform):
     default_priority = 400
     builders = ('latex',)
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.start_of_file):
             section = node.next_node(nodes.section)
             if section:

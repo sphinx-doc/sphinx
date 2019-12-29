@@ -112,7 +112,7 @@ class CitationDefinitionTransform(SphinxTransform):
     """Mark citation definition labels as not smartquoted."""
     default_priority = 619
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
         for node in self.document.traverse(nodes.citation):
             # register citation node to domain
@@ -131,7 +131,7 @@ class CitationReferenceTransform(SphinxTransform):
     """
     default_priority = 619
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
         for node in self.document.traverse(nodes.citation_reference):
             target = node.astext()

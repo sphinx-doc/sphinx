@@ -80,7 +80,7 @@ class CoverageBuilder(Builder):
     def get_outdated_docs(self) -> str:
         return 'coverage overview'
 
-    def write(self, *ignored) -> None:
+    def write(self, *ignored: Any) -> None:
         self.py_undoc = {}  # type: Dict[str, Dict[str, Any]]
         self.build_py_coverage()
         self.write_py_coverage()

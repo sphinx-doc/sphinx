@@ -60,7 +60,7 @@ class NodeMatcher:
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *classes: "Type[Node]", **attrs) -> None:
+    def __init__(self, *classes: "Type[Node]", **attrs: Any) -> None:
         self.classes = classes
         self.attrs = attrs
 

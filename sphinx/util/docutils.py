@@ -279,7 +279,9 @@ def is_html5_writer_available() -> bool:
     return __version_info__ > (0, 13, 0)
 
 
-def directive_helper(obj: Any, has_content: bool = None, argument_spec: Tuple[int, int, bool] = None, **option_spec) -> Any:  # NOQA
+def directive_helper(obj: Any, has_content: bool = None,
+                     argument_spec: Tuple[int, int, bool] = None, **option_spec: Any
+                     ) -> Any:
     warnings.warn('function based directive support is now deprecated. '
                   'Use class based directive instead.',
                   RemovedInSphinx30Warning)
@@ -317,7 +319,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
 class SphinxFileOutput(FileOutput):
     """Better FileOutput class for Sphinx."""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
         super().__init__(**kwargs)
 

@@ -48,7 +48,7 @@ class ObjType:
         'searchprio': 1,
     }
 
-    def __init__(self, lname: str, *roles, **attrs) -> None:
+    def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
         self.lname = lname
         self.roles = roles                      # type: Tuple
         self.attrs = self.known_attrs.copy()    # type: Dict

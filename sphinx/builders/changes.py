@@ -50,7 +50,7 @@ class ChangesBuilder(Builder):
         'deprecated': 'deprecated',
     }
 
-    def write(self, *ignored) -> None:
+    def write(self, *ignored: Any) -> None:
         version = self.config.version
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         libchanges = {}     # type: Dict[str, List[Tuple[str, str, int]]]

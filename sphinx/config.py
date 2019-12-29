@@ -154,7 +154,7 @@ class Config:
                                  'env', []),
     }  # type: Dict[str, Tuple]
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: Any) -> None:
         if len(args) == 4:
             # old style arguments: (dirname, filename, overrides, tags)
             warnings.warn('The argument of Config() class has been changed. '

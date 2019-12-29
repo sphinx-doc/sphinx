@@ -221,7 +221,7 @@ class Documenter:
 
     option_spec = {'noindex': bool_option}  # type: Dict[str, Callable]
 
-    def get_attr(self, obj: Any, name: str, *defargs) -> Any:
+    def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
         """getattr() override for types such as Zope interfaces."""
         return autodoc_attrgetter(self.env.app, obj, name, *defargs)
 
@@ -351,7 +351,7 @@ class Documenter:
             return False
         return True
 
-    def format_args(self, **kwargs) -> str:
+    def format_args(self, **kwargs: Any) -> str:
         """Format the argument signature of *self.object*.
 
         Should return None if the object does not have a signature.
@@ -369,7 +369,7 @@ class Documenter:
         # directives of course)
         return '.'.join(self.objpath) or self.modname
 
-    def format_signature(self, **kwargs) -> str:
+    def format_signature(self, **kwargs: Any) -> str:
         """Format the signature (arguments and return annotation) of the object.
 
         Let the user process it via the ``autodoc-process-signature`` event.
@@ -750,7 +750,7 @@ class ModuleDocumenter(Documenter):
         'imported-members': bool_option, 'ignore-module-all': bool_option
     }  # type: Dict[str, Callable]
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_special_members_option(self.options)
 
@@ -928,7 +928,7 @@ class DocstringSignatureMixin:
             return lines
         return super().get_doc(None, ignore)  # type: ignore
 
-    def format_signature(self, **kwargs) -> str:
+    def format_signature(self, **kwargs: Any) -> str:
         if self.args is None and self.env.config.autodoc_docstring_signature:  # type: ignore
             # only act if a signature is not explicitly given already, and if
             # the feature is enabled
@@ -943,7 +943,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
     Mixin for AttributeDocumenter to provide the
     feature of stripping any function signature from the docstring.
     """
-    def format_signature(self, **kwargs) -> str:
+    def format_signature(self, **kwargs: Any) -> str:
         if self.args is None and self.env.config.autodoc_docstring_signature:  # type: ignore
             # only act if a signature is not explicitly given already, and if
             # the feature is enabled
@@ -970,7 +970,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         return (inspect.isfunction(member) or inspect.isbuiltin(member) or
                 (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter)))
 
-    def format_args(self, **kwargs) -> str:
+    def format_args(self, **kwargs: Any) -> str:
         if self.env.config.autodoc_typehints == 'none':
             kwargs.setdefault('show_annotation', False)
 
@@ -1047,7 +1047,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'private-members': bool_option, 'special-members': members_option,
     }  # type: Dict[str, Callable]
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_special_members_option(self.options)
 
@@ -1067,7 +1067,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = True
         return ret
 
-    def format_args(self, **kwargs) -> str:
+    def format_args(self, **kwargs: Any) -> str:
         if self.env.config.autodoc_typehints == 'none':
             kwargs.setdefault('show_annotation', False)
 
@@ -1087,7 +1087,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             # with __init__ in C
             return None
 
-    def format_signature(self, **kwargs) -> str:
+    def format_signature(self, **kwargs: Any) -> str:
         if self.doc_as_attr:
             return ''
 
@@ -1275,7 +1275,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         return ret
 
-    def format_args(self, **kwargs) -> str:
+    def format_args(self, **kwargs: Any) -> str:
         if self.env.config.autodoc_typehints == 'none':
             kwargs.setdefault('show_annotation', False)
 
@@ -1290,7 +1290,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         args = args.replace('\\', '\\\\')
         return args
 
-    def add_directive_header(self, sig) -> None:
+    def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
 
         sourcename = self.get_sourcename()
@@ -1492,7 +1492,7 @@ def get_documenters(app: Sphinx) -> Dict[str, "Type[Documenter]"]:
     return app.registry.documenters
 
 
-def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs) -> Any:
+def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
     """Alternative getattr() for types"""
     for typ, func in app.registry.autodoc_attrgettrs.items():
         if isinstance(obj, typ):

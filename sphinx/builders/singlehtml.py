@@ -67,7 +67,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             if hashindex >= 0:
                 refnode['refuri'] = fname + refuri[hashindex:]
 
-    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwds) -> str:
+    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwds: Any) -> str:
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
         toctree = TocTree(self.env).get_toctree_for(docname, self, collapse, **kwds)
@@ -149,7 +149,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             'display_toc': display_toc,
         }
 
-    def write(self, *ignored) -> None:
+    def write(self, *ignored: Any) -> None:
         docnames = self.env.all_docs
 
         with progress_message(__('preparing documents')):

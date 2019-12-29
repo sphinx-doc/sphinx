@@ -56,7 +56,7 @@ class ManualPageBuilder(Builder):
         raise NoUri
 
     @progress_message(__('writing'))
-    def write(self, *ignored) -> None:
+    def write(self, *ignored: Any) -> None:
         docwriter = ManualPageWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,

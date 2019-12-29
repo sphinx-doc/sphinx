@@ -61,7 +61,7 @@ class RefOnlyBulletListTransform(SphinxTransform):
     """
     default_priority = 100
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         if self.config.html_compact_lists:
             return
 
