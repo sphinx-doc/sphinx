@@ -10,14 +10,20 @@
 
 from typing import Any, Dict, Iterable, List, Tuple
 
-from docutils.nodes import Node
+from docutils import nodes
+from docutils.nodes import Node, system_message
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
 from sphinx.util import logging
 from sphinx.util import split_index_msg
+from sphinx.util.docutils import ReferenceRole, SphinxDirective
+from sphinx.util.nodes import process_index_entry
+
+if False:
+    # For type annotation
+    from sphinx.application import Sphinx
 
 
 logger = logging.getLogger(__name__)
@@ -54,8 +60,57 @@ class IndexDomain(Domain):
                     entries.append(entry)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+class IndexDirective(SphinxDirective):
+    """
+    Directive to add entries to the index.
+    """
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        arguments = self.arguments[0].split('\n')
+        targetid = 'index-%s' % self.env.new_serialno('index')
+        targetnode = nodes.target('', '', ids=[targetid])
+        self.state.document.note_explicit_target(targetnode)
+        indexnode = addnodes.index()
+        indexnode['entries'] = []
+        indexnode['inline'] = False
+        self.set_source_info(indexnode)
+        for entry in arguments:
+            indexnode['entries'].extend(process_index_entry(entry, targetid))
+        return [indexnode, targetnode]
+
+
+class IndexRole(ReferenceRole):
+    def run(self) -> Tuple[List[Node], List[system_message]]:
+        target_id = 'index-%s' % self.env.new_serialno('index')
+        if self.has_explicit_title:
+            # if an explicit target is given, process it as a full entry
+            title = self.title
+            entries = process_index_entry(self.target, target_id)
+        else:
+            # otherwise we just create a single entry
+            if self.target.startswith('!'):
+                title = self.title[1:]
+                entries = [('single', self.target[1:], target_id, 'main', None)]
+            else:
+                title = self.title
+                entries = [('single', self.target, target_id, '', None)]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        text = nodes.Text(title, title)
+        self.set_source_info(index)
+        return [index, target, text], []
+
+
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_domain(IndexDomain)
+    app.add_directive('index', IndexDirective)
+    app.add_role('index', IndexRole())
 
     return {
         'version': 'builtin',
