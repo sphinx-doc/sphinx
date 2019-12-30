@@ -525,7 +525,7 @@ class Sphinx:
         self.registry.add_translator(name, translator_class, override=override)
 
     def add_node(self, node: "Type[Element]", override: bool = False,
-                 **kwds: Tuple[Callable, Callable]) -> None:
+                 **kwargs: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class.
 
         This is necessary for Docutils internals.  It may also be used in the
@@ -555,17 +555,17 @@ class Sphinx:
         .. versionchanged:: 0.5
            Added the support for keyword arguments giving visit functions.
         """
-        logger.debug('[app] adding node: %r', (node, kwds))
+        logger.debug('[app] adding node: %r', (node, kwargs))
         if not override and docutils.is_node_registered(node):
             logger.warning(__('node class %r is already registered, '
                               'its visitors will be overridden'),
                            node.__name__, type='app', subtype='add_node')
         docutils.register_node(node)
-        self.registry.add_translation_handlers(node, **kwds)
+        self.registry.add_translation_handlers(node, **kwargs)
 
     def add_enumerable_node(self, node: "Type[Element]", figtype: str,
                             title_getter: TitleGetter = None, override: bool = False,
-                            **kwds: Tuple[Callable, Callable]) -> None:
+                            **kwargs: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class as a numfig target.
 
         Sphinx numbers the node automatically. And then the users can refer it
@@ -590,7 +590,7 @@ class Sphinx:
         .. versionadded:: 1.4
         """
         self.registry.add_enumerable_node(node, figtype, title_getter, override=override)
-        self.add_node(node, override=override, **kwds)
+        self.add_node(node, override=override, **kwargs)
 
     @property
     def enumerable_nodes(self) -> Dict["Type[Node]", Tuple[str, TitleGetter]]:
