@@ -53,7 +53,7 @@ class IndexEntriesMigrator(SphinxTransform):
     """Migrating indexentries from old style (4columns) to new style (5columns)."""
     default_priority = 700
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.index):
             for i, entries in enumerate(node['entries']):
                 if len(entries) == 4:

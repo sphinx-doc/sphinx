@@ -62,7 +62,7 @@ class DummyApplication:
         self._warncount = 0
         self.warningiserror = False
 
-    def emit_firstresult(self, *args) -> None:
+    def emit_firstresult(self, *args: Any) -> None:
         pass
 
 

@@ -887,7 +887,7 @@ class StandaloneHTMLBuilder(Builder):
                         indexer_name, indexer_name),
                     RemovedInSphinx40Warning)
 
-    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwds) -> str:
+    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwds: Any) -> str:
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
         return self.render_partial(TocTree(self.env).get_toctree_for(
@@ -1000,7 +1000,7 @@ class StandaloneHTMLBuilder(Builder):
             return False
         ctx['hasdoc'] = hasdoc
 
-        def warn(*args, **kwargs) -> str:
+        def warn(*args: Any, **kwargs: Any) -> str:
             """Simple warn() wrapper for themes."""
             warnings.warn('The template function warn() was deprecated. '
                           'Use warning() instead.',

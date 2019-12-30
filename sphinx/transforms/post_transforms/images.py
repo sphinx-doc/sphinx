@@ -183,7 +183,7 @@ class ImageConverter(BaseImageConverter):
     #:     ]
     conversion_rules = []  # type: List[Tuple[str, str]]
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.available = None   # type: bool
                                 # the converter is available or not.
                                 # Will be checked at first conversion

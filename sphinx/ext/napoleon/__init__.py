@@ -265,7 +265,7 @@ class Config:
         'napoleon_custom_sections': (None, 'env')
     }
 
-    def __init__(self, **settings) -> None:
+    def __init__(self, **settings: Any) -> None:
         for name, (default, rebuild) in self._config_values.items():
             setattr(self, name, default)
         for name, value in settings.items():

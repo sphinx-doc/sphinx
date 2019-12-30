@@ -13,8 +13,8 @@ import os
 import posixpath
 import sys
 import warnings
+from typing import Any, Iterable, Tuple
 from typing import cast
-from typing import Iterable, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -73,7 +73,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     builder = None  # type: StandaloneHTMLBuilder
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: Any) -> None:
         if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
             document, builder = args
         else:

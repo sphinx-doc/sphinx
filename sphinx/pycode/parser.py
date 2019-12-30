@@ -117,7 +117,7 @@ class Token:
         else:
             raise ValueError('Unknown value: %r' % other)
 
-    def match(self, *conditions) -> bool:
+    def match(self, *conditions: Any) -> bool:
         return any(self == candidate for candidate in conditions)
 
     def __repr__(self) -> str:

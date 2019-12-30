@@ -224,7 +224,7 @@ def isproperty(obj: Any) -> bool:
     return isinstance(obj, property)
 
 
-def safe_getattr(obj: Any, name: str, *defargs) -> Any:
+def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)

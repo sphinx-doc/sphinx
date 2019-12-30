@@ -6496,7 +6496,7 @@ class AliasNode(nodes.Element):
 class AliasTransform(SphinxTransform):
     default_priority = ReferencesResolver.default_priority - 1
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(AliasNode):
             class Warner:
                 def warn(self, msg):

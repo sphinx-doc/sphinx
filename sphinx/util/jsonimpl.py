@@ -28,19 +28,19 @@ class SphinxJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def dump(obj: Any, fp: IO, *args, **kwds) -> None:
+def dump(obj: Any, fp: IO, *args: Any, **kwds: Any) -> None:
     kwds['cls'] = SphinxJSONEncoder
     json.dump(obj, fp, *args, **kwds)
 
 
-def dumps(obj: Any, *args, **kwds) -> str:
+def dumps(obj: Any, *args: Any, **kwds: Any) -> str:
     kwds['cls'] = SphinxJSONEncoder
     return json.dumps(obj, *args, **kwds)
 
 
-def load(*args, **kwds) -> Any:
+def load(*args: Any, **kwds: Any) -> Any:
     return json.load(*args, **kwds)
 
 
-def loads(*args, **kwds) -> Any:
+def loads(*args: Any, **kwds: Any) -> Any:
     return json.loads(*args, **kwds)

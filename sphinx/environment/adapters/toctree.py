@@ -8,8 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Iterable, List
 from typing import cast
-from typing import Iterable, List
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -314,8 +314,8 @@ class TocTree:
             node['refuri'] = node['anchorname'] or '#'
         return toc
 
-    def get_toctree_for(self, docname: str, builder: "Builder", collapse: bool, **kwds
-                        ) -> Element:
+    def get_toctree_for(self, docname: str, builder: "Builder", collapse: bool,
+                        **kwds: Any) -> Element:
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.master_doc)
         toctrees = []  # type: List[Element]
