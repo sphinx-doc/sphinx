@@ -53,7 +53,7 @@ class ManualPageBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         if typ == 'token':
             return ''
-        raise NoUri(docname)
+        raise NoUri(docname, typ)
 
     @progress_message(__('writing'))
     def write(self, *ignored: Any) -> None:
