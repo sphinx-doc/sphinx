@@ -1574,5 +1574,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-skip-member')
 
     app.connect('config-inited', merge_autodoc_default_flags)
+    app.setup_extension('sphinx.ext.autodoc.type_comment')
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
