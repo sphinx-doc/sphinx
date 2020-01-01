@@ -4,7 +4,7 @@
 
     Test the autodoc extension.  This tests mainly for autodoc events
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
