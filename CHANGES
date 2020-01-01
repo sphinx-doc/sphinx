@@ -1124,6 +1124,8 @@ Features added
 * #5029: autosummary: expose ``inherited_members`` to template
 * #3784: mathjax: Add :confval:`mathjax_options` to give options to script tag
   for mathjax
+* #726, #969: mathjax: Add :confval:`mathjax_config` to give in-line
+  configurations for mathjax
 * #4362: latex: Don't overwrite .tex file if document not changed
 * #1431: latex: Add alphanumeric enumerated list support
 * Add :confval:`latex_use_xindy` for UTF-8 savvy indexing, defaults to ``True``
