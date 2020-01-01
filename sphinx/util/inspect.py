@@ -4,7 +4,7 @@
 
     Helpers for inspecting Python modules.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -222,7 +222,7 @@ def isproperty(obj: Any) -> bool:
     return isinstance(obj, property)
 
 
-def safe_getattr(obj: Any, name: str, *defargs) -> Any:
+def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)

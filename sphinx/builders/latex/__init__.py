@@ -4,7 +4,7 @@
 
     LaTeX builder.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -216,7 +216,7 @@ class LaTeXBuilder(Builder):
                     '[2016/05/29 stylesheet for highlighting with pygments]\n\n')
             f.write(highlighter.get_stylesheet())
 
-    def write(self, *ignored) -> None:
+    def write(self, *ignored: Any) -> None:
         docwriter = LaTeXWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,

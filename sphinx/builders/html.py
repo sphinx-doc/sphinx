@@ -4,7 +4,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -858,7 +858,7 @@ class StandaloneHTMLBuilder(Builder):
                         indexer_name, indexer_name),
                     RemovedInSphinx40Warning)
 
-    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwds) -> str:
+    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwds: Any) -> str:
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
         return self.render_partial(TocTree(self.env).get_toctree_for(

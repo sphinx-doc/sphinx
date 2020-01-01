@@ -4,7 +4,7 @@
 
     Measure durations of Sphinx processing.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -32,7 +32,7 @@ class DurationDomain(Domain):
     def reading_durations(self) -> Dict[str, timedelta]:
         return self.data.setdefault('reading_durations', {})
 
-    def note_reading_duration(self, duration: timedelta):
+    def note_reading_duration(self, duration: timedelta) -> None:
         self.reading_durations[self.env.docname] = duration
 
     def clear(self) -> None:
@@ -69,7 +69,7 @@ def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
     domain.note_reading_duration(duration)
 
 
-def on_build_finished(app: Sphinx, error):
+def on_build_finished(app: Sphinx, error: Exception) -> None:
     """Display duration ranking on current build."""
     domain = cast(DurationDomain, app.env.get_domain('duration'))
     durations = sorted(domain.reading_durations.items(), key=itemgetter(1), reverse=True)

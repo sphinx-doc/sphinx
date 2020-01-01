@@ -222,7 +222,7 @@ def get_translation(catalog, namespace='general'):
 
     .. versionadded:: 1.8
     """
-    def gettext(message: str, *args) -> str:
+    def gettext(message: str, *args: Any) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
             return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore  # NOQA

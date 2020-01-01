@@ -4,7 +4,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -643,7 +643,7 @@ class StandardDomain(Domain):
         self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname: str, builder: "Builder", docname: str,
-                             labelid: str, sectname: str, rolename: str, **options
+                             labelid: str, sectname: str, rolename: str, **options: Any
                              ) -> Element:
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)

@@ -4,7 +4,7 @@
 
     Utility functions for docutils.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -296,7 +296,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
 class SphinxFileOutput(FileOutput):
     """Better FileOutput class for Sphinx."""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
         super().__init__(**kwargs)
 

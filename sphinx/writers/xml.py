@@ -4,9 +4,11 @@
 
     Docutils-native XML and pseudo-XML writers.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from typing import Any
 
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
 
@@ -19,7 +21,7 @@ class XMLWriter(BaseXMLWriter):
         self.builder = builder
         self.translator_class = self.builder.get_translator_class()
 
-    def translate(self, *args, **kwargs) -> None:
+    def translate(self, *args: Any, **kwargs: Any) -> None:
         self.document.settings.newlines = \
             self.document.settings.indents = \
             self.builder.env.config.xml_pretty

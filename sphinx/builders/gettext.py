@@ -4,7 +4,7 @@
 
     The MessageCatalogBuilder class.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -198,7 +198,7 @@ if source_date_epoch is not None:
 
 
 class LocalTimeZone(tzinfo):
-    def __init__(self, *args, **kw) -> None:
+    def __init__(self, *args: Any, **kw: Any) -> None:
         super().__init__(*args, **kw)  # type: ignore
         self.tzdelta = tzdelta
 
@@ -212,7 +212,7 @@ class LocalTimeZone(tzinfo):
 ltz = LocalTimeZone()
 
 
-def should_write(filepath: str, new_content: str):
+def should_write(filepath: str, new_content: str) -> bool:
     if not path.exists(filepath):
         return True
     try:

@@ -5,7 +5,7 @@
     Implements the low-level algorithms Sphinx uses for the versioning of
     doctrees.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import pickle
@@ -152,7 +152,7 @@ class UIDTransform(SphinxTransform):
     """Add UIDs to doctree for versioning."""
     default_priority = 880
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         env = self.env
         old_doctree = None
         if not env.versioning_condition:

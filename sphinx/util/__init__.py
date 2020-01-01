@@ -4,7 +4,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -250,6 +250,8 @@ def get_module_source(modname: str) -> Tuple[str, str]:
     Can return ('file', 'filename') in which case the source is in the given
     file, or ('string', 'source') which which case the source is the string.
     """
+    warnings.warn('get_module_source() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     try:
         mod = import_module(modname)
     except Exception as err:
@@ -312,6 +314,8 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 def detect_encoding(readline: Callable[[], bytes]) -> str:
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
+    warnings.warn('sphinx.util.detect_encoding() is deprecated',
+                  RemovedInSphinx40Warning)
 
     def read_or_stop() -> bytes:
         try:
@@ -446,7 +450,7 @@ def force_decode(string: str, encoding: str) -> str:
 
 
 class attrdict(dict):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         warnings.warn('The attrdict class is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)

@@ -4,15 +4,15 @@
 
     Experimental docutils writers for HTML5 handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import posixpath
 import warnings
+from typing import Any, Iterable, Tuple
 from typing import cast
-from typing import Iterable, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -44,7 +44,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     builder = None  # type: StandaloneHTMLBuilder
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: Any) -> None:
         if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
             document, builder = args
         else:

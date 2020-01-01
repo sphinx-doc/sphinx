@@ -4,7 +4,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,6 +19,7 @@ from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, __display_version__
 from sphinx.domains import IndexEntry
+from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
@@ -495,8 +496,9 @@ class TexinfoTranslator(SphinxTranslator):
                     self.indices.append((indexcls.localname,
                                          generate(content, collapsed)))
         # only add the main Index if it's not empty
+        domain = cast(IndexDomain, self.builder.env.get_domain('index'))
         for docname in self.builder.docnames:
-            if self.builder.env.indexentries[docname]:
+            if domain.entries[docname]:
                 self.indices.append((_('Index'), '\n@printindex ge\n'))
                 break
 

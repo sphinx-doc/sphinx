@@ -257,7 +257,7 @@ class SphinxComponentRegistry:
         else:
             self.source_suffix[suffix] = filetype
 
-    def add_source_parser(self, parser: "Type[Parser]", **kwargs) -> None:
+    def add_source_parser(self, parser: "Type[Parser]", **kwargs: Any) -> None:
         logger.debug('[app] adding search source_parser: %r', parser)
 
         # create a map from filetype to parser
@@ -301,7 +301,8 @@ class SphinxComponentRegistry:
             raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
 
-    def add_translation_handlers(self, node: "Type[Element]", **kwargs) -> None:
+    def add_translation_handlers(self, node: "Type[Element]",
+                                 **kwargs: Tuple[Callable, Callable]) -> None:
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
             translation_handlers = self.translation_handlers.setdefault(builder_name, {})
@@ -310,13 +311,13 @@ class SphinxComponentRegistry:
                 translation_handlers[node.__name__] = (visit, depart)
             except ValueError:
                 raise ExtensionError(__('kwargs for add_node() must be a (visit, depart) '
-                                        'function tuple: %r=%r') % builder_name, handlers)
+                                        'function tuple: %r=%r') % (builder_name, handlers))
 
     def get_translator_class(self, builder: Builder) -> "Type[nodes.NodeVisitor]":
         return self.translators.get(builder.name,
                                     builder.default_translator_class)
 
-    def create_translator(self, builder: Builder, *args) -> nodes.NodeVisitor:
+    def create_translator(self, builder: Builder, *args: Any) -> nodes.NodeVisitor:
         translator_class = self.get_translator_class(builder)
         assert translator_class, "translator not found for %s" % builder.name
         translator = translator_class(*args)

@@ -4,7 +4,7 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -60,7 +60,7 @@ class NestedInlineTransform:
     def __init__(self, document: nodes.document) -> None:
         self.document = document
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
         for node in self.document.traverse(matcher):  # type: TextElement
             if any(matcher(subnode) for subnode in node):
@@ -81,7 +81,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     _docinfo = {}  # type: Dict[str, Any]
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: Any) -> None:
         if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
             document, builder = args
         else:

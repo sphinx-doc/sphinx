@@ -6,7 +6,7 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -422,7 +422,7 @@ class Sphinx:
         logger.debug('[app] disconnecting event: [id=%s]', listener_id)
         self.events.disconnect(listener_id)
 
-    def emit(self, event: str, *args) -> List:
+    def emit(self, event: str, *args: Any) -> List:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
@@ -430,7 +430,7 @@ class Sphinx:
         """
         return self.events.emit(event, *args)
 
-    def emit_firstresult(self, event: str, *args) -> Any:
+    def emit_firstresult(self, event: str, *args: Any) -> Any:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
@@ -508,7 +508,8 @@ class Sphinx:
         """
         self.registry.add_translator(name, translator_class, override=override)
 
-    def add_node(self, node: "Type[Element]", override: bool = False, **kwds) -> None:
+    def add_node(self, node: "Type[Element]", override: bool = False,
+                 **kwds: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class.
 
         This is necessary for Docutils internals.  It may also be used in the
@@ -548,7 +549,7 @@ class Sphinx:
 
     def add_enumerable_node(self, node: "Type[Element]", figtype: str,
                             title_getter: TitleGetter = None, override: bool = False,
-                            **kwds) -> None:
+                            **kwds: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class as a numfig target.
 
         Sphinx numbers the node automatically. And then the users can refer it
@@ -575,7 +576,7 @@ class Sphinx:
         self.registry.add_enumerable_node(node, figtype, title_getter, override=override)
         self.add_node(node, override=override, **kwds)
 
-    def add_directive(self, name: str, cls: "Type[Directive]", override: bool = False):
+    def add_directive(self, name: str, cls: "Type[Directive]", override: bool = False) -> None:
         """Register a Docutils directive.
 
         *name* must be the prospective directive name.  *cls* is a directive
@@ -1036,7 +1037,7 @@ class Sphinx:
         """
         self.registry.add_source_suffix(suffix, filetype, override=override)
 
-    def add_source_parser(self, *args, **kwargs) -> None:
+    def add_source_parser(self, *args: Any, **kwargs: Any) -> None:
         """Register a parser class.
 
         .. versionadded:: 1.4

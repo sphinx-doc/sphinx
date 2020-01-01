@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -61,7 +61,7 @@ class RefOnlyBulletListTransform(SphinxTransform):
     """
     default_priority = 100
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         if self.config.html_compact_lists:
             return
 

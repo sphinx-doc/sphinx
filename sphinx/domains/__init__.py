@@ -5,7 +5,7 @@
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -48,7 +48,7 @@ class ObjType:
         'searchprio': 1,
     }
 
-    def __init__(self, lname: str, *roles, **attrs) -> None:
+    def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
         self.lname = lname
         self.roles = roles                      # type: Tuple
         self.attrs = self.known_attrs.copy()    # type: Dict

@@ -4,7 +4,7 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -253,12 +253,13 @@ from sphinx.directives.code import (  # noqa
     Highlight, CodeBlock, LiteralInclude
 )
 from sphinx.directives.other import (  # noqa
-    TocTree, Author, Index, VersionChange, SeeAlso,
+    TocTree, Author, VersionChange, SeeAlso,
     TabularColumns, Centered, Acks, HList, Only, Include, Class
 )
 from sphinx.directives.patches import (  # noqa
     Figure, Meta
 )
+from sphinx.domains.index import IndexDirective  # noqa
 
 deprecated_alias('sphinx.directives',
                  {
@@ -267,7 +268,7 @@ deprecated_alias('sphinx.directives',
                      'LiteralInclude': LiteralInclude,
                      'TocTree': TocTree,
                      'Author': Author,
-                     'Index': Index,
+                     'Index': IndexDirective,
                      'VersionChange': VersionChange,
                      'SeeAlso': SeeAlso,
                      'TabularColumns': TabularColumns,

@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -38,7 +38,7 @@ class SphinxPostTransform(SphinxTransform):
     builders = ()   # type: Tuple[str, ...]
     formats = ()    # type: Tuple[str, ...]
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         if self.is_supported():
             self.run(**kwargs)
 
@@ -51,7 +51,7 @@ class SphinxPostTransform(SphinxTransform):
 
         return True
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         """main method of post transforms.
 
         Subclasses should override this method instead of ``apply()``.
@@ -66,7 +66,7 @@ class ReferencesResolver(SphinxPostTransform):
 
     default_priority = 10
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.pending_xref):
             contnode = cast(nodes.TextElement, node[0].deepcopy())
             newnode = None
@@ -178,7 +178,7 @@ class ReferencesResolver(SphinxPostTransform):
 class OnlyNodeTransform(SphinxPostTransform):
     default_priority = 50
 
-    def run(self, **kwargs) -> None:
+    def run(self, **kwargs: Any) -> None:
         # A comment on the comment() nodes being inserted: replacing by [] would
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to

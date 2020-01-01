@@ -4,7 +4,7 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -573,6 +573,7 @@ def index_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
 
 class Index(ReferenceRole):
     def run(self) -> Tuple[List[Node], List[system_message]]:
+        warnings.warn('Index role is deprecated.', RemovedInSphinx40Warning)
         target_id = 'index-%s' % self.env.new_serialno('index')
         if self.has_explicit_title:
             # if an explicit target is given, process it as a full entry
@@ -607,7 +608,6 @@ specific_docroles = {
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
     'abbr': Abbreviation(),
-    'index': Index(),
 }  # type: Dict[str, RoleFunction]
 
 

@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -26,7 +26,7 @@ class SubstitutionDefinitionsRemover(SphinxTransform):
     # should be invoked after Substitutions process
     default_priority = Substitutions.default_priority + 1
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.substitution_definition):
             node.parent.remove(node)
 
@@ -34,7 +34,7 @@ class SubstitutionDefinitionsRemover(SphinxTransform):
 class SphinxDanglingReferences(DanglingReferences):
     """DanglingReferences transform which does not output info messages."""
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         try:
             reporter = self.document.reporter
             report_level = reporter.report_level
@@ -50,7 +50,7 @@ class SphinxDomains(SphinxTransform):
     """Collect objects to Sphinx domains for cross references."""
     default_priority = 850
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         for domain in self.env.domains.values():
             domain.process_doc(self.env, self.env.docname, self.document)
 

@@ -4,7 +4,7 @@
 
     Additional docutils nodes.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,6 +12,7 @@ import warnings
 from typing import Any, Dict, List, Sequence
 
 from docutils import nodes
+from docutils.nodes import Node
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 
@@ -305,7 +306,8 @@ class abbreviation(nodes.abbreviation):
     .. deprecated:: 2.0
     """
 
-    def __init__(self, rawsource: str = '', text: str = '', *children, **attributes) -> None:
+    def __init__(self, rawsource: str = '', text: str = '',
+                 *children: Node, **attributes: Any) -> None:
         warnings.warn("abbrevition node for Sphinx was replaced by docutils'.",
                       RemovedInSphinx40Warning, stacklevel=2)
 

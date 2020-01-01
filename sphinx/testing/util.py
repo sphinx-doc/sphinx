@@ -4,7 +4,7 @@
 
     Sphinx test suite utilities
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
@@ -47,7 +47,7 @@ def assert_startswith(thing: str, prefix: str) -> None:
         assert False, '%r does not start with %r' % (thing, prefix)
 
 
-def assert_node(node: nodes.Node, cls: Any = None, xpath: str = "", **kwargs) -> None:
+def assert_node(node: nodes.Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
     if cls:
         if isinstance(cls, list):
             assert_node(node, cls[0], xpath=xpath, **kwargs)
@@ -92,7 +92,7 @@ def etree_parse(path: str) -> Any:
 
 
 class Struct:
-    def __init__(self, **kwds) -> None:
+    def __init__(self, **kwds: Any) -> None:
         self.__dict__.update(kwds)
 
 
@@ -165,7 +165,7 @@ class SphinxTestAppWrapperForSkipBuilding:
     def __getattr__(self, name: str) -> Any:
         return getattr(self.app, name)
 
-    def build(self, *args, **kw) -> None:
+    def build(self, *args: Any, **kw: Any) -> None:
         if not self.app.outdir.listdir():  # type: ignore
             # if listdir is empty, do build.
             self.app.build(*args, **kw)

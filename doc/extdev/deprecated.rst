@@ -31,6 +31,16 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.domains.std.StandardDomain.note_object()``
 
+   * - ``decode`` argument of ``sphinx.pycode.ModuleAnalyzer()``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.directives.other.Index``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDirective``
+
    * - ``sphinx.environment.BuildEnvironment.indexentries``
      - 2.4
      - 4.0
@@ -50,6 +60,26 @@ The following is a list of deprecated interfaces.
      - 2.4
      - 4.0
      - ``sphinx.util.get_filetype()``
+
+   * - ``sphinx.pycode.ModuleAnalyzer.encoding``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.roles.Index``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexRole``
+
+   * - ``sphinx.util.detect_encoding()``
+     - 2.4
+     - 4.0
+     - ``tokenize.detect_encoding()``
+
+   * - ``sphinx.util.get_module_source()``
+     - 2.4
+     - 4.0
+     - N/A
 
    * - ``sphinx.builders.gettext.POHEADER``
      - 2.3

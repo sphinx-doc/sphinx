@@ -4,7 +4,7 @@
 
     Custom docutils writer for plain text.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import math
@@ -12,8 +12,8 @@ import os
 import re
 import textwrap
 from itertools import groupby, chain
+from typing import Any, Dict, List, Iterable, Optional, Set, Tuple, Union
 from typing import cast
-from typing import Dict, List, Iterable, Optional, Set, Tuple, Union
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -360,7 +360,7 @@ MAXWIDTH = 70
 STDINDENT = 3
 
 
-def my_wrap(text: str, width: int = MAXWIDTH, **kwargs) -> List[str]:
+def my_wrap(text: str, width: int = MAXWIDTH, **kwargs: Any) -> List[str]:
     w = TextWrapper(width=width, **kwargs)
     return w.wrap(text)
 

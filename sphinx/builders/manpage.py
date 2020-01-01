@@ -4,7 +4,7 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -56,7 +56,7 @@ class ManualPageBuilder(Builder):
         raise NoUri
 
     @progress_message(__('writing'))
-    def write(self, *ignored) -> None:
+    def write(self, *ignored: Any) -> None:
         docwriter = ManualPageWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,

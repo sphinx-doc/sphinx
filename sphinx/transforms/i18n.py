@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -84,7 +84,7 @@ class PreserveTranslatableMessages(SphinxTransform):
     """
     default_priority = 10  # this MUST be invoked before Locale transform
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.translatable):
             node.preserve_original_messages()
 
@@ -95,7 +95,7 @@ class Locale(SphinxTransform):
     """
     default_priority = 20
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         settings, source = self.document.settings, self.document['source']
         msgstr = ''
 
@@ -480,7 +480,7 @@ class RemoveTranslatableInline(SphinxTransform):
     """
     default_priority = 999
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
         if isinstance(self.app.builder, MessageCatalogBuilder):
             return

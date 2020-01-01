@@ -2,7 +2,7 @@
     sphinx.testing.path
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -124,17 +124,17 @@ class path(str):
     def utime(self, arg: Any) -> None:
         os.utime(self, arg)
 
-    def open(self, mode: str = 'r', **kwargs) -> IO:
+    def open(self, mode: str = 'r', **kwargs: Any) -> IO:
         return open(self, mode, **kwargs)
 
-    def write_text(self, text: str, encoding: str = 'utf-8', **kwargs) -> None:
+    def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
         """
         Writes the given `text` to the file.
         """
         with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
-    def text(self, encoding: str = 'utf-8', **kwargs) -> str:
+    def text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
         """
         Returns the text in the file.
         """
@@ -181,7 +181,7 @@ class path(str):
         """
         os.makedirs(self, mode, exist_ok=exist_ok)
 
-    def joinpath(self, *args) -> "path":
+    def joinpath(self, *args: Any) -> "path":
         """
         Joins the path with the argument given and returns the result.
         """
