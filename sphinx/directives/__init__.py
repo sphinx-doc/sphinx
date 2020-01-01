@@ -193,6 +193,8 @@ class ObjectDescription(SphinxDirective):
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
+        self.env.app.emit('object-description-transform',
+                          self.domain, self.objtype, contentnode)
         DocFieldTransformer(self).transform_all(contentnode)
         self.env.temp_data['object'] = None
         self.after_content()
@@ -294,6 +296,8 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('describe', ObjectDescription)
     # new, more consistent, name
     directives.register_directive('object', ObjectDescription)
+
+    app.add_event('object-description-transform')
 
     return {
         'version': 'builtin',
