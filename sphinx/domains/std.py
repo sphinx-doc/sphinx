@@ -30,7 +30,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import clean_astext, make_refnode
+from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.typing import RoleFunction
 
 if False:
@@ -256,14 +256,8 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
         # node_id is given from outside (mainly i18n module), use it forcedly
         pass
     elif document:
-        node_id = nodes.make_id('term-' + termtext)
-        if node_id == 'term':
-            # "term" is not good for node_id.  Generate it by sequence number instead.
-            node_id = 'term-%d' % env.new_serialno('glossary')
-
-        while node_id in document.ids:
-            node_id = 'term-%d' % env.new_serialno('glossary')
-
+        node_id = make_id(env, document, 'term', termtext)
+        term['ids'].append(node_id)
         document.note_explicit_target(term)
     else:
         warnings.warn('make_glossary_term() expects document is passed as an argument.',
