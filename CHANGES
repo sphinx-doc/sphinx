@@ -30,6 +30,9 @@ Features added
   down the build
 * #6837: LaTeX: Support a nested table
 * #6966: graphviz: Support ``:class:`` option
+* #2755: autodoc: Support type_comment style (ex. ``# type: (str) -> str``)
+  annotation (python3.8+ or `typed_ast <https://github.com/python/typed_ast>`_
+  is required)
 
 Bugs fixed
 ----------

@@ -983,8 +983,10 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                     not inspect.isbuiltin(self.object) and
                     not inspect.isclass(self.object) and
                     hasattr(self.object, '__call__')):
+                self.env.app.emit('autodoc-before-format-args', self.object.__call__, False)
                 args = Signature(self.object.__call__).format_args(**kwargs)
             else:
+                self.env.app.emit('autodoc-before-format-args', self.object, False)
                 args = Signature(self.object).format_args(**kwargs)
         except TypeError:
             if (inspect.is_builtin_class_method(self.object, '__new__') and
@@ -995,9 +997,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
             try:
+                self.env.app.emit('autodoc-before-format-args', self.object.__new__, True)
                 sig = Signature(self.object.__new__, bound_method=True, has_retval=False)
                 args = sig.format_args(**kwargs)
             except TypeError:
+                self.env.app.emit('autodoc-before-format-args', self.object.__init__, True)
                 sig = Signature(self.object.__init__, bound_method=True, has_retval=False)
                 args = sig.format_args(**kwargs)
 
@@ -1080,6 +1084,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
+            self.env.app.emit('autodoc-before-format-args', initmeth, True)
             sig = Signature(initmeth, bound_method=True, has_retval=False)
             return sig.format_args(**kwargs)
         except TypeError:
@@ -1283,8 +1288,10 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             # can never get arguments of a C function or method
             return None
         if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
+            self.env.app.emit('autodoc-before-format-args', self.object, False)
             args = Signature(self.object, bound_method=False).format_args(**kwargs)
         else:
+            self.env.app.emit('autodoc-before-format-args', self.object, True)
             args = Signature(self.object, bound_method=True).format_args(**kwargs)
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
@@ -1555,10 +1562,12 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_typehints', "signature", True, ENUM("signature", "none"))
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
+    app.add_event('autodoc-before-format-args')
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
 
     app.connect('config-inited', merge_autodoc_default_flags)
+    app.setup_extension('sphinx.ext.autodoc.typehints')
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
