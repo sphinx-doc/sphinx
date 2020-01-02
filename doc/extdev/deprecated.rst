@@ -36,6 +36,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.domains.index.IndexDirective``
 
+   * - ``sphinx.environment.temp_data['gloss_entries']``
+     - 2.4
+     - 4.0
+     - ``documents.nameids``
+
    * - ``sphinx.environment.BuildEnvironment.indexentries``
      - 2.4
      - 4.0
