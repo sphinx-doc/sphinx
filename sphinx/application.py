@@ -861,8 +861,10 @@ class Sphinx:
 
         Add *filename* to the list of JavaScript files that the default HTML
         template will include.  The filename must be relative to the HTML
-        static path , or a full URI with scheme.  The keyword arguments are
-        also accepted for attributes of ``<script>`` tag.
+        static path , or a full URI with scheme.  If the keyword argument
+        ``body`` is given, its value will be added between the
+        ``<script>`` tags. Extra keyword arguments are included as
+        attributes of the ``<script>`` tag.
 
         Example::
 
@@ -871,6 +873,9 @@ class Sphinx:
 
             app.add_js_file('example.js', async="async")
             # => <script src="_static/example.js" async="async"></script>
+
+            app.add_js_file(None, body="var myVariable = 'foo';")
+            # => <script>var myVariable = 'foo';</script>
 
         .. versionadded:: 0.5
 
