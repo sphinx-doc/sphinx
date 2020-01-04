@@ -350,7 +350,7 @@ class Signature:
 
         self.subject = subject
         self._has_retval = has_retval
-        self.partialmethod_with_noargs = False
+        self._partialmethod_with_noargs = False
 
         try:
             self.signature = inspect.signature(subject)
@@ -360,7 +360,7 @@ class Signature:
             # https://bugs.python.org/issue33009
             if hasattr(subject, '_partialmethod'):
                 self.signature = None
-                self.partialmethod_with_noargs = True
+                self._partialmethod_with_noargs = True
             else:
                 raise
 
@@ -390,10 +390,10 @@ class Signature:
 
     @property
     def parameters(self) -> Mapping:
-        if self.partialmethod_with_noargs:
-            return {}
-        else:
+        if self.signature:
             return self.signature.parameters
+        else:
+            return {}
 
     @property
     def return_annotation(self) -> Any:
@@ -488,6 +488,12 @@ class Signature:
         warnings.warn('sphinx.util.inspect.Signature.has_retval is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
         return self._has_retval
+
+    @property
+    def partialmethod_with_noargs(self) -> bool:
+        warnings.warn('sphinx.util.inspect.Signature.partialmethod_with_noargs is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self._partialmethod_with_noargs
 
 
 def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
