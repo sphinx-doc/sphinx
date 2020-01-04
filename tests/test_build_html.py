@@ -177,7 +177,8 @@ def test_html4_output(app, status, warning):
     ],
     'autodoc.html': [
         (".//dl[@class='py class']/dt[@id='autodoc-target-class']", ''),
-        (".//dl[@class='py function']/dt[@id='autodoc-target-function']/em", r'\*\*kwds'),
+        (".//dl[@class='py function']/dt[@id='autodoc-target-function']/em/span", r'\*\*'),
+        (".//dl[@class='py function']/dt[@id='autodoc-target-function']/em/span", r'kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
