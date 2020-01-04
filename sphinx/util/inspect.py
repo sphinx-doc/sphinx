@@ -351,6 +351,7 @@ class Signature:
         self.subject = subject
         self._has_retval = has_retval
         self._partialmethod_with_noargs = False
+        self._skip_first_argument = False
 
         try:
             self.signature = inspect.signature(subject)
@@ -373,17 +374,15 @@ class Signature:
             self.annotations = {}
 
         if bound_method:
-            # client gives a hint that the subject is a bound method
-
             if inspect.ismethod(subject):
-                # inspect.signature already considers the subject is bound method.
-                # So it is not need to skip first argument.
-                self.skip_first_argument = False
+                # ``inspect.signature()`` considers the subject is a bound method and removes
+                # first argument from signature.  Therefore no skips are needed here.
+                pass
             else:
-                self.skip_first_argument = True
-        else:
-            # inspect.signature recognizes type of method properly without any hints
-            self.skip_first_argument = False
+                self._skip_first_argument = True
+                if self.signature:
+                    parameters = list(self.signature.parameters.values())
+                    self.signature = self.signature.replace(parameters=parameters[1:])
 
         if not has_retval and self.signature:
             self.signature = self.signature.replace(return_annotation=inspect.Parameter.empty)
@@ -411,11 +410,8 @@ class Signature:
 
         args = []
         last_kind = None
-        for i, param in enumerate(self.parameters.values()):
+        for param in self.parameters.values():
             # skip first argument if subject is bound method
-            if self.skip_first_argument and i == 0:
-                continue
-
             arg = StringIO()
 
             # insert '*' between POSITIONAL args and KEYWORD_ONLY args::
@@ -494,6 +490,12 @@ class Signature:
         warnings.warn('sphinx.util.inspect.Signature.partialmethod_with_noargs is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
         return self._partialmethod_with_noargs
+
+    @property
+    def skip_first_argument(self) -> bool:
+        warnings.warn('sphinx.util.inspect.Signature.skip_first_argument is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self._skip_first_argument
 
 
 def getdoc(obj: Any, attrgetter: Callable = safe_getattr,

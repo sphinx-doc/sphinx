@@ -106,6 +106,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.util.inspect.Signature.skip_first_argument``
+     - 2.4
+     - 4.0
+     - N/A
+
    * - ``sphinx.builders.gettext.POHEADER``
      - 2.3
      - 4.0
