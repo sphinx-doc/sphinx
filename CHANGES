@@ -24,6 +24,7 @@ Deprecated
 * ``sphinx.util.inspect.Signature.format_annotation()``
 * ``sphinx.util.inspect.Signature.format_annotation_new()``
 * ``sphinx.util.inspect.Signature.format_annotation_old()``
+* ``sphinx.util.inspect.Signature.has_retval``
 
 Features added
 --------------

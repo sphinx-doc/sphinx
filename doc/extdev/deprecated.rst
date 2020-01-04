@@ -96,6 +96,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.util.typing.stringify()``
 
+   * - ``sphinx.util.inspect.Signature.has_retval``
+     - 2.4
+     - 4.0
+     - N/A
+
    * - ``sphinx.builders.gettext.POHEADER``
      - 2.3
      - 4.0

@@ -349,7 +349,7 @@ class Signature:
             raise TypeError("can't compute signature for built-in type {}".format(subject))
 
         self.subject = subject
-        self.has_retval = has_retval
+        self._has_retval = has_retval
         self.partialmethod_with_noargs = False
 
         try:
@@ -385,6 +385,9 @@ class Signature:
             # inspect.signature recognizes type of method properly without any hints
             self.skip_first_argument = False
 
+        if not has_retval and self.signature:
+            self.signature = self.signature.replace(return_annotation=inspect.Parameter.empty)
+
     @property
     def parameters(self) -> Mapping:
         if self.partialmethod_with_noargs:
@@ -395,10 +398,7 @@ class Signature:
     @property
     def return_annotation(self) -> Any:
         if self.signature:
-            if self.has_retval:
-                return self.signature.return_annotation
-            else:
-                return inspect.Parameter.empty
+            return self.signature.return_annotation
         else:
             return None
 
@@ -482,6 +482,12 @@ class Signature:
         warnings.warn('format_annotation_old() is deprecated',
                       RemovedInSphinx40Warning)
         return stringify_annotation(annotation)
+
+    @property
+    def has_retval(self) -> bool:
+        warnings.warn('sphinx.util.inspect.Signature.has_retval is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self._has_retval
 
 
 def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
