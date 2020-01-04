@@ -348,7 +348,7 @@ class Signature:
                 is_builtin_class_method(subject, "__init__")):
             raise TypeError("can't compute signature for built-in type {}".format(subject))
 
-        self.subject = subject
+        self._subject = subject
         self._has_retval = has_retval
         self._partialmethod_with_noargs = False
         self._skip_first_argument = False
@@ -496,6 +496,12 @@ class Signature:
         warnings.warn('sphinx.util.inspect.Signature.skip_first_argument is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
         return self._skip_first_argument
+
+    @property
+    def subject(self) -> Callable:
+        warnings.warn('sphinx.util.inspect.Signature.subject is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self._subject
 
 
 def getdoc(obj: Any, attrgetter: Callable = safe_getattr,

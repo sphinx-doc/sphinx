@@ -27,6 +27,7 @@ Deprecated
 * ``sphinx.util.inspect.Signature.has_retval``
 * ``sphinx.util.inspect.Signature.partialmethod_with_noargs``
 * ``sphinx.util.inspect.Signature.skip_first_argument``
+* ``sphinx.util.inspect.Signature.subject``
 
 Features added
 --------------
