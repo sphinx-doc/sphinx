@@ -13,6 +13,7 @@ import datetime
 import functools
 import sys
 import types
+from inspect import Parameter
 
 import pytest
 
@@ -307,6 +308,90 @@ def test_signature_annotations_py38(app):
     # case: separator at tail
     sig = inspect.signature(bar)
     assert stringify_signature(sig) == '(a, b, /)'
+
+
+def test_signature_from_str_basic():
+    signature = '(a, b, *args, c=0, d="blah", **kwargs)'
+    sig = inspect.signature_from_str(signature)
+    assert list(sig.parameters.keys()) == ['a', 'b', 'args', 'c', 'd', 'kwargs']
+    assert sig.parameters['a'].name == 'a'
+    assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['a'].default == Parameter.empty
+    assert sig.parameters['a'].annotation == Parameter.empty
+    assert sig.parameters['b'].name == 'b'
+    assert sig.parameters['b'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['b'].default == Parameter.empty
+    assert sig.parameters['b'].annotation == Parameter.empty
+    assert sig.parameters['args'].name == 'args'
+    assert sig.parameters['args'].kind == Parameter.VAR_POSITIONAL
+    assert sig.parameters['args'].default == Parameter.empty
+    assert sig.parameters['args'].annotation == Parameter.empty
+    assert sig.parameters['c'].name == 'c'
+    assert sig.parameters['c'].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters['c'].default == '0'
+    assert sig.parameters['c'].annotation == Parameter.empty
+    assert sig.parameters['d'].name == 'd'
+    assert sig.parameters['d'].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters['d'].default == "'blah'"
+    assert sig.parameters['d'].annotation == Parameter.empty
+    assert sig.parameters['kwargs'].name == 'kwargs'
+    assert sig.parameters['kwargs'].kind == Parameter.VAR_KEYWORD
+    assert sig.parameters['kwargs'].default == Parameter.empty
+    assert sig.parameters['kwargs'].annotation == Parameter.empty
+    assert sig.return_annotation == Parameter.empty
+
+
+def test_signature_from_str_default_values():
+    signature = ('(a=0, b=0.0, c="str", d=b"bytes", e=..., f=True, '
+                 'g=[1, 2, 3], h={"a": 1}, i={1, 2, 3}, '
+                 'j=lambda x, y: None, k=None, l=object(), m=foo.bar.CONSTANT)')
+    sig = inspect.signature_from_str(signature)
+    assert sig.parameters['a'].default == '0'
+    assert sig.parameters['b'].default == '0.0'
+    assert sig.parameters['c'].default == "'str'"
+    assert sig.parameters['d'].default == "b'bytes'"
+    assert sig.parameters['e'].default == '...'
+    assert sig.parameters['f'].default == 'True'
+    assert sig.parameters['g'].default == '[1, 2, 3]'
+    assert sig.parameters['h'].default == "{'a': 1}"
+    assert sig.parameters['i'].default == '{1, 2, 3}'
+    assert sig.parameters['j'].default == '<function <lambda>>'
+    assert sig.parameters['k'].default == 'None'
+    assert sig.parameters['l'].default == 'object()'
+    assert sig.parameters['m'].default == 'foo.bar.CONSTANT'
+
+
+def test_signature_from_str_annotations():
+    signature = '(a: int, *args: bytes, b: str = "blah", **kwargs: float) -> None'
+    sig = inspect.signature_from_str(signature)
+    assert list(sig.parameters.keys()) == ['a', 'args', 'b', 'kwargs']
+    assert sig.parameters['a'].annotation == "int"
+    assert sig.parameters['args'].annotation == "bytes"
+    assert sig.parameters['b'].annotation == "str"
+    assert sig.parameters['kwargs'].annotation == "float"
+    assert sig.return_annotation == 'None'
+
+
+def test_signature_from_str_complex_annotations():
+    sig = inspect.signature_from_str('() -> Tuple[str, int, ...]')
+    assert sig.return_annotation == 'Tuple[str, int, ...]'
+
+    sig = inspect.signature_from_str('() -> Callable[[int, int], int]')
+    assert sig.return_annotation == 'Callable[[int, int], int]'
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='python-3.8 or above is required')
+def test_signature_from_str_positionaly_only_args():
+    sig = inspect.signature_from_str('(a, /, b)')
+    assert list(sig.parameters.keys()) == ['a', 'b']
+    assert sig.parameters['a'].kind == Parameter.POSITIONAL_ONLY
+    assert sig.parameters['b'].kind == Parameter.POSITIONAL_OR_KEYWORD
+
+
+def test_signature_from_str_invalid():
+    with pytest.raises(SyntaxError):
+        inspect.signature_from_str('')
 
 
 def test_safe_getattr_with_default():
