@@ -400,7 +400,7 @@ class Signature:
         if self.signature:
             return self.signature.return_annotation
         else:
-            return None
+            return inspect.Parameter.empty
 
     def format_args(self, show_annotation: bool = True) -> str:
         def get_annotation(param: inspect.Parameter) -> Any:
