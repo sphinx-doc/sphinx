@@ -873,7 +873,7 @@ class Sphinx:
 
             app.add_js_file('example.js', async="async")
             # => <script src="_static/example.js" async="async"></script>
-            
+
             app.add_js_file(None, body="var myVariable = 'foo';")
             # => <script>var myVariable = 'foo';</script>
 
