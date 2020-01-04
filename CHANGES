@@ -30,6 +30,8 @@ Features added
   down the build
 * #6837: LaTeX: Support a nested table
 * #6966: graphviz: Support ``:class:`` option
+* #6696: html: ``:scale:`` option of image/figure directive not working for SVG
+  images (imagesize-1.2.0 or above is required)
 
 Bugs fixed
 ----------
