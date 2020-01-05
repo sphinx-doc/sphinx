@@ -20,7 +20,7 @@ from inspect import (  # NOQA
     isclass, ismethod, ismethoddescriptor, isroutine
 )
 from io import StringIO
-from typing import Any, Callable, Mapping, List, Tuple
+from typing import Any, Callable, List, Tuple
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.util import logging
@@ -335,7 +335,7 @@ class Parameter:
                       RemovedInSphinx30Warning, stacklevel=2)
 
 
-class Signature:
+class Signature(inspect.Signature):
     """The Signature object represents the call signature of a callable object and
     its return annotation.
     """
@@ -354,13 +354,16 @@ class Signature:
         self._skip_first_argument = False
 
         try:
-            self.signature = inspect.signature(subject)
+            signature = inspect.signature(subject)
+            parameters = list(signature.parameters.values())
+            return_annotation = signature.return_annotation
         except IndexError:
             # Until python 3.6.4, cpython has been crashed on inspection for
             # partialmethods not having any arguments.
             # https://bugs.python.org/issue33009
             if hasattr(subject, '_partialmethod'):
-                self.signature = None
+                parameters = []
+                return_annotation = inspect.Parameter.empty
                 self._partialmethod_with_noargs = True
             else:
                 raise
@@ -380,26 +383,13 @@ class Signature:
                 pass
             else:
                 self._skip_first_argument = True
-                if self.signature:
-                    parameters = list(self.signature.parameters.values())
-                    self.signature = self.signature.replace(parameters=parameters[1:])
+                if len(parameters) > 0:
+                    parameters.pop(0)
 
-        if not has_retval and self.signature:
-            self.signature = self.signature.replace(return_annotation=inspect.Parameter.empty)
+        if not has_retval:
+            return_annotation = inspect.Parameter.empty
 
-    @property
-    def parameters(self) -> Mapping:
-        if self.signature:
-            return self.signature.parameters
-        else:
-            return {}
-
-    @property
-    def return_annotation(self) -> Any:
-        if self.signature:
-            return self.signature.return_annotation
-        else:
-            return inspect.Parameter.empty
+        super().__init__(parameters, return_annotation=return_annotation)
 
     def format_args(self, show_annotation: bool = True) -> str:
         def get_annotation(param: inspect.Parameter) -> Any:
@@ -502,6 +492,12 @@ class Signature:
         warnings.warn('sphinx.util.inspect.Signature.subject is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
         return self._subject
+
+    @property
+    def signature(self) -> "Signature":
+        warnings.warn('sphinx.util.inspect.Signature.signature is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self
 
 
 def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
