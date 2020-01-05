@@ -21,6 +21,7 @@ Deprecated
 * ``sphinx.roles.Index``
 * ``sphinx.util.detect_encoding()``
 * ``sphinx.util.get_module_source()``
+* ``sphinx.util.inspect.Signature.annotations``
 * ``sphinx.util.inspect.Signature.format_annotation()``
 * ``sphinx.util.inspect.Signature.format_annotation_new()``
 * ``sphinx.util.inspect.Signature.format_annotation_old()``

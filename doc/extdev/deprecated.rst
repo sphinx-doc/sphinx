@@ -81,6 +81,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.util.inspect.Signature.annotations``
+     - 2.4
+     - 4.0
+     - N/A
+
    * - ``sphinx.util.inspect.Signature.format_annotation()``
      - 2.4
      - 4.0

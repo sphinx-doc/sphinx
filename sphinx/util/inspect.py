@@ -20,7 +20,7 @@ from inspect import (  # NOQA
     isclass, ismethod, ismethoddescriptor, isroutine
 )
 from io import StringIO
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.util import logging
@@ -369,12 +369,17 @@ class Signature(inspect.Signature):
                 raise
 
         try:
-            self.annotations = typing.get_type_hints(subject)
+            # Update unresolved annotations using ``get_type_hints()``.
+            annotations = typing.get_type_hints(subject)
+            for i, param in enumerate(parameters):
+                if isinstance(param.annotation, str) and param.name in annotations:
+                    parameters[i] = param.replace(annotation=annotations[param.name])
+            if 'return' in annotations:
+                return_annotation = annotations['return']
         except Exception:
-            # get_type_hints() does not support some kind of objects like partial,
-            # ForwardRef and so on.  For them, it raises an exception. In that case,
-            # we try to build annotations from argspec.
-            self.annotations = {}
+            # ``get_type_hints()`` does not support some kind of objects like partial,
+            # ForwardRef and so on.
+            pass
 
         if bound_method:
             if inspect.ismethod(subject):
@@ -392,12 +397,6 @@ class Signature(inspect.Signature):
         super().__init__(parameters, return_annotation=return_annotation)
 
     def format_args(self, show_annotation: bool = True) -> str:
-        def get_annotation(param: inspect.Parameter) -> Any:
-            if isinstance(param.annotation, str) and param.name in self.annotations:
-                return self.annotations[param.name]
-            else:
-                return param.annotation
-
         args = []
         last_kind = None
         for param in self.parameters.values():
@@ -417,7 +416,7 @@ class Signature(inspect.Signature):
                 arg.write(param.name)
                 if show_annotation and param.annotation is not param.empty:
                     arg.write(': ')
-                    arg.write(stringify_annotation(get_annotation(param)))
+                    arg.write(stringify_annotation(param.annotation))
                 if param.default is not param.empty:
                     if param.annotation is param.empty or show_annotation is False:
                         arg.write('=')
@@ -430,13 +429,13 @@ class Signature(inspect.Signature):
                 arg.write(param.name)
                 if show_annotation and param.annotation is not param.empty:
                     arg.write(': ')
-                    arg.write(stringify_annotation(get_annotation(param)))
+                    arg.write(stringify_annotation(param.annotation))
             elif param.kind == param.VAR_KEYWORD:
                 arg.write('**')
                 arg.write(param.name)
                 if show_annotation and param.annotation is not param.empty:
                     arg.write(': ')
-                    arg.write(stringify_annotation(get_annotation(param)))
+                    arg.write(stringify_annotation(param.annotation))
 
             args.append(arg.getvalue())
             last_kind = param.kind
@@ -444,12 +443,14 @@ class Signature(inspect.Signature):
         if self.return_annotation is inspect.Parameter.empty or show_annotation is False:
             return '(%s)' % ', '.join(args)
         else:
-            if 'return' in self.annotations:
-                annotation = stringify_annotation(self.annotations['return'])
-            else:
-                annotation = stringify_annotation(self.return_annotation)
-
+            annotation = stringify_annotation(self.return_annotation)
             return '(%s) -> %s' % (', '.join(args), annotation)
+
+    @property
+    def annotations(self) -> Dict[str, Any]:
+        warnings.warn('sphinx.util.inspect.Signature.annotations is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return typing.get_type_hints(self._subject)
 
     def format_annotation(self, annotation: Any) -> str:
         """Return formatted representation of a type annotation."""
