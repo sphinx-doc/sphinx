@@ -81,6 +81,21 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.util.inspect.Signature.format_annotation()``
+     - 2.4
+     - 4.0
+     - ``sphinx.util.typing.stringify()``
+
+   * - ``sphinx.util.inspect.Signature.format_annotation_new()``
+     - 2.4
+     - 4.0
+     - ``sphinx.util.typing.stringify()``
+
+   * - ``sphinx.util.inspect.Signature.format_annotation_old()``
+     - 2.4
+     - 4.0
+     - ``sphinx.util.typing.stringify()``
+
    * - ``sphinx.builders.gettext.POHEADER``
      - 2.3
      - 4.0
