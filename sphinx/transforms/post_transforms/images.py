@@ -222,7 +222,6 @@ class ImageConverter(BaseImageConverter):
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            from sphinx.util.images import guess_mimetype
             return [guess_mimetype(node['uri'])]
         else:
             return node['candidates'].keys()
