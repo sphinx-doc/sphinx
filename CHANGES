@@ -52,6 +52,7 @@ Deprecated
 
 * The ``decode`` argument of ``sphinx.pycode.ModuleAnalyzer()``
 * ``sphinx.directives.other.Index``
+* ``sphinx.environment.temp_data['gloss_entries']``
 * ``sphinx.environment.BuildEnvironment.indexentries``
 * ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
 * ``sphinx.io.FiletypeNotFoundError``
@@ -60,6 +61,9 @@ Deprecated
 * ``sphinx.roles.Index``
 * ``sphinx.util.detect_encoding()``
 * ``sphinx.util.get_module_source()``
+* ``sphinx.util.inspect.Signature.format_annotation()``
+* ``sphinx.util.inspect.Signature.format_annotation_new()``
+* ``sphinx.util.inspect.Signature.format_annotation_old()``
 
 Features added
 --------------
@@ -69,6 +73,8 @@ Features added
   down the build
 * #6837: LaTeX: Support a nested table
 * #6966: graphviz: Support ``:class:`` option
+* #6696: html: ``:scale:`` option of image/figure directive not working for SVG
+  images (imagesize-1.2.0 or above is required)
 
 Bugs fixed
 ----------
@@ -76,6 +82,8 @@ Bugs fixed
 * #6925: html: Remove redundant type="text/javascript" from <script> elements
 * #6906, #6907: autodoc: failed to read the source codes encoeded in cp1251
 * #6961: latex: warning for babel shown twice
+* #6559: Wrong node-ids are generated in glossary directive
+* #6986: apidoc: misdetects module name for .so file inside module
 
 Testing
 --------

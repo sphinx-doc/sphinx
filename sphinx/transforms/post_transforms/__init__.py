@@ -82,7 +82,7 @@ class ReferencesResolver(SphinxPostTransform):
                     try:
                         domain = self.env.domains[node['refdomain']]
                     except KeyError:
-                        raise NoUri
+                        raise NoUri(target, typ)
                     newnode = domain.resolve_xref(self.env, refdoc, self.app.builder,
                                                   typ, target, node, contnode)
                 # really hardwired reference types

@@ -128,7 +128,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
     subpackages = [module_join(master_package, subroot, pkgname)
                    for pkgname in subpackages]
     # build a list of sub modules
-    submodules = [path.splitext(sub)[0] for sub in py_files
+    submodules = [sub.split('.')[0] for sub in py_files
                   if not is_skipped_module(path.join(root, sub), opts, excludes) and
                   sub != INITPY]
     submodules = [module_join(master_package, subroot, modname)

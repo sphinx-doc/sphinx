@@ -264,6 +264,16 @@ def test_glossary_alphanumeric(app):
     assert ("/", "/", "term", "index", "term-0", -1) in objects
 
 
+def test_glossary_conflicted_labels(app):
+    text = (".. _term-foo:\n"
+            ".. glossary::\n"
+            "\n"
+            "   foo\n")
+    restructuredtext.parse(app, text)
+    objects = list(app.env.get_domain("std").get_objects())
+    assert ("foo", "foo", "term", "index", "term-0", -1) in objects
+
+
 def test_cmdoption(app):
     text = (".. program:: ls\n"
             "\n"

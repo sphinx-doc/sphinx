@@ -6857,7 +6857,7 @@ class CPPDomain(Domain):
         if s is None or s.declaration is None:
             txtName = str(name)
             if txtName.startswith('std::') or txtName == 'std':
-                raise NoUri()
+                raise NoUri(txtName, typ)
             return None, None
 
         if typ.startswith('cpp:'):

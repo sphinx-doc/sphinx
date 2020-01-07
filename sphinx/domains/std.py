@@ -29,7 +29,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import clean_astext, make_refnode
+from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.typing import RoleFunction
 
 if False:
@@ -243,34 +243,44 @@ def split_term_classifiers(line: str) -> List[Optional[str]]:
 
 
 def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index_key: str,
-                       source: str, lineno: int, new_id: str = None) -> nodes.term:
+                       source: str, lineno: int, node_id: str = None,
+                       document: nodes.document = None) -> nodes.term:
     # get a text-only representation of the term and register it
     # as a cross-reference target
     term = nodes.term('', '', *textnodes)
     term.source = source
     term.line = lineno
-
-    gloss_entries = env.temp_data.setdefault('gloss_entries', set())
     termtext = term.astext()
-    if new_id is None:
-        new_id = nodes.make_id('term-' + termtext)
-        if new_id == 'term':
-            # the term is not good for node_id.  Generate it by sequence number instead.
-            new_id = 'term-%d' % env.new_serialno('glossary')
-    while new_id in gloss_entries:
-        new_id = 'term-%d' % env.new_serialno('glossary')
-    gloss_entries.add(new_id)
+
+    if node_id:
+        # node_id is given from outside (mainly i18n module), use it forcedly
+        pass
+    elif document:
+        node_id = make_id(env, document, 'term', termtext)
+        term['ids'].append(node_id)
+        document.note_explicit_target(term)
+    else:
+        warnings.warn('make_glossary_term() expects document is passed as an argument.',
+                      RemovedInSphinx40Warning)
+        gloss_entries = env.temp_data.setdefault('gloss_entries', set())
+        node_id = nodes.make_id('term-' + termtext)
+        if node_id == 'term':
+            # "term" is not good for node_id.  Generate it by sequence number instead.
+            node_id = 'term-%d' % env.new_serialno('glossary')
+
+        while node_id in gloss_entries:
+            node_id = 'term-%d' % env.new_serialno('glossary')
+        gloss_entries.add(node_id)
+        term['ids'].append(node_id)
 
     std = cast(StandardDomain, env.get_domain('std'))
-    std.note_object('term', termtext.lower(), new_id, location=(env.docname, lineno))
+    std.note_object('term', termtext.lower(), node_id, location=(env.docname, lineno))
 
     # add an index entry too
     indexnode = addnodes.index()
-    indexnode['entries'] = [('single', termtext, new_id, 'main', index_key)]
+    indexnode['entries'] = [('single', termtext, node_id, 'main', index_key)]
     indexnode.source, indexnode.line = term.source, term.line
     term.append(indexnode)
-    term['ids'].append(new_id)
-    term['names'].append(new_id)
 
     return term
 
@@ -368,7 +378,8 @@ class Glossary(SphinxDirective):
                 textnodes, sysmsg = self.state.inline_text(parts[0], lineno)
 
                 # use first classifier as a index key
-                term = make_glossary_term(self.env, textnodes, parts[1], source, lineno)
+                term = make_glossary_term(self.env, textnodes, parts[1], source, lineno,
+                                          document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
                 termtexts.append(term.astext())

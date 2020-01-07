@@ -202,18 +202,13 @@ class Locale(SphinxTransform):
 
             # glossary terms update refid
             if isinstance(node, nodes.term):
-                gloss_entries = self.env.temp_data.setdefault('gloss_entries', set())
-                for _id in node['names']:
-                    if _id in gloss_entries:
-                        gloss_entries.remove(_id)
-
+                for _id in node['ids']:
                     parts = split_term_classifiers(msgstr)
                     patch = publish_msgstr(self.app, parts[0], source,
                                            node.line, self.config, settings)
                     patch = make_glossary_term(self.env, patch, parts[1],
-                                               source, node.line, _id)
-                    node['ids'] = patch['ids']
-                    node['names'] = patch['names']
+                                               source, node.line, _id,
+                                               self.document)
                     processed = True
 
             # update leaves with processed nodes
