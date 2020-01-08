@@ -35,6 +35,7 @@ Features added
 * #6966: graphviz: Support ``:class:`` option
 * #6696: html: ``:scale:`` option of image/figure directive not working for SVG
   images (imagesize-1.2.0 or above is required)
+* #6994: imgconverter: Support illustrator file (.ai) to .png conversion
 
 Bugs fixed
 ----------
