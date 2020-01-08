@@ -128,7 +128,7 @@ class Target(SphinxDirective):
         targetname = '%s-%s' % (self.name, fullname)
         node = nodes.target('', '', ids=[targetname])
         self.state.document.note_explicit_target(node)
-        ret = [node]  # type: List[nodes.Node]
+        ret = [node]  # type: List[Node]
         if self.indextemplate:
             indexentry = self.indextemplate % (fullname,)
             indextype = 'single'
@@ -313,7 +313,7 @@ class Glossary(SphinxDirective):
         in_definition = True
         in_comment = False
         was_empty = True
-        messages = []  # type: List[nodes.Node]
+        messages = []  # type: List[Node]
         for line, (source, lineno) in zip(self.content, self.content.items):
             # empty line -> add to last definition
             if not line:
@@ -369,8 +369,8 @@ class Glossary(SphinxDirective):
         items = []
         for terms, definition in entries:
             termtexts = []          # type: List[str]
-            termnodes = []          # type: List[nodes.Node]
-            system_messages = []    # type: List[nodes.Node]
+            termnodes = []          # type: List[Node]
+            system_messages = []    # type: List[Node]
             for line, source, lineno in terms:
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
@@ -407,7 +407,7 @@ class Glossary(SphinxDirective):
 
 
 def token_xrefs(text: str) -> List[Node]:
-    retnodes = []  # type: List[nodes.Node]
+    retnodes = []  # type: List[Node]
     pos = 0
     for m in token_re.finditer(text):
         if m.start() > pos:
@@ -436,7 +436,7 @@ class ProductionList(SphinxDirective):
 
     def run(self) -> List[Node]:
         domain = cast(StandardDomain, self.env.get_domain('std'))
-        node = addnodes.productionlist()  # type: nodes.Element
+        node = addnodes.productionlist()  # type: Element
         i = 0
 
         for rule in self.arguments[0].split('\n'):
@@ -537,7 +537,7 @@ class StandardDomain(Domain):
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
-    }  # type: Dict[Type[nodes.Node], Tuple[str, Callable]]
+    }  # type: Dict[Type[Node], Tuple[str, Callable]]
 
     def __init__(self, env: "BuildEnvironment") -> None:
         super().__init__(env)
@@ -834,7 +834,7 @@ class StandardDomain(Domain):
             # remove the ids we added in the CitationReferences
             # transform since they can't be transfered to
             # the contnode (if it's a Text node)
-            if not isinstance(contnode, nodes.Element):
+            if not isinstance(contnode, Element):
                 del node['ids'][:]
             raise
 
@@ -856,7 +856,7 @@ class StandardDomain(Domain):
     def resolve_any_xref(self, env: "BuildEnvironment", fromdocname: str,
                          builder: "Builder", target: str, node: pending_xref,
                          contnode: Element) -> List[Tuple[str, Element]]:
-        results = []  # type: List[Tuple[str, nodes.Element]]
+        results = []  # type: List[Tuple[str, Element]]
         ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
             res = self.resolve_xref(env, fromdocname, builder, role,
@@ -907,7 +907,7 @@ class StandardDomain(Domain):
     def get_numfig_title(self, node: Node) -> str:
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
-            elem = cast(nodes.Element, node)
+            elem = cast(Element, node)
             _, title_getter = self.enumerable_nodes.get(elem.__class__, (None, None))
             if title_getter:
                 return title_getter(elem)
