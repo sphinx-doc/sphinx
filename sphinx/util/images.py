@@ -32,6 +32,7 @@ mime_suffixes = OrderedDict([
     ('.pdf', 'application/pdf'),
     ('.svg', 'image/svg+xml'),
     ('.svgz', 'image/svg+xml'),
+    ('.ai', 'application/illustrator'),
 ])
 
 DataURI = NamedTuple('DataURI', [('mimetype', str),
