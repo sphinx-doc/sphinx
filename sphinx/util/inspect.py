@@ -14,6 +14,7 @@ import inspect
 import re
 import sys
 import typing
+import warnings
 from functools import partial, partialmethod
 from inspect import (  # NOQA
     isclass, ismethod, ismethoddescriptor, isroutine
