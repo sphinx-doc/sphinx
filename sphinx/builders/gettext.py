@@ -198,8 +198,8 @@ if source_date_epoch is not None:
 
 
 class LocalTimeZone(tzinfo):
-    def __init__(self, *args: Any, **kw: Any) -> None:
-        super().__init__(*args, **kw)  # type: ignore
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)  # type: ignore
         self.tzdelta = tzdelta
 
     def utcoffset(self, dt: datetime) -> timedelta:

@@ -92,8 +92,8 @@ def etree_parse(path: str) -> Any:
 
 
 class Struct:
-    def __init__(self, **kwds: Any) -> None:
-        self.__dict__.update(kwds)
+    def __init__(self, **kwargs: Any) -> None:
+        self.__dict__.update(kwargs)
 
 
 class SphinxTestApp(application.Sphinx):
@@ -165,10 +165,10 @@ class SphinxTestAppWrapperForSkipBuilding:
     def __getattr__(self, name: str) -> Any:
         return getattr(self.app, name)
 
-    def build(self, *args: Any, **kw: Any) -> None:
+    def build(self, *args: Any, **kwargs: Any) -> None:
         if not self.app.outdir.listdir():  # type: ignore
             # if listdir is empty, do build.
-            self.app.build(*args, **kw)
+            self.app.build(*args, **kwargs)
             # otherwise, we can use built cache
 
 

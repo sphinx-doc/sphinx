@@ -59,7 +59,7 @@ class _MockObject:
     def __getattr__(self, key: str) -> "_MockObject":
         return _make_subclass(key, self.__display_name__, self.__class__)()
 
-    def __call__(self, *args: Any, **kw: Any) -> Any:
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         if args and type(args[0]) in [type, FunctionType, MethodType]:
             # Appears to be a decorator, pass through unchanged
             return args[0]

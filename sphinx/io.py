@@ -192,15 +192,16 @@ class SphinxBaseFileInput(FileInput):
     It supports to replace unknown Unicode characters to '?'.
     """
 
-    def __init__(self, app: "Sphinx", env: BuildEnvironment, *args: Any, **kwds: Any) -> None:
+    def __init__(self, app: "Sphinx", env: BuildEnvironment,
+                 *args: Any, **kwargs: Any) -> None:
         self.app = app
         self.env = env
 
         warnings.warn('%s is deprecated.' % self.__class__.__name__,
                       RemovedInSphinx30Warning, stacklevel=2)
 
-        kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
-        super().__init__(*args, **kwds)
+        kwargs['error_handler'] = 'sphinx'  # py3: handle error on open.
+        super().__init__(*args, **kwargs)
 
     def warn_and_replace(self, error: Any) -> Tuple:
         return UnicodeDecodeErrorHandler(self.env.docname)(error)
