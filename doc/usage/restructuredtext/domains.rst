@@ -113,6 +113,29 @@ In short:
   refer to ``Queue.Queue.get`` but only display ``get`` as the link text.
 
 
+Table of Contents
+~~~~~~~~~~~~~~~~~
+
+The directive option flag ``:section:`` wraps a description in a
+section. Like other sections, the object will have an entry in the
+table of contents. For example::
+  .. cpp::function int fun1(int a)
+     :section:
+
+  .. cpp::function int fun2(int a)
+     :section:
+
+Is the same as::
+
+  fun1
+  -----
+  .. cpp::function int fun1(int a)
+
+  fun2
+  -----
+  .. cpp::function int fun2(int a)
+
+
 The Python Domain
 -----------------
 

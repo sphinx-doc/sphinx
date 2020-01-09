@@ -60,6 +60,7 @@ class ObjectDescription(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {
         'noindex': directives.flag,
+        'section': directives.flag,
     }  # type: Dict[str, DirectiveOption]
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
@@ -130,7 +131,8 @@ class ObjectDescription(SphinxDirective):
         """
         pass
 
-    def run(self) -> List[Node]:
+#    def run(self) -> List[Node]:
+    def run(self) -> Any:
         """
         Main directive entry function, called by docutils upon encountering the
         directive.
@@ -160,7 +162,6 @@ class ObjectDescription(SphinxDirective):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
-
         self.names = []  # type: List[Any]
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
@@ -196,7 +197,16 @@ class ObjectDescription(SphinxDirective):
         DocFieldTransformer(self).transform_all(contentnode)
         self.env.temp_data['object'] = None
         self.after_content()
-        return [self.indexnode, node]
+
+        if 'section' in self.options:
+            sec = nodes.section()
+            sec += nodes.title('', self.names[0])
+            self.state.document.set_id(sec)
+            sec += node
+            return [self.indexnode, sec]
+        else:
+            return [self.indexnode, node]
+
 
 
 class DefaultRole(SphinxDirective):

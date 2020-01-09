@@ -51,3 +51,22 @@ directives
 .. cpp:function:: void paren_6::operator()(int)
 .. cpp:function:: void paren_7::operator()(int)
 .. cpp:function:: void paren_8::operator()(int)
+
+
+.. cpp:function:: void sec_1(int, float)
+   :section:
+.. cpp:function:: void sec_2(int, float)
+   :section:
+.. cpp:function:: void sec_3(int, float)
+   :section:
+.. cpp:function:: void sec_4(int, float)
+   :section:
+.. cpp:function:: void sec_5::operator()(int)
+   :section:
+.. cpp:function:: void sec_6::operator()(int)
+   :section:
+.. cpp:function:: void sec_7::operator()(int)
+   :section:
+.. cpp:function:: void sec_8::operator()(int)
+   :section:
+		  
