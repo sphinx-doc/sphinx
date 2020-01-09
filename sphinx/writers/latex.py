@@ -1935,6 +1935,8 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_literal(self, node: Element) -> None:
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
+        elif 'kbd' in node['classes']:
+            self.body.append(r'\sphinxkeyboard{\sphinxupquote{')
         else:
             self.body.append(r'\sphinxcode{\sphinxupquote{')
 

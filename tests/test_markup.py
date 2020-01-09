@@ -231,6 +231,13 @@ def get_verifier(verify, verify_re):
         r'\sphinxguilabel{Foo}',
     ),
     (
+        # kbd role
+        'verify',
+        ':kbd:`space`',
+        '<p><kbd class="kbd docutils literal notranslate">space</kbd></p>',
+        '\\sphinxkeyboard{\\sphinxupquote{space}}',
+    ),
+    (
         # non-interpolation of dashes in option role
         'verify_re',
         ':option:`--with-option`',
