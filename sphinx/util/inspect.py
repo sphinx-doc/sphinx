@@ -382,32 +382,22 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
             args.append('*')
 
         arg = StringIO()
-        if param.kind in (param.POSITIONAL_ONLY,
-                          param.POSITIONAL_OR_KEYWORD,
-                          param.KEYWORD_ONLY):
-            arg.write(param.name)
-            if show_annotation and param.annotation is not param.empty:
-                arg.write(': ')
-                arg.write(stringify_annotation(param.annotation))
-            if param.default is not param.empty:
-                if show_annotation and param.annotation is not param.empty:
-                    arg.write(' = ')
-                    arg.write(object_description(param.default))
-                else:
-                    arg.write('=')
-                    arg.write(object_description(param.default))
-        elif param.kind == param.VAR_POSITIONAL:
-            arg.write('*')
-            arg.write(param.name)
-            if show_annotation and param.annotation is not param.empty:
-                arg.write(': ')
-                arg.write(stringify_annotation(param.annotation))
+        if param.kind == param.VAR_POSITIONAL:
+            arg.write('*' + param.name)
         elif param.kind == param.VAR_KEYWORD:
-            arg.write('**')
+            arg.write('**' + param.name)
+        else:
             arg.write(param.name)
+
+        if show_annotation and param.annotation is not param.empty:
+            arg.write(': ')
+            arg.write(stringify_annotation(param.annotation))
+        if param.default is not param.empty:
             if show_annotation and param.annotation is not param.empty:
-                arg.write(': ')
-                arg.write(stringify_annotation(param.annotation))
+                arg.write(' = ')
+            else:
+                arg.write('=')
+            arg.write(object_description(param.default))
 
         args.append(arg.getvalue())
         last_kind = param.kind
