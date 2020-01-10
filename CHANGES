@@ -36,6 +36,8 @@ Features added
 * #6696: html: ``:scale:`` option of image/figure directive not working for SVG
   images (imagesize-1.2.0 or above is required)
 * #6994: imgconverter: Support illustrator file (.ai) to .png conversion
+* SphinxTranslator now calls visitor/departure method for super node class if
+  visitor/departure method for original node class not found
 
 Bugs fixed
 ----------
