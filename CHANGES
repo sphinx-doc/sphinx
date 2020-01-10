@@ -61,9 +61,7 @@ Deprecated
 * ``sphinx.roles.Index``
 * ``sphinx.util.detect_encoding()``
 * ``sphinx.util.get_module_source()``
-* ``sphinx.util.inspect.Signature.format_annotation()``
-* ``sphinx.util.inspect.Signature.format_annotation_new()``
-* ``sphinx.util.inspect.Signature.format_annotation_old()``
+* ``sphinx.util.inspect.Signature``
 
 Features added
 --------------
@@ -75,6 +73,7 @@ Features added
 * #6966: graphviz: Support ``:class:`` option
 * #6696: html: ``:scale:`` option of image/figure directive not working for SVG
   images (imagesize-1.2.0 or above is required)
+* #6994: imgconverter: Support illustrator file (.ai) to .png conversion
 
 Bugs fixed
 ----------
@@ -84,6 +83,7 @@ Bugs fixed
 * #6961: latex: warning for babel shown twice
 * #6559: Wrong node-ids are generated in glossary directive
 * #6986: apidoc: misdetects module name for .so file inside module
+* #6999: napoleon: fails to parse tilde in :exc: role
 
 Testing
 --------

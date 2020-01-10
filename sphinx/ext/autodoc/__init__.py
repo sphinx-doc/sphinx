@@ -31,7 +31,7 @@ from sphinx.util import logging
 from sphinx.util import rpartition
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import (
-    Signature, getdoc, object_description, safe_getattr, safe_getmembers
+    getdoc, object_description, safe_getattr, safe_getmembers, stringify_signature
 )
 
 if False:
@@ -1006,9 +1006,10 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                     not inspect.isbuiltin(self.object) and
                     not inspect.isclass(self.object) and
                     hasattr(self.object, '__call__')):
-                args = Signature(self.object.__call__).format_args(**kwargs)
+                sig = inspect.signature(self.object.__call__)
             else:
-                args = Signature(self.object).format_args(**kwargs)
+                sig = inspect.signature(self.object)
+            args = stringify_signature(sig, **kwargs)
         except TypeError:
             if (inspect.is_builtin_class_method(self.object, '__new__') and
                inspect.is_builtin_class_method(self.object, '__init__')):
@@ -1018,11 +1019,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
             try:
-                sig = Signature(self.object.__new__, bound_method=True, has_retval=False)
-                args = sig.format_args(**kwargs)
+                sig = inspect.signature(self.object.__new__, bound_method=True)
+                args = stringify_signature(sig, show_return_annotation=False, **kwargs)
             except TypeError:
-                sig = Signature(self.object.__init__, bound_method=True, has_retval=False)
-                args = sig.format_args(**kwargs)
+                sig = inspect.signature(self.object.__init__, bound_method=True)
+                args = stringify_signature(sig, show_return_annotation=False, **kwargs)
 
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
@@ -1103,8 +1104,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
-            sig = Signature(initmeth, bound_method=True, has_retval=False)
-            return sig.format_args(**kwargs)
+            sig = inspect.signature(initmeth, bound_method=True)
+            return stringify_signature(sig, show_return_annotation=False, **kwargs)
         except TypeError:
             # still not possible: happens e.g. for old-style classes
             # with __init__ in C
@@ -1306,9 +1307,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             # can never get arguments of a C function or method
             return None
         if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
-            args = Signature(self.object, bound_method=False).format_args(**kwargs)
+            sig = inspect.signature(self.object, bound_method=False)
         else:
-            args = Signature(self.object, bound_method=True).format_args(**kwargs)
+            sig = inspect.signature(self.object, bound_method=True)
+        args = stringify_signature(sig, **kwargs)
+
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
         return args

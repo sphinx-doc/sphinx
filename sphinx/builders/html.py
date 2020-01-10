@@ -858,11 +858,11 @@ class StandaloneHTMLBuilder(Builder):
                         indexer_name, indexer_name),
                     RemovedInSphinx40Warning)
 
-    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwds: Any) -> str:
-        if 'includehidden' not in kwds:
-            kwds['includehidden'] = False
+    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
+        if 'includehidden' not in kwargs:
+            kwargs['includehidden'] = False
         return self.render_partial(TocTree(self.env).get_toctree_for(
-            docname, self, collapse, **kwds))['fragment']
+            docname, self, collapse, **kwargs))['fragment']
 
     def get_outfilename(self, pagename: str) -> str:
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
@@ -971,7 +971,7 @@ class StandaloneHTMLBuilder(Builder):
             return False
         ctx['hasdoc'] = hasdoc
 
-        ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
+        ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 

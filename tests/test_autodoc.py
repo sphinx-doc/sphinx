@@ -1342,13 +1342,13 @@ def test_partialmethod(app):
         '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
         '   ',
         '   ',
-        '   .. py:method:: Cell.set_alive() -> None',
+        '   .. py:method:: Cell.set_alive()',
         '      :module: target.partialmethod',
         '   ',
         '      Make a cell alive.',
         '      ',
         '   ',
-        '   .. py:method:: Cell.set_dead() -> None',
+        '   .. py:method:: Cell.set_dead()',
         '      :module: target.partialmethod',
         '   ',
         '      Make a cell dead.',
@@ -1360,11 +1360,6 @@ def test_partialmethod(app):
         '      Update state of cell to *state*.',
         '      ',
     ]
-    if (sys.version_info < (3, 5, 4) or
-            (3, 6, 5) <= sys.version_info < (3, 7) or
-            (3, 7, 0, 'beta', 3) <= sys.version_info):
-        # TODO: this condition should be updated after 3.7-final release.
-        expected = '\n'.join(expected).replace(' -> None', '').split('\n')
 
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
