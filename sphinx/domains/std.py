@@ -254,7 +254,7 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
 
     if node_id:
         # node_id is given from outside (mainly i18n module), use it forcedly
-        pass
+        term['ids'].append(node_id)
     elif document:
         node_id = make_id(env, document, 'term', termtext)
         term['ids'].append(node_id)

@@ -479,6 +479,8 @@ Raises:
         If the dimensions couldn't be parsed.
     `InvalidArgumentsError`
         If the arguments are invalid.
+    :exc:`~ValueError`
+        If the arguments are wrong.
 
 """, """
 Example Function
@@ -488,6 +490,7 @@ Example Function
 :raises AttributeError: errors for missing attributes.
 :raises ~InvalidDimensionsError: If the dimensions couldn't be parsed.
 :raises InvalidArgumentsError: If the arguments are invalid.
+:raises ~ValueError: If the arguments are wrong.
 """),
                       ################################
                       ("""
