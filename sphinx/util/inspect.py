@@ -374,11 +374,13 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
     args = []
     last_kind = None
     for param in sig.parameters.values():
-        # insert '*' between POSITIONAL args and KEYWORD_ONLY args::
-        #     func(a, b, *, c, d):
-        if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
-                                                              param.POSITIONAL_ONLY,
-                                                              None):
+        if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
+            # PEP-570: Separator for Positional Only Parameter: /
+            args.append('/')
+        elif param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
+                                                                param.POSITIONAL_ONLY,
+                                                                None):
+            # PEP-3102: Separator for Keyword Only Parameter: *
             args.append('*')
 
         arg = StringIO()
@@ -401,6 +403,10 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 
         args.append(arg.getvalue())
         last_kind = param.kind
+
+    if last_kind == inspect.Parameter.POSITIONAL_ONLY:
+        # PEP-570: Separator for Positional Only Parameter: /
+        args.append('/')
 
     if (sig.return_annotation is inspect.Parameter.empty or
             show_annotation is False or
