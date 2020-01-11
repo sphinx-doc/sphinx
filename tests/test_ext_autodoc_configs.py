@@ -540,6 +540,24 @@ def test_autodoc_typehints_none(app):
     ]
 
 
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'extensions': ['sphinx.ext.autodoc.typehints'],
+                                   'autodoc_typehints': 'description'})
+def test_autodoc_typehints_description(app):
+    app.build()
+    context = (app.outdir / 'index.txt').text()
+    assert ('target.typehints.incr(a, b=1)\n'
+            '\n'
+            '   Parameters:\n'
+            '      * **a** (*int*) --\n'
+            '\n'
+            '      * **b** (*int*) --\n'
+            '\n'
+            '   Return type:\n'
+            '      int\n'
+            in context)
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 @pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
 def test_merge_autodoc_default_flags1(app):
