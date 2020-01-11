@@ -29,7 +29,7 @@ from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect
 from sphinx.util import logging
 from sphinx.util import rpartition
-from sphinx.util.docstrings import prepare_docstring
+from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import (
     getdoc, object_description, safe_getattr, safe_getmembers, stringify_signature
 )
@@ -560,6 +560,13 @@ class Documenter:
                     doc = None
             has_doc = bool(doc)
 
+            metadata = extract_metadata(doc)
+            if 'private' in metadata:
+                # consider a member private if docstring has "private" metadata
+                isprivate = True
+            else:
+                isprivate = membername.startswith('_')
+
             keep = False
             if want_all and membername.startswith('__') and \
                     membername.endswith('__') and len(membername) > 4:
@@ -575,14 +582,14 @@ class Documenter:
                     if membername in self.options.special_members:
                         keep = has_doc or self.options.undoc_members
             elif (namespace, membername) in attr_docs:
-                if want_all and membername.startswith('_'):
+                if want_all and isprivate:
                     # ignore members whose name starts with _ by default
                     keep = self.options.private_members
                 else:
                     # keep documented attributes
                     keep = True
                 isattr = True
-            elif want_all and membername.startswith('_'):
+            elif want_all and isprivate:
                 # ignore members whose name starts with _ by default
                 keep = self.options.private_members and \
                     (has_doc or self.options.undoc_members)

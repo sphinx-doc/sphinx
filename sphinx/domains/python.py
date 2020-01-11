@@ -764,6 +764,21 @@ class PyXRefRole(XRefRole):
         return title, target
 
 
+def filter_meta_fields(app: Sphinx, domain: str, objtype: str, content: Element) -> None:
+    """Filter ``:meta:`` field from its docstring."""
+    if domain != 'py':
+        return
+
+    for node in content:
+        if isinstance(node, nodes.field_list):
+            fields = cast(List[nodes.field], node)
+            for field in fields:
+                field_name = cast(nodes.field_body, field[0]).astext().strip()
+                if field_name == 'meta' or field_name.startswith('meta '):
+                    node.remove(field)
+                    break
+
+
 class PythonModuleIndex(Index):
     """
     Index subclass to provide the Python module index.
@@ -1067,7 +1082,10 @@ class PythonDomain(Domain):
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
+    app.setup_extension('sphinx.directives')
+
     app.add_domain(PythonDomain)
+    app.connect('object-description-transform', filter_meta_fields)
 
     return {
         'version': 'builtin',

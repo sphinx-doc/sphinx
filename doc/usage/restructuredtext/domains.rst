@@ -354,6 +354,9 @@ Info field lists
 ~~~~~~~~~~~~~~~~
 
 .. versionadded:: 0.4
+.. versionchanged:: 3.0
+
+   meta fields are added.
 
 Inside Python object description directives, reST field lists with these fields
 are recognized and formatted nicely:
@@ -367,6 +370,10 @@ are recognized and formatted nicely:
 * ``vartype``: Type of a variable.  Creates a link if possible.
 * ``returns``, ``return``: Description of the return value.
 * ``rtype``: Return type.  Creates a link if possible.
+* ``meta``: Add metadata to description of the python object.  The metadata will
+  not be shown on output document.  For example, ``:meta private:`` indicates
+  the python object is private member.  It is used in
+  :py:mod:`sphinx.ext.autodoc` for filtering members.
 
 .. note::
 

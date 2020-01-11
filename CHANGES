@@ -16,6 +16,8 @@ Incompatible changes
   :confval:`autosummary_generate_overwrite` to change the behavior
 * #5923: autodoc: the members of ``object`` class are not documented by default
   when ``:inherited-members:`` and ``:special-members:`` are given.
+* #6830: py domain: ``meta`` fields in info-field-list becomes reserved.  They
+  are not displayed on output document now
 
 Deprecated
 ----------
@@ -29,8 +31,11 @@ Features added
   old stub file
 * #5923: autodoc: ``:inherited-members:`` option takes a name of anchestor class
   not to document inherited members of the class and uppers
+* #6830: autodoc: consider a member private if docstring contains
+  ``:meta private:`` in info-field-list
 * #6558: glossary: emit a warning for duplicated glossary entry
 * #6558: std domain: emit a warning for duplicated generic objects
+* #6830: py domain: Add new event: :event:`object-description-transform`
 
 Bugs fixed
 ----------

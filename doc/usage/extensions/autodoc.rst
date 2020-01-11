@@ -140,6 +140,20 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.1
 
+   * autodoc considers a member private if its docstring contains
+     ``:meta private:`` in its :ref:`info-field-lists`.
+     For example:
+
+     .. code-block:: rst
+
+        def my_function(my_arg, my_other_arg):
+            """blah blah blah
+
+            :meta private:
+            """
+
+     .. versionadded:: 3.0
+
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
 
