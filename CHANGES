@@ -35,6 +35,8 @@ Features added
   images (imagesize-1.2.0 or above is required)
 * #6994: imgconverter: Support illustrator file (.ai) to .png conversion
 * autodoc: Support Positional-Only Argument separator (PEP-570 compliant)
+* SphinxTranslator now calls visitor/departure method for super node class if
+  visitor/departure method for original node class not found
 
 Bugs fixed
 ----------
