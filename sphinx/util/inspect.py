@@ -17,7 +17,7 @@ import typing
 import warnings
 from functools import partial, partialmethod
 from inspect import (  # NOQA
-    isclass, ismethod, ismethoddescriptor, isroutine
+    Parameter, isclass, ismethod, ismethoddescriptor, isroutine
 )
 from io import StringIO
 from typing import Any, Callable, Mapping, List, Tuple
@@ -81,19 +81,19 @@ def getargspec(func):
         kind = param.kind
         name = param.name
 
-        if kind is inspect.Parameter.POSITIONAL_ONLY:
+        if kind is Parameter.POSITIONAL_ONLY:
             args.append(name)
-        elif kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:
+        elif kind is Parameter.POSITIONAL_OR_KEYWORD:
             args.append(name)
             if param.default is not param.empty:
                 defaults += (param.default,)  # type: ignore
-        elif kind is inspect.Parameter.VAR_POSITIONAL:
+        elif kind is Parameter.VAR_POSITIONAL:
             varargs = name
-        elif kind is inspect.Parameter.KEYWORD_ONLY:
+        elif kind is Parameter.KEYWORD_ONLY:
             kwonlyargs.append(name)
             if param.default is not param.empty:
                 kwdefaults[name] = param.default
-        elif kind is inspect.Parameter.VAR_KEYWORD:
+        elif kind is Parameter.VAR_KEYWORD:
             varkw = name
 
         if param.annotation is not param.empty:
@@ -336,7 +336,7 @@ def signature(subject: Callable, bound_method: bool = False) -> inspect.Signatur
         # https://bugs.python.org/issue33009
         if hasattr(subject, '_partialmethod'):
             parameters = []
-            return_annotation = inspect.Parameter.empty
+            return_annotation = Parameter.empty
         else:
             raise
 
@@ -412,7 +412,7 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
         args.append(arg.getvalue())
         last_kind = param.kind
 
-    if (sig.return_annotation is inspect.Parameter.empty or
+    if (sig.return_annotation is Parameter.empty or
             show_annotation is False or
             show_return_annotation is False):
         return '(%s)' % ', '.join(args)
@@ -487,12 +487,12 @@ class Signature:
             if self.has_retval:
                 return self.signature.return_annotation
             else:
-                return inspect.Parameter.empty
+                return Parameter.empty
         else:
             return None
 
     def format_args(self, show_annotation: bool = True) -> str:
-        def get_annotation(param: inspect.Parameter) -> Any:
+        def get_annotation(param: Parameter) -> Any:
             if isinstance(param.annotation, str) and param.name in self.annotations:
                 return self.annotations[param.name]
             else:
@@ -544,7 +544,7 @@ class Signature:
             args.append(arg.getvalue())
             last_kind = param.kind
 
-        if self.return_annotation is inspect.Parameter.empty or show_annotation is False:
+        if self.return_annotation is Parameter.empty or show_annotation is False:
             return '(%s)' % ', '.join(args)
         else:
             if 'return' in self.annotations:
