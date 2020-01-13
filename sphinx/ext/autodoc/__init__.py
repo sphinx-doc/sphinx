@@ -983,8 +983,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                     not inspect.isbuiltin(self.object) and
                     not inspect.isclass(self.object) and
                     hasattr(self.object, '__call__')):
+                self.env.app.emit('autodoc-before-process-signature',
+                                  self.object.__call__, False)
                 sig = inspect.signature(self.object.__call__)
             else:
+                self.env.app.emit('autodoc-before-process-signature', self.object, False)
                 sig = inspect.signature(self.object)
             args = stringify_signature(sig, **kwargs)
         except TypeError:
@@ -996,9 +999,13 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
             try:
+                self.env.app.emit('autodoc-before-process-signature',
+                                  self.object.__new__, True)
                 sig = inspect.signature(self.object.__new__, bound_method=True)
                 args = stringify_signature(sig, show_return_annotation=False, **kwargs)
             except TypeError:
+                self.env.app.emit('autodoc-before-process-signature',
+                                  self.object.__init__, True)
                 sig = inspect.signature(self.object.__init__, bound_method=True)
                 args = stringify_signature(sig, show_return_annotation=False, **kwargs)
 
@@ -1081,6 +1088,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
+            self.env.app.emit('autodoc-before-process-signature', initmeth, True)
             sig = inspect.signature(initmeth, bound_method=True)
             return stringify_signature(sig, show_return_annotation=False, **kwargs)
         except TypeError:
@@ -1284,8 +1292,10 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             # can never get arguments of a C function or method
             return None
         if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
+            self.env.app.emit('autodoc-before-process-signature', self.object, False)
             sig = inspect.signature(self.object, bound_method=False)
         else:
+            self.env.app.emit('autodoc-before-process-signature', self.object, True)
             sig = inspect.signature(self.object, bound_method=True)
         args = stringify_signature(sig, **kwargs)
 
@@ -1558,6 +1568,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_typehints', "signature", True, ENUM("signature", "none"))
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
+    app.add_event('autodoc-before-process-signature')
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
