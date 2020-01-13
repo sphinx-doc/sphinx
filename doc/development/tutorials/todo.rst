@@ -107,7 +107,7 @@ is just a "general" node.
    <http://docutils.sourceforge.net/docs/ref/doctree.html>`__ and :ref:`Sphinx
    <nodes>`.
 
-.. DANGER::
+.. attention::
 
    It is important to know that while you can extend Sphinx without
    leaving your ``conf.py``, if you declare an inherited node right
