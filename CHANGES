@@ -51,6 +51,7 @@ Bugs fixed
 * #6559: Wrong node-ids are generated in glossary directive
 * #6986: apidoc: misdetects module name for .so file inside module
 * #6999: napoleon: fails to parse tilde in :exc: role
+* #7023: autodoc: nested partial functions are not listed
 
 Testing
 --------
