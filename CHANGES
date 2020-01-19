@@ -18,6 +18,7 @@ Incompatible changes
   when ``:inherited-members:`` and ``:special-members:`` are given.
 * #6830: py domain: ``meta`` fields in info-field-list becomes reserved.  They
   are not displayed on output document now
+* The structure of ``sphinx.events.EventManager.listeners`` has changed
 
 Deprecated
 ----------
@@ -36,6 +37,8 @@ Features added
 * #6558: glossary: emit a warning for duplicated glossary entry
 * #6558: std domain: emit a warning for duplicated generic objects
 * #6830: py domain: Add new event: :event:`object-description-transform`
+* Support priority of event handlers. For more detail, see
+  :py:meth:`.Sphinx.connect()`
 
 Bugs fixed
 ----------
