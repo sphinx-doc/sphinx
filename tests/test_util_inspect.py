@@ -511,3 +511,15 @@ def test_isproperty(app):
     assert inspect.isproperty(Base.meth) is False       # method of class
     assert inspect.isproperty(Base().meth) is False     # method of instance
     assert inspect.isproperty(func) is False            # function
+
+
+def test_unpartial():
+    def func1(a, b, c):
+        pass
+
+    func2 = functools.partial(func1, 1)
+    func2.__doc__ = "func2"
+    func3 = functools.partial(func2, 2)  # nested partial object
+
+    assert inspect.unpartial(func2) is func1
+    assert inspect.unpartial(func3) is func1

@@ -121,6 +121,17 @@ def isenumattribute(x: Any) -> bool:
     return isinstance(x, enum.Enum)
 
 
+def unpartial(obj: Any) -> Any:
+    """Get an original object from partial object.
+
+    This returns given object itself if not partial.
+    """
+    while ispartial(obj):
+        obj = obj.func
+
+    return obj
+
+
 def ispartial(obj: Any) -> bool:
     """Check if the object is partial."""
     return isinstance(obj, (partial, partialmethod))
@@ -197,23 +208,20 @@ def isattributedescriptor(obj: Any) -> bool:
 
 def isfunction(obj: Any) -> bool:
     """Check if the object is function."""
-    return inspect.isfunction(obj) or ispartial(obj) and inspect.isfunction(obj.func)
+    return inspect.isfunction(unpartial(obj))
 
 
 def isbuiltin(obj: Any) -> bool:
     """Check if the object is builtin."""
-    return inspect.isbuiltin(obj) or ispartial(obj) and inspect.isbuiltin(obj.func)
+    return inspect.isbuiltin(unpartial(obj))
 
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
+    obj = unpartial(obj)
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
-        return True
-    elif (ispartial(obj) and hasattr(obj.func, '__code__') and
-          inspect.iscoroutinefunction(obj.func)):
-        # partialed
         return True
     else:
         return False
