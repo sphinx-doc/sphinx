@@ -294,6 +294,21 @@ def test_signature_annotations():
     sig = inspect.signature(f7)
     assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
 
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_signature_annotations_py38(app):
+    from target.pep570 import foo, bar
+
+    # case: separator in the middle
+    sig = inspect.signature(foo)
+    assert stringify_signature(sig) == '(a, b, /, c, d)'
+
+    # case: separator at tail
+    sig = inspect.signature(bar)
+    assert stringify_signature(sig) == '(a, b, /)'
+
+
 def test_safe_getattr_with_default():
     class Foo:
         def __getattr__(self, item):
@@ -496,3 +511,15 @@ def test_isproperty(app):
     assert inspect.isproperty(Base.meth) is False       # method of class
     assert inspect.isproperty(Base().meth) is False     # method of instance
     assert inspect.isproperty(func) is False            # function
+
+
+def test_unpartial():
+    def func1(a, b, c):
+        pass
+
+    func2 = functools.partial(func1, 1)
+    func2.__doc__ = "func2"
+    func3 = functools.partial(func2, 2)  # nested partial object
+
+    assert inspect.unpartial(func2) is func1
+    assert inspect.unpartial(func3) is func1

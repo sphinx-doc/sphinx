@@ -526,6 +526,17 @@ autodoc provides the following additional events:
       auto directive
    :param lines: the lines of the docstring, see above
 
+.. event:: autodoc-before-process-signature (app, obj, bound_method)
+
+   .. versionadded:: 2.4
+
+   Emitted before autodoc formats a signature for an object. The event handler
+   can modify an object to change its signature.
+
+   :param app: the Sphinx application object
+   :param obj: the object itself
+   :param bound_method: a boolean indicates an object is bound method or not
+
 .. event:: autodoc-process-signature (app, what, name, obj, options, signature, return_annotation)
 
    .. versionadded:: 0.5

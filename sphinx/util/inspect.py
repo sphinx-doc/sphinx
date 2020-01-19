@@ -121,6 +121,17 @@ def isenumattribute(x: Any) -> bool:
     return isinstance(x, enum.Enum)
 
 
+def unpartial(obj: Any) -> Any:
+    """Get an original object from partial object.
+
+    This returns given object itself if not partial.
+    """
+    while ispartial(obj):
+        obj = obj.func
+
+    return obj
+
+
 def ispartial(obj: Any) -> bool:
     """Check if the object is partial."""
     return isinstance(obj, (partial, partialmethod))
@@ -197,23 +208,20 @@ def isattributedescriptor(obj: Any) -> bool:
 
 def isfunction(obj: Any) -> bool:
     """Check if the object is function."""
-    return inspect.isfunction(obj) or ispartial(obj) and inspect.isfunction(obj.func)
+    return inspect.isfunction(unpartial(obj))
 
 
 def isbuiltin(obj: Any) -> bool:
     """Check if the object is builtin."""
-    return inspect.isbuiltin(obj) or ispartial(obj) and inspect.isbuiltin(obj.func)
+    return inspect.isbuiltin(unpartial(obj))
 
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
+    obj = unpartial(obj)
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
-        return True
-    elif (ispartial(obj) and hasattr(obj.func, '__code__') and
-          inspect.iscoroutinefunction(obj.func)):
-        # partialed
         return True
     else:
         return False
@@ -374,43 +382,39 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
     args = []
     last_kind = None
     for param in sig.parameters.values():
-        # insert '*' between POSITIONAL args and KEYWORD_ONLY args::
-        #     func(a, b, *, c, d):
-        if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
-                                                              param.POSITIONAL_ONLY,
-                                                              None):
+        if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
+            # PEP-570: Separator for Positional Only Parameter: /
+            args.append('/')
+        elif param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
+                                                                param.POSITIONAL_ONLY,
+                                                                None):
+            # PEP-3102: Separator for Keyword Only Parameter: *
             args.append('*')
 
         arg = StringIO()
-        if param.kind in (param.POSITIONAL_ONLY,
-                          param.POSITIONAL_OR_KEYWORD,
-                          param.KEYWORD_ONLY):
-            arg.write(param.name)
-            if show_annotation and param.annotation is not param.empty:
-                arg.write(': ')
-                arg.write(stringify_annotation(param.annotation))
-            if param.default is not param.empty:
-                if show_annotation and param.annotation is not param.empty:
-                    arg.write(' = ')
-                    arg.write(object_description(param.default))
-                else:
-                    arg.write('=')
-                    arg.write(object_description(param.default))
-        elif param.kind == param.VAR_POSITIONAL:
-            arg.write('*')
-            arg.write(param.name)
-            if show_annotation and param.annotation is not param.empty:
-                arg.write(': ')
-                arg.write(stringify_annotation(param.annotation))
+        if param.kind == param.VAR_POSITIONAL:
+            arg.write('*' + param.name)
         elif param.kind == param.VAR_KEYWORD:
-            arg.write('**')
+            arg.write('**' + param.name)
+        else:
             arg.write(param.name)
+
+        if show_annotation and param.annotation is not param.empty:
+            arg.write(': ')
+            arg.write(stringify_annotation(param.annotation))
+        if param.default is not param.empty:
             if show_annotation and param.annotation is not param.empty:
-                arg.write(': ')
-                arg.write(stringify_annotation(param.annotation))
+                arg.write(' = ')
+            else:
+                arg.write('=')
+            arg.write(object_description(param.default))
 
         args.append(arg.getvalue())
         last_kind = param.kind
+
+    if last_kind == Parameter.POSITIONAL_ONLY:
+        # PEP-570: Separator for Positional Only Parameter: /
+        args.append('/')
 
     if (sig.return_annotation is Parameter.empty or
             show_annotation is False or

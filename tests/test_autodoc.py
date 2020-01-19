@@ -1265,19 +1265,25 @@ def test_partialfunction():
         '.. py:module:: target.partialfunction',
         '',
         '',
-        '.. py:function:: func1()',
+        '.. py:function:: func1(a, b, c)',
         '   :module: target.partialfunction',
         '',
         '   docstring of func1',
         '   ',
         '',
-        '.. py:function:: func2()',
+        '.. py:function:: func2(b, c)',
         '   :module: target.partialfunction',
         '',
         '   docstring of func1',
         '   ',
         '',
-        '.. py:function:: func3()',
+        '.. py:function:: func3(c)',
+        '   :module: target.partialfunction',
+        '',
+        '   docstring of func3',
+        '   ',
+        '',
+        '.. py:function:: func4()',
         '   :module: target.partialfunction',
         '',
         '   docstring of func3',
@@ -1348,12 +1354,6 @@ def test_partialmethod(app):
         '      Make a cell alive.',
         '      ',
         '   ',
-        '   .. py:method:: Cell.set_dead()',
-        '      :module: target.partialmethod',
-        '   ',
-        '      Make a cell dead.',
-        '      ',
-        '   ',
         '   .. py:method:: Cell.set_state(state)',
         '      :module: target.partialmethod',
         '   ',
@@ -1362,6 +1362,41 @@ def test_partialmethod(app):
     ]
 
     options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
+    assert list(actual) == expected
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_partialmethod_undoc_members(app):
+    expected = [
+        '',
+        '.. py:class:: Cell',
+        '   :module: target.partialmethod',
+        '',
+        '   An example for partialmethod.',
+        '   ',
+        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '   ',
+        '   ',
+        '   .. py:method:: Cell.set_alive()',
+        '      :module: target.partialmethod',
+        '   ',
+        '      Make a cell alive.',
+        '      ',
+        '   ',
+        '   .. py:method:: Cell.set_dead()',
+        '      :module: target.partialmethod',
+        '   ',
+        '   ',
+        '   .. py:method:: Cell.set_state(state)',
+        '      :module: target.partialmethod',
+        '   ',
+        '      Update state of cell to *state*.',
+        '      ',
+    ]
+
+    options = {"members": None,
+               "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
     assert list(actual) == expected
 
