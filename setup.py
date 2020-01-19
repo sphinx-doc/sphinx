@@ -42,7 +42,7 @@ extras_require = {
         'sphinxcontrib-websupport',
     ],
     'test': [
-        'pytest',
+        'pytest < 5.3.3',
         'pytest-cov',
         'html5lib',
         'flake8>=3.5.0',
