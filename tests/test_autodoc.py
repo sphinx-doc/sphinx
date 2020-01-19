@@ -1268,6 +1268,17 @@ def test_partialfunction():
 
 
 @pytest.mark.usefixtures('setup_test')
+def test_imported_partialfunction_should_not_shown_without_imported_members():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.imported_members', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.imported_members',
+        ''
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
 def test_bound_method():
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.bound_method', options)

@@ -53,6 +53,8 @@ Bugs fixed
 * #6999: napoleon: fails to parse tilde in :exc: role
 * #7019: gettext: Absolute path used in message catalogs
 * #7023: autodoc: nested partial functions are not listed
+* #7023: autodoc: partial functions imported from other modules are listed as
+  module members without :impoprted-members: option
 
 Testing
 --------
