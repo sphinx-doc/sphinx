@@ -51,6 +51,7 @@ Bugs fixed
 * #6559: Wrong node-ids are generated in glossary directive
 * #6986: apidoc: misdetects module name for .so file inside module
 * #6999: napoleon: fails to parse tilde in :exc: role
+* #7019: gettext: Absolute path used in message catalogs
 * #7023: autodoc: nested partial functions are not listed
 * #7023: autodoc: partial functions imported from other modules are listed as
   module members without :impoprted-members: option
