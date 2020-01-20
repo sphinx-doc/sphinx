@@ -122,6 +122,10 @@ Features added
 Bugs fixed
 ----------
 
+* C++, don't crash when using the ``struct`` role in some cases.
+* C++, don't warn when using the ``var``/``member`` role for function
+  parameters.
+
 Testing
 --------
 
