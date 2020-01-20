@@ -788,7 +788,7 @@ def test_xref_parsing():
 
 def filter_warnings(warning, file):
     lines = warning.getvalue().split("\n");
-    res = [l for l in lines if "/domain-cpp/{}.rst".format(file) in l and
+    res = [l for l in lines if "domain-cpp" in l and "{}.rst".format(file) in l and
            "WARNING: document isn't included in any toctree" not in l]
     print("Filtered warnings for file '{}':".format(file))
     for w in res:
