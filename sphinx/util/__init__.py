@@ -448,10 +448,11 @@ def parselinenos(spec: str, total: int, sample_lines: List[str] = None) -> List[
     """
 
     current_text_index = 0
+
     def convert_to_index(val: str, default_val: int) -> int:
         """
-
-        :param val: user input value, can be either intentionaly empty, contain line number or line text fragment
+        :param val: user input value, can be either intentionaly empty, contain line number
+        or line text fragment
         :param default_val: what to return if provided value is empty
         :return: parsed line number
         """
@@ -464,18 +465,20 @@ def parselinenos(spec: str, total: int, sample_lines: List[str] = None) -> List[
         # first check if we can use input as pure int
         try:
             return int(val)
-        except:
+        except ValueError as err:
             if sample_lines is None:
-                raise
+                raise err
 
-        # parsing as int failed, but we should retry converting this to line index by sample lines
-        while current_text_index < len(sample_lines) and val not in sample_lines[current_text_index]:
+        # parsing as int failed, but we should retry converting
+        # this to line index by sample lines
+        while current_text_index < len(sample_lines) and \
+                val not in sample_lines[current_text_index]:
             current_text_index += 1
 
-        # it's ok if we don't find the line mentioned - outer checks will treat it as out-of-bounds line numbers
+        # it's ok if we don't find the line mentioned - outer checks will treat it as
+        # out-of-bounds line numbers;
         # we also need to return a 1-based index, as int-based inputs are also 1-based
-        return current_text_index+1
-
+        return current_text_index + 1
 
     items = list()
     parts = spec.split(',')
