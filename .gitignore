@@ -14,6 +14,7 @@ TAGS
 .tox/
 .tx/
 .venv/
+venv
 .coverage
 htmlcov
 .DS_Store
@@ -31,3 +32,4 @@ tests/build/
 utils/regression_test.js
 
 node_modules/
+

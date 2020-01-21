@@ -368,7 +368,9 @@ def test_code_block_emphasize_latex(app, status, warning):
     app.builder.build(['emphasize'])
     latex = (app.outdir / 'python.tex').text().replace('\r\n', '\n')
     includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
-    assert includes in latex
+    first_half, second_half = latex.split("Now using text contents instead of lines")
+    assert includes in first_half
+    assert includes in second_half
     includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
     assert includes in latex
 
