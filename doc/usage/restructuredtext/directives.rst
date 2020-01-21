@@ -550,10 +550,11 @@ __ http://pygments.org/docs/lexers/
               b = 2
 
 
-      Text fragments are split the same way as numbers (comma and dash are used as separators),
-      and converted to line numbers using simple text match; each subsequent text fragment is
-      looked up from last match, so in above example, "b" is matched at "b = 2", because the search
-      started after line "class Foo" that was matched previously.
+      Text fragments are split the same way as numbers (comma and dash are used
+      as separators),  and converted to line numbers using simple text match;
+      each subsequent text fragment is looked up from last match, so in above
+      example, "b" is matched at "b = 2", because the search started after line
+      "class Foo" that was matched previously.
 
       .. versionadded:: 1.1
       .. versionchanged:: 1.6.6
