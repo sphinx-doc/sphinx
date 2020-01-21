@@ -448,7 +448,7 @@ def parselinenos(spec: str, total: int, sample_lines: List[str] = None) -> List[
     """
 
     current_text_index = 0
-    def convert_to_index(val: str, default_val: int):
+    def convert_to_index(val: str, default_val: int) -> int:
         """
 
         :param val: user input value, can be either intentionaly empty, contain line number or line text fragment
@@ -487,8 +487,10 @@ def parselinenos(spec: str, total: int, sample_lines: List[str] = None) -> List[
             elif len(begend) == 1:
                 items.append(convert_to_index(begend[0], 1) - 1)
             elif len(begend) == 2:
-                start = convert_to_index(begend[0], 1)  # left half open (cf. -10)
-                end = convert_to_index(begend[1], max(start, total))  # right half open (cf. 10-)
+                # default is first line, left half can be open (cf. -10)
+                start = convert_to_index(begend[0], 1)
+                # default is last line: right half can also be open (cf. 10-)
+                end = convert_to_index(begend[1], max(start, total))
                 if start > end:  # invalid range (cf. 10-1)
                     raise ValueError
                 items.extend(range(start - 1, end))
