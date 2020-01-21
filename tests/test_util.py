@@ -19,7 +19,7 @@ from sphinx.errors import ExtensionError, PycodeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (
     SkipProgressMessage, display_chunk, encode_uri, ensuredir, get_module_source,
-    import_object, parselinenos, progress_message, status_iterator, xmlname_checker
+    import_object, parselinenos, parselinenos_textref, progress_message, status_iterator, xmlname_checker
 )
 from sphinx.util import logging
 
@@ -141,6 +141,26 @@ def test_parselinenos():
         parselinenos('-', 10)
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
+
+def test_parselinenos_textref():
+    document = """
+    one
+    two
+    end
+    
+    two
+    one
+    end
+    """.strip()
+
+    assert parselinenos_textref('one,two,3', document) == [0, 1, 2]
+    assert parselinenos_textref('-end', document) == [0, 1, 2]
+    assert parselinenos_textref('one-end, two-end', document) == [0, 1, 2, 4, 5, 6]
+    assert parselinenos_textref('two-', document) == [1, 2, 3, 4, 5, 6]
+    with pytest.raises(ValueError):
+        parselinenos_textref('one-two-three', document)
+    with pytest.raises(ValueError):
+        parselinenos_textref('-', document)
 
 
 def test_progress_message(app, status, warning):

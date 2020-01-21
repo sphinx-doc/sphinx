@@ -20,7 +20,7 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util import logging
+from sphinx.util import logging, parselinenos_textref
 from sphinx.util import parselinenos
 from sphinx.util.docutils import SphinxDirective
 
@@ -445,7 +445,7 @@ class LiteralInclude(SphinxDirective):
             retnode['classes'] += self.options.get('class', [])
             extra_args = retnode['highlight_args'] = {}
             if 'emphasize-lines' in self.options:
-                hl_lines = parselinenos(self.options['emphasize-lines'], lines)
+                hl_lines = parselinenos_textref(self.options['emphasize-lines'], text)
                 if any(i >= lines for i in hl_lines):
                     logger.warning(__('line number spec is out of range(1-%d): %r') %
                                    (lines, self.options['emphasize-lines']),

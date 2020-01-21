@@ -405,10 +405,46 @@ class Tee:
             self.stream2.flush()
 
 
-def parselinenos(spec: str, total: int) -> List[int]:
+def parselinenos_textref(spec: str, document: str) -> List[int]:
+    lines = document.split("\n")
+    return parselinenos(spec, total=len(lines), sample_lines=lines)
+
+
+def parselinenos(spec: str, total: int, sample_lines: List[str] = None) -> List[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
+
+    current_text_index = 0
+    def convert_to_index(val: str, default_val: int):
+        """
+
+        :param val: user input value, can be either intentionaly empty, contain line number or line text fragment
+        :param default_val: what to return if provided value is empty
+        :return: parsed line number
+        """
+
+        nonlocal current_text_index
+
+        if not val:
+            return default_val
+
+        # first check if we can use input as pure int
+        try:
+            return int(val)
+        except:
+            if sample_lines is None:
+                raise
+
+        # parsing as int failed, but we should retry converting this to line index by sample lines
+        while current_text_index < len(sample_lines) and val not in sample_lines[current_text_index]:
+            current_text_index += 1
+
+        # it's ok if we don't find the line mentioned - outer checks will treat it as out-of-bounds line numbers
+        # we also need to return a 1-based index, as int-based inputs are also 1-based
+        return current_text_index+1
+
+
     items = list()
     parts = spec.split(',')
     for part in parts:
@@ -417,10 +453,10 @@ def parselinenos(spec: str, total: int) -> List[int]:
             if ['', ''] == begend:
                 raise ValueError
             elif len(begend) == 1:
-                items.append(int(begend[0]) - 1)
+                items.append(convert_to_index(begend[0], 1) - 1)
             elif len(begend) == 2:
-                start = int(begend[0] or 1)  # left half open (cf. -10)
-                end = int(begend[1] or max(start, total))  # right half open (cf. 10-)
+                start = convert_to_index(begend[0], 1)  # left half open (cf. -10)
+                end = convert_to_index(begend[1], max(start, total))  # right half open (cf. 10-)
                 if start > end:  # invalid range (cf. 10-1)
                     raise ValueError
                 items.extend(range(start - 1, end))

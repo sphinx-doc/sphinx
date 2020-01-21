@@ -520,7 +520,7 @@ __ http://pygments.org/docs/lexers
       .. versionadded:: 1.3
 
    .. rst:directive:option:: emphasize-lines: line numbers
-      :type: comma separated numbers
+      :type: comma separated numbers or text fragments
 
       Emphasize particular lines of the code block::
 
@@ -533,9 +533,32 @@ __ http://pygments.org/docs/lexers
               print 'This one is not...'
               print '...but this one is.'
 
+
+      Or using text fragments as line references::
+
+       .. code-block:: python
+          :emphasize-lines: this line,but this one, class Foo-b
+
+          def some_function():
+              interesting = False
+              print 'This line is highlighted.'
+              print 'This one is not...'
+              print '...but this one is.'
+
+          class Foo(object):
+              a = 1
+              b = 2
+
+
+      Text fragments are split the same way as numbers (comma and dash are used as separators), and converted to line
+      numbers using simple text match; each subsequent text fragment is looked up from last match, so in above example,
+      "b" is matched at "b = 2", because the search started after line "class Foo" that was matched previously.
+
       .. versionadded:: 1.1
       .. versionchanged:: 1.6.6
          LaTeX supports the ``emphasize-lines`` option.
+      .. versionchanged:: 3.0.0
+         Support for text fragments as line indicators.
 
    .. rst:directive:option: force
       :type: no value
