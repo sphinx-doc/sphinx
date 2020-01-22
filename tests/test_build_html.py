@@ -222,7 +222,7 @@ def test_html4_output(app, status, warning):
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
-        (".//a[@href='#grammar-token-try-stmt']"
+        (".//a[@href='#grammar-token2-_try-stmt']"
          "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
@@ -254,7 +254,7 @@ def test_html4_output(app, status, warning):
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-try1-stmt']/code/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token2-_try1-stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
