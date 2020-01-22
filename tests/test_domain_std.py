@@ -370,3 +370,6 @@ def test_productionlist(app, status, warning):
         ('FirstLine', 'firstLineRule.html#grammar-token2-_firstline', 'FirstLine'),
         ('SecondLine', 'firstLineRule.html#grammar-token2-_secondline', 'SecondLine'),
     ]
+
+    text = (app.outdir / 'LineContinuation.html').text()
+    assert "A</strong> ::=  B C D    E F G" in text

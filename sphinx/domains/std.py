@@ -439,9 +439,16 @@ class ProductionList(SphinxDirective):
     def run(self) -> List[Node]:
         domain = cast(StandardDomain, self.env.get_domain('std'))
         node = addnodes.productionlist()  # type: Element
+        # The backslash handling is from ObjectDescription.get_signatures
+        nl_escape_re = re.compile(r'\\\n')
+        strip_backslash_re = re.compile(r'\\(.)')
+        lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
+        # remove backslashes to support (dummy) escapes; helps Vim highlighting
+        lines = [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
+
         productionGroup = ""
         i = 0
-        for rule in self.arguments[0].split('\n'):
+        for rule in lines:
             if i == 0 and ':' not in rule:
                 productionGroup = rule.strip()
                 continue

@@ -6,6 +6,7 @@
 	Dup1
 	Dup2
 	firstLineRule
+	LineContinuation
 
 - A: :token:`A`
 - B: :token:`B`

@@ -44,6 +44,7 @@ Features added
   :py:meth:`.Sphinx.connect()`
 * #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
   in the documentation.
+* #1027: Support backslash line continuation in :rst:dir:`productionlist`.
 
 Bugs fixed
 ----------
