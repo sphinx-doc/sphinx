@@ -41,14 +41,17 @@ extras_require = {
     'docs': [
         'sphinxcontrib-websupport',
     ],
-    'test': [
-        'pytest < 5.3.3',
-        'pytest-cov',
-        'html5lib',
+    'lint': [
         'flake8>=3.5.0',
         'flake8-import-order',
         'mypy>=0.761',
         'docutils-stubs',
+    ],
+    'test': [
+        'pytest < 5.3.3',
+        'pytest-cov',
+        'html5lib',
+        'typed_ast',  # for py35-37
     ],
 }
 
