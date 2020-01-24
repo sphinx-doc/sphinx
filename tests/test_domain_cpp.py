@@ -797,6 +797,13 @@ def filter_warnings(warning, file):
 
 
 @pytest.mark.sphinx(testroot='domain-cpp')
+def test_build_domain_cpp_multi_decl_lookup(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "lookup-key-overload")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp')
 def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "roles-targets-ok")

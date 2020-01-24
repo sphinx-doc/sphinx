@@ -367,6 +367,8 @@ _keywords = [
 
 _max_id = 4
 _id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']
+# Ids are used in lookup keys which are used across pickled files,
+# so when _max_id changes, make sure to update the ENV_VERSION.
 
 # ------------------------------------------------------------------------------
 # Id v1 constants
@@ -1790,7 +1792,8 @@ class ASTTemplateIntroduction(ASTBase):
 
 
 class ASTTemplateDeclarationPrefix(ASTBase):
-    def __init__(self, templates: List[Any]) -> None:
+    def __init__(self, templates: List[Union[ASTTemplateParams, ASTTemplateIntroduction]])\
+            -> None:
         # templates is None means it's an explicit instantiation of a variable
         self.templates = templates
 
@@ -3547,6 +3550,14 @@ class SymbolLookupResult:
         self.templateArgs = templateArgs
 
 
+class LookupKey:
+    def __init__(self, data: List[Tuple[ASTNestedNameElement,
+                                        Union[ASTTemplateParams,
+                                              ASTTemplateIntroduction],
+                                        str]]) -> None:
+        self.data = data
+
+
 class Symbol:
     debug_lookup = False
     debug_show_tree = False
@@ -3570,8 +3581,8 @@ class Symbol:
             return super().__setattr__(key, value)
 
     def __init__(self, parent: "Symbol", identOrOp: Union[ASTIdentifier, ASTOperator],
-                 templateParams: Any, templateArgs: Any, declaration: ASTDeclaration,
-                 docname: str) -> None:
+                 templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction],
+                 templateArgs: Any, declaration: ASTDeclaration, docname: str) -> None:
         self.parent = parent
         self.identOrOp = identOrOp
         self.templateParams = templateParams  # template<templateParams>
@@ -3669,7 +3680,11 @@ class Symbol:
 
             yield from c.children_recurse_anon
 
-    def get_lookup_key(self) -> List[Tuple[ASTNestedNameElement, Any]]:
+    def get_lookup_key(self)-> "LookupKey":
+        # The pickle files for the environment and for each document are distinct.
+        # The environment has all the symbols, but the documents has xrefs that
+        # must know their scope. A lookup key is essentially a specification of
+        # how to find a specific symbol.
         symbols = []
         s = self
         while s.parent:
@@ -3679,14 +3694,23 @@ class Symbol:
         key = []
         for s in symbols:
             nne = ASTNestedNameElement(s.identOrOp, s.templateArgs)
-            key.append((nne, s.templateParams))
-        return key
+            if s.declaration is not None:
+                key.append((nne, s.templateParams, s.declaration.get_newest_id()))
+            else:
+                key.append((nne, s.templateParams, None))
+        return LookupKey(key)
 
     def get_full_nested_name(self) -> ASTNestedName:
+        symbols = []
+        s = self
+        while s.parent:
+            symbols.append(s)
+            s = s.parent
+        symbols.reverse()
         names = []
         templates = []
-        for nne, templateParams in self.get_lookup_key():
-            names.append(nne)
+        for s in symbols:
+            names.append(ASTNestedNameElement(s.identOrOp, s.templateArgs))
             templates.append(False)
         return ASTNestedName(names, templates, rooted=False)
 
@@ -4082,16 +4106,26 @@ class Symbol:
 
     def direct_lookup(self, key: List[Tuple[ASTNestedNameElement, Any]]) -> "Symbol":
         s = self
-        for name, templateParams in key:
-            identOrOp = name.identOrOp
-            templateArgs = name.templateArgs
-            s = s._find_first_named_symbol(identOrOp,
-                                           templateParams, templateArgs,
-                                           templateShorthand=False,
-                                           matchSelf=False,
-                                           recurseInAnon=False,
-                                           correctPrimaryTemplateArgs=False)
-            if not s:
+        for name, templateParams, id_ in key.data:
+            if id_ is not None:
+                res = None
+                for cand in s._children:
+                    if cand.declaration is None:
+                        continue
+                    if cand.declaration.get_newest_id() == id_:
+                        res = cand
+                        break
+                s = res
+            else:
+                identOrOp = name.identOrOp
+                templateArgs = name.templateArgs
+                s = s._find_first_named_symbol(identOrOp,
+                                               templateParams, templateArgs,
+                                               templateShorthand=False,
+                                               matchSelf=False,
+                                               recurseInAnon=False,
+                                               correctPrimaryTemplateArgs=False)
+            if s is None:
                 return None
         return s
 
@@ -5931,14 +5965,15 @@ class DefinitionParser:
 
     def _parse_template_declaration_prefix(self, objectType: str
                                            ) -> ASTTemplateDeclarationPrefix:
-        templates = []  # type: List[str]
+        templates = []  # type: List[Union[ASTTemplateParams, ASTTemplateIntroduction]]
         while 1:
             self.skip_ws()
             # the saved position is only used to provide a better error message
+            params = None  # type: Union[ASTTemplateParams, ASTTemplateIntroduction]
             pos = self.pos
             if self.skip_word("template"):
                 try:
-                    params = self._parse_template_parameter_list()  # type: Any
+                    params = self._parse_template_parameter_list()
                 except DefinitionError as e:
                     if objectType == 'member' and len(templates) == 0:
                         return ASTTemplateDeclarationPrefix(None)
@@ -5990,7 +6025,7 @@ class DefinitionParser:
                 msg += str(nestedName)
                 self.warn(msg)
 
-            newTemplates = []
+            newTemplates = []  # type: List[Union[ASTTemplateParams, ASTTemplateIntroduction]]
             for i in range(numExtra):
                 newTemplates.append(ASTTemplateParams([]))
             if templatePrefix and not isMemberInstantiation:
@@ -6329,10 +6364,10 @@ class CPPObject(ObjectDescription):
         return ast
 
     def before_content(self) -> None:
-        lastSymbol = self.env.temp_data['cpp:last_symbol']
+        lastSymbol = self.env.temp_data['cpp:last_symbol']  # type: Symbol
         assert lastSymbol
         self.oldParentSymbol = self.env.temp_data['cpp:parent_symbol']
-        self.oldParentKey = self.env.ref_context['cpp:parent_key']
+        self.oldParentKey = self.env.ref_context['cpp:parent_key']  # type: LookupKey
         self.env.temp_data['cpp:parent_symbol'] = lastSymbol
         self.env.ref_context['cpp:parent_key'] = lastSymbol.get_lookup_key()
 
@@ -6824,13 +6859,13 @@ class CPPDomain(Domain):
             t, ex = findWarning(e)
             warner.warn('Unparseable C++ cross-reference: %r\n%s' % (t, ex))
             return None, None
-        parentKey = node.get("cpp:parent_key", None)
+        parentKey = node.get("cpp:parent_key", None)  # type: LookupKey
         rootSymbol = self.data['root_symbol']
         if parentKey:
-            parentSymbol = rootSymbol.direct_lookup(parentKey)
+            parentSymbol = rootSymbol.direct_lookup(parentKey)  # type: Symbol
             if not parentSymbol:
                 print("Target: ", target)
-                print("ParentKey: ", parentKey)
+                print("ParentKey: ", parentKey.data)
                 print(rootSymbol.dump(1))
             assert parentSymbol  # should be there
         else:
@@ -6977,8 +7012,8 @@ class CPPDomain(Domain):
         target = node.get('reftarget', None)
         if target is None:
             return None
-        parentKey = node.get("cpp:parent_key", None)
-        if parentKey is None or len(parentKey) <= 0:
+        parentKey = node.get("cpp:parent_key", None)  # type: LookupKey
+        if parentKey is None or len(parentKey.data) <= 0:
             return None
 
         rootSymbol = self.data['root_symbol']

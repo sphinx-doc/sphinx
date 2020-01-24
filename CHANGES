@@ -43,6 +43,8 @@ Features added
 Bugs fixed
 ----------
 
+* C++, fix cross reference lookup in certain cases involving function overloads.
+
 Testing
 --------
 
