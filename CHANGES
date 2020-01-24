@@ -43,7 +43,10 @@ Features added
 Bugs fixed
 ----------
 
-* C++, fix cross reference lookup in certain cases involving function overloads.
+* C++, fix cross reference lookup in certain cases involving
+  function overloads.
+* #5078: C++, fix cross reference lookup when a directive contains multiple
+  declarations.
 
 Testing
 --------

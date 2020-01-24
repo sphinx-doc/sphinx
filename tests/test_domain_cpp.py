@@ -796,10 +796,13 @@ def filter_warnings(warning, file):
     return res
 
 
-@pytest.mark.sphinx(testroot='domain-cpp')
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_build_domain_cpp_multi_decl_lookup(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "lookup-key-overload")
+    assert len(ws) == 0
+
+    ws = filter_warnings(warning, "multi-decl-lookup")
     assert len(ws) == 0
 
 

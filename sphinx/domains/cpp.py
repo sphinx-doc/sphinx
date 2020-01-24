@@ -3559,8 +3559,15 @@ class LookupKey:
 
 
 class Symbol:
+    debug_indent = 0
+    debug_indent_string = "  "
     debug_lookup = False
     debug_show_tree = False
+
+    @staticmethod
+    def debug_print(*args):
+        print(Symbol.debug_indent_string * Symbol.debug_indent, end="")
+        print(*args)
 
     def _assert_invariants(self) -> None:
         if not self.parent:
@@ -3584,6 +3591,9 @@ class Symbol:
                  templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction],
                  templateArgs: Any, declaration: ASTDeclaration, docname: str) -> None:
         self.parent = parent
+        # declarations in a single directive are linked together
+        self.siblingAbove = None  # type: Symbol
+        self.siblingBelow = None  # type: Symbol
         self.identOrOp = identOrOp
         self.templateParams = templateParams  # template<templateParams>
         self.templateArgs = templateArgs  # identifier<templateArgs>
@@ -3618,6 +3628,9 @@ class Symbol:
         self._add_template_and_function_params()
 
     def _add_template_and_function_params(self):
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("_add_template_and_function_params:")
         # Note: we may be called from _fill_empty, so the symbols we want
         #       to add may actually already be present (as empty symbols).
 
@@ -3647,6 +3660,8 @@ class Symbol:
                 assert not nn.rooted
                 assert len(nn.names) == 1
                 self._add_symbols(nn, [], decl, self.docname)
+        if Symbol.debug_lookup:
+            Symbol.debug_indent -= 1
 
     def remove(self):
         if self.parent is None:
@@ -3656,12 +3671,18 @@ class Symbol:
         self.parent = None
 
     def clear_doc(self, docname: str) -> None:
-        newChildren = []
+        newChildren = []  # type: List[Symbol]
         for sChild in self._children:
             sChild.clear_doc(docname)
             if sChild.declaration and sChild.docname == docname:
                 sChild.declaration = None
                 sChild.docname = None
+                if sChild.siblingAbove is not None:
+                    sChild.siblingAbove.siblingBelow = sChild.siblingBelow
+                if sChild.siblingBelow is not None:
+                    sChild.siblingBelow.siblingAbove = sChild.siblingAbove
+                sChild.siblingAbove = None
+                sChild.siblingBelow = None
             newChildren.append(sChild)
         self._children = newChildren
 
@@ -3719,9 +3740,12 @@ class Symbol:
                                  templateShorthand: bool, matchSelf: bool,
                                  recurseInAnon: bool, correctPrimaryTemplateArgs: bool
                                  ) -> "Symbol":
+        if Symbol.debug_lookup:
+            Symbol.debug_print("_find_first_named_symbol ->")
         res = self._find_named_symbols(identOrOp, templateParams, templateArgs,
                                        templateShorthand, matchSelf, recurseInAnon,
-                                       correctPrimaryTemplateArgs)
+                                       correctPrimaryTemplateArgs,
+                                       searchInSiblings=False)
         try:
             return next(res)
         except StopIteration:
@@ -3730,8 +3754,22 @@ class Symbol:
     def _find_named_symbols(self, identOrOp: Union[ASTIdentifier, ASTOperator],
                             templateParams: Any, templateArgs: ASTTemplateArgs,
                             templateShorthand: bool, matchSelf: bool,
-                            recurseInAnon: bool, correctPrimaryTemplateArgs: bool
-                            ) -> Iterator["Symbol"]:
+                            recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
+                            searchInSiblings: bool) -> Iterator["Symbol"]:
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("_find_named_symbols:")
+            Symbol.debug_indent += 1
+            Symbol.debug_print("self:")
+            print(self.to_string(Symbol.debug_indent + 1), end="")
+            Symbol.debug_print("identOrOp:                  ", identOrOp)
+            Symbol.debug_print("templateParams:             ", templateParams)
+            Symbol.debug_print("templateArgs:               ", templateArgs)
+            Symbol.debug_print("templateShorthand:          ", templateShorthand)
+            Symbol.debug_print("matchSelf:                  ", matchSelf)
+            Symbol.debug_print("recurseInAnon:              ", recurseInAnon)
+            Symbol.debug_print("correctPrimaryTemplateAargs:", correctPrimaryTemplateArgs)
+            Symbol.debug_print("searchInSiblings:           ", searchInSiblings)
 
         def isSpecialization():
             # the names of the template parameters must be given exactly as args
@@ -3783,20 +3821,64 @@ class Symbol:
                 if str(s.templateArgs) != str(templateArgs):
                     return False
             return True
-        if matchSelf and matches(self):
-            yield self
-        children = self.children_recurse_anon if recurseInAnon else self._children
-        for s in children:
+
+        def candidates():
+            s = self
+            if Symbol.debug_lookup:
+                Symbol.debug_print("searching in self:")
+                print(s.to_string(Symbol.debug_indent + 1), end="")
+            while True:
+                if matchSelf:
+                    yield s
+                if recurseInAnon:
+                    yield from s.children_recurse_anon
+                else:
+                    yield from s._children
+
+                if s.siblingAbove is None:
+                    break
+                s = s.siblingAbove
+                if Symbol.debug_lookup:
+                    Symbol.debug_print("searching in sibling:")
+                    print(s.to_string(Symbol.debug_indent + 1), end="")
+
+        for s in candidates():
+            if Symbol.debug_lookup:
+                Symbol.debug_print("candidate:")
+                print(s.to_string(Symbol.debug_indent + 1), end="")
             if matches(s):
+                if Symbol.debug_lookup:
+                    Symbol.debug_indent += 1
+                    Symbol.debug_print("matches")
+                    Symbol.debug_indent -= 3
                 yield s
+                if Symbol.debug_lookup:
+                    Symbol.debug_indent += 2
+        if Symbol.debug_lookup:
+            Symbol.debug_indent -= 2
 
     def _symbol_lookup(self, nestedName: ASTNestedName, templateDecls: List[Any],
                        onMissingQualifiedSymbol: Callable[["Symbol", Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs], "Symbol"],  # NOQA
                        strictTemplateParamArgLists: bool, ancestorLookupType: str,
                        templateShorthand: bool, matchSelf: bool,
-                       recurseInAnon: bool, correctPrimaryTemplateArgs: bool
-                       ) -> SymbolLookupResult:
+                       recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
+                       searchInSiblings: bool) -> SymbolLookupResult:
         # ancestorLookupType: if not None, specifies the target type of the lookup
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("_symbol_lookup:")
+            Symbol.debug_indent += 1
+            Symbol.debug_print("self:")
+            print(self.to_string(Symbol.debug_indent + 1), end="")
+            Symbol.debug_print("nestedName:        ", nestedName)
+            Symbol.debug_print("templateDecls:     ", templateDecls)
+            Symbol.debug_print("strictTemplateParamArgLists:", strictTemplateParamArgLists)
+            Symbol.debug_print("ancestorLookupType:", ancestorLookupType)
+            Symbol.debug_print("templateShorthand: ", templateShorthand)
+            Symbol.debug_print("matchSelf:         ", matchSelf)
+            Symbol.debug_print("recurseInAnon:     ", recurseInAnon)
+            Symbol.debug_print("correctPrimaryTemplateArgs: ", correctPrimaryTemplateArgs)
+            Symbol.debug_print("searchInSiblings:  ", searchInSiblings)
 
         if strictTemplateParamArgLists:
             # Each template argument list must have a template parameter list.
@@ -3820,7 +3902,8 @@ class Symbol:
                 while parentSymbol.parent:
                     if parentSymbol.find_identifier(firstName.identOrOp,
                                                     matchSelf=matchSelf,
-                                                    recurseInAnon=recurseInAnon):
+                                                    recurseInAnon=recurseInAnon,
+                                                    searchInSiblings=searchInSiblings):
                         # if we are in the scope of a constructor but wants to
                         # reference the class we need to walk one extra up
                         if (len(names) == 1 and ancestorLookupType == 'class' and matchSelf and
@@ -3830,6 +3913,10 @@ class Symbol:
                         else:
                             break
                     parentSymbol = parentSymbol.parent
+
+        if Symbol.debug_lookup:
+            Symbol.debug_print("starting point:")
+            print(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
 
         # and now the actual lookup
         iTemplateDecl = 0
@@ -3864,12 +3951,18 @@ class Symbol:
                 symbol = onMissingQualifiedSymbol(parentSymbol, identOrOp,
                                                   templateParams, templateArgs)
                 if symbol is None:
+                    if Symbol.debug_lookup:
+                        Symbol.debug_indent -= 2
                     return None
             # We have now matched part of a nested name, and need to match more
             # so even if we should matchSelf before, we definitely shouldn't
             # even more. (see also issue #2666)
             matchSelf = False
             parentSymbol = symbol
+
+        if Symbol.debug_lookup:
+            Symbol.debug_print("handle last name from:")
+            print(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
 
         # handle the last name
         name = names[-1]
@@ -3885,7 +3978,11 @@ class Symbol:
         symbols = parentSymbol._find_named_symbols(
             identOrOp, templateParams, templateArgs,
             templateShorthand=templateShorthand, matchSelf=matchSelf,
-            recurseInAnon=recurseInAnon, correctPrimaryTemplateArgs=False)
+            recurseInAnon=recurseInAnon, correctPrimaryTemplateArgs=False,
+            searchInSiblings=searchInSiblings)
+        if Symbol.debug_lookup:
+            symbols = list(symbols)  # type: ignore
+            Symbol.debug_indent -= 2
         return SymbolLookupResult(symbols, parentSymbol,
                                   identOrOp, templateParams, templateArgs)
 
@@ -3895,21 +3992,26 @@ class Symbol:
         # be an actual declaration.
 
         if Symbol.debug_lookup:
-            print("_add_symbols:")
-            print("   tdecls:", templateDecls)
-            print("   nn:    ", nestedName)
-            print("   decl:  ", declaration)
-            print("   doc:   ", docname)
+            Symbol.debug_indent += 1
+            Symbol.debug_print("_add_symbols:")
+            Symbol.debug_indent += 1
+            Symbol.debug_print("tdecls:", templateDecls)
+            Symbol.debug_print("nn:    ", nestedName)
+            Symbol.debug_print("decl:  ", declaration)
+            Symbol.debug_print("doc:   ", docname)
 
         def onMissingQualifiedSymbol(parentSymbol: "Symbol",
                                      identOrOp: Union[ASTIdentifier, ASTOperator],
                                      templateParams: Any, templateArgs: ASTTemplateArgs
                                      ) -> "Symbol":
             if Symbol.debug_lookup:
-                print("   _add_symbols, onMissingQualifiedSymbol:")
-                print("      templateParams:", templateParams)
-                print("      identOrOp:     ", identOrOp)
-                print("      templateARgs:  ", templateArgs)
+                Symbol.debug_indent += 1
+                Symbol.debug_print("_add_symbols, onMissingQualifiedSymbol:")
+                Symbol.debug_indent += 1
+                Symbol.debug_print("templateParams:", templateParams)
+                Symbol.debug_print("identOrOp:     ", identOrOp)
+                Symbol.debug_print("templateARgs:  ", templateArgs)
+                Symbol.debug_indent -= 2
             return Symbol(parent=parentSymbol, identOrOp=identOrOp,
                           templateParams=templateParams,
                           templateArgs=templateArgs, declaration=None,
@@ -3922,32 +4024,40 @@ class Symbol:
                                            templateShorthand=False,
                                            matchSelf=False,
                                            recurseInAnon=True,
-                                           correctPrimaryTemplateArgs=True)
+                                           correctPrimaryTemplateArgs=True,
+                                           searchInSiblings=False)
         assert lookupResult is not None  # we create symbols all the way, so that can't happen
         symbols = list(lookupResult.symbols)
         if len(symbols) == 0:
             if Symbol.debug_lookup:
-                print("   _add_symbols, result, no symbol:")
-                print("      templateParams:", lookupResult.templateParams)
-                print("      identOrOp:     ", lookupResult.identOrOp)
-                print("      templateArgs:  ", lookupResult.templateArgs)
-                print("      declaration:   ", declaration)
-                print("      docname:       ", docname)
+                Symbol.debug_print("_add_symbols, result, no symbol:")
+                Symbol.debug_indent += 1
+                Symbol.debug_print("templateParams:", lookupResult.templateParams)
+                Symbol.debug_print("identOrOp:     ", lookupResult.identOrOp)
+                Symbol.debug_print("templateArgs:  ", lookupResult.templateArgs)
+                Symbol.debug_print("declaration:   ", declaration)
+                Symbol.debug_print("docname:       ", docname)
+                Symbol.debug_indent -= 1
             symbol = Symbol(parent=lookupResult.parentSymbol,
                             identOrOp=lookupResult.identOrOp,
                             templateParams=lookupResult.templateParams,
                             templateArgs=lookupResult.templateArgs,
                             declaration=declaration,
                             docname=docname)
+            if Symbol.debug_lookup:
+                Symbol.debug_indent -= 2
             return symbol
 
         if Symbol.debug_lookup:
-            print("   _add_symbols, result, symbols:")
-            print("      number symbols:", len(symbols))
+            Symbol.debug_print("_add_symbols, result, symbols:")
+            Symbol.debug_indent += 1
+            Symbol.debug_print("number symbols:", len(symbols))
+            Symbol.debug_indent -= 1
 
         if not declaration:
             if Symbol.debug_lookup:
-                print("      no delcaration")
+                Symbol.debug_print("no delcaration")
+                Symbol.debug_indent -= 2
             # good, just a scope creation
             # TODO: what if we have more than one symbol?
             return symbols[0]
@@ -3963,9 +4073,9 @@ class Symbol:
             else:
                 withDecl.append(s)
         if Symbol.debug_lookup:
-            print("      #noDecl:  ", len(noDecl))
-            print("      #withDecl:", len(withDecl))
-            print("      #dupDecl: ", len(dupDecl))
+            Symbol.debug_print("#noDecl:  ", len(noDecl))
+            Symbol.debug_print("#withDecl:", len(withDecl))
+            Symbol.debug_print("#dupDecl: ", len(dupDecl))
         # With partial builds we may start with a large symbol tree stripped of declarations.
         # Essentially any combination of noDecl, withDecl, and dupDecls seems possible.
         # TODO: make partial builds fully work. What should happen when the primary symbol gets
@@ -3976,7 +4086,7 @@ class Symbol:
         # otherwise there should be only one symbol with a declaration.
         def makeCandSymbol():
             if Symbol.debug_lookup:
-                print("      begin: creating candidate symbol")
+                Symbol.debug_print("begin: creating candidate symbol")
             symbol = Symbol(parent=lookupResult.parentSymbol,
                             identOrOp=lookupResult.identOrOp,
                             templateParams=lookupResult.templateParams,
@@ -3984,7 +4094,7 @@ class Symbol:
                             declaration=declaration,
                             docname=docname)
             if Symbol.debug_lookup:
-                print("      end:   creating candidate symbol")
+                Symbol.debug_print("end:   creating candidate symbol")
             return symbol
         if len(withDecl) == 0:
             candSymbol = None
@@ -3993,7 +4103,10 @@ class Symbol:
 
             def handleDuplicateDeclaration(symbol, candSymbol):
                 if Symbol.debug_lookup:
-                    print("      redeclaration")
+                    Symbol.debug_indent += 1
+                    Symbol.debug_print("redeclaration")
+                    Symbol.debug_indent -= 1
+                    Symbol.debug_indent -= 2
                 # Redeclaration of the same symbol.
                 # Let the new one be there, but raise an error to the client
                 # so it can use the real symbol as subscope.
@@ -4009,11 +4122,11 @@ class Symbol:
             # a function, so compare IDs
             candId = declaration.get_newest_id()
             if Symbol.debug_lookup:
-                print("      candId:", candId)
+                Symbol.debug_print("candId:", candId)
             for symbol in withDecl:
                 oldId = symbol.declaration.get_newest_id()
                 if Symbol.debug_lookup:
-                    print("      oldId: ", oldId)
+                    Symbol.debug_print("oldId: ", oldId)
                 if candId == oldId:
                     handleDuplicateDeclaration(symbol, candSymbol)
                     # (not reachable)
@@ -4021,14 +4134,16 @@ class Symbol:
         # if there is an empty symbol, fill that one
         if len(noDecl) == 0:
             if Symbol.debug_lookup:
-                print("      no match, no empty, candSybmol is not None?:", candSymbol is not None)  # NOQA
+                Symbol.debug_print("no match, no empty, candSybmol is not None?:", candSymbol is not None)  # NOQA
+                Symbol.debug_indent -= 2
             if candSymbol is not None:
                 return candSymbol
             else:
                 return makeCandSymbol()
         else:
             if Symbol.debug_lookup:
-                print("      no match, but fill an empty declaration, candSybmol is not None?:", candSymbol is not None)  # NOQA
+                Symbol.debug_print("no match, but fill an empty declaration, candSybmol is not None?:", candSymbol is not None)  # NOQA
+                Symbol.debug_indent -= 2
             if candSymbol is not None:
                 candSymbol.remove()
             # assert len(noDecl) == 1
@@ -4045,6 +4160,9 @@ class Symbol:
 
     def merge_with(self, other: "Symbol", docnames: List[str],
                    env: "BuildEnvironment") -> None:
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("merge_with:")
         assert other is not None
         for otherChild in other._children:
             ourChild = self._find_first_named_symbol(
@@ -4074,17 +4192,28 @@ class Symbol:
                     # just ignore it, right?
                     pass
             ourChild.merge_with(otherChild, docnames, env)
+        if Symbol.debug_lookup:
+            Symbol.debug_indent -= 1
 
     def add_name(self, nestedName: ASTNestedName,
                  templatePrefix: ASTTemplateDeclarationPrefix = None) -> "Symbol":
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("add_name:")
         if templatePrefix:
             templateDecls = templatePrefix.templates
         else:
             templateDecls = []
-        return self._add_symbols(nestedName, templateDecls,
-                                 declaration=None, docname=None)
+        res = self._add_symbols(nestedName, templateDecls,
+                                declaration=None, docname=None)
+        if Symbol.debug_lookup:
+            Symbol.debug_indent -= 1
+        return res
 
     def add_declaration(self, declaration: ASTDeclaration, docname: str) -> "Symbol":
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("add_declaration:")
         assert declaration
         assert docname
         nestedName = declaration.name
@@ -4092,19 +4221,47 @@ class Symbol:
             templateDecls = declaration.templatePrefix.templates
         else:
             templateDecls = []
-        return self._add_symbols(nestedName, templateDecls, declaration, docname)
+        res = self._add_symbols(nestedName, templateDecls, declaration, docname)
+        if Symbol.debug_lookup:
+            Symbol.debug_indent -= 1
+        return res
 
     def find_identifier(self, identOrOp: Union[ASTIdentifier, ASTOperator],
-                        matchSelf: bool, recurseInAnon: bool) -> "Symbol":
-        if matchSelf and self.identOrOp == identOrOp:
-            return self
-        children = self.children_recurse_anon if recurseInAnon else self._children
-        for s in children:
-            if s.identOrOp == identOrOp:
-                return s
+                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool
+                        ) -> "Symbol":
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("find_identifier:")
+            Symbol.debug_indent += 1
+            Symbol.debug_print("identOrOp:       ", identOrOp)
+            Symbol.debug_print("matchSelf:       ", matchSelf)
+            Symbol.debug_print("recurseInAnon:   ", recurseInAnon)
+            Symbol.debug_print("searchInSiblings:", searchInSiblings)
+            print(self.to_string(Symbol.debug_indent + 1), end="")
+            Symbol.debug_indent -= 2
+        current = self
+        while current is not None:
+            if Symbol.debug_lookup:
+                Symbol.debug_indent += 2
+                Symbol.debug_print("trying:")
+                print(current.to_string(Symbol.debug_indent + 1), end="")
+                Symbol.debug_indent -= 2
+            if matchSelf and current.identOrOp == identOrOp:
+                return current
+            children = current.children_recurse_anon if recurseInAnon else current._children
+            for s in children:
+                if s.identOrOp == identOrOp:
+                    return s
+            if not searchInSiblings:
+                break
+            current = current.siblingAbove
         return None
 
-    def direct_lookup(self, key: List[Tuple[ASTNestedNameElement, Any]]) -> "Symbol":
+    def direct_lookup(self, key: "LookupKey") -> "Symbol":
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("direct_lookup:")
+            Symbol.debug_indent += 1
         s = self
         for name, templateParams, id_ in key.data:
             if id_ is not None:
@@ -4125,14 +4282,39 @@ class Symbol:
                                                matchSelf=False,
                                                recurseInAnon=False,
                                                correctPrimaryTemplateArgs=False)
+            if Symbol.debug_lookup:
+                Symbol.debug_print("name:          ", name)
+                Symbol.debug_print("templateParams:", templateParams)
+                Symbol.debug_print("id:            ", id_)
+                if s is not None:
+                    print(s.to_string(Symbol.debug_indent + 1), end="")
+                else:
+                    Symbol.debug_print("not found")
             if s is None:
+                if Symbol.debug_lookup:
+                    Symbol.debug_indent -= 2
                 return None
+        if Symbol.debug_lookup:
+            Symbol.debug_indent -= 2
         return s
 
     def find_name(self, nestedName: ASTNestedName, templateDecls: List[Any],
                   typ: str, templateShorthand: bool, matchSelf: bool,
-                  recurseInAnon: bool) -> List["Symbol"]:
+                  recurseInAnon: bool, searchInSiblings: bool) -> List["Symbol"]:
         # templateShorthand: missing template parameter lists for templates is ok
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("find_name:")
+            Symbol.debug_indent += 1
+            Symbol.debug_print("self:")
+            print(self.to_string(Symbol.debug_indent + 1), end="")
+            Symbol.debug_print("nestedName:       ", nestedName)
+            Symbol.debug_print("templateDecls:    ", templateDecls)
+            Symbol.debug_print("typ:              ", typ)
+            Symbol.debug_print("templateShorthand:", templateShorthand)
+            Symbol.debug_print("matchSelf:        ", matchSelf)
+            Symbol.debug_print("recurseInAnon:    ", recurseInAnon)
+            Symbol.debug_print("searchInSiblings: ", searchInSiblings)
 
         def onMissingQualifiedSymbol(parentSymbol: "Symbol",
                                      identOrOp: Union[ASTIdentifier, ASTOperator],
@@ -4151,13 +4333,18 @@ class Symbol:
                                            templateShorthand=templateShorthand,
                                            matchSelf=matchSelf,
                                            recurseInAnon=recurseInAnon,
-                                           correctPrimaryTemplateArgs=False)
+                                           correctPrimaryTemplateArgs=False,
+                                           searchInSiblings=searchInSiblings)
         if lookupResult is None:
             # if it was a part of the qualification that could not be found
+            if Symbol.debug_lookup:
+                Symbol.debug_indent -= 2
             return None
 
         res = list(lookupResult.symbols)
         if len(res) != 0:
+            if Symbol.debug_lookup:
+                Symbol.debug_indent -= 2
             return res
 
         # try without template params and args
@@ -4165,6 +4352,8 @@ class Symbol:
             lookupResult.identOrOp, None, None,
             templateShorthand=templateShorthand, matchSelf=matchSelf,
             recurseInAnon=recurseInAnon, correctPrimaryTemplateArgs=False)
+        if Symbol.debug_lookup:
+            Symbol.debug_indent -= 2
         if symbol is not None:
             return [symbol]
         else:
@@ -4173,6 +4362,9 @@ class Symbol:
     def find_declaration(self, declaration: ASTDeclaration, typ: str, templateShorthand: bool,
                          matchSelf: bool, recurseInAnon: bool) -> "Symbol":
         # templateShorthand: missing template parameter lists for templates is ok
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print("find_declaration:")
         nestedName = declaration.name
         if declaration.templatePrefix:
             templateDecls = declaration.templatePrefix.templates
@@ -4192,8 +4384,10 @@ class Symbol:
                                            templateShorthand=templateShorthand,
                                            matchSelf=matchSelf,
                                            recurseInAnon=recurseInAnon,
-                                           correctPrimaryTemplateArgs=False)
-
+                                           correctPrimaryTemplateArgs=False,
+                                           searchInSiblings=False)
+        if Symbol.debug_lookup:
+            Symbol.debug_indent -= 1
         if lookupResult is None:
             return None
 
@@ -4219,14 +4413,14 @@ class Symbol:
         return None
 
     def to_string(self, indent: int) -> str:
-        res = ['\t' * indent]
+        res = [Symbol.debug_indent_string * indent]
         if not self.parent:
             res.append('::')
         else:
             if self.templateParams:
                 res.append(str(self.templateParams))
                 res.append('\n')
-                res.append('\t' * indent)
+                res.append(Symbol.debug_indent_string * indent)
             if self.identOrOp:
                 res.append(str(self.identOrOp))
             else:
@@ -6211,7 +6405,8 @@ class CPPObject(ObjectDescription):
             return
 
         targetSymbol = parentSymbol.parent
-        s = targetSymbol.find_identifier(symbol.identOrOp, matchSelf=False, recurseInAnon=True)
+        s = targetSymbol.find_identifier(symbol.identOrOp, matchSelf=False, recurseInAnon=True,
+                                         searchInSiblings=False)
         if s is not None:
             # something is already declared with that name
             return
@@ -6326,6 +6521,10 @@ class CPPObject(ObjectDescription):
             symbol = parentSymbol.add_name(name)
             env.temp_data['cpp:last_symbol'] = symbol
             return []
+        # When multiple declarations are made in the same directive
+        # they need to know about each other to provide symbol lookup for function parameters.
+        # We use last_symbol to store the latest added declaration in a directive.
+        env.temp_data['cpp:last_symbol'] = None
         return super().run()
 
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
@@ -6346,6 +6545,13 @@ class CPPObject(ObjectDescription):
 
         try:
             symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
+            # append the new declaration to the sibling list
+            assert symbol.siblingAbove is None
+            assert symbol.siblingBelow is None
+            symbol.siblingAbove = self.env.temp_data['cpp:last_symbol']
+            if symbol.siblingAbove is not None:
+                assert symbol.siblingAbove.siblingBelow is None
+                symbol.siblingAbove.siblingBelow = symbol
             self.env.temp_data['cpp:last_symbol'] = symbol
         except _DuplicateSymbolError as e:
             # Assume we are actually in the old symbol,
@@ -6878,9 +7084,12 @@ class CPPDomain(Domain):
                 templateDecls = ns.templatePrefix.templates
             else:
                 templateDecls = []
+            # let's be conservative with the sibling lookup for now
+            searchInSiblings = (not name.rooted) and len(name.names) == 1
             symbols = parentSymbol.find_name(name, templateDecls, typ,
                                              templateShorthand=True,
-                                             matchSelf=True, recurseInAnon=True)
+                                             matchSelf=True, recurseInAnon=True,
+                                             searchInSiblings=searchInSiblings)
             # just refer to the arbitrarily first symbol
             s = None if symbols is None else symbols[0]
         else:
