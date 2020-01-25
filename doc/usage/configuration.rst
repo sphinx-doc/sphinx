@@ -1357,7 +1357,20 @@ that use Sphinx's HTMLWriter class.
    'target' option or scale related options: 'scale', 'width', 'height'.
    The default is ``True``.
 
+   Document authors can this feature manually with giving ``no-scaled-link``
+   class to the image:
+
+   .. code-block:: rst
+
+      .. image:: sphinx.png
+         :scale: 50%
+         :class: no-scaled-link
+
    .. versionadded:: 1.3
+
+   .. versionchanged:: 2.4
+
+      It is disabled for images having ``no-scaled-link`` class
 
 .. confval:: html_math_renderer
 
