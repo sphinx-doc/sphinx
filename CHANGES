@@ -41,6 +41,7 @@ Features added
   is required)
 * SphinxTranslator now calls visitor/departure method for super node class if
   visitor/departure method for original node class not found
+* #6785: py domain: ``:py:attr:`` is able to refer properties again
 
 Bugs fixed
 ----------

@@ -1011,6 +1011,11 @@ class PythonDomain(Domain):
         searchmode = 1 if node.hasattr('refspecific') else 0
         matches = self.find_obj(env, modname, clsname, target,
                                 type, searchmode)
+
+        if not matches and type == 'attr':
+            # fallback to meth (for property)
+            matches = self.find_obj(env, modname, clsname, target, 'meth', searchmode)
+
         if not matches:
             return None
         elif len(matches) > 1:
