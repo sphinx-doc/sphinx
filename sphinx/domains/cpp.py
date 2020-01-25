@@ -3701,7 +3701,7 @@ class Symbol:
 
             yield from c.children_recurse_anon
 
-    def get_lookup_key(self)-> "LookupKey":
+    def get_lookup_key(self) -> "LookupKey":
         # The pickle files for the environment and for each document are distinct.
         # The environment has all the symbols, but the documents has xrefs that
         # must know their scope. A lookup key is essentially a specification of
@@ -6762,8 +6762,8 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            rootSymbol = self.env.domains['cpp'].data['root_symbol']
-            parentSymbol = rootSymbol.direct_lookup(parentKey)
+            rootSymbol = self.env.domains['cpp'].data['root_symbol']  # type: Symbol
+            parentSymbol = rootSymbol.direct_lookup(parentKey)  # type: Symbol
             if not parentSymbol:
                 print("Target: ", sig)
                 print("ParentKey: ", parentKey)
@@ -6778,9 +6778,12 @@ class AliasTransform(SphinxTransform):
                     templateDecls = ns.templatePrefix.templates
                 else:
                     templateDecls = []
-                symbols = parentSymbol.find_name(name, templateDecls, 'any',
+                symbols = parentSymbol.find_name(nestedName=name,
+                                                 templateDecls=templateDecls,
+                                                 typ='any',
                                                  templateShorthand=True,
-                                                 matchSelf=True, recurseInAnon=True)
+                                                 matchSelf=True, recurseInAnon=True,
+                                                 searchInSiblings=False)
                 if symbols is None:
                     symbols = []
             else:
@@ -7240,7 +7243,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
