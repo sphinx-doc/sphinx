@@ -87,6 +87,11 @@ The following is a list of deprecated interfaces.
      - ``sphinx.util.inspect.signature`` and
        ``sphinx.util.inspect.stringify_signature()``
 
+   * - ``sphinx.util.inspect.safe_getmembers()``
+     - 2.4
+     - 4.0
+     - ``inspect.getmembers()``
+
    * - ``sphinx.builders.gettext.POHEADER``
      - 2.3
      - 4.0

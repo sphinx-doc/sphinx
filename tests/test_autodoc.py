@@ -1388,6 +1388,61 @@ def test_partialmethod_undoc_members(app):
     assert list(actual) == expected
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typed_instance_variables(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.typed_vars', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typed_vars',
+        '',
+        '',
+        '.. py:class:: Class()',
+        '   :module: target.typed_vars',
+        '',
+        '   ',
+        '   .. py:attribute:: Class.attr1',
+        '      :module: target.typed_vars',
+        '      :annotation: = 0',
+        '   ',
+        '   ',
+        '   .. py:attribute:: Class.attr2',
+        '      :module: target.typed_vars',
+        '      :annotation: = None',
+        '   ',
+        '   ',
+        '   .. py:attribute:: Class.attr3',
+        '      :module: target.typed_vars',
+        '      :annotation: = None',
+        '   ',
+        '      attr3',
+        '      ',
+        '   ',
+        '   .. py:attribute:: Class.attr4',
+        '      :module: target.typed_vars',
+        '      :annotation: = None',
+        '   ',
+        '      attr4',
+        '      ',
+        '',
+        '.. py:data:: attr1',
+        '   :module: target.typed_vars',
+        "   :annotation: = ''",
+        '',
+        '   attr1',
+        '   ',
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars',
+        "   :annotation: = None",
+        '',
+        '   attr2',
+        '   '
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='pycode-egg')
 def test_autodoc_for_egged_code(app):
     options = {"members": None,
