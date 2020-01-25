@@ -22,6 +22,7 @@ Deprecated
 * ``sphinx.util.detect_encoding()``
 * ``sphinx.util.get_module_source()``
 * ``sphinx.util.inspect.Signature``
+* ``sphinx.util.inspect.safe_getmembers()``
 
 Features added
 --------------
