@@ -406,7 +406,7 @@ class Glossary(SphinxDirective):
         return messages + [node]
 
 
-def token_xrefs(text: str, productionGroup: str) -> List[Node]:
+def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
     if len(productionGroup) != 0:
         productionGroup += ':'
     retnodes = []  # type: List[Node]
@@ -441,10 +441,7 @@ class ProductionList(SphinxDirective):
         node = addnodes.productionlist()  # type: Element
         # The backslash handling is from ObjectDescription.get_signatures
         nl_escape_re = re.compile(r'\\\n')
-        strip_backslash_re = re.compile(r'\\(.)')
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
-        # remove backslashes to support (dummy) escapes; helps Vim highlighting
-        lines = [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
 
         productionGroup = ""
         i = 0
@@ -460,7 +457,10 @@ class ProductionList(SphinxDirective):
             subnode = addnodes.production(rule)
             subnode['tokenname'] = name.strip()
             if subnode['tokenname']:
-                idname = 'grammar-token2-%s_%s' \
+                # nodes.make_id converts '_' to '-',
+                # so we can use '_' to delimit group from name,
+                # and make sure we don't clash with other IDs.
+                idname = 'grammar-token-%s_%s' \
                          % (nodes.make_id(productionGroup), nodes.make_id(name))
                 if idname not in self.state.document.ids:
                     subnode['ids'].append(idname)

@@ -1139,7 +1139,7 @@ derived forms), but provides enough to allow context-free grammars to be
 displayed in a way that causes uses of a symbol to be rendered as hyperlinks to
 the definition of the symbol.  There is this directive:
 
-.. rst:directive:: .. productionlist:: [tokenGroup]
+.. rst:directive:: .. productionlist:: [productionGroup]
 
    This directive is used to enclose a group of productions.  Each production
    is given on a single line and consists of a name, separated by a colon from
@@ -1147,9 +1147,9 @@ the definition of the symbol.  There is this directive:
    continuation line must begin with a colon placed at the same column as in
    the first line.
 
-   The ``tokenGroup`` argument to :rst:dir:`productionlist` serves to
+   The *productionGroup* argument to :rst:dir:`productionlist` serves to
    distinguish different sets of production lists that belong to different
-   grammars.  Multiple production lists with the same ``tokenGroup`` thus
+   grammars.  Multiple production lists with the same *productionGroup* thus
    define rules in the same scope.
 
    Blank lines are not allowed within ``productionlist`` directive arguments.
@@ -1157,14 +1157,14 @@ the definition of the symbol.  There is this directive:
    The definition can contain token names which are marked as interpreted text
    (e.g. "``sum ::= `integer` "+" `integer```") -- this generates
    cross-references to the productions of these tokens.  Outside of the
-   production list, you can reference token productions using
+   production list, you can reference to token productions using
    :rst:role:`token`.
-   However, if you have given a ``tokenGroup`` argument you must prefix the
+   However, if you have given a *productionGroup* argument you must prefix the
    token name in the cross-reference with the group name and a colon,
-   e.g., "``myTokenGroup:sum``" instead of just "``sum``".
-   If the token group should not be shown in the title of the link either an
-   explicit title can be given (e.g., "``myTitle <myTokenGroup:sum>``"),
-   or the target can be prefixed with a tilde (e.g., "``~myTokenGroup:sum``").
+   e.g., "``myGroup:sum``" instead of just "``sum``".
+   If the group should not be shown in the title of the link either
+   an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
+   or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
 
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.

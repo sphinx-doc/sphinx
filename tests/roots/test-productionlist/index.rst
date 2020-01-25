@@ -1,12 +1,12 @@
 .. toctree::
 
-	P1
-	P2
-	Bare
-	Dup1
-	Dup2
-	firstLineRule
-	LineContinuation
+   P1
+   P2
+   Bare
+   Dup1
+   Dup2
+   firstLineRule
+   LineContinuation
 
 - A: :token:`A`
 - B: :token:`B`
