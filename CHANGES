@@ -19,6 +19,9 @@ Incompatible changes
 * #6830: py domain: ``meta`` fields in info-field-list becomes reserved.  They
   are not displayed on output document now
 * The structure of ``sphinx.events.EventManager.listeners`` has changed
+* Due to the scoping changes for :rst:dir:`productionlist` some uses of
+  :rst:role:`token` must be modified to include the scope which was previously
+  ignored.
 
 Deprecated
 ----------
@@ -39,6 +42,9 @@ Features added
 * #6830: py domain: Add new event: :event:`object-description-transform`
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`
+* #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
+  in the documentation.
+* #1027: Support backslash line continuation in :rst:dir:`productionlist`.
 
 Bugs fixed
 ----------

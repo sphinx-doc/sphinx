@@ -406,7 +406,9 @@ class Glossary(SphinxDirective):
         return messages + [node]
 
 
-def token_xrefs(text: str) -> List[Node]:
+def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
+    if len(productionGroup) != 0:
+        productionGroup += ':'
     retnodes = []  # type: List[Node]
     pos = 0
     for m in token_re.finditer(text):
@@ -414,7 +416,7 @@ def token_xrefs(text: str) -> List[Node]:
             txt = text[pos:m.start()]
             retnodes.append(nodes.Text(txt, txt))
         refnode = pending_xref(m.group(1), reftype='token', refdomain='std',
-                               reftarget=m.group(1))
+                               reftarget=productionGroup + m.group(1))
         refnode += nodes.literal(m.group(1), m.group(1), classes=['xref'])
         retnodes.append(refnode)
         pos = m.end()
@@ -437,11 +439,15 @@ class ProductionList(SphinxDirective):
     def run(self) -> List[Node]:
         domain = cast(StandardDomain, self.env.get_domain('std'))
         node = addnodes.productionlist()  # type: Element
-        i = 0
+        # The backslash handling is from ObjectDescription.get_signatures
+        nl_escape_re = re.compile(r'\\\n')
+        lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
 
-        for rule in self.arguments[0].split('\n'):
+        productionGroup = ""
+        i = 0
+        for rule in lines:
             if i == 0 and ':' not in rule:
-                # production group
+                productionGroup = rule.strip()
                 continue
             i += 1
             try:
@@ -451,15 +457,39 @@ class ProductionList(SphinxDirective):
             subnode = addnodes.production(rule)
             subnode['tokenname'] = name.strip()
             if subnode['tokenname']:
-                idname = nodes.make_id('grammar-token-%s' % subnode['tokenname'])
+                # nodes.make_id converts '_' to '-',
+                # so we can use '_' to delimit group from name,
+                # and make sure we don't clash with other IDs.
+                idname = 'grammar-token-%s_%s' \
+                         % (nodes.make_id(productionGroup), nodes.make_id(name))
                 if idname not in self.state.document.ids:
                     subnode['ids'].append(idname)
+
+                idnameOld = nodes.make_id('grammar-token-' + name)
+                if idnameOld not in self.state.document.ids:
+                    subnode['ids'].append(idnameOld)
                 self.state.document.note_implicit_target(subnode, subnode)
-                domain.note_object('token', subnode['tokenname'], idname,
+                if len(productionGroup) != 0:
+                    objName = "%s:%s" % (productionGroup, name)
+                else:
+                    objName = name
+                domain.note_object(objtype='token', name=objName, labelid=idname,
                                    location=(self.env.docname, self.lineno))
-            subnode.extend(token_xrefs(tokens))
+            subnode.extend(token_xrefs(tokens, productionGroup))
             node.append(subnode)
         return [node]
+
+
+class TokenXRefRole(XRefRole):
+    def process_link(self, env: "BuildEnvironment", refnode: Element, has_explicit_title: bool,
+                     title: str, target: str) -> Tuple[str, str]:
+        target = target.lstrip('~')  # a title-specific thing
+        if not self.has_explicit_title and title[0] == '~':
+            if ':' in title:
+                _, title = title.split(':')
+            else:
+                title = title[1:]
+        return title, target
 
 
 class StandardDomain(Domain):
@@ -493,7 +523,7 @@ class StandardDomain(Domain):
         'option':  OptionXRefRole(warn_dangling=True),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
-        'token':   XRefRole(),
+        'token':   TokenXRefRole(),
         # links to terms in glossary
         'term':    XRefRole(lowercase=True, innernodeclass=nodes.inline,
                             warn_dangling=True),
