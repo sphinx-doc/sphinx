@@ -4300,8 +4300,10 @@ class Symbol:
 
     def find_name(self, nestedName: ASTNestedName, templateDecls: List[Any],
                   typ: str, templateShorthand: bool, matchSelf: bool,
-                  recurseInAnon: bool, searchInSiblings: bool) -> List["Symbol"]:
+                  recurseInAnon: bool, searchInSiblings: bool) -> Tuple[List["Symbol"], str]:
         # templateShorthand: missing template parameter lists for templates is ok
+        # If the first component is None,
+        # then the second component _may_ be a string explaining why.
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("find_name:")
@@ -4316,6 +4318,9 @@ class Symbol:
             Symbol.debug_print("recurseInAnon:    ", recurseInAnon)
             Symbol.debug_print("searchInSiblings: ", searchInSiblings)
 
+        class QualifiedSymbolIsTemplateParam(Exception):
+            pass
+
         def onMissingQualifiedSymbol(parentSymbol: "Symbol",
                                      identOrOp: Union[ASTIdentifier, ASTOperator],
                                      templateParams: Any,
@@ -4324,28 +4329,39 @@ class Symbol:
             #       Though, the correctPrimaryTemplateArgs does
             #       that for primary templates.
             #       Is there another case where it would be good?
+            if parentSymbol.declaration is not None:
+                if parentSymbol.declaration.objectType == 'templateParam':
+                    raise QualifiedSymbolIsTemplateParam()
             return None
 
-        lookupResult = self._symbol_lookup(nestedName, templateDecls,
-                                           onMissingQualifiedSymbol,
-                                           strictTemplateParamArgLists=False,
-                                           ancestorLookupType=typ,
-                                           templateShorthand=templateShorthand,
-                                           matchSelf=matchSelf,
-                                           recurseInAnon=recurseInAnon,
-                                           correctPrimaryTemplateArgs=False,
-                                           searchInSiblings=searchInSiblings)
+        try:
+            lookupResult = self._symbol_lookup(nestedName, templateDecls,
+                                               onMissingQualifiedSymbol,
+                                               strictTemplateParamArgLists=False,
+                                               ancestorLookupType=typ,
+                                               templateShorthand=templateShorthand,
+                                               matchSelf=matchSelf,
+                                               recurseInAnon=recurseInAnon,
+                                               correctPrimaryTemplateArgs=False,
+                                               searchInSiblings=searchInSiblings)
+        except QualifiedSymbolIsTemplateParam:
+            return None, "templateParamInQualified"
+
         if lookupResult is None:
             # if it was a part of the qualification that could not be found
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 2
-            return None
+            return None, None
 
         res = list(lookupResult.symbols)
         if len(res) != 0:
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 2
-            return res
+            return res, None
+
+        if lookupResult.parentSymbol.declaration is not None:
+            if lookupResult.parentSymbol.declaration.objectType == 'templateParam':
+                return None, "templateParamInQualified"
 
         # try without template params and args
         symbol = lookupResult.parentSymbol._find_first_named_symbol(
@@ -4355,9 +4371,9 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
         if symbol is not None:
-            return [symbol]
+            return [symbol], None
         else:
-            return None
+            return None, None
 
     def find_declaration(self, declaration: ASTDeclaration, typ: str, templateShorthand: bool,
                          matchSelf: bool, recurseInAnon: bool) -> "Symbol":
@@ -6778,12 +6794,13 @@ class AliasTransform(SphinxTransform):
                     templateDecls = ns.templatePrefix.templates
                 else:
                     templateDecls = []
-                symbols = parentSymbol.find_name(nestedName=name,
-                                                 templateDecls=templateDecls,
-                                                 typ='any',
-                                                 templateShorthand=True,
-                                                 matchSelf=True, recurseInAnon=True,
-                                                 searchInSiblings=False)
+                symbols, failReason = parentSymbol.find_name(
+                    nestedName=name,
+                    templateDecls=templateDecls,
+                    typ='any',
+                    templateShorthand=True,
+                    matchSelf=True, recurseInAnon=True,
+                    searchInSiblings=False)
                 if symbols is None:
                     symbols = []
             else:
@@ -7089,12 +7106,21 @@ class CPPDomain(Domain):
                 templateDecls = []
             # let's be conservative with the sibling lookup for now
             searchInSiblings = (not name.rooted) and len(name.names) == 1
-            symbols = parentSymbol.find_name(name, templateDecls, typ,
-                                             templateShorthand=True,
-                                             matchSelf=True, recurseInAnon=True,
-                                             searchInSiblings=searchInSiblings)
-            # just refer to the arbitrarily first symbol
-            s = None if symbols is None else symbols[0]
+            symbols, failReason = parentSymbol.find_name(
+                name, templateDecls, typ,
+                templateShorthand=True,
+                matchSelf=True, recurseInAnon=True,
+                searchInSiblings=searchInSiblings)
+            if symbols is None:
+                if typ == 'identifier':
+                    if failReason == 'templateParamInQualified':
+                        # this is an xref we created as part of a signature,
+                        # so don't warn for names nested in template parameters
+                        raise NoUri(str(name), typ)
+                s = None
+            else:
+                # just refer to the arbitrarily first symbol
+                s = symbols[0]
         else:
             decl = ast  # type: ASTDeclaration
             name = decl.name

@@ -53,6 +53,8 @@ Bugs fixed
   function overloads.
 * #5078: C++, fix cross reference lookup when a directive contains multiple
   declarations.
+* C++, suppress warnings for directly dependent typenames in cross references
+  generated automatically in signatures.
 
 Testing
 --------
