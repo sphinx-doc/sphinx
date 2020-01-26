@@ -806,6 +806,15 @@ def test_build_domain_cpp_multi_decl_lookup(app, status, warning):
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "warn-template-param-qualified-name")
+    assert len(ws) == 2
+    assert "WARNING: cpp:type reference target not found: T::typeWarn" in ws[0]
+    assert "WARNING: cpp:type reference target not found: T::U::typeWarn" in ws[1]
+
+
 @pytest.mark.sphinx(testroot='domain-cpp')
 def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     app.builder.build_all()
