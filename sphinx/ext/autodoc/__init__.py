@@ -1507,7 +1507,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
         if inspect.isabstractmethod(self.object):
-            self.add_line('   :abstractmethod:', sourcename)
+            self.add_line('   :abstract:', sourcename)
         self.add_line('   :property:', sourcename)
 
 

@@ -1257,7 +1257,7 @@ def test_abstractmethods():
         '   ',
         '   .. py:attribute:: Base.prop',
         '      :module: target.abstractmethods',
-        '      :abstractmethod:',
+        '      :abstract:',
         '      :property:',
         '   ',
         '   ',

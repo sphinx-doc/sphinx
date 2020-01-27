@@ -694,12 +694,18 @@ class PyAttribute(PyObject):
     option_spec = PyObject.option_spec.copy()
     option_spec.update({
         'property': directives.flag,
+        'abstract': directives.flag,
         'type': directives.unchanged,
         'value': directives.unchanged,
     })
 
     def get_signature_prefix(self, sig: str) -> str:
-        return 'property ' if 'property' in self.options else ''
+        prefix = [
+            tag
+            for tag in ['abstract', 'property']
+            if tag in self.options
+        ]
+        return ' '.join(prefix) + ' ' if prefix else ''
 
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         fullname, prefix = super().handle_signature(sig, signode)
