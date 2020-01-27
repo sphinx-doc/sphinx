@@ -1485,7 +1485,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
     Specialized Documenter subclass for properties.
     """
     objtype = 'property'
-    directivetype = 'method'
+    directivetype = 'attribute'
     member_order = 60
 
     # before AttributeDocumenter
