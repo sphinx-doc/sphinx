@@ -622,15 +622,11 @@ class PyMethod(PyObject):
         'abstractmethod': directives.flag,
         'async': directives.flag,
         'classmethod': directives.flag,
-        'property': directives.flag,
         'staticmethod': directives.flag,
     })
 
     def needs_arglist(self) -> bool:
-        if 'property' in self.options:
-            return False
-        else:
-            return True
+        return True
 
     def get_signature_prefix(self, sig: str) -> str:
         prefix = []
@@ -640,8 +636,6 @@ class PyMethod(PyObject):
             prefix.append('async')
         if 'classmethod' in self.options:
             prefix.append('classmethod')
-        if 'property' in self.options:
-            prefix.append('property')
         if 'staticmethod' in self.options:
             prefix.append('static')
 
@@ -664,8 +658,6 @@ class PyMethod(PyObject):
 
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
-        elif 'property' in self.options:
-            return _('%s() (%s property)') % (methname, clsname)
         elif 'staticmethod' in self.options:
             return _('%s() (%s static method)') % (methname, clsname)
         else:
@@ -701,9 +693,13 @@ class PyAttribute(PyObject):
 
     option_spec = PyObject.option_spec.copy()
     option_spec.update({
+        'property': directives.flag,
         'type': directives.unchanged,
         'value': directives.unchanged,
     })
+
+    def get_signature_prefix(self, sig: str) -> str:
+        return 'property ' if 'property' in self.options else ''
 
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         fullname, prefix = super().handle_signature(sig, signode)
@@ -730,7 +726,10 @@ class PyAttribute(PyObject):
             else:
                 return name
 
-        return _('%s (%s attribute)') % (attrname, clsname)
+        if 'property' in self.options:
+            return _('%s (%s property)') % (attrname, clsname)
+        else:
+            return _('%s (%s attribute)') % (attrname, clsname)
 
 
 class PyDecoratorMixin:
