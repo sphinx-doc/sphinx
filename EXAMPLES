@@ -183,6 +183,7 @@ Documentation using sphinx_rtd_theme
 * `Databricks <https://docs.databricks.com/>`__ (customized)
 * `Dataiku DSS <https://doc.dataiku.com/>`__
 * `DNF <https://dnf.readthedocs.io/>`__
+* `Django-cas-ng <https://djangocas.dev/docs/>`__
 * `edX <https://docs.edx.org/>`__
 * `Electrum <http://docs.electrum.org/>`__
 * `Elemental <http://libelemental.org/documentation/dev/>`__
