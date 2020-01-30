@@ -92,6 +92,31 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``inspect.getmembers()``
 
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.author``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.contentsname``
+     - 2.4
+     - 4.0
+     - ``document['contentsname']``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.docclass``
+     - 2.4
+     - 4.0
+     - ``document['docclass']``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.docname``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.title``
+     - 2.4
+     - 4.0
+     - N/A
+
    * - ``sphinx.builders.gettext.POHEADER``
      - 2.3
      - 4.0
