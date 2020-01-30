@@ -257,6 +257,8 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
 def safe_getmembers(object: Any, predicate: Callable[[str], bool] = None,
                     attr_getter: Callable = safe_getattr) -> List[Tuple[str, Any]]:
     """A version of inspect.getmembers() that uses safe_getattr()."""
+    warnings.warn('safe_getmembers() is deprecated', RemovedInSphinx40Warning)
+
     results = []  # type: List[Tuple[str, Any]]
     for key in dir(object):
         try:
@@ -449,6 +451,8 @@ class Signature:
     """The Signature object represents the call signature of a callable object and
     its return annotation.
     """
+
+    empty = inspect.Signature.empty
 
     def __init__(self, subject: Callable, bound_method: bool = False,
                  has_retval: bool = True) -> None:

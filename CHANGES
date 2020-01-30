@@ -22,6 +22,7 @@ Deprecated
 * ``sphinx.util.detect_encoding()``
 * ``sphinx.util.get_module_source()``
 * ``sphinx.util.inspect.Signature``
+* ``sphinx.util.inspect.safe_getmembers()``
 
 Features added
 --------------
@@ -39,8 +40,14 @@ Features added
 * #2755: autodoc: Support type_comment style (ex. ``# type: (str) -> str``)
   annotation (python3.8+ or `typed_ast <https://github.com/python/typed_ast>`_
   is required)
+* #7051: autodoc: Support instance variables without defaults (PEP-526)
+* #6418: autodoc: Add a new extension ``sphinx.ext.autodoc.typehints``. It shows
+  typehints as object description if ``autodoc_typehints = "description"`` set.
+  This is an experimental extension and it will be integrated into autodoc core
+  in Sphinx-3.0
 * SphinxTranslator now calls visitor/departure method for super node class if
   visitor/departure method for original node class not found
+* #6418: Add new event: :event:`object-description-transform`
 * #6785: py domain: ``:py:attr:`` is able to refer properties again
 
 Bugs fixed
