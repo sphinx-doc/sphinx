@@ -32,7 +32,7 @@ from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.inspect import signature_from_str
-from sphinx.util.nodes import make_refnode
+from sphinx.util.nodes import make_id, make_refnode
 from sphinx.util.typing import TextlikeNode
 
 if False:
@@ -788,23 +788,42 @@ class PyModule(SphinxDirective):
         ret = []  # type: List[Node]
         if not noindex:
             # note module to the domain
+            node_id = make_id(self.env, self.state.document, 'module', modname)
+            target = nodes.target('', '', ids=[node_id], ismod=True)
+            self.set_source_info(target)
+
+            # Assign old styled node_id not to break old hyperlinks (if possible)
+            # Note: Will removed in Sphinx-5.0  (RemovedInSphinx50Warning)
+            old_node_id = self.make_old_id(modname)
+            if node_id != old_node_id and old_node_id not in self.state.document.ids:
+                target['ids'].append(old_node_id)
+
+            self.state.document.note_explicit_target(target)
+
             domain.note_module(modname,
+                               node_id,
                                self.options.get('synopsis', ''),
                                self.options.get('platform', ''),
                                'deprecated' in self.options)
-            domain.note_object(modname, 'module', location=(self.env.docname, self.lineno))
+            domain.note_object(modname, 'module', location=target)
 
-            targetnode = nodes.target('', '', ids=['module-' + modname],
-                                      ismod=True)
-            self.state.document.note_explicit_target(targetnode)
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
-            ret.append(targetnode)
+            ret.append(target)
             indextext = _('%s (module)') % modname
-            inode = addnodes.index(entries=[('single', indextext,
-                                             'module-' + modname, '', None)])
+            inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
         return ret
+
+    def make_old_id(self, name: str) -> str:
+        """Generate old styled node_id.
+
+        Old styled node_id is incompatible with docutils' node_id.
+        It can contain dots and hyphens.
+
+        .. note:: Old styled node_id was mainly used until Sphinx-3.0.
+        """
+        return 'module-%s' % name
 
 
 class PyCurrentModule(SphinxDirective):
@@ -888,7 +907,7 @@ class PythonModuleIndex(Index):
         # sort out collapsable modules
         prev_modname = ''
         num_toplevels = 0
-        for modname, (docname, synopsis, platforms, deprecated) in modules:
+        for modname, (docname, node_id, synopsis, platforms, deprecated) in modules:
             if docnames and docname not in docnames:
                 continue
 
@@ -925,8 +944,7 @@ class PythonModuleIndex(Index):
 
             qualifier = _('Deprecated') if deprecated else ''
             entries.append(IndexEntry(stripped + modname, subtype, docname,
-                                      'module-' + stripped + modname, platforms,
-                                      qualifier, synopsis))
+                                      node_id, platforms, qualifier, synopsis))
             prev_modname = modname
 
         # apply heuristics when to collapse modindex at page load:
@@ -1006,21 +1024,22 @@ class PythonDomain(Domain):
         self.objects[name] = (self.env.docname, objtype)
 
     @property
-    def modules(self) -> Dict[str, Tuple[str, str, str, bool]]:
-        return self.data.setdefault('modules', {})  # modname -> docname, synopsis, platform, deprecated  # NOQA
+    def modules(self) -> Dict[str, Tuple[str, str, str, str, bool]]:
+        return self.data.setdefault('modules', {})  # modname -> docname, node_id, synopsis, platform, deprecated  # NOQA
 
-    def note_module(self, name: str, synopsis: str, platform: str, deprecated: bool) -> None:
+    def note_module(self, name: str, node_id: str, synopsis: str,
+                    platform: str, deprecated: bool) -> None:
         """Note a python module for cross reference.
 
         .. versionadded:: 2.1
         """
-        self.modules[name] = (self.env.docname, synopsis, platform, deprecated)
+        self.modules[name] = (self.env.docname, node_id, synopsis, platform, deprecated)
 
     def clear_doc(self, docname: str) -> None:
         for fullname, (fn, _l) in list(self.objects.items()):
             if fn == docname:
                 del self.objects[fullname]
-        for modname, (fn, _x, _x, _y) in list(self.modules.items()):
+        for modname, (fn, _x, _x, _x, _y) in list(self.modules.items()):
             if fn == docname:
                 del self.modules[modname]
 
@@ -1146,7 +1165,7 @@ class PythonDomain(Domain):
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,
                              contnode: Node) -> Element:
         # get additional info for modules
-        docname, synopsis, platform, deprecated = self.modules[name]
+        docname, node_id, synopsis, platform, deprecated = self.modules[name]
         title = name
         if synopsis:
             title += ': ' + synopsis
@@ -1154,12 +1173,11 @@ class PythonDomain(Domain):
             title += _(' (deprecated)')
         if platform:
             title += ' (' + platform + ')'
-        return make_refnode(builder, fromdocname, docname,
-                            'module-' + name, contnode, title)
+        return make_refnode(builder, fromdocname, docname, node_id, contnode, title)
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
         for modname, info in self.modules.items():
-            yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
+            yield (modname, modname, 'module', info[0], info[1], 0)
         for refname, (docname, type) in self.objects.items():
             if type != 'module':  # modules are already handled
                 yield (refname, refname, type, docname, refname, 1)
@@ -1182,7 +1200,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

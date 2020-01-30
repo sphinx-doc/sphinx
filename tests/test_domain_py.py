@@ -595,10 +595,10 @@ def test_module_index(app):
     assert index.generate() == (
         [('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
          ('s', [IndexEntry('sphinx', 1, 'index', 'module-sphinx', '', '', ''),
-                IndexEntry('sphinx.builders', 2, 'index', 'module-sphinx.builders', '', '', ''),  # NOQA
-                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx.builders.html', '', '', ''),  # NOQA
-                IndexEntry('sphinx.config', 2, 'index', 'module-sphinx.config', '', '', ''),
-                IndexEntry('sphinx_intl', 0, 'index', 'module-sphinx_intl', '', '', '')])],
+                IndexEntry('sphinx.builders', 2, 'index', 'module-sphinx-builders', '', '', ''),  # NOQA
+                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx-builders-html', '', '', ''),  # NOQA
+                IndexEntry('sphinx.config', 2, 'index', 'module-sphinx-config', '', '', ''),
+                IndexEntry('sphinx_intl', 0, 'index', 'module-sphinx-intl', '', '', '')])],
         False
     )
 
@@ -610,7 +610,7 @@ def test_module_index_submodule(app):
     index = PythonModuleIndex(app.env.get_domain('py'))
     assert index.generate() == (
         [('s', [IndexEntry('sphinx', 1, '', '', '', '', ''),
-                IndexEntry('sphinx.config', 2, 'index', 'module-sphinx.config', '', '', '')])],
+                IndexEntry('sphinx.config', 2, 'index', 'module-sphinx-config', '', '', '')])],
         False
     )
 
@@ -639,12 +639,12 @@ def test_modindex_common_prefix(app):
     restructuredtext.parse(app, text)
     index = PythonModuleIndex(app.env.get_domain('py'))
     assert index.generate() == (
-        [('b', [IndexEntry('sphinx.builders', 1, 'index', 'module-sphinx.builders', '', '', ''),  # NOQA
-                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx.builders.html', '', '', '')]),  # NOQA
-         ('c', [IndexEntry('sphinx.config', 0, 'index', 'module-sphinx.config', '', '', '')]),
+        [('b', [IndexEntry('sphinx.builders', 1, 'index', 'module-sphinx-builders', '', '', ''),  # NOQA
+                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx-builders-html', '', '', '')]),  # NOQA
+         ('c', [IndexEntry('sphinx.config', 0, 'index', 'module-sphinx-config', '', '', '')]),
          ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
          ('s', [IndexEntry('sphinx', 0, 'index', 'module-sphinx', '', '', ''),
-                IndexEntry('sphinx_intl', 0, 'index', 'module-sphinx_intl', '', '', '')])],
+                IndexEntry('sphinx_intl', 0, 'index', 'module-sphinx-intl', '', '', '')])],
         True
     )
 

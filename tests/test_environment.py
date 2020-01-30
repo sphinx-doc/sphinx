@@ -99,7 +99,7 @@ def test_object_inventory(app):
     assert 'func_noindex' not in refs
 
     assert app.env.domaindata['py']['modules']['mod'] == \
-        ('objects', 'Module synopsis.', 'UNIX', False)
+        ('objects', 'module-mod', 'Module synopsis.', 'UNIX', False)
 
     assert app.env.domains['py'].data is app.env.domaindata['py']
     assert app.env.domains['c'].data is app.env.domaindata['c']
