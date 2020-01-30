@@ -26,7 +26,7 @@ from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
-    purple, red, darkgreen, darkgray, darkred, turquoise
+    purple, red, darkgreen, darkgray, turquoise
 )
 from sphinx.util.nodes import get_node_line
 from sphinx.util.requests import is_ssl_error
@@ -251,11 +251,11 @@ class CheckExternalLinksBuilder(Builder):
         elif status == 'redirected':
             try:
                 text, color = {
-                    301: ('permanently', darkred),
+                    301: ('permanently', purple),
                     302: ('with Found', purple),
                     303: ('with See Other', purple),
                     307: ('temporarily', turquoise),
-                    308: ('permanently', darkred),
+                    308: ('permanently', purple),
                 }[code]
             except KeyError:
                 text, color = ('with unknown code', purple)
