@@ -117,6 +117,36 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.writers.latex.ADDITIONAL_SETTINGS``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.ADDITIONAL_SETTINGS``
+
+   * - ``sphinx.writers.latex.DEFAULT_SETTINGS``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.DEFAULT_SETTINGS``
+
+   * - ``sphinx.writers.latex.LUALATEX_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.LUALATEX_DEFAULT_FONTPKG``
+
+   * - ``sphinx.writers.latex.PDFLATEX_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.PDFLATEX_DEFAULT_FONTPKG``
+
+   * - ``sphinx.writers.latex.XELATEX_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.XELATEX_DEFAULT_FONTPKG``
+
+   * - ``sphinx.writers.latex.XELATEX_GREEK_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.XELATEX_GREEK_DEFAULT_FONTPKG``
+
    * - ``sphinx.builders.gettext.POHEADER``
      - 2.3
      - 4.0

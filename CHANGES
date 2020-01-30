@@ -28,6 +28,12 @@ Deprecated
 * ``sphinx.writers.latex.LaTeXTranslator.settings.docclass``
 * ``sphinx.writers.latex.LaTeXTranslator.settings.docname``
 * ``sphinx.writers.latex.LaTeXTranslator.settings.title``
+* ``sphinx.writers.latex.ADDITIONAL_SETTINGS``
+* ``sphinx.writers.latex.DEFAULT_SETTINGS``
+* ``sphinx.writers.latex.LUALATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.PDFLATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.XELATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.XELATEX_GREEK_DEFAULT_FONTPKG``
 
 Features added
 --------------
