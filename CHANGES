@@ -63,6 +63,7 @@ Bugs fixed
 * #7023: autodoc: nested partial functions are not listed
 * #7023: autodoc: partial functions imported from other modules are listed as
   module members without :impoprted-members: option
+* #7055: linkcheck: redirect is treated as an error
 
 Testing
 --------
