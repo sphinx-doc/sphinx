@@ -20,6 +20,7 @@ import locale
 import os
 import sys
 import warnings
+from copy import copy
 from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
@@ -107,12 +108,16 @@ def format_directive(module: str, package: str = None) -> str:
 def create_module_file(package: str, basename: str, opts: Any,
                        user_template_dir: str = None) -> None:
     """Build the text of the file and write the file."""
+    options = copy(OPTIONS)
+    if opts.includeprivate and 'private-members' not in options:
+        options.append('private-members')
+
     qualname = module_join(package, basename)
     context = {
         'show_headings': not opts.noheadings,
         'basename': basename,
         'qualname': qualname,
-        'automodule_options': OPTIONS,
+        'automodule_options': options,
     }
     text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst_t', context)
     write_file(qualname, text, opts)
@@ -133,6 +138,9 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
                   sub != INITPY]
     submodules = [module_join(master_package, subroot, modname)
                   for modname in submodules]
+    options = copy(OPTIONS)
+    if opts.includeprivate and 'private-members' not in options:
+        options.append('private-members')
 
     pkgname = module_join(master_package, subroot)
     context = {
@@ -142,7 +150,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
         'is_namespace': is_namespace,
         'modulefirst': opts.modulefirst,
         'separatemodules': opts.separatemodules,
-        'automodule_options': OPTIONS,
+        'automodule_options': options,
         'show_headings': not opts.noheadings,
     }
     text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
