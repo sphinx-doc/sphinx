@@ -18,7 +18,7 @@ msgstr ""
 {% for message in messages %}
 {% if display_location -%}
 {% for source, line in message.locations -%}
-#: {{ source }}:{{ line }}
+#: {{ relpath(source) }}:{{ line }}
 {% endfor -%}
 {% endif -%}
 

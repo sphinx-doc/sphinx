@@ -1292,6 +1292,17 @@ def test_partialfunction():
 
 
 @pytest.mark.usefixtures('setup_test')
+def test_imported_partialfunction_should_not_shown_without_imported_members():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.imported_members', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.imported_members',
+        ''
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
 def test_bound_method():
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.bound_method', options)
@@ -1399,6 +1410,61 @@ def test_partialmethod_undoc_members(app):
                "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
     assert list(actual) == expected
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typed_instance_variables(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.typed_vars', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typed_vars',
+        '',
+        '',
+        '.. py:class:: Class()',
+        '   :module: target.typed_vars',
+        '',
+        '   ',
+        '   .. py:attribute:: Class.attr1',
+        '      :module: target.typed_vars',
+        '      :annotation: = 0',
+        '   ',
+        '   ',
+        '   .. py:attribute:: Class.attr2',
+        '      :module: target.typed_vars',
+        '      :annotation: = None',
+        '   ',
+        '   ',
+        '   .. py:attribute:: Class.attr3',
+        '      :module: target.typed_vars',
+        '      :annotation: = None',
+        '   ',
+        '      attr3',
+        '      ',
+        '   ',
+        '   .. py:attribute:: Class.attr4',
+        '      :module: target.typed_vars',
+        '      :annotation: = None',
+        '   ',
+        '      attr4',
+        '      ',
+        '',
+        '.. py:data:: attr1',
+        '   :module: target.typed_vars',
+        "   :annotation: = ''",
+        '',
+        '   attr1',
+        '   ',
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars',
+        "   :annotation: = None",
+        '',
+        '   attr2',
+        '   '
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='pycode-egg')

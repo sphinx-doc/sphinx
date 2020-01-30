@@ -222,7 +222,7 @@ connect handlers to the events.  Example:
    *objtype* arguments are strings indicating object description of the object.
    And *contentnode* is a content for the object.  It can be modified in-place.
 
-   .. versionadded:: 3.0
+   .. versionadded:: 2.4
 
 .. event:: doctree-read (app, doctree)
 

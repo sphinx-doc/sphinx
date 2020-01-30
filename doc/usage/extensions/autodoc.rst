@@ -599,3 +599,24 @@ member should be included in the documentation by using the following event:
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
       ``noindex`` that are true if the flag option of same name was given to the
       auto directive
+
+Generating documents from type annotations
+------------------------------------------
+
+As an experimental feature, autodoc provides ``sphinx.ext.autodoc.typehints`` as
+an additional extension.  It extends autodoc itself to generate function document
+from its type annotations.
+
+To enable the feature, please add ``sphinx.ext.autodoc.typehints`` to list of
+extensions and set `'description'` to :confval:`autodoc_typehints`:
+
+.. code-block:: python
+
+   extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autodoc.typehints']
+
+   autodoc_typehints = 'description'
+
+.. versionadded:: 2.4
+
+   Added as an experimental feature.  This will be integrated into autodoc core
+   in Sphinx-3.0.

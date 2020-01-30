@@ -22,7 +22,7 @@ from sphinx.application import Sphinx
 from sphinx.config import ENUM
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc.importer import import_object, get_object_members
+from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -30,9 +30,7 @@ from sphinx.util import inspect
 from sphinx.util import logging
 from sphinx.util import rpartition
 from sphinx.util.docstrings import extract_metadata, prepare_docstring
-from sphinx.util.inspect import (
-    getdoc, object_description, safe_getattr, safe_getmembers, stringify_signature
-)
+from sphinx.util.inspect import getdoc, object_description, safe_getattr, stringify_signature
 
 if False:
     # For type annotation
@@ -350,10 +348,9 @@ class Documenter:
         if self.options.imported_members:
             return True
 
-        modname = self.get_attr(self.object, '__module__', None)
-        if inspect.ispartial(self.object) and modname == '_functools':  # for pypy
-            return True
-        elif modname and modname != self.modname:
+        subject = inspect.unpartial(self.object)
+        modname = self.get_attr(subject, '__module__', None)
+        if modname and modname != self.modname:
             return False
         return True
 
@@ -547,7 +544,10 @@ class Documenter:
         # process members and determine which to skip
         for (membername, member) in members:
             # if isattr is True, the member is documented as an attribute
-            isattr = False
+            if member is INSTANCEATTR:
+                isattr = True
+            else:
+                isattr = False
 
             doc = getdoc(member, self.get_attr, self.env.config.autodoc_inherit_docstrings)
 
@@ -824,7 +824,7 @@ class ModuleDocumenter(Documenter):
                     hasattr(self.object, '__all__')):
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
-                return True, safe_getmembers(self.object)
+                return True, get_module_members(self.object)
             else:
                 memberlist = self.object.__all__
                 # Sometimes __all__ is broken...
@@ -837,7 +837,7 @@ class ModuleDocumenter(Documenter):
                         type='autodoc'
                     )
                     # fall back to all members
-                    return True, safe_getmembers(self.object)
+                    return True, get_module_members(self.object)
         else:
             memberlist = self.options.members or []
         ret = []
@@ -1282,6 +1282,37 @@ class DataDocumenter(ModuleLevelDocumenter):
             or self.modname
 
 
+class DataDeclarationDocumenter(DataDocumenter):
+    """
+    Specialized Documenter subclass for data that cannot be imported
+    because they are declared without initial value (refs: PEP-526).
+    """
+    objtype = 'datadecl'
+    directivetype = 'data'
+    member_order = 60
+
+    # must be higher than AttributeDocumenter
+    priority = 11
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        """This documents only INSTANCEATTR members."""
+        return (isinstance(parent, ModuleDocumenter) and
+                isattr and
+                member is INSTANCEATTR)
+
+    def import_object(self) -> bool:
+        """Never import anything."""
+        # disguise as a data
+        self.objtype = 'data'
+        return True
+
+    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+        """Never try to get a docstring from the object."""
+        super().add_content(more_content, no_docstring=True)
+
+
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for methods (normal, static and class).
@@ -1469,7 +1500,9 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
         """This documents only INSTANCEATTR members."""
-        return isattr and (member is INSTANCEATTR)
+        return (not isinstance(parent, ModuleDocumenter) and
+                isattr and
+                member is INSTANCEATTR)
 
     def import_object(self) -> bool:
         """Never import anything."""
@@ -1549,6 +1582,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ClassDocumenter)
     app.add_autodocumenter(ExceptionDocumenter)
     app.add_autodocumenter(DataDocumenter)
+    app.add_autodocumenter(DataDeclarationDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)

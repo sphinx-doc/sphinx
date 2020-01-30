@@ -71,13 +71,13 @@ def setup_documenters(app: Any) -> None:
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter,
     )
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
