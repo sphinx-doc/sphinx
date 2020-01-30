@@ -403,7 +403,7 @@ class LaTeXBuilder(Builder):
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
 
-def patch_settings(settings: Any):
+def patch_settings(settings: Any) -> Any:
     """Make settings object to show deprecation messages."""
 
     class Values(type(settings)):  # type: ignore
