@@ -6,7 +6,7 @@
     A collection of helpful iterators.
 
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -47,7 +47,7 @@ class peek_iter:
         be set to a new object instance: ``object()``.
 
     """
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: Any) -> None:
         """__init__(o, sentinel=None)"""
         self._iterable = iter(*args)        # type: Iterable
         self._cache = collections.deque()   # type: collections.deque
@@ -208,7 +208,7 @@ class modify_iter(peek_iter):
     "whitespace."
 
     """
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """__init__(o, sentinel=None, modifier=lambda x: x)"""
         if 'modifier' in kwargs:
             self.modifier = kwargs['modifier']

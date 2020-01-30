@@ -494,6 +494,17 @@ autodoc provides the following additional events:
       auto directive
    :param lines: the lines of the docstring, see above
 
+.. event:: autodoc-before-process-signature (app, obj, bound_method)
+
+   .. versionadded:: 2.4
+
+   Emitted before autodoc formats a signature for an object. The event handler
+   can modify an object to change its signature.
+
+   :param app: the Sphinx application object
+   :param obj: the object itself
+   :param bound_method: a boolean indicates an object is bound method or not
+
 .. event:: autodoc-process-signature (app, what, name, obj, options, signature, return_annotation)
 
    .. versionadded:: 0.5
@@ -556,3 +567,24 @@ member should be included in the documentation by using the following event:
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
       ``noindex`` that are true if the flag option of same name was given to the
       auto directive
+
+Generating documents from type annotations
+------------------------------------------
+
+As an experimental feature, autodoc provides ``sphinx.ext.autodoc.typehints`` as
+an additional extension.  It extends autodoc itself to generate function document
+from its type annotations.
+
+To enable the feature, please add ``sphinx.ext.autodoc.typehints`` to list of
+extensions and set `'description'` to :confval:`autodoc_typehints`:
+
+.. code-block:: python
+
+   extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autodoc.typehints']
+
+   autodoc_typehints = 'description'
+
+.. versionadded:: 2.4
+
+   Added as an experimental feature.  This will be integrated into autodoc core
+   in Sphinx-3.0.

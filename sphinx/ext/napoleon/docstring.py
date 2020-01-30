@@ -6,7 +6,7 @@
     Classes for docstring parsing and formatting.
 
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -101,8 +101,8 @@ class GoogleDocstring:
 
     """
 
-    _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>[a-zA-Z0-9_.-]+)`|"
-                           r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
+    _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>~?[a-zA-Z0-9_.-]+)`|"
+                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.X)
 
     def __init__(self, docstring: Union[str, List[str]], config: SphinxConfig = None,
                  app: Sphinx = None, what: str = '', name: str = '',

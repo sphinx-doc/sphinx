@@ -4,7 +4,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,7 +30,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import clean_astext, make_refnode
+from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.typing import RoleFunction
 
 if False:
@@ -128,7 +128,7 @@ class Target(SphinxDirective):
         targetname = '%s-%s' % (self.name, fullname)
         node = nodes.target('', '', ids=[targetname])
         self.state.document.note_explicit_target(node)
-        ret = [node]  # type: List[nodes.Node]
+        ret = [node]  # type: List[Node]
         if self.indextemplate:
             indexentry = self.indextemplate % (fullname,)
             indextype = 'single'
@@ -243,34 +243,44 @@ def split_term_classifiers(line: str) -> List[Optional[str]]:
 
 
 def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index_key: str,
-                       source: str, lineno: int, new_id: str = None) -> nodes.term:
+                       source: str, lineno: int, node_id: str = None,
+                       document: nodes.document = None) -> nodes.term:
     # get a text-only representation of the term and register it
     # as a cross-reference target
     term = nodes.term('', '', *textnodes)
     term.source = source
     term.line = lineno
-
-    gloss_entries = env.temp_data.setdefault('gloss_entries', set())
     termtext = term.astext()
-    if new_id is None:
-        new_id = nodes.make_id('term-' + termtext)
-        if new_id == 'term':
-            # the term is not good for node_id.  Generate it by sequence number instead.
-            new_id = 'term-%d' % env.new_serialno('glossary')
-    while new_id in gloss_entries:
-        new_id = 'term-%d' % env.new_serialno('glossary')
-    gloss_entries.add(new_id)
+
+    if node_id:
+        # node_id is given from outside (mainly i18n module), use it forcedly
+        term['ids'].append(node_id)
+    elif document:
+        node_id = make_id(env, document, 'term', termtext)
+        term['ids'].append(node_id)
+        document.note_explicit_target(term)
+    else:
+        warnings.warn('make_glossary_term() expects document is passed as an argument.',
+                      RemovedInSphinx40Warning)
+        gloss_entries = env.temp_data.setdefault('gloss_entries', set())
+        node_id = nodes.make_id('term-' + termtext)
+        if node_id == 'term':
+            # "term" is not good for node_id.  Generate it by sequence number instead.
+            node_id = 'term-%d' % env.new_serialno('glossary')
+
+        while node_id in gloss_entries:
+            node_id = 'term-%d' % env.new_serialno('glossary')
+        gloss_entries.add(node_id)
+        term['ids'].append(node_id)
 
     std = cast(StandardDomain, env.get_domain('std'))
-    std.add_object('term', termtext.lower(), env.docname, new_id)
+    std.add_object('term', termtext.lower(), env.docname, node_id)
 
     # add an index entry too
     indexnode = addnodes.index()
-    indexnode['entries'] = [('single', termtext, new_id, 'main', index_key)]
+    indexnode['entries'] = [('single', termtext, node_id, 'main', index_key)]
     indexnode.source, indexnode.line = term.source, term.line
     term.append(indexnode)
-    term['ids'].append(new_id)
-    term['names'].append(new_id)
 
     return term
 
@@ -303,7 +313,7 @@ class Glossary(SphinxDirective):
         in_definition = True
         in_comment = False
         was_empty = True
-        messages = []  # type: List[nodes.Node]
+        messages = []  # type: List[Node]
         for line, (source, lineno) in zip(self.content, self.content.items):
             # empty line -> add to last definition
             if not line:
@@ -359,8 +369,8 @@ class Glossary(SphinxDirective):
         items = []
         for terms, definition in entries:
             termtexts = []          # type: List[str]
-            termnodes = []          # type: List[nodes.Node]
-            system_messages = []    # type: List[nodes.Node]
+            termnodes = []          # type: List[Node]
+            system_messages = []    # type: List[Node]
             for line, source, lineno in terms:
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
@@ -368,7 +378,8 @@ class Glossary(SphinxDirective):
                 textnodes, sysmsg = self.state.inline_text(parts[0], lineno)
 
                 # use first classifier as a index key
-                term = make_glossary_term(self.env, textnodes, parts[1], source, lineno)
+                term = make_glossary_term(self.env, textnodes, parts[1], source, lineno,
+                                          document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
                 termtexts.append(term.astext())
@@ -396,7 +407,7 @@ class Glossary(SphinxDirective):
 
 
 def token_xrefs(text: str) -> List[Node]:
-    retnodes = []  # type: List[nodes.Node]
+    retnodes = []  # type: List[Node]
     pos = 0
     for m in token_re.finditer(text):
         if m.start() > pos:
@@ -425,7 +436,7 @@ class ProductionList(SphinxDirective):
 
     def run(self) -> List[Node]:
         domain = cast(StandardDomain, self.env.get_domain('std'))
-        node = addnodes.productionlist()  # type: nodes.Element
+        node = addnodes.productionlist()  # type: Element
         i = 0
 
         for rule in self.arguments[0].split('\n'):
@@ -526,7 +537,7 @@ class StandardDomain(Domain):
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
-    }  # type: Dict[Type[nodes.Node], Tuple[str, Callable]]
+    }  # type: Dict[Type[Node], Tuple[str, Callable]]
 
     def __init__(self, env: "BuildEnvironment") -> None:
         super().__init__(env)
@@ -628,7 +639,7 @@ class StandardDomain(Domain):
         self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname: str, builder: "Builder", docname: str,
-                             labelid: str, sectname: str, rolename: str, **options
+                             labelid: str, sectname: str, rolename: str, **options: Any
                              ) -> Element:
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)
@@ -823,7 +834,7 @@ class StandardDomain(Domain):
             # remove the ids we added in the CitationReferences
             # transform since they can't be transfered to
             # the contnode (if it's a Text node)
-            if not isinstance(contnode, nodes.Element):
+            if not isinstance(contnode, Element):
                 del node['ids'][:]
             raise
 
@@ -845,7 +856,7 @@ class StandardDomain(Domain):
     def resolve_any_xref(self, env: "BuildEnvironment", fromdocname: str,
                          builder: "Builder", target: str, node: pending_xref,
                          contnode: Element) -> List[Tuple[str, Element]]:
-        results = []  # type: List[Tuple[str, nodes.Element]]
+        results = []  # type: List[Tuple[str, Element]]
         ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
             res = self.resolve_xref(env, fromdocname, builder, role,
@@ -896,7 +907,7 @@ class StandardDomain(Domain):
     def get_numfig_title(self, node: Node) -> str:
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
-            elem = cast(nodes.Element, node)
+            elem = cast(Element, node)
             _, title_getter = self.enumerable_nodes.get(elem.__class__, (None, None))
             if title_getter:
                 return title_getter(elem)

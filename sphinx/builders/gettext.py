@@ -4,7 +4,7 @@
 
     The MessageCatalogBuilder class.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,7 +30,7 @@ from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import ensuredir, canon_path
+from sphinx.util.osutil import ensuredir, canon_path, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 
@@ -108,7 +108,8 @@ class MsgOrigin:
 
 
 class GettextRenderer(SphinxRenderer):
-    def __init__(self, template_path: str = None) -> None:
+    def __init__(self, template_path: str = None, outdir: str = None) -> None:
+        self.outdir = outdir
         if template_path is None:
             template_path = path.join(package_dir, 'templates', 'gettext')
         super().__init__(template_path)
@@ -121,6 +122,13 @@ class GettextRenderer(SphinxRenderer):
         # use texescape as escape filter
         self.env.filters['e'] = escape
         self.env.filters['escape'] = escape
+
+    def render(self, filename: str, context: Dict) -> str:
+        def _relpath(s: str) -> str:
+            return canon_path(relpath(s, self.outdir))
+
+        context['relpath'] = _relpath
+        return super().render(filename, context)
 
 
 class I18nTags(Tags):
@@ -198,8 +206,8 @@ if source_date_epoch is not None:
 
 
 class LocalTimeZone(tzinfo):
-    def __init__(self, *args, **kw) -> None:
-        super().__init__(*args, **kw)  # type: ignore
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)  # type: ignore
         self.tzdelta = tzdelta
 
     def utcoffset(self, dt: datetime) -> timedelta:
@@ -212,7 +220,7 @@ class LocalTimeZone(tzinfo):
 ltz = LocalTimeZone()
 
 
-def should_write(filepath: str, new_content: str):
+def should_write(filepath: str, new_content: str) -> bool:
     if not path.exists(filepath):
         return True
     try:
@@ -297,7 +305,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            content = GettextRenderer().render('message.pot_t', context)
+            content = GettextRenderer(outdir=self.outdir).render('message.pot_t', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):

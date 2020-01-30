@@ -4,7 +4,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -118,11 +118,11 @@ class Builder:
         self.env.set_versioning_method(self.versioning_method,
                                        self.versioning_compare)
 
-    def get_translator_class(self, *args) -> "Type[nodes.NodeVisitor]":
+    def get_translator_class(self, *args: Any) -> "Type[nodes.NodeVisitor]":
         """Return a class of translator."""
         return self.app.registry.get_translator_class(self)
 
-    def create_translator(self, *args) -> nodes.NodeVisitor:
+    def create_translator(self, *args: Any) -> nodes.NodeVisitor:
         """Return an instance of translator.
 
         This method returns an instance of ``default_translator_class`` by default.

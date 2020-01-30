@@ -4,7 +4,7 @@
 
     JSON serializer implementation wrapper.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,19 +28,19 @@ class SphinxJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def dump(obj: Any, fp: IO, *args, **kwds) -> None:
-    kwds['cls'] = SphinxJSONEncoder
-    json.dump(obj, fp, *args, **kwds)
+def dump(obj: Any, fp: IO, *args: Any, **kwargs: Any) -> None:
+    kwargs['cls'] = SphinxJSONEncoder
+    json.dump(obj, fp, *args, **kwargs)
 
 
-def dumps(obj: Any, *args, **kwds) -> str:
-    kwds['cls'] = SphinxJSONEncoder
-    return json.dumps(obj, *args, **kwds)
+def dumps(obj: Any, *args: Any, **kwargs: Any) -> str:
+    kwargs['cls'] = SphinxJSONEncoder
+    return json.dumps(obj, *args, **kwargs)
 
 
-def load(*args, **kwds) -> Any:
-    return json.load(*args, **kwds)
+def load(*args: Any, **kwargs: Any) -> Any:
+    return json.load(*args, **kwargs)
 
 
-def loads(*args, **kwds) -> Any:
-    return json.loads(*args, **kwds)
+def loads(*args: Any, **kwargs: Any) -> Any:
+    return json.loads(*args, **kwargs)

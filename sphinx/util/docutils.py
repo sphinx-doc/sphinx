@@ -4,7 +4,7 @@
 
     Utility functions for docutils.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -279,7 +279,9 @@ def is_html5_writer_available() -> bool:
     return __version_info__ > (0, 13, 0)
 
 
-def directive_helper(obj: Any, has_content: bool = None, argument_spec: Tuple[int, int, bool] = None, **option_spec) -> Any:  # NOQA
+def directive_helper(obj: Any, has_content: bool = None,
+                     argument_spec: Tuple[int, int, bool] = None, **option_spec: Any
+                     ) -> Any:
     warnings.warn('function based directive support is now deprecated. '
                   'Use class based directive instead.',
                   RemovedInSphinx30Warning)
@@ -317,7 +319,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
 class SphinxFileOutput(FileOutput):
     """Better FileOutput class for Sphinx."""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
         super().__init__(**kwargs)
 
@@ -450,7 +452,10 @@ class ReferenceRole(SphinxRole):
 class SphinxTranslator(nodes.NodeVisitor):
     """A base class for Sphinx translators.
 
-    This class provides helper methods for Sphinx translators.
+    This class adds a support for visitor/departure method for super node class
+    if visitor/departure method for node class is not found.
+
+    It also provides helper methods for Sphinx translators.
 
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
@@ -461,6 +466,42 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
+
+    def dispatch_visit(self, node):
+        """
+        Dispatch node to appropriate visitor method.
+        The priority of visitor method is:
+
+        1. ``self.visit_{node_class}()``
+        2. ``self.visit_{supre_node_class}()``
+        3. ``self.unknown_visit()``
+        """
+        for node_class in node.__class__.__mro__:
+            method = getattr(self, 'visit_%s' % (node_class.__name__), None)
+            if method:
+                logger.debug('SphinxTranslator.dispatch_visit calling %s for %s' %
+                             (method.__name__, node))
+                return method(node)
+        else:
+            super().dispatch_visit(node)
+
+    def dispatch_departure(self, node):
+        """
+        Dispatch node to appropriate departure method.
+        The priority of departure method is:
+
+        1. ``self.depart_{node_class}()``
+        2. ``self.depart_{super_node_class}()``
+        3. ``self.unknown_departure()``
+        """
+        for node_class in node.__class__.__mro__:
+            method = getattr(self, 'depart_%s' % (node_class.__name__), None)
+            if method:
+                logger.debug('SphinxTranslator.dispatch_departure calling %s for %s' %
+                             (method.__name__, node))
+                return method(node)
+        else:
+            super().dispatch_departure(node)
 
 
 # cache a vanilla instance of nodes.document

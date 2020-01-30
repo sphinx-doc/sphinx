@@ -2,7 +2,7 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,12 +18,13 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
 from sphinx.util import url_re, docname_join
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
-from sphinx.util.nodes import explicit_title_re, process_index_entry
+from sphinx.util.nodes import explicit_title_re
 
 if False:
     # For type annotation
@@ -180,30 +181,6 @@ class Author(SphinxDirective):
         ret = [para]  # type: List[Node]
         ret += messages
         return ret
-
-
-class Index(SphinxDirective):
-    """
-    Directive to add entries to the index.
-    """
-    has_content = False
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = True
-    option_spec = {}  # type: Dict
-
-    def run(self) -> List[Node]:
-        arguments = self.arguments[0].split('\n')
-        targetid = 'index-%s' % self.env.new_serialno('index')
-        targetnode = nodes.target('', '', ids=[targetid])
-        self.state.document.note_explicit_target(targetnode)
-        indexnode = addnodes.index()
-        indexnode['entries'] = []
-        indexnode['inline'] = False
-        self.set_source_info(indexnode)
-        for entry in arguments:
-            indexnode['entries'].extend(process_index_entry(entry, targetid))
-        return [indexnode, targetnode]
 
 
 class SeeAlso(BaseAdmonition):
@@ -383,12 +360,21 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
+# Import old modules here for compatibility
+from sphinx.domains.index import IndexDirective  # NOQA
+
+deprecated_alias('sphinx.directives.other',
+                 {
+                     'Index': IndexDirective,
+                 },
+                 RemovedInSphinx40Warning)
+
+
 def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)
     directives.register_directive('codeauthor', Author)
-    directives.register_directive('index', Index)
     directives.register_directive('seealso', SeeAlso)
     directives.register_directive('tabularcolumns', TabularColumns)
     directives.register_directive('centered', Centered)

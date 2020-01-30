@@ -4,7 +4,7 @@
 
     Tests util.inspect functions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,6 +17,7 @@ import types
 import pytest
 
 from sphinx.util import inspect
+from sphinx.util.inspect import stringify_signature
 
 
 def test_getargspec():
@@ -89,39 +90,39 @@ def test_getargspec_bound_methods():
     assert expected_bound == inspect.getargspec(wrapped_bound_method)
 
 
-def test_Signature():
+def test_signature():
     # literals
     with pytest.raises(TypeError):
-        inspect.Signature(1)
+        inspect.signature(1)
 
     with pytest.raises(TypeError):
-        inspect.Signature('')
+        inspect.signature('')
 
     # builitin classes
     with pytest.raises(TypeError):
-        inspect.Signature(int)
+        inspect.signature(int)
 
     with pytest.raises(TypeError):
-        inspect.Signature(str)
+        inspect.signature(str)
 
     # normal function
     def func(a, b, c=1, d=2, *e, **f):
         pass
 
-    sig = inspect.Signature(func).format_args()
+    sig = inspect.stringify_signature(inspect.signature(func))
     assert sig == '(a, b, c=1, d=2, *e, **f)'
 
 
-def test_Signature_partial():
+def test_signature_partial():
     def fun(a, b, c=1, d=2):
         pass
     p = functools.partial(fun, 10, c=11)
 
-    sig = inspect.Signature(p).format_args()
-    assert sig == '(b, *, c=11, d=2)'
+    sig = inspect.signature(p)
+    assert stringify_signature(sig) == '(b, *, c=11, d=2)'
 
 
-def test_Signature_methods():
+def test_signature_methods():
     class Foo:
         def meth1(self, arg1, **kwargs):
             pass
@@ -139,36 +140,36 @@ def test_Signature_methods():
         pass
 
     # unbound method
-    sig = inspect.Signature(Foo.meth1).format_args()
-    assert sig == '(self, arg1, **kwargs)'
+    sig = inspect.signature(Foo.meth1)
+    assert stringify_signature(sig) == '(self, arg1, **kwargs)'
 
-    sig = inspect.Signature(Foo.meth1, bound_method=True).format_args()
-    assert sig == '(arg1, **kwargs)'
+    sig = inspect.signature(Foo.meth1, bound_method=True)
+    assert stringify_signature(sig) == '(arg1, **kwargs)'
 
     # bound method
-    sig = inspect.Signature(Foo().meth1).format_args()
-    assert sig == '(arg1, **kwargs)'
+    sig = inspect.signature(Foo().meth1)
+    assert stringify_signature(sig) == '(arg1, **kwargs)'
 
     # class method
-    sig = inspect.Signature(Foo.meth2).format_args()
-    assert sig == '(arg1, *args, **kwargs)'
+    sig = inspect.signature(Foo.meth2)
+    assert stringify_signature(sig) == '(arg1, *args, **kwargs)'
 
-    sig = inspect.Signature(Foo().meth2).format_args()
-    assert sig == '(arg1, *args, **kwargs)'
+    sig = inspect.signature(Foo().meth2)
+    assert stringify_signature(sig) == '(arg1, *args, **kwargs)'
 
     # static method
-    sig = inspect.Signature(Foo.meth3).format_args()
-    assert sig == '(arg1, *args, **kwargs)'
+    sig = inspect.signature(Foo.meth3)
+    assert stringify_signature(sig) == '(arg1, *args, **kwargs)'
 
-    sig = inspect.Signature(Foo().meth3).format_args()
-    assert sig == '(arg1, *args, **kwargs)'
+    sig = inspect.signature(Foo().meth3)
+    assert stringify_signature(sig) == '(arg1, *args, **kwargs)'
 
     # wrapped bound method
-    sig = inspect.Signature(wrapped_bound_method).format_args()
-    assert sig == '(arg1, **kwargs)'
+    sig = inspect.signature(wrapped_bound_method)
+    assert stringify_signature(sig) == '(arg1, **kwargs)'
 
 
-def test_Signature_partialmethod():
+def test_signature_partialmethod():
     from functools import partialmethod
 
     class Foo:
@@ -183,115 +184,129 @@ def test_Signature_partialmethod():
         baz = partialmethod(meth2, 1, 2)
 
     subject = Foo()
-    sig = inspect.Signature(subject.foo).format_args()
-    assert sig == '(arg3=None, arg4=None)'
+    sig = inspect.signature(subject.foo)
+    assert stringify_signature(sig) == '(arg3=None, arg4=None)'
 
-    sig = inspect.Signature(subject.bar).format_args()
-    assert sig == '(arg2, *, arg3=3, arg4=None)'
+    sig = inspect.signature(subject.bar)
+    assert stringify_signature(sig) == '(arg2, *, arg3=3, arg4=None)'
 
-    sig = inspect.Signature(subject.baz).format_args()
-    assert sig == '()'
+    sig = inspect.signature(subject.baz)
+    assert stringify_signature(sig) == '()'
 
 
-def test_Signature_annotations():
+def test_signature_annotations():
     from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
                                   f11, f12, f13, f14, f15, f16, f17, f18, f19, Node)
 
     # Class annotations
-    sig = inspect.Signature(f0).format_args()
-    assert sig == '(x: int, y: numbers.Integral) -> None'
+    sig = inspect.signature(f0)
+    assert stringify_signature(sig) == '(x: int, y: numbers.Integral) -> None'
 
     # Generic types with concrete parameters
-    sig = inspect.Signature(f1).format_args()
-    assert sig == '(x: List[int]) -> List[int]'
+    sig = inspect.signature(f1)
+    assert stringify_signature(sig) == '(x: List[int]) -> List[int]'
 
     # TypeVars and generic types with TypeVars
-    sig = inspect.Signature(f2).format_args()
-    assert sig == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
+    sig = inspect.signature(f2)
+    assert stringify_signature(sig) == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
 
     # Union types
-    sig = inspect.Signature(f3).format_args()
-    assert sig == '(x: Union[str, numbers.Integral]) -> None'
+    sig = inspect.signature(f3)
+    assert stringify_signature(sig) == '(x: Union[str, numbers.Integral]) -> None'
 
     # Quoted annotations
-    sig = inspect.Signature(f4).format_args()
-    assert sig == '(x: str, y: str) -> None'
+    sig = inspect.signature(f4)
+    assert stringify_signature(sig) == '(x: str, y: str) -> None'
 
     # Keyword-only arguments
-    sig = inspect.Signature(f5).format_args()
-    assert sig == '(x: int, *, y: str, z: str) -> None'
+    sig = inspect.signature(f5)
+    assert stringify_signature(sig) == '(x: int, *, y: str, z: str) -> None'
 
     # Keyword-only arguments with varargs
-    sig = inspect.Signature(f6).format_args()
-    assert sig == '(x: int, *args, y: str, z: str) -> None'
+    sig = inspect.signature(f6)
+    assert stringify_signature(sig) == '(x: int, *args, y: str, z: str) -> None'
 
     # Space around '=' for defaults
-    sig = inspect.Signature(f7).format_args()
-    assert sig == '(x: int = None, y: dict = {}) -> None'
+    sig = inspect.signature(f7)
+    assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
 
     # Callable types
-    sig = inspect.Signature(f8).format_args()
-    assert sig == '(x: Callable[[int, str], int]) -> None'
+    sig = inspect.signature(f8)
+    assert stringify_signature(sig) == '(x: Callable[[int, str], int]) -> None'
 
-    sig = inspect.Signature(f9).format_args()
-    assert sig == '(x: Callable) -> None'
+    sig = inspect.signature(f9)
+    assert stringify_signature(sig) == '(x: Callable) -> None'
 
     # Tuple types
-    sig = inspect.Signature(f10).format_args()
-    assert sig == '(x: Tuple[int, str], y: Tuple[int, ...]) -> None'
+    sig = inspect.signature(f10)
+    assert stringify_signature(sig) == '(x: Tuple[int, str], y: Tuple[int, ...]) -> None'
 
     # Instance annotations
-    sig = inspect.Signature(f11).format_args()
-    assert sig == '(x: CustomAnnotation, y: 123) -> None'
-
-    # has_retval=False
-    sig = inspect.Signature(f11, has_retval=False).format_args()
-    assert sig == '(x: CustomAnnotation, y: 123)'
+    sig = inspect.signature(f11)
+    assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
 
     # tuple with more than two items
-    sig = inspect.Signature(f12).format_args()
-    assert sig == '() -> Tuple[int, str, int]'
+    sig = inspect.signature(f12)
+    assert stringify_signature(sig) == '() -> Tuple[int, str, int]'
 
     # optional
-    sig = inspect.Signature(f13).format_args()
-    assert sig == '() -> Optional[str]'
+    sig = inspect.signature(f13)
+    assert stringify_signature(sig) == '() -> Optional[str]'
 
     # Any
-    sig = inspect.Signature(f14).format_args()
-    assert sig == '() -> Any'
+    sig = inspect.signature(f14)
+    assert stringify_signature(sig) == '() -> Any'
 
     # ForwardRef
-    sig = inspect.Signature(f15).format_args()
-    assert sig == '(x: Unknown, y: int) -> Any'
+    sig = inspect.signature(f15)
+    assert stringify_signature(sig) == '(x: Unknown, y: int) -> Any'
 
     # keyword only arguments (1)
-    sig = inspect.Signature(f16).format_args()
-    assert sig == '(arg1, arg2, *, arg3=None, arg4=None)'
+    sig = inspect.signature(f16)
+    assert stringify_signature(sig) == '(arg1, arg2, *, arg3=None, arg4=None)'
 
     # keyword only arguments (2)
-    sig = inspect.Signature(f17).format_args()
-    assert sig == '(*, arg3, arg4)'
+    sig = inspect.signature(f17)
+    assert stringify_signature(sig) == '(*, arg3, arg4)'
 
-    sig = inspect.Signature(f18).format_args()
-    assert sig == '(self, arg1: Union[int, Tuple] = 10) -> List[Dict]'
+    sig = inspect.signature(f18)
+    assert stringify_signature(sig) == '(self, arg1: Union[int, Tuple] = 10) -> List[Dict]'
 
     # annotations for variadic and keyword parameters
-    sig = inspect.Signature(f19).format_args()
-    assert sig == '(*args: int, **kwargs: str)'
+    sig = inspect.signature(f19)
+    assert stringify_signature(sig) == '(*args: int, **kwargs: str)'
 
     # type hints by string
-    sig = inspect.Signature(Node.children).format_args()
+    sig = inspect.signature(Node.children)
     if (3, 5, 0) <= sys.version_info < (3, 5, 3):
-        assert sig == '(self) -> List[Node]'
+        assert stringify_signature(sig) == '(self) -> List[Node]'
     else:
-        assert sig == '(self) -> List[typing_test_data.Node]'
+        assert stringify_signature(sig) == '(self) -> List[typing_test_data.Node]'
 
-    sig = inspect.Signature(Node.__init__).format_args()
-    assert sig == '(self, parent: Optional[Node]) -> None'
+    sig = inspect.signature(Node.__init__)
+    assert stringify_signature(sig) == '(self, parent: Optional[Node]) -> None'
 
     # show_annotation is False
-    sig = inspect.Signature(f7).format_args(show_annotation=False)
-    assert sig == '(x=None, y={})'
+    sig = inspect.signature(f7)
+    assert stringify_signature(sig, show_annotation=False) == '(x=None, y={})'
+
+    # show_return_annotation is False
+    sig = inspect.signature(f7)
+    assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_signature_annotations_py38(app):
+    from target.pep570 import foo, bar
+
+    # case: separator in the middle
+    sig = inspect.signature(foo)
+    assert stringify_signature(sig) == '(a, b, /, c, d)'
+
+    # case: separator at tail
+    sig = inspect.signature(bar)
+    assert stringify_signature(sig) == '(a, b, /)'
 
 
 def test_safe_getattr_with_default():
@@ -496,3 +511,15 @@ def test_isproperty(app):
     assert inspect.isproperty(Base.meth) is False       # method of class
     assert inspect.isproperty(Base().meth) is False     # method of instance
     assert inspect.isproperty(func) is False            # function
+
+
+def test_unpartial():
+    def func1(a, b, c):
+        pass
+
+    func2 = functools.partial(func1, 1)
+    func2.__doc__ = "func2"
+    func3 = functools.partial(func2, 2)  # nested partial object
+
+    assert inspect.unpartial(func2) is func1
+    assert inspect.unpartial(func3) is func1

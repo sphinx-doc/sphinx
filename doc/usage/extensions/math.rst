@@ -191,6 +191,8 @@ Sphinx but is set to automatically include it from a third-party site.
 
    The default is empty (``{}``).
 
+   .. versionadded:: 1.8
+
 .. confval:: mathjax_config
 
    The inline configuration options for mathjax.  The value is used as a
@@ -205,6 +207,8 @@ Sphinx but is set to automatically include it from a third-party site.
        }
 
    The default is empty (not configured).
+
+   .. versionadded:: 1.8
 
 .. _Using in-line configuration options: https://docs.mathjax.org/en/latest/configuration.html#using-in-line-configuration-options
 

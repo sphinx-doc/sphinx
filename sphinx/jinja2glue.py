@@ -4,7 +4,7 @@
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -103,7 +103,7 @@ class idgen:
 
 
 @contextfunction
-def warning(context: Dict, message: str, *args, **kwargs) -> str:
+def warning(context: Dict, message: str, *args: Any, **kwargs: Any) -> str:
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
         message = 'in rendering %s: %s' % (filename, message)

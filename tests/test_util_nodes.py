@@ -4,7 +4,7 @@
 
     Tests uti.nodes functions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from textwrap import dedent
@@ -17,7 +17,9 @@ from docutils.parsers import rst
 from docutils.utils import new_document
 
 from sphinx.transforms import ApplySourceWorkaround
-from sphinx.util.nodes import NodeMatcher, extract_messages, clean_astext, split_explicit_title
+from sphinx.util.nodes import (
+    NodeMatcher, extract_messages, clean_astext, make_id, split_explicit_title
+)
 
 
 def _transform(doctree):
@@ -27,6 +29,7 @@ def _transform(doctree):
 def create_new_document():
     settings = frontend.OptionParser(
         components=(rst.Parser,)).get_default_values()
+    settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document
 
@@ -178,6 +181,20 @@ def test_clean_astext():
     node = nodes.paragraph(text='hello world')
     node += nodes.raw('', 'raw text', format='html')
     assert 'hello world' == clean_astext(node)
+
+
+def test_make_id(app):
+    document = create_new_document()
+    assert make_id(app.env, document) == 'id0'
+    assert make_id(app.env, document, 'term') == 'term-0'
+    assert make_id(app.env, document, 'term', 'Sphinx') == 'term-sphinx'
+
+    # when same ID is already registered
+    document.ids['term-sphinx'] = True
+    assert make_id(app.env, document, 'term', 'Sphinx') == 'term-1'
+
+    document.ids['term-2'] = True
+    assert make_id(app.env, document, 'term') == 'term-3'
 
 
 @pytest.mark.parametrize(

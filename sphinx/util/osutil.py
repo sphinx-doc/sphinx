@@ -4,7 +4,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -144,7 +144,7 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def ustrftime(format: str, *args) -> str:
+def ustrftime(format: str, *args: Any) -> str:
     """[DEPRECATED] strftime for unicode strings."""
     warnings.warn('sphinx.util.osutil.ustrtime is deprecated for removal',
                   RemovedInSphinx30Warning, stacklevel=2)

@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -183,7 +183,7 @@ class ImageConverter(BaseImageConverter):
     #:     ]
     conversion_rules = []  # type: List[Tuple[str, str]]
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.available = None   # type: bool
                                 # the converter is available or not.
                                 # Will be checked at first conversion
@@ -222,7 +222,6 @@ class ImageConverter(BaseImageConverter):
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            from sphinx.util.images import guess_mimetype
             return [guess_mimetype(node['uri'])]
         else:
             return node['candidates'].keys()

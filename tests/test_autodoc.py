@@ -5,7 +5,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -1241,23 +1241,40 @@ def test_partialfunction():
         '.. py:module:: target.partialfunction',
         '',
         '',
-        '.. py:function:: func1()',
+        '.. py:function:: func1(a, b, c)',
         '   :module: target.partialfunction',
         '',
         '   docstring of func1',
         '   ',
         '',
-        '.. py:function:: func2()',
+        '.. py:function:: func2(b, c)',
         '   :module: target.partialfunction',
         '',
         '   docstring of func1',
         '   ',
         '',
-        '.. py:function:: func3()',
+        '.. py:function:: func3(c)',
+        '   :module: target.partialfunction',
+        '',
+        '   docstring of func3',
+        '   ',
+        '',
+        '.. py:function:: func4()',
         '   :module: target.partialfunction',
         '',
         '   docstring of func3',
         '   '
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_imported_partialfunction_should_not_shown_without_imported_members():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.imported_members', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.imported_members',
+        ''
     ]
 
 
@@ -1318,16 +1335,10 @@ def test_partialmethod(app):
         '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
         '   ',
         '   ',
-        '   .. py:method:: Cell.set_alive() -> None',
+        '   .. py:method:: Cell.set_alive()',
         '      :module: target.partialmethod',
         '   ',
         '      Make a cell alive.',
-        '      ',
-        '   ',
-        '   .. py:method:: Cell.set_dead() -> None',
-        '      :module: target.partialmethod',
-        '   ',
-        '      Make a cell dead.',
         '      ',
         '   ',
         '   .. py:method:: Cell.set_state(state)',
@@ -1336,15 +1347,100 @@ def test_partialmethod(app):
         '      Update state of cell to *state*.',
         '      ',
     ]
-    if (sys.version_info < (3, 5, 4) or
-            (3, 6, 5) <= sys.version_info < (3, 7) or
-            (3, 7, 0, 'beta', 3) <= sys.version_info):
-        # TODO: this condition should be updated after 3.7-final release.
-        expected = '\n'.join(expected).replace(' -> None', '').split('\n')
 
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
     assert list(actual) == expected
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_partialmethod_undoc_members(app):
+    expected = [
+        '',
+        '.. py:class:: Cell',
+        '   :module: target.partialmethod',
+        '',
+        '   An example for partialmethod.',
+        '   ',
+        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '   ',
+        '   ',
+        '   .. py:method:: Cell.set_alive()',
+        '      :module: target.partialmethod',
+        '   ',
+        '      Make a cell alive.',
+        '      ',
+        '   ',
+        '   .. py:method:: Cell.set_dead()',
+        '      :module: target.partialmethod',
+        '   ',
+        '   ',
+        '   .. py:method:: Cell.set_state(state)',
+        '      :module: target.partialmethod',
+        '   ',
+        '      Update state of cell to *state*.',
+        '      ',
+    ]
+
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
+    assert list(actual) == expected
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typed_instance_variables(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.typed_vars', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typed_vars',
+        '',
+        '',
+        '.. py:class:: Class()',
+        '   :module: target.typed_vars',
+        '',
+        '   ',
+        '   .. py:attribute:: Class.attr1',
+        '      :module: target.typed_vars',
+        '      :annotation: = 0',
+        '   ',
+        '   ',
+        '   .. py:attribute:: Class.attr2',
+        '      :module: target.typed_vars',
+        '      :annotation: = None',
+        '   ',
+        '   ',
+        '   .. py:attribute:: Class.attr3',
+        '      :module: target.typed_vars',
+        '      :annotation: = None',
+        '   ',
+        '      attr3',
+        '      ',
+        '   ',
+        '   .. py:attribute:: Class.attr4',
+        '      :module: target.typed_vars',
+        '      :annotation: = None',
+        '   ',
+        '      attr4',
+        '      ',
+        '',
+        '.. py:data:: attr1',
+        '   :module: target.typed_vars',
+        "   :annotation: = ''",
+        '',
+        '   attr1',
+        '   ',
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars',
+        "   :annotation: = None",
+        '',
+        '   attr2',
+        '   '
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='pycode-egg')

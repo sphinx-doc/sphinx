@@ -4,7 +4,7 @@
 
     Docutils node-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,6 +28,7 @@ if False:
     # For type annotation
     from typing import Type  # for python3.5.1
     from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
     from sphinx.utils.tags import Tags
 
 logger = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ class NodeMatcher:
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *classes: "Type[Node]", **attrs) -> None:
+    def __init__(self, *classes: "Type[Node]", **attrs: Any) -> None:
         self.classes = classes
         self.attrs = attrs
 
@@ -433,6 +434,28 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
                     newnodes.append(sof)
         toctreenode.parent.replace(toctreenode, newnodes)
     return tree
+
+
+def make_id(env: "BuildEnvironment", document: nodes.document,
+            prefix: str = '', term: str = None) -> str:
+    """Generate an appropriate node_id for given *prefix* and *term*."""
+    node_id = None
+    if prefix:
+        idformat = prefix + "-%s"
+    else:
+        idformat = document.settings.id_prefix + "%s"
+
+    # try to generate node_id by *term*
+    if prefix and term:
+        node_id = nodes.make_id(idformat % term)
+        if node_id == prefix:
+            # *term* is not good to generate a node_id.
+            node_id = None
+
+    while node_id is None or node_id in document.ids:
+        node_id = idformat % env.new_serialno(prefix)
+
+    return node_id
 
 
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,

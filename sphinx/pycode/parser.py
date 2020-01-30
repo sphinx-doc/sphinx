@@ -4,7 +4,7 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import ast
@@ -117,7 +117,7 @@ class Token:
         else:
             raise ValueError('Unknown value: %r' % other)
 
-    def match(self, *conditions) -> bool:
+    def match(self, *conditions: Any) -> bool:
         return any(self == candidate for candidate in conditions)
 
     def __repr__(self) -> str:

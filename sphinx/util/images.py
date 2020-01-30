@@ -4,7 +4,7 @@
 
     Image utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -32,6 +32,7 @@ mime_suffixes = OrderedDict([
     ('.pdf', 'application/pdf'),
     ('.svg', 'image/svg+xml'),
     ('.svgz', 'image/svg+xml'),
+    ('.ai', 'application/illustrator'),
 ])
 
 DataURI = NamedTuple('DataURI', [('mimetype', str),

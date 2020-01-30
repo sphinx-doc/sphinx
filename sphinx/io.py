@@ -4,7 +4,7 @@
 
     Input/Output files
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import codecs
@@ -59,7 +59,7 @@ class SphinxBaseReader(standalone.Reader):
 
     transforms = []  # type: List[Type[Transform]]
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         from sphinx.application import Sphinx
         if len(args) > 0 and isinstance(args[0], Sphinx):
             self._app = args[0]
@@ -181,7 +181,7 @@ class SphinxDummyWriter(UnfilteredWriter):
         pass
 
 
-def SphinxDummySourceClass(source: Any, *args, **kwargs) -> Any:
+def SphinxDummySourceClass(source: Any, *args: Any, **kwargs: Any) -> Any:
     """Bypass source object as is to cheat Publisher."""
     return source
 
@@ -192,15 +192,16 @@ class SphinxBaseFileInput(FileInput):
     It supports to replace unknown Unicode characters to '?'.
     """
 
-    def __init__(self, app: "Sphinx", env: BuildEnvironment, *args, **kwds) -> None:
+    def __init__(self, app: "Sphinx", env: BuildEnvironment,
+                 *args: Any, **kwargs: Any) -> None:
         self.app = app
         self.env = env
 
         warnings.warn('%s is deprecated.' % self.__class__.__name__,
                       RemovedInSphinx30Warning, stacklevel=2)
 
-        kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
-        super().__init__(*args, **kwds)
+        kwargs['error_handler'] = 'sphinx'  # py3: handle error on open.
+        super().__init__(*args, **kwargs)
 
     def warn_and_replace(self, error: Any) -> Tuple:
         return UnicodeDecodeErrorHandler(self.env.docname)(error)
@@ -210,7 +211,7 @@ class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
     supported = ('*',)  # RemovedInSphinx30Warning
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
 

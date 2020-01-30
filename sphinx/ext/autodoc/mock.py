@@ -4,7 +4,7 @@
 
     mock for autodoc
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,7 +28,7 @@ class _MockObject:
 
     __display_name__ = '_MockObject'
 
-    def __new__(cls, *args, **kwargs) -> Any:
+    def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
             superclass = args[1][-1].__class__
             if superclass is cls:
@@ -38,7 +38,7 @@ class _MockObject:
 
         return super().__new__(cls)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.__qualname__ = ''
 
     def __len__(self) -> int:
@@ -59,7 +59,7 @@ class _MockObject:
     def __getattr__(self, key: str) -> "_MockObject":
         return _make_subclass(key, self.__display_name__, self.__class__)()
 
-    def __call__(self, *args, **kw) -> Any:
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         if args and type(args[0]) in [type, FunctionType, MethodType]:
             # Appears to be a decorator, pass through unchanged
             return args[0]

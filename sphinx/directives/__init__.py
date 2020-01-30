@@ -4,7 +4,7 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -193,6 +193,8 @@ class ObjectDescription(SphinxDirective):
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
+        self.env.app.emit('object-description-transform',
+                          self.domain, self.objtype, contentnode)
         DocFieldTransformer(self).transform_all(contentnode)
         self.env.temp_data['object'] = None
         self.after_content()
@@ -253,12 +255,13 @@ from sphinx.directives.code import (  # noqa
     Highlight, CodeBlock, LiteralInclude
 )
 from sphinx.directives.other import (  # noqa
-    TocTree, Author, Index, VersionChange, SeeAlso,
+    TocTree, Author, VersionChange, SeeAlso,
     TabularColumns, Centered, Acks, HList, Only, Include, Class
 )
 from sphinx.directives.patches import (  # noqa
     Figure, Meta
 )
+from sphinx.domains.index import IndexDirective  # noqa
 
 deprecated_alias('sphinx.directives',
                  {
@@ -267,7 +270,7 @@ deprecated_alias('sphinx.directives',
                      'LiteralInclude': LiteralInclude,
                      'TocTree': TocTree,
                      'Author': Author,
-                     'Index': Index,
+                     'Index': IndexDirective,
                      'VersionChange': VersionChange,
                      'SeeAlso': SeeAlso,
                      'TabularColumns': TabularColumns,
@@ -293,6 +296,8 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('describe', ObjectDescription)
     # new, more consistent, name
     directives.register_directive('object', ObjectDescription)
+
+    app.add_event('object-description-transform')
 
     return {
         'version': 'builtin',

@@ -4,12 +4,12 @@
 
     Toctree adapter for sphinx.environment.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Iterable, List
 from typing import cast
-from typing import Iterable, List
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -314,18 +314,18 @@ class TocTree:
             node['refuri'] = node['anchorname'] or '#'
         return toc
 
-    def get_toctree_for(self, docname: str, builder: "Builder", collapse: bool, **kwds
-                        ) -> Element:
+    def get_toctree_for(self, docname: str, builder: "Builder", collapse: bool,
+                        **kwargs: Any) -> Element:
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.master_doc)
         toctrees = []  # type: List[Element]
-        if 'includehidden' not in kwds:
-            kwds['includehidden'] = True
-        if 'maxdepth' not in kwds:
-            kwds['maxdepth'] = 0
-        kwds['collapse'] = collapse
+        if 'includehidden' not in kwargs:
+            kwargs['includehidden'] = True
+        if 'maxdepth' not in kwargs:
+            kwargs['maxdepth'] = 0
+        kwargs['collapse'] = collapse
         for toctreenode in doctree.traverse(addnodes.toctree):
-            toctree = self.resolve(docname, builder, toctreenode, prune=True, **kwds)
+            toctree = self.resolve(docname, builder, toctreenode, prune=True, **kwargs)
             if toctree:
                 toctrees.append(toctree)
         if not toctrees:

@@ -7,3 +7,5 @@
 
 .. automodule:: autodoc_dummy_bar
    :members:
+
+.. autofunction:: target.typehints.incr

@@ -4,7 +4,7 @@
 
     The C++ language domain.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -6496,7 +6496,7 @@ class AliasNode(nodes.Element):
 class AliasTransform(SphinxTransform):
     default_priority = ReferencesResolver.default_priority - 1
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(AliasNode):
             class Warner:
                 def warn(self, msg):
@@ -6857,7 +6857,7 @@ class CPPDomain(Domain):
         if s is None or s.declaration is None:
             txtName = str(name)
             if txtName.startswith('std::') or txtName == 'std':
-                raise NoUri()
+                raise NoUri(txtName, typ)
             return None, None
 
         if typ.startswith('cpp:'):

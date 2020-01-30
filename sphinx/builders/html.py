@@ -4,7 +4,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -887,11 +887,11 @@ class StandaloneHTMLBuilder(Builder):
                         indexer_name, indexer_name),
                     RemovedInSphinx40Warning)
 
-    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwds) -> str:
-        if 'includehidden' not in kwds:
-            kwds['includehidden'] = False
+    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
+        if 'includehidden' not in kwargs:
+            kwargs['includehidden'] = False
         return self.render_partial(TocTree(self.env).get_toctree_for(
-            docname, self, collapse, **kwds))['fragment']
+            docname, self, collapse, **kwargs))['fragment']
 
     def get_outfilename(self, pagename: str) -> str:
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
@@ -1000,7 +1000,7 @@ class StandaloneHTMLBuilder(Builder):
             return False
         ctx['hasdoc'] = hasdoc
 
-        def warn(*args, **kwargs) -> str:
+        def warn(*args: Any, **kwargs: Any) -> str:
             """Simple warn() wrapper for themes."""
             warnings.warn('The template function warn() was deprecated. '
                           'Use warning() instead.',
@@ -1009,7 +1009,7 @@ class StandaloneHTMLBuilder(Builder):
             return ''  # return empty string
         ctx['warn'] = warn
 
-        ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
+        ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 

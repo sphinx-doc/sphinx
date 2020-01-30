@@ -31,6 +31,16 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.directives.other.Index``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDirective``
+
+   * - ``sphinx.environment.temp_data['gloss_entries']``
+     - 2.4
+     - 4.0
+     - ``documents.nameids``
+
    * - ``sphinx.environment.BuildEnvironment.indexentries``
      - 2.4
      - 4.0
@@ -51,20 +61,36 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.util.get_filetype()``
 
-   * - ``sphinx.util.get_module_source()``
-     - 2.4
-     - 4.0
-     - N/A
-
    * - ``sphinx.pycode.ModuleAnalyzer.encoding``
      - 2.4
      - 4.0
      - N/A
 
+   * - ``sphinx.roles.Index``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexRole``
+
    * - ``sphinx.util.detect_encoding()``
      - 2.4
      - 4.0
      - ``tokenize.detect_encoding()``
+
+   * - ``sphinx.util.get_module_source()``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.inspect.Signature``
+     - 2.4
+     - 4.0
+     - ``sphinx.util.inspect.signature`` and
+       ``sphinx.util.inspect.stringify_signature()``
+
+   * - ``sphinx.util.inspect.safe_getmembers()``
+     - 2.4
+     - 4.0
+     - ``inspect.getmembers()``
 
    * - ``sphinx.writers.latex.LaTeXTranslator.settings.author``
      - 2.4

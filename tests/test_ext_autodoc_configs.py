@@ -4,7 +4,7 @@
 
     Test the autodoc extension.  This tests mainly for config variables
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -479,9 +479,22 @@ def test_autodoc_typehints_signature(app):
         '   :module: target.typehints',
         '',
         '   ',
+        '   .. py:method:: Math.decr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '   ',
+        '   ',
         '   .. py:method:: Math.incr(a: int, b: int = 1) -> int',
         '      :module: target.typehints',
         '   ',
+        '',
+        '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
+        'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: decr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        '',
         '',
         '.. py:function:: incr(a: int, b: int = 1) -> int',
         '   :module: target.typehints',
@@ -505,14 +518,44 @@ def test_autodoc_typehints_none(app):
         '   :module: target.typehints',
         '',
         '   ',
+        '   .. py:method:: Math.decr(a, b=1)',
+        '      :module: target.typehints',
+        '   ',
+        '   ',
         '   .. py:method:: Math.incr(a, b=1)',
         '      :module: target.typehints',
         '   ',
+        '',
+        '.. py:function:: complex_func(arg1, arg2, arg3=None, *args, **kwargs)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: decr(a, b=1)',
+        '   :module: target.typehints',
+        '',
         '',
         '.. py:function:: incr(a, b=1)',
         '   :module: target.typehints',
         ''
     ]
+
+
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'extensions': ['sphinx.ext.autodoc.typehints'],
+                                   'autodoc_typehints': 'description'})
+def test_autodoc_typehints_description(app):
+    app.build()
+    context = (app.outdir / 'index.txt').text()
+    assert ('target.typehints.incr(a, b=1)\n'
+            '\n'
+            '   Parameters:\n'
+            '      * **a** (*int*) --\n'
+            '\n'
+            '      * **b** (*int*) --\n'
+            '\n'
+            '   Return type:\n'
+            '      int\n'
+            in context)
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

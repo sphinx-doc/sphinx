@@ -4,7 +4,7 @@
 
     Test sphinx.ext.graphviz extension.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -29,8 +29,9 @@ def test_graphviz_png_html(app, status, warning):
     html = 'Hello <div class="graphviz"><img .*?/></div>\n graphviz world'
     assert re.search(html, content, re.S)
 
-    html = '<img src=".*?" alt="digraph {\n  bar -&gt; baz\n}" class="graphviz" />'
-    assert re.search(html, content, re.M)
+    html = ('<img src=".*?" alt="digraph foo {\nbaz -&gt; qux\n}" '
+            'class="graphviz neato-graph" />')
+    assert re.search(html, content, re.S)
 
     html = (r'<div class="figure align-right" .*?>\s*'
             r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'

@@ -4,7 +4,7 @@
 
     Tests the std domain
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -253,6 +253,16 @@ def test_glossary_alphanumeric(app):
     objects = list(app.env.get_domain("std").get_objects())
     assert ("1", "1", "term", "index", "term-1", -1) in objects
     assert ("/", "/", "term", "index", "term-0", -1) in objects
+
+
+def test_glossary_conflicted_labels(app):
+    text = (".. _term-foo:\n"
+            ".. glossary::\n"
+            "\n"
+            "   foo\n")
+    restructuredtext.parse(app, text)
+    objects = list(app.env.get_domain("std").get_objects())
+    assert ("foo", "foo", "term", "index", "term-0", -1) in objects
 
 
 def test_cmdoption(app):

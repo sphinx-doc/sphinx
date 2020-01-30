@@ -4,7 +4,7 @@
 
     Texinfo builder.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -63,7 +63,7 @@ class TexinfoBuilder(Builder):
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         if docname not in self.docnames:
-            raise NoUri
+            raise NoUri(docname, typ)
         else:
             return '%' + docname
 
@@ -90,7 +90,7 @@ class TexinfoBuilder(Builder):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
-    def write(self, *ignored) -> None:
+    def write(self, *ignored: Any) -> None:
         self.init_document_data()
         for entry in self.document_data:
             docname, targetname, title, author = entry[:4]
