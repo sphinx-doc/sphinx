@@ -218,6 +218,14 @@ connect handlers to the events.  Example:
 
    .. versionadded:: 0.5
 
+.. event:: object-description-transform (app, domain, objtype, contentnode)
+
+   Emitted when an object description directive has run.  The *domain* and
+   *objtype* arguments are strings indicating object description of the object.
+   And *contentnode* is a content for the object.  It can be modified in-place.
+
+   .. versionadded:: 2.4
+
 .. event:: doctree-read (app, doctree)
 
    Emitted when a doctree has been parsed and read by the environment, and is

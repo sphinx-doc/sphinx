@@ -452,6 +452,8 @@ class Signature:
     its return annotation.
     """
 
+    empty = inspect.Signature.empty
+
     def __init__(self, subject: Callable, bound_method: bool = False,
                  has_retval: bool = True) -> None:
         warnings.warn('sphinx.util.inspect.Signature() is deprecated',
