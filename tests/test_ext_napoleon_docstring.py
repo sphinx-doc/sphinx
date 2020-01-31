@@ -1976,6 +1976,37 @@ definition_after_normal_text : int
         actual = str(NumpyDocstring(docstring, config))
         self.assertEqual(expected, actual)
 
+    def test_parameter_types(self):
+        docstring = """\
+Parameters
+----------
+param1 : DataFrame
+    the data to work on
+param2 : int or float or None
+    a parameter with different types
+param3 : dict-like, optional
+    a optional mapping
+param4 : int or float or None, optional
+    a optional parameter with different types
+param5 : {"F", "C", "N"}, optional
+    a optional parameter with fixed values
+"""
+        expected = """\
+:param param1: the data to work on
+:type param1: :obj:`DataFrame`
+:param param2: a parameter with different types
+:type param2: :obj:`int` or :obj:`float` or :obj:`None`
+:param param3: a optional mapping
+:type param3: :obj:`dict-like`, optional
+:param param4: a optional parameter with different types
+:type param4: :obj:`int` or :obj:`float` or :obj:`None`, optional
+:param param5: a optional parameter with fixed values
+:type param5: {"F", "C", "N"}, optional
+"""
+        config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
+        actual = str(NumpyDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
     def test_keywords_with_types(self):
         docstring = """\
 Do as you please
