@@ -59,6 +59,7 @@ Features added
 * SphinxTranslator now calls visitor/departure method for super node class if
   visitor/departure method for original node class not found
 * #6418: Add new event: :event:`object-description-transform`
+* #6772: apidoc: Add ``-q`` option for quiet mode
 
 Bugs fixed
 ----------
