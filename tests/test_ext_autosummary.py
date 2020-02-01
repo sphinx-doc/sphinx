@@ -262,7 +262,7 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'python.tex').read_text()
     print(status.getvalue())
     print(warning.getvalue())
     assert r'\begin{longtable}[c]{\X{1}{2}\X{1}{2}}' in result

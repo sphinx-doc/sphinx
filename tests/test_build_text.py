@@ -209,7 +209,7 @@ def test_list_items_in_admonition(app, status, warning):
 @with_text_app()
 def test_secnums(app, status, warning):
     app.builder.build_all()
-    index = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    index = (app.outdir / 'index.txt').read_text()
     lines = index.splitlines()
     assert lines[0] == "* 1. Section A"
     assert lines[1] == ""
@@ -218,7 +218,7 @@ def test_secnums(app, status, warning):
     assert lines[4] == "  * 2.1. Sub Ba"
     assert lines[5] == ""
     assert lines[6] == "  * 2.2. Sub Bb"
-    doc2 = (app.outdir / 'doc2.txt').read_text(encoding='utf8')
+    doc2 = (app.outdir / 'doc2.txt').read_text()
     expect = (
         "2. Section B\n"
         "************\n"
@@ -235,7 +235,7 @@ def test_secnums(app, status, warning):
 
     app.config.text_secnumber_suffix = " "
     app.builder.build_all()
-    index = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    index = (app.outdir / 'index.txt').read_text()
     lines = index.splitlines()
     assert lines[0] == "* 1 Section A"
     assert lines[1] == ""
@@ -244,7 +244,7 @@ def test_secnums(app, status, warning):
     assert lines[4] == "  * 2.1 Sub Ba"
     assert lines[5] == ""
     assert lines[6] == "  * 2.2 Sub Bb"
-    doc2 = (app.outdir / 'doc2.txt').read_text(encoding='utf8')
+    doc2 = (app.outdir / 'doc2.txt').read_text()
     expect = (
         "2 Section B\n"
         "***********\n"
@@ -261,7 +261,7 @@ def test_secnums(app, status, warning):
 
     app.config.text_add_secnumbers = False
     app.builder.build_all()
-    index = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    index = (app.outdir / 'index.txt').read_text()
     lines = index.splitlines()
     assert lines[0] == "* Section A"
     assert lines[1] == ""
@@ -270,7 +270,7 @@ def test_secnums(app, status, warning):
     assert lines[4] == "  * Sub Ba"
     assert lines[5] == ""
     assert lines[6] == "  * Sub Bb"
-    doc2 = (app.outdir / 'doc2.txt').read_text(encoding='utf8')
+    doc2 = (app.outdir / 'doc2.txt').read_text()
     expect = (
         "Section B\n"
         "*********\n"
