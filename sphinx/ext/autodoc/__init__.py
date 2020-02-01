@@ -1234,13 +1234,11 @@ class DataDocumenter(ModuleLevelDocumenter):
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
         if not self.options.annotation:
-            try:
-                annotations = getattr(self.parent, '__annotations__', {})
-                if self.objpath[-1] in annotations:
-                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                    self.add_line('   :type: ' + objrepr, sourcename)
-            except ValueError:
-                pass
+            # obtain annotation for this data
+            annotations = getattr(self.parent, '__annotations__', {})
+            if self.objpath[-1] in annotations:
+                objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
                 objrepr = object_description(self.object)
@@ -1419,13 +1417,16 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             if not self._datadescriptor:
-                try:
-                    annotations = getattr(self.parent, '__annotations__', {})
-                    if self.objpath[-1] in annotations:
-                        objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                        self.add_line('   :type: ' + objrepr, sourcename)
-                except ValueError:
-                    pass
+                # obtain annotation for this attribute
+                annotations = getattr(self.parent, '__annotations__', {})
+                if self.objpath[-1] in annotations:
+                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                    self.add_line('   :type: ' + objrepr, sourcename)
+                else:
+                    key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                    if self.analyzer and key in self.analyzer.annotations:
+                        self.add_line('   :type: ' + self.analyzer.annotations[key],
+                                      sourcename)
 
                 try:
                     objrepr = object_description(self.object)
