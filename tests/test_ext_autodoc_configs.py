@@ -544,7 +544,7 @@ def test_autodoc_typehints_none(app):
                                    'autodoc_typehints': 'description'})
 def test_autodoc_typehints_description(app):
     app.build()
-    context = (app.outdir / 'index.txt').text()
+    context = (app.outdir / 'index.txt').read_text()
     assert ('target.typehints.incr(a, b=1)\n'
             '\n'
             '   Parameters:\n'

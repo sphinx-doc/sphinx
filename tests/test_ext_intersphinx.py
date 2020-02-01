@@ -236,7 +236,7 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     load_mappings(app)
 
     app.build()
-    html = (app.outdir / 'index.html').text()
+    html = (app.outdir / 'index.html').read_text()
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
             ' title="(in foo v2.0)">'

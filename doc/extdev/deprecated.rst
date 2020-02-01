@@ -31,6 +31,16 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.domains.std.StandardDomain.note_object()``
 
+   * - ``sphinx.testing.path.Path.text()``
+     - 3.0
+     - 5.0
+     - ``sphinx.testing.path.Path.read_text()``
+
+   * - ``sphinx.testing.path.Path.bytes()``
+     - 3.0
+     - 5.0
+     - ``sphinx.testing.path.Path.read_bytes()``
+
    * - ``decode`` argument of ``sphinx.pycode.ModuleAnalyzer()``
      - 2.4
      - 4.0

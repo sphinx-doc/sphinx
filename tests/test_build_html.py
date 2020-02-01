@@ -426,7 +426,7 @@ def test_html_download(app):
     app.build()
 
     # subdir/includes.html
-    result = (app.outdir / 'subdir' / 'includes.html').text()
+    result = (app.outdir / 'subdir' / 'includes.html').read_text()
     pattern = ('<a class="reference download internal" download="" '
                'href="../(_downloads/.*/img.png)">')
     matched = re.search(pattern, result)
@@ -435,7 +435,7 @@ def test_html_download(app):
     filename = matched.group(1)
 
     # includes.html
-    result = (app.outdir / 'includes.html').text()
+    result = (app.outdir / 'includes.html').read_text()
     pattern = ('<a class="reference download internal" download="" '
                'href="(_downloads/.*/img.png)">')
     matched = re.search(pattern, result)
@@ -454,7 +454,7 @@ def test_html_download_role(app, status, warning):
     digest_another = md5(b'another/dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert (('<li><p><a class="reference download internal" download="" '
              'href="_downloads/%s/dummy.dat">'
              '<code class="xref download docutils literal notranslate">'
@@ -646,7 +646,7 @@ def test_numfig_disabled(app, cached_etree_parse, fname, expect):
 def test_numfig_without_numbered_toctree_warn(app, warning):
     app.build()
     # remove :numbered: option
-    index = (app.srcdir / 'index.rst').text()
+    index = (app.srcdir / 'index.rst').read_text()
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index)
     app.builder.build_all()
@@ -746,7 +746,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     confoverrides={'numfig': True})
 def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
     # remove :numbered: option
-    index = (app.srcdir / 'index.rst').text()
+    index = (app.srcdir / 'index.rst').read_text()
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index)
 
@@ -1189,7 +1189,7 @@ def test_html_assets(app):
     assert not (app.outdir / '_static' / '.htaccess').exists()
     assert not (app.outdir / '_static' / '.htpasswd').exists()
     assert (app.outdir / '_static' / 'API.html').exists()
-    assert (app.outdir / '_static' / 'API.html').text() == 'Sphinx-1.4.4'
+    assert (app.outdir / '_static' / 'API.html').read_text() == 'Sphinx-1.4.4'
     assert (app.outdir / '_static' / 'css' / 'style.css').exists()
     assert (app.outdir / '_static' / 'js' / 'custom.js').exists()
     assert (app.outdir / '_static' / 'rimg.png').exists()
@@ -1210,7 +1210,7 @@ def test_html_assets(app):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
     # html_css_files
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert '<link rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
             'href="https://example.com/custom.css" />' in content)
@@ -1249,7 +1249,7 @@ def test_html_sourcelink_suffix_empty(app):
 def test_html_entity(app):
     app.builder.build_all()
     valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     for entity in re.findall(r'&([a-z]+);', content, re.M):
         assert entity not in valid_entities
 
@@ -1284,7 +1284,7 @@ def test_html_inventory(app):
 @pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_anchor_for_figure(app):
     app.builder.build_all()
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
             '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
             in content)
@@ -1293,7 +1293,7 @@ def test_html_anchor_for_figure(app):
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # standard case
     assert 'standalone raw directive (HTML)' in result
@@ -1337,7 +1337,7 @@ def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
 @pytest.mark.sphinx('html', testroot='html_style')
 def test_html_style(app, status, warning):
     app.build()
-    result = (app.outdir / 'index.html').text()
+    result = (app.outdir / 'index.html').read_text()
     assert '<link rel="stylesheet" href="_static/default.css" type="text/css" />' in result
     assert ('<link rel="stylesheet" href="_static/alabaster.css" type="text/css" />'
             not in result)
@@ -1347,7 +1347,7 @@ def test_html_style(app, status, warning):
 def test_html_remote_images(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
             'src="https://www.python.org/static/img/python-logo.png" />' in result)
     assert not (app.outdir / 'python-logo.png').exists()
@@ -1359,7 +1359,7 @@ def test_html_sidebar(app, status, warning):
 
     # default for alabaster
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
@@ -1374,7 +1374,7 @@ def test_html_sidebar(app, status, warning):
     # only relations.html
     app.config.html_sidebars = {'**': ['relations.html']}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
@@ -1388,7 +1388,7 @@ def test_html_sidebar(app, status, warning):
     # no sidebars
     app.config.html_sidebars = {'**': []}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' not in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
@@ -1419,10 +1419,10 @@ def test_html_manpage(app, cached_etree_parse, fname, expect):
 def test_html_baseurl(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<link rel="canonical" href="https://example.com/index.html" />' in result
 
-    result = (app.outdir / 'qux' / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'qux' / 'index.html').read_text(encoding='utf8')
     assert '<link rel="canonical" href="https://example.com/qux/index.html" />' in result
 
 
@@ -1432,10 +1432,10 @@ def test_html_baseurl(app, status, warning):
 def test_html_baseurl_and_html_file_suffix(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.htm').text(encoding='utf8')
+    result = (app.outdir / 'index.htm').read_text(encoding='utf8')
     assert '<link rel="canonical" href="https://example.com/subdir/index.htm" />' in result
 
-    result = (app.outdir / 'qux' / 'index.htm').text(encoding='utf8')
+    result = (app.outdir / 'qux' / 'index.htm').read_text(encoding='utf8')
     assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result
 
 
