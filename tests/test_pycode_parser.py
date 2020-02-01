@@ -105,6 +105,9 @@ def test_annotated_assignment_py36():
     assert parser.comments == {('', 'a'): 'comment',
                                ('', 'b'): 'string on next line',
                                ('', 'c'): 'comment'}
+    assert parser.annotations == {('', 'a'): 'str',
+                                  ('', 'b'): 'int',
+                                  ('', 'c'): 'int'}
     assert parser.definitions == {}
 
 

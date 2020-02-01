@@ -142,9 +142,10 @@ class ModuleAnalyzer:
             self.code = source.read()
 
         # will be filled by parse()
-        self.attr_docs = None   # type: Dict[Tuple[str, str], List[str]]
-        self.tagorder = None    # type: Dict[str, int]
-        self.tags = None        # type: Dict[str, Tuple[str, int, int]]
+        self.annotations = None  # type: Dict[Tuple[str, str], str]
+        self.attr_docs = None    # type: Dict[Tuple[str, str], List[str]]
+        self.tagorder = None     # type: Dict[str, int]
+        self.tags = None         # type: Dict[str, Tuple[str, int, int]]
 
     def parse(self) -> None:
         """Parse the source code."""
@@ -159,6 +160,7 @@ class ModuleAnalyzer:
                 else:
                     self.attr_docs[scope] = ['']
 
+            self.annotations = parser.annotations
             self.tags = parser.definitions
             self.tagorder = parser.deforders
         except Exception as exc:
