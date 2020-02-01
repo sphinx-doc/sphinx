@@ -311,10 +311,12 @@ class VariableCommentPicker(ast.NodeVisitor):
             return  # this assignment is not new definition!
 
         # record annotation
-        annotation = getattr(node, 'annotation', None)
-        if annotation:
+        if hasattr(node, 'annotation') and node.annotation:  # type: ignore
             for varname in varnames:
-                self.add_variable_annotation(varname, annotation)
+                self.add_variable_annotation(varname, node.annotation)  # type: ignore
+        elif hasattr(node, 'type_comment') and node.type_comment:
+            for varname in varnames:
+                self.add_variable_annotation(varname, node.type_comment)  # type: ignore
 
         # check comments after assignment
         parser = AfterCommentParser([current_line[node.col_offset:]] +
