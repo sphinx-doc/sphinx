@@ -27,6 +27,8 @@ Deprecated
 ----------
 
 * ``sphinx.domains.std.StandardDomain.add_object()``
+* ``sphinx.testing.path.Path.text()``
+* ``sphinx.testing.path.Path.bytes()``
 
 Features added
 --------------
