@@ -138,7 +138,7 @@ def test_inheritance_diagram(app, status, warning):
 def test_inheritance_diagram_png_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
 
     pattern = ('<div class="figure align-default" id="id1">\n'
                '<div class="graphviz">'
@@ -155,7 +155,7 @@ def test_inheritance_diagram_png_html(app, status, warning):
 def test_inheritance_diagram_svg_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
 
     pattern = ('<div class="figure align-default" id="id1">\n'
                '<div class="graphviz">'
@@ -173,7 +173,7 @@ def test_inheritance_diagram_svg_html(app, status, warning):
 def test_inheritance_diagram_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'python.tex').text()
+    content = (app.outdir / 'python.tex').read_text()
 
     pattern = ('\\\\begin{figure}\\[htbp]\n\\\\centering\n\\\\capstart\n\n'
                '\\\\sphinxincludegraphics\\[\\]{inheritance-\\w+.pdf}\n'
@@ -195,7 +195,7 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
     assert ('test.Bar', 'test.Bar', ['alias.Foo'], None) in aliased_graph
     assert ('alias.Foo', 'alias.Foo', [], None) in aliased_graph
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
 
     pattern = ('<div class="figure align-default" id="id1">\n'
                '<div class="graphviz">'

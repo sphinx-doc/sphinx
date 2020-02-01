@@ -17,7 +17,7 @@ def test_defaults(app, status, warning):
     app.builder.build_all()
 
     assert (app.outdir / 'output.txt').exists()
-    content = (app.outdir / 'output.txt').text()
+    content = (app.outdir / 'output.txt').read_text()
 
     print(content)
     # looking for '#top' and 'does-not-exist' not found should fail
@@ -44,7 +44,7 @@ def test_anchors_ignored(app, status, warning):
     app.builder.build_all()
 
     assert (app.outdir / 'output.txt').exists()
-    content = (app.outdir / 'output.txt').text()
+    content = (app.outdir / 'output.txt').read_text()
 
     # expect all ok when excluding #top
     assert not content

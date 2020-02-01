@@ -17,7 +17,7 @@ from sphinx.util import docutils
 def test_basic(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert '<p>– “Sphinx” is a tool that makes it easy …</p>' in content
 
 
@@ -25,7 +25,7 @@ def test_basic(app, status, warning):
 def test_text_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'index.txt').text()
+    content = (app.outdir / 'index.txt').read_text()
     assert '-- "Sphinx" is a tool that makes it easy ...' in content
 
 
@@ -33,7 +33,7 @@ def test_text_builder(app, status, warning):
 def test_man_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'python.1').text()
+    content = (app.outdir / 'python.1').read_text()
     assert '\\-\\- "Sphinx" is a tool that makes it easy ...' in content
 
 
@@ -41,7 +41,7 @@ def test_man_builder(app, status, warning):
 def test_latex_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'python.tex').text()
+    content = (app.outdir / 'python.tex').read_text()
     assert '\\textendash{} “Sphinx” is a tool that makes it easy …' in content
 
 
@@ -50,7 +50,7 @@ def test_latex_builder(app, status, warning):
 def test_ja_html_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
 
 
@@ -59,7 +59,7 @@ def test_ja_html_builder(app, status, warning):
 def test_smartquotes_disabled(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
 
 
@@ -70,7 +70,7 @@ def test_smartquotes_disabled(app, status, warning):
 def test_smartquotes_action(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert '<p>-- “Sphinx” is a tool that makes it easy ...</p>' in content
 
 
@@ -79,7 +79,7 @@ def test_smartquotes_action(app, status, warning):
 def test_smartquotes_excludes_language(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert '<p>– 「Sphinx」 is a tool that makes it easy …</p>' in content
 
 
@@ -88,5 +88,5 @@ def test_smartquotes_excludes_language(app, status, warning):
 def test_smartquotes_excludes_builders(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'python.1').text()
+    content = (app.outdir / 'python.1').read_text()
     assert '– “Sphinx” is a tool that makes it easy …' in content
