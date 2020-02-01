@@ -268,6 +268,20 @@ def test_exceptions_module_is_ignored(app):
 
 def test_pydata_signature(app):
     text = (".. py:data:: version\n"
+            "   :type: int\n"
+            "   :value: 1\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "version"],
+                                                    [desc_annotation, ": int"],
+                                                    [desc_annotation, " = 1"])],
+                                  desc_content)]))
+    assert_node(doctree[1], addnodes.desc, desctype="data",
+                domain="py", objtype="data", noindex=False)
+
+
+def test_pydata_signature_old(app):
+    text = (".. py:data:: version\n"
             "   :annotation: = 1\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
@@ -463,7 +477,9 @@ def test_pystaticmethod(app):
 def test_pyattribute(app):
     text = (".. py:class:: Class\n"
             "\n"
-            "   .. py:attribute:: attr\n")
+            "   .. py:attribute:: attr\n"
+            "      :type: str\n"
+            "      :value: ''\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
@@ -473,7 +489,9 @@ def test_pyattribute(app):
                                                   desc)])]))
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'attr (Class attribute)', 'Class.attr', '', None)])
-    assert_node(doctree[1][1][1], ([desc_signature, desc_name, "attr"],
+    assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "attr"],
+                                                     [desc_annotation, ": str"],
+                                                     [desc_annotation, " = ''"])],
                                    [desc_content, ()]))
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'attribute')
