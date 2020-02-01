@@ -57,7 +57,10 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
         return
 
     signature = cast(addnodes.desc_signature, contentnode.parent[0])
-    fullname = '.'.join([signature['module'], signature['fullname']])
+    if signature['module']:
+        fullname = '.'.join([signature['module'], signature['fullname']])
+    else:
+        fullname = signature['fullname']
     annotations = app.env.temp_data.get('annotations', {})
     if annotations.get(fullname, {}):
         field_lists = [n for n in contentnode if isinstance(n, nodes.field_list)]
