@@ -84,6 +84,17 @@ Deprecated
 * ``sphinx.util.get_module_source()``
 * ``sphinx.util.inspect.Signature``
 * ``sphinx.util.inspect.safe_getmembers()``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.author``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.contentsname``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.docclass``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.docname``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.title``
+* ``sphinx.writers.latex.ADDITIONAL_SETTINGS``
+* ``sphinx.writers.latex.DEFAULT_SETTINGS``
+* ``sphinx.writers.latex.LUALATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.PDFLATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.XELATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.XELATEX_GREEK_DEFAULT_FONTPKG``
 
 Features added
 --------------
@@ -118,11 +129,14 @@ Bugs fixed
 * #6961: latex: warning for babel shown twice
 * #6559: Wrong node-ids are generated in glossary directive
 * #6986: apidoc: misdetects module name for .so file inside module
+* #6899: apidoc: private members are not shown even if ``--private`` given
 * #6999: napoleon: fails to parse tilde in :exc: role
 * #7019: gettext: Absolute path used in message catalogs
 * #7023: autodoc: nested partial functions are not listed
 * #7023: autodoc: partial functions imported from other modules are listed as
   module members without :impoprted-members: option
+* #6889: autodoc: Trailing comma in ``:members::`` option causes cryptic warning
+* #7055: linkcheck: redirect is treated as an error
 
 Testing
 --------
