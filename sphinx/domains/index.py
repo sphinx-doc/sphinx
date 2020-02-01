@@ -12,6 +12,7 @@ from typing import Any, Dict, Iterable, List, Tuple
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
+from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.domains import Domain
@@ -68,11 +69,16 @@ class IndexDirective(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec = {
+        'name': directives.unchanged,
+    }  # type: Dict
 
     def run(self) -> List[Node]:
         arguments = self.arguments[0].split('\n')
-        targetid = 'index-%s' % self.env.new_serialno('index')
+        if 'name' in self.options:
+            targetid = 'index-%s' % self.options['name']
+        else:
+            targetid = 'index-%s' % self.env.new_serialno('index')
         targetnode = nodes.target('', '', ids=[targetid])
         self.state.document.note_explicit_target(targetnode)
         indexnode = addnodes.index()
