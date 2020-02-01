@@ -1293,7 +1293,7 @@ def test_html_anchor_for_figure(app):
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
 
     # standard case
     assert 'standalone raw directive (HTML)' in result
@@ -1347,7 +1347,7 @@ def test_html_style(app, status, warning):
 def test_html_remote_images(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
             'src="https://www.python.org/static/img/python-logo.png" />' in result)
     assert not (app.outdir / 'python-logo.png').exists()
@@ -1359,7 +1359,7 @@ def test_html_sidebar(app, status, warning):
 
     # default for alabaster
     app.builder.build_all()
-    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
@@ -1374,7 +1374,7 @@ def test_html_sidebar(app, status, warning):
     # only relations.html
     app.config.html_sidebars = {'**': ['relations.html']}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
@@ -1388,7 +1388,7 @@ def test_html_sidebar(app, status, warning):
     # no sidebars
     app.config.html_sidebars = {'**': []}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' not in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
@@ -1419,10 +1419,10 @@ def test_html_manpage(app, cached_etree_parse, fname, expect):
 def test_html_baseurl(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert '<link rel="canonical" href="https://example.com/index.html" />' in result
 
-    result = (app.outdir / 'qux' / 'index.html').read_text(encoding='utf8')
+    result = (app.outdir / 'qux' / 'index.html').read_text()
     assert '<link rel="canonical" href="https://example.com/qux/index.html" />' in result
 
 
@@ -1432,10 +1432,10 @@ def test_html_baseurl(app, status, warning):
 def test_html_baseurl_and_html_file_suffix(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.htm').read_text(encoding='utf8')
+    result = (app.outdir / 'index.htm').read_text()
     assert '<link rel="canonical" href="https://example.com/subdir/index.htm" />' in result
 
-    result = (app.outdir / 'qux' / 'index.htm').read_text(encoding='utf8')
+    result = (app.outdir / 'qux' / 'index.htm').read_text()
     assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result
 
 
