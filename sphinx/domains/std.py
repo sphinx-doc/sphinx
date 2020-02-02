@@ -925,11 +925,11 @@ class StandardDomain(Domain):
 
         if isinstance(node, nodes.section):
             return 'section'
-        elif isinstance(node, nodes.container):
-            if node.get('literal_block') and has_child(node, nodes.literal_block):
-                return 'code-block'
-            else:
-                return None
+        elif (isinstance(node, nodes.container) and
+              'literal_block' in node and
+              has_child(node, nodes.literal_block)):
+            # given node is a code-block having caption
+            return 'code-block'
         else:
             figtype, _ = self.enumerable_nodes.get(node.__class__, (None, None))
             return figtype
