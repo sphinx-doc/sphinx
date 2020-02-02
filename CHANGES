@@ -47,6 +47,7 @@ Features added
   images (imagesize-1.2.0 or above is required)
 * #6994: imgconverter: Support illustrator file (.ai) to .png conversion
 * autodoc: Support Positional-Only Argument separator (PEP-570 compliant)
+* autodoc: Support type annotations for variables
 * #2755: autodoc: Add new event: :event:`autodoc-before-process-signature`
 * #2755: autodoc: Support type_comment style (ex. ``# type: (str) -> str``)
   annotation (python3.8+ or `typed_ast <https://github.com/python/typed_ast>`_

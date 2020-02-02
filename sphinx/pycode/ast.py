@@ -38,6 +38,8 @@ def unparse(node: ast.AST) -> str:
     """Unparse an AST to string."""
     if node is None:
         return None
+    elif isinstance(node, str):
+        return node
     elif isinstance(node, ast.Attribute):
         return "%s.%s" % (unparse(node.value), node.attr)
     elif isinstance(node, ast.Bytes):
