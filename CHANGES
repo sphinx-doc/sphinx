@@ -61,6 +61,7 @@ Features added
 * #6418: Add new event: :event:`object-description-transform`
 * py domain: :rst:dir:`py:data` and :rst:dir:`py:attribute` take new options
   named ``:type:`` and ``:value:`` to describe its type and initial value
+* #6772: apidoc: Add ``-q`` option for quiet mode
 
 Bugs fixed
 ----------
