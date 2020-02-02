@@ -151,6 +151,10 @@ These themes are:
     dimension string such as '70em' or '50%'. Use 'none' if you don't
     want a width limit. Defaults may depend on the theme (often 800px).
 
+  - **navigation_with_keys** (true or false): Allow navigating to the
+    previous/next page using the keyboard's left and right arrows.  Defaults to
+    ``False``.
+
 **alabaster**
   `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally
