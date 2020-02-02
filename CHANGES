@@ -78,6 +78,9 @@ Bugs fixed
   module members without :impoprted-members: option
 * #6889: autodoc: Trailing comma in ``:members::`` option causes cryptic warning
 * #7055: linkcheck: redirect is treated as an error
+* #7088: HTML template: If ``navigation_with_keys`` option is activated,
+  modifier keys are ignored, which means the feature can interfere with browser
+  features
 
 Testing
 --------
