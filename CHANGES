@@ -70,6 +70,7 @@ Bugs fixed
 * #6925: html: Remove redundant type="text/javascript" from <script> elements
 * #6906, #6907: autodoc: failed to read the source codes encoeded in cp1251
 * #6961: latex: warning for babel shown twice
+* #7059: latex: LaTeX compilation falls into infinite loop (wrapfig issue)
 * #6559: Wrong node-ids are generated in glossary directive
 * #6986: apidoc: misdetects module name for .so file inside module
 * #6899: apidoc: private members are not shown even if ``--private`` given
