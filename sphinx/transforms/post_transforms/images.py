@@ -9,6 +9,7 @@
 """
 
 import os
+import re
 from hashlib import sha1
 from math import ceil
 from typing import Any, Dict, List, Tuple
@@ -27,6 +28,7 @@ from sphinx.util.osutil import ensuredir, movefile
 logger = logging.getLogger(__name__)
 
 MAX_FILENAME_LEN = 32
+CRITICAL_PATH_CHAR_RE = re.compile('[:;<>|*" ]')
 
 
 class BaseImageConverter(SphinxTransform):
@@ -65,6 +67,7 @@ class ImageDownloader(BaseImageConverter):
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
                 basename = sha1(filename.encode()).hexdigest() + ext
+            basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
 
             dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
                                                                  ord("&"): "/"})
@@ -146,6 +149,7 @@ class DataURIExtractor(BaseImageConverter):
 
 def get_filename_for(filename: str, mimetype: str) -> str:
     basename = os.path.basename(filename)
+    basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
     return os.path.splitext(basename)[0] + get_image_extension(mimetype)
 
 
