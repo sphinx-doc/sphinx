@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import importlib
 import re
 import warnings
 from types import ModuleType
@@ -33,6 +34,7 @@ from sphinx.util import logging
 from sphinx.util import rpartition
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import getdoc, object_description, safe_getattr, stringify_signature
+from sphinx.util.typing import stringify as stringify_typehint
 
 if False:
     # For type annotation
@@ -72,14 +74,14 @@ def members_option(arg: Any) -> Union[object, List[str]]:
     """Used to convert the :members: option to auto directives."""
     if arg is None or arg is True:
         return ALL
-    return [x.strip() for x in arg.split(',')]
+    return [x.strip() for x in arg.split(',') if x.strip()]
 
 
 def members_set_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :members: option to auto directives."""
     if arg is None:
         return ALL
-    return {x.strip() for x in arg.split(',')}
+    return {x.strip() for x in arg.split(',') if x.strip()}
 
 
 SUPPRESS = object()
@@ -1232,12 +1234,22 @@ class DataDocumenter(ModuleLevelDocumenter):
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
         if not self.options.annotation:
+            # obtain annotation for this data
+            annotations = getattr(self.parent, '__annotations__', {})
+            if self.objpath[-1] in annotations:
+                objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                self.add_line('   :type: ' + objrepr, sourcename)
+            else:
+                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                if self.analyzer and key in self.analyzer.annotations:
+                    self.add_line('   :type: ' + self.analyzer.annotations[key],
+                                  sourcename)
+
             try:
                 objrepr = object_description(self.object)
+                self.add_line('   :value: ' + objrepr, sourcename)
             except ValueError:
                 pass
-            else:
-                self.add_line('   :annotation: = ' + objrepr, sourcename)
         elif self.options.annotation is SUPPRESS:
             pass
         else:
@@ -1276,6 +1288,12 @@ class DataDeclarationDocumenter(DataDocumenter):
         """Never import anything."""
         # disguise as a data
         self.objtype = 'data'
+        try:
+            # import module to obtain type annotation
+            self.parent = importlib.import_module(self.modname)
+        except ImportError:
+            pass
+
         return True
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
@@ -1404,12 +1422,22 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             if not self._datadescriptor:
+                # obtain annotation for this attribute
+                annotations = getattr(self.parent, '__annotations__', {})
+                if self.objpath[-1] in annotations:
+                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                    self.add_line('   :type: ' + objrepr, sourcename)
+                else:
+                    key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                    if self.analyzer and key in self.analyzer.annotations:
+                        self.add_line('   :type: ' + self.analyzer.annotations[key],
+                                      sourcename)
+
                 try:
                     objrepr = object_description(self.object)
+                    self.add_line('   :value: ' + objrepr, sourcename)
                 except ValueError:
                     pass
-                else:
-                    self.add_line('   :annotation: = ' + objrepr, sourcename)
         elif self.options.annotation is SUPPRESS:
             pass
         else:

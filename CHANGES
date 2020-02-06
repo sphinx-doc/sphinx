@@ -23,6 +23,17 @@ Deprecated
 * ``sphinx.util.get_module_source()``
 * ``sphinx.util.inspect.Signature``
 * ``sphinx.util.inspect.safe_getmembers()``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.author``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.contentsname``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.docclass``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.docname``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.title``
+* ``sphinx.writers.latex.ADDITIONAL_SETTINGS``
+* ``sphinx.writers.latex.DEFAULT_SETTINGS``
+* ``sphinx.writers.latex.LUALATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.PDFLATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.XELATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.XELATEX_GREEK_DEFAULT_FONTPKG``
 
 Features added
 --------------
@@ -36,6 +47,7 @@ Features added
   images (imagesize-1.2.0 or above is required)
 * #6994: imgconverter: Support illustrator file (.ai) to .png conversion
 * autodoc: Support Positional-Only Argument separator (PEP-570 compliant)
+* autodoc: Support type annotations for variables
 * #2755: autodoc: Add new event: :event:`autodoc-before-process-signature`
 * #2755: autodoc: Support type_comment style (ex. ``# type: (str) -> str``)
   annotation (python3.8+ or `typed_ast <https://github.com/python/typed_ast>`_
@@ -48,7 +60,10 @@ Features added
 * SphinxTranslator now calls visitor/departure method for super node class if
   visitor/departure method for original node class not found
 * #6418: Add new event: :event:`object-description-transform`
+* py domain: :rst:dir:`py:data` and :rst:dir:`py:attribute` take new options
+  named ``:type:`` and ``:value:`` to describe its type and initial value
 * #6785: py domain: ``:py:attr:`` is able to refer properties again
+* #6772: apidoc: Add ``-q`` option for quiet mode
 
 Bugs fixed
 ----------
@@ -56,13 +71,18 @@ Bugs fixed
 * #6925: html: Remove redundant type="text/javascript" from <script> elements
 * #6906, #6907: autodoc: failed to read the source codes encoeded in cp1251
 * #6961: latex: warning for babel shown twice
+* #7059: latex: LaTeX compilation falls into infinite loop (wrapfig issue)
 * #6559: Wrong node-ids are generated in glossary directive
 * #6986: apidoc: misdetects module name for .so file inside module
+* #6899: apidoc: private members are not shown even if ``--private`` given
 * #6999: napoleon: fails to parse tilde in :exc: role
 * #7019: gettext: Absolute path used in message catalogs
 * #7023: autodoc: nested partial functions are not listed
 * #7023: autodoc: partial functions imported from other modules are listed as
   module members without :impoprted-members: option
+* #6889: autodoc: Trailing comma in ``:members::`` option causes cryptic warning
+* #7055: linkcheck: redirect is treated as an error
+* #7090: std domain: Can't assign numfig-numbers for custom container nodes
 
 Testing
 --------

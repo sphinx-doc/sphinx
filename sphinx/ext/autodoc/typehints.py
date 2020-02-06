@@ -9,6 +9,7 @@
 """
 
 import re
+from collections import OrderedDict
 from typing import Any, Dict, Iterable
 from typing import cast
 
@@ -37,13 +38,14 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
     """Record type hints to env object."""
     try:
         if callable(obj):
-            annotations = app.env.temp_data.setdefault('annotations', {}).setdefault(name, {})
+            annotations = app.env.temp_data.setdefault('annotations', {})
+            annotation = annotations.setdefault(name, OrderedDict())
             sig = inspect.signature(obj)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
-                    annotations[param.name] = typing.stringify(param.annotation)
+                    annotation[param.name] = typing.stringify(param.annotation)
             if sig.return_annotation is not sig.empty:
-                annotations['return'] = typing.stringify(sig.return_annotation)
+                annotation['return'] = typing.stringify(sig.return_annotation)
     except TypeError:
         pass
 
@@ -55,7 +57,10 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
         return
 
     signature = cast(addnodes.desc_signature, contentnode.parent[0])
-    fullname = '.'.join([signature['module'], signature['fullname']])
+    if signature['module']:
+        fullname = '.'.join([signature['module'], signature['fullname']])
+    else:
+        fullname = signature['fullname']
     annotations = app.env.temp_data.get('annotations', {})
     if annotations.get(fullname, {}):
         field_lists = [n for n in contentnode if isinstance(n, nodes.field_list)]

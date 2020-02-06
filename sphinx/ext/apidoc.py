@@ -20,6 +20,7 @@ import locale
 import os
 import sys
 import warnings
+from copy import copy
 from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
@@ -72,14 +73,19 @@ def module_join(*modnames: str) -> str:
 
 def write_file(name: str, text: str, opts: Any) -> None:
     """Write the output file for module/package <name>."""
+    quiet = getattr(opts, 'quiet', None)
+
     fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
     if opts.dryrun:
-        print(__('Would create file %s.') % fname)
+        if not quiet:
+            print(__('Would create file %s.') % fname)
         return
     if not opts.force and path.isfile(fname):
-        print(__('File %s already exists, skipping.') % fname)
+        if not quiet:
+            print(__('File %s already exists, skipping.') % fname)
     else:
-        print(__('Creating file %s.') % fname)
+        if not quiet:
+            print(__('Creating file %s.') % fname)
         with FileAvoidWrite(fname) as f:
             f.write(text)
 
@@ -107,12 +113,16 @@ def format_directive(module: str, package: str = None) -> str:
 def create_module_file(package: str, basename: str, opts: Any,
                        user_template_dir: str = None) -> None:
     """Build the text of the file and write the file."""
+    options = copy(OPTIONS)
+    if opts.includeprivate and 'private-members' not in options:
+        options.append('private-members')
+
     qualname = module_join(package, basename)
     context = {
         'show_headings': not opts.noheadings,
         'basename': basename,
         'qualname': qualname,
-        'automodule_options': OPTIONS,
+        'automodule_options': options,
     }
     text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst_t', context)
     write_file(qualname, text, opts)
@@ -133,6 +143,9 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
                   sub != INITPY]
     submodules = [module_join(master_package, subroot, modname)
                   for modname in submodules]
+    options = copy(OPTIONS)
+    if opts.includeprivate and 'private-members' not in options:
+        options.append('private-members')
 
     pkgname = module_join(master_package, subroot)
     context = {
@@ -142,7 +155,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
         'is_namespace': is_namespace,
         'modulefirst': opts.modulefirst,
         'separatemodules': opts.separatemodules,
-        'automodule_options': OPTIONS,
+        'automodule_options': options,
         'show_headings': not opts.noheadings,
     }
     text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
@@ -316,6 +329,8 @@ Note: By default this script will not overwrite already created files."""))
     parser.add_argument('-o', '--output-dir', action='store', dest='destdir',
                         required=True,
                         help=__('directory to place all output'))
+    parser.add_argument('-q', action='store_true', dest='quiet',
+                        help=__('no output on stdout, just warnings on stderr'))
     parser.add_argument('-d', '--maxdepth', action='store', dest='maxdepth',
                         type=int, default=4,
                         help=__('maximum depth of submodules to show in the TOC '
@@ -443,6 +458,8 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
         }
         if args.extensions:
             d['extensions'].extend(args.extensions)
+        if args.quiet:
+            d['quiet'] = True
 
         for ext in d['extensions'][:]:
             if ',' in ext:

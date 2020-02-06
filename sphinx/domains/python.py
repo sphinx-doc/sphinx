@@ -446,6 +446,25 @@ class PyFunction(PyObject):
 class PyVariable(PyObject):
     """Description of a variable."""
 
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'type': directives.unchanged,
+        'value': directives.unchanged,
+    })
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        typ = self.options.get('type')
+        if typ:
+            signode += addnodes.desc_annotation(typ, ': ' + typ)
+
+        value = self.options.get('value')
+        if value:
+            signode += addnodes.desc_annotation(value, ' = ' + value)
+
+        return fullname, prefix
+
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls
         if modname:
@@ -637,6 +656,25 @@ class PyStaticMethod(PyMethod):
 
 class PyAttribute(PyObject):
     """Description of an attribute."""
+
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'type': directives.unchanged,
+        'value': directives.unchanged,
+    })
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        typ = self.options.get('type')
+        if typ:
+            signode += addnodes.desc_annotation(typ, ': ' + typ)
+
+        value = self.options.get('value')
+        if value:
+            signode += addnodes.desc_annotation(value, ' = ' + value)
+
+        return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls

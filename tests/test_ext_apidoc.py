@@ -408,11 +408,13 @@ def test_private(tempdir):
     # without --private option
     apidoc_main(['-o', tempdir, tempdir])
     assert (tempdir / 'hello.rst').exists()
+    assert ':private-members:' not in (tempdir / 'hello.rst').text()
     assert not (tempdir / '_world.rst').exists()
 
     # with --private option
-    apidoc_main(['--private', '-o', tempdir, tempdir])
+    apidoc_main(['--private', '-f', '-o', tempdir, tempdir])
     assert (tempdir / 'hello.rst').exists()
+    assert ':private-members:' in (tempdir / 'hello.rst').text()
     assert (tempdir / '_world.rst').exists()
 
 
