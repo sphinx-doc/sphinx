@@ -83,6 +83,7 @@ Bugs fixed
 * #6889: autodoc: Trailing comma in ``:members::`` option causes cryptic warning
 * #7055: linkcheck: redirect is treated as an error
 * #7090: std domain: Can't assign numfig-numbers for custom container nodes
+* #7095: dirhtml: Cross references are broken via intersphinx and ``:doc:`` role
 
 Testing
 --------
