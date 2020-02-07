@@ -283,10 +283,11 @@ var Documentation = {
   },
 
   initOnKeyListeners: function() {
-    $(document).keyup(function(event) {
+    $(document).keydown(function(event) {
       var activeElementType = document.activeElement.tagName;
       // don't navigate when in search box or textarea
-      if (activeElementType !== 'TEXTAREA' && activeElementType !== 'INPUT' && activeElementType !== 'SELECT') {
+      if (activeElementType !== 'TEXTAREA' && activeElementType !== 'INPUT' && activeElementType !== 'SELECT'
+          && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
         switch (event.keyCode) {
           case 37: // left
             var prevHref = $('link[rel="prev"]').prop('href');
