@@ -47,6 +47,7 @@ Features added
   images (imagesize-1.2.0 or above is required)
 * #6994: imgconverter: Support illustrator file (.ai) to .png conversion
 * autodoc: Support Positional-Only Argument separator (PEP-570 compliant)
+* autodoc: Support type annotations for variables
 * #2755: autodoc: Add new event: :event:`autodoc-before-process-signature`
 * #2755: autodoc: Support type_comment style (ex. ``# type: (str) -> str``)
   annotation (python3.8+ or `typed_ast <https://github.com/python/typed_ast>`_
@@ -61,6 +62,8 @@ Features added
 * #6418: Add new event: :event:`object-description-transform`
 * py domain: :rst:dir:`py:data` and :rst:dir:`py:attribute` take new options
   named ``:type:`` and ``:value:`` to describe its type and initial value
+* #6785: py domain: ``:py:attr:`` is able to refer properties again
+* #6772: apidoc: Add ``-q`` option for quiet mode
 
 Bugs fixed
 ----------
@@ -68,6 +71,7 @@ Bugs fixed
 * #6925: html: Remove redundant type="text/javascript" from <script> elements
 * #6906, #6907: autodoc: failed to read the source codes encoeded in cp1251
 * #6961: latex: warning for babel shown twice
+* #7059: latex: LaTeX compilation falls into infinite loop (wrapfig issue)
 * #6559: Wrong node-ids are generated in glossary directive
 * #6986: apidoc: misdetects module name for .so file inside module
 * #6899: apidoc: private members are not shown even if ``--private`` given
@@ -81,6 +85,7 @@ Bugs fixed
 * #7088: HTML template: If ``navigation_with_keys`` option is activated,
   modifier keys are ignored, which means the feature can interfere with browser
   features
+* #7090: std domain: Can't assign numfig-numbers for custom container nodes
 
 Testing
 --------
