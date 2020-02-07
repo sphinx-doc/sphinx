@@ -43,7 +43,6 @@ class ReSTMarkup(ObjectDescription):
         if targetname not in self.state.document.ids:
             signode['names'].append(targetname)
             signode['ids'].append(targetname)
-            signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
             domain = cast(ReSTDomain, self.env.get_domain('rst'))
@@ -133,7 +132,6 @@ class ReSTDirectiveOption(ReSTMarkup):
         if targetname not in self.state.document.ids:
             signode['names'].append(targetname)
             signode['ids'].append(targetname)
-            signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
             objname = ':'.join(filter(None, [directive_name, name]))

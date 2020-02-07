@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``desc_signature['first']``
+     -
+     - 3.0
+     - N/A
+
    * - ``sphinx.domains.std.StandardDomain.add_object()``
      - 3.0
      - 5.0

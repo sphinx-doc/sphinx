@@ -109,7 +109,6 @@ class JSObject(ObjectDescription):
         if fullname not in self.state.document.ids:
             signode['names'].append(fullname)
             signode['ids'].append(fullname.replace('$', '_S_'))
-            signode['first'] = not self.names
             self.state.document.note_explicit_target(signode)
 
             domain = cast(JavaScriptDomain, self.env.get_domain('js'))
