@@ -293,7 +293,8 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir, app=app)
+                                  template_dir=template_dir,
+                                  imported_members=imported_members, app=app)
 
 
 # -- Finding documented entries in files ---------------------------------------

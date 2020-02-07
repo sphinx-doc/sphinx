@@ -81,6 +81,8 @@ Bugs fixed
 * #7023: autodoc: partial functions imported from other modules are listed as
   module members without :impoprted-members: option
 * #6889: autodoc: Trailing comma in ``:members::`` option causes cryptic warning
+* #6568: autosummary: ``autosummary_imported_members`` is ignored on generating
+  a stub file for submodule
 * #7055: linkcheck: redirect is treated as an error
 * #7088: HTML template: If ``navigation_with_keys`` option is activated,
   modifier keys are ignored, which means the feature can interfere with browser
