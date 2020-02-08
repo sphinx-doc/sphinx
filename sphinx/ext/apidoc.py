@@ -66,6 +66,16 @@ def makename(package: str, module: str) -> str:
     return name
 
 
+def is_initpy(filename: str) -> bool:
+    """Check *filename* is __init__ file or not."""
+    basename = path.basename(filename)
+    for suffix in sorted(PY_SUFFIXES, key=len, reverse=True):
+        if basename == '__init__' + suffix:
+            return True
+    else:
+        return False
+
+
 def module_join(*modnames: str) -> str:
     """Join module names with dots."""
     return '.'.join(filter(None, modnames))
@@ -132,11 +142,10 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
                         opts: Any, subs: List[str], is_namespace: bool,
                         excludes: List[str] = [], user_template_dir: str = None) -> None:
     """Build the text of the file and write the file."""
-    # build a list of sub packages (directories containing an INITPY file)
-    subpackages = [sub for sub in subs if not
-                   shall_skip(path.join(root, sub, INITPY), opts, excludes)]
+    # build a list of sub packages (directories containing an __init__ file)
     subpackages = [module_join(master_package, subroot, pkgname)
-                   for pkgname in subpackages]
+                   for pkgname in subs
+                   if not is_skipped_package(path.join(root, pkgname), opts, excludes)]
     # build a list of sub modules
     submodules = [sub.split('.')[0] for sub in py_files
                   if not is_skipped_module(path.join(root, sub), opts, excludes) and
@@ -189,6 +198,8 @@ def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules'
 
 def shall_skip(module: str, opts: Any, excludes: List[str] = []) -> bool:
     """Check if we want to skip this module."""
+    warnings.warn('shall_skip() is deprecated.',
+                  RemovedInSphinx40Warning)
     # skip if the file doesn't exist and not using implicit namespaces
     if not opts.implicit_namespaces and not path.exists(module):
         return True
@@ -211,6 +222,25 @@ def shall_skip(module: str, opts: Any, excludes: List[str] = []) -> bool:
        not opts.includeprivate:
         return True
     return False
+
+
+def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> bool:
+    """Check if we want to skip this module."""
+    if not path.isdir(dirname):
+        return False
+
+    files = glob.glob(path.join(dirname, '*.py'))
+    regular_package = any(f for f in files if is_initpy(f))
+    if not regular_package and not opts.implicit_namespaces:
+        # *dirname* is not both a regular package and an implicit namespace pacage
+        return True
+
+    # Check there is some showable module inside package
+    if all(is_excluded(path.join(dirname, f), excludes) for f in files):
+        # all submodules are excluded
+        return True
+    else:
+        return False
 
 
 def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
@@ -269,7 +299,7 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
 
         if is_pkg or is_namespace:
             # we are in a package with something to document
-            if subs or len(py_files) > 1 or not shall_skip(path.join(root, INITPY), opts):
+            if subs or len(py_files) > 1 or not is_skipped_package(root, opts):
                 subpackage = root[len(rootpath):].lstrip(path.sep).\
                     replace(path.sep, '.')
                 # if this is not a namespace or

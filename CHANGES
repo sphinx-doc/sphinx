@@ -15,6 +15,7 @@ Deprecated
 * ``sphinx.environment.temp_data['gloss_entries']``
 * ``sphinx.environment.BuildEnvironment.indexentries``
 * ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
+* ``sphinx.ext.apidoc.shall_skip()``
 * ``sphinx.io.FiletypeNotFoundError``
 * ``sphinx.io.get_filetype()``
 * ``sphinx.pycode.ModuleAnalyzer.encoding``
