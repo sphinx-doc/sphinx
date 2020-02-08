@@ -29,7 +29,7 @@ from typing import Any, List, Tuple
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import __
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
@@ -46,7 +46,6 @@ else:
         'show-inheritance',
     ]
 
-INITPY = '__init__.py'
 PY_SUFFIXES = ('.py', '.pyx') + tuple(EXTENSION_SUFFIXES)
 
 template_dir = path.join(package_dir, 'templates', 'apidoc')
@@ -79,6 +78,16 @@ def is_initpy(filename: str) -> bool:
 def module_join(*modnames: str) -> str:
     """Join module names with dots."""
     return '.'.join(filter(None, modnames))
+
+
+def is_packagedir(dirname: str = None, files: List[str] = None) -> bool:
+    """Check given *files* contains __init__ file."""
+    if files is None and dirname is None:
+        return False
+
+    if files is None:
+        files = os.listdir(dirname)
+    return any(f for f in files if is_initpy(f))
 
 
 def write_file(name: str, text: str, opts: Any) -> None:
@@ -149,7 +158,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
     # build a list of sub modules
     submodules = [sub.split('.')[0] for sub in py_files
                   if not is_skipped_module(path.join(root, sub), opts, excludes) and
-                  sub != INITPY]
+                  not is_initpy(sub)]
     submodules = [module_join(master_package, subroot, modname)
                   for modname in submodules]
     options = copy(OPTIONS)
@@ -205,7 +214,7 @@ def shall_skip(module: str, opts: Any, excludes: List[str] = []) -> bool:
         return True
 
     # Are we a package (here defined as __init__.py, not the folder in itself)
-    if os.path.basename(module) == INITPY:
+    if is_initpy(module):
         # Yes, check if we have any non-excluded modules at all here
         all_skipped = True
         basemodule = path.dirname(module)
@@ -218,8 +227,7 @@ def shall_skip(module: str, opts: Any, excludes: List[str] = []) -> bool:
 
     # skip if it has a "private" name and this is selected
     filename = path.basename(module)
-    if filename != '__init__.py' and filename.startswith('_') and \
-       not opts.includeprivate:
+    if is_initpy(filename) and filename.startswith('_') and not opts.includeprivate:
         return True
     return False
 
@@ -266,7 +274,7 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
     implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
 
     # check if the base directory is a package and get its name
-    if INITPY in os.listdir(rootpath) or implicit_namespaces:
+    if is_packagedir(rootpath) or implicit_namespaces:
         root_package = rootpath.split(path.sep)[-1]
     else:
         # otherwise, the base is a directory with packages
@@ -278,11 +286,13 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
         py_files = sorted(f for f in files
                           if f.endswith(PY_SUFFIXES) and
                           not is_excluded(path.join(root, f), excludes))
-        is_pkg = INITPY in py_files
-        is_namespace = INITPY not in py_files and implicit_namespaces
+        is_pkg = is_packagedir(None, py_files)
+        is_namespace = not is_pkg and implicit_namespaces
         if is_pkg:
-            py_files.remove(INITPY)
-            py_files.insert(0, INITPY)
+            for f in py_files[:]:
+                if is_initpy(f):
+                    py_files.remove(f)
+                    py_files.insert(0, f)
         elif root != rootpath:
             # only accept non-package at toplevel unless using implicit namespaces
             if not implicit_namespaces:
@@ -503,6 +513,13 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
         create_modules_toc_file(modules, args, args.tocfile, args.templatedir)
 
     return 0
+
+
+deprecated_alias('sphinx.ext.apidoc',
+                 {
+                     'INITPY': '__init__.py',
+                 },
+                 RemovedInSphinx40Warning)
 
 
 # So program can be started with "python -m sphinx.apidoc ..."

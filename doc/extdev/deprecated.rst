@@ -56,6 +56,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.errors.FiletypeNotFoundError``
 
+   * - ``sphinx.ext.apidoc.INITPY``
+     - 2.4
+     - 4.0
+     - N/A
+
    * - ``sphinx.ext.apidoc.shall_skip()``
      - 2.4
      - 4.0
