@@ -42,6 +42,8 @@ Features added
 * #6446: duration: Add ``sphinx.ext.durations`` to inspect which documents slow
   down the build
 * #6837: LaTeX: Support a nested table
+* #7115: LaTeX: Allow to override LATEXOPTS and LATEXMKOPTS via environment
+  variable
 * #6966: graphviz: Support ``:class:`` option
 * #6696: html: ``:scale:`` option of image/figure directive not working for SVG
   images (imagesize-1.2.0 or above is required)
