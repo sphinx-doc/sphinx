@@ -609,7 +609,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
                     atts['height'] = int(atts['height']) * scale
             atts['alt'] = node.get('alt', uri)
             if 'align' in node:
-                self.body.append('<div align="%s" class="align-%s">' %
+                self.body.append('<div align="%s" class="img align-%s">' %
                                  (node['align'], node['align']))
                 self.context.append('</div>\n')
             else:
