@@ -145,6 +145,7 @@ class TocTree(SphinxDirective):
         # entries contains all entries (self references, external links etc.)
         if 'reversed' in self.options:
             toctree['entries'] = list(reversed(toctree['entries']))
+            toctree['includefiles'] = list(reversed(toctree['includefiles']))
 
         return ret
 

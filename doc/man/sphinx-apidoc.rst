@@ -39,6 +39,11 @@ Options
 
    Directory to place the output files. If it does not exist, it is created.
 
+.. option:: -q
+
+   Do not output anything on standard output, only write warnings and errors to
+   standard error.
+
 .. option:: -f, --force
 
    Force overwriting of any existing generated files.

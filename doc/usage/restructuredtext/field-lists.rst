@@ -30,6 +30,12 @@ At the moment, these metadata fields are recognized:
 
        :tocdepth: 2
 
+   .. note::
+
+      This metadata effects to the depth of local toctree.  But it does not
+      effect to the depth of *global* toctree.  So this would not be change
+      the sidebar of some themes which uses global one.
+
    .. versionadded:: 0.4
 
 ``nocomments``

@@ -195,6 +195,18 @@ The following directives are provided for module and class contents:
    as "defined constants."  Class and object attributes are not documented
    using this environment.
 
+   .. rubric:: options
+
+   .. rst:directive:option:: type: type of the variable
+      :type: text
+
+      .. versionadded:: 2.4
+
+   .. rst:directive:option:: value: initial value of the variable
+      :type: text
+
+      .. versionadded:: 2.4
+
 .. rst:directive:: .. py:exception:: name
 
    Describes an exception class.  The signature can, but need not include
@@ -228,6 +240,18 @@ The following directives are provided for module and class contents:
    Describes an object data attribute.  The description should include
    information about the type of the data to be expected and whether it may be
    changed directly.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: type: type of the attribute
+      :type: text
+
+      .. versionadded:: 2.4
+
+   .. rst:directive:option:: value: initial value of the attribute
+      :type: text
+
+      .. versionadded:: 2.4
 
 .. rst:directive:: .. py:method:: name(parameters)
 

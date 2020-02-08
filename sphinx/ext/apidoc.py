@@ -73,14 +73,19 @@ def module_join(*modnames: str) -> str:
 
 def write_file(name: str, text: str, opts: Any) -> None:
     """Write the output file for module/package <name>."""
+    quiet = getattr(opts, 'quiet', None)
+
     fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
     if opts.dryrun:
-        print(__('Would create file %s.') % fname)
+        if not quiet:
+            print(__('Would create file %s.') % fname)
         return
     if not opts.force and path.isfile(fname):
-        print(__('File %s already exists, skipping.') % fname)
+        if not quiet:
+            print(__('File %s already exists, skipping.') % fname)
     else:
-        print(__('Creating file %s.') % fname)
+        if not quiet:
+            print(__('Creating file %s.') % fname)
         with FileAvoidWrite(fname) as f:
             f.write(text)
 
@@ -324,6 +329,8 @@ Note: By default this script will not overwrite already created files."""))
     parser.add_argument('-o', '--output-dir', action='store', dest='destdir',
                         required=True,
                         help=__('directory to place all output'))
+    parser.add_argument('-q', action='store_true', dest='quiet',
+                        help=__('no output on stdout, just warnings on stderr'))
     parser.add_argument('-d', '--maxdepth', action='store', dest='maxdepth',
                         type=int, default=4,
                         help=__('maximum depth of submodules to show in the TOC '
@@ -451,6 +458,8 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
         }
         if args.extensions:
             d['extensions'].extend(args.extensions)
+        if args.quiet:
+            d['quiet'] = True
 
         for ext in d['extensions'][:]:
             if ',' in ext:
