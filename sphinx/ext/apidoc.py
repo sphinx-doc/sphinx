@@ -29,7 +29,7 @@ from typing import Any, List, Tuple
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import __
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
@@ -46,7 +46,6 @@ else:
         'show-inheritance',
     ]
 
-INITPY = '__init__.py'
 PY_SUFFIXES = ('.py', '.pyx') + tuple(EXTENSION_SUFFIXES)
 
 template_dir = path.join(package_dir, 'templates', 'apidoc')
@@ -66,9 +65,29 @@ def makename(package: str, module: str) -> str:
     return name
 
 
+def is_initpy(filename: str) -> bool:
+    """Check *filename* is __init__ file or not."""
+    basename = path.basename(filename)
+    for suffix in sorted(PY_SUFFIXES, key=len, reverse=True):
+        if basename == '__init__' + suffix:
+            return True
+    else:
+        return False
+
+
 def module_join(*modnames: str) -> str:
     """Join module names with dots."""
     return '.'.join(filter(None, modnames))
+
+
+def is_packagedir(dirname: str = None, files: List[str] = None) -> bool:
+    """Check given *files* contains __init__ file."""
+    if files is None and dirname is None:
+        return False
+
+    if files is None:
+        files = os.listdir(dirname)
+    return any(f for f in files if is_initpy(f))
 
 
 def write_file(name: str, text: str, opts: Any) -> None:
@@ -132,15 +151,14 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
                         opts: Any, subs: List[str], is_namespace: bool,
                         excludes: List[str] = [], user_template_dir: str = None) -> None:
     """Build the text of the file and write the file."""
-    # build a list of sub packages (directories containing an INITPY file)
-    subpackages = [sub for sub in subs if not
-                   shall_skip(path.join(root, sub, INITPY), opts, excludes)]
+    # build a list of sub packages (directories containing an __init__ file)
     subpackages = [module_join(master_package, subroot, pkgname)
-                   for pkgname in subpackages]
+                   for pkgname in subs
+                   if not is_skipped_package(path.join(root, pkgname), opts, excludes)]
     # build a list of sub modules
     submodules = [sub.split('.')[0] for sub in py_files
                   if not is_skipped_module(path.join(root, sub), opts, excludes) and
-                  sub != INITPY]
+                  not is_initpy(sub)]
     submodules = [module_join(master_package, subroot, modname)
                   for modname in submodules]
     options = copy(OPTIONS)
@@ -189,12 +207,14 @@ def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules'
 
 def shall_skip(module: str, opts: Any, excludes: List[str] = []) -> bool:
     """Check if we want to skip this module."""
+    warnings.warn('shall_skip() is deprecated.',
+                  RemovedInSphinx40Warning)
     # skip if the file doesn't exist and not using implicit namespaces
     if not opts.implicit_namespaces and not path.exists(module):
         return True
 
     # Are we a package (here defined as __init__.py, not the folder in itself)
-    if os.path.basename(module) == INITPY:
+    if is_initpy(module):
         # Yes, check if we have any non-excluded modules at all here
         all_skipped = True
         basemodule = path.dirname(module)
@@ -207,10 +227,28 @@ def shall_skip(module: str, opts: Any, excludes: List[str] = []) -> bool:
 
     # skip if it has a "private" name and this is selected
     filename = path.basename(module)
-    if filename != '__init__.py' and filename.startswith('_') and \
-       not opts.includeprivate:
+    if is_initpy(filename) and filename.startswith('_') and not opts.includeprivate:
         return True
     return False
+
+
+def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> bool:
+    """Check if we want to skip this module."""
+    if not path.isdir(dirname):
+        return False
+
+    files = glob.glob(path.join(dirname, '*.py'))
+    regular_package = any(f for f in files if is_initpy(f))
+    if not regular_package and not opts.implicit_namespaces:
+        # *dirname* is not both a regular package and an implicit namespace pacage
+        return True
+
+    # Check there is some showable module inside package
+    if all(is_excluded(path.join(dirname, f), excludes) for f in files):
+        # all submodules are excluded
+        return True
+    else:
+        return False
 
 
 def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
@@ -236,7 +274,7 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
     implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
 
     # check if the base directory is a package and get its name
-    if INITPY in os.listdir(rootpath) or implicit_namespaces:
+    if is_packagedir(rootpath) or implicit_namespaces:
         root_package = rootpath.split(path.sep)[-1]
     else:
         # otherwise, the base is a directory with packages
@@ -248,11 +286,13 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
         py_files = sorted(f for f in files
                           if f.endswith(PY_SUFFIXES) and
                           not is_excluded(path.join(root, f), excludes))
-        is_pkg = INITPY in py_files
-        is_namespace = INITPY not in py_files and implicit_namespaces
+        is_pkg = is_packagedir(None, py_files)
+        is_namespace = not is_pkg and implicit_namespaces
         if is_pkg:
-            py_files.remove(INITPY)
-            py_files.insert(0, INITPY)
+            for f in py_files[:]:
+                if is_initpy(f):
+                    py_files.remove(f)
+                    py_files.insert(0, f)
         elif root != rootpath:
             # only accept non-package at toplevel unless using implicit namespaces
             if not implicit_namespaces:
@@ -269,7 +309,7 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
 
         if is_pkg or is_namespace:
             # we are in a package with something to document
-            if subs or len(py_files) > 1 or not shall_skip(path.join(root, INITPY), opts):
+            if subs or len(py_files) > 1 or not is_skipped_package(root, opts):
                 subpackage = root[len(rootpath):].lstrip(path.sep).\
                     replace(path.sep, '.')
                 # if this is not a namespace or
@@ -473,6 +513,13 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
         create_modules_toc_file(modules, args, args.tocfile, args.templatedir)
 
     return 0
+
+
+deprecated_alias('sphinx.ext.apidoc',
+                 {
+                     'INITPY': '__init__.py',
+                 },
+                 RemovedInSphinx40Warning)
 
 
 # So program can be started with "python -m sphinx.apidoc ..."

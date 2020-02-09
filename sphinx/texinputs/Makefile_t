@@ -14,13 +14,13 @@ ALLPS  = $(addsuffix .ps,$(ALLDOCS))
 # Prefix for archive names
 ARCHIVEPREFIX =
 # Additional LaTeX options (passed via variables in latexmkrc/latexmkjarc file)
-export LATEXOPTS =
+export LATEXOPTS ?=
 # Additional latexmk options
 {% if latex_engine == 'xelatex' -%}
 # with latexmk version 4.52b or higher set LATEXMKOPTS to -xelatex either here
 # or on command line for faster builds.
 {% endif -%}
-LATEXMKOPTS =
+LATEXMKOPTS ?=
 {% if xindy_use -%}
 export XINDYOPTS = {{ xindy_lang_option }} -M sphinx.xdy
 {% if latex_engine == 'pdflatex' -%}

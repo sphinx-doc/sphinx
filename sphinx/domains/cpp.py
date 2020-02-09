@@ -3007,7 +3007,7 @@ class ASTParenExprList(ASTBase):
                 signode.append(nodes.Text(', '))
             else:
                 first = False
-                e.describe_signature(signode, mode, env, symbol)
+            e.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')'))
 
 
@@ -3034,7 +3034,7 @@ class ASTBracedInitList(ASTBase):
                 signode.append(nodes.Text(', '))
             else:
                 first = False
-                e.describe_signature(signode, mode, env, symbol)
+            e.describe_signature(signode, mode, env, symbol)
         if self.trailingComma:
             signode.append(nodes.Text(','))
         signode.append(nodes.Text('}'))
