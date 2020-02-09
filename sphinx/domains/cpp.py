@@ -3004,7 +3004,7 @@ class ASTParenExprList(ASTBase):
                 signode.append(nodes.Text(', '))
             else:
                 first = False
-                e.describe_signature(signode, mode, env, symbol)
+            e.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')'))
 
 
@@ -3031,7 +3031,7 @@ class ASTBracedInitList(ASTBase):
                 signode.append(nodes.Text(', '))
             else:
                 first = False
-                e.describe_signature(signode, mode, env, symbol)
+            e.describe_signature(signode, mode, env, symbol)
         if self.trailingComma:
             signode.append(nodes.Text(','))
         signode.append(nodes.Text('}'))
@@ -6862,23 +6862,30 @@ class CPPDomain(Domain):
 
         if typ.startswith('cpp:'):
             typ = typ[4:]
+        origTyp = typ
         if typ == 'func':
             typ = 'function'
+        if typ == 'struct':
+            typ = 'class'
         declTyp = s.declaration.objectType
 
         def checkType():
             if typ == 'any' or typ == 'identifier':
                 return True
             if declTyp == 'templateParam':
+                # TODO: perhaps this should be strengthened one day
                 return True
+            if declTyp == 'functionParam':
+                if typ == 'var' or typ == 'member':
+                    return True
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
-            print("Type is %s, declType is %s" % (typ, declTyp))
+            print("Type is %s (originally: %s), declType is %s" % (typ, origTyp, declTyp))
             assert False
         if not checkType():
             warner.warn("cpp:%s targets a %s (%s)."
-                        % (typ, s.declaration.objectType,
+                        % (origTyp, s.declaration.objectType,
                            s.get_full_nested_name()))
 
         declaration = s.declaration
