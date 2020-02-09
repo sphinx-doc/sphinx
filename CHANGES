@@ -1,11 +1,5 @@
-Release 2.4.0 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
+Release 2.4.0 (released Feb 09, 2020)
+=====================================
 
 Deprecated
 ----------
@@ -108,9 +102,6 @@ Bugs fixed
   ``sphinx.transforms.post_transforms.images.ImageConverter``
   or its subclasses (used for latex build) are now sanitized,
   to prevent broken paths
-
-Testing
---------
 
 Release 2.3.1 (released Dec 22, 2019)
 =====================================
