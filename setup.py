@@ -25,7 +25,7 @@ install_requires = [
     'Pygments>=2.0',
     'docutils>=0.12',
     'snowballstemmer>=1.1',
-    'babel>=1.3,!=2.0',
+    'babel>=1.3',
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests>=2.5.0',

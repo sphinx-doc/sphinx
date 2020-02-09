@@ -7,6 +7,7 @@ Dependencies
 * LaTeX: drop dependency on :program:`extractbb` for image inclusion in
   Japanese documents as ``.xbb`` files are unneeded by :program:`dvipdfmx`
   since TeXLive2015 (refs: #6189)
+* babel-2.0 or above is available (Unpinned)
 
 Incompatible changes
 --------------------
