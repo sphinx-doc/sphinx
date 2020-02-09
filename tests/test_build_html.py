@@ -1592,3 +1592,115 @@ def test_html_codeblock_linenos_style_inline(app):
     content = (app.outdir / 'index.html').read_text()
 
     assert '<span class="lineno">1 </span>' in content
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 16),
+                    reason='docutils-0.16 or above is required')
+@pytest.mark.sphinx('html', testroot='html-ogp')
+def test_html_ogp(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    # basic
+    assert '<meta property="og:type" content="website" />' in content
+    assert '<meta property="og:url" content="https://example.com/index.html" />' in content
+    assert '<meta property="og:site_name" content="Python" />' in content
+    assert '<meta property="og:title" content="html-ogp" />' in content
+    assert '<meta property="og:description" content="blah blah blah blah" />' in content
+    assert '<meta property="og:image" ' not in content
+
+    # og:image
+    content = (app.outdir / 'image.html').read_text()
+    assert '<meta property="og:type" content="website" />' in content
+    assert '<meta property="og:title" content="image" />' in content
+    assert '<meta property="og:description" ' not in content
+    assert '<meta property="og:image" content="https://example.com/path/to/image.png" />' in content
+
+    # og:image (absolute-like path)
+    content = (app.outdir / 'subdir' / 'image.html').read_text()
+    assert '<meta property="og:type" content="website" />' in content
+    assert '<meta property="og:title" content="subdir/image" />' in content
+    assert '<meta property="og:description" ' not in content
+    assert '<meta property="og:image" content="https://example.com/image.png" />' in content
+
+    # document specific metadata
+    content = (app.outdir / 'metadata.html').read_text()
+    assert '<meta property="og:type" content="website" />' in content
+    assert '<meta property="og:url" content="https://www.sphinx-doc.org/" />' in content
+    assert '<meta property="og:site_name" content="Sphinx" />' in content
+    assert '<meta property="og:title" content="metadata" />' in content
+    assert '<meta property="og:description" content="User defined description" />' in content
+    assert '<meta property="og:image" content="https://example.com/image.png" />' in content
+
+    # document specific metadata (relative og:image)
+    content = (app.outdir / 'subdir' / 'metadata.html').read_text()
+    assert '<meta property="og:type" content="website" />' in content
+    assert '<meta property="og:title" content="subdir/metadata" />' in content
+    assert '<meta property="og:image" content="https://example.com/subdir/image.png" />' in content
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 16),
+                    reason='docutils-0.16 or above is required')
+@pytest.mark.sphinx('html', testroot='html-ogp', confoverrides={'html_ogp': False})
+def test_html_ogp_disabled(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    # basic
+    assert '<meta property="og:type" content="website" />' not in content
+    assert '<meta property="og:url" content="https://example.com/index.html" />' not in content
+    assert '<meta property="og:site_name" content="Python" />' not in content
+    assert '<meta property="og:title" content="html-ogp" />' not in content
+    assert '<meta property="og:description" content="blah blah blah blah" />' not in content
+    assert '<meta property="og:image" ' not in content
+
+    # og:image
+    content = (app.outdir / 'image.html').read_text()
+    assert '<meta property="og:type" content="website" />' not in content
+    assert '<meta property="og:title" content="html-ogp" />' not in content
+    assert '<meta property="og:description" ' not in content
+    assert '<meta property="og:image" content="https://example.com/path/to/image.png" />' not in content
+
+    # og:image (absolute-like path)
+    content = (app.outdir / 'subdir' / 'image.html').read_text()
+    assert '<meta property="og:type" content="website" />' not in content
+    assert '<meta property="og:title" content="html-ogp" />' not in content
+    assert '<meta property="og:description" ' not in content
+    assert '<meta property="og:image" content="https://example.com/image.png" />' not in content
+
+    # document specific metadata are also not shown
+    content = (app.outdir / 'metadata.html').read_text()
+    assert '<meta property="og:type" content="website" />' not in content
+    assert '<meta property="og:url" content="https://www.sphinx-doc.org/" />' not in content
+    assert '<meta property="og:site_name" content="Sphinx" />' not in content
+    assert '<meta property="og:title" content="html-ogp" />' not in content
+    assert '<meta property="og:description" content="User defined description" />' not in content
+    assert '<meta property="og:image" content="https://example.com/image.png" />' not in content
+
+    # document specific metadata (relative og:image) are also not shown
+    content = (app.outdir / 'subdir' / 'metadata.html').read_text()
+    assert '<meta property="og:type" content="website" />' not in content
+    assert '<meta property="og:title" content="html-ogp" />' not in content
+    assert '<meta property="og:image" content="https://example.com/subdir/image.png" />' not in content
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 16),
+                    reason='docutils-0.16 or above is required')
+@pytest.mark.sphinx('html', testroot='html-ogp',
+                    confoverrides={'html_ogp_meta': {'og:site_name': 'SPHINX',
+                                                     'twitter:card': 'summary',
+                                                     'twitter:site': '@sphinxdoc'}})
+def test_html_ogp_meta(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    # basic
+    assert '<meta property="og:site_name" content="SPHINX" />' in content
+    assert '<meta property="twitter:card" content="summary" />' in content
+    assert '<meta property="twitter:site" content="@sphinxdoc" />' in content
+
+    # document specific metadata
+    content = (app.outdir / 'metadata.html').read_text()
+    assert '<meta property="og:site_name" content="Sphinx" />' in content
+    assert '<meta property="twitter:card" content="summary" />' in content
+    assert '<meta property="twitter:site" content="@sphinxdoc" />' in content

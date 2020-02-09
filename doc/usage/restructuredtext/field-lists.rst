@@ -60,3 +60,13 @@ At the moment, these metadata fields are recognized:
    .. note:: object search is still available even if `nosearch` option is set.
 
    .. versionadded:: 3.0
+
+``og:*`` (ex. ``og:site_name``, ``og:description`` and so on)
+   If set, the metadata for `The Open Graph protocol`__ is applied to the
+   document.  The metadata is used in the HTML builders.  See
+   :confval:`html_ogp` for detail.
+
+   .. versionadded:: 3.2
+   .. __: https://ogp.me/
+
+   .. note:: OGP metadata is available since docutils-0.16.

@@ -966,6 +966,32 @@ that use Sphinx's HTMLWriter class.
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
 
+.. confval:: html_ogp
+
+   If ``True``, HTML builder generates metadata for `The Open Graph protocol`__
+   (OGP) from the content and configurations.  Default is ``True``.
+
+   By setting :confval:`html_baseurl`, the ``og:url`` can be added
+   automatically.
+
+   .. versionadded:: 3.2
+   .. __: https://ogp.me/
+
+.. confval:: html_ogp_meta
+
+   A dictionary for the Open Graph Protocol (OGP).  It is used to the default
+   value of the metadata.  It can be overridden by the :ref:`metadata` in
+   each document.
+
+   Example::
+
+       html_ogp_meta = {
+           "twitter:card": "summary",
+           "twitter:site": "@sphinxdoc"
+       }
+
+   .. versionadded:: 3.2
+
 .. confval:: html_css_files
 
    A list of CSS files.  The entry must be a *filename* string or a tuple

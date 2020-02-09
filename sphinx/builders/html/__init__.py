@@ -563,7 +563,7 @@ class StandaloneHTMLBuilder(Builder):
             sourcename = ''
 
         # metadata for the document
-        meta = self.env.metadata.get(docname)
+        meta = self.env.metadata.get(docname, {})
 
         # local TOC and global TOC tree
         self_toc = TocTree(self.env).get_toc_for(docname, self)
@@ -1247,7 +1247,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # load default math renderer
     app.setup_extension('sphinx.ext.mathjax')
 
-    # load transforms for HTML builder
+    # load sub-extensions for HTML builders
+    app.setup_extension('sphinx.builders.html.ogp')
     app.setup_extension('sphinx.builders.html.transforms')
 
     return {

@@ -24,6 +24,9 @@ Features added
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
 * #7745: html: inventory is broken if the docname contains a space
+* #2645: html: Support the Open Graph Protocol (OGP).  It can be controlled via
+  :confval:`html_ogp`, :confval:`html_ogp_meta` and document :ref:`metadata`
+  (a.k.a.  docinfo)
 * #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
   the behavior of globaltoc in sidebar
 * #7840: i18n: Optimize the dependencies check on bootstrap
