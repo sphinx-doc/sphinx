@@ -324,6 +324,9 @@ def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
             msg = __("The configuration file (or one of the modules it imports) "
                      "called sys.exit()")
             raise ConfigError(msg)
+        except ConfigError:
+            # pass through ConfigError from conf.py as is.  It will be shown in console.
+            raise
         except Exception:
             msg = __("There is a programmable error in your configuration file:\n\n%s")
             raise ConfigError(msg % traceback.format_exc())
