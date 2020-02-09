@@ -173,7 +173,9 @@ class AutoNumbering(SphinxTransform):
         domain = self.env.get_domain('std')  # type: StandardDomain
 
         for node in self.document.traverse(nodes.Element):
-            if domain.is_enumerable_node(node) and domain.get_numfig_title(node) is not None:
+            if (domain.is_enumerable_node(node) and
+                    domain.get_numfig_title(node) is not None and
+                    node['ids'] == []):
                 self.document.note_implicit_target(node)
 
 
