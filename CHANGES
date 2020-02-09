@@ -91,6 +91,7 @@ Bugs fixed
 * #7090: std domain: Can't assign numfig-numbers for custom container nodes
 * #7106: std domain: enumerated nodes are marked as duplicated when extensions
   call ``note_explicit_target()``
+* #7095: dirhtml: Cross references are broken via intersphinx and ``:doc:`` role
 
 Testing
 --------
