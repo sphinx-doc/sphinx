@@ -550,11 +550,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                     atts['height'] = int(atts['height']) * scale
             atts['alt'] = node.get('alt', uri)
             if 'align' in node:
-                self.body.append('<div align="%s" class="align-%s">' %
-                                 (node['align'], node['align']))
-                self.context.append('</div>\n')
-            else:
-                self.context.append('')
+                atts['class'] = 'align-%s' % node['align']
             self.body.append(self.emptytag(node, 'img', '', **atts))
             return
 
@@ -563,7 +559,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     # overwritten
     def depart_image(self, node: Element) -> None:
         if node['uri'].lower().endswith(('svg', 'svgz')):
-            self.body.append(self.context.pop())
+            pass
         else:
             super().depart_image(node)
 
