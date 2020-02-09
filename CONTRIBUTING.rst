@@ -61,7 +61,7 @@ of the core developers before it is merged into the main repository.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
    free to email the *sphinx-dev* mailing list.
 #. Fork `the repository`_ on GitHub to start making your changes to the
-   ``master`` branch for next MAJOR version, or ``X.Y`` branch for next
+   ``master`` branch for next MAJOR version, or ``A.x`` branch for next
    MINOR version (see `Branch Model`_).
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
@@ -94,10 +94,10 @@ These are the basic steps needed to start developing on Sphinx.
    Sphinx adopts Semantic Versioning 2.0.0 (refs: https://semver.org/ ).
 
    For changes that preserves backwards-compatibility of API and features,
-   they should be included in the next MINOR release, use the ``X.Y`` branch.
+   they should be included in the next MINOR release, use the ``A.x`` branch.
    ::
 
-       git checkout X.Y
+       git checkout A.x
 
    For incompatible or other substantial changes that should wait until the
    next MAJOR release, use the ``master`` branch.
@@ -199,7 +199,7 @@ These are the basic steps needed to start developing on Sphinx.
        git push origin feature-xyz
 
 #. Submit a pull request from your branch to the respective branch (``master``
-   or ``X.Y``).
+   or ``A.x``).
 
 #. Wait for a core developer to review your changes.
 
@@ -325,8 +325,8 @@ Versioning 2.0.0 (refs: https://semver.org/ ).
     All changes including incompatible behaviors and public API updates are
     allowed.
 
-``X.Y``
-    Where ``X.Y`` is the ``MAJOR.MINOR`` release.  Used to maintain current
+``A.x`` (ex. ``2.x``)
+    Where ``A.x`` is the ``MAJOR.MINOR`` release.  Used to maintain current
     MINOR release. All changes are allowed if the change preserves
     backwards-compatibility of API and features.
 
@@ -334,8 +334,8 @@ Versioning 2.0.0 (refs: https://semver.org/ ).
     new MAJOR version is released, the old ``MAJOR.MINOR`` branch will be
     deleted and replaced by an equivalent tag.
 
-``X.Y.Z``
-    Where ``X.Y.Z`` is the ``MAJOR.MINOR.PATCH`` release.  Only
+``A.B.x`` (ex. ``2.4.x``)
+    Where ``A.B.x`` is the ``MAJOR.MINOR.PATCH`` release.  Only
     backwards-compatible bug fixes are allowed. In Sphinx project, PATCH
     version is used for urgent bug fix.
 
