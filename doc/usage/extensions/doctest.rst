@@ -12,11 +12,11 @@
 
 
 It is often helpful to include snippets of code in your documentation and
-demonstrate the results of executing it. But it is important to ensure that
+demonstrate the results of executing them. But it is important to ensure that
 the documentation stays up-to-date with the code.
 
 This extension allows you to test such code snippets in the documentation in
-a natural way.  If you mark the code blocks as shown here, the ``doctest''
+a natural way.  If you mark the code blocks as shown here, the ``doctest``
 builder will collect them and run them as doctest tests.
 
 Within each document, you can assign each snippet to a *group*. Each group
