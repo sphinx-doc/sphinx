@@ -112,8 +112,7 @@ class JSObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
 
             domain = cast(JavaScriptDomain, self.env.get_domain('js'))
-            domain.note_object(fullname, self.objtype,
-                               location=(self.env.docname, self.lineno))
+            domain.note_object(fullname, self.objtype, location=signode)
 
         indextext = self.get_index_text(mod_name, name_obj)
         if indextext:
