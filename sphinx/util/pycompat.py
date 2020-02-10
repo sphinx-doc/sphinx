@@ -52,7 +52,7 @@ class UnicodeMixin:
 
     .. deprecated:: 2.0
     """
-    def __str__(self):
+    def __str__(self) -> str:
         warnings.warn('UnicodeMixin is deprecated',
                       RemovedInSphinx40Warning, stacklevel=2)
         return self.__unicode__()  # type: ignore
