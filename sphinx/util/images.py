@@ -45,6 +45,8 @@ def get_image_size(filename: str) -> Tuple[int, int]:
         size = imagesize.get(filename)
         if size[0] == -1:
             size = None
+        elif isinstance(size[0], float) or isinstance(size[1], float):
+            size = (int(size[0]), int(size[1]))
 
         if size is None and Image:  # fallback to Pillow
             im = Image.open(filename)

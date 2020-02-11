@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7120: html: crashed when on scaling SVG images which have float dimentions
+
 Testing
 --------
 
