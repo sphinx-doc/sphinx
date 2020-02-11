@@ -1124,8 +1124,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.add_line('', sourcename)
             if hasattr(self.object, '__bases__') and len(self.object.__bases__):
                 bases = [b.__module__ in ('__builtin__', 'builtins') and
-                         u':class:`%s`' % b.__name__ or
-                         u':class:`%s.%s`' % (b.__module__, b.__qualname__)
+                         ':class:`%s`' % b.__name__ or
+                         ':class:`%s.%s`' % (b.__module__, b.__qualname__)
                          for b in self.object.__bases__]
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
                               sourcename)

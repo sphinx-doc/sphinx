@@ -1,7 +1,5 @@
-r"""
-
+"""
     Test with nested classes.
-
 """
 
 
