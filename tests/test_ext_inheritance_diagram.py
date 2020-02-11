@@ -132,6 +132,14 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.A', 'dummy.test.A', [], None),
         ]
 
+    # inheritance diagram involving a base class nested within another class
+    for cls in graphs['diagram_w_nested_classes'].class_info:
+        assert cls in [
+            ('dummy.test_nested.A', 'dummy.test_nested.A', [], None),
+            ('dummy.test_nested.C', 'dummy.test_nested.C', ['dummy.test_nested.A.B'], None),
+            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', [], None)
+        ]
+
 
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')

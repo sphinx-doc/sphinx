@@ -685,6 +685,7 @@ def test_autodoc_ignore_module_all(app):
     assert list(filter(lambda l: 'class::' in l, actual)) == [
         '.. py:class:: Class(arg)',
         '.. py:class:: CustomDict',
+        '.. py:class:: InnerChild',
         '.. py:class:: InstAttCls()',
         '.. py:class:: Outer',
         '   .. py:class:: Outer.Inner',
@@ -773,6 +774,18 @@ def test_autodoc_inner_class(app):
         '   ',
         '      Foo',
         '      ',
+    ]
+
+    options['show-inheritance'] = True
+    actual = do_autodoc(app, 'class', 'target.InnerChild', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: InnerChild',
+        '   :module: target', '',
+        '   Bases: :class:`target.Outer.Inner`',
+        '',
+        '   InnerChild docstring',
+        '   '
     ]
 
 
