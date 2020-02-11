@@ -24,6 +24,7 @@ for stable releases
 * ``git merge X.Y``
 * ``git push origin master``
 * Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
+* Update `sphinxdoc/sphinx <https://hub.docker.com/r/sphinxdoc/sphinx/tags>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
 
@@ -57,6 +58,7 @@ for first beta releases
 * ``git push origin master``
 * open https://github.com/sphinx-doc/sphinx/settings/branches and make ``X.Y`` branch protected
 * Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
+* Update `sphinxdoc/sphinx <https://hub.docker.com/r/sphinxdoc/sphinx/tags>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
 
@@ -83,6 +85,7 @@ for other beta releases
 * ``git merge X.Y``
 * ``git push origin master``
 * Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
+* Update `sphinxdoc/sphinx <https://hub.docker.com/r/sphinxdoc/sphinx/tags>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
 
@@ -118,5 +121,6 @@ for major releases
 * Run ``git push origin :A.B --tags`` to remove old stable branch
 * open https://readthedocs.org/dashboard/sphinx/versions/ and enable the released version
 * Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
+* Update `sphinxdoc/sphinx <https://hub.docker.com/r/sphinxdoc/sphinx/tags>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
