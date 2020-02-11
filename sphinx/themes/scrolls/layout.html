@@ -5,7 +5,7 @@
     Sphinx layout template for the scrolls theme, originally written
     by Armin Ronacher.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
@@ -15,7 +15,7 @@
 {%- endblock %}
 {%- block scripts %}
     {{ super() }}
-    <script type="text/javascript" src="{{ pathto('_static/theme_extras.js', 1) }}"></script>
+    <script src="{{ pathto('_static/theme_extras.js', 1) }}"></script>
 {%- endblock %}
 {# do not display relbars #}
 {% block relbar1 %}{% endblock %}
@@ -42,7 +42,9 @@
           {{ toc }}
         </div>
         {%- endif %}
+        <div role="main">
         {% block body %}{% endblock %}
+        </div>
       </div>
     </div>
 {% endblock %}

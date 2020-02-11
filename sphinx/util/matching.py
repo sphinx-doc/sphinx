@@ -4,21 +4,17 @@
 
     Pattern-matching utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+from typing import Callable, Dict, Iterable, List, Match, Pattern
 
 from sphinx.util.osutil import canon_path
 
-if False:
-    # For type annotation
-    from typing import Callable, Dict, List, Match, Pattern  # NOQA
 
-
-def _translate_pattern(pat):
-    # type: (str) -> str
+def _translate_pattern(pat: str) -> str:
     """Translate a shell-style glob pattern to a regular expression.
 
     Adapted from the fnmatch module, but enhanced so that single stars don't
@@ -64,8 +60,7 @@ def _translate_pattern(pat):
     return res + '$'
 
 
-def compile_matchers(patterns):
-    # type: (List[str]) -> List[Callable[[str], Match[str]]]
+def compile_matchers(patterns: List[str]) -> List[Callable[[str], Match[str]]]:
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
@@ -76,17 +71,14 @@ class Matcher:
           For example, "**/index.rst" matches with "index.rst"
     """
 
-    def __init__(self, patterns):
-        # type: (List[str]) -> None
+    def __init__(self, patterns: List[str]) -> None:
         expanded = [pat[3:] for pat in patterns if pat.startswith('**/')]
         self.patterns = compile_matchers(patterns + expanded)
 
-    def __call__(self, string):
-        # type: (str) -> bool
+    def __call__(self, string: str) -> bool:
         return self.match(string)
 
-    def match(self, string):
-        # type: (str) -> bool
+    def match(self, string: str) -> bool:
         string = canon_path(string)
         return any(pat(string) for pat in self.patterns)
 
@@ -97,16 +89,14 @@ DOTFILES = Matcher(['**/.*'])
 _pat_cache = {}  # type: Dict[str, Pattern]
 
 
-def patmatch(name, pat):
-    # type: (str, str) -> Match[str]
+def patmatch(name: str, pat: str) -> Match[str]:
     """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     return _pat_cache[pat].match(name)
 
 
-def patfilter(names, pat):
-    # type: (List[str], str) -> List[str]
+def patfilter(names: Iterable[str], pat: str) -> List[str]:
     """Return the subset of the list NAMES that match PAT.
 
     Adapted from fnmatch module.

@@ -5,7 +5,7 @@
     Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,31 +13,27 @@ import glob
 import inspect
 import pickle
 import re
+from importlib import import_module
 from os import path
+from typing import Any, Dict, IO, List, Pattern, Set, Tuple
 
 import sphinx
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
 
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, IO, List, Pattern, Set, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-
 logger = logging.getLogger(__name__)
 
 
 # utility
-def write_header(f, text, char='-'):
-    # type:(IO, str, str) -> None
+def write_header(f: IO, text: str, char: str = '-') -> None:
     f.write(text + '\n')
     f.write(char * len(text) + '\n')
 
 
-def compile_regex_list(name, exps):
-    # type: (str, str) -> List[Pattern]
+def compile_regex_list(name: str, exps: str) -> List[Pattern]:
     lst = []
     for exp in exps:
         try:
@@ -55,8 +51,7 @@ class CoverageBuilder(Builder):
     epilog = __('Testing of coverage in the sources finished, look at the '
                 'results in %(outdir)s' + path.sep + 'python.txt.')
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         self.c_sourcefiles = []  # type: List[str]
         for pattern in self.config.coverage_c_path:
             pattern = path.join(self.srcdir, pattern)
@@ -79,13 +74,13 @@ class CoverageBuilder(Builder):
                                                 self.config.coverage_ignore_classes)
         self.fun_ignorexps = compile_regex_list('coverage_ignore_functions',
                                                 self.config.coverage_ignore_functions)
+        self.py_ignorexps = compile_regex_list('coverage_ignore_pyobjects',
+                                               self.config.coverage_ignore_pyobjects)
 
-    def get_outdated_docs(self):
-        # type: () -> str
+    def get_outdated_docs(self) -> str:
         return 'coverage overview'
 
-    def write(self, *ignored):
-        # type: (Any) -> None
+    def write(self, *ignored: Any) -> None:
         self.py_undoc = {}  # type: Dict[str, Dict[str, Any]]
         self.build_py_coverage()
         self.write_py_coverage()
@@ -94,8 +89,7 @@ class CoverageBuilder(Builder):
         self.build_c_coverage()
         self.write_c_coverage()
 
-    def build_c_coverage(self):
-        # type: () -> None
+    def build_c_coverage(self) -> None:
         # Fetch all the info from the header files
         c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
@@ -116,8 +110,7 @@ class CoverageBuilder(Builder):
             if undoc:
                 self.c_undoc[filename] = undoc
 
-    def write_c_coverage(self):
-        # type: () -> None
+    def write_c_coverage(self) -> None:
         output_file = path.join(self.outdir, 'c.txt')
         with open(output_file, 'w') as op:
             if self.config.coverage_write_headline:
@@ -130,8 +123,13 @@ class CoverageBuilder(Builder):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                 op.write('\n')
 
-    def build_py_coverage(self):
-        # type: () -> None
+    def ignore_pyobj(self, full_name):
+        for exp in self.py_ignorexps:
+            if exp.search(full_name):
+                return True
+        return False
+
+    def build_py_coverage(self) -> None:
         objects = self.env.domaindata['py']['objects']
         modules = self.env.domaindata['py']['modules']
 
@@ -143,11 +141,11 @@ class CoverageBuilder(Builder):
                 if exp.match(mod_name):
                     ignore = True
                     break
-            if ignore:
+            if ignore or self.ignore_pyobj(mod_name):
                 continue
 
             try:
-                mod = __import__(mod_name, fromlist=['foo'])
+                mod = import_module(mod_name)
             except ImportError as err:
                 logger.warning(__('module %s could not be imported: %s'), mod_name, err)
                 self.py_undoc[mod_name] = {'error': err}
@@ -169,6 +167,8 @@ class CoverageBuilder(Builder):
                     continue
 
                 full_name = '%s.%s' % (mod_name, name)
+                if self.ignore_pyobj(full_name):
+                    continue
 
                 if inspect.isfunction(obj):
                     if full_name not in objects:
@@ -209,19 +209,18 @@ class CoverageBuilder(Builder):
                             if skip_undoc and not attr.__doc__:
                                 # skip methods without docstring if wished
                                 continue
-
                             full_attr_name = '%s.%s' % (full_name, attr_name)
+                            if self.ignore_pyobj(full_attr_name):
+                                continue
                             if full_attr_name not in objects:
                                 attrs.append(attr_name)
-
                         if attrs:
                             # some attributes are undocumented
                             classes[name] = attrs
 
             self.py_undoc[mod_name] = {'funcs': funcs, 'classes': classes}
 
-    def write_py_coverage(self):
-        # type: () -> None
+    def write_py_coverage(self) -> None:
         output_file = path.join(self.outdir, 'python.txt')
         failed = []
         with open(output_file, 'w') as op:
@@ -256,20 +255,19 @@ class CoverageBuilder(Builder):
                 write_header(op, 'Modules that failed to import')
                 op.writelines(' * %s -- %s\n' % x for x in failed)
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         # dump the coverage data to a pickle file too
         picklepath = path.join(self.outdir, 'undoc.pickle')
         with open(picklepath, 'wb') as dumpfile:
             pickle.dump((self.py_undoc, self.c_undoc), dumpfile)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(CoverageBuilder)
     app.add_config_value('coverage_ignore_modules', [], False)
     app.add_config_value('coverage_ignore_functions', [], False)
     app.add_config_value('coverage_ignore_classes', [], False)
+    app.add_config_value('coverage_ignore_pyobjects', [], False)
     app.add_config_value('coverage_c_path', [], False)
     app.add_config_value('coverage_c_regexes', {}, False)
     app.add_config_value('coverage_ignore_c_items', {}, False)

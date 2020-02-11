@@ -4,25 +4,22 @@
 
     Plain-text Sphinx builder.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
+from typing import Any, Dict, Iterator, Set, Tuple
 
 from docutils.io import StringOutput
+from docutils.nodes import Node
 
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.text import TextWriter, TextTranslator
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, Iterator, Set, Tuple  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +35,11 @@ class TextBuilder(Builder):
 
     current_docname = None  # type: str
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         # section numbers for headings in the currently visited document
         self.secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
 
-    def get_outdated_docs(self):
-        # type: () -> Iterator[str]
+    def get_outdated_docs(self) -> Iterator[str]:
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
@@ -62,16 +57,13 @@ class TextBuilder(Builder):
                 # source doesn't exist anymore
                 pass
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+    def prepare_writing(self, docnames: Set[str]) -> None:
         self.writer = TextWriter(self)
 
-    def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+    def write_doc(self, docname: str, doctree: Node) -> None:
         self.current_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
@@ -84,13 +76,11 @@ class TextBuilder(Builder):
         except OSError as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         pass
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(TextBuilder)
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')

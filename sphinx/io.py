@@ -4,50 +4,43 @@
 
     Input/Output files
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import codecs
 import warnings
+from typing import Any, List
+from typing import Type  # for python3.5.1
 
+from docutils import nodes
 from docutils.core import Publisher
-from docutils.io import FileInput, NullOutput
+from docutils.frontend import Values
+from docutils.io import FileInput, Input, NullOutput
+from docutils.parsers import Parser
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
-from docutils.statemachine import StringList, string2lines
+from docutils.transforms import Transform
+from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
-from typing import Any, Union  # NOQA
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.environment import BuildEnvironment
+from sphinx.errors import FiletypeNotFoundError
 from sphinx.transforms import (
-    ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
-    DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds, FigureAligner,
-    AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
-    UnreferencedFootnotesDetector, SphinxSmartQuotes, DoctreeReadEvent, ManpageLink
+    AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
 )
-from sphinx.transforms import SphinxTransformer
-from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
 from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
-from sphinx.transforms.references import SphinxDomains, SubstitutionDefinitionsRemover
-from sphinx.util import logging
+from sphinx.transforms.references import SphinxDomains
+from sphinx.util import logging, get_filetype
 from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
-from sphinx.util.rst import append_epilog, docinfo_re, prepend_prolog
 from sphinx.versioning import UIDTransform
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
-    from docutils import nodes  # NOQA
-    from docutils.frontend import Values  # NOQA
-    from docutils.io import Input  # NOQA
-    from docutils.parsers import Parser  # NOQA
-    from docutils.transforms import Transform  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.application import Sphinx
 
 
 logger = logging.getLogger(__name__)
@@ -62,18 +55,43 @@ class SphinxBaseReader(standalone.Reader):
 
     transforms = []  # type: List[Type[Transform]]
 
-    def __init__(self, app, *args, **kwargs):
-        # type: (Sphinx, Any, Any) -> None
-        self.app = app
-        self.env = app.env
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        from sphinx.application import Sphinx
+        if len(args) > 0 and isinstance(args[0], Sphinx):
+            self._app = args[0]
+            self._env = self._app.env
+            args = args[1:]
+
         super().__init__(*args, **kwargs)
 
-    def get_transforms(self):
-        # type: () -> List[Type[Transform]]
-        return super().get_transforms() + self.transforms
+    @property
+    def app(self) -> "Sphinx":
+        warnings.warn('SphinxBaseReader.app is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self._app
 
-    def new_document(self):
-        # type: () -> nodes.document
+    @property
+    def env(self) -> BuildEnvironment:
+        warnings.warn('SphinxBaseReader.env is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self._env
+
+    def setup(self, app: "Sphinx") -> None:
+        self._app = app      # hold application object only for compatibility
+        self._env = app.env
+
+    def get_transforms(self) -> List[Type[Transform]]:
+        transforms = super().get_transforms() + self.transforms
+
+        # remove transforms which is not needed for Sphinx
+        unused = [DanglingReferences]
+        for transform in unused:
+            if transform in transforms:
+                transforms.remove(transform)
+
+        return transforms
+
+    def new_document(self) -> nodes.document:
         """Creates a new document object which having a special reporter object good
         for logging.
         """
@@ -81,7 +99,7 @@ class SphinxBaseReader(standalone.Reader):
 
         # substitute transformer
         document.transformer = SphinxTransformer(document)
-        document.transformer.set_environment(self.env)
+        document.transformer.set_environment(self.settings.env)
 
         # substitute reporter
         reporter = document.reporter
@@ -94,37 +112,27 @@ class SphinxStandaloneReader(SphinxBaseReader):
     """
     A basic document reader for Sphinx.
     """
-    transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
-                  Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
-                  HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds, FigureAligner,
-                  RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
-                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SphinxDomains, SubstitutionDefinitionsRemover, DoctreeReadEvent,
-                  UIDTransform]
 
-    def __init__(self, app, *args, **kwargs):
-        # type: (Sphinx, Any, Any) -> None
+    def setup(self, app: "Sphinx") -> None:
         self.transforms = self.transforms + app.registry.get_transforms()
-        super().__init__(app, *args, **kwargs)
+        super().setup(app)
 
-    def read(self, source, parser, settings):
-        # type: (Input, Parser, Values) -> nodes.document
+    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:
         self.source = source
         if not self.parser:
             self.parser = parser
         self.settings = settings
-        self.input = self.read_source()
+        self.input = self.read_source(settings.env)
         self.parse()
         return self.document
 
-    def read_source(self):
-        # type: () -> str
+    def read_source(self, env: BuildEnvironment) -> str:
         """Read content from source and do post-process."""
         content = self.source.read()
 
         # emit "source-read" event
         arg = [content]
-        self.app.emit('source-read', self.env.docname, arg)
+        env.events.emit('source-read', env.docname, arg)
         return arg[0]
 
 
@@ -137,25 +145,16 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
-                  DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
-                  AutoNumbering, SortIds, RemoveTranslatableInline,
-                  FilterSystemMessages, RefOnlyBulletListTransform,
-                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SubstitutionDefinitionsRemover]
+    def setup(self, app: "Sphinx") -> None:
+        super().setup(app)
 
-    def set_lineno_for_reporter(self, lineno):
-        # type: (int) -> None
-        """Stores the source line number of original text."""
-        warnings.warn('SphinxI18nReader.set_lineno_for_reporter() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-    @property
-    def line(self):
-        # type: () -> int
-        warnings.warn('SphinxI18nReader.line is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return 0
+        self.transforms = self.transforms + app.registry.get_transforms()
+        unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
+                  AutoIndexUpgrader, FigureAligner, SphinxDomains, DoctreeReadEvent,
+                  UIDTransform]
+        for transform in unused:
+            if transform in self.transforms:
+                self.transforms.remove(transform)
 
 
 class SphinxDummyWriter(UnfilteredWriter):
@@ -163,132 +162,30 @@ class SphinxDummyWriter(UnfilteredWriter):
 
     supported = ('html',)  # needed to keep "meta" nodes
 
-    def translate(self):
-        # type: () -> None
+    def translate(self) -> None:
         pass
 
 
-def SphinxDummySourceClass(source, *args, **kwargs):
-    # type: (Any, Any, Any) -> Any
+def SphinxDummySourceClass(source: Any, *args: Any, **kwargs: Any) -> Any:
     """Bypass source object as is to cheat Publisher."""
     return source
 
 
-class SphinxBaseFileInput(FileInput):
-    """A base class of SphinxFileInput.
-
-    It supports to replace unknown Unicode characters to '?'.
-    """
-
-    def __init__(self, app, env, *args, **kwds):
-        # type: (Sphinx, BuildEnvironment, Any, Any) -> None
-        self.app = app
-        self.env = env
-
-        warnings.warn('%s is deprecated.' % self.__class__.__name__,
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
-        super().__init__(*args, **kwds)
-
-    def warn_and_replace(self, error):
-        # type: (Any) -> Tuple
-        return UnicodeDecodeErrorHandler(self.env.docname)(error)
-
-
 class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
-    supported = ('*',)  # RemovedInSphinx30Warning
-
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
-        super(SphinxFileInput, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
-class SphinxRSTFileInput(SphinxBaseFileInput):
-    """A reST FileInput for Sphinx.
-
-    This FileInput automatically prepends and appends text by :confval:`rst_prolog` and
-    :confval:`rst_epilog`.
-
-    .. important::
-
-       This FileInput uses an instance of ``StringList`` as a return value of ``read()``
-       method to indicate original source filename and line numbers after prepending and
-       appending.
-       For that reason, ``sphinx.parsers.RSTParser`` should be used with this to parse
-       a content correctly.
-    """
-    supported = ('restructuredtext',)
-
-    def prepend_prolog(self, text, prolog):
-        # type: (StringList, str) -> None
-        docinfo = self.count_docinfo_lines(text)
-        if docinfo:
-            # insert a blank line after docinfo
-            text.insert(docinfo, '', '<generated>', 0)
-            docinfo += 1
-
-        # insert prolog (after docinfo if exists)
-        for lineno, line in enumerate(prolog.splitlines()):
-            text.insert(docinfo + lineno, line, '<rst_prolog>', lineno)
-
-        text.insert(docinfo + lineno + 1, '', '<generated>', 0)
-
-    def append_epilog(self, text, epilog):
-        # type: (StringList, str) -> None
-        # append a blank line and rst_epilog
-        text.append('', '<generated>', 0)
-        for lineno, line in enumerate(epilog.splitlines()):
-            text.append(line, '<rst_epilog>', lineno)
-
-    def read(self):  # type: ignore
-        # type: () -> StringList
-        inputstring = super().read()
-        lines = string2lines(inputstring, convert_whitespace=True)
-        content = StringList()
-        for lineno, line in enumerate(lines):
-            content.append(line, self.source_path, lineno)
-
-        prepend_prolog(content, self.env.config.rst_prolog)
-        append_epilog(content, self.env.config.rst_epilog)
-
-        return content
-
-    def count_docinfo_lines(self, content):
-        # type: (StringList) -> int
-        if len(content) == 0:
-            return 0
-        else:
-            for lineno, line in enumerate(content.data):
-                if not docinfo_re.match(line):
-                    break
-            return lineno
-
-
-class FiletypeNotFoundError(Exception):
-    pass
-
-
-def get_filetype(source_suffix, filename):
-    # type: (Dict[str, str], str) -> str
-    for suffix, filetype in source_suffix.items():
-        if filename.endswith(suffix):
-            # If default filetype (None), considered as restructuredtext.
-            return filetype or 'restructuredtext'
-    else:
-        raise FiletypeNotFoundError
-
-
-def read_doc(app, env, filename):
-    # type: (Sphinx, BuildEnvironment, str) -> nodes.document
+def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.document:
     """Parse a document and convert to doctree."""
     # set up error_handler for the target document
     error_handler = UnicodeDecodeErrorHandler(env.docname)
     codecs.register_error('sphinx', error_handler)  # type: ignore
 
-    reader = SphinxStandaloneReader(app)
+    reader = SphinxStandaloneReader()
+    reader.setup(app)
     filetype = get_filetype(app.config.source_suffix, filename)
     parser = app.registry.create_source_parser(app, filetype)
     if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
@@ -304,10 +201,10 @@ def read_doc(app, env, filename):
         # Sphinx-1.8 style
         source = input_class(app, env, source=None, source_path=filename,  # type: ignore
                              encoding=env.config.source_encoding)
-        pub = Publisher(reader=reader,  # type: ignore
+        pub = Publisher(reader=reader,
                         parser=parser,
                         writer=SphinxDummyWriter(),
-                        source_class=SphinxDummySourceClass,
+                        source_class=SphinxDummySourceClass,  # type: ignore
                         destination=NullOutput())
         pub.process_programmatic_settings(None, env.settings, None)
         pub.set_source(source, filename)
@@ -323,3 +220,11 @@ def read_doc(app, env, filename):
 
     pub.publish()
     return pub.document
+
+
+deprecated_alias('sphinx.io',
+                 {
+                     'FiletypeNotFoundError': FiletypeNotFoundError,
+                     'get_filetype': get_filetype,
+                 },
+                 RemovedInSphinx40Warning)

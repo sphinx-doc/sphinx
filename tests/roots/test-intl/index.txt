@@ -30,3 +30,10 @@ CONTENTS
    refs
    section
    topic
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Hidden Toc
+   :hidden:
+
+   only

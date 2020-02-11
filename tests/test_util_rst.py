@@ -4,13 +4,16 @@
 
     Tests sphinx.util.rst functions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils.statemachine import StringList
+from jinja2 import Environment
 
-from sphinx.util.rst import append_epilog, escape, prepend_prolog
+from sphinx.util.rst import (
+    append_epilog, escape, heading, prepend_prolog, textwidth
+)
 
 
 def test_escape():
@@ -83,3 +86,34 @@ def test_prepend_prolog_without_CR(app):
                                       ('<generated>', 0, ''),
                                       ('dummy.rst', 0, 'hello Sphinx world'),
                                       ('dummy.rst', 1, 'Sphinx is a document generator')]
+
+
+def test_textwidth():
+    assert textwidth('Hello') == 5
+    assert textwidth('русский язык') == 12
+    assert textwidth('русский язык', 'WFA') == 23  # Cyrillic are ambiguous chars
+
+
+def test_heading():
+    env = Environment()
+    env.extend(language=None)
+
+    assert heading(env, 'Hello') == ('Hello\n'
+                                     '=====')
+    assert heading(env, 'Hello', 1) == ('Hello\n'
+                                        '=====')
+    assert heading(env, 'Hello', 2) == ('Hello\n'
+                                        '-----')
+    assert heading(env, 'Hello', 3) == ('Hello\n'
+                                        '~~~~~')
+    assert heading(env, 'русский язык', 1) == (
+        'русский язык\n'
+        '============'
+    )
+
+    # language=ja: ambiguous
+    env.language = 'ja'
+    assert heading(env, 'русский язык', 1) == (
+        'русский язык\n'
+        '======================='
+    )

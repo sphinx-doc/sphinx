@@ -4,7 +4,7 @@
 
     Sphinx test fixtures for pytest
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,25 +14,20 @@ import sys
 from collections import namedtuple
 from io import StringIO
 from subprocess import PIPE
+from typing import Any, Dict
 
 import pytest
 
 from . import util
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, Union  # NOQA
-
 
 @pytest.fixture(scope='session')
-def rootdir():
-    # type: () -> None
+def rootdir() -> None:
     return None
 
 
 @pytest.fixture
 def app_params(request, test_params, shared_result, sphinx_test_tempdir, rootdir):
-    # type: (Any, Any, Any, Any, Any) -> None
     """
     parameters that is specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -158,10 +153,10 @@ def make_app(test_params, monkeypatch):
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_ = util.SphinxTestApp(*args, **kwargs)  # type: Union[util.SphinxTestApp, util.SphinxTestAppWrapperForSkipBuilding]  # NOQA
+        app_ = util.SphinxTestApp(*args, **kwargs)  # type: Any
         apps.append(app_)
         if test_params['shared_result']:
-            app_ = util.SphinxTestAppWrapperForSkipBuilding(app_)  # type: ignore
+            app_ = util.SphinxTestAppWrapperForSkipBuilding(app_)
         return app_
     yield make
 

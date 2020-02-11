@@ -4,18 +4,21 @@
 
     Test sphinx.roles
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from docutils import nodes
-from mock import Mock
+from unittest.mock import Mock
 
-from sphinx.roles import emph_literal_role
+from docutils import nodes
+
+from sphinx.roles import EmphasizedLiteral
 from sphinx.testing.util import assert_node
 
 
 def test_samp():
+    emph_literal_role = EmphasizedLiteral()
+
     # normal case
     text = 'print 1+{variable}'
     ret, msg = emph_literal_role('samp', text, text, 0, Mock())

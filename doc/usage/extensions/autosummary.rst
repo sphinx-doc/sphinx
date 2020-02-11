@@ -131,7 +131,7 @@ Generating stub pages automatically
 -----------------------------------
 
 If you do not want to create stub pages with :program:`sphinx-autogen`, you can
-also use this new config value:
+also use these config values:
 
 .. confval:: autosummary_generate
 
@@ -143,11 +143,33 @@ also use this new config value:
    The new files will be placed in the directories specified in the
    ``:toctree:`` options of the directives.
 
+   .. versionchanged:: 2.3
+
+      Emits :event:`autodoc-skip-member` event as :mod:`~sphinx.ext.autodoc`
+      does.
+
+.. confval:: autosummary_generate_overwrite
+
+   If true, autosummary already overwrites stub files by generated contents.
+   Defaults to true (enabled).
+
+   .. versionadded:: 3.0
+
 .. confval:: autosummary_mock_imports
 
    This value contains a list of modules to be mocked up.  See
    :confval:`autodoc_mock_imports` for more details.  It defaults to
    :confval:`autodoc_mock_imports`.
+
+   .. versionadded:: 2.0
+
+.. confval:: autosummary_imported_members
+
+   A boolean flag indicating whether to document classes and functions imported
+   in modules. Default is ``False``
+
+   .. versionadded:: 2.1
+
 
 Customizing templates
 ---------------------

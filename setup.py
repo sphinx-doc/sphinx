@@ -25,7 +25,7 @@ install_requires = [
     'Pygments>=2.0',
     'docutils>=0.12',
     'snowballstemmer>=1.1',
-    'babel>=1.3,!=2.0',
+    'babel>=1.3',
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests>=2.5.0',
@@ -38,15 +38,20 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
-    'test': [
-        'mock',
-        'pytest',
-        'pytest-cov',
-        'html5lib',
+    'docs': [
+        'sphinxcontrib-websupport',
+    ],
+    'lint': [
         'flake8>=3.5.0',
         'flake8-import-order',
-        'mypy>=0.590',
+        'mypy>=0.761',
         'docutils-stubs',
+    ],
+    'test': [
+        'pytest < 5.3.3',
+        'pytest-cov',
+        'html5lib',
+        'typed_ast',  # for py35-37
     ],
 }
 
@@ -173,6 +178,11 @@ setup(
     author_email='georg@python.org',
     description='Python documentation generator',
     long_description=long_desc,
+    long_description_content_type='text/x-rst',
+    project_urls={
+        "Code": "https://github.com/sphinx-doc/sphinx",
+        "Issue tracker": "https://github.com/sphinx-doc/sphinx/issues",
+    },
     zip_safe=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -213,6 +223,9 @@ setup(
     ],
     platforms='any',
     packages=find_packages(exclude=['tests', 'utils']),
+    package_data = {
+        'sphinx': ['py.typed'],
+    },
     include_package_data=True,
     entry_points={
         'console_scripts': [

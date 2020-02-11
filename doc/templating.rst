@@ -297,7 +297,8 @@ in the future.
 
    The "page name" of the current file, i.e. either the document name if the
    file is generated from a reST source, or the equivalent hierarchical name
-   relative to the output directory (``[directory/]filename_without_extension``).
+   relative to the output directory
+   (``[directory/]filename_without_extension``).
 
 .. data:: project
 
@@ -354,8 +355,8 @@ are in HTML form), these variables are also available:
 
 .. data:: body
 
-   A string containing the content of the page in HTML form as produced by the HTML builder,
-   before the theme is applied.
+   A string containing the content of the page in HTML form as produced by the
+   HTML builder, before the theme is applied.
 
 .. data:: display_toc
 
@@ -382,8 +383,9 @@ are in HTML form), these variables are also available:
 
 .. data:: page_source_suffix
 
-   The suffix of the file that was rendered. Since we support a list of :confval:`source_suffix`,
-   this will allow you to properly link to the original source file.
+   The suffix of the file that was rendered. Since we support a list of
+   :confval:`source_suffix`, this will allow you to properly link to the
+   original source file.
 
 .. data:: parents
 

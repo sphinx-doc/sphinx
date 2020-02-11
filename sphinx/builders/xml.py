@@ -4,16 +4,19 @@
 
     Docutils-native XML and pseudo-XML builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
+from typing import Any, Dict, Iterator, Set, Union
 
 from docutils import nodes
 from docutils.io import StringOutput
+from docutils.nodes import Node
 from docutils.writers.docutils_xml import XMLTranslator
 
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
@@ -22,9 +25,8 @@ from sphinx.writers.xml import XMLWriter, PseudoXMLWriter
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterator, Set, Type  # NOQA
-    from docutils.writers.xml import BaseXMLWriter  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from typing import Type  # for python3.5.1
+
 
 logger = logging.getLogger(__name__)
 
@@ -40,15 +42,13 @@ class XMLBuilder(Builder):
     out_suffix = '.xml'
     allow_parallel = True
 
-    _writer_class = XMLWriter  # type: Type[BaseXMLWriter]
+    _writer_class = XMLWriter  # type: Union[Type[XMLWriter], Type[PseudoXMLWriter]]
     default_translator_class = XMLTranslator
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         pass
 
-    def get_outdated_docs(self):
-        # type: () -> Iterator[str]
+    def get_outdated_docs(self) -> Iterator[str]:
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
@@ -66,16 +66,13 @@ class XMLBuilder(Builder):
                 # source doesn't exist anymore
                 pass
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         return docname
 
-    def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+    def prepare_writing(self, docnames: Set[str]) -> None:
         self.writer = self._writer_class(self)
 
-    def write_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+    def write_doc(self, docname: str, doctree: Node) -> None:
         # work around multiple string % tuple issues in docutils;
         # replace tuples in attribute values with lists
         doctree = doctree.deepcopy()
@@ -98,8 +95,7 @@ class XMLBuilder(Builder):
         except OSError as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         pass
 
 
@@ -116,8 +112,7 @@ class PseudoXMLBuilder(XMLBuilder):
     _writer_class = PseudoXMLWriter
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(XMLBuilder)
     app.add_builder(PseudoXMLBuilder)
 

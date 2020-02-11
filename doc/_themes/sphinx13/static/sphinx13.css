@@ -299,6 +299,11 @@ a.headerlink:hover {
     color: white!important;
 }
 
+/* avoid font-size when :mod: role in headings */
+h1 code, h2 code, h3 code, h4 code {
+    font-size: inherit;
+}
+
 cite, code, tt {
     font-family: 'Consolas', 'DejaVu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;

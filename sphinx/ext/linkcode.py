@@ -4,29 +4,27 @@
 
     Add external links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict, Set
+
 from docutils import nodes
+from docutils.nodes import Node
 
 import sphinx
 from sphinx import addnodes
+from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, Set  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 class LinkcodeError(SphinxError):
     category = "linkcode error"
 
 
-def doctree_read(app, doctree):
-    # type: (Sphinx, nodes.Node) -> None
+def doctree_read(app: Sphinx, doctree: Node) -> None:
     env = app.builder.env
 
     resolve_target = getattr(env.config, 'linkcode_resolve', None)
@@ -75,8 +73,7 @@ def doctree_read(app, doctree):
             signode += onlynode
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('doctree-read', doctree_read)
     app.add_config_value('linkcode_resolve', None, '')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

@@ -1,0 +1,6 @@
+# Ref: https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository#configuring-the-template-chooser
+blank_issues_enabled: false  # default: true
+contact_links:
+- name: Question
+  url: https://groups.google.com/forum/#!forum/sphinx-users
+  about: For Q&A purpose, please use sphinx-users mailing list.

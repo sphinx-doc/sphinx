@@ -4,13 +4,14 @@
 
     Tests the JavaScript Domain
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from unittest.mock import Mock
+
 import pytest
 from docutils import nodes
-from mock import Mock
 
 from sphinx import addnodes
 from sphinx.domains.javascript import JavaScriptDomain

@@ -4,17 +4,15 @@
 
     Support for NumPy and Google style docstrings.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from typing import Any, Dict, List
 
 from sphinx import __display_version__ as __version__
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List  # NOQA
 
 
 class Config:
@@ -267,16 +265,14 @@ class Config:
         'napoleon_custom_sections': (None, 'env')
     }
 
-    def __init__(self, **settings):
-        # type: (Any) -> None
+    def __init__(self, **settings: Any) -> None:
         for name, (default, rebuild) in self._config_values.items():
             setattr(self, name, default)
         for name, value in settings.items():
             setattr(self, name, value)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     """Sphinx extension setup function.
 
     When the extension is loaded, Sphinx imports this module and executes
@@ -313,8 +309,7 @@ def setup(app):
     return {'version': __version__, 'parallel_read_safe': True}
 
 
-def _patch_python_domain():
-    # type: () -> None
+def _patch_python_domain() -> None:
     try:
         from sphinx.domains.python import PyTypedField
     except ImportError:
@@ -333,8 +328,8 @@ def _patch_python_domain():
                          can_collapse=True))
 
 
-def _process_docstring(app, what, name, obj, options, lines):
-    # type: (Sphinx, str, str, Any, Any, List[str]) -> None
+def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
+                       options: Any, lines: List[str]) -> None:
     """Process the docstring for a given python object.
 
     Called when autodoc has read and processed a docstring. `lines` is a list
@@ -383,8 +378,8 @@ def _process_docstring(app, what, name, obj, options, lines):
     lines[:] = result_lines[:]
 
 
-def _skip_member(app, what, name, obj, skip, options):
-    # type: (Sphinx, str, str, Any, bool, Any) -> bool
+def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
+                 skip: bool, options: Any) -> bool:
     """Determine if private and special class members are included in docs.
 
     The following settings in conf.py determine if private and special class

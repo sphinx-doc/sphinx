@@ -4,7 +4,7 @@
 
     Test sphinx.ext.graphviz extension.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,8 +20,8 @@ from sphinx.ext.graphviz import ClickableMapDefinition
 def test_graphviz_png_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').text()
-    html = (r'<div class="figure align-center" .*?>\s*'
+    content = (app.outdir / 'index.html').read_text()
+    html = (r'<div class="figure align-default" .*?>\s*'
             r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
             r'<span class="caption-text">caption of graph</span>.*</p>\s*</div>')
     assert re.search(html, content, re.S)
@@ -29,8 +29,9 @@ def test_graphviz_png_html(app, status, warning):
     html = 'Hello <div class="graphviz"><img .*?/></div>\n graphviz world'
     assert re.search(html, content, re.S)
 
-    html = '<img src=".*?" alt="digraph {\n  bar -&gt; baz\n}" class="graphviz" />'
-    assert re.search(html, content, re.M)
+    html = ('<img src=".*?" alt="digraph foo {\nbaz -&gt; qux\n}" '
+            'class="graphviz neato-graph" />')
+    assert re.search(html, content, re.S)
 
     html = (r'<div class="figure align-right" .*?>\s*'
             r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
@@ -50,9 +51,9 @@ def test_graphviz_png_html(app, status, warning):
 def test_graphviz_svg_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
 
-    html = (r'<div class=\"figure align-center\" .*?>\n'
+    html = (r'<div class=\"figure align-default\" .*?>\n'
             r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
             r'\s*<p class=\"warning\">digraph foo {\n'
             r'bar -&gt; baz\n'
@@ -90,7 +91,7 @@ def test_graphviz_svg_html(app, status, warning):
 def test_graphviz_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'python.tex').text()
+    content = (app.outdir / 'python.tex').read_text()
     macro = ('\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
              '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
              '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}')
@@ -116,7 +117,7 @@ def test_graphviz_latex(app, status, warning):
 def test_graphviz_i18n(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     html = '<img src=".*?" alt="digraph {\n  BAR -&gt; BAZ\n}" class="graphviz" />'
     assert re.search(html, content, re.M)
 

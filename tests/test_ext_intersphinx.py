@@ -4,15 +4,15 @@
 
     Test the intersphinx extension.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import unittest
 from io import BytesIO
+from unittest import mock
 
-import mock
 import pytest
 import requests
 from docutils import nodes
@@ -236,7 +236,7 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     load_mappings(app)
 
     app.build()
-    html = (app.outdir / 'index.html').text()
+    html = (app.outdir / 'index.html').read_text()
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
             ' title="(in foo v2.0)">'

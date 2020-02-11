@@ -6,32 +6,28 @@
     Sphinx's HTML writer -- requires the MathJax JavaScript library on your
     webserver/computer.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import json
+from typing import Any, Dict
 from typing import cast
 
 from docutils import nodes
 
 import sphinx
+from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.domains.math import MathDomain
+from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
-
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.writers.html import HTMLTranslator  # NOQA
+from sphinx.writers.html import HTMLTranslator
 
 
-def html_visit_math(self, node):
-    # type: (HTMLTranslator, nodes.math) -> None
+def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
     self.body.append(self.builder.config.mathjax_inline[0] +
                      self.encode(node.astext()) +
@@ -39,8 +35,7 @@ def html_visit_math(self, node):
     raise nodes.SkipNode
 
 
-def html_visit_displaymath(self, node):
-    # type: (HTMLTranslator, nodes.math_block) -> None
+def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None:
     self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
     if node['nowrap']:
         self.body.append(self.encode(node.astext()))
@@ -72,8 +67,7 @@ def html_visit_displaymath(self, node):
     raise nodes.SkipNode
 
 
-def install_mathjax(app, env):
-    # type: (Sphinx, BuildEnvironment) -> None
+def install_mathjax(app: Sphinx, env: BuildEnvironment) -> None:
     if app.builder.format != 'html' or app.builder.math_renderer_name != 'mathjax':  # type: ignore  # NOQA
         return
     if not app.config.mathjax_path:
@@ -94,8 +88,7 @@ def install_mathjax(app, env):
             builder.add_js_file(None, type="text/x-mathjax-config", body=body)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_html_math_renderer('mathjax',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

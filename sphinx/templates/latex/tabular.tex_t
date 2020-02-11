@@ -1,6 +1,6 @@
 \begin{savenotes}\sphinxattablestart
 <% if table.align -%>
-  <%- if table.align == 'center' -%>
+  <%- if table.align in ('center', 'default') -%>
   \centering
   <%- elif table.align == 'left' -%>
   \raggedright

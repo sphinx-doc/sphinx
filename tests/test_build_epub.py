@@ -67,11 +67,11 @@ class EPUBElementTree:
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_build_epub(app):
     app.build()
-    assert (app.outdir / 'mimetype').text() == 'application/epub+zip'
+    assert (app.outdir / 'mimetype').read_text() == 'application/epub+zip'
     assert (app.outdir / 'META-INF' / 'container.xml').exists()
 
     # toc.ncx
-    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').text())
+    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').read_text())
     assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / head
@@ -91,7 +91,7 @@ def test_build_epub(app):
     assert navlabel.text == 'The basic Sphinx documentation for testing'
 
     # content.opf
-    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text())
 
     # content.opf / metadata
     metadata = opf.find("./idpf:metadata")
@@ -143,7 +143,7 @@ def test_build_epub(app):
     assert reference.get('href') == 'index.xhtml'
 
     # nav.xhtml
-    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').text())
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').read_text())
     assert nav.attrib == {'lang': 'en',
                           '{http://www.w3.org/XML/1998/namespace}lang': 'en'}
     assert nav.find("./xhtml:head/xhtml:title").text == 'Table of Contents'
@@ -163,7 +163,7 @@ def test_epub_cover(app):
     app.build()
 
     # content.opf / metadata
-    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text())
     cover_image = opf.find("./idpf:manifest/idpf:item[@href='%s']" % app.config.epub_cover[0])
     cover = opf.find("./idpf:metadata/idpf:meta[@name='cover']")
     assert cover
@@ -175,7 +175,7 @@ def test_nested_toc(app):
     app.build()
 
     # toc.ncx
-    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
+    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').read_bytes())
     assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / navPoint
@@ -205,7 +205,7 @@ def test_nested_toc(app):
         anchor = elem.find("./xhtml:a")
         return (anchor.get('href'), anchor.text)
 
-    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').bytes())
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').read_bytes())
     toc = nav.findall("./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li")
     assert len(toc) == 4
     assert navinfo(toc[0]) == ('index.xhtml',
@@ -230,7 +230,7 @@ def test_escaped_toc(app):
     app.build()
 
     # toc.ncx
-    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
+    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').read_bytes())
     assert toc.find("./ncx:docTitle/ncx:text").text == 'need <b>"escaped"</b> project'
 
     # toc.ncx / navPoint
@@ -260,7 +260,7 @@ def test_escaped_toc(app):
         anchor = elem.find("./xhtml:a")
         return (anchor.get('href'), anchor.text)
 
-    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').bytes())
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').read_bytes())
     toc = nav.findall("./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li")
     assert len(toc) == 4
     assert navinfo(toc[0]) == ('index.xhtml',
@@ -286,7 +286,7 @@ def test_epub_writing_mode(app):
     app.build()
 
     # horizontal / page-progression-direction
-    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text())
     assert opf.find("./idpf:spine").get('page-progression-direction') == 'ltr'
 
     # horizontal / ibooks:scroll-axis
@@ -294,7 +294,7 @@ def test_epub_writing_mode(app):
     assert metadata.find("./idpf:meta[@property='ibooks:scroll-axis']").text == 'vertical'
 
     # horizontal / writing-mode (CSS)
-    css = (app.outdir / '_static' / 'epub.css').text()
+    css = (app.outdir / '_static' / 'epub.css').read_text()
     assert 'writing-mode: horizontal-tb;' in css
 
     # vertical
@@ -303,7 +303,7 @@ def test_epub_writing_mode(app):
     app.build()
 
     # vertical / page-progression-direction
-    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text())
     assert opf.find("./idpf:spine").get('page-progression-direction') == 'rtl'
 
     # vertical / ibooks:scroll-axis
@@ -311,7 +311,7 @@ def test_epub_writing_mode(app):
     assert metadata.find("./idpf:meta[@property='ibooks:scroll-axis']").text == 'horizontal'
 
     # vertical / writing-mode (CSS)
-    css = (app.outdir / '_static' / 'epub.css').text()
+    css = (app.outdir / '_static' / 'epub.css').read_text()
     assert 'writing-mode: vertical-rl;' in css
 
 
@@ -319,8 +319,9 @@ def test_epub_writing_mode(app):
 def test_epub_anchor_id(app):
     app.build()
 
-    html = (app.outdir / 'index.xhtml').text()
+    html = (app.outdir / 'index.xhtml').read_text()
     assert '<p id="std-setting-STATICFILES_FINDERS">blah blah blah</p>' in html
+    assert '<span id="std-setting-STATICFILES_SECTION"></span><h1>blah blah blah</h1>' in html
     assert 'see <a class="reference internal" href="#std-setting-STATICFILES_FINDERS">' in html
 
 
@@ -329,7 +330,7 @@ def test_epub_assets(app):
     app.builder.build_all()
 
     # epub_sytlesheets (same as html_css_files)
-    content = (app.outdir / 'index.xhtml').text()
+    content = (app.outdir / 'index.xhtml').read_text()
     assert ('<link rel="stylesheet" type="text/css" href="_static/css/style.css" />'
             in content)
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
@@ -342,7 +343,7 @@ def test_epub_css_files(app):
     app.builder.build_all()
 
     # epub_css_files
-    content = (app.outdir / 'index.xhtml').text()
+    content = (app.outdir / 'index.xhtml').read_text()
     assert '<link rel="stylesheet" type="text/css" href="_static/css/epub.css" />' in content
 
     # files in html_css_files are not outputed
@@ -359,7 +360,7 @@ def test_html_download_role(app, status, warning):
     app.build()
     assert not (app.outdir / '_downloads' / 'dummy.dat').exists()
 
-    content = (app.outdir / 'index.xhtml').text()
+    content = (app.outdir / 'index.xhtml').read_text()
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">dummy.dat</span></code></p></li>' in content)
     assert ('<li><p><code class="xref download docutils literal notranslate">'

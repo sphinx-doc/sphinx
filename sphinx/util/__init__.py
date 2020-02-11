@@ -4,7 +4,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,33 +22,37 @@ from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
 from hashlib import md5
+from importlib import import_module
 from os import path
 from time import mktime, strptime
+from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
-from docutils.utils import relative_path
-
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
-from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
+from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.errors import (
+    PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError
+)
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
-from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.typing import PathMatcher
 from sphinx.util import smartypants  # noqa
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
 from sphinx.util.osutil import (  # noqa
     SEP, os_path, relative_uri, ensuredir, walk, mtimes_of_files, movefile,
-    copyfile, copytimes, make_filename, ustrftime)
+    copyfile, copytimes, make_filename)
 from sphinx.util.nodes import (   # noqa
     nested_parse_with_titles, split_explicit_title, explicit_title_re,
     caption_ref_re)
 from sphinx.util.matching import patfilter  # noqa
 
+
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Type, Union  # NOQA
+    from typing import Type  # for python3.5.1
+    from sphinx.application import Sphinx
 
 
 logger = logging.getLogger(__name__)
@@ -60,21 +64,19 @@ url_re = re.compile(r'(?P<schema>.+)://.*')     # type: Pattern
 
 # High-level utility functions.
 
-def docname_join(basedocname, docname):
-    # type: (str, str) -> str
+def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(
         posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
-def path_stabilize(filepath):
-    # type: (str) -> str
+def path_stabilize(filepath: str) -> str:
     "normalize path separater and unicode string"
     newpath = filepath.replace(os.path.sep, SEP)
     return unicodedata.normalize('NFC', newpath)
 
 
-def get_matching_files(dirname, exclude_matchers=()):
-    # type: (str, Tuple[Callable[[str], bool], ...]) -> Iterable[str]
+def get_matching_files(dirname: str,
+                       exclude_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:  # NOQA
     """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
@@ -100,8 +102,8 @@ def get_matching_files(dirname, exclude_matchers=()):
             yield filename
 
 
-def get_matching_docs(dirname, suffixes, exclude_matchers=()):
-    # type: (str, List[str], Tuple[Callable[[str], bool], ...]) -> Iterable[str]  # NOQA
+def get_matching_docs(dirname: str, suffixes: List[str],
+                      exclude_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:
     """Get all file names (without suffixes) matching a suffix in a directory,
     recursively.
 
@@ -117,18 +119,25 @@ def get_matching_docs(dirname, suffixes, exclude_matchers=()):
                 break
 
 
+def get_filetype(source_suffix: Dict[str, str], filename: str) -> str:
+    for suffix, filetype in source_suffix.items():
+        if filename.endswith(suffix):
+            # If default filetype (None), considered as restructuredtext.
+            return filetype or 'restructuredtext'
+    else:
+        raise FiletypeNotFoundError
+
+
 class FilenameUniqDict(dict):
     """
     A dictionary that automatically generates unique names for its keys,
     interpreted as filenames, and keeps track of a set of docnames they
     appear in.  Used for images and downloadable files in the environment.
     """
-    def __init__(self):
-        # type: () -> None
+    def __init__(self) -> None:
         self._existing = set()  # type: Set[str]
 
-    def add_file(self, docname, newfile):
-        # type: (str, str) -> str
+    def add_file(self, docname: str, newfile: str) -> str:
         if newfile in self:
             self[newfile][0].add(docname)
             return self[newfile][1]
@@ -138,30 +147,26 @@ class FilenameUniqDict(dict):
         while uniquename in self._existing:
             i += 1
             uniquename = '%s%s%s' % (base, i, ext)
-        self[newfile] = (set([docname]), uniquename)
+        self[newfile] = ({docname}, uniquename)
         self._existing.add(uniquename)
         return uniquename
 
-    def purge_doc(self, docname):
-        # type: (str) -> None
+    def purge_doc(self, docname: str) -> None:
         for filename, (docs, unique) in list(self.items()):
             docs.discard(docname)
             if not docs:
                 del self[filename]
                 self._existing.discard(unique)
 
-    def merge_other(self, docnames, other):
-        # type: (Set[str], Dict[str, Tuple[Set[str], Any]]) -> None
+    def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
         for filename, (docs, unique) in other.items():
             for doc in docs & set(docnames):
                 self.add_file(doc, filename)
 
-    def __getstate__(self):
-        # type: () -> Set[str]
+    def __getstate__(self) -> Set[str]:
         return self._existing
 
-    def __setstate__(self, state):
-        # type: (Set[str]) -> None
+    def __setstate__(self, state: Set[str]) -> None:
         self._existing = state
 
 
@@ -172,8 +177,7 @@ class DownloadFiles(dict):
                    Hence don't hack this directly.
     """
 
-    def add_file(self, docname, filename):
-        # type: (str, str) -> None
+    def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
             digest = md5(filename.encode()).hexdigest()
             dest = '%s/%s' % (digest, os.path.basename(filename))
@@ -182,48 +186,16 @@ class DownloadFiles(dict):
         self[filename][0].add(docname)
         return self[filename][1]
 
-    def purge_doc(self, docname):
-        # type: (str) -> None
+    def purge_doc(self, docname: str) -> None:
         for filename, (docs, dest) in list(self.items()):
             docs.discard(docname)
             if not docs:
                 del self[filename]
 
-    def merge_other(self, docnames, other):
-        # type: (Set[str], Dict[str, Tuple[Set[str], Any]]) -> None
+    def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
         for filename, (docs, dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
-
-
-def copy_static_entry(source, targetdir, builder, context={},
-                      exclude_matchers=(), level=0):
-    # type: (str, str, Any, Dict, Tuple[Callable, ...], int) -> None
-    """[DEPRECATED] Copy a HTML builder static_path entry from source to targetdir.
-
-    Handles all possible cases of files, directories and subdirectories.
-    """
-    warnings.warn('sphinx.util.copy_static_entry is deprecated for removal',
-                  RemovedInSphinx30Warning, stacklevel=2)
-
-    if exclude_matchers:
-        relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
-        for matcher in exclude_matchers:
-            if matcher(relpath):
-                return
-    if path.isfile(source):
-        copy_asset_file(source, targetdir, context, builder.templates)
-    elif path.isdir(source):
-        ensuredir(targetdir)
-        for entry in os.listdir(source):
-            if entry.startswith('.'):
-                continue
-            newtarget = targetdir
-            if path.isdir(path.join(source, entry)):
-                newtarget = path.join(targetdir, entry)
-            copy_static_entry(path.join(source, entry), newtarget,
-                              builder, context, level=level + 1,
-                              exclude_matchers=exclude_matchers)
 
 
 _DEBUG_HEADER = '''\
@@ -237,8 +209,7 @@ _DEBUG_HEADER = '''\
 '''
 
 
-def save_traceback(app):
-    # type: (Any) -> str
+def save_traceback(app: "Sphinx") -> str:
     """Save the current exception's traceback in a temporary file."""
     import sphinx
     import jinja2
@@ -273,19 +244,18 @@ def save_traceback(app):
     return path
 
 
-def get_module_source(modname):
-    # type: (str) -> Tuple[str, str]
+def get_module_source(modname: str) -> Tuple[str, str]:
     """Try to find the source code for a module.
 
     Can return ('file', 'filename') in which case the source is in the given
     file, or ('string', 'source') which which case the source is the string.
     """
-    if modname not in sys.modules:
-        try:
-            __import__(modname)
-        except Exception as err:
-            raise PycodeError('error importing %r' % modname, err)
-    mod = sys.modules[modname]
+    warnings.warn('get_module_source() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
+    try:
+        mod = import_module(modname)
+    except Exception as err:
+        raise PycodeError('error importing %r' % modname, err)
     filename = getattr(mod, '__file__', None)
     loader = getattr(mod, '__loader__', None)
     if loader and getattr(loader, 'get_filename', None):
@@ -321,14 +291,12 @@ def get_module_source(modname):
     return 'file', filename
 
 
-def get_full_modname(modname, attribute):
-    # type: (str, str) -> str
+def get_full_modname(modname: str, attribute: str) -> str:
     if modname is None:
         # Prevents a TypeError: if the last getattr() call will return None
         # then it's better to return it directly
         return None
-    __import__(modname)
-    module = sys.modules[modname]
+    module = import_module(modname)
 
     # Allow an attribute to have multiple parts and incidentially allow
     # repeated .s in the attribute.
@@ -344,19 +312,18 @@ def get_full_modname(modname, attribute):
 _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 
-def detect_encoding(readline):
-    # type: (Callable[[], bytes]) -> str
+def detect_encoding(readline: Callable[[], bytes]) -> str:
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
+    warnings.warn('sphinx.util.detect_encoding() is deprecated',
+                  RemovedInSphinx40Warning)
 
-    def read_or_stop():
-        # type: () -> bytes
+    def read_or_stop() -> bytes:
         try:
             return readline()
         except StopIteration:
             return None
 
-    def get_normal_name(orig_enc):
-        # type: (str) -> str
+    def get_normal_name(orig_enc: str) -> str:
         """Imitates get_normal_name in tokenizer.c."""
         # Only care about the first 12 characters.
         enc = orig_enc[:12].lower().replace('_', '-')
@@ -367,8 +334,7 @@ def detect_encoding(readline):
             return 'iso-8859-1'
         return orig_enc
 
-    def find_cookie(line):
-        # type: (bytes) -> str
+    def find_cookie(line: bytes) -> str:
         try:
             line_string = line.decode('ascii')
         except UnicodeDecodeError:
@@ -401,12 +367,10 @@ def detect_encoding(readline):
 class UnicodeDecodeErrorHandler:
     """Custom error handler for open() that warns and replaces."""
 
-    def __init__(self, docname):
-        # type: (str) -> None
+    def __init__(self, docname: str) -> None:
         self.docname = docname
 
-    def __call__(self, error):
-        # type: (UnicodeDecodeError) -> Tuple[Union[str, str], int]
+    def __call__(self, error: UnicodeDecodeError) -> Tuple[str, int]:
         linestart = error.object.rfind(b'\n', 0, error.start)
         lineend = error.object.find(b'\n', error.start)
         if lineend == -1:
@@ -426,26 +390,22 @@ class Tee:
     """
     File-like object writing to two streams.
     """
-    def __init__(self, stream1, stream2):
-        # type: (IO, IO) -> None
+    def __init__(self, stream1: IO, stream2: IO) -> None:
         self.stream1 = stream1
         self.stream2 = stream2
 
-    def write(self, text):
-        # type: (str) -> None
+    def write(self, text: str) -> None:
         self.stream1.write(text)
         self.stream2.write(text)
 
-    def flush(self):
-        # type: () -> None
+    def flush(self) -> None:
         if hasattr(self.stream1, 'flush'):
             self.stream1.flush()
         if hasattr(self.stream2, 'flush'):
             self.stream2.flush()
 
 
-def parselinenos(spec, total):
-    # type: (str, int) -> List[int]
+def parselinenos(spec: str, total: int) -> List[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
@@ -472,8 +432,7 @@ def parselinenos(spec, total):
     return items
 
 
-def force_decode(string, encoding):
-    # type: (str, str) -> str
+def force_decode(string: str, encoding: str) -> str:
     """Forcibly get a unicode string out of a bytestring."""
     warnings.warn('force_decode() is deprecated.',
                   RemovedInSphinx40Warning, stacklevel=2)
@@ -491,26 +450,22 @@ def force_decode(string, encoding):
 
 
 class attrdict(dict):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         warnings.warn('The attrdict class is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
 
-    def __getattr__(self, key):
-        # type: (str) -> str
+    def __getattr__(self, key: str) -> str:
         return self[key]
 
-    def __setattr__(self, key, val):
-        # type: (str, str) -> None
+    def __setattr__(self, key: str, val: str) -> None:
         self[key] = val
 
-    def __delattr__(self, key):
-        # type: (str) -> None
+    def __delattr__(self, key: str) -> None:
         del self[key]
 
 
-def rpartition(s, t):
-    # type: (str, str) -> Tuple[str, str]
+def rpartition(s: str, t: str) -> Tuple[str, str]:
     """Similar to str.rpartition from 2.5, but doesn't return the separator."""
     i = s.rfind(t)
     if i != -1:
@@ -518,8 +473,7 @@ def rpartition(s, t):
     return '', s
 
 
-def split_into(n, type, value):
-    # type: (int, str, str) -> List[str]
+def split_into(n: int, type: str, value: str) -> List[str]:
     """Split an index entry into a given number of parts at semicolons."""
     parts = [x.strip() for x in value.split(';', n - 1)]
     if sum(1 for part in parts if part) < n:
@@ -527,8 +481,7 @@ def split_into(n, type, value):
     return parts
 
 
-def split_index_msg(type, value):
-    # type: (str, str) -> List[str]
+def split_index_msg(type: str, value: str) -> List[str]:
     # new entry types must be listed in directives/other.py!
     if type == 'single':
         try:
@@ -549,8 +502,7 @@ def split_index_msg(type, value):
     return result
 
 
-def format_exception_cut_frames(x=1):
-    # type: (int) -> str
+def format_exception_cut_frames(x: int = 1) -> str:
     """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()
     # res = ['Traceback (most recent call last):\n']
@@ -566,19 +518,16 @@ class PeekableIterator:
     An iterator which wraps any iterable and makes it possible to peek to see
     what's the next item.
     """
-    def __init__(self, iterable):
-        # type: (Iterable) -> None
+    def __init__(self, iterable: Iterable) -> None:
         self.remaining = deque()  # type: deque
         self._iterator = iter(iterable)
         warnings.warn('PeekableIterator is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
 
-    def __iter__(self):
-        # type: () -> PeekableIterator
+    def __iter__(self) -> "PeekableIterator":
         return self
 
-    def __next__(self):
-        # type: () -> Any
+    def __next__(self) -> Any:
         """Return the next item from the iterator."""
         if self.remaining:
             return self.remaining.popleft()
@@ -586,35 +535,31 @@ class PeekableIterator:
 
     next = __next__  # Python 2 compatibility
 
-    def push(self, item):
-        # type: (Any) -> None
+    def push(self, item: Any) -> None:
         """Push the `item` on the internal stack, it will be returned on the
         next :meth:`next` call.
         """
         self.remaining.append(item)
 
-    def peek(self):
-        # type: () -> Any
+    def peek(self) -> Any:
         """Return the next item without changing the state of the iterator."""
         item = next(self)
         self.push(item)
         return item
 
 
-def import_object(objname, source=None):
-    # type: (str, str) -> Any
+def import_object(objname: str, source: str = None) -> Any:
     """Import python object by qualname."""
     try:
         objpath = objname.split('.')
         modname = objpath.pop(0)
-        obj = __import__(modname)
+        obj = import_module(modname)
         for name in objpath:
             modname += '.' + name
             try:
                 obj = getattr(obj, name)
             except AttributeError:
-                __import__(modname)
-                obj = getattr(obj, name)
+                obj = import_module(modname)
 
         return obj
     except (AttributeError, ImportError) as exc:
@@ -625,8 +570,7 @@ def import_object(objname, source=None):
             raise ExtensionError('Could not import %s' % objname, exc)
 
 
-def encode_uri(uri):
-    # type: (str) -> str
+def encode_uri(uri: str) -> str:
     split = list(urlsplit(uri))
     split[1] = split[1].encode('idna').decode('ascii')
     split[2] = quote_plus(split[2].encode(), '/')
@@ -635,8 +579,7 @@ def encode_uri(uri):
     return urlunsplit(split)
 
 
-def display_chunk(chunk):
-    # type: (Any) -> str
+def display_chunk(chunk: Any) -> str:
     if isinstance(chunk, (list, tuple)):
         if len(chunk) == 1:
             return str(chunk[0])
@@ -644,8 +587,8 @@ def display_chunk(chunk):
     return str(chunk)
 
 
-def old_status_iterator(iterable, summary, color="darkgreen", stringify_func=display_chunk):
-    # type: (Iterable, str, str, Callable[[Any], str]) -> Iterator
+def old_status_iterator(iterable: Iterable, summary: str, color: str = "darkgreen",
+                        stringify_func: Callable[[Any], str] = display_chunk) -> Iterator:
     l = 0
     for item in iterable:
         if l == 0:
@@ -659,9 +602,9 @@ def old_status_iterator(iterable, summary, color="darkgreen", stringify_func=dis
 
 
 # new version with progress info
-def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
-                    stringify_func=display_chunk):
-    # type: (Iterable, str, str, int, int, Callable[[Any], str]) -> Iterable
+def status_iterator(iterable: Iterable, summary: str, color: str = "darkgreen",
+                    length: int = 0, verbosity: int = 0,
+                    stringify_func: Callable[[Any], str] = display_chunk) -> Iterable:
     if length == 0:
         yield from old_status_iterator(iterable, summary, color, stringify_func)
         return
@@ -685,16 +628,13 @@ class SkipProgressMessage(Exception):
 
 
 class progress_message:
-    def __init__(self, message):
-        # type: (str) -> None
+    def __init__(self, message: str) -> None:
         self.message = message
 
-    def __enter__(self):
-        # type: () -> None
+    def __enter__(self) -> None:
         logger.info(bold(self.message + '... '), nonl=True)
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        # type: (Type[Exception], Exception, Any) -> bool
+    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
         if isinstance(exc_value, SkipProgressMessage):
             logger.info(__('skipped'))
             if exc_value.args:
@@ -707,8 +647,7 @@ class progress_message:
 
         return False
 
-    def __call__(self, f):
-        # type: (Callable) -> Callable
+    def __call__(self, f: Callable) -> Callable:
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             with self:
@@ -717,8 +656,7 @@ class progress_message:
         return wrapper
 
 
-def epoch_to_rfc1123(epoch):
-    # type: (float) -> str
+def epoch_to_rfc1123(epoch: float) -> str:
     """Convert datetime format epoch to RFC1123."""
     from babel.dates import format_datetime
 
@@ -727,13 +665,11 @@ def epoch_to_rfc1123(epoch):
     return format_datetime(dt, fmt, locale='en') + ' GMT'
 
 
-def rfc1123_to_epoch(rfc1123):
-    # type: (str) -> float
+def rfc1123_to_epoch(rfc1123: str) -> float:
     return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
 
 
-def xmlname_checker():
-    # type: () -> Pattern
+def xmlname_checker() -> Pattern:
     # https://www.w3.org/TR/REC-xml/#NT-Name
     name_start_chars = [
         ':', ['A', 'Z'], '_', ['a', 'z'], ['\u00C0', '\u00D6'],
@@ -747,8 +683,7 @@ def xmlname_checker():
         ['\u203F', '\u2040']
     ]
 
-    def convert(entries, splitter='|'):
-        # type: (Any, str) -> str
+    def convert(entries: Any, splitter: str = '|') -> str:
         results = []
         for entry in entries:
             if isinstance(entry, list):

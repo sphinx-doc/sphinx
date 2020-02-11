@@ -43,7 +43,7 @@ Configuration
 -------------
 
 To use Intersphinx linking, add ``'sphinx.ext.intersphinx'`` to your
-:confval:`extensions` config value, and use these new config values to activate
+:confval:`extensions` config value, and use these config values to activate
 linking:
 
 .. confval:: intersphinx_mapping
@@ -148,3 +148,13 @@ project. The following example prints the Intersphinx mapping of the Python 3
 documentation::
 
    $ python -msphinx.ext.intersphinx https://docs.python.org/3/objects.inv
+
+Using Intersphinx with inventory file under Basic Authorization
+---------------------------------------------------------------
+
+Intersphinx supports Basic Authorization like this::
+
+      intersphinx_mapping = {'python': ('https://user:password@docs.python.org/3',
+                                        None)}
+
+The user and password will be stripped from the URL when generating the links.

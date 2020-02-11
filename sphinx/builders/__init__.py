@@ -4,29 +4,34 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pickle
 import time
 from os import path
+from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Union
 
 from docutils import nodes
+from docutils.nodes import Node
 
-from sphinx.environment import CONFIG_OK, CONFIG_CHANGED_REASON
+from sphinx.config import Config
+from sphinx.environment import BuildEnvironment, CONFIG_OK, CONFIG_CHANGED_REASON
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
+from sphinx.events import EventManager
 from sphinx.io import read_doc
 from sphinx.locale import __
 from sphinx.util import import_object, logging, rst, progress_message, status_iterator
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
-from sphinx.util.i18n import CatalogRepository, docname_to_domain
+from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
+from sphinx.util.tags import Tags
 
 # side effect: registers roles and directives
 from sphinx import roles       # noqa
@@ -39,12 +44,8 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.i18n import CatalogInfo  # NOQA
-    from sphinx.util.tags import Tags  # NOQA
+    from typing import Type  # for python3.5.1
+    from sphinx.application import Sphinx
 
 
 logger = logging.getLogger(__name__)
@@ -83,8 +84,7 @@ class Builder:
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
-    def __init__(self, app):
-        # type: (Sphinx) -> None
+    def __init__(self, app: "Sphinx") -> None:
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -93,6 +93,7 @@ class Builder:
 
         self.app = app              # type: Sphinx
         self.env = None             # type: BuildEnvironment
+        self.events = app.events    # type: EventManager
         self.config = app.config    # type: Config
         self.tags = app.tags        # type: Tags
         self.tags.add(self.format)
@@ -111,20 +112,17 @@ class Builder:
         self.parallel_ok = False
         self.finish_tasks = None  # type: Any
 
-    def set_environment(self, env):
-        # type: (BuildEnvironment) -> None
+    def set_environment(self, env: BuildEnvironment) -> None:
         """Store BuildEnvironment object."""
         self.env = env
         self.env.set_versioning_method(self.versioning_method,
                                        self.versioning_compare)
 
-    def get_translator_class(self, *args):
-        # type: (Any) -> Type[nodes.NodeVisitor]
+    def get_translator_class(self, *args: Any) -> "Type[nodes.NodeVisitor]":
         """Return a class of translator."""
         return self.app.registry.get_translator_class(self)
 
-    def create_translator(self, *args):
-        # type: (Any) -> nodes.NodeVisitor
+    def create_translator(self, *args: Any) -> nodes.NodeVisitor:
         """Return an instance of translator.
 
         This method returns an instance of ``default_translator_class`` by default.
@@ -133,15 +131,13 @@ class Builder:
         return self.app.registry.create_translator(self, *args)
 
     # helper methods
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         """Load necessary templates and perform initialization.  The default
         implementation does nothing.
         """
         pass
 
-    def create_template_bridge(self):
-        # type: () -> None
+    def create_template_bridge(self) -> None:
         """Return the template bridge configured."""
         if self.config.template_bridge:
             self.templates = import_object(self.config.template_bridge,
@@ -150,8 +146,7 @@ class Builder:
             from sphinx.jinja2glue import BuiltinTemplateLoader
             self.templates = BuiltinTemplateLoader()
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         """Return the target URI for a document name.
 
         *typ* can be used to qualify the link characteristic for individual
@@ -159,8 +154,7 @@ class Builder:
         """
         raise NotImplementedError
 
-    def get_relative_uri(self, from_, to, typ=None):
-        # type: (str, str, str) -> str
+    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
         """Return a relative URI between two source filenames.
 
         May raise environment.NoUri if there's no way to return a sensible URI.
@@ -168,8 +162,7 @@ class Builder:
         return relative_uri(self.get_target_uri(from_),
                             self.get_target_uri(to, typ))
 
-    def get_outdated_docs(self):
-        # type: () -> Union[str, Iterable[str]]
+    def get_outdated_docs(self) -> Union[str, Iterable[str]]:
         """Return an iterable of output files that are outdated, or a string
         describing what an update build will build.
 
@@ -179,13 +172,11 @@ class Builder:
         """
         raise NotImplementedError
 
-    def get_asset_paths(self):
-        # type: () -> List[str]
+    def get_asset_paths(self) -> List[str]:
         """Return list of paths for assets (ex. templates, CSS, etc.)."""
         return []
 
-    def post_process_images(self, doctree):
-        # type: (nodes.Node) -> None
+    def post_process_images(self, doctree: Node) -> None:
         """Pick the best candidate for all image URIs."""
         images = ImageAdapter(self.env)
         for node in doctree.traverse(nodes.image):
@@ -218,13 +209,11 @@ class Builder:
 
     # compile po methods
 
-    def compile_catalogs(self, catalogs, message):
-        # type: (Set[CatalogInfo], str) -> None
+    def compile_catalogs(self, catalogs: Set[CatalogInfo], message: str) -> None:
         if not self.config.gettext_auto_build:
             return
 
-        def cat2relpath(cat):
-            # type: (CatalogInfo) -> str
+        def cat2relpath(cat: CatalogInfo) -> str:
             return relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
         logger.info(bold(__('building [mo]: ')) + message)
@@ -233,17 +222,14 @@ class Builder:
                                        stringify_func=cat2relpath):
             catalog.write_mo(self.config.language)
 
-    def compile_all_catalogs(self):
-        # type: () -> None
+    def compile_all_catalogs(self) -> None:
         repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
                                  self.config.language, self.config.source_encoding)
         message = __('all of %d po files') % len(list(repo.catalogs))
         self.compile_catalogs(set(repo.catalogs), message)
 
-    def compile_specific_catalogs(self, specified_files):
-        # type: (List[str]) -> None
-        def to_domain(fpath):
-            # type: (str) -> str
+    def compile_specific_catalogs(self, specified_files: List[str]) -> None:
+        def to_domain(fpath: str) -> str:
             docname = self.env.path2doc(path.abspath(fpath))
             if docname:
                 return docname_to_domain(docname, self.config.gettext_compact)
@@ -260,8 +246,7 @@ class Builder:
         message = __('targets for %d po files that are specified') % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
-    def compile_update_catalogs(self):
-        # type: () -> None
+    def compile_update_catalogs(self) -> None:
         repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
                                  self.config.language, self.config.source_encoding)
         catalogs = {c for c in repo.catalogs if c.is_outdated()}
@@ -270,13 +255,11 @@ class Builder:
 
     # build methods
 
-    def build_all(self):
-        # type: () -> None
+    def build_all(self) -> None:
         """Build all source files."""
         self.build(None, summary=__('all source files'), method='all')
 
-    def build_specific(self, filenames):
-        # type: (List[str]) -> None
+    def build_specific(self, filenames: List[str]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
         # bring the filenames to the canonical format, that is,
         # relative to the source directory and without source_suffix.
@@ -304,8 +287,7 @@ class Builder:
         self.build(to_write, method='specific',
                    summary=__('%d source files given on command line') % len(to_write))
 
-    def build_update(self):
-        # type: () -> None
+    def build_update(self) -> None:
         """Only rebuild what was changed or added since last build."""
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
@@ -316,14 +298,13 @@ class Builder:
                        summary=__('targets for %d source files that are out of date') %
                        len(to_build))
 
-    def build(self, docnames, summary=None, method='update'):
-        # type: (Iterable[str], str, str) -> None
+    def build(self, docnames: Iterable[str], summary: str = None, method: str = 'update') -> None:  # NOQA
         """Main build method.
 
         First updates the environment, and then calls :meth:`write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]') % self.name) + ': ' + summary)
+            logger.info(bold(__('building [%s]: ') % self.name) + summary)
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
@@ -385,8 +366,7 @@ class Builder:
         # wait for all tasks
         self.finish_tasks.join()
 
-    def read(self):
-        # type: () -> List[str]
+    def read(self) -> List[str]:
         """(Re-)read all files new or changed since last update.
 
         Store all environment docnames in the canonical format (ie using SEP as
@@ -399,7 +379,7 @@ class Builder:
         added, changed, removed = self.env.get_outdated_files(updated)
 
         # allow user intervention as well
-        for docs in self.app.emit('env-get-outdated', self, added, changed, removed):
+        for docs in self.events.emit('env-get-outdated', self, added, changed, removed):
             changed.update(set(docs) & self.env.found_docs)
 
         # if files were added or removed, all documents with globbed toctrees
@@ -408,21 +388,23 @@ class Builder:
             # ... but not those that already were removed
             changed.update(self.env.glob_toctrees & self.env.found_docs)
 
-        if changed:
-            reason = CONFIG_CHANGED_REASON.get(self.env.config_status, '')
+        if updated:  # explain the change iff build config status was not ok
+            reason = (CONFIG_CHANGED_REASON.get(self.env.config_status, '') +
+                      (self.env.config_status_extra or ''))
             logger.info('[%s] ', reason, nonl=True)
+
         logger.info(__('%s added, %s changed, %s removed'),
                     len(added), len(changed), len(removed))
 
         # clear all files no longer present
         for docname in removed:
-            self.app.emit('env-purge-doc', self.env, docname)
+            self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
 
         # read all new and changed files
         docnames = sorted(added | changed)
         # allow changing and reordering the list of docs to read
-        self.app.emit('env-before-read-docs', self.env, docnames)
+        self.events.emit('env-before-read-docs', self.env, docnames)
 
         # check if we should do parallel or serial read
         if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
@@ -439,7 +421,7 @@ class Builder:
             raise SphinxError('master file %s not found' %
                               self.env.doc2path(self.config.master_doc))
 
-        for retval in self.app.emit('env-updated', self.env):
+        for retval in self.events.emit('env-updated', self.env):
             if retval is not None:
                 docnames.extend(retval)
 
@@ -448,32 +430,28 @@ class Builder:
 
         return sorted(docnames)
 
-    def _read_serial(self, docnames):
-        # type: (List[str]) -> None
+    def _read_serial(self, docnames: List[str]) -> None:
         for docname in status_iterator(docnames, __('reading sources... '), "purple",
                                        len(docnames), self.app.verbosity):
             # remove all inventory entries for that file
-            self.app.emit('env-purge-doc', self.env, docname)
+            self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
             self.read_doc(docname)
 
-    def _read_parallel(self, docnames, nproc):
-        # type: (List[str], int) -> None
+    def _read_parallel(self, docnames: List[str], nproc: int) -> None:
         # clear all outdated docs at once
         for docname in docnames:
-            self.app.emit('env-purge-doc', self.env, docname)
+            self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
 
-        def read_process(docs):
-            # type: (List[str]) -> bytes
+        def read_process(docs: List[str]) -> bytes:
             self.env.app = self.app
             for docname in docs:
                 self.read_doc(docname)
             # allow pickling self to send it back
             return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
-        def merge(docs, otherenv):
-            # type: (List[str], bytes) -> None
+        def merge(docs: List[str], otherenv: bytes) -> None:
             env = pickle.loads(otherenv)
             self.env.merge_info_from(docs, env, self.app)
 
@@ -488,8 +466,7 @@ class Builder:
         logger.info(bold(__('waiting for workers...')))
         tasks.join()
 
-    def read_doc(self, docname):
-        # type: (str) -> None
+    def read_doc(self, docname: str) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
 
@@ -514,8 +491,7 @@ class Builder:
 
         self.write_doctree(docname, doctree)
 
-    def write_doctree(self, docname, doctree):
-        # type: (str, nodes.document) -> None
+    def write_doctree(self, docname: str, doctree: nodes.document) -> None:
         """Write the doctree to a file."""
         # make it picklable
         doctree.reporter = None
@@ -529,8 +505,7 @@ class Builder:
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
-    def write(self, build_docnames, updated_docnames, method='update'):
-        # type: (Iterable[str], Sequence[str], str) -> None
+    def write(self, build_docnames: Iterable[str], updated_docnames: Sequence[str], method: str = 'update') -> None:  # NOQA
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
@@ -559,8 +534,7 @@ class Builder:
         else:
             self._write_serial(sorted(docnames))
 
-    def _write_serial(self, docnames):
-        # type: (Sequence[str]) -> None
+    def _write_serial(self, docnames: Sequence[str]) -> None:
         with logging.pending_warnings():
             for docname in status_iterator(docnames, __('writing output... '), "darkgreen",
                                            len(docnames), self.app.verbosity):
@@ -570,10 +544,8 @@ class Builder:
                 self.write_doc_serialized(docname, doctree)
                 self.write_doc(docname, doctree)
 
-    def _write_parallel(self, docnames, nproc):
-        # type: (Sequence[str], int) -> None
-        def write_process(docs):
-            # type: (List[Tuple[str, nodes.document]]) -> None
+    def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
+        def write_process(docs: List[Tuple[str, nodes.document]]) -> None:
             self.app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
@@ -603,41 +575,35 @@ class Builder:
         logger.info(bold(__('waiting for workers...')))
         tasks.join()
 
-    def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+    def prepare_writing(self, docnames: Set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""
         raise NotImplementedError
 
-    def write_doc(self, docname, doctree):
-        # type: (str, nodes.document) -> None
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
         """Where you actually write something to the filesystem."""
         raise NotImplementedError
 
-    def write_doc_serialized(self, docname, doctree):
-        # type: (str, nodes.document) -> None
+    def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
         """Handle parts of write_doc that must be called in the main process
         if parallel build is active.
         """
         pass
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         """Finish the building process.
 
         The default implementation does nothing.
         """
         pass
 
-    def cleanup(self):
-        # type: () -> None
+    def cleanup(self) -> None:
         """Cleanup any resources.
 
         The default implementation does nothing.
         """
         pass
 
-    def get_builder_config(self, option, default):
-        # type: (str, str) -> Any
+    def get_builder_config(self, option: str, default: str) -> Any:
         """Return a builder specific option.
 
         This method allows customization of common builder settings by

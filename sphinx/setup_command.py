@@ -7,7 +7,7 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,7 +25,7 @@ from sphinx.util.osutil import abspath
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Any, Dict  # NOQA
 
 
 class BuildDoc(Command):
@@ -85,6 +85,7 @@ class BuildDoc(Command):
         ('copyright', None, 'The copyright string'),
         ('pdb', None, 'Start pdb on exception'),
         ('nitpicky', 'n', 'nit-picky mode, warn about all missing references'),
+        ('keep-going', None, 'With -W, keep going when getting warnings'),
     ]
     boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
                        'link-index', 'nitpicky']
@@ -106,6 +107,7 @@ class BuildDoc(Command):
         self.verbosity = 0
         self.traceback = False
         self.nitpicky = False
+        self.keep_going = False
 
     def _guess_source_dir(self):
         # type: () -> str
@@ -186,7 +188,8 @@ class BuildDoc(Command):
                                  builder_target_dir, self.doctree_dir,
                                  builder, confoverrides, status_stream,
                                  freshenv=self.fresh_env,
-                                 warningiserror=self.warning_is_error)
+                                 warningiserror=self.warning_is_error,
+                                 keep_going=self.keep_going)
                     app.build(force_all=self.all_files)
                     if app.statuscode:
                         raise DistutilsExecError(

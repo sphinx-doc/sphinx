@@ -6,11 +6,11 @@ This is from CPython documentation.
 
 Some additional anchors to exercise ignore code
 
-* `Example Bar invalid <http://example.com/#!bar>`_
-* `Example Bar invalid <http://example.com#!bar>`_ tests that default ignore anchor of #! does not need to be prefixed with /
-* `Example Bar invalid <http://example.com/#top>`_
+* `Example Bar invalid <https://www.google.com/#!bar>`_
+* `Example Bar invalid <https://www.google.com#!bar>`_ tests that default ignore anchor of #! does not need to be prefixed with /
+* `Example Bar invalid <https://www.google.com/#top>`_
 * `Example anchor invalid <http://www.sphinx-doc.org/en/1.7/intro.html#does-not-exist>`_
 * `Complete nonsense <https://localhost:7777/doesnotexist>`_
 
-.. image:: http://example.com/image.png
-.. figure:: http://example.com/image2.png
+.. image:: https://www.google.com/image.png
+.. figure:: https://www.google.com/image2.png

@@ -4,7 +4,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,14 +13,22 @@ import pickle
 import warnings
 from collections import defaultdict
 from copy import copy
-from io import BytesIO
 from os import path
+from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
+from typing import cast
+
+from docutils import nodes
+from docutils.nodes import Node
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.domains import Domain
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
+from sphinx.events import EventManager
 from sphinx.locale import __
+from sphinx.project import Project
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import DownloadFiles, FilenameUniqDict
 from sphinx.util import logging
@@ -30,13 +38,9 @@ from sphinx.util.nodes import is_translatable
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Pattern, Set, Tuple, Type, Union, Generator  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.config import Config  # NOQA
-    from sphinx.domains import Domain  # NOQA
-    from sphinx.project import Project  # NOQA
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+
 
 logger = logging.getLogger(__name__)
 
@@ -78,11 +82,6 @@ versioning_conditions = {
 }  # type: Dict[str, Union[bool, Callable]]
 
 
-class NoUri(Exception):
-    """Raised by get_relative_uri if there is no URI available."""
-    pass
-
-
 class BuildEnvironment:
     """
     The environment in which the ReST files are translated.
@@ -94,15 +93,16 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, app=None):
-        # type: (Sphinx) -> None
-        self.app = None             # type: Sphinx
-        self.doctreedir = None      # type: str
-        self.srcdir = None          # type: str
-        self.config = None          # type: Config
-        self.config_status = None   # type: int
-        self.project = None         # type: Project
-        self.version = None         # type: Dict[str, str]
+    def __init__(self, app: "Sphinx" = None):
+        self.app = None                  # type: Sphinx
+        self.doctreedir = None           # type: str
+        self.srcdir = None               # type: str
+        self.config = None               # type: Config
+        self.config_status = None        # type: int
+        self.config_status_extra = None  # type: str
+        self.events = None               # type: EventManager
+        self.project = None              # type: Project
+        self.version = None              # type: Dict[str, str]
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None  # type: Union[bool, Callable]
@@ -168,11 +168,6 @@ class BuildEnvironment:
         self.domaindata = {}        # type: Dict[str, Dict]
                                     # domainname -> domain-specific dict
 
-        # Other inventories
-        self.indexentries = {}      # type: Dict[str, List[Tuple[str, str, str, str, str]]]
-                                    # docname -> list of
-                                    # (type, str, target, aliasname)
-
         # these map absolute path -> (docnames, unique filename)
         self.images = FilenameUniqDict()    # type: FilenameUniqDict
         self.dlfiles = DownloadFiles()      # type: DownloadFiles
@@ -192,19 +187,16 @@ class BuildEnvironment:
         if app:
             self.setup(app)
 
-    def __getstate__(self):
-        # type: () -> Dict
+    def __getstate__(self) -> Dict:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
-        __dict__.update(app=None, domains={})  # clear unpickable attributes
+        __dict__.update(app=None, domains={}, events=None)  # clear unpickable attributes
         return __dict__
 
-    def __setstate__(self, state):
-        # type: (Dict) -> None
+    def __setstate__(self, state: Dict) -> None:
         self.__dict__.update(state)
 
-    def setup(self, app):
-        # type: (Sphinx) -> None
+    def setup(self, app: "Sphinx") -> None:
         """Set up BuildEnvironment object."""
         if self.version and self.version != app.registry.get_envversion(app):
             raise BuildEnvironmentError(__('build environment version not current'))
@@ -216,6 +208,7 @@ class BuildEnvironment:
 
         self.app = app
         self.doctreedir = app.doctreedir
+        self.events = app.events
         self.srcdir = app.srcdir
         self.project = app.project
         self.version = app.registry.get_envversion(app)
@@ -231,29 +224,33 @@ class BuildEnvironment:
         # initialie settings
         self._update_settings(app.config)
 
-    def _update_config(self, config):
-        # type: (Config) -> None
+    def _update_config(self, config: Config) -> None:
         """Update configurations by new one."""
         self.config_status = CONFIG_OK
+        self.config_status_extra = ''
         if self.config is None:
             self.config_status = CONFIG_NEW
+        elif self.config.extensions != config.extensions:
+            self.config_status = CONFIG_EXTENSIONS_CHANGED
+            extensions = sorted(
+                set(self.config.extensions) ^ set(config.extensions))
+            if len(extensions) == 1:
+                extension = extensions[0]
+            else:
+                extension = '%d' % (len(extensions),)
+            self.config_status_extra = ' (%r)' % (extension,)
         else:
             # check if a config value was changed that affects how
             # doctrees are read
             for item in config.filter('env'):
                 if self.config[item.name] != item.value:
                     self.config_status = CONFIG_CHANGED
+                    self.config_status_extra = ' (%r)' % (item.name,)
                     break
-
-            # this value is not covered by the above loop because it is handled
-            # specially by the config class
-            if self.config.extensions != config.extensions:
-                self.config_status = CONFIG_EXTENSIONS_CHANGED
 
         self.config = config
 
-    def _update_settings(self, config):
-        # type: (Config) -> None
+    def _update_settings(self, config: Config) -> None:
         """Update settings by new config."""
         self.settings['input_encoding'] = config.source_encoding
         self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
@@ -262,8 +259,7 @@ class BuildEnvironment:
         # Allow to disable by 3rd party extension (workaround)
         self.settings.setdefault('smart_quotes', True)
 
-    def set_versioning_method(self, method, compare):
-        # type: (Union[str, Callable], bool) -> None
+    def set_versioning_method(self, method: Union[str, Callable], compare: bool) -> None:
         """This sets the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
@@ -286,8 +282,7 @@ class BuildEnvironment:
         self.versioning_condition = condition
         self.versioning_compare = compare
 
-    def clear_doc(self, docname):
-        # type: (str) -> None
+    def clear_doc(self, docname: str) -> None:
         """Remove all traces of a source file in the inventory."""
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
@@ -297,8 +292,8 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.clear_doc(docname)
 
-    def merge_info_from(self, docnames, other, app):
-        # type: (List[str], BuildEnvironment, Sphinx) -> None
+    def merge_info_from(self, docnames: List[str], other: "BuildEnvironment",
+                        app: "Sphinx") -> None:
         """Merge global information gathered about *docnames* while reading them
         from the *other* environment.
 
@@ -311,24 +306,18 @@ class BuildEnvironment:
             if docname in other.reread_always:
                 self.reread_always.add(docname)
 
-        for version, changes in other.versionchanges.items():
-            self.versionchanges.setdefault(version, []).extend(
-                change for change in changes if change[1] in docnames)
-
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
-        app.emit('env-merge-info', self, docnames, other)
+        self.events.emit('env-merge-info', self, docnames, other)
 
-    def path2doc(self, filename):
-        # type: (str) -> Optional[str]
+    def path2doc(self, filename: str) -> str:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
         """
         return self.project.path2doc(filename)
 
-    def doc2path(self, docname, base=True, suffix=None):
-        # type: (str, Union[bool, str], str) -> str
+    def doc2path(self, docname: str, base: Union[bool, str] = True, suffix: str = None) -> str:
         """Return the filename for the document name.
 
         If *base* is True, return absolute path under self.srcdir.
@@ -351,8 +340,7 @@ class BuildEnvironment:
             pathname = path.join(base, pathname)  # type: ignore
         return pathname
 
-    def relfn2path(self, filename, docname=None):
-        # type: (str, str) -> Tuple[str, str]
+    def relfn2path(self, filename: str, docname: str = None) -> Tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
@@ -371,13 +359,11 @@ class BuildEnvironment:
         return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
 
     @property
-    def found_docs(self):
-        # type: () -> Set[str]
+    def found_docs(self) -> Set[str]:
         """contains all existing docnames."""
         return self.project.docnames
 
-    def find_files(self, config, builder):
-        # type: (Config, Builder) -> None
+    def find_files(self, config: Config, builder: "Builder") -> None:
         """Find all source files in the source dir and put them in
         self.found_docs.
         """
@@ -405,8 +391,7 @@ class BuildEnvironment:
         except OSError as exc:
             raise DocumentError(__('Failed to scan documents in %s: %r') % (self.srcdir, exc))
 
-    def get_outdated_files(self, config_changed):
-        # type: (bool) -> Tuple[Set[str], Set[str], Set[str]]
+    def get_outdated_files(self, config_changed: bool) -> Tuple[Set[str], Set[str], Set[str]]:
         """Return (added, changed, removed) sets."""
         # clear all files no longer present
         removed = set(self.all_docs) - self.found_docs
@@ -456,10 +441,9 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def check_dependents(self, app, already):
-        # type: (Sphinx, Set[str]) -> Iterator[str]
+    def check_dependents(self, app: "Sphinx", already: Set[str]) -> Generator[str, None, None]:
         to_rewrite = []  # type: List[str]
-        for docnames in app.emit('env-get-updated', self):
+        for docnames in self.events.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
         for docname in set(to_rewrite):
             if docname not in already:
@@ -467,8 +451,7 @@ class BuildEnvironment:
 
     # --------- SINGLE FILE READING --------------------------------------------
 
-    def prepare_settings(self, docname):
-        # type: (str) -> None
+    def prepare_settings(self, docname: str) -> None:
         """Prepare to set up environment for reading."""
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
@@ -479,13 +462,11 @@ class BuildEnvironment:
     # utilities to use while reading a document
 
     @property
-    def docname(self):
-        # type: () -> str
+    def docname(self) -> str:
         """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
 
-    def new_serialno(self, category=''):
-        # type: (str) -> int
+    def new_serialno(self, category: str = '') -> int:
         """Return a serial number, e.g. for index entry targets.
 
         The number is guaranteed to be unique in the current document.
@@ -495,8 +476,7 @@ class BuildEnvironment:
         self.temp_data[key] = cur + 1
         return cur
 
-    def note_dependency(self, filename):
-        # type: (str) -> None
+    def note_dependency(self, filename: str) -> None:
         """Add *filename* as a dependency of the current document.
 
         This means that the document will be rebuilt if this file changes.
@@ -505,8 +485,7 @@ class BuildEnvironment:
         """
         self.dependencies[self.docname].add(filename)
 
-    def note_included(self, filename):
-        # type: (str) -> None
+    def note_included(self, filename: str) -> None:
         """Add *filename* as a included from other document.
 
         This means the document is not orphaned.
@@ -515,15 +494,13 @@ class BuildEnvironment:
         """
         self.included[self.docname].add(self.path2doc(filename))
 
-    def note_reread(self):
-        # type: () -> None
+    def note_reread(self) -> None:
         """Add the current document to the list of documents that will
         automatically be re-read at the next build.
         """
         self.reread_always.add(self.docname)
 
-    def get_domain(self, domainname):
-        # type: (str) -> Domain
+    def get_domain(self, domainname: str) -> Domain:
         """Return the domain instance with the specified name.
 
         Raises an ExtensionError if the domain is not registered.
@@ -535,8 +512,7 @@ class BuildEnvironment:
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
-    def get_doctree(self, docname):
-        # type: (str) -> nodes.document
+    def get_doctree(self, docname: str) -> nodes.document:
         """Read the doctree for a file from the pickle and return it."""
         filename = path.join(self.doctreedir, docname + '.doctree')
         with open(filename, 'rb') as f:
@@ -545,9 +521,9 @@ class BuildEnvironment:
         doctree.reporter = LoggingReporter(self.doc2path(docname))
         return doctree
 
-    def get_and_resolve_doctree(self, docname, builder, doctree=None,
-                                prune_toctrees=True, includehidden=False):
-        # type: (str, Builder, nodes.document, bool, bool) -> nodes.document
+    def get_and_resolve_doctree(self, docname: str, builder: "Builder",
+                                doctree: nodes.document = None, prune_toctrees: bool = True,
+                                includehidden: bool = False) -> nodes.document:
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
@@ -569,9 +545,9 @@ class BuildEnvironment:
 
         return doctree
 
-    def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
-                        titles_only=False, collapse=False, includehidden=False):
-        # type: (str, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Node
+    def resolve_toctree(self, docname: str, builder: "Builder", toctree: addnodes.toctree,
+                        prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
+                        collapse: bool = False, includehidden: bool = False) -> Node:
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -587,12 +563,11 @@ class BuildEnvironment:
                                      maxdepth, titles_only, collapse,
                                      includehidden)
 
-    def resolve_references(self, doctree, fromdocname, builder):
-        # type: (nodes.document, str, Builder) -> None
+    def resolve_references(self, doctree: nodes.document, fromdocname: str,
+                           builder: "Builder") -> None:
         self.apply_post_transforms(doctree, fromdocname)
 
-    def apply_post_transforms(self, doctree, docname):
-        # type: (nodes.document, str) -> None
+    def apply_post_transforms(self, doctree: nodes.document, docname: str) -> None:
         """Apply all post-transforms."""
         try:
             # set env.docname during applying post-transforms
@@ -607,14 +582,12 @@ class BuildEnvironment:
             self.temp_data = backup
 
         # allow custom references to be resolved
-        self.app.emit('doctree-resolved', doctree, docname)
+        self.events.emit('doctree-resolved', doctree, docname)
 
-    def collect_relations(self):
-        # type: () -> Dict[str, List[str]]
+    def collect_relations(self) -> Dict[str, List[str]]:
         traversed = set()
 
-        def traverse_toctree(parent, docname):
-            # type: (str, str) -> Iterator[Tuple[str, str]]
+        def traverse_toctree(parent: str, docname: str) -> Iterator[Tuple[str, str]]:
             if parent == docname:
                 logger.warning(__('self referenced toctree found. Ignored.'), location=docname)
                 return
@@ -643,8 +616,7 @@ class BuildEnvironment:
 
         return relations
 
-    def check_consistency(self):
-        # type: () -> None
+    def check_consistency(self) -> None:
         """Do consistency checks."""
         included = set().union(*self.included.values())  # type: ignore
         for docname in sorted(self.all_docs):
@@ -663,124 +635,12 @@ class BuildEnvironment:
         # call check-consistency for all extensions
         for domain in self.domains.values():
             domain.check_consistency()
-        self.app.emit('env-check-consistency', self)
-
-    # --------- METHODS FOR COMPATIBILITY --------------------------------------
-
-    def update(self, config, srcdir, doctreedir):
-        # type: (Config, str, str) -> List[str]
-        warnings.warn('env.update() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.app.builder.read()
-
-    def _read_serial(self, docnames, app):
-        # type: (List[str], Sphinx) -> None
-        warnings.warn('env._read_serial() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.app.builder._read_serial(docnames)
-
-    def _read_parallel(self, docnames, app, nproc):
-        # type: (List[str], Sphinx, int) -> None
-        warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.app.builder._read_parallel(docnames, nproc)
-
-    def read_doc(self, docname, app=None):
-        # type: (str, Sphinx) -> None
-        warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        self.app.builder.read_doc(docname)
-
-    def write_doctree(self, docname, doctree):
-        # type: (str, nodes.document) -> None
-        warnings.warn('env.write_doctree() is deprecated. '
-                      'Please use builder.write_doctree() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        self.app.builder.write_doctree(docname, doctree)
+        self.events.emit('env-check-consistency', self)
 
     @property
-    def _nitpick_ignore(self):
-        # type: () -> List[str]
-        warnings.warn('env._nitpick_ignore is deprecated. '
-                      'Please use config.nitpick_ignore instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.config.nitpick_ignore
-
-    @staticmethod
-    def load(f, app=None):
-        # type: (IO, Sphinx) -> BuildEnvironment
-        warnings.warn('BuildEnvironment.load() is deprecated. '
-                      'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        try:
-            env = pickle.load(f)
-        except Exception as exc:
-            # This can happen for example when the pickle is from a
-            # different version of Sphinx.
-            raise OSError(exc)
-        if app:
-            env.app = app
-            env.config.values = app.config.values
-        return env
-
-    @classmethod
-    def loads(cls, string, app=None):
-        # type: (bytes, Sphinx) -> BuildEnvironment
-        warnings.warn('BuildEnvironment.loads() is deprecated. '
-                      'Please use pickle.loads() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        io = BytesIO(string)
-        return cls.load(io, app)
-
-    @classmethod
-    def frompickle(cls, filename, app):
-        # type: (str, Sphinx) -> BuildEnvironment
-        warnings.warn('BuildEnvironment.frompickle() is deprecated. '
-                      'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        with open(filename, 'rb') as f:
-            return cls.load(f, app)
-
-    @staticmethod
-    def dump(env, f):
-        # type: (BuildEnvironment, IO) -> None
-        warnings.warn('BuildEnvironment.dump() is deprecated. '
-                      'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
-
-    @classmethod
-    def dumps(cls, env):
-        # type: (BuildEnvironment) -> bytes
-        warnings.warn('BuildEnvironment.dumps() is deprecated. '
-                      'Please use pickle.dumps() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        io = BytesIO()
-        cls.dump(env, io)
-        return io.getvalue()
-
-    def topickle(self, filename):
-        # type: (str) -> None
-        warnings.warn('env.topickle() is deprecated. '
-                      'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        with open(filename, 'wb') as f:
-            self.dump(self, f)
-
-    @property
-    def versionchanges(self):
-        # type: () -> Dict[str, List[Tuple[str, str, int, str, str, str]]]
-        warnings.warn('env.versionchanges() is deprecated. '
-                      'Please use ChangeSetDomain instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.domaindata['changeset']['changes']
-
-    def note_versionchange(self, type, version, node, lineno):
-        # type: (str, str, addnodes.versionmodified, int) -> None
-        warnings.warn('env.note_versionchange() is deprecated. '
-                      'Please use ChangeSetDomain.note_changeset() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        node['type'] = type
-        node['version'] = version
-        node.line = lineno
-        self.get_domain('changeset').note_changeset(node)  # type: ignore
+    def indexentries(self) -> Dict[str, List[Tuple[str, str, str, str, str]]]:
+        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        from sphinx.domains.index import IndexDomain
+        domain = cast(IndexDomain, self.get_domain('index'))
+        return domain.entries

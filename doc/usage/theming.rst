@@ -151,6 +151,10 @@ These themes are:
     dimension string such as '70em' or '50%'. Use 'none' if you don't
     want a width limit. Defaults may depend on the theme (often 800px).
 
+  - **navigation_with_keys** (true or false): Allow navigating to the
+    previous/next page using the keyboard's left and right arrows.  Defaults to
+    ``False``.
+
 **alabaster**
   `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally
@@ -237,6 +241,8 @@ These themes are:
   - **documentwidth** (CSS length): Width of the document (without sidebar),
     default 50em.
   - **sidebarwidth** (CSS length): Width of the sidebar, default 20em.
+  - **rightsidebar** (true or false): Put the sidebar on the right side.
+    Defaults to ``True``.
   - **bgcolor** (CSS color): Background color.
   - **headerbg** (CSS value for "background"): background for the header area,
     default a grayish gradient.

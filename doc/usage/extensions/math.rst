@@ -15,7 +15,8 @@ Math support for HTML outputs in Sphinx
    So mathbase extension is no longer needed.
 
 Since mathematical notation isn't natively supported by HTML in any way, Sphinx
-gives a math support to HTML document with several extensions.
+gives a math support to HTML document with several extensions.  These use the
+reStructuredText math :rst:dir:`directive <math>` and :rst:role:`role <math>`.
 
 :mod:`sphinx.ext.imgmath` -- Render math as images
 --------------------------------------------------
@@ -29,13 +30,39 @@ This extension renders math via LaTeX and dvipng_ or dvisvgm_ into PNG or SVG
 images. This of course means that the computer where the docs are built must
 have both programs available.
 
-There are various config values you can set to influence how the images are
-built:
+There are various configuration values you can set to influence how the images
+are built:
 
 .. confval:: imgmath_image_format
 
-   The output image format. The default is ``'png'``.  It should be either
-   ``'png'`` or ``'svg'``.
+   The output image format. The default is ``'png'``. It should be either
+   ``'png'`` or ``'svg'``. The image is produced by first executing ``latex``
+   on the TeX mathematical mark-up then (depending on the requested format)
+   either `dvipng`_ or `dvisvgm`_.
+
+.. confval:: imgmath_use_preview
+
+   ``dvipng`` and ``dvisvgm`` both have the ability to collect from LaTeX the
+   "depth" of the rendered math: an inline image should use this "depth" in a
+   ``vertical-align`` style to get correctly aligned with surrounding text.
+
+   This mechanism requires the `LaTeX preview package`_ (available as
+   ``preview-latex-style`` on Ubuntu xenial).  Therefore, the default for this
+   option is ``False`` but it is strongly recommended to set it to ``True``.
+
+   .. versionchanged:: 2.2
+
+      This option can be used with the ``'svg'`` :confval:`imgmath_image_format`.
+
+.. confval:: imgmath_add_tooltips
+
+   Default: ``True``.  If false, do not add the LaTeX code as an "alt" attribute
+   for math images.
+
+.. confval:: imgmath_font_size
+
+   The font size (in ``pt``) of the displayed math.  The default value is
+   ``12``.  It must be a positive integer.
 
 .. confval:: imgmath_latex
 
@@ -53,19 +80,13 @@ built:
    This value should only contain the path to the latex executable, not further
    arguments; use :confval:`imgmath_latex_args` for that purpose.
 
-.. confval:: imgmath_dvipng
+   .. hint::
 
-   The command name with which to invoke ``dvipng``.  The default is
-   ``'dvipng'``; you may need to set this to a full path if ``dvipng`` is not in
-   the executable search path. This option is only used when
-   ``imgmath_image_format`` is set to ``'png'``.
-
-.. confval:: imgmath_dvisvgm
-
-   The command name with which to invoke ``dvisvgm``.  The default is
-   ``'dvisvgm'``; you may need to set this to a full path if ``dvisvgm`` is not
-   in the executable search path.  This option is only used when
-   ``imgmath_image_format`` is ``'svg'``.
+      Some fancy LaTeX mark-up (an example was reported which used TikZ to add
+      various decorations to the equation) require multiple runs of the LaTeX
+      executable.  To handle this, set this configuration setting to
+      ``'latexmk'`` (or a full path to it) as this Perl script reliably
+      chooses dynamically how many latex runs are needed.
 
 .. confval:: imgmath_latex_args
 
@@ -74,48 +95,43 @@ built:
 
 .. confval:: imgmath_latex_preamble
 
-   Additional LaTeX code to put into the preamble of the short LaTeX files that
-   are used to translate the math snippets.  This is empty by default.  Use it
-   e.g. to add more packages whose commands you want to use in the math.
+   Additional LaTeX code to put into the preamble of the LaTeX files used to
+   translate the math snippets.  This is left empty by default.  Use it
+   e.g. to add packages which modify the fonts used for math, such as
+   ``'\\usepackage{newtxsf}'`` for sans-serif fonts, or
+   ``'\\usepackage{fouriernc}'`` for serif fonts.  Indeed, the default LaTeX
+   math fonts have rather thin glyphs which (in HTML output) often do not
+   match well with the font for text.
+
+.. confval:: imgmath_dvipng
+
+   The command name to invoke ``dvipng``.  The default is
+   ``'dvipng'``; you may need to set this to a full path if ``dvipng`` is not in
+   the executable search path. This option is only used when
+   ``imgmath_image_format`` is set to ``'png'``.
 
 .. confval:: imgmath_dvipng_args
 
    Additional arguments to give to dvipng, as a list.  The default value is
    ``['-gamma', '1.5', '-D', '110', '-bg', 'Transparent']`` which makes the
-   image a bit darker and larger then it is by default, and produces PNGs with a
+   image a bit darker and larger then it is by default (this compensates
+   somewhat for the thinness of default LaTeX math fonts), and produces PNGs with a
    transparent background.  This option is used only when
    ``imgmath_image_format`` is ``'png'``.
 
+.. confval:: imgmath_dvisvgm
+
+   The command name to invoke ``dvisvgm``.  The default is
+   ``'dvisvgm'``; you may need to set this to a full path if ``dvisvgm`` is not
+   in the executable search path.  This option is only used when
+   ``imgmath_image_format`` is ``'svg'``.
+
 .. confval:: imgmath_dvisvgm_args
 
-   Additional arguments to give to dvisvgm, as a list.  The default value is
-   ``['--no-fonts']``.  This option is used only when ``imgmath_image_format``
-   is ``'svg'``.
-
-.. confval:: imgmath_use_preview
-
-   ``dvipng`` has the ability to determine the "depth" of the rendered text: for
-   example, when typesetting a fraction inline, the baseline of surrounding text
-   should not be flush with the bottom of the image, rather the image should
-   extend a bit below the baseline.  This is what TeX calls "depth".  When this
-   is enabled, the images put into the HTML document will get a
-   ``vertical-align`` style that correctly aligns the baselines.
-
-   Unfortunately, this only works when the `preview-latex package`_ is
-   installed. Therefore, the default for this option is ``False``.
-
-   Currently this option is only used when ``imgmath_image_format`` is
-   ``'png'``.
-
-.. confval:: imgmath_add_tooltips
-
-   Default: ``True``.  If false, do not add the LaTeX code as an "alt" attribute
-   for math images.
-
-.. confval:: imgmath_font_size
-
-   The font size (in ``pt``) of the displayed math.  The default value is
-   ``12``.  It must be a positive integer.
+   Additional arguments to give to dvisvgm, as a list. The default value is
+   ``['--no-fonts']``, which means that ``dvisvgm`` will render glyphs as path
+   elements (cf the `dvisvgm FAQ`_). This option is used only when
+   ``imgmath_image_format`` is ``'svg'``.
 
 
 :mod:`sphinx.ext.mathjax` -- Render math via JavaScript
@@ -131,7 +147,13 @@ MathJax_ is then loaded and transforms the LaTeX markup to readable math live in
 the browser.
 
 Because MathJax (and the necessary fonts) is very large, it is not included in
-Sphinx.
+Sphinx but is set to automatically include it from a third-party site.
+
+.. attention::
+
+   You should use the math :rst:dir:`directive <math>` and
+   :rst:role:`role <math>`, not the native MathJax ``$$``, ``\(``, etc.
+
 
 .. confval:: mathjax_path
 
@@ -140,8 +162,9 @@ Sphinx.
 
    The default is the ``https://`` URL that loads the JS files from the
    `cdnjs`__ Content Delivery Network. See the `MathJax Getting Started
-   page`__ for details. If you want MathJax to be available offline, you have
-   to download it and set this value to a different path.
+   page`__ for details. If you want MathJax to be available offline or
+   without including resources from a third-party site, you have to
+   download it and set this value to a different path.
 
    __ https://cdnjs.com
 
@@ -168,6 +191,8 @@ Sphinx.
 
    The default is empty (``{}``).
 
+   .. versionadded:: 1.8
+
 .. confval:: mathjax_config
 
    The inline configuration options for mathjax.  The value is used as a
@@ -182,6 +207,8 @@ Sphinx.
        }
 
    The default is empty (not configured).
+
+   .. versionadded:: 1.8
 
 .. _Using in-line configuration options: https://docs.mathjax.org/en/latest/configuration.html#using-in-line-configuration-options
 
@@ -209,7 +236,8 @@ package jsMath_.  It provides this config value:
 
 
 .. _dvipng: https://savannah.nongnu.org/projects/dvipng/
-.. _dvisvgm: http://dvisvgm.bplaced.net/
+.. _dvisvgm: https://dvisvgm.de/
+.. _dvisvgm FAQ: https://dvisvgm.de/FAQ
 .. _MathJax: https://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
-.. _preview-latex package: https://www.gnu.org/software/auctex/preview-latex.html
+.. _LaTeX preview package: https://www.gnu.org/software/auctex/preview-latex.html

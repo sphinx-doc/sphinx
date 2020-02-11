@@ -4,48 +4,43 @@
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
 from pprint import pformat
-from typing import Any, Callable, Iterator, Tuple  # NOQA
+from typing import Any, Callable, Dict, Iterator, List, Tuple, Union
 
-from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
-    contextfunction
+from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, contextfunction
+from jinja2.environment import Environment
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2.utils import open_if_exists
 
 from sphinx.application import TemplateBridge
+from sphinx.theming import Theme
 from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Iterator, Tuple, Union  # NOQA
-    from jinja2.environment import Environment  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.theming import Theme  # NOQA
+    from sphinx.builders import Builder
 
 
-def _tobool(val):
-    # type: (str) -> bool
+def _tobool(val: str) -> bool:
     if isinstance(val, str):
         return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 
 
-def _toint(val):
-    # type: (str) -> int
+def _toint(val: str) -> int:
     try:
         return int(val)
     except ValueError:
         return 0
 
 
-def _todim(val):
-    # type: (Union[int, str]) -> str
+def _todim(val: Union[int, str]) -> str:
     """
     Make val a css dimension. In particular the following transformations
     are performed:
@@ -63,8 +58,7 @@ def _todim(val):
     return val  # type: ignore
 
 
-def _slice_index(values, slices):
-    # type: (List, int) -> Iterator[List]
+def _slice_index(values: List, slices: int) -> Iterator[List]:
     seq = list(values)
     length = 0
     for value in values:
@@ -85,8 +79,7 @@ def _slice_index(values, slices):
         yield seq[start:offset]
 
 
-def accesskey(context, key):
-    # type: (Any, str) -> str
+def accesskey(context: Any, key: str) -> str:
     """Helper to output each access key only once."""
     if '_accesskeys' not in context:
         context.vars['_accesskeys'] = {}
@@ -97,24 +90,20 @@ def accesskey(context, key):
 
 
 class idgen:
-    def __init__(self):
-        # type: () -> None
+    def __init__(self) -> None:
         self.id = 0
 
-    def current(self):
-        # type: () -> int
+    def current(self) -> int:
         return self.id
 
-    def __next__(self):
-        # type: () -> int
+    def __next__(self) -> int:
         self.id += 1
         return self.id
     next = __next__  # Python 2/Jinja compatibility
 
 
 @contextfunction
-def warning(context, message, *args, **kwargs):
-    # type: (Dict, str, Any, Any) -> str
+def warning(context: Dict, message: str, *args: Any, **kwargs: Any) -> str:
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
         message = 'in rendering %s: %s' % (filename, message)
@@ -129,8 +118,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
     template names.
     """
 
-    def get_source(self, environment, template):
-        # type: (Environment, str) -> Tuple[str, str, Callable]
+    def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
@@ -141,8 +129,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
             mtime = path.getmtime(filename)
 
-            def uptodate():
-                # type: () -> bool
+            def uptodate() -> bool:
                 try:
                     return path.getmtime(filename) == mtime
                 except OSError:
@@ -158,8 +145,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # TemplateBridge interface
 
-    def init(self, builder, theme=None, dirs=None):
-        # type: (Builder, Theme, List[str]) -> None
+    def init(self, builder: "Builder", theme: Theme = None, dirs: List[str] = None) -> None:
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs
@@ -188,7 +174,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.loaders = [SphinxFileSystemLoader(x) for x in loaderchain]
 
         use_i18n = builder.app.translator is not None
-        extensions = use_i18n and ['jinja2.ext.i18n'] or []
+        extensions = ['jinja2.ext.i18n'] if use_i18n else []
         self.environment = SandboxedEnvironment(loader=self,
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
@@ -202,22 +188,18 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         if use_i18n:
             self.environment.install_gettext_translations(builder.app.translator)  # type: ignore  # NOQA
 
-    def render(self, template, context):  # type: ignore
-        # type: (str, Dict) -> str
+    def render(self, template: str, context: Dict) -> str:  # type: ignore
         return self.environment.get_template(template).render(context)
 
-    def render_string(self, source, context):
-        # type: (str, Dict) -> str
+    def render_string(self, source: str, context: Dict) -> str:
         return self.environment.from_string(source).render(context)
 
-    def newest_template_mtime(self):
-        # type: () -> float
+    def newest_template_mtime(self) -> float:
         return max(mtimes_of_files(self.pathchain, '.html'))
 
     # Loader interface
 
-    def get_source(self, environment, template):
-        # type: (Environment, str) -> Tuple[str, str, Callable]
+    def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

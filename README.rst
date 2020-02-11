@@ -26,6 +26,10 @@
    :target: https://codecov.io/gh/sphinx-doc/sphinx
    :alt: Code Coverage Status (Codecov)
 
+.. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
+   :target: https://opensource.org/licenses/BSD-3-Clause
+   :alt: BSD 3 Clause
+
 Sphinx is a tool that makes it easy to create intelligent and beautiful
 documentation for Python projects (or other documents consisting of multiple
 reStructuredText sources), written by Georg Brandl.  It was originally created
@@ -89,6 +93,10 @@ Get in touch
 
 .. _on GitHub: https://github.com/sphinx-doc/sphinx
 .. _mailing list: https://groups.google.com/forum/#!forum/sphinx-users
+
+Please adhere to our `code of conduct`__.
+
+__ http://www.sphinx-doc.org/en/master/code_of_conduct.html
 
 Testing
 =======

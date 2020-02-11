@@ -4,11 +4,12 @@
 
     Build Apple help books.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
+from typing import Any, Dict
 
 from sphinxcontrib.applehelp import (
     AppleHelpCodeSigningFailed,
@@ -16,12 +17,8 @@ from sphinxcontrib.applehelp import (
     AppleHelpBuilder,
 )
 
+from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
-
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 deprecated_alias('sphinx.builders.applehelp',
@@ -33,8 +30,7 @@ deprecated_alias('sphinx.builders.applehelp',
                  RemovedInSphinx40Warning)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     warnings.warn('sphinx.builders.applehelp has been moved to sphinxcontrib-applehelp.',
                   RemovedInSphinx40Warning)
     app.setup_extension('sphinxcontrib.applehelp')

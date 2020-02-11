@@ -30,8 +30,7 @@
 
 class PorterStemmer:
 
-    def __init__(self):
-        # type: () -> None
+    def __init__(self) -> None:
         """The main part of the stemming algorithm starts here.
         b is a buffer holding a word to be stemmed. The letters are in b[k0],
         b[k0+1] ... ending at b[k]. In fact k0 = 0 in this demo program. k is
@@ -47,8 +46,7 @@ class PorterStemmer:
         self.k0 = 0
         self.j = 0      # j is a general offset into the string
 
-    def cons(self, i):
-        # type: (int) -> int
+    def cons(self, i: int) -> int:
         """cons(i) is TRUE <=> b[i] is a consonant."""
         if self.b[i] == 'a' or self.b[i] == 'e' or self.b[i] == 'i' \
            or self.b[i] == 'o' or self.b[i] == 'u':
@@ -60,8 +58,7 @@ class PorterStemmer:
                 return (not self.cons(i - 1))
         return 1
 
-    def m(self):
-        # type: () -> int
+    def m(self) -> int:
         """m() measures the number of consonant sequences between k0 and j.
         if c is a consonant sequence and v a vowel sequence, and <..>
         indicates arbitrary presence,
@@ -98,16 +95,14 @@ class PorterStemmer:
                 i = i + 1
             i = i + 1
 
-    def vowelinstem(self):
-        # type: () -> int
+    def vowelinstem(self) -> int:
         """vowelinstem() is TRUE <=> k0,...j contains a vowel"""
         for i in range(self.k0, self.j + 1):
             if not self.cons(i):
                 return 1
         return 0
 
-    def doublec(self, j):
-        # type: (int) -> int
+    def doublec(self, j: int) -> int:
         """doublec(j) is TRUE <=> j,(j-1) contain a double consonant."""
         if j < (self.k0 + 1):
             return 0
@@ -115,8 +110,7 @@ class PorterStemmer:
             return 0
         return self.cons(j)
 
-    def cvc(self, i):
-        # type: (int) -> int
+    def cvc(self, i: int) -> int:
         """cvc(i) is TRUE <=> i-2,i-1,i has the form
              consonant - vowel - consonant
         and also if the second c is not w,x or y. this is used when trying to
@@ -133,8 +127,7 @@ class PorterStemmer:
             return 0
         return 1
 
-    def ends(self, s):
-        # type: (str) -> int
+    def ends(self, s: str) -> int:
         """ends(s) is TRUE <=> k0,...k ends with the string s."""
         length = len(s)
         if s[length - 1] != self.b[self.k]:  # tiny speed-up
@@ -146,22 +139,19 @@ class PorterStemmer:
         self.j = self.k - length
         return 1
 
-    def setto(self, s):
-        # type: (str) -> None
+    def setto(self, s: str) -> None:
         """setto(s) sets (j+1),...k to the characters in the string s,
         readjusting k."""
         length = len(s)
         self.b = self.b[:self.j + 1] + s + self.b[self.j + length + 1:]
         self.k = self.j + length
 
-    def r(self, s):
-        # type: (str) -> None
+    def r(self, s: str) -> None:
         """r(s) is used further down."""
         if self.m() > 0:
             self.setto(s)
 
-    def step1ab(self):
-        # type: () -> None
+    def step1ab(self) -> None:
         """step1ab() gets rid of plurals and -ed or -ing. e.g.
 
            caresses  ->  caress
@@ -208,15 +198,13 @@ class PorterStemmer:
             elif (self.m() == 1 and self.cvc(self.k)):
                 self.setto("e")
 
-    def step1c(self):
-        # type: () -> None
+    def step1c(self) -> None:
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
         if (self.ends("y") and self.vowelinstem()):
             self.b = self.b[:self.k] + 'i' + self.b[self.k + 1:]
 
-    def step2(self):
-        # type: () -> None
+    def step2(self) -> None:
         """step2() maps double suffices to single ones.
         so -ization ( = -ize plus -ation) maps to -ize etc. note that the
         string before the suffix must give m() > 0.
@@ -275,8 +263,7 @@ class PorterStemmer:
                 self.r("log")
         # To match the published algorithm, delete this phrase
 
-    def step3(self):
-        # type: () -> None
+    def step3(self) -> None:
         """step3() dels with -ic-, -full, -ness etc. similar strategy
         to step2."""
         if self.b[self.k] == 'e':
@@ -298,8 +285,7 @@ class PorterStemmer:
             if self.ends("ness"):
                 self.r("")
 
-    def step4(self):
-        # type: () -> None
+    def step4(self) -> None:
         """step4() takes off -ant, -ence etc., in context <c>vcvc<v>."""
         if self.b[self.k - 1] == 'a':
             if self.ends("al"):
@@ -382,8 +368,7 @@ class PorterStemmer:
         if self.m() > 1:
             self.k = self.j
 
-    def step5(self):
-        # type: () -> None
+    def step5(self) -> None:
         """step5() removes a final -e if m() > 1, and changes -ll to -l if
         m() > 1.
         """
@@ -395,8 +380,7 @@ class PorterStemmer:
         if self.b[self.k] == 'l' and self.doublec(self.k) and self.m() > 1:
             self.k = self.k - 1
 
-    def stem(self, p, i, j):
-        # type: (str, int, int) -> str
+    def stem(self, p: str, i: int, j: int) -> str:
         """In stem(p,i,j), p is a char pointer, and the string to be stemmed
         is from p[i] to p[j] inclusive. Typically i is zero and j is the
         offset to the last character of a string, (p[j+1] == '\0'). The

@@ -39,6 +39,56 @@ It adds these directives:
    .. versionchanged:: 1.1
       Added support for external files.
 
+   .. rubric:: options
+
+   .. rst:directive:option:: alt: alternate text
+      :type: text
+
+      The alternate text of the graph.  By default, the graph code is used to
+      the alternate text.
+
+      .. versionadded:: 1.0
+
+   .. rst:directive:option:: align: alignment of the graph
+      :type: left, center or right
+
+      The horizontal alignment of the graph.
+
+      .. versionadded:: 1.5
+
+   .. rst:directive:option:: caption: caption of the graph
+      :type: text
+
+      The caption of the graph.
+
+      .. versionadded:: 1.1
+
+   .. rst:directive:option:: layout: layout type of the graph
+      :type: text
+
+      The layout of the graph (ex. ``dot``, ``neato`` and so on).  A path to the
+      graphviz commands are also allowed.  By default, :confval:`graphviz_dot`
+      is used.
+
+      .. versionadded:: 1.4
+      .. versionchanged:: 2.2
+
+         Renamed from ``graphviz_dot``
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      The label of the graph.
+
+      .. versionadded:: 1.6
+
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separeted by spaces
+
+      The class name of the graph.
+
+      .. versionadded:: 2.4
+
 
 .. rst:directive:: graph
 
@@ -56,6 +106,45 @@ It adds these directives:
       non-alphanumeric characters (e.g. a dash), you will have to double-quote
       it.
 
+   .. rubric:: options
+
+   Same as :rst:dir:`graphviz`.
+
+   .. rst:directive:option:: alt: alternate text
+      :type: text
+
+      .. versionadded:: 1.0
+
+   .. rst:directive:option:: align: alignment of the graph
+      :type: left, center or right
+
+      .. versionadded:: 1.5
+
+   .. rst:directive:option:: caption: caption of the graph
+      :type: text
+
+      .. versionadded:: 1.1
+
+   .. rst:directive:option:: layout: layout type of the graph
+      :type: text
+
+      .. versionadded:: 1.4
+      .. versionchanged:: 2.2
+
+         Renamed from ``graphviz_dot``
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      .. versionadded:: 1.6
+
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separeted by spaces
+
+      The class name of the graph.
+
+      .. versionadded:: 2.4
+
 
 .. rst:directive:: digraph
 
@@ -69,28 +158,47 @@ It adds these directives:
 
          "bar" -> "baz" -> "quux";
 
+   .. rubric:: options
 
-.. versionadded:: 1.0
-   All three directives support an ``alt`` option that determines the image's
-   alternate text for HTML output.  If not given, the alternate text defaults to
-   the graphviz code.
+   Same as :rst:dir:`graphviz`.
 
-.. versionadded:: 1.1
-   All three directives support a ``caption`` option that can be used to give a
-   caption to the diagram.
+   .. rst:directive:option:: alt: alternate text
+      :type: text
 
-.. versionchanged:: 1.4
-   All three directives support a ``graphviz_dot`` option that can be switch the
-   ``dot`` command within the directive.
+      .. versionadded:: 1.0
 
-.. versionadded:: 1.5
-   All three directives support a ``align`` option to align the graph horizontal.
-   The values "left", "center", "right" are allowed.
+   .. rst:directive:option:: align: alignment of the graph
+      :type: left, center or right
 
-.. versionadded:: 1.6
-   All three directives support a ``name`` option to set the label to graph.
+      .. versionadded:: 1.5
 
-There are also these new config values:
+   .. rst:directive:option:: caption: caption of the graph
+      :type: text
+
+      .. versionadded:: 1.1
+
+   .. rst:directive:option:: layout: layout type of the graph
+      :type: text
+
+      .. versionadded:: 1.4
+      .. versionchanged:: 2.2
+
+         Renamed from ``graphviz_dot``
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      .. versionadded:: 1.6
+
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separeted by spaces
+
+      The class name of the graph.
+
+      .. versionadded:: 2.4
+
+
+There are also these config values:
 
 .. confval:: graphviz_dot
 

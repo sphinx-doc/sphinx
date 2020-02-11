@@ -4,19 +4,16 @@
 
     Utility functions for math.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from docutils import nodes
 
-if False:
-    # For type annotation
-    from docutils import nodes  # NOQA
-    from sphinx.builders.html import HTMLTranslator  # NOQA
+from sphinx.builders.html import HTMLTranslator
 
 
-def get_node_equation_number(writer, node):
-    # type: (HTMLTranslator, nodes.math_block) -> str
+def get_node_equation_number(writer: HTMLTranslator, node: nodes.math_block) -> str:
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
@@ -31,10 +28,8 @@ def get_node_equation_number(writer, node):
         return node['number']
 
 
-def wrap_displaymath(text, label, numbering):
-    # type: (str, str, bool) -> str
-    def is_equation(part):
-        # type: (str) -> str
+def wrap_displaymath(text: str, label: str, numbering: bool) -> str:
+    def is_equation(part: str) -> str:
         return part.strip()
 
     if label is None:

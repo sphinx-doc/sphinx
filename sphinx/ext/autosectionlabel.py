@@ -4,33 +4,26 @@
 
     Allow reference sections by :ref: role using its title.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict
 from typing import cast
 
 from docutils import nodes
+from docutils.nodes import Node
 
+from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-
 
 logger = logging.getLogger(__name__)
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
-
-def get_node_depth(node):
+def get_node_depth(node: Node) -> int:
     i = 0
     cur_node = node
     while cur_node.parent != node.document:
@@ -39,8 +32,7 @@ def get_node_depth(node):
     return i
 
 
-def register_sections_as_label(app, document):
-    # type: (Sphinx, nodes.Node) -> None
+def register_sections_as_label(app: Sphinx, document: Node) -> None:
     labels = app.env.domaindata['std']['labels']
     anonlabels = app.env.domaindata['std']['anonlabels']
     for node in document.traverse(nodes.section):
@@ -60,14 +52,13 @@ def register_sections_as_label(app, document):
         if name in labels:
             logger.warning(__('duplicate label %s, other instance in %s'),
                            name, app.env.doc2path(labels[name][0]),
-                           location=node)
+                           location=node, type='autosectionlabel', subtype=docname)
 
         anonlabels[name] = docname, labelid
         labels[name] = docname, labelid, sectname
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autosectionlabel_prefix_document', False, 'env')
     app.add_config_value('autosectionlabel_maxdepth', None, 'env')
     app.connect('doctree-read', register_sections_as_label)

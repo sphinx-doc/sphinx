@@ -4,7 +4,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,6 +16,7 @@ from itertools import cycle, chain
 import pytest
 from html5lib import HTMLParser
 
+from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
@@ -27,9 +28,9 @@ ENV_WARNINGS = """\
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file '%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
+%(root)s/index.rst:\\d+: WARNING: invalid single index entry ''
 %(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
-%(root)s/index.rst:\\d+: WARNING: invalid single index entry ''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
@@ -96,14 +97,11 @@ def check_xpath(etree, fname, path, check, be_found=True):
     else:
         def get_text(node):
             if node.text is not None:
+                # the node has only one text
                 return node.text
             else:
-                # Since pygments-2.1.1, empty <span> tag is inserted at top of
-                # highlighting block
-                if len(node) == 1 and node[0].tag == 'span' and node[0].text is None:
-                    if node[0].tail is not None:
-                        return node[0].tail
-                return ''
+                # the node has tags and text; gather texts just under the node
+                return ''.join(n.tail or '' for n in node)
 
         rex = re.compile(check)
         if be_found:
@@ -224,7 +222,7 @@ def test_html4_output(app, status, warning):
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
-        (".//a[@href='#grammar-token-try-stmt']"
+        (".//a[@href='#grammar-token-_try-stmt']"
          "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
@@ -256,7 +254,7 @@ def test_html4_output(app, status, warning):
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-try1-stmt']/code/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token-_try1-stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
@@ -391,8 +389,8 @@ def test_html4_output(app, status, warning):
         (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
         (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
         (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
-        (".//a[@class='reference internal'][@href='#bar'][@id='id4']", r"\[bar\]"),
-        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']", r"\[baz_qux\]"),
+        (".//a[@class='reference internal'][@href='#bar'][@id='id4']/span", r"\[bar\]"),
+        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']/span", r"\[baz_qux\]"),
         (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
         (".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
         (".//a[@class='fn-backref'][@href='#id1']", r"1"),
@@ -428,7 +426,7 @@ def test_html_download(app):
     app.build()
 
     # subdir/includes.html
-    result = (app.outdir / 'subdir' / 'includes.html').text()
+    result = (app.outdir / 'subdir' / 'includes.html').read_text()
     pattern = ('<a class="reference download internal" download="" '
                'href="../(_downloads/.*/img.png)">')
     matched = re.search(pattern, result)
@@ -437,7 +435,7 @@ def test_html_download(app):
     filename = matched.group(1)
 
     # includes.html
-    result = (app.outdir / 'includes.html').text()
+    result = (app.outdir / 'includes.html').read_text()
     pattern = ('<a class="reference download internal" download="" '
                'href="(_downloads/.*/img.png)">')
     matched = re.search(pattern, result)
@@ -451,15 +449,22 @@ def test_html_download(app):
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5((app.srcdir / 'dummy.dat').encode()).hexdigest()
+    digest = md5(b'dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
+    digest_another = md5(b'another/dummy.dat').hexdigest()
+    assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert (('<li><p><a class="reference download internal" download="" '
              'href="_downloads/%s/dummy.dat">'
              '<code class="xref download docutils literal notranslate">'
              '<span class="pre">dummy.dat</span></code></a></p></li>' % digest)
             in content)
+    assert (('<li><p><a class="reference download internal" download="" '
+             'href="_downloads/%s/dummy.dat">'
+             '<code class="xref download docutils literal notranslate">'
+             '<span class="pre">another/dummy.dat</span></code></a></p></li>' %
+             digest_another) in content)
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><a class="reference download external" download="" '
@@ -483,28 +488,40 @@ def test_html_translator(app):
         (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
     ],
     'foo.html': [
-        (".//h1", '1. Foo', True),
-        (".//h2", '1.1. Foo A', True),
-        (".//h3", '1.1.1. Foo A1', True),
-        (".//h2", '1.2. Foo B', True),
-        (".//h3", '1.2.1. Foo B1', True),
+        (".//h1", 'Foo', True),
+        (".//h2", 'Foo A', True),
+        (".//h3", 'Foo A1', True),
+        (".//h2", 'Foo B', True),
+        (".//h3", 'Foo B1', True),
+
+        (".//h1//span[@class='section-number']", '1. ', True),
+        (".//h2//span[@class='section-number']", '1.1. ', True),
+        (".//h3//span[@class='section-number']", '1.1.1. ', True),
+        (".//h2//span[@class='section-number']", '1.2. ', True),
+        (".//h3//span[@class='section-number']", '1.2.1. ', True),
+
         (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1. Foo A', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1.1. Foo A1', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2. Foo B', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2.1. Foo B1', True),
     ],
     'bar.html': [
-        (".//h1", '2. Bar', True),
-        (".//h2", '2.1. Bar A', True),
-        (".//h2", '2.2. Bar B', True),
-        (".//h3", '2.2.1. Bar B1', True),
+        (".//h1", 'Bar', True),
+        (".//h2", 'Bar A', True),
+        (".//h2", 'Bar B', True),
+        (".//h3", 'Bar B1', True),
+        (".//h1//span[@class='section-number']", '2. ', True),
+        (".//h2//span[@class='section-number']", '2.1. ', True),
+        (".//h2//span[@class='section-number']", '2.2. ', True),
+        (".//h3//span[@class='section-number']", '2.2.1. ', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '2. Bar', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '2.1. Bar A', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2. Bar B', True),
         (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2.1. Bar B1', False),
     ],
     'baz.html': [
-        (".//h1", '2.1.1. Baz A', True),
+        (".//h1", 'Baz A', True),
+        (".//h1//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -528,20 +545,30 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
         (".//h1", 'test-tocdepth', True),
 
         # foo.rst
-        (".//h2", '1. Foo', True),
-        (".//h3", '1.1. Foo A', True),
-        (".//h4", '1.1.1. Foo A1', True),
-        (".//h3", '1.2. Foo B', True),
-        (".//h4", '1.2.1. Foo B1', True),
+        (".//h2", 'Foo', True),
+        (".//h3", 'Foo A', True),
+        (".//h4", 'Foo A1', True),
+        (".//h3", 'Foo B', True),
+        (".//h4", 'Foo B1', True),
+        (".//h2//span[@class='section-number']", '1. ', True),
+        (".//h3//span[@class='section-number']", '1.1. ', True),
+        (".//h4//span[@class='section-number']", '1.1.1. ', True),
+        (".//h3//span[@class='section-number']", '1.2. ', True),
+        (".//h4//span[@class='section-number']", '1.2.1. ', True),
 
         # bar.rst
-        (".//h2", '2. Bar', True),
-        (".//h3", '2.1. Bar A', True),
-        (".//h3", '2.2. Bar B', True),
-        (".//h4", '2.2.1. Bar B1', True),
+        (".//h2", 'Bar', True),
+        (".//h3", 'Bar A', True),
+        (".//h3", 'Bar B', True),
+        (".//h4", 'Bar B1', True),
+        (".//h2//span[@class='section-number']", '2. ', True),
+        (".//h3//span[@class='section-number']", '2.1. ', True),
+        (".//h3//span[@class='section-number']", '2.2. ', True),
+        (".//h4//span[@class='section-number']", '2.2.1. ', True),
 
         # baz.rst
-        (".//h4", '2.1.1. Baz A', True),
+        (".//h4", 'Baz A', True),
+        (".//h4//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -565,7 +592,7 @@ def test_numfig_disabled_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
         (".//div[@class='code-block-caption']/"
@@ -582,21 +609,21 @@ def test_numfig_disabled_warn(app, warning):
         (".//li/p/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", None, True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", None, True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
         (".//div[@class='code-block-caption']/"
@@ -619,7 +646,7 @@ def test_numfig_disabled(app, cached_etree_parse, fname, expect):
 def test_numfig_without_numbered_toctree_warn(app, warning):
     app.build()
     # remove :numbered: option
-    index = (app.srcdir / 'index.rst').text()
+    index = (app.srcdir / 'index.rst').read_text()
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index)
     app.builder.build_all()
@@ -633,9 +660,9 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 9 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 10 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 9 $', True),
@@ -657,13 +684,13 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
         (".//li/p/code/span", '^Sect.{number}$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 3 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1 $', True),
@@ -683,11 +710,11 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 4 $', True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 5 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 7 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 8 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 5 $', True),
@@ -703,7 +730,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 8 $', True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 6 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 6 $', True),
@@ -719,7 +746,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     confoverrides={'numfig': True})
 def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
     # remove :numbered: option
-    index = (app.srcdir / 'index.rst').text()
+    index = (app.srcdir / 'index.rst').read_text()
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index)
 
@@ -741,9 +768,9 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1 $', True),
@@ -765,13 +792,13 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
         (".//li/p/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.2 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.3 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1.1 $', True),
@@ -791,11 +818,11 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 1.4 $', True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.3 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.1 $', True),
@@ -811,7 +838,7 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 2.4 $', True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.2 $', True),
@@ -846,9 +873,9 @@ def test_numfig_with_prefix_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Tab_1 $', True),
@@ -870,13 +897,13 @@ def test_numfig_with_prefix_warn(app, warning):
         (".//li/p/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:1.1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:1.2 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:1.3 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:1.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Tab_1.1 $', True),
@@ -896,11 +923,11 @@ def test_numfig_with_prefix_warn(app, warning):
          "span[@class='caption-number']", '^Code-1.4 $', True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:2.1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:2.3 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:2.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Tab_2.1 $', True),
@@ -916,7 +943,7 @@ def test_numfig_with_prefix_warn(app, warning):
          "span[@class='caption-number']", '^Code-2.4 $', True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Figure:2.2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Tab_2.2 $', True),
@@ -952,9 +979,9 @@ def test_numfig_with_secnum_depth_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1 $', True),
@@ -976,13 +1003,13 @@ def test_numfig_with_secnum_depth_warn(app, warning):
         (".//li/p/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.1.1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.1.2 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.2.1 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1.1 $', True),
@@ -1002,11 +1029,11 @@ def test_numfig_with_secnum_depth_warn(app, warning):
          "span[@class='caption-number']", '^Listing 1.2.1 $', True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.1.1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.1.3 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.2.1 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.1.1 $', True),
@@ -1022,7 +1049,7 @@ def test_numfig_with_secnum_depth_warn(app, warning):
          "span[@class='caption-number']", '^Listing 2.2.1 $', True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.1.2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.1.2 $', True),
@@ -1043,9 +1070,9 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1 $', True),
@@ -1065,13 +1092,13 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
         (".//li/p/a/span", '^Section.2.1$', True),
         (".//li/p/a/span", '^Fig.1 should be Fig.1$', True),
         (".//li/p/a/span", '^Sect.1 Foo$', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.2 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.3 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 1.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1.1 $', True),
@@ -1089,11 +1116,11 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
          "span[@class='caption-number']", '^Listing 1.3 $', True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", '^Listing 1.4 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.1 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.3 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.1 $', True),
@@ -1107,7 +1134,7 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
          "span[@class='caption-number']", '^Listing 2.3 $', True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", '^Listing 2.4 $', True),
-        (".//div[@class='figure align-center']/p[@class='caption']/"
+        (".//div[@class='figure align-default']/p[@class='caption']/"
          "span[@class='caption-number']", '^Fig. 2.2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.2 $', True),
@@ -1126,11 +1153,11 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-center']/p[@class='caption']"
+        (".//div[@class='figure align-default']/p[@class='caption']"
          "/span[@class='caption-number']", "Fig. 1", True),
-        (".//div[@class='figure align-center']/p[@class='caption']"
+        (".//div[@class='figure align-default']/p[@class='caption']"
          "/span[@class='caption-number']", "Fig. 2", True),
-        (".//div[@class='figure align-center']/p[@class='caption']"
+        (".//div[@class='figure align-default']/p[@class='caption']"
          "/span[@class='caption-number']", "Fig. 3", True),
         (".//div//span[@class='caption-number']", "No.1 ", True),
         (".//div//span[@class='caption-number']", "No.2 ", True),
@@ -1162,7 +1189,7 @@ def test_html_assets(app):
     assert not (app.outdir / '_static' / '.htaccess').exists()
     assert not (app.outdir / '_static' / '.htpasswd').exists()
     assert (app.outdir / '_static' / 'API.html').exists()
-    assert (app.outdir / '_static' / 'API.html').text() == 'Sphinx-1.4.4'
+    assert (app.outdir / '_static' / 'API.html').read_text() == 'Sphinx-1.4.4'
     assert (app.outdir / '_static' / 'css' / 'style.css').exists()
     assert (app.outdir / '_static' / 'js' / 'custom.js').exists()
     assert (app.outdir / '_static' / 'rimg.png').exists()
@@ -1183,14 +1210,14 @@ def test_html_assets(app):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
     # html_css_files
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert '<link rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
             'href="https://example.com/custom.css" />' in content)
 
     # html_js_files
-    assert '<script type="text/javascript" src="_static/js/custom.js"></script>' in content
-    assert ('<script async="async" type="text/javascript" src="https://example.com/script.js">'
+    assert '<script src="_static/js/custom.js"></script>' in content
+    assert ('<script async="async" src="https://example.com/script.js">'
             '</script>' in content)
 
 
@@ -1222,7 +1249,7 @@ def test_html_sourcelink_suffix_empty(app):
 def test_html_entity(app):
     app.builder.build_all()
     valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     for entity in re.findall(r'&([a-z]+);', content, re.M):
         assert entity not in valid_entities
 
@@ -1232,32 +1259,41 @@ def test_html_entity(app):
 def test_html_inventory(app):
     app.builder.build_all()
     with open(app.outdir / 'objects.inv', 'rb') as f:
-        invdata = InventoryFile.load(f, 'http://example.com', os.path.join)
+        invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
     assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
     assert invdata['std:label']['modindex'] == ('Python',
                                                 '',
-                                                'http://example.com/py-modindex.html',
+                                                'https://www.google.com/py-modindex.html',
                                                 'Module Index')
     assert invdata['std:label']['genindex'] == ('Python',
                                                 '',
-                                                'http://example.com/genindex.html',
+                                                'https://www.google.com/genindex.html',
                                                 'Index')
     assert invdata['std:label']['search'] == ('Python',
                                               '',
-                                              'http://example.com/search.html',
+                                              'https://www.google.com/search.html',
                                               'Search Page')
     assert set(invdata['std:doc'].keys()) == {'index'}
     assert invdata['std:doc']['index'] == ('Python',
                                            '',
-                                           'http://example.com/index.html',
+                                           'https://www.google.com/index.html',
                                            'The basic Sphinx documentation for testing')
+
+
+@pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_anchor_for_figure(app):
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text()
+    assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
+            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
+            in content)
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
 
     # standard case
     assert 'standalone raw directive (HTML)' in result
@@ -1301,7 +1337,7 @@ def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
 @pytest.mark.sphinx('html', testroot='html_style')
 def test_html_style(app, status, warning):
     app.build()
-    result = (app.outdir / 'index.html').text()
+    result = (app.outdir / 'index.html').read_text()
     assert '<link rel="stylesheet" href="_static/default.css" type="text/css" />' in result
     assert ('<link rel="stylesheet" href="_static/alabaster.css" type="text/css" />'
             not in result)
@@ -1311,7 +1347,7 @@ def test_html_style(app, status, warning):
 def test_html_remote_images(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
             'src="https://www.python.org/static/img/python-logo.png" />' in result)
     assert not (app.outdir / 'python-logo.png').exists()
@@ -1323,13 +1359,13 @@ def test_html_sidebar(app, status, warning):
 
     # default for alabaster
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
     assert '<h3>Navigation</h3>' in result
     assert '<h3>Related Topics</h3>' in result
-    assert '<h3>Quick search</h3>' in result
+    assert '<h3 id="searchlabel">Quick search</h3>' in result
 
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == ['about.html', 'navigation.html', 'relations.html',
@@ -1338,13 +1374,13 @@ def test_html_sidebar(app, status, warning):
     # only relations.html
     app.config.html_sidebars = {'**': ['relations.html']}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' in result
-    assert '<h3>Quick search</h3>' not in result
+    assert '<h3 id="searchlabel">Quick search</h3>' not in result
 
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == ['relations.html']
@@ -1352,13 +1388,13 @@ def test_html_sidebar(app, status, warning):
     # no sidebars
     app.config.html_sidebars = {'**': []}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' not in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' not in result
-    assert '<h3>Quick search</h3>' not in result
+    assert '<h3 id="searchlabel">Quick search</h3>' not in result
 
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == []
@@ -1383,10 +1419,10 @@ def test_html_manpage(app, cached_etree_parse, fname, expect):
 def test_html_baseurl(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert '<link rel="canonical" href="https://example.com/index.html" />' in result
 
-    result = (app.outdir / 'qux' / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'qux' / 'index.html').read_text()
     assert '<link rel="canonical" href="https://example.com/qux/index.html" />' in result
 
 
@@ -1396,10 +1432,10 @@ def test_html_baseurl(app, status, warning):
 def test_html_baseurl_and_html_file_suffix(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.htm').text(encoding='utf8')
+    result = (app.outdir / 'index.htm').read_text()
     assert '<link rel="canonical" href="https://example.com/subdir/index.htm" />' in result
 
-    result = (app.outdir / 'qux' / 'index.htm').text(encoding='utf8')
+    result = (app.outdir / 'qux' / 'index.htm').read_text()
     assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result
 
 
@@ -1480,3 +1516,29 @@ def test_html_pygments_style_manually(app):
 def test_html_pygments_for_classic_theme(app):
     style = app.builder.highlighter.formatter_args.get('style')
     assert style.__name__ == 'SphinxStyle'
+
+
+@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
+def test_validate_html_extra_path(app):
+    (app.confdir / '_static').makedirs()
+    app.config.html_extra_path = [
+        '/path/to/not_found',       # not found
+        '_static',
+        app.outdir,                 # outdir
+        app.outdir / '_static',     # inside outdir
+    ]
+    validate_html_extra_path(app, app.config)
+    assert app.config.html_extra_path == ['_static']
+
+
+@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_static_path')
+def test_validate_html_static_path(app):
+    (app.confdir / '_static').makedirs()
+    app.config.html_static_path = [
+        '/path/to/not_found',       # not found
+        '_static',
+        app.outdir,                 # outdir
+        app.outdir / '_static',     # inside outdir
+    ]
+    validate_html_static_path(app, app.config)
+    assert app.config.html_static_path == ['_static']

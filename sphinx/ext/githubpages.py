@@ -4,24 +4,20 @@
 
     To publish HTML docs at GitHub Pages, create .nojekyll file.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import urllib
+from typing import Any, Dict
 
 import sphinx
-
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
+from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
 
 
-def create_nojekyll_and_cname(app, env):
-    # type: (Sphinx, BuildEnvironment) -> None
+def create_nojekyll_and_cname(app: Sphinx, env: BuildEnvironment) -> None:
     if app.builder.format == 'html':
         open(os.path.join(app.builder.outdir, '.nojekyll'), 'wt').close()
 
@@ -35,7 +31,6 @@ def create_nojekyll_and_cname(app, env):
                     f.write(domain)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('env-updated', create_nojekyll_and_cname)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

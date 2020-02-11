@@ -26,13 +26,11 @@
 """
 
 import re
+from typing import Generator, Iterable, Tuple
 
 from docutils.utils import smartquotes
 
 from sphinx.util.docutils import __version_info__ as docutils_version
-
-if False:  # For type annotation
-    from typing import Generator, Iterable, Tuple  # NOQA
 
 
 langquotes = {'af':           '“”‘’',
@@ -125,8 +123,7 @@ langquotes = {'af':           '“”‘’',
               }
 
 
-def educateQuotes(text, language='en'):
-    # type: (str, str) -> str
+def educateQuotes(text: str, language: str = 'en') -> str:
     """
     Parameter:  - text string (unicode or bytes).
                 - language (`BCP 47` language tag.)
@@ -158,7 +155,7 @@ def educateQuotes(text, language='en'):
 
     # Special case for decade abbreviations (the '80s):
     if language.startswith('en'):  # TODO similar cases in other languages?
-        text = re.sub(r"""'(?=\d{2}s)""", apostrophe, text, re.UNICODE)
+        text = re.sub(r"""'(?=\d{2}s)""", apostrophe, text, flags=re.UNICODE)
 
     close_class = r"""[^\ \t\r\n\[\{\(\-]"""
     dec_dashes = r"""&#8211;|&#8212;"""
@@ -240,8 +237,10 @@ def educateQuotes(text, language='en'):
     return text
 
 
-def educate_tokens(text_tokens, attr=smartquotes.default_smartypants_attr, language='en'):
-    # type: (Iterable[Tuple[str, str]], str, str) -> Generator[str, None, None]
+def educate_tokens(text_tokens: Iterable[Tuple[str, str]],
+                   attr: str = smartquotes.default_smartypants_attr,
+                   language: str = 'en'
+                   ) -> Generator[str, None, None]:
     """Return iterator that "educates" the items of `text_tokens`.
 
     This is modified to intercept the ``attr='2'`` as it was used by the

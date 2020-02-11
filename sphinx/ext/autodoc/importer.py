@@ -4,45 +4,41 @@
 
     Importer utilities for autodoc
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import sys
+import importlib
 import traceback
 import warnings
 from collections import namedtuple
+from typing import Any, Callable, Dict, List, Tuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
-from sphinx.util.inspect import isenumclass, safe_getattr
-
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, List  # NOQA
+from sphinx.util.inspect import isclass, isenumclass, safe_getattr
 
 logger = logging.getLogger(__name__)
 
 
-def import_module(modname, warningiserror=False):
-    # type: (str, bool) -> Any
+def import_module(modname: str, warningiserror: bool = False) -> Any:
     """
-    Call __import__(modname), convert exceptions to ImportError
+    Call importlib.import_module(modname), convert exceptions to ImportError
     """
     try:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=ImportWarning)
             with logging.skip_warningiserror(not warningiserror):
-                __import__(modname)
-                return sys.modules[modname]
+                return importlib.import_module(modname)
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
         raise ImportError(exc, traceback.format_exc())
 
 
-def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warningiserror=False):
-    # type: (str, List[str], str, Callable[[Any, str], Any], bool) -> Any
+def import_object(modname: str, objpath: List[str], objtype: str = '',
+                  attrgetter: Callable[[Any, str], Any] = safe_getattr,
+                  warningiserror: bool = False) -> Any:
     if objpath:
         logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
     else:
@@ -105,12 +101,35 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
         raise ImportError(errmsg)
 
 
+def get_module_members(module: Any) -> List[Tuple[str, Any]]:
+    """Get members of target module."""
+    from sphinx.ext.autodoc import INSTANCEATTR
+
+    members = {}  # type: Dict[str, Tuple[str, Any]]
+    for name in dir(module):
+        try:
+            value = safe_getattr(module, name, None)
+            members[name] = (name, value)
+        except AttributeError:
+            continue
+
+    # annotation only member (ex. attr: int)
+    if hasattr(module, '__annotations__'):
+        for name in module.__annotations__:
+            if name not in members:
+                members[name] = (name, INSTANCEATTR)
+
+    return sorted(list(members.values()))
+
+
 Attribute = namedtuple('Attribute', ['name', 'directly_defined', 'value'])
 
 
-def get_object_members(subject, objpath, attrgetter, analyzer=None):
-    # type: (Any, List[str], Callable, Any) -> Dict[str, Attribute]  # NOQA
+def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
+                       analyzer: Any = None) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
+    from sphinx.ext.autodoc import INSTANCEATTR
+
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
@@ -127,6 +146,13 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
             if name not in superclass.__dict__:
                 members[name] = Attribute(name, True, value)
 
+    # members in __slots__
+    if isclass(subject) and getattr(subject, '__slots__', None) is not None:
+        from sphinx.ext.autodoc import SLOTSATTR
+
+        for name in subject.__slots__:
+            members[name] = Attribute(name, True, SLOTSATTR)
+
     # other members
     for name in dir(subject):
         try:
@@ -137,10 +163,14 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
         except AttributeError:
             continue
 
+    # annotation only member (ex. attr: int)
+    if hasattr(subject, '__annotations__'):
+        for name in subject.__annotations__:
+            if name not in members:
+                members[name] = Attribute(name, True, INSTANCEATTR)
+
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows
-        from sphinx.ext.autodoc import INSTANCEATTR
-
         namespace = '.'.join(objpath)
         for (ns, name) in analyzer.find_attr_docs():
             if namespace == ns and name not in members:
@@ -150,12 +180,11 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
 
 
 from sphinx.ext.autodoc.mock import (  # NOQA
-    _MockImporter, _MockModule, _MockObject, MockFinder, MockLoader, mock
+    _MockModule, _MockObject, MockFinder, MockLoader, mock
 )
 
 deprecated_alias('sphinx.ext.autodoc.importer',
                  {
-                     '_MockImporter': _MockImporter,
                      '_MockModule': _MockModule,
                      '_MockObject': _MockObject,
                      'MockFinder': MockFinder,

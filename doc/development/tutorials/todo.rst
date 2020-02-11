@@ -23,8 +23,8 @@ We want the extension to add the following to Sphinx:
   only shown in the output if a new config value is set. Todo entries should not
   be in the output by default.
 
-* A ``todolist`` directive that creates a list of all todo entries throughout the
-  documentation.
+* A ``todolist`` directive that creates a list of all todo entries throughout
+  the documentation.
 
 For that, we will need to add the following elements to Sphinx:
 
@@ -106,6 +106,20 @@ is just a "general" node.
    with the nodes already provided by `docutils
    <http://docutils.sourceforge.net/docs/ref/doctree.html>`__ and :ref:`Sphinx
    <nodes>`.
+
+.. attention::
+
+   It is important to know that while you can extend Sphinx without
+   leaving your ``conf.py``, if you declare an inherited node right
+   there, you'll hit an unobvious :py:class:`PickleError`. So if
+   something goes wrong, please make sure that you put inherited nodes
+   into a separate Python module.
+
+   For more details, see:
+
+   - https://github.com/sphinx-doc/sphinx/issues/6751
+   - https://github.com/sphinx-doc/sphinx/issues/1493
+   - https://github.com/sphinx-doc/sphinx/issues/1424
 
 .. rubric:: The directive classes
 

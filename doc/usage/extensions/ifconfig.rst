@@ -8,6 +8,11 @@
 
 This extension is quite simple, and features only one directive:
 
+.. warning::
+
+   This directive is designed to control only content of document.  It could
+   not control sections, labels and so on.
+
 .. rst:directive:: ifconfig
 
    Include content of the directive only if the Python expression given as an
@@ -28,6 +33,6 @@ This extension is quite simple, and features only one directive:
       def setup(app):
           app.add_config_value('releaselevel', '', 'env')
 
-   The second argument is the default value, the third should always be ``'env'``
-   for such values (it selects if Sphinx re-reads the documents if the value
-   changes).
+   The second argument is the default value, the third should always be
+   ``'env'`` for such values (it selects if Sphinx re-reads the documents if the
+   value changes).

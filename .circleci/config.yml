@@ -6,6 +6,6 @@ jobs:
     working_directory: /sphinx
     steps:
       - checkout
-      - run: /python3.5/bin/pip install -U pip setuptools
-      - run: /python3.5/bin/pip install -U .[test,websupport]
-      - run: make test PYTHON=/python3.5/bin/python
+      - run: /python3.6/bin/pip install -U pip setuptools
+      - run: /python3.6/bin/pip install -U .[test,websupport]
+      - run: make test PYTHON=/python3.6/bin/python

@@ -77,7 +77,7 @@ create directives should extend this class.
 
 .. seealso::
 
-   `The docutils documentation on creating directives <docutils directives>`_
+   `The docutils documentation on creating directives <docutils directives_>`_
 
 This class contains a ``run`` method.  This method is a requirement and it is
 part of every directive.  It contains the main logic of the directive and it
@@ -87,7 +87,7 @@ nodes available: text, paragraph, reference, table, etc.
 
 .. seealso::
 
-   `The docutils documentation on nodes <docutils nodes>`_
+   `The docutils documentation on nodes <docutils nodes_>`_
 
 The ``nodes.paragraph`` class creates a new paragraph node. A paragraph
 node typically contains some text that we can set during instantiation using

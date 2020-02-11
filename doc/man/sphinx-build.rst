@@ -302,7 +302,8 @@ variables to customize behavior:
 
 .. describe:: SPHINXOPTS
 
-   Additional options for :program:`sphinx-build`.
+   Additional options for :program:`sphinx-build`. These options can
+   also be set via the shortcut variable **O** (capital 'o').
 
 .. _when-deprecation-warnings-are-displayed:
 

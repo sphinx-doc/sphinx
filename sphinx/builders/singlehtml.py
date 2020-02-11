@@ -4,26 +4,25 @@
 
     Single HTML builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
+from typing import Any, Dict, List, Tuple, Union
 
 from docutils import nodes
+from docutils.nodes import Node
 
+from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import progress_message
 from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Tuple, Union  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -38,12 +37,10 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     copysource = False
 
-    def get_outdated_docs(self):  # type: ignore
-        # type: () -> Union[str, List[str]]
+    def get_outdated_docs(self) -> Union[str, List[str]]:  # type: ignore
         return 'all documents'
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         if docname in self.env.all_docs:
             # all references are on the same page...
             return self.config.master_doc + self.out_suffix + \
@@ -52,13 +49,11 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             # chances are this is a html_additional_page
             return docname + self.out_suffix
 
-    def get_relative_uri(self, from_, to, typ=None):
-        # type: (str, str, str) -> str
+    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
         # ignore source
         return self.get_target_uri(to, typ)
 
-    def fix_refuris(self, tree):
-        # type: (nodes.Node) -> None
+    def fix_refuris(self, tree: Node) -> None:
         # fix refuris with double anchor
         fname = self.config.master_doc + self.out_suffix
         for refnode in tree.traverse(nodes.reference):
@@ -72,17 +67,15 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             if hashindex >= 0:
                 refnode['refuri'] = fname + refuri[hashindex:]
 
-    def _get_local_toctree(self, docname, collapse=True, **kwds):
-        # type: (str, bool, Any) -> str
-        if 'includehidden' not in kwds:
-            kwds['includehidden'] = False
-        toctree = TocTree(self.env).get_toctree_for(docname, self, collapse, **kwds)
+    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
+        if 'includehidden' not in kwargs:
+            kwargs['includehidden'] = False
+        toctree = TocTree(self.env).get_toctree_for(docname, self, collapse, **kwargs)
         if toctree is not None:
             self.fix_refuris(toctree)
         return self.render_partial(toctree)['fragment']
 
-    def assemble_doctree(self):
-        # type: () -> nodes.document
+    def assemble_doctree(self) -> nodes.document:
         master = self.config.master_doc
         tree = self.env.get_doctree(master)
         tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
@@ -91,8 +84,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.fix_refuris(tree)
         return tree
 
-    def assemble_toc_secnumbers(self):
-        # type: () -> Dict[str, Dict[str, Tuple[int, ...]]]
+    def assemble_toc_secnumbers(self) -> Dict[str, Dict[str, Tuple[int, ...]]]:
         # Assemble toc_secnumbers to resolve section numbers on SingleHTML.
         # Merge all secnumbers to single secnumber.
         #
@@ -110,8 +102,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
         return {self.config.master_doc: new_secnumbers}
 
-    def assemble_toc_fignumbers(self):
-        # type: () -> Dict[str, Dict[str, Dict[str, Tuple[int, ...]]]]
+    def assemble_toc_fignumbers(self) -> Dict[str, Dict[str, Dict[str, Tuple[int, ...]]]]:
         # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
         # Merge all fignumbers to single fignumber.
         #
@@ -132,8 +123,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
         return {self.config.master_doc: new_fignumbers}
 
-    def get_doc_context(self, docname, body, metatags):
-        # type: (str, str, str) -> Dict
+    def get_doc_context(self, docname: str, body: str, metatags: str) -> Dict:
         # no relation links...
         toctree = TocTree(self.env).get_toctree_for(self.config.master_doc, self, False)
         # if there is no toctree, toc is None
@@ -159,8 +149,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             'display_toc': display_toc,
         }
 
-    def write(self, *ignored):
-        # type: (Any) -> None
+    def write(self, *ignored: Any) -> None:
         docnames = self.env.all_docs
 
         with progress_message(__('preparing documents')):
@@ -175,8 +164,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             self.write_doc_serialized(self.config.master_doc, doctree)
             self.write_doc(self.config.master_doc, doctree)
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         self.write_additional_files()
         self.copy_image_files()
         self.copy_download_files()
@@ -186,8 +174,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.dump_inventory()
 
     @progress_message(__('writing additional files'))
-    def write_additional_files(self):
-        # type: () -> None
+    def write_additional_files(self) -> None:
         # no indices or search pages are supported
 
         # additional pages from conf.py
@@ -201,8 +188,15 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+# for compatibility
+deprecated_alias('sphinx.builders.html',
+                 {
+                     'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
+                 },
+                 RemovedInSphinx40Warning)
+
+
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(SingleFileHTMLBuilder)

@@ -4,12 +4,13 @@
 
     Texinfo builder.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 from os import path
+from typing import Any, Dict, Iterable, List, Tuple, Union
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -17,9 +18,11 @@ from docutils.io import FileOutput
 
 from sphinx import addnodes
 from sphinx import package_dir
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.environment import NoUri
+from sphinx.config import Config
 from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util import progress_message, status_iterator
@@ -27,14 +30,8 @@ from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, make_filename_from_project
+from sphinx.util.osutil import SEP, ensuredir, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoWriter, TexinfoTranslator
-
-if False:
-    # For type annotation
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
-    from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -57,29 +54,24 @@ class TexinfoBuilder(Builder):
                              'image/gif']
     default_translator_class = TexinfoTranslator
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         self.docnames = []       # type: Iterable[str]
         self.document_data = []  # type: List[Tuple[str, str, str, str, str, str, str, bool]]
 
-    def get_outdated_docs(self):
-        # type: () -> Union[str, List[str]]
+    def get_outdated_docs(self) -> Union[str, List[str]]:
         return 'all documents'  # for now
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         if docname not in self.docnames:
-            raise NoUri
+            raise NoUri(docname, typ)
         else:
             return '%' + docname
 
-    def get_relative_uri(self, from_, to, typ=None):
-        # type: (str, str, str) -> str
+    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
         # ignore source path
         return self.get_target_uri(to, typ)
 
-    def init_document_data(self):
-        # type: () -> None
+    def init_document_data(self) -> None:
         preliminary_document_data = [list(x) for x in self.config.texinfo_documents]
         if not preliminary_document_data:
             logger.warning(__('no "texinfo_documents" config value found; no documents '
@@ -98,8 +90,7 @@ class TexinfoBuilder(Builder):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
-    def write(self, *ignored):
-        # type: (Any) -> None
+    def write(self, *ignored: Any) -> None:
         self.init_document_data()
         for entry in self.document_data:
             docname, targetname, title, author = entry[:4]
@@ -134,9 +125,9 @@ class TexinfoBuilder(Builder):
                 settings.docname = docname
                 doctree.settings = settings
                 docwriter.write(doctree, destination)
+                self.copy_image_files(targetname[:-5])
 
-    def assemble_doctree(self, indexfile, toctree_only, appendices):
-        # type: (str, bool, List[str]) -> nodes.document
+    def assemble_doctree(self, indexfile: str, toctree_only: bool, appendices: List[str]) -> nodes.document:  # NOQA
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
@@ -178,13 +169,10 @@ class TexinfoBuilder(Builder):
             pendingnode.replace_self(newnodes)
         return largetree
 
-    def finish(self):
-        # type: () -> None
-        self.copy_image_files()
+    def finish(self) -> None:
         self.copy_support_files()
 
-    def copy_image_files(self):
-        # type: () -> None
+    def copy_image_files(self, targetname: str) -> None:
         if self.images:
             stringify_func = ImageAdapter(self.app.env).get_original_image_uri
             for src in status_iterator(self.images, __('copying images... '), "brown",
@@ -192,14 +180,14 @@ class TexinfoBuilder(Builder):
                                        stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
-                    copy_asset_file(path.join(self.srcdir, src),
-                                    path.join(self.outdir, dest))
+                    imagedir = path.join(self.outdir, targetname + '-figures')
+                    ensuredir(imagedir)
+                    copy_asset_file(path.join(self.srcdir, dest), imagedir)
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
 
-    def copy_support_files(self):
-        # type: () -> None
+    def copy_support_files(self) -> None:
         try:
             with progress_message(__('copying Texinfo support files')):
                 logger.info('Makefile ', nonl=True)
@@ -208,16 +196,14 @@ class TexinfoBuilder(Builder):
             logger.warning(__("error writing file Makefile: %s"), err)
 
 
-def default_texinfo_documents(config):
-    # type: (Config) -> List[Tuple[str, str, str, str, str, str, str]]
+def default_texinfo_documents(config: Config) -> List[Tuple[str, str, str, str, str, str, str]]:  # NOQA
     """ Better default texinfo_documents settings. """
     filename = make_filename_from_project(config.project)
     return [(config.master_doc, filename, config.project, config.author, filename,
              'One line description of project', 'Miscellaneous')]
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(TexinfoBuilder)
 
     app.add_config_value('texinfo_documents', default_texinfo_documents, None)

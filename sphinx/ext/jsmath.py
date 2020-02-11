@@ -5,11 +5,12 @@
     Set up everything for use of JSMath to display math in HTML
     via JavaScript.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
+from typing import Any, Dict
 
 from sphinxcontrib.jsmath import (  # NOQA
     html_visit_math,
@@ -18,16 +19,11 @@ from sphinxcontrib.jsmath import (  # NOQA
 )
 
 import sphinx
+from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
-
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     warnings.warn('sphinx.ext.jsmath has been moved to sphinxcontrib-jsmath.',
                   RemovedInSphinx40Warning)
 

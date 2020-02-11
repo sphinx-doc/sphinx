@@ -18,7 +18,7 @@ tracker, at :samp:`https://github.com/sphinx-doc/sphinx/issues/{num}`.  Typing
 this URL again and again is tedious, so you can use :mod:`~sphinx.ext.extlinks`
 to avoid repeating yourself.
 
-The extension adds one new config value:
+The extension adds a config value:
 
 .. confval:: extlinks
 

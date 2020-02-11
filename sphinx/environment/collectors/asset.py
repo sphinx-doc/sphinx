@@ -4,30 +4,28 @@
 
     The image collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 from glob import glob
 from os import path
+from typing import Any, Dict, List, Set
 
 from docutils import nodes
+from docutils.nodes import Node
 from docutils.utils import relative_path
 
 from sphinx import addnodes
+from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
 
-if False:
-    # For type annotation
-    from typing import Dict, List, Set, Tuple  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.sphinx import Sphinx  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -35,16 +33,14 @@ logger = logging.getLogger(__name__)
 class ImageCollector(EnvironmentCollector):
     """Image files collector for sphinx.environment."""
 
-    def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, str) -> None
+    def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.images.purge_doc(docname)
 
-    def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
+    def merge_other(self, app: Sphinx, env: BuildEnvironment,
+                    docnames: Set[str], other: BuildEnvironment) -> None:
         env.images.merge_other(docnames, other.images)
 
-    def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.document) -> None
+    def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process and rewrite image URIs."""
         docname = app.env.docname
 
@@ -93,14 +89,17 @@ class ImageCollector(EnvironmentCollector):
                     continue
                 app.env.images.add_file(docname, imgpath)
 
-    def collect_candidates(self, env, imgpath, candidates, node):
-        # type: (BuildEnvironment, str, Dict[str, str], nodes.Node) -> None
+    def collect_candidates(self, env: BuildEnvironment, imgpath: str,
+                           candidates: Dict[str, str], node: Node) -> None:
         globbed = {}  # type: Dict[str, List[str]]
         for filename in glob(imgpath):
             new_imgpath = relative_path(path.join(env.srcdir, 'dummy'),
                                         filename)
             try:
                 mimetype = guess_mimetype(filename)
+                if mimetype is None:
+                    basename, suffix = path.splitext(filename)
+                    mimetype = 'image/x-' + suffix[1:]
                 if mimetype not in candidates:
                     globbed.setdefault(mimetype, []).append(new_imgpath)
             except OSError as err:
@@ -113,16 +112,14 @@ class ImageCollector(EnvironmentCollector):
 class DownloadFileCollector(EnvironmentCollector):
     """Download files collector for sphinx.environment."""
 
-    def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, str) -> None
+    def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.dlfiles.purge_doc(docname)
 
-    def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
+    def merge_other(self, app: Sphinx, env: BuildEnvironment,
+                    docnames: Set[str], other: BuildEnvironment) -> None:
         env.dlfiles.merge_other(docnames, other.dlfiles)
 
-    def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.document) -> None
+    def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process downloadable file paths. """
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']
@@ -135,11 +132,10 @@ class DownloadFileCollector(EnvironmentCollector):
                     logger.warning(__('download file not readable: %s') % filename,
                                    location=node, type='download', subtype='not_readable')
                     continue
-                node['filename'] = app.env.dlfiles.add_file(app.env.docname, filename)
+                node['filename'] = app.env.dlfiles.add_file(app.env.docname, rel_filename)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_env_collector(ImageCollector)
     app.add_env_collector(DownloadFileCollector)
 

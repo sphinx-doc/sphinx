@@ -5,15 +5,12 @@
     This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, IO, List, Match, Union  # NOQA
+from typing import Any, Dict, IO, List, Match, Union
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
@@ -35,10 +32,8 @@ ESCAPE_DICT = {
 ESCAPED = re.compile(r'\\u.{4}|\\.')
 
 
-def encode_string(s):
-    # type: (str) -> str
-    def replace(match):
-        # type: (Match) -> str
+def encode_string(s: str) -> str:
+    def replace(match: Match) -> str:
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]
@@ -55,8 +50,7 @@ def encode_string(s):
     return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
 
 
-def decode_string(s):
-    # type: (str) -> str
+def decode_string(s: str) -> str:
     return ESCAPED.sub(lambda m: eval('"' + m.group() + '"'), s)
 
 
@@ -78,8 +72,7 @@ do   import   static   with
 double   in   super""".split())
 
 
-def dumps(obj, key=False):
-    # type: (Any, bool) -> str
+def dumps(obj: Any, key: bool = False) -> str:
     if key:
         if not isinstance(obj, str):
             obj = str(obj)
@@ -90,7 +83,7 @@ def dumps(obj, key=False):
     if obj is None:
         return 'null'
     elif obj is True or obj is False:
-        return obj and 'true' or 'false'
+        return 'true' if obj else 'false'
     elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, dict):
@@ -107,13 +100,11 @@ def dumps(obj, key=False):
     raise TypeError(type(obj))
 
 
-def dump(obj, f):
-    # type: (Any, IO) -> None
+def dump(obj: Any, f: IO) -> None:
     f.write(dumps(obj))
 
 
-def loads(x):
-    # type: (str) -> Any
+def loads(x: str) -> Any:
     """Loader that can read the JS subset the indexer produces."""
     nothing = object()
     i = 0
@@ -205,6 +196,5 @@ def loads(x):
     return obj
 
 
-def load(f):
-    # type: (IO) -> Any
+def load(f: IO) -> Any:
     return loads(f.read())

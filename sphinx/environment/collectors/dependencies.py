@@ -4,41 +4,36 @@
 
     The dependencies collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 from os import path
+from typing import Any, Dict, Set
 
+from docutils import nodes
 from docutils.utils import relative_path
 
+from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.util.osutil import fs_encoding
-
-if False:
-    # For type annotation
-    from typing import Dict, Set  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.sphinx import Sphinx  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 class DependenciesCollector(EnvironmentCollector):
     """dependencies collector for sphinx.environment."""
 
-    def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, str) -> None
+    def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.dependencies.pop(docname, None)
 
-    def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
+    def merge_other(self, app: Sphinx, env: BuildEnvironment,
+                    docnames: Set[str], other: BuildEnvironment) -> None:
         for docname in docnames:
             if docname in other.dependencies:
                 env.dependencies[docname] = other.dependencies[docname]
 
-    def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.document) -> None
+    def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process docutils-generated dependency info."""
         cwd = os.getcwd()
         frompath = path.join(path.normpath(app.srcdir), 'dummy')
@@ -55,8 +50,7 @@ class DependenciesCollector(EnvironmentCollector):
             app.env.dependencies[app.env.docname].add(relpath)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_env_collector(DependenciesCollector)
 
     return {

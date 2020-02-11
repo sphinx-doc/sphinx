@@ -5,26 +5,28 @@
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import copy
-from typing import NamedTuple
+from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Union
 
+from docutils import nodes
+from docutils.nodes import Element, Node, system_message
+from docutils.parsers.rst.states import Inliner
+
+from sphinx.addnodes import pending_xref
 from sphinx.errors import SphinxError
 from sphinx.locale import _
+from sphinx.roles import XRefRole
+from sphinx.util.typing import RoleFunction
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
-    from docutils import nodes  # NOQA
-    from docutils.parsers.rst.states import Inliner  # NOQA
-    from sphinx import addnodes  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.roles import XRefRole  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from typing import Type  # for python3.5.1
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
 
 
 class ObjType:
@@ -46,8 +48,7 @@ class ObjType:
         'searchprio': 1,
     }
 
-    def __init__(self, lname, *roles, **attrs):
-        # type: (str, Any, Any) -> None
+    def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
         self.lname = lname
         self.roles = roles                      # type: Tuple
         self.attrs = self.known_attrs.copy()    # type: Dict
@@ -82,15 +83,14 @@ class Index:
     localname = None  # type: str
     shortname = None  # type: str
 
-    def __init__(self, domain):
-        # type: (Domain) -> None
+    def __init__(self, domain: "Domain") -> None:
         if self.name is None or self.localname is None:
             raise SphinxError('Index subclass %s has no valid name or localname'
                               % self.__class__.__name__)
         self.domain = domain
 
-    def generate(self, docnames=None):
-        # type: (Iterable[str]) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]
+    def generate(self, docnames: Iterable[str] = None
+                 ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
         """Get entries for the index.
 
         If ``docnames`` is given, restrict to entries referring to these
@@ -181,7 +181,7 @@ class Domain:
     #: role name -> a warning message if reference is missing
     dangling_warnings = {}  # type: Dict[str, str]
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes = {}   # type: Dict[Type[nodes.Node], Tuple[str, Callable]]
+    enumerable_nodes = {}   # type: Dict[Type[Node], Tuple[str, Callable]]
 
     #: data value for a fresh environment
     initial_data = {}       # type: Dict
@@ -190,8 +190,7 @@ class Domain:
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
-    def __init__(self, env):
-        # type: (BuildEnvironment) -> None
+    def __init__(self, env: "BuildEnvironment") -> None:
         self.env = env              # type: BuildEnvironment
         self._role_cache = {}       # type: Dict[str, Callable]
         self._directive_cache = {}  # type: Dict[str, Callable]
@@ -220,8 +219,7 @@ class Domain:
         self.objtypes_for_role = self._role2type.get    # type: Callable[[str], List[str]]
         self.role_for_objtype = self._type2role.get     # type: Callable[[str], str]
 
-    def add_object_type(self, name, objtype):
-        # type: (str, ObjType) -> None
+    def add_object_type(self, name: str, objtype: ObjType) -> None:
         """Add an object type."""
         self.object_types[name] = objtype
         if objtype.roles:
@@ -232,8 +230,7 @@ class Domain:
         for role in objtype.roles:
             self._role2type.setdefault(role, []).append(name)
 
-    def role(self, name):
-        # type: (str) -> RoleFunction
+    def role(self, name: str) -> RoleFunction:
         """Return a role adapter function that always gives the registered
         role its full name ('domain:name') as the first argument.
         """
@@ -243,15 +240,15 @@ class Domain:
             return None
         fullname = '%s:%s' % (self.name, name)
 
-        def role_adapter(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-            # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
+                         inliner: Inliner, options: Dict = {}, content: List[str] = []
+                         ) -> Tuple[List[Node], List[system_message]]:
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
         return role_adapter
 
-    def directive(self, name):
-        # type: (str) -> Callable
+    def directive(self, name: str) -> Callable:
         """Return a directive adapter class that always gives the registered
         directive its full name ('domain:name') as ``self.name``.
         """
@@ -263,8 +260,7 @@ class Domain:
         BaseDirective = self.directives[name]
 
         class DirectiveAdapter(BaseDirective):  # type: ignore
-            def run(self):
-                # type: () -> List[nodes.Node]
+            def run(self) -> List[Node]:
                 self.name = fullname
                 return super().run()
         self._directive_cache[name] = DirectiveAdapter
@@ -272,13 +268,11 @@ class Domain:
 
     # methods that should be overwritten
 
-    def clear_doc(self, docname):
-        # type: (str) -> None
+    def clear_doc(self, docname: str) -> None:
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
-    def merge_domaindata(self, docnames, otherdata):
-        # type: (List[str], Dict) -> None
+    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """
@@ -286,26 +280,24 @@ class Domain:
                                   'to be able to do parallel builds!' %
                                   self.__class__)
 
-    def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, str, nodes.document) -> None
+    def process_doc(self, env: "BuildEnvironment", docname: str,
+                    document: nodes.document) -> None:
         """Process a document after it is read by the environment."""
         pass
 
-    def check_consistency(self):
-        # type: () -> None
+    def check_consistency(self) -> None:
         """Do consistency checks (**experimental**)."""
         pass
 
-    def process_field_xref(self, pnode):
-        # type: (addnodes.pending_xref) -> None
+    def process_field_xref(self, pnode: pending_xref) -> None:
         """Process a pending xref created in a doc field.
         For example, attach information about the current scope.
         """
         pass
 
-    def resolve_xref(self, env, fromdocname, builder,
-                     typ, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
+    def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
+                     typ: str, target: str, node: pending_xref, contnode: Element
+                     ) -> Element:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -321,8 +313,9 @@ class Domain:
         """
         pass
 
-    def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
-        # type: (BuildEnvironment, str, Builder, str, addnodes.pending_xref, nodes.Element) -> List[Tuple[str, nodes.Element]]  # NOQA
+    def resolve_any_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
+                         target: str, node: pending_xref, contnode: Element
+                         ) -> List[Tuple[str, Element]]:
         """Resolve the pending_xref *node* with the given *target*.
 
         The reference comes from an "any" or similar role, which means that we
@@ -338,8 +331,7 @@ class Domain:
         """
         raise NotImplementedError
 
-    def get_objects(self):
-        # type: () -> Iterable[Tuple[str, str, str, str, str, int]]
+    def get_objects(self) -> Iterable[Tuple[str, str, str, str, str, int]]:
         """Return an iterable of "object descriptions".
 
         Object descriptions are tuples with six items:
@@ -374,20 +366,17 @@ class Domain:
         """
         return []
 
-    def get_type_name(self, type, primary=False):
-        # type: (ObjType, bool) -> str
+    def get_type_name(self, type: ObjType, primary: bool = False) -> str:
         """Return full name for given ObjType."""
         if primary:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
 
-    def get_enumerable_node_type(self, node):
-        # type: (nodes.Node) -> str
+    def get_enumerable_node_type(self, node: Node) -> str:
         """Get type of enumerable nodes (experimental)."""
         enum_node_type, _ = self.enumerable_nodes.get(node.__class__, (None, None))
         return enum_node_type
 
-    def get_full_qualified_name(self, node):
-        # type: (nodes.Element) -> str
+    def get_full_qualified_name(self, node: Element) -> str:
         """Return full qualified name for given node."""
         return None

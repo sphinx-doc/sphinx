@@ -4,23 +4,25 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
 from textwrap import indent
-from typing import Any, TypeVar
+from typing import Any, Dict, List, Tuple, TypeVar
 
 from docutils import nodes
 from docutils.io import StringInput
+from docutils.nodes import Element
 from docutils.utils import relative_path
 
 from sphinx import addnodes
+from sphinx.config import Config
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.locale import __, init as init_locale
 from sphinx.transforms import SphinxTransform
-from sphinx.util import split_index_msg, logging
+from sphinx.util import split_index_msg, logging, get_filetype
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.nodes import (
     LITERAL_TYPE_NODES, IMAGE_TYPE_NODES, NodeMatcher,
@@ -29,17 +31,17 @@ from sphinx.util.nodes import (
 
 if False:
     # For type annotation
-    from typing import Dict, List, Tuple, Type  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
+    from typing import Type  # for python3.5.1
+    from sphinx.application import Sphinx
+
 
 logger = logging.getLogger(__name__)
 
 N = TypeVar('N', bound=nodes.Node)
 
 
-def publish_msgstr(app, source, source_path, source_line, config, settings):
-    # type: (Sphinx, str, str, int, Config, Any) -> nodes.Element
+def publish_msgstr(app: "Sphinx", source: str, source_path: str, source_line: int,
+                   config: Config, settings: Any) -> Element:
     """Publish msgstr (single line) into docutils document
 
     :param sphinx.application.Sphinx app: sphinx application
@@ -51,20 +53,29 @@ def publish_msgstr(app, source, source_path, source_line, config, settings):
     :return: document
     :rtype: docutils.nodes.document
     """
-    from sphinx.io import SphinxI18nReader
-    reader = SphinxI18nReader(app)
-    parser = app.registry.create_source_parser(app, 'restructuredtext')
-    doc = reader.read(
-        source=StringInput(source=source,
-                           source_path="%s:%s:<translated>" % (source_path, source_line)),
-        parser=parser,
-        settings=settings,
-    )
     try:
-        doc = doc[0]  # type: ignore
-    except IndexError:  # empty node
-        pass
-    return doc
+        # clear rst_prolog temporarily
+        rst_prolog = config.rst_prolog
+        config.rst_prolog = None  # type: ignore
+
+        from sphinx.io import SphinxI18nReader
+        reader = SphinxI18nReader()
+        reader.setup(app)
+        filetype = get_filetype(config.source_suffix, source_path)
+        parser = app.registry.create_source_parser(app, filetype)
+        doc = reader.read(
+            source=StringInput(source=source,
+                               source_path="%s:%s:<translated>" % (source_path, source_line)),
+            parser=parser,
+            settings=settings,
+        )
+        try:
+            doc = doc[0]  # type: ignore
+        except IndexError:  # empty node
+            pass
+        return doc
+    finally:
+        config.rst_prolog = rst_prolog  # type: ignore
 
 
 class PreserveTranslatableMessages(SphinxTransform):
@@ -73,8 +84,7 @@ class PreserveTranslatableMessages(SphinxTransform):
     """
     default_priority = 10  # this MUST be invoked before Locale transform
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.translatable):
             node.preserve_original_messages()
 
@@ -85,8 +95,7 @@ class Locale(SphinxTransform):
     """
     default_priority = 20
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         settings, source = self.document.settings, self.document['source']
         msgstr = ''
 
@@ -133,7 +142,7 @@ class Locale(SphinxTransform):
             processed = False  # skip flag
 
             # update title(section) target name-id mapping
-            if isinstance(node, nodes.title):
+            if isinstance(node, nodes.title) and isinstance(node.parent, nodes.section):
                 section_node = node.parent
                 new_name = nodes.fully_normalize_name(patch.astext())
                 old_name = nodes.fully_normalize_name(node.astext())
@@ -193,18 +202,13 @@ class Locale(SphinxTransform):
 
             # glossary terms update refid
             if isinstance(node, nodes.term):
-                gloss_entries = self.env.temp_data.setdefault('gloss_entries', set())
-                for _id in node['names']:
-                    if _id in gloss_entries:
-                        gloss_entries.remove(_id)
-
+                for _id in node['ids']:
                     parts = split_term_classifiers(msgstr)
                     patch = publish_msgstr(self.app, parts[0], source,
                                            node.line, self.config, settings)
                     patch = make_glossary_term(self.env, patch, parts[1],
-                                               source, node.line, _id)
-                    node['ids'] = patch['ids']
-                    node['names'] = patch['names']
+                                               source, node.line, _id,
+                                               self.document)
                     processed = True
 
             # update leaves with processed nodes
@@ -266,7 +270,7 @@ class Locale(SphinxTransform):
             unexpected = (
                 nodes.paragraph,    # expected form of translation
                 nodes.title         # generated by above "Subelements phase2"
-            )  # type: Tuple[Type[nodes.Element], ...]
+            )  # type: Tuple[Type[Element], ...]
 
             # following types are expected if
             # config.gettext_additional_targets is configured
@@ -277,8 +281,7 @@ class Locale(SphinxTransform):
                 continue  # skip
 
             # auto-numbered foot note reference should use original 'ids'.
-            def list_replace_or_append(lst, old, new):
-                # type: (List[N], N, N) -> None
+            def list_replace_or_append(lst: List[N], old: N, new: N) -> None:
                 if old in lst:
                     lst[lst.index(old)] = new
                 else:
@@ -404,8 +407,7 @@ class Locale(SphinxTransform):
                                .format(old_xref_rawsources, new_xref_rawsources),
                                location=node)
 
-            def get_ref_key(node):
-                # type: (addnodes.pending_xref) -> Tuple[str, str, str]
+            def get_ref_key(node: addnodes.pending_xref) -> Tuple[str, str, str]:
                 case = node["refdomain"], node["reftype"]
                 if case == ('std', 'term'):
                     return None
@@ -463,7 +465,7 @@ class Locale(SphinxTransform):
                 node['entries'] = new_entries
 
         # remove translated attribute that is used for avoiding double translation.
-        for translated in self.document.traverse(NodeMatcher(translated=Any)):  # type: nodes.Element  # NOQA
+        for translated in self.document.traverse(NodeMatcher(translated=Any)):  # type: Element  # NOQA
             translated.delattr('translated')
 
 
@@ -473,8 +475,7 @@ class RemoveTranslatableInline(SphinxTransform):
     """
     default_priority = 999
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
         if isinstance(self.app.builder, MessageCatalogBuilder):
             return
@@ -483,3 +484,15 @@ class RemoveTranslatableInline(SphinxTransform):
         for inline in self.document.traverse(matcher):  # type: nodes.inline
             inline.parent.remove(inline)
             inline.parent += inline.children
+
+
+def setup(app: "Sphinx") -> Dict[str, Any]:
+    app.add_transform(PreserveTranslatableMessages)
+    app.add_transform(Locale)
+    app.add_transform(RemoveTranslatableInline)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

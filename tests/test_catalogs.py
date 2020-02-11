@@ -4,7 +4,7 @@
 
     Test the base build process.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import shutil
@@ -43,10 +43,10 @@ def test_compile_all_catalogs(app, status, warning):
 
     locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
-    expect = set([
+    expect = {
         x.replace('.po', '.mo')
         for x in find_files(catalog_dir, '.po')
-    ])
+    }
     actual = set(find_files(catalog_dir, '.mo'))
     assert actual  # not empty
     assert actual == expect
@@ -67,7 +67,7 @@ def test_compile_specific_catalogs(app, status, warning):
     actual_on_boot = get_actual()  # sphinx.mo might be included
     app.builder.compile_specific_catalogs([app.srcdir / 'admonitions.txt'])
     actual = get_actual() - actual_on_boot
-    assert actual == set(['admonitions.mo'])
+    assert actual == {'admonitions.mo'}
 
 
 @pytest.mark.usefixtures('setup_test')
@@ -80,10 +80,10 @@ def test_compile_update_catalogs(app, status, warning):
 
     locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
-    expect = set([
+    expect = {
         x.replace('.po', '.mo')
         for x in find_files(catalog_dir, '.po')
-    ])
+    }
     actual = set(find_files(catalog_dir, '.mo'))
     assert actual  # not empty
     assert actual == expect

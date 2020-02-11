@@ -4,12 +4,11 @@
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-import sys
 
 import pytest
 
@@ -115,7 +114,7 @@ def test_expressions():
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
     exprCheck('false', 'L0E')
-    ints = ['5', '0', '075', '0xF', '0XF', '0b1', '0B1']
+    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1']
     unsignedSuffix = ['', 'u', 'U']
     longSuffix = ['', 'l', 'L', 'll', 'LL']
     for i in ints:
@@ -130,14 +129,14 @@ def test_expressions():
                 '5e42', '5e+42', '5e-42',
                 '5.', '5.e42', '5.e+42', '5.e-42',
                 '.5', '.5e42', '.5e+42', '.5e-42',
-                '5.0', '5.0e42','5.0e+42', '5.0e-42']:
+                '5.0', '5.0e42', '5.0e+42', '5.0e-42']:
             expr = e + suffix
             exprCheck(expr, 'L' + expr + 'E')
         for e in [
                 'ApF', 'Ap+F', 'Ap-F',
                 'A.', 'A.pF', 'A.p+F', 'A.p-F',
                 '.A', '.ApF', '.Ap+F', '.Ap-F',
-                'A.B', 'A.BpF','A.Bp+F', 'A.Bp-F']:
+                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']:
             expr = "0x" + e + suffix
             exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
@@ -152,9 +151,8 @@ def test_expressions():
         exprCheck(p + "'\\x0A'", t + "10")
         exprCheck(p + "'\\u0a42'", t + "2626")
         exprCheck(p + "'\\u0A42'", t + "2626")
-        if sys.maxunicode > 65535:
-            exprCheck(p + "'\\U0001f34c'", t + "127820")
-            exprCheck(p + "'\\U0001F34C'", t + "127820")
+        exprCheck(p + "'\\U0001f34c'", t + "127820")
+        exprCheck(p + "'\\U0001F34C'", t + "127820")
 
     # TODO: user-defined lit
     exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
@@ -196,6 +194,8 @@ def test_expressions():
     exprCheck('new int()', 'nw_ipiE')
     exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
     exprCheck('::new int', 'nw_iE')
+    exprCheck('new int{}', 'nw_iilE')
+    exprCheck('new int{5, 42}', 'nw_iilL5EL42EE')
     # delete-expression
     exprCheck('delete p', 'dl1p')
     exprCheck('delete [] p', 'da1p')
@@ -333,6 +333,16 @@ def test_member_definitions():
     check('member', 'extern thread_local int myInt', {1: 'myInt__i', 2: '5myInt'})
     check('member', 'thread_local extern int myInt', {1: 'myInt__i', 2: '5myInt'},
           'extern thread_local int myInt')
+
+    # tests based on https://en.cppreference.com/w/cpp/language/bit_field
+    check('member', 'int b : 3', {1: 'b__i', 2: '1b'})
+    check('member', 'int b : 8 = 42', {1: 'b__i', 2: '1b'})
+    check('member', 'int b : 8{42}', {1: 'b__i', 2: '1b'})
+    # TODO: enable once the ternary operator is supported
+    #check('member', 'int b : true ? 8 : a = 42', {1: 'b__i', 2: '1b'})
+    # TODO: enable once the ternary operator is supported
+    #check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
+    check('member', 'int b : 1 || new int{0}', {1: 'b__i', 2: '1b'})
 
 
 def test_function_definitions():
@@ -675,6 +685,40 @@ def test_template_args():
           {2: "I0E21enable_if_not_array_t"})
 
 
+def test_initializers():
+    idsMember = {1: 'v__T', 2: '1v'}
+    idsFunction = {1: 'f__T', 2: '1f1T'}
+    idsTemplate = {2: 'I_1TE1fv', 4: 'I_1TE1fvv'}
+    # no init
+    check('member', 'T v', idsMember)
+    check('function', 'void f(T v)', idsFunction)
+    check('function', 'template<T v> void f()', idsTemplate)
+    # with '=', assignment-expression
+    check('member', 'T v = 42', idsMember)
+    check('function', 'void f(T v = 42)', idsFunction)
+    check('function', 'template<T v = 42> void f()', idsTemplate)
+    # with '=', braced-init
+    check('member', 'T v = {}', idsMember)
+    check('function', 'void f(T v = {})', idsFunction)
+    check('function', 'template<T v = {}> void f()', idsTemplate)
+    check('member', 'T v = {42, 42, 42}', idsMember)
+    check('function', 'void f(T v = {42, 42, 42})', idsFunction)
+    check('function', 'template<T v = {42, 42, 42}> void f()', idsTemplate)
+    check('member', 'T v = {42, 42, 42,}', idsMember)
+    check('function', 'void f(T v = {42, 42, 42,})', idsFunction)
+    check('function', 'template<T v = {42, 42, 42,}> void f()', idsTemplate)
+    check('member', 'T v = {42, 42, args...}', idsMember)
+    check('function', 'void f(T v = {42, 42, args...})', idsFunction)
+    check('function', 'template<T v = {42, 42, args...}> void f()', idsTemplate)
+    # without '=', braced-init
+    check('member', 'T v{}', idsMember)
+    check('member', 'T v{42, 42, 42}', idsMember)
+    check('member', 'T v{42, 42, 42,}', idsMember)
+    check('member', 'T v{42, 42, args...}', idsMember)
+    # other
+    check('member', 'T v = T{}', idsMember)
+
+
 def test_attributes():
     # style: C++
     check('member', '[[]] int f', {1: 'f__i', 2: '1f'})
@@ -714,11 +758,25 @@ def test_attributes():
           {1: 'f', 2: '1fv'},
           output='[[attr1]] [[attr2]] void f()')
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i__iP', 2:'1i'})
+    check('member', 'int *[[attr]] i', {1: 'i__iP', 2: '1i'})
     check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
           output='int *[[attr]] volatile const i')
     check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
     check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
+
+
+def test_xref_parsing():
+    def check(target):
+        class Config:
+            cpp_id_attributes = ["id_attr"]
+            cpp_paren_attributes = ["paren_attr"]
+        parser = DefinitionParser(target, None, Config())
+        ast, isShorthand = parser.parse_xref_object()
+        parser.assert_end()
+    check('f')
+    check('f()')
+    check('void f()')
+    check('T f()')
 
 
 # def test_print():
@@ -728,11 +786,78 @@ def test_attributes():
 #     raise DefinitionError("")
 
 
+def filter_warnings(warning, file):
+    lines = warning.getvalue().split("\n");
+    res = [l for l in lines if "domain-cpp" in l and "{}.rst".format(file) in l and
+           "WARNING: document isn't included in any toctree" not in l]
+    print("Filtered warnings for file '{}':".format(file))
+    for w in res:
+        print(w)
+    return res
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_multi_decl_lookup(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "lookup-key-overload")
+    assert len(ws) == 0
+
+    ws = filter_warnings(warning, "multi-decl-lookup")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "warn-template-param-qualified-name")
+    assert len(ws) == 2
+    assert "WARNING: cpp:type reference target not found: T::typeWarn" in ws[0]
+    assert "WARNING: cpp:type reference target not found: T::U::typeWarn" in ws[1]
+
+
 @pytest.mark.sphinx(testroot='domain-cpp')
 def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     app.builder.build_all()
+    ws = filter_warnings(warning, "roles-targets-ok")
+    assert len(ws) == 0
 
-    # TODO: properly check for the warnings we expect
+    ws = filter_warnings(warning, "roles-targets-warn")
+    # the roles that should be able to generate warnings:
+    allRoles = ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator']
+    ok = [  # targetType, okRoles
+        ('class', ['class', 'struct', 'type']),
+        ('union', ['union', 'type']),
+        ('func', ['func', 'type']),
+        ('member', ['member', 'var']),
+        ('type', ['type']),
+        ('concept', ['concept']),
+        ('enum', ['type', 'enum']),
+        ('enumerator', ['enumerator']),
+        ('tParam', ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator', 'functionParam']),
+        ('functionParam', ['member', 'var']),
+    ]
+    warn = []
+    for targetType, roles in ok:
+        txtTargetType = "function" if targetType == "func" else targetType
+        for r in allRoles:
+            if r not in roles:
+                warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+    warn = list(sorted(warn))
+    for w in ws:
+        assert "targets a" in w
+    ws = [w[w.index("WARNING:"):] for w in ws]
+    ws = list(sorted(ws))
+    print("Expected warnings:")
+    for w in warn:
+        print(w)
+    print("Actual warnings:")
+    for w in ws:
+        print(w)
+
+    for i in range(min(len(warn), len(ws))):
+        assert ws[i].startswith(warn[i])
+
+    assert len(ws) == len(warn)
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -766,14 +891,14 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in parenPatterns:
         check(s, t, f)
 
@@ -809,14 +934,14 @@ def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, wa
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in parenPatterns:
         check(s, t, f)
 
@@ -826,7 +951,7 @@ def test_xref_consistency(app, status, warning):
     app.builder.build_all()
 
     test = 'xref_consistency.html'
-    output = (app.outdir / test).text()
+    output = (app.outdir / test).read_text()
 
     def classes(role, tag):
         pattern = (r'{role}-role:.*?'

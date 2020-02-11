@@ -9,26 +9,22 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
 import warnings
 from collections import namedtuple
 from os import path
+from typing import Any, Dict, List, Set, Tuple
 
 from sphinx import package_dir
+from sphinx.application import Sphinx
 from sphinx.builders import _epub_base
-from sphinx.config import ENUM
+from sphinx.config import Config, ENUM
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import make_filename
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, Iterable, List, Set, Tuple  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -75,8 +71,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     use_meta_charset = True
 
     # Finish by building the epub file
-    def handle_finish(self):
-        # type: () -> None
+    def handle_finish(self) -> None:
         """Create the metainfo files and finally the epub."""
         self.get_toc()
         self.build_mimetype()
@@ -86,30 +81,27 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.build_toc()
         self.build_epub()
 
-    def validate_config_value(self):
-        # type: () -> None
+    def validate_config_value(self) -> None:
         warnings.warn('Epub3Builder.validate_config_value() is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
 
-    def content_metadata(self):
-        # type: () -> Dict
+    def content_metadata(self) -> Dict:
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
         writing_mode = self.config.epub_writing_mode
 
         metadata = super().content_metadata()
-        metadata['description'] = self.esc(self.config.epub_description)
-        metadata['contributor'] = self.esc(self.config.epub_contributor)
+        metadata['description'] = html.escape(self.config.epub_description)
+        metadata['contributor'] = html.escape(self.config.epub_contributor)
         metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
         metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
-        metadata['date'] = self.esc(format_date("%Y-%m-%dT%H:%M:%SZ"))
-        metadata['version'] = self.esc(self.config.version)
+        metadata['date'] = html.escape(format_date("%Y-%m-%dT%H:%M:%SZ"))
+        metadata['version'] = html.escape(self.config.version)
         metadata['epub_version'] = self.config.epub_version
         return metadata
 
-    def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
+    def prepare_writing(self, docnames: Set[str]) -> None:
         super().prepare_writing(docnames)
 
         writing_mode = self.config.epub_writing_mode
@@ -118,8 +110,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.globalcontext['use_meta_charset'] = self.use_meta_charset
         self.globalcontext['skip_ua_compatible'] = True
 
-    def build_navlist(self, navnodes):
-        # type: (List[Dict[str, Any]]) -> List[NavPoint]
+    def build_navlist(self, navnodes: List[Dict[str, Any]]) -> List[NavPoint]:
         """Create the toc navigation structure.
 
         This method is almost same as build_navpoints method in epub.py.
@@ -161,19 +152,17 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
         return navstack[0].children
 
-    def navigation_doc_metadata(self, navlist):
-        # type: (List[NavPoint]) -> Dict
+    def navigation_doc_metadata(self, navlist: List[NavPoint]) -> Dict:
         """Create a dictionary with all metadata for the nav.xhtml file
         properly escaped.
         """
         metadata = {}  # type: Dict
-        metadata['lang'] = self.esc(self.config.epub_language)
-        metadata['toc_locale'] = self.esc(self.guide_titles['toc'])
+        metadata['lang'] = html.escape(self.config.epub_language)
+        metadata['toc_locale'] = html.escape(self.guide_titles['toc'])
         metadata['navlist'] = navlist
         return metadata
 
-    def build_navigation_doc(self, outdir=None, outname='nav.xhtml'):
-        # type: (str, str) -> None
+    def build_navigation_doc(self, outdir: str = None, outname: str = 'nav.xhtml') -> None:
         """Write the metainfo file nav.xhtml."""
         if outdir:
             warnings.warn('The arguments of Epub3Builder.build_navigation_doc() '
@@ -202,8 +191,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
             self.files.append(outname)
 
 
-def validate_config_values(app):
-    # type: (Sphinx) -> None
+def validate_config_values(app: Sphinx) -> None:
     if app.builder.name != 'epub':
         return
 
@@ -242,8 +230,7 @@ def validate_config_values(app):
         logger.warning(__('conf value "version" should not be empty for EPUB3'))
 
 
-def convert_epub_css_files(app, config):
-    # type: (Sphinx, Config) -> None
+def convert_epub_css_files(app: Sphinx, config: Config) -> None:
     """This converts string styled epub_css_files to tuple styled one."""
     epub_css_files = []  # type: List[Tuple[str, Dict]]
     for entry in config.epub_css_files:
@@ -260,8 +247,7 @@ def convert_epub_css_files(app, config):
     config.epub_css_files = epub_css_files  # type: ignore
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(Epub3Builder)
 
     # config values

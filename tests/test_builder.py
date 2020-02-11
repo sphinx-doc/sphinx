@@ -4,7 +4,7 @@
 
     Test the Builder class.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import pytest
@@ -28,7 +28,7 @@ def test_incremental_reading(app):
     # second reading
     updated = app.builder.read()
 
-    assert set(updated) == set(['index', 'new'])
+    assert set(updated) == {'index', 'new'}
     assert 'autodoc' not in app.env.all_docs
     assert 'autodoc' not in app.env.found_docs
 
@@ -44,4 +44,4 @@ def test_incremental_reading_for_missing_files(app):
 
     # "index" is listed up to updated because it contains references
     # to nonexisting downloadable or image files
-    assert set(updated) == set(['index'])
+    assert set(updated) == {'index'}

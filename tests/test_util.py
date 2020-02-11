@@ -4,15 +4,15 @@
 
     Tests util functions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import tempfile
+from unittest.mock import patch
 
 import pytest
-from mock import patch
 
 import sphinx
 from sphinx.errors import ExtensionError, PycodeError

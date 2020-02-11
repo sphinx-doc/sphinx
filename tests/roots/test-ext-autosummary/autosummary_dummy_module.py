@@ -1,4 +1,5 @@
 from os import *  # NOQA
+from typing import Union
 
 
 class Foo:
@@ -11,3 +12,7 @@ class Foo:
     @property
     def baz(self):
         pass
+
+
+def bar(x: Union[int, str], y: int = 1):
+    pass

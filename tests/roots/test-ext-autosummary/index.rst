@@ -8,4 +8,5 @@
 
    autosummary_dummy_module
    autosummary_dummy_module.Foo
+   autosummary_dummy_module.bar
    autosummary_importfail

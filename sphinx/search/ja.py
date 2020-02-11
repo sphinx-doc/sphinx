@@ -4,7 +4,7 @@
 
     Japanese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,7 +19,7 @@
 import os
 import re
 import sys
-import warnings
+from typing import Any, Dict, List
 
 try:
     import MeCab
@@ -33,26 +33,17 @@ try:
 except ImportError:
     janome_module = False
 
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.search import SearchLanguage
 from sphinx.util import import_object
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, List  # NOQA
-
 
 class BaseSplitter:
-
-    def __init__(self, options):
-        # type: (Dict) -> None
+    def __init__(self, options: Dict) -> None:
         self.options = options
 
-    def split(self, input):
-        # type: (str) -> List[str]
+    def split(self, input: str) -> List[str]:
         """
-
         :param str input:
         :return:
         :rtype: list[str]
@@ -61,8 +52,7 @@ class BaseSplitter:
 
 
 class MecabSplitter(BaseSplitter):
-    def __init__(self, options):
-        # type: (Dict) -> None
+    def __init__(self, options: Dict) -> None:
         super().__init__(options)
         self.ctypes_libmecab = None     # type: Any
         self.ctypes_mecab = None        # type: Any
@@ -72,8 +62,7 @@ class MecabSplitter(BaseSplitter):
             self.init_native(options)
         self.dict_encode = options.get('dic_enc', 'utf-8')
 
-    def split(self, input):
-        # type: (str) -> List[str]
+    def split(self, input: str) -> List[str]:
         if native_module:
             result = self.native.parse(input)
         else:
@@ -81,16 +70,14 @@ class MecabSplitter(BaseSplitter):
                 self.ctypes_mecab, input.encode(self.dict_encode))
         return result.split(' ')
 
-    def init_native(self, options):
-        # type: (Dict) -> None
+    def init_native(self, options: Dict) -> None:
         param = '-Owakati'
         dict = options.get('dict')
         if dict:
             param += ' -d %s' % dict
         self.native = MeCab.Tagger(param)
 
-    def init_ctypes(self, options):
-        # type: (Dict) -> None
+    def init_ctypes(self, options: Dict) -> None:
         import ctypes.util
 
         lib = options.get('lib')
@@ -126,8 +113,7 @@ class MecabSplitter(BaseSplitter):
         if self.ctypes_mecab is None:
             raise SphinxError('mecab initialization failed')
 
-    def __del__(self):
-        # type: () -> None
+    def __del__(self) -> None:
         if self.ctypes_libmecab:
             self.ctypes_libmecab.mecab_destroy(self.ctypes_mecab)
 
@@ -135,34 +121,31 @@ MeCabBinder = MecabSplitter  # keep backward compatibility until Sphinx-1.6
 
 
 class JanomeSplitter(BaseSplitter):
-    def __init__(self, options):
-        # type: (Dict) -> None
+    def __init__(self, options: Dict) -> None:
         super().__init__(options)
         self.user_dict = options.get('user_dic')
         self.user_dict_enc = options.get('user_dic_enc', 'utf8')
         self.init_tokenizer()
 
-    def init_tokenizer(self):
-        # type: () -> None
+    def init_tokenizer(self) -> None:
         if not janome_module:
             raise RuntimeError('Janome is not available')
         self.tokenizer = janome.tokenizer.Tokenizer(udic=self.user_dict, udic_enc=self.user_dict_enc)
 
-    def split(self, input):
-        # type: (str) -> List[str]
+    def split(self, input: str) -> List[str]:
         result = ' '.join(token.surface for token in self.tokenizer.tokenize(input))
         return result.split(' ')
 
 
 class DefaultSplitter(BaseSplitter):
-    patterns_ = dict([(re.compile(pattern), value) for pattern, value in {
+    patterns_ = {re.compile(pattern): value for pattern, value in {
         '[一二三四五六七八九十百千万億兆]': 'M',
         '[一-龠々〆ヵヶ]': 'H',
         '[ぁ-ん]': 'I',
         '[ァ-ヴーｱ-ﾝﾞｰ]': 'K',
         '[a-zA-Zａ-ｚＡ-Ｚ]': 'A',
         '[0-9０-９]': 'N',
-    }.items()])
+    }.items()}
     BIAS__ = -332
     BC1__ = {'HH': 6, 'II': 2461, 'KH': 406, 'OH': -1378}
     BC2__ = {'AA': -3267, 'AI': 2744, 'AN': -878, 'HH': -4070, 'HM': -1711,
@@ -425,23 +408,20 @@ class DefaultSplitter(BaseSplitter):
              '郎': 1082, '１': -270, 'Ｅ１': 306, 'ﾙ': -673, 'ﾝ': -496}
 
     # ctype_
-    def ctype_(self, char):
-        # type: (str) -> str
+    def ctype_(self, char: str) -> str:
         for pattern, value in self.patterns_.items():
             if pattern.match(char):
                 return value
         return 'O'
 
     # ts_
-    def ts_(self, dict, key):
-        # type: (Dict[str, int], str) -> int
+    def ts_(self, dict: Dict[str, int], key: str) -> int:
         if key in dict:
             return dict[key]
         return 0
 
     # segment
-    def split(self, input):
-        # type: (str) -> List[str]
+    def split(self, input: str) -> List[str]:
         if not input:
             return []
 
@@ -543,36 +523,20 @@ class SearchJapanese(SearchLanguage):
     """
     lang = 'ja'
     language_name = 'Japanese'
-    splitters = {
-        'default': 'sphinx.search.ja.DefaultSplitter',
-        'mecab': 'sphinx.search.ja.MecabSplitter',
-        'janome': 'sphinx.search.ja.JanomeSplitter',
-    }
 
-    def init(self, options):
-        # type: (Dict) -> None
-        type = options.get('type', 'sphinx.search.ja.DefaultSplitter')
-        if type in self.splitters:
-            dotted_path = self.splitters[type]
-            warnings.warn('html_search_options["type"]: %s is deprecated. '
-                          'Please give "%s" instead.' % (type, dotted_path),
-                          RemovedInSphinx30Warning, stacklevel=2)
-        else:
-            dotted_path = type
+    def init(self, options: Dict) -> None:
+        dotted_path = options.get('type', 'sphinx.search.ja.DefaultSplitter')
         try:
             self.splitter = import_object(dotted_path)(options)
         except ExtensionError:
             raise ExtensionError("Splitter module %r can't be imported" %
                                  dotted_path)
 
-    def split(self, input):
-        # type: (str) -> List[str]
+    def split(self, input: str) -> List[str]:
         return self.splitter.split(input)
 
-    def word_filter(self, stemmed_word):
-        # type: (str) -> bool
+    def word_filter(self, stemmed_word: str) -> bool:
         return len(stemmed_word) > 1
 
-    def stem(self, word):
-        # type: (str) -> str
+    def stem(self, word: str) -> str:
         return word

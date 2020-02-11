@@ -4,7 +4,7 @@
 
     Sphinx layout template for the haiku theme.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
@@ -51,7 +51,7 @@
       <div class="topnav" role="navigation" aria-label="top navigation">
       {{ nav() }}
       </div>
-      <div class="content">
+      <div class="content" role="main">
         {#{%- if display_toc %}
         <div id="toc">
           <h3>{{ _('Table of Contents') }}</h3>

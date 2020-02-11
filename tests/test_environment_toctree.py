@@ -4,7 +4,7 @@
 
     Test the sphinx.environment.managers.toctree.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -75,11 +75,11 @@ def test_process_doc(app):
     # other collections
     assert app.env.toc_num_entries['index'] == 6
     assert app.env.toctree_includes['index'] == ['foo', 'bar', 'baz']
-    assert app.env.files_to_rebuild['foo'] == set(['index'])
-    assert app.env.files_to_rebuild['bar'] == set(['index'])
-    assert app.env.files_to_rebuild['baz'] == set(['index'])
+    assert app.env.files_to_rebuild['foo'] == {'index'}
+    assert app.env.files_to_rebuild['bar'] == {'index'}
+    assert app.env.files_to_rebuild['baz'] == {'index'}
     assert app.env.glob_toctrees == set()
-    assert app.env.numbered_toctrees == set(['index'])
+    assert app.env.numbered_toctrees == {'index'}
 
     # qux has no section title
     assert len(app.env.tocs['qux']) == 0
@@ -119,16 +119,14 @@ def test_glob(app):
                              [bullet_list, addnodes.toctree])])  # [0][1][1][1][0]
     assert_node(toctree[0][1][1][1][0], addnodes.toctree, caption=None,
                 glob=True, hidden=False, titlesonly=False,
-                maxdepth=-1, numbered=0, includefiles=includefiles,
+                maxdepth=-1, numbered=0, includefiles=list(reversed(includefiles)),
                 entries=[(None, 'qux/index'), (None, 'baz'), (None, 'bar/bar_3'),
                          (None, 'bar/bar_2'), (None, 'bar/bar_1'), (None, 'bar/index'),
                          (None, 'foo')])
-    includefiles = ['foo', 'bar/index', 'bar/bar_1', 'bar/bar_2',
-                    'bar/bar_3', 'baz', 'qux/index']
 
     # other collections
     assert app.env.toc_num_entries['index'] == 3
-    assert app.env.toctree_includes['index'] == includefiles + includefiles
+    assert app.env.toctree_includes['index'] == includefiles + list(reversed(includefiles))
     for file in includefiles:
         assert 'index' in app.env.files_to_rebuild[file]
     assert 'index' in app.env.glob_toctrees

@@ -40,10 +40,8 @@ you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
 :mod:`napoleon <sphinx.ext.napoleon>` is a preprocessor that converts your
 docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 
-.. _Google:
-   https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
-.. _NumPy:
-   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _Google: https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
+.. _NumPy: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
 
 Directives
@@ -142,6 +140,20 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.1
 
+   * autodoc considers a member private if its docstring contains
+     ``:meta private:`` in its :ref:`info-field-lists`.
+     For example:
+
+     .. code-block:: rst
+
+        def my_function(my_arg, my_other_arg):
+            """blah blah blah
+
+            :meta private:
+            """
+
+     .. versionadded:: 3.0
+
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
 
@@ -159,7 +171,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
-     ``inherited-members`` flag option, in addition to ``members``::
+     ``inherited-members`` option, in addition to ``members``::
 
         .. autoclass:: Noodle
            :members:
@@ -168,10 +180,28 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      This can be combined with ``undoc-members`` to document *all* available
      members of the class or module.
 
+     It can take an anchestor class not to document inherited members from it.
+     By default, members of ``object`` class are not documented.  To show them
+     all, give ``None`` to the option.
+
+     For example; If your class ``Foo`` is derived from ``list`` class and
+     you don't want to document ``list.__len__()``, you should specify a
+     option ``:inherited-members: list`` to avoid special members of list
+     class.
+
+     Another example; If your class Foo has ``__str__`` special method and
+     autodoc directive has both ``inherited-members`` and ``special-members``,
+     ``__str__`` will be documented as in the past, but other special method
+     that are not implemented in your class ``Foo``.
+
      Note: this will lead to markup errors if the inherited members come from a
      module whose docstrings are not reST formatted.
 
      .. versionadded:: 0.3
+
+     .. versionchanged:: 3.0
+
+        It takes an anchestor class name as an argument.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
@@ -245,20 +275,22 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
    These work exactly like :rst:dir:`autoclass` etc.,
    but do not offer the options used for automatic member documentation.
 
-   :rst:dir:`autodata` and :rst:dir:`autoattribute` support
-   the ``annotation`` option.
-   Without this option, the representation of the object
-   will be shown in the documentation.
-   When the option is given without arguments,
-   only the name of the object will be printed::
+   :rst:dir:`autodata` and :rst:dir:`autoattribute` support the ``annotation``
+   option.  The option controls how the value of variable is shown.  If specified
+   without arguments, only the name of the variable will be printed, and its value
+   is not shown::
 
       .. autodata:: CD_DRIVE
          :annotation:
 
-   You can tell sphinx what should be printed after the name::
+   If the option specified with arguments, it is printed after the name as a value
+   of the variable::
 
       .. autodata:: CD_DRIVE
          :annotation: = your CD device name
+
+   By default, without ``annotation`` option, Sphinx tries to obtain the value of
+   the variable and print it after the name.
 
    For module data members and class attributes, documentation can either be put
    into a comment with special formatting (using a ``#:`` to start the comment
@@ -315,7 +347,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 Configuration
 -------------
 
-There are also new config values that you can set:
+There are also config values that you can set:
 
 .. confval:: autoclass_content
 
@@ -387,13 +419,16 @@ There are also new config values that you can set:
 
    The supported options are ``'members'``, ``'member-order'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
-   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'`` and
-   ``'exclude-members'``.
+   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
+   ``'imported-members'`` and ``'exclude-members'``.
 
    .. versionadded:: 1.8
 
    .. versionchanged:: 2.0
       Accepts ``True`` as a value.
+
+   .. versionchanged:: 2.1
+      Added ``'imported-members'``.
 
 .. confval:: autodoc_docstring_signature
 
@@ -427,6 +462,16 @@ There are also new config values that you can set:
    .. versionchanged:: 1.6
       This config value only requires to declare the top-level modules that
       should be mocked.
+
+.. confval:: autodoc_typehints
+
+   This value controls how to represents typehints.  The setting takes the
+   following values:
+
+   * ``'signature'`` -- Show typehints as its signature (default)
+   * ``'none'`` -- Do not show typehints
+
+   .. versionadded:: 2.1
 
 .. confval:: autodoc_warningiserror
 
@@ -480,6 +525,17 @@ autodoc provides the following additional events:
       ``noindex`` that are true if the flag option of same name was given to the
       auto directive
    :param lines: the lines of the docstring, see above
+
+.. event:: autodoc-before-process-signature (app, obj, bound_method)
+
+   .. versionadded:: 2.4
+
+   Emitted before autodoc formats a signature for an object. The event handler
+   can modify an object to change its signature.
+
+   :param app: the Sphinx application object
+   :param obj: the object itself
+   :param bound_method: a boolean indicates an object is bound method or not
 
 .. event:: autodoc-process-signature (app, what, name, obj, options, signature, return_annotation)
 
@@ -543,3 +599,24 @@ member should be included in the documentation by using the following event:
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
       ``noindex`` that are true if the flag option of same name was given to the
       auto directive
+
+Generating documents from type annotations
+------------------------------------------
+
+As an experimental feature, autodoc provides ``sphinx.ext.autodoc.typehints`` as
+an additional extension.  It extends autodoc itself to generate function document
+from its type annotations.
+
+To enable the feature, please add ``sphinx.ext.autodoc.typehints`` to list of
+extensions and set `'description'` to :confval:`autodoc_typehints`:
+
+.. code-block:: python
+
+   extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autodoc.typehints']
+
+   autodoc_typehints = 'description'
+
+.. versionadded:: 2.4
+
+   Added as an experimental feature.  This will be integrated into autodoc core
+   in Sphinx-3.0.

@@ -4,7 +4,7 @@
 
     Test the Sphinx class.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -61,19 +61,12 @@ def test_extension_in_blacklist(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='add_source_parser')
-@pytest.mark.filterwarnings('ignore:The config variable "source_parsers"')
-@pytest.mark.filterwarnings('ignore:app.add_source_parser\\(\\) does not support suffix')
 def test_add_source_parser(app, status, warning):
-    assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
+    assert set(app.config.source_suffix) == {'.rst', '.test'}
 
     # .rst; only in :confval:`source_suffix`
     assert '.rst' not in app.registry.get_source_parsers()
     assert app.registry.source_suffix['.rst'] is None
-
-    # .md; configured by :confval:`source_suffix` and :confval:`source_parsers`
-    assert '.md' in app.registry.get_source_parsers()
-    assert app.registry.source_suffix['.md'] == '.md'
-    assert app.registry.get_source_parsers()['.md'].__name__ == 'DummyMarkdownParser'
 
     # .test; configured by API
     assert app.registry.source_suffix['.test'] == 'test'
@@ -105,6 +98,8 @@ def test_add_is_parallel_allowed(app, status, warning):
 
     app.setup_extension('read_serial')
     assert app.is_parallel_allowed('read') is False
+    assert "the read_serial extension is not safe for parallel reading" in warning.getvalue()
+    warning.truncate(0)  # reset warnings
     assert app.is_parallel_allowed('write') is True
     assert warning.getvalue() == ''
     app.extensions.pop('read_serial')

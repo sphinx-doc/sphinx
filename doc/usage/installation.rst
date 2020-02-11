@@ -108,12 +108,13 @@ Windows
 .. todo:: Could we start packaging this?
 
 Most Windows users do not have Python installed by default, so we begin with
-the installation of Python itself.  If you are unsure, open the *Command
-Prompt* (:kbd:`⊞Win-r` and type :command:`cmd`).  Once the command prompt is
-open, type :command:`python --version` and press Enter.  If Python is
-available, you will see the version of Python printed to the screen.  If you do
-not have Python installed, refer to the `Hitchhikers Guide to Python's`__
-Python on Windows installation guides. You must install `Python 3`__.
+the installation of Python itself.  To check if you already have Python
+installed, open the *Command Prompt* (:kbd:`⊞Win-r` and type :command:`cmd`).
+Once the command prompt is open, type :command:`python --version` and press
+Enter.  If Python is installed, you will see the version of Python printed to
+the screen.  If you do not have Python installed, refer to the `Hitchhikers
+Guide to Python's`__ Python on Windows installation guides. You must install
+`Python 3`__.
 
 Once Python is installed, you can install Sphinx using :command:`pip`.  Refer
 to the :ref:`pip installation instructions <install-pypi>` below for more

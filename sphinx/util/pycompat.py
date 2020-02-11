@@ -4,7 +4,7 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,16 +13,13 @@ import io
 import sys
 import textwrap
 import warnings
+from typing import Any, Callable
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import terminal_safe
 from sphinx.util.typing import NoneType
-
-if False:
-    # For type annotation
-    from typing import Any, Callable, Generator  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -33,8 +30,7 @@ logger = logging.getLogger(__name__)
 
 # convert_with_2to3():
 # support for running 2to3 over config files
-def convert_with_2to3(filepath):
-    # type: (str) -> str
+def convert_with_2to3(filepath: str) -> str:
     from lib2to3.refactor import RefactoringTool, get_fixers_from_package
     from lib2to3.pgen2.parse import ParseError
     fixers = get_fixers_from_package('lib2to3.fixes')
@@ -59,11 +55,10 @@ class UnicodeMixin:
     def __str__(self):
         warnings.warn('UnicodeMixin is deprecated',
                       RemovedInSphinx40Warning, stacklevel=2)
-        return self.__unicode__()
+        return self.__unicode__()  # type: ignore
 
 
-def execfile_(filepath, _globals, open=open):
-    # type: (str, Any, Callable) -> None
+def execfile_(filepath: str, _globals: Any, open: Callable = open) -> None:
     from sphinx.util.osutil import fs_encoding
     with open(filepath, 'rb') as f:
         source = f.read()

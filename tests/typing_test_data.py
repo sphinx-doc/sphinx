@@ -1,5 +1,5 @@
 from numbers import Integral
-from typing import Any, List, TypeVar, Union, Callable, Tuple, Optional
+from typing import Any, Dict, List, TypeVar, Union, Callable, Tuple, Optional
 
 
 def f0(x: int, y: Integral) -> None:
@@ -86,6 +86,15 @@ def f16(arg1, arg2, *, arg3=None, arg4=None):
 
 def f17(*, arg3, arg4):
     pass
+
+
+def f18(self, arg1: Union[int, Tuple] = 10) -> List[Dict]:
+    pass
+
+
+def f19(*args: int, **kwargs: str):
+    pass
+
 
 
 class Node:

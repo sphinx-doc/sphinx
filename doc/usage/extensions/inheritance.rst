@@ -25,13 +25,19 @@ It adds this directive:
    graph.
 
    This directive supports an option called ``parts`` that, if given, must be an
-   integer, advising the directive to remove that many parts of module names
-   from the displayed names.  (For example, if all your class names start with
-   ``lib.``, you can give ``:parts: 1`` to remove that prefix from the displayed
-   node names.)
+   integer, advising the directive to keep that many dot-separated parts
+   in the displayed names (from right to left). For example, ``parts=1`` will
+   only display class names, without the names of the modules that contain
+   them.
 
-   It also supports a ``private-bases`` flag option; if given, private base
-   classes (those whose name starts with ``_``) will be included.
+   .. versionchanged:: 2.0
+      The value of for ``parts`` can also be negative, indicating how many
+      parts to drop from the left.  For example, if all your class names start
+      with ``lib.``, you can give ``:parts: -1`` to remove that prefix from the
+      displayed node names.
+
+   The directive also supports a ``private-bases`` flag option; if given,
+   private base classes (those whose name starts with ``_``) will be included.
 
    You can use ``caption`` option to give a caption to the diagram.
 
@@ -90,6 +96,41 @@ It adds this directive:
 
    .. versionchanged:: 1.7
       Added ``top-classes`` option to limit the scope of inheritance graphs.
+
+
+Examples
+--------
+
+The following are different inheritance diagrams for the internal
+``InheritanceDiagram`` class that implements the directive.
+
+With full names::
+
+   .. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+
+.. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+
+
+Showing class names only::
+
+   .. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+      :parts: 1
+
+.. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+   :parts: 1
+
+Stopping the diagram at :class:`sphinx.util.docutils.SphinxDirective` (the
+highest superclass still part of Sphinx), and dropping the common left-most
+part (``sphinx``) from all names::
+
+   .. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+      :top-classes: sphinx.util.docutils.SphinxDirective
+      :parts: -1
+
+.. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+   :top-classes: sphinx.util.docutils.SphinxDirective
+   :parts: -1
+
 
 
 Configuration

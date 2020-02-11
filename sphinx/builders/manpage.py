@@ -4,18 +4,21 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
+from typing import Any, Dict, List, Set, Tuple, Union
 
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 
 from sphinx import addnodes
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.environment import NoUri
+from sphinx.config import Config
+from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import progress_message
@@ -23,12 +26,6 @@ from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import make_filename_from_project
 from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -45,25 +42,21 @@ class ManualPageBuilder(Builder):
     default_translator_class = ManualPageTranslator
     supported_image_types = []  # type: List[str]
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         if not self.config.man_pages:
             logger.warning(__('no "man_pages" config value found; no manual pages '
                               'will be written'))
 
-    def get_outdated_docs(self):
-        # type: () -> Union[str, List[str]]
+    def get_outdated_docs(self) -> Union[str, List[str]]:
         return 'all manpages'  # for now
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         if typ == 'token':
             return ''
-        raise NoUri
+        raise NoUri(docname, typ)
 
     @progress_message(__('writing'))
-    def write(self, *ignored):
-        # type: (Any) -> None
+    def write(self, *ignored: Any) -> None:
         docwriter = ManualPageWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,
@@ -106,21 +99,18 @@ class ManualPageBuilder(Builder):
 
             docwriter.write(largetree, destination)
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         pass
 
 
-def default_man_pages(config):
-    # type: (Config) -> List[Tuple[str, str, str, List[str], int]]
+def default_man_pages(config: Config) -> List[Tuple[str, str, str, List[str], int]]:
     """ Better default man_pages settings. """
     filename = make_filename_from_project(config.project)
     return [(config.master_doc, filename, '%s %s' % (config.project, config.release),
              [config.author], 1)]
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(ManualPageBuilder)
 
     app.add_config_value('man_pages', default_man_pages, None)

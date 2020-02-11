@@ -4,14 +4,14 @@
 
     Test all builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
 from textwrap import dedent
+from unittest import mock
 
-import mock
 import pytest
 from docutils import nodes
 
@@ -45,7 +45,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
             """))
 
         master_doc = srcdir / 'index.txt'
-        master_doc.write_text(master_doc.text() + dedent("""
+        master_doc.write_text(master_doc.read_text() + dedent("""
                               .. toctree::
 
                                  %(test_name)s/%(test_name)s
@@ -54,10 +54,10 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
 
 
 # note: this test skips building docs for some builders because they have independent testcase.
-#       (html, epub, latex, texinfo and manpage)
+#       (html, changes, epub, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
-    ['dirhtml', 'singlehtml', 'text', 'changes', 'xml', 'pseudoxml', 'linkcheck'],
+    ['dirhtml', 'singlehtml', 'text', 'xml', 'pseudoxml', 'linkcheck'],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
             side_effect=request_session_head)

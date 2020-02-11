@@ -296,25 +296,26 @@ General configuration
 
    Sphinx supports following warning types:
 
-   * app.add_node
-   * app.add_directive
-   * app.add_role
-   * app.add_generic_role
-   * app.add_source_parser
-   * download.not_readable
-   * image.not_readable
-   * ref.term
-   * ref.ref
-   * ref.numref
-   * ref.keyword
-   * ref.option
-   * ref.citation
-   * ref.footnote
-   * ref.doc
-   * ref.python
-   * misc.highlighting_failure
-   * toc.secnum
-   * epub.unknown_project_files
+   * ``app.add_node``
+   * ``app.add_directive``
+   * ``app.add_role``
+   * ``app.add_generic_role``
+   * ``app.add_source_parser``
+   * ``download.not_readable``
+   * ``image.not_readable``
+   * ``ref.term``
+   * ``ref.ref``
+   * ``ref.numref``
+   * ``ref.keyword``
+   * ``ref.option``
+   * ``ref.citation``
+   * ``ref.footnote``
+   * ``ref.doc``
+   * ``ref.python``
+   * ``misc.highlighting_failure``
+   * ``toc.secnum``
+   * ``epub.unknown_project_files``
+   * ``autosectionlabel.*``
 
    You can choose from these types.
 
@@ -333,6 +334,10 @@ General configuration
    .. versionchanged:: 1.6
 
       Added ``ref.footnote``
+
+   .. versionchanged:: 2.1
+
+      Added ``autosectionlabel.*``
 
 .. confval:: needs_sphinx
 
@@ -492,7 +497,26 @@ General configuration
       direct usage of :program:`sphinx-build` as it caches
       (in its default usage) the parsed source files in per builder locations.
 
+   .. hint:: An alternative way to effectively deactivate (or customize) the
+      smart quotes for a given builder, for example ``latex``, is to use
+      ``make`` this way:
+
+      .. code-block:: console
+
+         make latex O="-D smartquotes_action="
+
+      This can follow some ``make html`` with no problem, in contrast to the
+      situation from the prior note.  It requires Docutils 0.14 or later.
+
    .. versionadded:: 1.6.6
+
+.. confval:: user_agent
+
+   A User-Agent of Sphinx.  It is used for a header on HTTP access (ex.
+   linkcheck, intersphinx and so on).  Default is ``"Sphinx/X.Y.Z
+   requests/X.Y.Z python/X.Y.Z"``.
+
+   .. versionadded:: 2.3
 
 .. confval:: tls_verify
 
@@ -514,7 +538,7 @@ General configuration
             directory pointed ``REQUESTS_CA_BUNDLE`` environment
             variable if ``tls_cacerts`` not set.
 
-            .. _requests: http://docs.python-requests.org/en/master/
+            .. _requests: https://requests.readthedocs.io/en/master/
 
 .. confval:: today
              today_fmt
@@ -550,7 +574,7 @@ General configuration
    A dictionary of options that modify how the lexer specified by
    :confval:`highlight_language` generates highlighted source code. These are
    lexer-specific; for the options understood by each, see the
-   `Pygments documentation <http://pygments.org/docs/lexers/>`_.
+   `Pygments documentation <https://pygments.org/docs/lexers.html>`_.
 
    .. versionadded:: 1.3
 
@@ -638,12 +662,17 @@ documentation on :ref:`intl` for details.
 
    Currently supported languages by Sphinx are:
 
+   * ``ar`` -- Arabic
    * ``bn`` -- Bengali
    * ``ca`` -- Catalan
+   * ``cak`` -- Kaqchikel
    * ``cs`` -- Czech
+   * ``cy`` -- Welsh
    * ``da`` -- Danish
    * ``de`` -- German
+   * ``el`` -- Greek
    * ``en`` -- English
+   * ``eo`` -- Esperanto
    * ``es`` -- Spanish
    * ``et`` -- Estonian
    * ``eu`` -- Basque
@@ -651,6 +680,7 @@ documentation on :ref:`intl` for details.
    * ``fi`` -- Finnish
    * ``fr`` -- French
    * ``he`` -- Hebrew
+   * ``hi`` -- Hindi
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
    * ``id`` -- Indonesian
@@ -664,15 +694,20 @@ documentation on :ref:`intl` for details.
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
+   * ``pt`` -- Portuguese
    * ``pt_BR`` -- Brazilian Portuguese
    * ``pt_PT`` -- European Portuguese
+   * ``ro`` -- Romanian
    * ``ru`` -- Russian
    * ``si`` -- Sinhala
    * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
+   * ``sr`` -- Serbian
    * ``sv`` -- Swedish
+   * ``ta`` -- Tamil
    * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
+   * ``ur`` -- Urdu
    * ``vi`` -- Vietnamese
    * ``zh_CN`` -- Simplified Chinese
    * ``zh_TW`` -- Traditional Chinese
@@ -746,7 +781,7 @@ documentation on :ref:`intl` for details.
    i18n additionally. You can specify below names:
 
    :index: index terms
-   :literal-block: literal blocks: ``::`` and ``code-block``.
+   :literal-block: literal blocks (``::`` annotation and ``code-block`` directive)
    :doctest-block: doctest block
    :raw: raw content
    :image: image/figure uri and alt
@@ -914,7 +949,7 @@ that use Sphinx's HTMLWriter class.
 
    Example::
 
-       html_css_files = ['custom.css'
+       html_css_files = ['custom.css',
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
 
@@ -1812,6 +1847,7 @@ These options influence LaTeX output.
    * ``'xelatex'`` -- XeLaTeX
    * ``'lualatex'`` -- LuaLaTeX
    * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
+   * ``'uplatex'`` -- upLaTeX (experimental)
 
    ``'pdflatex'``\ 's support for Unicode characters is limited.
 
@@ -1825,7 +1861,21 @@ These options influence LaTeX output.
    ``'xelatex'`` or ``'lualatex'`` and making sure to use an OpenType font
    with wide-enough glyph coverage is often easier than trying to make
    ``'pdflatex'`` work with the extra Unicode characters.  Since Sphinx 2.0
-   the default is the GNU FreeFont which covers well Latin, Cyrillic and Greek.
+   the default is the GNU FreeFont which covers well Latin, Cyrillic and
+   Greek.
+
+   .. versionchanged:: 2.1.0
+
+      Use ``xelatex`` (and LaTeX package ``xeCJK``) by default for Chinese
+      documents.
+
+   .. versionchanged:: 2.2.1
+
+      Use ``xelatex`` by default for Greek documents.
+
+   .. versionchanged:: 2.3
+
+      Add ``uplatex`` support.
 
    Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
    LaTeX requires some extra configuration to support Unicode literals in
@@ -2329,6 +2379,34 @@ Options for the linkcheck builder
          ]
 
    .. versionadded:: 1.5
+
+.. confval:: linkcheck_auth
+
+   Pass authentication information when doing a ``linkcheck`` build.
+
+   A list of ``(regex_pattern, auth_info)`` tuples where the items are:
+
+   *regex_pattern*
+     A regular expression that matches a URI.
+   *auth_info*
+     Authentication information to use for that URI. The value can be anything
+     that is understood by the ``requests`` library (see `requests
+     Authentication <requests-auth>`_ for details).
+
+     .. _requests-auth: https://requests.readthedocs.io/en/master/user/authentication/
+
+   The ``linkcheck`` builder will use the first matching ``auth_info`` value
+   it can find in the :confval:`linkcheck_auth` list, so values earlier in the
+   list have higher priority.
+
+   Example::
+
+      linkcheck_auth = [
+        ('https://foo\.yourcompany\.com/.+', ('johndoe', 'secret')),
+        ('https://.+\.yourcompany\.com/.+', HTTPDigestAuth(...)),
+      ]
+
+   .. versionadded:: 2.3
 
 
 Options for the XML builder

@@ -4,7 +4,7 @@
 
     PNG image manipulation helpers.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,8 +20,7 @@ DEPTH_CHUNK_START = b'tEXtDepth\x00'
 IEND_CHUNK = b'\x00\x00\x00\x00IEND\xAE\x42\x60\x82'
 
 
-def read_png_depth(filename):
-    # type: (str) -> int
+def read_png_depth(filename: str) -> int:
     """Read the special tEXt chunk indicating the depth from a PNG file."""
     with open(filename, 'rb') as f:
         f.seek(- (LEN_IEND + LEN_DEPTH), 2)
@@ -33,8 +32,7 @@ def read_png_depth(filename):
             return struct.unpack('!i', depthchunk[14:18])[0]
 
 
-def write_png_depth(filename, depth):
-    # type: (str, int) -> None
+def write_png_depth(filename: str, depth: int) -> None:
     """Write the special tEXt chunk indicating the depth to a PNG file.
 
     The chunk is placed immediately before the special IEND chunk.
