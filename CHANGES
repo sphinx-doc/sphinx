@@ -58,6 +58,8 @@ Bugs fixed
   declarations.
 * C++, suppress warnings for directly dependent typenames in cross references
   generated automatically in signatures.
+* #5637: autodoc: Incorrect handling of nested class names on show-inheritance
+* #5637: inheritance_diagram: Incorrect handling of nested class names
 
 Testing
 --------
