@@ -12,7 +12,7 @@ import importlib
 import traceback
 import warnings
 from collections import namedtuple
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Mapping, Tuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
@@ -164,7 +164,7 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
             continue
 
     # annotation only member (ex. attr: int)
-    if hasattr(subject, '__annotations__'):
+    if hasattr(subject, '__annotations__') and isinstance(subject.__annotations__, Mapping):
         for name in subject.__annotations__:
             if name not in members:
                 members[name] = Attribute(name, True, INSTANCEATTR)
