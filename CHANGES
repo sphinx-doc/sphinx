@@ -1,26 +1,11 @@
-Release 2.4.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 2.4.1 (released Feb 11, 2020)
+=====================================
 
 Bugs fixed
 ----------
 
 * #7120: html: crashed when on scaling SVG images which have float dimentions
 * #7126: autodoc: TypeError: 'getset_descriptor' object is not iterable
-
-Testing
---------
 
 Release 2.4.0 (released Feb 09, 2020)
 =====================================
