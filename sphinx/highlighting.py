@@ -105,11 +105,6 @@ class PygmentsBridge:
                 lang = 'pycon3'
             else:
                 lang = 'python3'
-        elif lang == 'guess':
-            try:
-                lexer = guess_lexer(source)
-            except Exception:
-                lexer = lexers['none']
 
         if lang in lexers:
             # just return custom lexers here (without installing raiseonerror filter)
@@ -119,7 +114,7 @@ class PygmentsBridge:
         else:
             try:
                 if lang == 'guess':
-                    lexer = guess_lexer(lang, **opts)
+                    lexer = guess_lexer(source, **opts)
                 else:
                     lexer = get_lexer_by_name(lang, **opts)
             except ClassNotFound:

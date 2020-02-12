@@ -60,6 +60,7 @@ Bugs fixed
   generated automatically in signatures.
 * #5637: autodoc: Incorrect handling of nested class names on show-inheritance
 * #5637: inheritance_diagram: Incorrect handling of nested class names
+* #7139: ``code-block:: guess`` does not work
 
 Testing
 --------
