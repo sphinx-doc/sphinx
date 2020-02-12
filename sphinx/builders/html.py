@@ -247,6 +247,7 @@ class StandaloneHTMLBuilder(Builder):
 
         self.init_templates()
         self.init_highlighter()
+        self.init_aux_highlighters()
         self.init_css_files()
         self.init_js_files()
 
@@ -299,6 +300,12 @@ class StandaloneHTMLBuilder(Builder):
         else:
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
+
+    def init_aux_highlighters(self) -> None:
+        self.aux_highlighters = {}  # type: Dict[str, PygmentsBridge]
+        for style, media_query in self.config.html_aux_pygments_styles.items():
+            self.aux_highlighters[style] = PygmentsBridge('html', style)
+            self.add_css_file(f'pygments-{style}.css', media=media_query)
 
     def init_css_files(self) -> None:
         for filename, attrs in self.app.registry.css_files:
@@ -747,6 +754,13 @@ class StandaloneHTMLBuilder(Builder):
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
             f.write(self.highlighter.get_stylesheet())
 
+    def create_pygments_aux_style_files(self) -> None:
+        """create a style file for pygments."""
+        for style, highlighter in self.aux_highlighters.items():
+            filename = f'pygments-{style}.css'
+            with open(path.join(self.outdir, '_static', filename), 'w') as f:
+                f.write(highlighter.get_stylesheet())
+
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
         if self.config.language is not None:
@@ -796,6 +810,7 @@ class StandaloneHTMLBuilder(Builder):
                     context.update(self.indexer.context_for_searchtool())
 
                 self.create_pygments_style_file()
+                self.create_pygments_aux_style_files()
                 self.copy_translation_js()
                 self.copy_stemmer_js()
                 self.copy_theme_static_files(context)
@@ -1211,6 +1226,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_style', None, 'html', [str])
     app.add_config_value('html_logo', None, 'html', [str])
     app.add_config_value('html_favicon', None, 'html', [str])
+    app.add_config_value('html_aux_pygments_styles', [], 'html')
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
