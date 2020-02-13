@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #7138: autodoc: ``autodoc.typehints`` crashed when variable has unbound object
+  as a value
+
 Testing
 --------
 
