@@ -305,7 +305,7 @@ class StandaloneHTMLBuilder(Builder):
         self.aux_highlighters = {}  # type: Dict[str, PygmentsBridge]
         for style, media_query in self.config.html_aux_pygments_styles.items():
             self.aux_highlighters[style] = PygmentsBridge('html', style)
-            self.add_css_file(f'pygments-{style}.css', media=media_query)
+            self.add_css_file('pygments-%s.css' % style, media=media_query)
 
     def init_css_files(self) -> None:
         for filename, attrs in self.app.registry.css_files:
@@ -757,7 +757,7 @@ class StandaloneHTMLBuilder(Builder):
     def create_pygments_aux_style_files(self) -> None:
         """create a style file for pygments."""
         for style, highlighter in self.aux_highlighters.items():
-            filename = f'pygments-{style}.css'
+            filename = 'pygments-%s.css' % style
             with open(path.join(self.outdir, '_static', filename), 'w') as f:
                 f.write(highlighter.get_stylesheet())
 
