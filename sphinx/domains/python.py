@@ -622,6 +622,7 @@ class PyMethod(PyObject):
         'abstractmethod': directives.flag,
         'async': directives.flag,
         'classmethod': directives.flag,
+        'property': directives.flag,  # deprecated
         'staticmethod': directives.flag,
     })
 
@@ -636,6 +637,9 @@ class PyMethod(PyObject):
             prefix.append('async')
         if 'classmethod' in self.options:
             prefix.append('classmethod')
+        if 'property' in self.options:
+            logger.warning('Use the `attribute` instead of the `method` directive for properties')
+            prefix.append('property')
         if 'staticmethod' in self.options:
             prefix.append('static')
 
