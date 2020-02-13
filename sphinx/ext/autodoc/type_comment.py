@@ -9,6 +9,7 @@
 """
 
 import ast
+import itertools
 from inspect import getsource
 from typing import Any, Dict
 from typing import cast
@@ -23,11 +24,11 @@ from sphinx.util import logging
 logger = logging.getLogger(__name__)
 
 
-def get_type_comment(obj: Any) -> ast.FunctionDef:
+def get_type_comment(obj: Any) -> Dict[str, Any]:
     """Get type_comment'ed FunctionDef object from living object.
 
     This tries to parse original code for living object and returns
-    AST node for given *obj*.  It requires py38+ or typed_ast module.
+    parameter dictionary for given *obj*.  It requires py38+ or typed_ast module.
     """
     try:
         source = getsource(obj)
@@ -41,7 +42,34 @@ def get_type_comment(obj: Any) -> ast.FunctionDef:
             subject = cast(ast.FunctionDef, module.body[0])  # type: ignore
 
         if getattr(subject, "type_comment", None):
-            return ast_parse(subject.type_comment, mode='func_type')  # type: ignore
+            comment = subject.type_comment  # type: ignore
+            if not comment.startswith("(...)"):
+                node = cast(
+                    ast.FunctionDef,
+                    ast_parse(comment, mode='func_type')
+                )
+                results = {
+                    'returns': node.returns,
+                    'explicit': False,
+                    'args': node.argtypes  # type: ignore
+                }
+            else:
+                node = subject
+                results = {
+                    'returns': node.returns,
+                    'explicit': True,
+                    'args': {
+                        arg.arg: arg.type_comment
+                        for arg in itertools.chain(
+                            getattr(node.args, "posonlyargs", []) or [],
+                            getattr(node.args, "args", []) or [],
+                            getattr(node.args, "vararg", []) or [],
+                            getattr(node.args, "kwonlyargs", []) or [],
+                            getattr(node.args, "kwarg", []) or [],
+                        )
+                    }
+                }
+            return results
         else:
             return None
     except (OSError, TypeError):  # failed to load source code
@@ -54,16 +82,18 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
     """Update annotations info of *obj* using type_comments."""
     try:
         function = get_type_comment(obj)
-        if function and hasattr(function, 'argtypes'):
-            if function.argtypes != [ast.Ellipsis]:  # type: ignore
-                sig = inspect.signature(obj, bound_method)
-                for i, param in enumerate(sig.parameters.values()):
-                    if param.name not in obj.__annotations__:
-                        annotation = ast_unparse(function.argtypes[i])  # type: ignore
-                        obj.__annotations__[param.name] = annotation
+        if function:
+            explicit = function['explicit']
+            args = function['args']
+            sig = inspect.signature(obj, bound_method)
+            for i, param in enumerate(sig.parameters.values()):
+                if param.name not in obj.__annotations__:
+                    type_hint = args[param.name if explicit else i]
+                    annotation = ast_unparse(type_hint)
+                    obj.__annotations__[param.name] = annotation
 
             if 'return' not in obj.__annotations__:
-                obj.__annotations__['return'] = ast_unparse(function.returns)  # type: ignore
+                obj.__annotations__['return'] = ast_unparse(function['returns'])
     except NotImplementedError as exc:  # failed to ast.unparse()
         logger.warning("Failed to parse type_comment for %r: %s", obj, exc)
 
