@@ -160,6 +160,8 @@ class ObjectDescription(SphinxDirective):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
+        if self.domain:
+            node['classes'].append(self.domain)
 
         self.names = []  # type: List[Any]
         signatures = self.get_signatures()
