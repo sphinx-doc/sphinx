@@ -22,7 +22,7 @@ from inspect import (  # NOQA
 from io import StringIO
 from typing import Any, Callable, Mapping, List, Tuple
 
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.util import logging
 from sphinx.util.typing import stringify as stringify_annotation
 
@@ -54,6 +54,8 @@ memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 def getargspec(func):
     """Like inspect.getfullargspec but supports bound methods, and wrapped
     methods."""
+    warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
+                  RemovedInSphinx50Warning)
     # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
     # succeeds with a bogus signature. We want a TypeError uniformly, to
     # match historical behavior.
