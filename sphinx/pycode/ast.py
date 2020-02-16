@@ -9,6 +9,7 @@
 """
 
 import sys
+from typing import List
 
 if sys.version_info > (3, 8):
     import ast
@@ -40,6 +41,13 @@ def unparse(node: ast.AST) -> str:
         return None
     elif isinstance(node, str):
         return node
+    elif isinstance(node, ast.arg):
+        if node.annotation:
+            return "%s: %s" % (node.arg, unparse(node.annotation))
+        else:
+            return node.arg
+    elif isinstance(node, ast.arguments):
+        return unparse_arguments(node)
     elif isinstance(node, ast.Attribute):
         return "%s.%s" % (unparse(node.value), node.attr)
     elif isinstance(node, ast.Bytes):
@@ -58,7 +66,7 @@ def unparse(node: ast.AST) -> str:
     elif isinstance(node, ast.Index):
         return unparse(node.value)
     elif isinstance(node, ast.Lambda):
-        return "<function <lambda>>"  # TODO
+        return "lambda %s: ..." % unparse(node.args)
     elif isinstance(node, ast.List):
         return "[" + ", ".join(unparse(e) for e in node.elts) + "]"
     elif isinstance(node, ast.Name):
@@ -80,3 +88,61 @@ def unparse(node: ast.AST) -> str:
         return repr(node.value)
     else:
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)
+
+
+def unparse_arguments(node: ast.arguments) -> str:
+    """Unparse an arguments to string."""
+    defaults = list(node.defaults)
+    positionals = len(node.args)
+    posonlyargs = 0
+    if hasattr(node, "posonlyargs"):  # for py38+
+        posonlyargs += len(node.posonlyargs)  # type:ignore
+        positionals += posonlyargs
+    for _ in range(len(defaults), positionals):
+        defaults.insert(0, None)
+
+    kw_defaults = list(node.kw_defaults)
+    for _ in range(len(kw_defaults), len(node.kwonlyargs)):
+        kw_defaults.insert(0, None)
+
+    args = []  # type: List[str]
+    if hasattr(node, "posonlyargs"):  # for py38+
+        for i, arg in enumerate(node.posonlyargs):  # type: ignore
+            name = unparse(arg)
+            if defaults[i]:
+                if arg.annotation:
+                    name += " = %s" % unparse(defaults[i])
+                else:
+                    name += "=%s" % unparse(defaults[i])
+            args.append(name)
+
+        if node.posonlyargs:  # type: ignore
+            args.append('/')
+
+    for i, arg in enumerate(node.args):
+        name = unparse(arg)
+        if defaults[i + posonlyargs]:
+            if arg.annotation:
+                name += " = %s" % unparse(defaults[i + posonlyargs])
+            else:
+                name += "=%s" % unparse(defaults[i + posonlyargs])
+        args.append(name)
+
+    if node.vararg:
+        args.append("*" + unparse(node.vararg))
+
+    if node.kwonlyargs and not node.vararg:
+        args.append('*')
+    for i, arg in enumerate(node.kwonlyargs):
+        name = unparse(arg)
+        if kw_defaults[i]:
+            if arg.annotation:
+                name += " = %s" % unparse(kw_defaults[i])
+            else:
+                name += "=%s" % unparse(kw_defaults[i])
+        args.append(name)
+
+    if node.kwarg:
+        args.append("**" + unparse(node.kwarg))
+
+    return ", ".join(args)

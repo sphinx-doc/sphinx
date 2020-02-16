@@ -8,6 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
+
 import pytest
 
 from sphinx.pycode import ast
@@ -23,7 +25,7 @@ from sphinx.pycode import ast
     ("...", "..."),                             # Ellipsis
     ("Tuple[int, int]", "Tuple[int, int]"),     # Index, Subscript
     ("lambda x, y: x + y",
-     "<function <lambda>>"),                    # Lambda
+     "lambda x, y: ..."),                       # Lambda
     ("[1, 2, 3]", "[1, 2, 3]"),                 # List
     ("sys", "sys"),                             # Name, NameConstant
     ("1234", "1234"),                           # Num
@@ -38,3 +40,11 @@ def test_unparse(source, expected):
 
 def test_unparse_None():
     assert ast.unparse(None) is None
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+def test_unparse_py38():
+    source = "lambda x=0, /, y=1, *args, z, **kwargs: x + y + z"
+    expected = "lambda x=0, /, y=1, *args, z, **kwargs: ..."
+    module = ast.parse(source)
+    assert ast.unparse(module.body[0].value) == expected
