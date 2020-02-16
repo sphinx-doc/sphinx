@@ -32,8 +32,9 @@ def test_dirhtml(app, status, warning):
     assert 'href="bar/"' in content
 
     # objects.inv (refs: #7095)
-    f = (app.outdir / 'objects.inv').open('rb')
-    invdata = InventoryFile.load(f, 'path/to', posixpath.join)
+    with (app.outdir / 'objects.inv').open('rb') as f:
+        invdata = InventoryFile.load(f, 'path/to', posixpath.join)
+
     assert 'index' in invdata.get('std:doc')
     assert ('Python', '', 'path/to/', '-') == invdata['std:doc']['index']
 
