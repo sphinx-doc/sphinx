@@ -51,7 +51,7 @@ memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 #   Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
 #   2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Python Software
 #   Foundation; All Rights Reserved
-def getargspec(func):
+def getargspec(func: Callable) -> Any:
     """Like inspect.getfullargspec but supports bound methods, and wrapped
     methods."""
     warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',

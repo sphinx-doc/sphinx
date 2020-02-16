@@ -649,7 +649,7 @@ class progress_message:
 
     def __call__(self, f: Callable) -> Callable:
         @functools.wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             with self:
                 return f(*args, **kwargs)
 
