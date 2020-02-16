@@ -8,13 +8,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-import ast
 from inspect import Parameter, Signature, getsource
 from typing import Any, Dict, List
 from typing import cast
 
 import sphinx
 from sphinx.application import Sphinx
+from sphinx.pycode.ast import ast
 from sphinx.pycode.ast import parse as ast_parse
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import inspect
@@ -104,7 +104,7 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature:
 
         if getattr(subject, "type_comment", None):
             function = ast_parse(subject.type_comment, mode='func_type')
-            return signature_from_ast(subject, bound_method, function)
+            return signature_from_ast(subject, bound_method, function)  # type: ignore
         else:
             return None
     except (OSError, TypeError):  # failed to load source code
