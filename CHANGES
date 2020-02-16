@@ -85,6 +85,12 @@ Features added
 Bugs fixed
 ----------
 
+* #7138: autodoc: ``autodoc.typehints`` crashed when variable has unbound object
+  as a value
+* #7156: autodoc: separator for keyword only arguments is not shown
+* #7146: autodoc: IndexError is raised on suppressed type_comment found
+* #7151: crashed when extension assigns a value to ``env.indexentries``
+
 Testing
 --------
 

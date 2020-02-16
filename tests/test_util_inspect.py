@@ -298,14 +298,21 @@ def test_signature_annotations():
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_signature_annotations_py38(app):
-    from target.pep570 import foo, bar
+    from target.pep570 import foo, bar, baz, qux
+
+    # case: separator at head
+    sig = inspect.signature(foo)
+    assert stringify_signature(sig) == '(*, a, b)'
 
     # case: separator in the middle
-    sig = inspect.signature(foo)
+    sig = inspect.signature(bar)
     assert stringify_signature(sig) == '(a, b, /, c, d)'
 
+    sig = inspect.signature(baz)
+    assert stringify_signature(sig) == '(a, /, *, b)'
+
     # case: separator at tail
-    sig = inspect.signature(bar)
+    sig = inspect.signature(qux)
     assert stringify_signature(sig) == '(a, b, /)'
 
 

@@ -389,9 +389,9 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
             args.append('/')
-        elif param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
-                                                                param.POSITIONAL_ONLY,
-                                                                None):
+        if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
+                                                              param.POSITIONAL_ONLY,
+                                                              None):
             # PEP-3102: Separator for Keyword Only Parameter: *
             args.append('*')
 
