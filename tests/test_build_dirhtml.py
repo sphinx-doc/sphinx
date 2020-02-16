@@ -25,15 +25,16 @@ def test_dirhtml(app, status, warning):
     assert (app.outdir / 'foo/foo_2/index.html').exists()
     assert (app.outdir / 'bar/index.html').exists()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert 'href="foo/"' in content
     assert 'href="foo/foo_1/"' in content
     assert 'href="foo/foo_2/"' in content
     assert 'href="bar/"' in content
 
     # objects.inv (refs: #7095)
-    f = (app.outdir / 'objects.inv').open('rb')
-    invdata = InventoryFile.load(f, 'path/to', posixpath.join)
+    with (app.outdir / 'objects.inv').open('rb') as f:
+        invdata = InventoryFile.load(f, 'path/to', posixpath.join)
+
     assert 'index' in invdata.get('std:doc')
     assert ('Python', '', 'path/to/', '-') == invdata['std:doc']['index']
 

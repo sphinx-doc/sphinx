@@ -168,7 +168,7 @@ def test_domain_py_objects(app, status, warning):
 def test_resolve_xref_for_properties(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'module.html').text()
+    content = (app.outdir / 'module.html').read_text()
     assert ('Link to <a class="reference internal" href="#module_a.submodule.ModTopLevel.prop"'
             ' title="module_a.submodule.ModTopLevel.prop">'
             '<code class="xref py py-attr docutils literal notranslate"><span class="pre">'
