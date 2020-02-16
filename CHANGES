@@ -19,6 +19,7 @@ Bugs fixed
 * #7138: autodoc: ``autodoc.typehints`` crashed when variable has unbound object
   as a value
 * #7156: autodoc: separator for keyword only arguments is not shown
+* #7161: autodoc: typehints extension does not support parallel build
 
 Testing
 --------
