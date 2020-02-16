@@ -123,7 +123,7 @@ class CoverageBuilder(Builder):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                 op.write('\n')
 
-    def ignore_pyobj(self, full_name):
+    def ignore_pyobj(self, full_name: str) -> bool:
         for exp in self.py_ignorexps:
             if exp.search(full_name):
                 return True

@@ -11,8 +11,8 @@
 from datetime import datetime, timedelta
 from itertools import islice
 from operator import itemgetter
+from typing import Any, Dict, List
 from typing import cast
-from typing import Dict, List
 
 from docutils import nodes
 
@@ -82,7 +82,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         logger.info('%d.%03d %s', d.seconds, d.microseconds / 1000, docname)
 
 
-def setup(app):
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(DurationDomain)
     app.connect('builder-inited', on_builder_inited)
     app.connect('source-read', on_source_read)
