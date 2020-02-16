@@ -49,6 +49,7 @@ Features added
 * #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
   in the documentation.
 * #1027: Support backslash line continuation in :rst:dir:`productionlist`.
+* #7108: config: Allow to show an error message from conf.py via ``ConfigError``
 
 Bugs fixed
 ----------
