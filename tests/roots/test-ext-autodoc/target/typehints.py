@@ -18,7 +18,27 @@ class Math:
         # type: (int, int) -> int
         return a - b
 
+    def nothing(self):
+        # type: () -> None
+        pass
+
+    def horse(self,
+              a,  # type: str
+              b,  # type: int
+              ):
+        # type: (...) -> None
+        return
+
 
 def complex_func(arg1, arg2, arg3=None, *args, **kwargs):
     # type: (str, List[int], Tuple[int, Union[str, Unknown]], *str, **str) -> None
     pass
+
+
+def missing_attr(c,
+                 a,  # type: str
+                 b=None  # type: Optional[str]
+                 ):
+    # type: (...) -> str
+    return a + (b or "")
+
