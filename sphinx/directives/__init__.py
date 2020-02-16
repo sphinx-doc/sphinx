@@ -36,7 +36,7 @@ nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
 
 
-def optional_int(argument):
+def optional_int(argument: str) -> int:
     """
     Check for an integer argument or None value; raise ``ValueError`` if not.
     """

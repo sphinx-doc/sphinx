@@ -85,14 +85,14 @@ class TocTree(SphinxDirective):
         ret.append(wrappernode)
         return ret
 
-    def parse_content(self, toctree):
+    def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
         suffixes = self.config.source_suffix
 
         # glob target documents
         all_docnames = self.env.found_docs.copy()
         all_docnames.remove(self.env.docname)  # remove current document
 
-        ret = []
+        ret = []  # type: List[Node]
         excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
