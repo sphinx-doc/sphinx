@@ -75,7 +75,7 @@ The first thing to examine is the ``RecipeDirective`` directive:
 .. literalinclude:: examples/recipe.py
    :language: python
    :linenos:
-   :lines: 17-37
+   :pyobject: RecipeDirective
 
 Unlike :doc:`helloworld` and :doc:`todo`, this directive doesn't derive from
 :class:`docutils.parsers.rst.Directive` and doesn't define a ``run`` method.
@@ -103,7 +103,12 @@ reStructuredText in the body.
 .. literalinclude:: examples/recipe.py
    :language: python
    :linenos:
-   :lines: 40-102
+   :pyobject: IngredientIndex
+
+.. literalinclude:: examples/recipe.py
+   :language: python
+   :linenos:
+   :pyobject: RecipeIndex
 
 Both ``IngredientIndex`` and ``RecipeIndex`` are derived from :class:`Index`.
 They implement custom logic to generate a tuple of values that define the
@@ -126,7 +131,7 @@ creating here.
 .. literalinclude:: examples/recipe.py
    :language: python
    :linenos:
-   :lines: 105-155
+   :pyobject: RecipeDomain
 
 There are some interesting things to note about this ``recipe`` domain and domains
 in general. Firstly, we actually register our directives, roles and indices
@@ -164,7 +169,7 @@ hook the various parts of our extension into Sphinx. Let's look at the
 .. literalinclude:: examples/recipe.py
    :language: python
    :linenos:
-   :lines: 158-
+   :pyobject: setup
 
 This looks a little different to what we're used to seeing. There are no calls
 to :meth:`~Sphinx.add_directive` or even :meth:`~Sphinx.add_role`. Instead, we
