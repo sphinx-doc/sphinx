@@ -508,7 +508,7 @@ def test_autodoc_typehints_signature(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:function:: missing_attr(c: None, a: str, b: Optional[str] = None) -> None',
+        '.. py:function:: missing_attr(c, a: str, b: Optional[str] = None) -> str',
         '   :module: target.typehints',
         ''
     ]
