@@ -23,6 +23,7 @@ Bugs fixed
 * #7161: autodoc: typehints extension does not support parallel build
 * #7151: crashed when extension assigns a value to ``env.indexentries``
 * #7170: text: Remove debug print
+* #7137: viewcode: Avoid to crash when non-python code given
 
 Testing
 --------
