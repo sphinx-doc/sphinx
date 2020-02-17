@@ -897,6 +897,50 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.undocmeth()'
     ]
 
+    # case member-order='bycustomfunction'
+    options = {"members": None,
+               "undoc-members": True,
+               'member-order': 'bycustomfunction',
+               'private-members': True}
+    with pytest.raises(RuntimeError) as context:
+        actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert "autodoc-member-order-custom-function is not implemented" == \
+            str(context.value)
+
+    # Let's sort the member names by reversing them.
+    def autodoc_member_order_function(app, documenter):
+        fullname = documenter.name.split('::')[1]
+        return fullname[::-1]
+
+    app.connect('autodoc-member-order-custom-function', autodoc_member_order_function)
+    # case member-order='bycustomfunction'
+    options = {"members": None,
+               "undoc-members": True,
+               'member-order': 'bycustomfunction',
+               'private-members': True,
+               }
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:attribute:: Class.inst_attr_inline',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
+        '   .. py:attribute:: Class.inst_attr_string',
+        '   .. py:method:: Class.meth()',
+        '   .. py:method:: Class.undocmeth()',
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:method:: Class.skipmeth()',
+        '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        '   .. py:attribute:: Class.attr',
+        '   .. py:attribute:: Class._private_inst_attr',
+        '   .. py:attribute:: Class.docattr',
+        '   .. py:attribute:: Class.mdocattr',
+        '   .. py:attribute:: Class.udocattr',
+        '   .. py:attribute:: Class.skipattr',
+        '   .. py:attribute:: Class.inst_attr_comment'
+    ]
+
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_module_scope(app):

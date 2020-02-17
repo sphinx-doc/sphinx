@@ -649,6 +649,15 @@ class Documenter:
                 fullname = entry[0].name.split('::')[1]
                 return tagorder.get(fullname, len(tagorder))
             memberdocumenters.sort(key=keyfunc)
+        elif member_order == 'bycustomfunction':
+            def custom_key(entry: Tuple[Documenter, bool]) -> Any:
+                result = self.env.events.emit_firstresult(
+                    'autodoc-member-order-custom-function', entry[0])
+                if result is None:
+                    raise RuntimeError("autodoc-member-order-custom-function is not "
+                                       "implemented")
+                return result
+            memberdocumenters.sort(key=custom_key)
 
         for documenter, isattr in memberdocumenters:
             documenter.generate(
@@ -1634,6 +1643,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
+    app.add_event('autodoc-member-order-custom-function')
 
     app.connect('config-inited', merge_autodoc_default_flags)
     app.setup_extension('sphinx.ext.autodoc.type_comment')
