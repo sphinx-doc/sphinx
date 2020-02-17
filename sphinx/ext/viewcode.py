@@ -66,11 +66,11 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         if code_tags is None:
             try:
                 analyzer = ModuleAnalyzer.for_module(modname)
+                analyzer.find_tags()
             except Exception:
                 env._viewcode_modules[modname] = False  # type: ignore
                 return
 
-            analyzer.find_tags()
             code = analyzer.code
             tags = analyzer.tags
         else:
