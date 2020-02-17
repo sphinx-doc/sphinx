@@ -918,7 +918,6 @@ class TextTranslator(SphinxTranslator):
     def _depart_admonition(self, node: Element) -> None:
         label = admonitionlabels[node.tagname]
         indent = sum(self.stateindent) + len(label)
-        print(self.states[-1])
         if (len(self.states[-1]) == 1 and
                 self.states[-1][0][0] == 0 and
                 MAXWIDTH - indent >= sum(len(s) for s in self.states[-1][0][1])):
