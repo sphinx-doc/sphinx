@@ -68,7 +68,7 @@ Bugs fixed
 Testing
 --------
 
-Release 2.4.2 (in development)
+Release 2.4.3 (in development)
 ==============================
 
 Dependencies
@@ -86,17 +86,24 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 2.4.2 (released Feb 19, 2020)
+=====================================
+
+Bugs fixed
+----------
+
 * #7138: autodoc: ``autodoc.typehints`` crashed when variable has unbound object
   as a value
 * #7156: autodoc: separator for keyword only arguments is not shown
 * #7146: autodoc: IndexError is raised on suppressed type_comment found
 * #7161: autodoc: typehints extension does not support parallel build
+* #7178: autodoc: TypeError is raised on fetching type annotations
 * #7151: crashed when extension assigns a value to ``env.indexentries``
 * #7170: text: Remove debug print
 * #7137: viewcode: Avoid to crash when non-python code given
-
-Testing
---------
 
 Release 2.4.1 (released Feb 11, 2020)
 =====================================

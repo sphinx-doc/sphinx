@@ -1266,7 +1266,7 @@ class DataDocumenter(ModuleLevelDocumenter):
         if not self.options.annotation:
             # obtain annotation for this data
             annotations = getattr(self.parent, '__annotations__', {})
-            if self.objpath[-1] in annotations:
+            if annotations and self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
             else:
@@ -1454,7 +1454,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             if not self._datadescriptor:
                 # obtain annotation for this attribute
                 annotations = getattr(self.parent, '__annotations__', {})
-                if self.objpath[-1] in annotations:
+                if annotations and self.objpath[-1] in annotations:
                     objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                     self.add_line('   :type: ' + objrepr, sourcename)
                 else:
