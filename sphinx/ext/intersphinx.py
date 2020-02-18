@@ -265,10 +265,6 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnod
     inventories = InventoryAdapter(env)
     objtypes = None  # type: List[str]
     if node['reftype'] == 'any':
-        # we search anything!
-        objtypes = ['%s:%s' % (domain.name, objtype)
-                    for domain in env.domains.values()
-                    for objtype in domain.object_types]
         domain = None
     else:
         domain = node.get('refdomain')
@@ -279,9 +275,9 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnod
         if not objtypes:
             return None
         objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
-    if 'std:cmdoption' in objtypes:
-        # until Sphinx-1.6, cmdoptions are stored as std:option
-        objtypes.append('std:option')
+        if 'std:cmdoption' in objtypes:
+            # until Sphinx-1.6, cmdoptions are stored as std:option
+            objtypes.append('std:option')
     to_try = [(inventories.main_inventory, target)]
     if domain:
         full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
@@ -300,10 +296,15 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnod
                 if full_qualified_name:
                     to_try.append((inventories.named_inventory[setname], full_qualified_name))
     for inventory, target in to_try:
-        for objtype in objtypes:
-            if objtype not in inventory or target not in inventory[objtype]:
+        items = (
+            inventory.items()
+            if objtypes is None else
+            ((t, inventory[t]) for t in objtypes if t in inventory)
+        )
+        for objtype, targets in items:
+            if target not in targets:
                 continue
-            proj, version, uri, dispname = inventory[objtype][target]
+            proj, version, uri, dispname = targets[target]
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
                 uri = path.join(relative_path(node['refdoc'], '.'), uri)

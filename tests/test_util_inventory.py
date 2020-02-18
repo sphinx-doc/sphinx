@@ -46,6 +46,7 @@ foo.bar js:class 1 index.html#foo.bar -
 foo.bar.baz js:method 1 index.html#foo.bar.baz -
 foo.bar.qux js:data 1 index.html#foo.bar.qux -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
+gettext_uuid std:confval 0 usage/configuration.html -
 '''.encode())
 
 inventory_v2_not_having_version = '''\
