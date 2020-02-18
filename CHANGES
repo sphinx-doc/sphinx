@@ -1,17 +1,5 @@
-Release 2.4.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 2.4.2 (released Feb 19, 2020)
+=====================================
 
 Bugs fixed
 ----------
@@ -25,9 +13,6 @@ Bugs fixed
 * #7151: crashed when extension assigns a value to ``env.indexentries``
 * #7170: text: Remove debug print
 * #7137: viewcode: Avoid to crash when non-python code given
-
-Testing
---------
 
 Release 2.4.1 (released Feb 11, 2020)
 =====================================
