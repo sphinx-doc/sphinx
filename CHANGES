@@ -21,6 +21,7 @@ Bugs fixed
 * #7156: autodoc: separator for keyword only arguments is not shown
 * #7146: autodoc: IndexError is raised on suppressed type_comment found
 * #7161: autodoc: typehints extension does not support parallel build
+* #7178: autodoc: TypeError is raised on fetching type annotations
 * #7151: crashed when extension assigns a value to ``env.indexentries``
 * #7170: text: Remove debug print
 * #7137: viewcode: Avoid to crash when non-python code given
