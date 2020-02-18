@@ -62,7 +62,7 @@ class GenericObject(ObjectDescription):
             signode.clear()
             signode += addnodes.desc_name(sig, sig)
             # normalize whitespace like XRefRole does
-            name = ws_re.sub('', sig)
+            name = ws_re.sub(' ', sig)
         return name
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
