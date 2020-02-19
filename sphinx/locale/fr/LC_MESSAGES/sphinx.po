@@ -3208,7 +3208,7 @@ msgstr "incohérences de références de citation dans le message traduit. Origi
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
-msgstr "ncohérences de références de terme dans le message traduit. Original : {0}, traduit : {1}"
+msgstr "incohérences de références de terme dans le message traduit. Original : {0}, traduit : {1}"
 
 #: sphinx/transforms/post_transforms/__init__.py:110
 #, python-format
