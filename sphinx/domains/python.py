@@ -639,7 +639,10 @@ class PyMethod(PyObject):
         if 'classmethod' in self.options:
             prefix.append('classmethod')
         if 'property' in self.options:
-            logger.warning('Use the `attribute` instead of the `method` directive for properties')
+            logger.warning(
+                'Use the directive `attribute` instead of '
+                'the directive `method` for properties.'
+            )
             prefix.append('property')
         if 'staticmethod' in self.options:
             prefix.append('static')
