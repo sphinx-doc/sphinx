@@ -18,6 +18,7 @@ Bugs fixed
 
 * #7184: autodoc: ``*args`` and ``**kwarg`` in type comments are not handled
   properly
+* #7183: intersphinx: ``:attr:`` reference to property is broken
 
 Testing
 --------

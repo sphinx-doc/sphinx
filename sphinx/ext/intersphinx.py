@@ -282,6 +282,9 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnod
     if 'std:cmdoption' in objtypes:
         # until Sphinx-1.6, cmdoptions are stored as std:option
         objtypes.append('std:option')
+    if 'py:attribute' in objtypes:
+        # Since Sphinx-2.1, properties are stored as py:method
+        objtypes.append('py:method')
     to_try = [(inventories.main_inventory, target)]
     if domain:
         full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
