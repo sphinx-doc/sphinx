@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #7184: autodoc: ``*args`` and ``**kwarg`` in type comments are not handled
+  properly
+
 Testing
 --------
 

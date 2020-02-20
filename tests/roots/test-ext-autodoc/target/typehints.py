@@ -41,4 +41,3 @@ def missing_attr(c,
                  ):
     # type: (...) -> str
     return a + (b or "")
-
