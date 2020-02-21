@@ -18,6 +18,7 @@ Bugs fixed
 
 * #7184: autodoc: ``*args`` and ``**kwarg`` in type comments are not handled
   properly
+* (#6244, #6387): Search breaks/hangs when built with ``dirhtml``.
 
 Testing
 --------
