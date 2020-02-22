@@ -292,7 +292,7 @@ def test_signature_from_str_default_values():
     assert sig.parameters['g'].default == '[1, 2, 3]'
     assert sig.parameters['h'].default == "{'a': 1}"
     assert sig.parameters['i'].default == '{1, 2, 3}'
-    assert sig.parameters['j'].default == '<function <lambda>>'
+    assert sig.parameters['j'].default == 'lambda x, y: ...'
     assert sig.parameters['k'].default == 'None'
     assert sig.parameters['l'].default == 'object()'
     assert sig.parameters['m'].default == 'foo.bar.CONSTANT'
