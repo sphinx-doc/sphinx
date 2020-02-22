@@ -77,7 +77,7 @@ class IndexDirective(SphinxDirective):
         arguments = self.arguments[0].split('\n')
 
         if 'name' in self.options:
-            targetname  = self.options['name']
+            targetname = self.options['name']
             targetnode = nodes.target('', '', names=[targetname])
         else:
             targetid = 'index-%s' % self.env.new_serialno('index')
