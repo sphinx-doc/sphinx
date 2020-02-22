@@ -885,7 +885,7 @@ mainly contained in information units, such as the language reference.
         .. index:: Python
            :name: py-index
 
-   .. versionadded:: 2.5
+   .. versionadded:: 3.0
 
 .. rst:role:: index
 

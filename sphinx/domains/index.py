@@ -71,7 +71,7 @@ class IndexDirective(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {
         'name': directives.unchanged,
-    }  # type: Dict
+    }
 
     def run(self) -> List[Node]:
         arguments = self.arguments[0].split('\n')
