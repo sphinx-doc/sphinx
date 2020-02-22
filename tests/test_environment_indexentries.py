@@ -113,6 +113,26 @@ def test_create_seealso_index(app):
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
+def test_create_index_with_name(app):
+    text = (".. index:: single: docutils\n"
+            "   :name: ref1\n"
+            ".. index:: see: Python; interpreter\n"
+            "   :name: ref2\n")
+    restructuredtext.parse(app, text)
+    index = IndexEntries(app.env).create_index(app.builder)
+
+    # check index is created correctly
+    assert len(index) == 2
+    assert index[0] == ('D', [('docutils', [[('', '#index-0')], [], None])])
+    assert index[1] == ('P', [('Python', [[], [('see interpreter', [])], None])])
+
+    # check the reference labels are created correctly
+    std = app.env.get_domain('std')
+    assert std.anonlabels['ref1'] == ('index', 'index-0')
+    assert std.anonlabels['ref2'] == ('index', 'index-1')
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
 def test_create_index_by_key(app):
     # At present, only glossary directive is able to create index key
     text = (".. glossary::\n"
@@ -126,21 +146,3 @@ def test_create_index_by_key(app):
     assert index[0] == ('D', [('docutils', [[('main', '#term-docutils')], [], None])])
     assert index[1] == ('P', [('Python', [[('main', '#term-python')], [], None])])
     assert index[2] == ('ス', [('スフィンクス', [[('main', '#term-0')], [], 'ス'])])
-
-
-@pytest.mark.sphinx('dummy', freshenv=True)
-def test_create_index_with_name(app):
-    text = (".. index:: single: docutils\n   :name: ref1\n"
-            ".. index:: see: Python; interpreter\n   :name: ref2\n")
-    restructuredtext.parse(app, text)
-    index = IndexEntries(app.env).create_index(app.builder)
-
-    # check index is created correctly
-    assert len(index) == 2
-    assert index[0] == ('D', [('docutils', [[('', '#index-0')], [], None])])
-    assert index[1] == ('P', [('Python', [[], [('see interpreter', [])], None])])
-
-    # check the reference labels are created correctly
-    labels = app.env.domaindata['std']['anonlabels']
-    assert labels['ref1'] == ('index', 'index-0')
-    assert labels['ref2'] == ('index', 'index-1')
