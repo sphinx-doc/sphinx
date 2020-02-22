@@ -176,8 +176,8 @@ def test_html4_output(app, status, warning):
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dt[@id='autodoc_target.Class']", ''),
-        (".//dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
+        (".//dl[@class='py class']/dt[@id='autodoc_target.Class']", ''),
+        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
@@ -279,7 +279,7 @@ def test_html4_output(app, status, warning):
         (".//dt/code", r'long\(parameter,\s* list\)'),
         (".//dt/code", 'another one'),
         (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
-        (".//dl[@class='userdesc']", ''),
+        (".//dl[@class='std userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
         (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # docfields

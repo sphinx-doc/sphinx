@@ -73,6 +73,7 @@ Features added
   in the documentation.
 * #1027: Support backslash line continuation in :rst:dir:`productionlist`.
 * #7108: config: Allow to show an error message from conf.py via ``ConfigError``
+* #7144: Add CSS class indicating its domain for each desc node
 
 Bugs fixed
 ----------
