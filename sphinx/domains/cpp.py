@@ -6490,7 +6490,6 @@ class CPPObject(ObjectDescription):
                     continue
                 if id not in self.state.document.ids:
                     signode['ids'].append(id)
-            signode['first'] = (not self.names)  # hmm, what is this about?
             self.state.document.note_explicit_target(signode)
 
     @property
@@ -6772,7 +6771,6 @@ class AliasTransform(SphinxTransform):
             if ast is None:
                 # could not be parsed, so stop here
                 signode = addnodes.desc_signature(sig, '')
-                signode['first'] = False
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
                 node.replace_self(signode)
@@ -6816,7 +6814,6 @@ class AliasTransform(SphinxTransform):
 
             if len(symbols) == 0:
                 signode = addnodes.desc_signature(sig, '')
-                signode['first'] = False
                 node.append(signode)
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
@@ -6830,7 +6827,6 @@ class AliasTransform(SphinxTransform):
                 options['tparam-line-spec'] = False
                 for s in symbols:
                     signode = addnodes.desc_signature(sig, '')
-                    signode['first'] = False
                     nodes.append(signode)
                     s.declaration.describe_signature(signode, 'markName', self.env, options)
                 node.replace_self(nodes)

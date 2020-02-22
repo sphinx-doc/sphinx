@@ -48,6 +48,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``desc_signature['first']``
 * ``sphinx.domains.std.StandardDomain.add_object()``
 * ``sphinx.parsers.Parser.app``
 * ``sphinx.testing.path.Path.text()``
