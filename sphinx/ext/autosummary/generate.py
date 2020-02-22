@@ -24,7 +24,7 @@ import pydoc
 import re
 import sys
 import warnings
-from typing import Any, Callable, Dict, List, Set, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple, Set, Tuple
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -64,6 +64,11 @@ class DummyApplication:
 
     def emit_firstresult(self, *args: Any) -> None:
         pass
+
+
+AutosummaryEntry = NamedTuple('AutosummaryEntry', [('name', str),
+                                                   ('path', str),
+                                                   ('template', str)])
 
 
 def setup_documenters(app: Any) -> None:
@@ -262,22 +267,22 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     new_files = []
 
     # write
-    for name, path, template_name in sorted(set(items), key=str):
-        if path is None:
+    for entry in sorted(set(items), key=str):
+        if entry.path is None:
             # The corresponding autosummary:: directive did not have
             # a :toctree: option
             continue
 
-        path = output_dir or os.path.abspath(path)
+        path = output_dir or os.path.abspath(entry.path)
         ensuredir(path)
 
         try:
-            name, obj, parent, mod_name = import_by_name(name)
+            name, obj, parent, mod_name = import_by_name(entry.name)
         except ImportError as e:
             _warn(__('[autosummary] failed to import %r: %s') % (name, e))
             continue
 
-        content = generate_autosummary_content(name, obj, parent, template, template_name,
+        content = generate_autosummary_content(name, obj, parent, template, entry.template,
                                                imported_members, app)
 
         filename = os.path.join(path, name + suffix)
@@ -308,12 +313,12 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
 
 # -- Finding documented entries in files ---------------------------------------
 
-def find_autosummary_in_files(filenames: List[str]) -> List[Tuple[str, str, str]]:
+def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
     """Find out what items are documented in source/*.rst.
 
     See `find_autosummary_in_lines`.
     """
-    documented = []  # type: List[Tuple[str, str, str]]
+    documented = []  # type: List[AutosummaryEntry]
     for filename in filenames:
         with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
@@ -322,7 +327,7 @@ def find_autosummary_in_files(filenames: List[str]) -> List[Tuple[str, str, str]
 
 
 def find_autosummary_in_docstring(name: str, module: Any = None, filename: str = None
-                                  ) -> List[Tuple[str, str, str]]:
+                                  ) -> List[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
     See `find_autosummary_in_lines`.
@@ -342,7 +347,7 @@ def find_autosummary_in_docstring(name: str, module: Any = None, filename: str =
 
 
 def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: str = None
-                              ) -> List[Tuple[str, str, str]]:
+                              ) -> List[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
 
@@ -362,7 +367,7 @@ def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: st
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
-    documented = []  # type: List[Tuple[str, str, str]]
+    documented = []  # type: List[AutosummaryEntry]
 
     toctree = None  # type: str
     template = None
@@ -396,7 +401,7 @@ def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: st
                 if current_module and \
                    not name.startswith(current_module + '.'):
                     name = "%s.%s" % (current_module, name)
-                documented.append((name, toctree, template))
+                documented.append(AutosummaryEntry(name, toctree, template))
                 continue
 
             if not line.strip() or line.startswith(base_indent + " "):
