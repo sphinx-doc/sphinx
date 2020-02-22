@@ -32,8 +32,8 @@ if 'PYTHONWARNINGS' not in os.environ:
 warnings.filterwarnings('ignore', "'U' mode is deprecated",
                         DeprecationWarning, module='docutils.io')
 
-__version__ = '2.4.3+'
-__released__ = '2.4.3'  # used when Sphinx builds its own docs
+__version__ = '2.4.4+'
+__released__ = '2.4.4'  # used when Sphinx builds its own docs
 
 #: Version info for better programmatic use.
 #:
@@ -43,7 +43,7 @@ __released__ = '2.4.3'  # used when Sphinx builds its own docs
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info = (2, 4, 3, 'beta', 0)
+version_info = (2, 4, 4, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 

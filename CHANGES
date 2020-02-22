@@ -1,4 +1,4 @@
-Release 2.4.3 (in development)
+Release 2.4.4 (in development)
 ==============================
 
 Dependencies
@@ -16,16 +16,21 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 2.4.3 (released Feb 22, 2020)
+=====================================
+
+Bugs fixed
+----------
+
 * #7184: autodoc: ``*args`` and ``**kwarg`` in type comments are not handled
   properly
 * #7189: autodoc: classmethod coroutines are not detected
 * #7183: intersphinx: ``:attr:`` reference to property is broken
 * #6244, #6387: html search: Search breaks/hangs when built with dirhtml builder
 * #7195: todo: emit doctree-resolved event with non-document node incorrectly
-
-
-Testing
---------
 
 Release 2.4.2 (released Feb 19, 2020)
 =====================================
