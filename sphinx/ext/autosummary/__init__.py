@@ -224,6 +224,7 @@ class Autosummary(SphinxDirective):
     option_spec = {
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
+        'recursive': directives.flag,
         'template': directives.unchanged,
     }
 

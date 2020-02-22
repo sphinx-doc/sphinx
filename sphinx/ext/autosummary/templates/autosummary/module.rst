@@ -41,6 +41,7 @@
 
 .. autosummary::
    :toctree: modules
+   :recursive:
 {% for item in modules %}
    {{ item }}
 {%- endfor %}

@@ -60,7 +60,8 @@ class DummyApplication:
 
 AutosummaryEntry = NamedTuple('AutosummaryEntry', [('name', str),
                                                    ('path', str),
-                                                   ('template', str)])
+                                                   ('template', str),
+                                                   ('recursive', bool)])
 
 
 def setup_documenters(app: Any) -> None:
@@ -266,8 +267,13 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
             _warn('[autosummary] failed to import %r: %s' % (name, e))
             continue
 
+        if entry.recursive and not recursive:
+            _warn('[autosummary] :resursive: option found. But ignored. '
+                  'Please read document for autosummary_recursive option')
+
         content = generate_autosummary_content(name, obj, parent, template, entry.template,
-                                               imported_members, app, recursive)
+                                               imported_members, app,
+                                               recursive and entry.recursive)
 
         filename = os.path.join(path, name + suffix)
         if os.path.isfile(filename):
@@ -347,11 +353,13 @@ def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: st
     module_re = re.compile(
         r'^\s*\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$')
     autosummary_item_re = re.compile(r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
+    recursive_arg_re = re.compile(r'^\s+:recursive:\s*$')
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
     documented = []  # type: List[AutosummaryEntry]
 
+    recursive = False
     toctree = None  # type: str
     template = None
     current_module = module
@@ -360,6 +368,11 @@ def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: st
 
     for line in lines:
         if in_autosummary:
+            m = recursive_arg_re.match(line)
+            if m:
+                recursive = True
+                continue
+
             m = toctree_arg_re.match(line)
             if m:
                 toctree = m.group(1)
@@ -384,7 +397,7 @@ def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: st
                 if current_module and \
                    not name.startswith(current_module + '.'):
                     name = "%s.%s" % (current_module, name)
-                documented.append(AutosummaryEntry(name, toctree, template))
+                documented.append(AutosummaryEntry(name, toctree, template, recursive))
                 continue
 
             if not line.strip() or line.startswith(base_indent + " "):
@@ -396,6 +409,7 @@ def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: st
         if m:
             in_autosummary = True
             base_indent = m.group(1)
+            recursive = False
             toctree = None
             template = None
             continue

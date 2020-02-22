@@ -104,6 +104,20 @@ The :mod:`sphinx.ext.autosummary` extension does this in three parts:
 
      .. versionadded:: 1.0
 
+   * You can specify the ``recursive`` option to generate documents for
+     modules and sub-packages recursively.  It defaults to disabled.
+     For example, ::
+
+         .. autosummary::
+            :recursive:
+
+            sphinx.environment.BuildEnvironment
+
+     It is needed to enable :confval:`autosummary_recursive` also to
+     use this option.
+
+     .. versionadded:: 3.1
+
 
 :program:`sphinx-autogen` -- generate autodoc stub pages
 --------------------------------------------------------

@@ -5,5 +5,11 @@ API Reference
 
 .. autosummary::
    :toctree: generated
+   :recursive:
 
     package
+
+.. autosummary::
+   :toctree: generated
+
+    package2

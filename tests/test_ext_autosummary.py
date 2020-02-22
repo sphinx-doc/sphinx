@@ -292,6 +292,11 @@ def test_autosummary_recursive_enabled(app, status, warning):
     if toctree:
         assert not (generated / toctree).exists()
 
+    # autosummary without :recursive: option
+    generated = app.srcdir / 'generated'
+    assert (generated / 'package2.rst').exists()
+    assert not (generated / 'package2.module.rst').exists()
+
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
                     srcdir='ext-autosummary-recursive-disabled',
@@ -382,7 +387,7 @@ def test_autosummary_imported_members(app, status, warning):
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_generate_autosummary_docs_property(app):
     with patch('sphinx.ext.autosummary.generate.find_autosummary_in_files') as mock:
-        mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', None)]
+        mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', None, False)]
         generate_autosummary_docs([], output_dir=app.srcdir, builder=app.builder, app=app)
 
     content = (app.srcdir / 'target.methods.Base.prop.rst').text()
