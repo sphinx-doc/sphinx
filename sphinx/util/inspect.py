@@ -111,6 +111,19 @@ def getargspec(func):
                                kwonlyargs, kwdefaults, annotations)
 
 
+def unwrap(obj: Any) -> Any:
+    """Get an original object from wrapped object."""
+    while True:
+        if ispartial(obj):
+            obj = unpartial(obj)
+        elif isclassmethod(obj):
+            obj = obj.__func__
+        elif isstaticmethod(obj):
+            obj = obj.__func__
+        else:
+            return obj
+
+
 def isenumclass(x: Any) -> bool:
     """Check if the object is subclass of enum."""
     return inspect.isclass(x) and issubclass(x, enum.Enum)
@@ -141,7 +154,7 @@ def isclassmethod(obj: Any) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
-    elif inspect.ismethod(obj) and obj.__self__ is not None:
+    elif inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
         return True
 
     return False
@@ -208,17 +221,17 @@ def isattributedescriptor(obj: Any) -> bool:
 
 def isfunction(obj: Any) -> bool:
     """Check if the object is function."""
-    return inspect.isfunction(unpartial(obj))
+    return inspect.isfunction(unwrap(obj))
 
 
 def isbuiltin(obj: Any) -> bool:
     """Check if the object is builtin."""
-    return inspect.isbuiltin(unpartial(obj))
+    return inspect.isbuiltin(unwrap(obj))
 
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
-    obj = unpartial(obj)
+    obj = unwrap(obj)
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
