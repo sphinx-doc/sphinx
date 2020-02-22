@@ -77,8 +77,8 @@ class IndexDirective(SphinxDirective):
         arguments = self.arguments[0].split('\n')
 
         if 'name' in self.options:
-            targetid = self.options['name']
-            targetnode = nodes.target('', '', names=[targetid])
+            targetname  = self.options['name']
+            targetnode = nodes.target('', '', names=[targetname])
         else:
             targetid = 'index-%s' % self.env.new_serialno('index')
             targetnode = nodes.target('', '', ids=[targetid])
@@ -89,7 +89,7 @@ class IndexDirective(SphinxDirective):
         indexnode['inline'] = False
         self.set_source_info(indexnode)
         for entry in arguments:
-            indexnode['entries'].extend(process_index_entry(entry, targetid))
+            indexnode['entries'].extend(process_index_entry(entry, targetnode['ids'][0]))
         return [indexnode, targetnode]
 
 
