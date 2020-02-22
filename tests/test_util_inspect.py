@@ -420,6 +420,16 @@ def test_dict_customtype():
 
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
+def test_isclassmethod(app):
+    from target.methods import Base, Inherited
+
+    assert inspect.isclassmethod(Base.classmeth) is True
+    assert inspect.isclassmethod(Base.meth) is False
+    assert inspect.isclassmethod(Inherited.classmeth) is True
+    assert inspect.isclassmethod(Inherited.meth) is False
+
+
+@pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isstaticmethod(app):
     from target.methods import Base, Inherited
 
