@@ -51,7 +51,7 @@ Features added
   in the documentation.
 * #1027: Support backslash line continuation in :rst:dir:`productionlist`.
 * #7108: config: Allow to show an error message from conf.py via ``ConfigError``
-* #7032: html: :confval:`html_scaled_image_link` is disabled for images having
+* #7032: html: :confval:`html_scaled_image_link` will be disabled for images having
   ``no-scaled-link`` class
 
 Bugs fixed
