@@ -31,6 +31,11 @@ The following is a list of deprecated interfaces.
      - 3.0
      - N/A
 
+   * - ``sphinx.directives.DescDirective``
+     - 3.0
+     - 5.0
+     - ``sphinx.directives.ObjectDescription``
+
    * - ``sphinx.domains.std.StandardDomain.add_object()``
      - 3.0
      - 5.0

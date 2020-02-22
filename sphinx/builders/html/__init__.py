@@ -807,13 +807,17 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
             for node in doctree.traverse(nodes.image):
-                scale_keys = ('scale', 'width', 'height')
-                if not any((key in node) for key in scale_keys) or \
-                   isinstance(node.parent, nodes.reference):
-                    # docutils does unfortunately not preserve the
-                    # ``target`` attribute on images, so we need to check
-                    # the parent node here.
+                if not any((key in node) for key in ['scale', 'width', 'height']):
+                    # resizing options are not given. scaled image link is available
+                    # only for resized images.
                     continue
+                elif isinstance(node.parent, nodes.reference):
+                    # A image having hyperlink target
+                    continue
+                elif 'no-scaled-link' in node['classes']:
+                    # scaled image link is disabled for this node
+                    continue
+
                 uri = node['uri']
                 reference = nodes.reference('', '', internal=True)
                 if uri in self.images:
@@ -847,7 +851,11 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
             try:
-                self.indexer.feed(pagename, filename, title, doctree)
+                metadata = self.env.metadata.get(pagename, {})
+                if 'nosearch' in metadata:
+                    self.indexer.feed(pagename, filename, '', new_document(''))
+                else:
+                    self.indexer.feed(pagename, filename, title, doctree)
             except TypeError:
                 # fallback for old search-adapters
                 self.indexer.feed(pagename, title, doctree)  # type: ignore

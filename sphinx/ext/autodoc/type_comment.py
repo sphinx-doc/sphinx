@@ -14,6 +14,7 @@ from typing import cast
 
 import sphinx
 from sphinx.application import Sphinx
+from sphinx.locale import __
 from sphinx.pycode.ast import ast
 from sphinx.pycode.ast import parse as ast_parse
 from sphinx.pycode.ast import unparse as ast_unparse
@@ -55,7 +56,7 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
 
     if node.args.vararg:
         param = Parameter(node.args.vararg.arg, Parameter.VAR_POSITIONAL,
-                          annotation=arg.type_comment or Parameter.empty)
+                          annotation=node.args.vararg.type_comment or Parameter.empty)
         params.append(param)
 
     for arg in node.args.kwonlyargs:
@@ -65,7 +66,7 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
 
     if node.args.kwarg:
         param = Parameter(node.args.kwarg.arg, Parameter.VAR_KEYWORD,
-                          annotation=arg.type_comment or Parameter.empty)
+                          annotation=node.args.kwarg.type_comment or Parameter.empty)
         params.append(param)
 
     # Remove first parameter when *obj* is bound_method
@@ -128,7 +129,7 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
             if 'return' not in obj.__annotations__:
                 obj.__annotations__['return'] = type_sig.return_annotation
     except NotImplementedError as exc:  # failed to ast.unparse()
-        logger.warning("Failed to parse type_comment for %r: %s", obj, exc)
+        logger.warning(__("Failed to parse type_comment for %r: %s"), obj, exc)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

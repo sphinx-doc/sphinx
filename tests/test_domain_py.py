@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 from unittest.mock import Mock
 
 import pytest
@@ -241,7 +242,73 @@ def test_pyfunction_signature(app):
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
-    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, "name: str"])
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, desc_parameter, ("name",
+                                                      ": str")])
+
+
+def test_pyfunction_signature_full(app):
+    text = (".. py:function:: hello(a: str, b = 1, *args: str, "
+            "c: bool = True, **kwargs: str) -> str")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "hello"],
+                                                    desc_parameterlist,
+                                                    [desc_returns, "str"])],
+                                  desc_content)]))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, ("a",
+                                                        ": str")],
+                                      [desc_parameter, ("b",
+                                                        "=1")],
+                                      [desc_parameter, ("*args",
+                                                        ": str")],
+                                      [desc_parameter, ("c",
+                                                        ": bool",
+                                                        " = True")],
+                                      [desc_parameter, ("**kwargs",
+                                                        ": str")])])
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+def test_pyfunction_signature_full_py38(app):
+    # case: separator at head
+    text = ".. py:function:: hello(*, a)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ("*",
+                                      [desc_parameter, ("a",
+                                                        "=None")])])
+
+    # case: separator in the middle
+    text = ".. py:function:: hello(a, /, b, *, c)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, "a"],
+                                      "/",
+                                      [desc_parameter, "b"],
+                                      "*",
+                                      [desc_parameter, ("c",
+                                                        "=None")])])
+
+    # case: separator in the middle (2)
+    text = ".. py:function:: hello(a, /, *, b)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, "a"],
+                                      "/",
+                                      "*",
+                                      [desc_parameter, ("b",
+                                                        "=None")])])
+
+    # case: separator at tail
+    text = ".. py:function:: hello(a, /)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, "a"],
+                                      "/")])
 
 
 def test_optional_pyfunction_signature(app):

@@ -1356,7 +1356,23 @@ def test_coroutine():
         '      :async:',
         '   ',
         '      A documented coroutine function',
-        '      '
+        '      ',
+        '   ',
+        '   .. py:method:: AsyncClass.do_coroutine2()',
+        '      :module: target.coroutine',
+        '      :async:',
+        '      :classmethod:',
+        '   ',
+        '      A documented coroutine classmethod',
+        '      ',
+        '   ',
+        '   .. py:method:: AsyncClass.do_coroutine3()',
+        '      :module: target.coroutine',
+        '      :async:',
+        '      :staticmethod:',
+        '   ',
+        '      A documented coroutine staticmethod',
+        '      ',
     ]
 
 

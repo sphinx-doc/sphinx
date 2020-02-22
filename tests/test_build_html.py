@@ -1261,11 +1261,18 @@ def test_html_inventory(app):
     with open(app.outdir / 'objects.inv', 'rb') as f:
         invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
-    assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
+    assert set(invdata['std:label'].keys()) == {'modindex',
+                                                'py-modindex',
+                                                'genindex',
+                                                'search'}
     assert invdata['std:label']['modindex'] == ('Python',
                                                 '',
                                                 'https://www.google.com/py-modindex.html',
                                                 'Module Index')
+    assert invdata['std:label']['py-modindex'] == ('Python',
+                                                   '',
+                                                   'https://www.google.com/py-modindex.html',
+                                                   'Python Module Index')
     assert invdata['std:label']['genindex'] == ('Python',
                                                 '',
                                                 'https://www.google.com/genindex.html',
@@ -1542,3 +1549,22 @@ def test_validate_html_static_path(app):
     ]
     validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
+
+
+@pytest.mark.sphinx(testroot='html_scaled_image_link')
+def test_html_scaled_image_link(app):
+    app.build()
+    context = (app.outdir / 'index.html').text()
+
+    # no scaled parameters
+    assert re.search('\n<img alt="_images/img.png" src="_images/img.png" />', context)
+
+    # scaled_image_link
+    assert re.search('\n<a class="reference internal image-reference" href="_images/img.png">'
+                     '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" /></a>',
+                     context)
+
+    # no-scaled-link class disables the feature
+    assert re.search('\n<img alt="_images/img.png" class="no-scaled-link"'
+                     ' src="_images/img.png" style="[^"]+" />',
+                     context)

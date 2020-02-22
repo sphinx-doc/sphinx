@@ -121,6 +121,17 @@ The following blocks exist in the ``layout.html`` template:
     The contents of the document itself.  It contains the block "body" where the
     individual content is put by subtemplates like ``page.html``.
 
+    .. note::
+        In order for the built-in JavaScript search to show a page preview on
+        the results page, the document or body content should be wrapped in an
+        HTML element containing the ``role="main"`` attribute. For example:
+
+        .. sourcecode:: html+jinja
+
+            <div role="main">
+              {% block document %}{% endblock %}
+            </div>
+
 `sidebar1` / `sidebar2`
     A possible location for a sidebar.  `sidebar1` appears before the document
     and is empty by default, `sidebar2` after the document and contains the
@@ -427,5 +438,3 @@ are in HTML form), these variables are also available:
 
    * ``includehidden`` (``False`` by default): if true, the TOC tree will also
      contain hidden entries.
-
-

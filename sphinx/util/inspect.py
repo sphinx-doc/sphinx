@@ -21,8 +21,11 @@ from inspect import (  # NOQA
 )
 from io import StringIO
 from typing import Any, Callable, Mapping, List, Tuple
+from typing import cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.pycode.ast import ast  # for py35-37
+from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 from sphinx.util.typing import stringify as stringify_annotation
 
@@ -113,6 +116,19 @@ def getargspec(func: Callable) -> Any:
                                kwonlyargs, kwdefaults, annotations)
 
 
+def unwrap(obj: Any) -> Any:
+    """Get an original object from wrapped object."""
+    while True:
+        if ispartial(obj):
+            obj = unpartial(obj)
+        elif isclassmethod(obj):
+            obj = obj.__func__
+        elif isstaticmethod(obj):
+            obj = obj.__func__
+        else:
+            return obj
+
+
 def isenumclass(x: Any) -> bool:
     """Check if the object is subclass of enum."""
     return inspect.isclass(x) and issubclass(x, enum.Enum)
@@ -143,7 +159,7 @@ def isclassmethod(obj: Any) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
-    elif inspect.ismethod(obj) and obj.__self__ is not None:
+    elif inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
         return True
 
     return False
@@ -210,17 +226,17 @@ def isattributedescriptor(obj: Any) -> bool:
 
 def isfunction(obj: Any) -> bool:
     """Check if the object is function."""
-    return inspect.isfunction(unpartial(obj))
+    return inspect.isfunction(unwrap(obj))
 
 
 def isbuiltin(obj: Any) -> bool:
     """Check if the object is builtin."""
-    return inspect.isbuiltin(unpartial(obj))
+    return inspect.isbuiltin(unwrap(obj))
 
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
-    obj = unpartial(obj)
+    obj = unwrap(obj)
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
@@ -427,6 +443,52 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
     else:
         annotation = stringify_annotation(sig.return_annotation)
         return '(%s) -> %s' % (', '.join(args), annotation)
+
+
+def signature_from_str(signature: str) -> inspect.Signature:
+    """Create a Signature object from string."""
+    module = ast.parse('def func' + signature + ': pass')
+    definition = cast(ast.FunctionDef, module.body[0])  # type: ignore
+
+    # parameters
+    args = definition.args
+    params = []
+
+    if hasattr(args, "posonlyargs"):
+        for arg in args.posonlyargs:  # type: ignore
+            annotation = ast_unparse(arg.annotation) or Parameter.empty
+            params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
+                                    annotation=annotation))
+
+    for i, arg in enumerate(args.args):
+        if len(args.args) - i <= len(args.defaults):
+            default = ast_unparse(args.defaults[-len(args.args) + i])
+        else:
+            default = Parameter.empty
+
+        annotation = ast_unparse(arg.annotation) or Parameter.empty
+        params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
+                                default=default, annotation=annotation))
+
+    if args.vararg:
+        annotation = ast_unparse(args.vararg.annotation) or Parameter.empty
+        params.append(Parameter(args.vararg.arg, Parameter.VAR_POSITIONAL,
+                                annotation=annotation))
+
+    for i, arg in enumerate(args.kwonlyargs):
+        default = ast_unparse(args.kw_defaults[i])
+        annotation = ast_unparse(arg.annotation) or Parameter.empty
+        params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
+                                annotation=annotation))
+
+    if args.kwarg:
+        annotation = ast_unparse(args.kwarg.annotation) or Parameter.empty
+        params.append(Parameter(args.kwarg.arg, Parameter.VAR_KEYWORD,
+                                annotation=annotation))
+
+    return_annotation = ast_unparse(definition.returns) or Parameter.empty
+
+    return inspect.Signature(params, return_annotation=return_annotation)
 
 
 class Signature:

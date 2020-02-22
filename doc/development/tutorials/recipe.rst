@@ -122,6 +122,10 @@ all it really is is a list of tuples like ``('tomato', 'TomatoSoup', 'test',
 'rec-TomatoSoup',...)``. Refer to the :doc:`domain API guide
 </extdev/domainapi>` for more information on this API.
 
+These index pages can be referred by combination of domain name and its
+``name`` using :rst:role:`ref` role.  For example, ``RecipeIndex`` can be
+referred by ``:ref:`recipe-recipe```.
+
 .. rubric:: The domain
 
 A Sphinx domain is a specialized container that ties together roles,

@@ -49,6 +49,7 @@ Deprecated
 ----------
 
 * ``desc_signature['first']``
+* ``sphinx.directives.DescDirective``
 * ``sphinx.domains.std.StandardDomain.add_object()``
 * ``sphinx.parsers.Parser.app``
 * ``sphinx.testing.path.Path.text()``
@@ -65,14 +66,18 @@ Features added
 * #6830: autodoc: consider a member private if docstring contains
   ``:meta private:`` in info-field-list
 * #6558: glossary: emit a warning for duplicated glossary entry
+* #3106: domain: Register hyperlink target for index page automatically
 * #6558: std domain: emit a warning for duplicated generic objects
 * #6830: py domain: Add new event: :event:`object-description-transform`
+* py domain: Support lambda functions in function signature
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`
 * #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
   in the documentation.
 * #1027: Support backslash line continuation in :rst:dir:`productionlist`.
 * #7108: config: Allow to show an error message from conf.py via ``ConfigError``
+* #7032: html: :confval:`html_scaled_image_link` will be disabled for images having
+  ``no-scaled-link`` class
 * #7144: Add CSS class indicating its domain for each desc node
 
 Bugs fixed
@@ -91,7 +96,7 @@ Bugs fixed
 Testing
 --------
 
-Release 2.4.2 (in development)
+Release 2.4.3 (in development)
 ==============================
 
 Dependencies
@@ -109,17 +114,32 @@ Features added
 Bugs fixed
 ----------
 
+* #7184: autodoc: ``*args`` and ``**kwarg`` in type comments are not handled
+  properly
+* #7189: autodoc: classmethod coroutines are not detected
+* #7183: intersphinx: ``:attr:`` reference to property is broken
+* #6244, #6387: html search: Search breaks/hangs when built with dirhtml builder
+* #7195: todo: emit doctree-resolved event with non-document node incorrectly
+
+
+Testing
+--------
+
+Release 2.4.2 (released Feb 19, 2020)
+=====================================
+
+Bugs fixed
+----------
+
 * #7138: autodoc: ``autodoc.typehints`` crashed when variable has unbound object
   as a value
 * #7156: autodoc: separator for keyword only arguments is not shown
 * #7146: autodoc: IndexError is raised on suppressed type_comment found
 * #7161: autodoc: typehints extension does not support parallel build
+* #7178: autodoc: TypeError is raised on fetching type annotations
 * #7151: crashed when extension assigns a value to ``env.indexentries``
 * #7170: text: Remove debug print
 * #7137: viewcode: Avoid to crash when non-python code given
-
-Testing
---------
 
 Release 2.4.1 (released Feb 11, 2020)
 =====================================
@@ -175,6 +195,8 @@ Features added
 * #6966: graphviz: Support ``:class:`` option
 * #6696: html: ``:scale:`` option of image/figure directive not working for SVG
   images (imagesize-1.2.0 or above is required)
+* #7025: html search: full text search can be disabled for individual document
+  using ``:nosearch:`` file-wide metadata
 * #6994: imgconverter: Support illustrator file (.ai) to .png conversion
 * autodoc: Support Positional-Only Argument separator (PEP-570 compliant)
 * autodoc: Support type annotations for variables

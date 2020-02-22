@@ -10,6 +10,7 @@
 
 import re
 import warnings
+from inspect import Parameter
 from typing import Any, Dict, Iterable, Iterator, List, Tuple
 from typing import cast
 
@@ -30,6 +31,7 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.inspect import signature_from_str
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import TextlikeNode
 
@@ -60,6 +62,47 @@ pairindextypes = {
     'statement': _('statement'),
     'builtin':   _('built-in function'),
 }
+
+
+def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
+    """Parse a list of arguments using AST parser"""
+    params = addnodes.desc_parameterlist(arglist)
+    sig = signature_from_str('(%s)' % arglist)
+    last_kind = None
+    for param in sig.parameters.values():
+        if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
+            # PEP-570: Separator for Positional Only Parameter: /
+            params += nodes.Text('/')
+        if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
+                                                              param.POSITIONAL_ONLY,
+                                                              None):
+            # PEP-3102: Separator for Keyword Only Parameter: *
+            params += nodes.Text('*')
+
+        node = addnodes.desc_parameter()
+        if param.kind == param.VAR_POSITIONAL:
+            node += nodes.Text('*' + param.name)
+        elif param.kind == param.VAR_KEYWORD:
+            node += nodes.Text('**' + param.name)
+        else:
+            node += nodes.Text(param.name)
+
+        if param.annotation is not param.empty:
+            node += nodes.Text(': ' + param.annotation)
+        if param.default is not param.empty:
+            if param.annotation is not param.empty:
+                node += nodes.Text(' = ' + str(param.default))
+            else:
+                node += nodes.Text('=' + str(param.default))
+
+        params += node
+        last_kind = param.kind
+
+    if last_kind == Parameter.POSITIONAL_ONLY:
+        # PEP-570: Separator for Positional Only Parameter: /
+        params += nodes.Text('/')
+
+    return params
 
 
 def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
@@ -284,7 +327,15 @@ class PyObject(ObjectDescription):
 
         signode += addnodes.desc_name(name, name)
         if arglist:
-            _pseudo_parse_arglist(signode, arglist)
+            try:
+                signode += _parse_arglist(arglist)
+            except SyntaxError:
+                # fallback to parse arglist original parser.
+                # it supports to represent optional arguments (ex. "func(foo [, bar])")
+                _pseudo_parse_arglist(signode, arglist)
+            except NotImplementedError as exc:
+                logger.warning(exc)
+                _pseudo_parse_arglist(signode, arglist)
         else:
             if self.needs_arglist():
                 # for callables, add an empty parameter list
