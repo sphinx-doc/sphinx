@@ -56,7 +56,7 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
 
     if node.args.vararg:
         param = Parameter(node.args.vararg.arg, Parameter.VAR_POSITIONAL,
-                          annotation=arg.type_comment or Parameter.empty)
+                          annotation=node.args.vararg.type_comment or Parameter.empty)
         params.append(param)
 
     for arg in node.args.kwonlyargs:
@@ -66,7 +66,7 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
 
     if node.args.kwarg:
         param = Parameter(node.args.kwarg.arg, Parameter.VAR_KEYWORD,
-                          annotation=arg.type_comment or Parameter.empty)
+                          annotation=node.args.kwarg.type_comment or Parameter.empty)
         params.append(param)
 
     # Remove first parameter when *obj* is bound_method
