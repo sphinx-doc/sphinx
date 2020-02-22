@@ -578,6 +578,30 @@ class StandardDomain(Domain):
         for node, settings in env.app.registry.enumerable_nodes.items():
             self.enumerable_nodes[node] = settings
 
+    def note_hyperlink_target(self, name: str, docname: str, node_id: str,
+                              title: str = '') -> None:
+        """Add a hyperlink target for cross reference.
+
+        .. warning::
+
+           This is only for internal use.  Please don't use this from your extension.
+           ``document.note_explicit_target()`` or ``note_implicit_target()`` are recommended to
+           add a hyperlink target to the document.
+
+           This only adds a hyperlink target to the StandardDomain.  And this does not add a
+           node_id to node.  Therefore, it is very fragile to calling this without
+           understanding hyperlink target framework in both docutils and Sphinx.
+
+        .. versionadded:: 3.0
+        """
+        if name in self.anonlabels and self.anonlabels[name] != (docname, node_id):
+            logger.warning(__('duplicate label %s, other instance in %s'),
+                           name, self.env.doc2path(self.anonlabels[name][0]))
+
+        self.anonlabels[name] = (docname, node_id)
+        if title:
+            self.labels[name] = (docname, node_id, title)
+
     @property
     def objects(self) -> Dict[Tuple[str, str], Tuple[str, str]]:
         return self.data.setdefault('objects', {})  # (objtype, name) -> docname, labelid

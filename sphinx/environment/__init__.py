@@ -218,6 +218,10 @@ class BuildEnvironment:
         for domain in app.registry.create_domains(self):
             self.domains[domain.name] = domain
 
+        # setup domains (must do after all initialization)
+        for domain in self.domains.values():
+            domain.setup()
+
         # initialize config
         self._update_config(app.config)
 

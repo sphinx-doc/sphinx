@@ -1261,11 +1261,18 @@ def test_html_inventory(app):
     with open(app.outdir / 'objects.inv', 'rb') as f:
         invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
-    assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
+    assert set(invdata['std:label'].keys()) == {'modindex',
+                                                'py-modindex',
+                                                'genindex',
+                                                'search'}
     assert invdata['std:label']['modindex'] == ('Python',
                                                 '',
                                                 'https://www.google.com/py-modindex.html',
                                                 'Module Index')
+    assert invdata['std:label']['py-modindex'] == ('Python',
+                                                   '',
+                                                   'https://www.google.com/py-modindex.html',
+                                                   'Python Module Index')
     assert invdata['std:label']['genindex'] == ('Python',
                                                 '',
                                                 'https://www.google.com/genindex.html',
