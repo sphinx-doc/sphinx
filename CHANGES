@@ -46,6 +46,7 @@ Features added
 * #6558: glossary: emit a warning for duplicated glossary entry
 * #6558: std domain: emit a warning for duplicated generic objects
 * #6830: py domain: Add new event: :event:`object-description-transform`
+* py domain: Support lambda functions in function signature
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`
 * #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
