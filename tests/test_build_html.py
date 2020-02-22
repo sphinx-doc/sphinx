@@ -1542,3 +1542,22 @@ def test_validate_html_static_path(app):
     ]
     validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
+
+
+@pytest.mark.sphinx(testroot='html_scaled_image_link')
+def test_html_scaled_image_link(app):
+    app.build()
+    context = (app.outdir / 'index.html').text()
+
+    # no scaled parameters
+    assert re.search('\n<img alt="_images/img.png" src="_images/img.png" />', context)
+
+    # scaled_image_link
+    assert re.search('\n<a class="reference internal image-reference" href="_images/img.png">'
+                     '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" /></a>',
+                     context)
+
+    # no-scaled-link class disables the feature
+    assert re.search('\n<img alt="_images/img.png" class="no-scaled-link"'
+                     ' src="_images/img.png" style="[^"]+" />',
+                     context)
