@@ -362,7 +362,6 @@ class PyObject(ObjectDescription):
         if fullname not in self.state.document.ids:
             signode['names'].append(fullname)
             signode['ids'].append(fullname)
-            signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
             domain = cast(PythonDomain, self.env.get_domain('py'))

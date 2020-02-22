@@ -169,7 +169,6 @@ class ObjectDescription(SphinxDirective):
             # add a signature node for each signature in the current unit
             # and add a reference target for it
             signode = addnodes.desc_signature(sig, '')
-            signode['first'] = False
             node.append(signode)
             try:
                 # name can also be a tuple, e.g. (classname, objname);

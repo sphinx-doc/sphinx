@@ -87,10 +87,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def visit_desc_signature(self, node: Element) -> None:
         # the id is set automatically
         self.body.append(self.starttag(node, 'dt'))
-        # anchor for per-desc interactive data
-        if node.parent['objtype'] != 'describe' \
-           and node['ids'] and node['first']:
-            self.body.append('<!--[%s]-->' % node['ids'][0])
 
     def depart_desc_signature(self, node: Element) -> None:
         if not node.get('is_multiline'):

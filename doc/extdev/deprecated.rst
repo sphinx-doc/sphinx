@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``desc_signature['first']``
+     -
+     - 3.0
+     - N/A
+
    * - ``sphinx.directives.DescDirective``
      - 3.0
      - 5.0
