@@ -57,6 +57,7 @@ Features added
 * #7108: config: Allow to show an error message from conf.py via ``ConfigError``
 * #7032: html: :confval:`html_scaled_image_link` will be disabled for images having
   ``no-scaled-link`` class
+* #7144: Add CSS class indicating its domain for each desc node
 
 Bugs fixed
 ----------
