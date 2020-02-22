@@ -64,7 +64,9 @@ var Search = {
       $(htmlElement).find('.headerlink').remove();
       docContent = $(htmlElement).find('[role=main]')[0];
       if(docContent === undefined) {
-        return "";
+          console.warn("Content block not found. Sphinx search tries to obtain it " +
+                       "via '[role=main]'. Could you check your theme or template.");
+          return "";
       }
       return docContent.textContent || docContent.innerText;
   },
