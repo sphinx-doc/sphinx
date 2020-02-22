@@ -116,7 +116,7 @@ def test_term_in_heading_and_section(app, status, warning):
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert 'textinhead:1' in searchindex
+    assert 'textinhead:2' in searchindex
     assert 'textinhead:0' in searchindex
 
 
@@ -252,3 +252,13 @@ def test_search_index_gen_zh(app, status, warning):
     assert 'chinesetest' in searchindex
     assert 'chinesetesttwo' in searchindex
     assert 'cas' in searchindex
+
+
+@pytest.mark.sphinx(testroot='search')
+def test_nosearch(app):
+    app.build()
+    index = jsload(app.outdir / 'searchindex.js')
+    assert index['docnames'] == ['index', 'nosearch', 'tocitem']
+    assert 'latex' not in index['terms']
+    assert 'zfs' in index['terms']
+    assert index['terms']['zfs'] == 0  # zfs on nosearch.rst is not registered to index
