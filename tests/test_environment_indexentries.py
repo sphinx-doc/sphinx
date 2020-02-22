@@ -134,6 +134,13 @@ def test_create_index_with_name(app):
             ".. index:: see: Python; interpreter\n   :name: ref2\n")
     restructuredtext.parse(app, text)
     index = IndexEntries(app.env).create_index(app.builder)
+
+    # check index is created correctly
     assert len(index) == 2
     assert index[0] == ('D', [('docutils', [[('', '#index-0')], [], None])])
     assert index[1] == ('P', [('Python', [[], [('see interpreter', [])], None])])
+
+    # check the reference labels are created correctly
+    labels = app.env.domaindata['std']['anonlabels']
+    assert labels['ref1'] == ('index', 'index-0')
+    assert labels['ref2'] == ('index', 'index-1')
