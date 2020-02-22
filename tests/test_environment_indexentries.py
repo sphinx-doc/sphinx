@@ -116,20 +116,22 @@ def test_create_seealso_index(app):
 def test_create_index_with_name(app):
     text = (".. index:: single: docutils\n"
             "   :name: ref1\n"
-            ".. index:: see: Python; interpreter\n"
-            "   :name: ref2\n")
+            ".. index:: single: Python\n"
+            "   :name: ref2\n"
+            ".. index:: Sphinx\n")
     restructuredtext.parse(app, text)
     index = IndexEntries(app.env).create_index(app.builder)
 
     # check index is created correctly
-    assert len(index) == 2
-    assert index[0] == ('D', [('docutils', [[('', '#index-0')], [], None])])
-    assert index[1] == ('P', [('Python', [[], [('see interpreter', [])], None])])
+    assert len(index) == 3
+    assert index[0] == ('D', [('docutils', [[('', '#ref1')], [], None])])
+    assert index[1] == ('P', [('Python', [[('', '#ref2')], [], None])])
+    assert index[2] == ('S', [('Sphinx', [[('', '#index-0')], [], None])])
 
     # check the reference labels are created correctly
     std = app.env.get_domain('std')
-    assert std.anonlabels['ref1'] == ('index', 'index-0')
-    assert std.anonlabels['ref2'] == ('index', 'index-1')
+    assert std.anonlabels['ref1'] == ('index', 'ref1')
+    assert std.anonlabels['ref2'] == ('index', 'ref2')
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)

@@ -75,12 +75,13 @@ class IndexDirective(SphinxDirective):
 
     def run(self) -> List[Node]:
         arguments = self.arguments[0].split('\n')
-        targetid = 'index-%s' % self.env.new_serialno('index')
-        targetnode = nodes.target('', '', ids=[targetid])
 
         if 'name' in self.options:
-            targetname = self.options['name']
-            targetnode['names'].append(targetname)
+            targetid = self.options['name']
+            targetnode = nodes.target('', '', names=[targetid])
+        else:
+            targetid = 'index-%s' % self.env.new_serialno('index')
+            targetnode = nodes.target('', '', ids=[targetid])
 
         self.state.document.note_explicit_target(targetnode)
         indexnode = addnodes.index()
