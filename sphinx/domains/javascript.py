@@ -341,8 +341,8 @@ class JavaScriptDomain(Domain):
     def note_object(self, fullname: str, objtype: str, location: Any = None) -> None:
         if fullname in self.objects:
             docname = self.objects[fullname][0]
-            logger.warning(__('duplicate object description of %s, other instance in %s'),
-                           fullname, docname, location=location)
+            logger.warning(__('duplicate %s description of %s, other %s in %s'),
+                           objtype, fullname, objtype, docname, location=location)
         self.objects[fullname] = (self.env.docname, objtype)
 
     @property
