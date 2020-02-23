@@ -1468,7 +1468,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('\n\\end{flushright}\n')
 
     def visit_index(self, node: Element) -> None:
-        def escape(value):
+        def escape(value: str) -> str:
             value = self.encode(value)
             value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
             value = value.replace(r'\}', r'\sphinxrightcurlybrace{}')
@@ -1478,7 +1478,7 @@ class LaTeXTranslator(SphinxTranslator):
             value = value.replace('|', r'\textbar{}')
             return value
 
-        def style(string):
+        def style(string: str) -> str:
             match = EXTRA_RE.match(string)
             if match:
                 return match.expand(r'\\spxentry{\1}\\spxextra{\2}')
