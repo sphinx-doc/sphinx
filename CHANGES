@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7197: LaTeX: platex cause error to build image directive with target url
+
 Testing
 --------
 
