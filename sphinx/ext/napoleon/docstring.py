@@ -579,7 +579,9 @@ class GoogleDocstring:
                 if _type:
                     lines.append(':vartype %s: %s' % (_name, _type))
             else:
-                if isinstance(getattr(self._obj, _name, None), property):
+                prop = getattr(self._obj, _name, None)
+                if isinstance(prop, property) \
+                        and not prop.__doc__.startswith('Alias for field number '):
                     lines.extend(['.. property:: ' + _name, ''])
                 else:
                     lines.extend(['.. attribute:: ' + _name, ''])
