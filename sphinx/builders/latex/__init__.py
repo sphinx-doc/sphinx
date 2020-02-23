@@ -408,31 +408,31 @@ def patch_settings(settings: Any) -> Any:
 
     class Values(type(settings)):  # type: ignore
         @property
-        def author(self):
+        def author(self) -> str:
             warnings.warn('settings.author is deprecated',
                           RemovedInSphinx40Warning, stacklevel=2)
             return self._author
 
         @property
-        def title(self):
+        def title(self) -> str:
             warnings.warn('settings.title is deprecated',
                           RemovedInSphinx40Warning, stacklevel=2)
             return self._title
 
         @property
-        def contentsname(self):
+        def contentsname(self) -> str:
             warnings.warn('settings.contentsname is deprecated',
                           RemovedInSphinx40Warning, stacklevel=2)
             return self._contentsname
 
         @property
-        def docname(self):
+        def docname(self) -> str:
             warnings.warn('settings.docname is deprecated',
                           RemovedInSphinx40Warning, stacklevel=2)
             return self._docname
 
         @property
-        def docclass(self):
+        def docclass(self) -> str:
             warnings.warn('settings.docclass is deprecated',
                           RemovedInSphinx40Warning, stacklevel=2)
             return self._docclass
