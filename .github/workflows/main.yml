@@ -1,0 +1,21 @@
+name: CI on Windows
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        architecture: [x86, x64]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        architecture: ${{ matrix.architecture }}
+    - name: Install dependencies
+      run:  pip install -U tox
+    - name: Run Tox
+      run:  tox -e py
