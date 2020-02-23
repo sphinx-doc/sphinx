@@ -210,8 +210,16 @@ class TocTree:
                                     toplevel.pop(1)
                     # resolve all sub-toctrees
                     for sub_toc_node in list(toc.findall(addnodes.toctree)):
-                        if sub_toc_node.get('hidden', False) and not includehidden:
+                        is_hidden = sub_toc_node.get('hidden', False)
+                        if is_hidden and not includehidden:
                             continue
+                        if includehidden or not is_hidden:
+                            if is_hidden:
+                                # hidden entries always go last
+                                i = len(sub_toc_node.parent)
+                            else:
+                                # visible entries go after the toctree
+                                i = sub_toc_node.parent.index(sub_toc_node) + 1
                         for i, entry in enumerate(
                             _entries_from_toctree(sub_toc_node, [refdoc or ''] + parents,
                                                   subtree=True),
