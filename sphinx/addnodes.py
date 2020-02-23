@@ -12,7 +12,7 @@ import warnings
 from typing import Any, Dict, List, Sequence
 
 from docutils import nodes
-from docutils.nodes import Node
+from docutils.nodes import Element, Node
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 
@@ -174,6 +174,31 @@ class desc_content(nodes.General, nodes.Element):
     """
 
 
+class desc_sig_element(nodes.inline):
+    """Common parent class of nodes for inline text of a signature."""
+    classes = []  # type: List[str]
+
+    def __init__(self, rawsource: str = '', text: str = '',
+                 *children: Element, **attributes: Any) -> None:
+        super().__init__(rawsource, text, *children, **attributes)
+        self['classes'].extend(self.classes)
+
+
+class desc_sig_name(desc_sig_element):
+    """Node for a name in a signature."""
+    classes = ["n"]
+
+
+class desc_sig_operator(desc_sig_element):
+    """Node for an operator in a signature."""
+    classes = ["o"]
+
+
+class desc_sig_punctuation(desc_sig_element):
+    """Node for a punctuation in a signature."""
+    classes = ["p"]
+
+
 # new admonition-like constructs
 
 class versionmodified(nodes.Admonition, nodes.TextElement):
@@ -332,6 +357,9 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
     app.add_node(desc_content)
+    app.add_node(desc_sig_name)
+    app.add_node(desc_sig_operator)
+    app.add_node(desc_sig_punctuation)
     app.add_node(versionmodified)
     app.add_node(seealso)
     app.add_node(productionlist)
