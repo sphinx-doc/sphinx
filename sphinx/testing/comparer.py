@@ -100,4 +100,4 @@ def pytest_assertrepr_compare(op: str, left: Any, right: Any) -> List[str]:
     elif isinstance(right, PathComparer) and op == "==":
         return ['Comparing path:'] + right.rdiff(left)
     else:
-        raise RuntimeError
+        return []
