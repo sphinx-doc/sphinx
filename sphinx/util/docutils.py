@@ -444,7 +444,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.config = builder.config
         self.settings = document.settings
 
-    def dispatch_visit(self, node):
+    def dispatch_visit(self, node: Node) -> None:
         """
         Dispatch node to appropriate visitor method.
         The priority of visitor method is:
@@ -458,11 +458,12 @@ class SphinxTranslator(nodes.NodeVisitor):
             if method:
                 logger.debug('SphinxTranslator.dispatch_visit calling %s for %s' %
                              (method.__name__, node))
-                return method(node)
+                method(node)
+                break
         else:
             super().dispatch_visit(node)
 
-    def dispatch_departure(self, node):
+    def dispatch_departure(self, node: Node) -> None:
         """
         Dispatch node to appropriate departure method.
         The priority of departure method is:
@@ -476,7 +477,8 @@ class SphinxTranslator(nodes.NodeVisitor):
             if method:
                 logger.debug('SphinxTranslator.dispatch_departure calling %s for %s' %
                              (method.__name__, node))
-                return method(node)
+                method(node)
+                break
         else:
             super().dispatch_departure(node)
 
