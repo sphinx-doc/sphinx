@@ -31,12 +31,20 @@ class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
 
         Adds a newline after the type
 
+    prop1 : Also a type
+
+        This is a property
+
     """
     # To avoid creating a dict, as a namedtuple doesn't have it:
     __slots__ = ()
 
     def __new__(cls, attr1, attr2=None):
         return super().__new__(cls, attr1, attr2)
+
+    @property
+    def prop1(self):
+        return 1
 
 
 class BaseDocstringTest(TestCase):
@@ -69,6 +77,12 @@ Sample namedtuple subclass
    Adds a newline after the type
 
    :type: Type
+
+.. property:: prop1
+
+   This is a property
+
+   :type: Also a type
 """
 
         self.assertEqual(expected, actual)

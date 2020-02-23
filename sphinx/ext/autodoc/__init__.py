@@ -1485,7 +1485,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
     Specialized Documenter subclass for properties.
     """
     objtype = 'property'
-    directivetype = 'attribute'
+    directivetype = 'property'
     member_order = 60
 
     # before AttributeDocumenter
@@ -1508,7 +1508,6 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         sourcename = self.get_sourcename()
         if inspect.isabstractmethod(self.object):
             self.add_line('   :abstract:', sourcename)
-        self.add_line('   :property:', sourcename)
 
 
 class InstanceAttributeDocumenter(AttributeDocumenter):

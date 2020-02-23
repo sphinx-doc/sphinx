@@ -81,9 +81,9 @@ Docstrings
 
 Napoleon interprets every docstring that :mod:`autodoc <sphinx.ext.autodoc>`
 can find, including docstrings on: ``modules``, ``classes``, ``attributes``,
-``methods``, ``functions``, and ``variables``. Inside each docstring,
-specially formatted `Sections`_ are parsed and converted to
-reStructuredText.
+``properties``, ``methods``, ``functions``, and ``variables``.
+Inside each docstring, specially formatted `Sections`_ are parsed and
+converted to reStructuredText.
 
 All standard reStructuredText formatting still works as expected.
 
@@ -391,7 +391,8 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 .. confval:: napoleon_use_ivar
 
    True to use the ``:ivar:`` role for instance variables. False to use
-   the ``.. attribute::`` directive instead. *Defaults to False.*
+   the ``.. attribute::`` or ``.. property::`` directive instead.
+   *Defaults to False.*
 
    This `NumPy style`_ snippet will be converted as follows::
 
@@ -405,9 +406,17 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
        :ivar attr1: Description of `attr1`
        :vartype attr1: int
 
-   **If False**::
+   **If False** and ``attr1`` is an attribute::
 
        .. attribute:: attr1
+
+          Description of `attr1`
+
+          :type: int
+
+   **If False** and ``attr1`` is a property::
+
+       .. property:: attr1
 
           Description of `attr1`
 

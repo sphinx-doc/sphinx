@@ -555,8 +555,7 @@ def test_pyattribute(app):
             "   .. py:attribute:: attr\n"
             "      :type: str\n"
             "      :value: ''\n"
-            "   .. py:attribute:: prop\n"
-            "      :property:\n")
+            "   .. py:property:: prop\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
@@ -575,11 +574,11 @@ def test_pyattribute(app):
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'class-attr', 'attribute')
 
-    # :property:
+    # py:property
     assert_node(doctree[1][1][2], addnodes.index,
                 entries=[('single', 'prop (Class property)', 'Class.prop', '', None)])
     assert_node(doctree[1][1][3], ([desc_signature, ([desc_annotation, "property "],
-                                                     [desc_name, "prop"])],
+                                                     [desc_name, "prop"],)],
                                    [desc_content, ()]))
     assert 'Class.prop' in domain.objects
     assert domain.objects['Class.prop'] == ('index', 'attribute')

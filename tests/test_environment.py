@@ -91,6 +91,8 @@ def test_object_inventory(app):
     assert 'mod.Cls.meth1' in refs
     assert 'mod.Cls.meth2' in refs
     assert 'mod.Cls.meths' in refs
+    assert 'mod.Cls.attr' in refs
+    assert 'mod.Cls.prop' in refs
 
     assert 'mod.Error' not in refs
     assert 'errmod.Error' in refs

@@ -1263,6 +1263,18 @@ def test_html_inventory(app):
                                            'The basic Sphinx documentation for testing')
 
 
+@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+def test_html_inventory_entries(app):
+    app.builder.build_all()
+    with open(app.outdir / 'objects.inv', 'rb') as f:
+        invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
+
+    # properties and attributes have equal invdata entries as they can be switched transparently
+    assert 'mod.Cls.attr' in invdata['py:attribute']
+    assert 'mod.Cls.prop' in invdata['py:attribute']
+
+
 @pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_anchor_for_figure(app):
     app.builder.build_all()

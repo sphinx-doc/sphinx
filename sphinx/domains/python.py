@@ -620,7 +620,6 @@ class PyMethod(PyObject):
     option_spec = PyObject.option_spec.copy()
     option_spec.update({
         'abstractmethod': directives.flag,
-        'abstract': directives.flag,  # alias to mirror PyAttribute
         'async': directives.flag,
         'classmethod': directives.flag,
         'property': directives.flag,  # deprecated
@@ -632,7 +631,7 @@ class PyMethod(PyObject):
 
     def get_signature_prefix(self, sig: str) -> str:
         prefix = []
-        if 'abstractmethod' in self.options or 'abstract' in self.options:
+        if 'abstractmethod' in self.options:
             prefix.append('abstract')
         if 'async' in self.options:
             prefix.append('async')
@@ -701,19 +700,10 @@ class PyAttribute(PyObject):
 
     option_spec = PyObject.option_spec.copy()
     option_spec.update({
-        'property': directives.flag,
-        'abstract': directives.flag,
         'type': directives.unchanged,
         'value': directives.unchanged,
     })
-
-    def get_signature_prefix(self, sig: str) -> str:
-        prefix = [
-            tag
-            for tag in ['abstract', 'property']
-            if tag in self.options
-        ]
-        return ' '.join(prefix) + ' ' if prefix else ''
+    fmt = _('%s (%s attribute)')
 
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         fullname, prefix = super().handle_signature(sig, signode)
@@ -740,10 +730,29 @@ class PyAttribute(PyObject):
             else:
                 return name
 
-        if 'property' in self.options:
-            return _('%s (%s property)') % (attrname, clsname)
-        else:
-            return _('%s (%s attribute)') % (attrname, clsname)
+        return self.fmt % (attrname, clsname)
+
+
+class PyProperty(PyAttribute):
+    """Description of a property."""
+
+    option_spec = PyAttribute.option_spec.copy()
+    option_spec.update({
+        'abstractmethod': directives.flag,
+    })
+    fmt = _('%s (%s property)')
+
+    def run(self) -> List[Node]:
+        # properties and attributes need to be transparently switchable:
+        # making one into the other doesn’t break APIs so it shouldn’t break doc links.
+        self.name = 'py:attribute'
+        return super().run()
+
+    def get_signature_prefix(self, sig: str) -> str:
+        prefix = 'property '
+        if 'abstractmethod' in self.options:
+            prefix = f'abstract {prefix}'
+        return prefix
 
 
 class PyDecoratorMixin:
@@ -998,6 +1007,7 @@ class PythonDomain(Domain):
         'classmethod':     PyClassMethod,
         'staticmethod':    PyStaticMethod,
         'attribute':       PyAttribute,
+        'property':        PyProperty,
         'module':          PyModule,
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,

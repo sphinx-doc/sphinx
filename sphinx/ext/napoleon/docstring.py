@@ -55,10 +55,10 @@ class GoogleDocstring:
     what : :obj:`str`, optional
         A string specifying the type of the object to which the docstring
         belongs. Valid values: "module", "class", "exception", "function",
-        "method", "attribute".
+        "method", "attribute", "property".
     name : :obj:`str`, optional
         The fully qualified name of the object.
-    obj : module, class, exception, function, method, or attribute
+    obj : module, class, exception, function, method, attribute or property
         The object to which the docstring belongs.
     options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
@@ -579,7 +579,10 @@ class GoogleDocstring:
                 if _type:
                     lines.append(':vartype %s: %s' % (_name, _type))
             else:
-                lines.extend(['.. attribute:: ' + _name, ''])
+                if isinstance(getattr(self._obj, _name, None), property):
+                    lines.extend(['.. property:: ' + _name, ''])
+                else:
+                    lines.extend(['.. attribute:: ' + _name, ''])
                 fields = self._format_field('', '', _desc)
                 lines.extend(self._indent(fields, 3))
                 if _type:
@@ -787,10 +790,10 @@ class NumpyDocstring(GoogleDocstring):
     what : :obj:`str`, optional
         A string specifying the type of the object to which the docstring
         belongs. Valid values: "module", "class", "exception", "function",
-        "method", "attribute".
+        "method", "attribute", "property".
     name : :obj:`str`, optional
         The fully qualified name of the object.
-    obj : module, class, exception, function, method, or attribute
+    obj : module, class, exception, function, method, attribute or property
         The object to which the docstring belongs.
     options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
@@ -998,7 +1001,9 @@ class NumpyDocstring(GoogleDocstring):
             'constant': 'const',
             'const': 'const',
             'attribute': 'attr',
-            'attr': 'attr'
+            'attr': 'attr',
+            'property': 'attr',
+            'prop': 'attr',
         }
         if self._what is None:
             func_role = 'obj'

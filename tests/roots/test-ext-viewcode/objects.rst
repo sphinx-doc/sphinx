@@ -30,6 +30,8 @@ Referring to :func:`nothing <>`.
 
    .. attribute:: attr
 
+   .. property:: prop
+
 .. explicit class given
 .. method:: Cls.meth2
 
