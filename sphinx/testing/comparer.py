@@ -9,7 +9,7 @@
 """
 import difflib
 import pathlib
-from typing import List, Union
+from typing import Any, List, Union
 
 
 class PathComparer:
@@ -38,13 +38,13 @@ class PathComparer:
         """
         self.path = pathlib.Path(path)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.path.as_posix()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<{0.__class__.__name__}: '{0}'>".format(self)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Union[str, pathlib.Path]) -> bool:  # type: ignore
         return not bool(self.ldiff(other))
 
     def diff(self, other: Union[str, pathlib.Path]) -> List[str]:
@@ -94,8 +94,10 @@ class PathComparer:
         return [line.strip() for line in difflib.Differ().compare([s_path], [o_path])]
 
 
-def pytest_assertrepr_compare(op, left, right):
+def pytest_assertrepr_compare(op: str, left: Any, right: Any) -> List[str]:
     if isinstance(left, PathComparer) and op == "==":
         return ['Comparing path:'] + left.ldiff(right)
-    if isinstance(right, PathComparer) and op == "==":
+    elif isinstance(right, PathComparer) and op == "==":
         return ['Comparing path:'] + right.rdiff(left)
+    else:
+        raise RuntimeError
