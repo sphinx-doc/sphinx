@@ -278,7 +278,7 @@ def test_pyfunction_signature_full_py38(app):
     text = ".. py:function:: hello(*, a)"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
-                [desc_parameterlist, ("*",
+                [desc_parameterlist, ([desc_parameter, "*"],
                                       [desc_parameter, ("a",
                                                         "=None")])])
 
@@ -287,9 +287,9 @@ def test_pyfunction_signature_full_py38(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, "a"],
-                                      "/",
+                                      [desc_parameter, "/"],
                                       [desc_parameter, "b"],
-                                      "*",
+                                      [desc_parameter, "*"],
                                       [desc_parameter, ("c",
                                                         "=None")])])
 
@@ -298,8 +298,8 @@ def test_pyfunction_signature_full_py38(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, "a"],
-                                      "/",
-                                      "*",
+                                      [desc_parameter, "/"],
+                                      [desc_parameter, "*"],
                                       [desc_parameter, ("b",
                                                         "=None")])])
 
@@ -308,7 +308,7 @@ def test_pyfunction_signature_full_py38(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, "a"],
-                                      "/")])
+                                      [desc_parameter, "/"])])
 
 
 def test_optional_pyfunction_signature(app):
