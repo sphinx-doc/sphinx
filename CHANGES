@@ -23,6 +23,10 @@ Incompatible changes
 * Due to the scoping changes for :rst:dir:`productionlist` some uses of
   :rst:role:`token` must be modified to include the scope which was previously
   ignored.
+* #6903: js domain: Internal data structure has changed. Both objects and
+  modules have node_id for cross reference
+* #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
+  to ``.. js:function:: parseInt``
 
 Deprecated
 ----------
