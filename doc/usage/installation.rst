@@ -219,11 +219,10 @@ You can build PDF document::
 
    $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx-latexpdf make latexpdf
 
-.. note::
-
-   If you would like to install dependencies, use sphinxdoc/sphinx as a base image::
+If you would like to install dependencies, use sphinxdoc/sphinx as a base image
 
 .. code-block:: docker
+
    # in your Dockerfile
    FROM sphinxdoc/sphinx
 
