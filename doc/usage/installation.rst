@@ -187,3 +187,46 @@ You can also download a snapshot of the Git repo in either `tar.gz`__ or
 __ https://github.com/sphinx-doc/sphinx
 __ https://github.com/sphinx-doc/sphinx/archive/master.tar.gz
 __ https://github.com/sphinx-doc/sphinx/archive/master.zip
+
+
+docker-sphinx
+-------------
+
+docker-sphinx is Docker images for Sphinx.
+
+It includes images
+
+- sphinxdoc/sphinx
+- sphinxdoc/sphinx-latexpdf
+
+.. note::
+
+   sphinxdoc/sphinx-latexpdf contains TeXLive packages. So the image is very large (over 2GB!).
+
+You can create a Sphinx project::
+
+   $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
+
+You can build HTML document::
+
+   $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make html
+
+You can build EPUB document::
+
+   $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make epub
+
+You can build PDF document::
+
+   $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx-latexpdf make latexpdf
+
+.. note::
+
+   If you would like to install dependencies, use sphinxdoc/sphinx as a base image::
+
+.. code-block:: docker
+   # in your Dockerfile
+   FROM sphinxdoc/sphinx
+
+   WORKDIR /docs
+   ADD requirements.txt /docs
+   RUN pip3 install -r requirements.txt
