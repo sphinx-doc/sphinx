@@ -23,8 +23,7 @@ Linux
 Debian/Ubuntu
 ~~~~~~~~~~~~~
 
-Install either ``python3-sphinx`` (Python 3) or ``python-sphinx`` (Python 2)
-using :command:`apt-get`:
+Install either ``python3-sphinx`` using :command:`apt-get`:
 
 ::
 
@@ -77,8 +76,7 @@ __ https://formulae.brew.sh/formula/sphinx-doc
 MacPorts
 ~~~~~~~~
 
-Install either ``python36-sphinx`` (Python 3) or ``python27-sphinx`` (Python 2)
-using :command:`port`:
+Install either ``python36-sphinx`` using :command:`port`:
 
 ::
 
