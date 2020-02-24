@@ -23,8 +23,7 @@ Linux
 Debian/Ubuntu
 ~~~~~~~~~~~~~
 
-Install either ``python3-sphinx`` (Python 3) or ``python-sphinx`` (Python 2)
-using :command:`apt-get`:
+Install either ``python3-sphinx`` using :command:`apt-get`:
 
 ::
 
@@ -77,23 +76,22 @@ __ https://formulae.brew.sh/formula/sphinx-doc
 MacPorts
 ~~~~~~~~
 
-Install either ``python36-sphinx`` (Python 3) or ``python27-sphinx`` (Python 2)
-using :command:`port`:
+Install either ``python3x-sphinx`` using :command:`port`:
 
 ::
 
-   $ sudo port install py36-sphinx
+   $ sudo port install py38-sphinx
 
 To set up the executable paths, use the ``port select`` command:
 
 ::
 
-   $ sudo port select --set python python36
-   $ sudo port select --set sphinx py36-sphinx
+   $ sudo port select --set python python38
+   $ sudo port select --set sphinx py38-sphinx
 
 For more information, refer to the `package overview`__.
 
-__ https://www.macports.org/ports.php?by=library&substr=py36-sphinx
+__ https://www.macports.org/ports.php?by=library&substr=py38-sphinx
 
 Anaconda
 ~~~~~~~~

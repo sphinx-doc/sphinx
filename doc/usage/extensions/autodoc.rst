@@ -340,9 +340,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       a decorator replaces the decorated function with another, it must copy the
       original ``__doc__`` to the new function.
 
-      From Python 2.5, :func:`functools.wraps` can be used to create
-      well-behaved decorating functions.
-
 
 Configuration
 -------------
