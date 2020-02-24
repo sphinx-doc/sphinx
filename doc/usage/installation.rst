@@ -192,7 +192,7 @@ __ https://github.com/sphinx-doc/sphinx/archive/master.zip
 docker-sphinx
 -------------
 
-docker-sphinx is Docker images for Sphinx.
+`docker-sphinx <https://hub.docker.com/r/sphinxdoc/sphinx>`_ is Docker images for Sphinx.
 
 It includes images
 
