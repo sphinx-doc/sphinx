@@ -14,6 +14,7 @@ for stable releases
 * ``twine check dist/Sphinx-*``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
+* ``sh utils/bump_docker.sh X.Y.Z``
 * ``git tag vX.Y.Z``
 * ``python utils/bump_version.py --in-develop X.Y.Zb0`` (ex. 1.5.3b0)
 * Check diff by ``git diff``
@@ -97,6 +98,7 @@ for major releases
 * ``twine check dist/Sphinx-*``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
+* ``sh utils/bump_docker.sh X.Y.Z``
 * ``git tag vX.Y.0``
 * ``python utils/bump_version.py --in-develop X.Y.1b0`` (ex. 1.6.1b0)
 * Check diff by ``git diff``
