@@ -751,7 +751,7 @@ class PyProperty(PyAttribute):
     def get_signature_prefix(self, sig: str) -> str:
         prefix = 'property '
         if 'abstractmethod' in self.options:
-            prefix = f'abstract {prefix}'
+            prefix = 'abstract ' + prefix
         return prefix
 
 
