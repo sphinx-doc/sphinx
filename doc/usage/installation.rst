@@ -189,19 +189,22 @@ __ https://github.com/sphinx-doc/sphinx/archive/master.tar.gz
 __ https://github.com/sphinx-doc/sphinx/archive/master.zip
 
 
-docker-sphinx
--------------
+Docker
+------
 
-`docker-sphinx <https://hub.docker.com/r/sphinxdoc/sphinx>`_ is Docker images for Sphinx.
+Docker images for Sphinx are published on the `Docker Hub <https://hub.docker.com/>`_. There are two kind of images:
 
-It includes images
+- `sphinxdoc/sphinx <https://hub.docker.com/repository/docker/sphinxdoc/sphinx>`_
+- `sphinxdoc/sphinx-latexpdf <https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf>`_
 
-- sphinxdoc/sphinx
-- sphinxdoc/sphinx-latexpdf
+Former one is used for standard usage of Sphinx, and latter one is mainly used for PDF builds using LaTeX. 
+Please choose one for your purpose.
 
 .. note::
 
    sphinxdoc/sphinx-latexpdf contains TeXLive packages. So the image is very large (over 2GB!).
+
+.. todo:: The description after this line is not about "installation". So it might be better to move other place.
 
 You can create a Sphinx project::
 
