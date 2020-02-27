@@ -184,6 +184,8 @@ ADDITIONAL_SETTINGS = {
         'babel':        '\\usepackage{babel}',
     },
     ('xelatex', 'zh'): {
+        'polyglossia':  '',
+        'babel':        '\\usepackage{babel}',
         'fontenc':      '\\usepackage{xeCJK}',
     },
     ('xelatex', 'el'): {
