@@ -114,7 +114,7 @@ class Changes:
             f.truncate(0)
             f.write(heading + '\n')
             f.write('=' * len(heading) + '\n')
-            f.write(body)
+            f.write(self.filter_empty_sections(body))
 
     def add_release(self, version_info):
         if version_info[-2:] in (('beta', 0), ('final', 0)):
@@ -141,6 +141,9 @@ class Changes:
             f.write(tmpl)
             f.write('\n')
             f.write(body)
+
+    def filter_empty_sections(self, body):
+        return re.sub('^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.M)
 
 
 def parse_options(argv):

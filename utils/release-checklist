@@ -8,12 +8,11 @@ for stable releases
 * Run ``git fetch; git status`` and check nothing changed
 * ``python utils/bump_version.py X.Y.Z``
 * Check diff by ``git diff``
-* Edit CHANGES if empty section exists
 * ``git commit -am 'Bump to X.Y.Z final'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
-* ``twine check dist/Sphinx-X.Y.Z*``
-* ``twine upload dist/Sphinx-X.Y.Z* --sign --identity [your GPG key]``
+* ``twine check dist/Sphinx-*``
+* ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.Z``
 * ``python utils/bump_version.py --in-develop X.Y.Zb0`` (ex. 1.5.3b0)
@@ -23,7 +22,6 @@ for stable releases
 * ``git checkout master``
 * ``git merge X.Y``
 * ``git push origin master``
-* Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
 
@@ -36,12 +34,11 @@ for first beta releases
 * Run ``(cd sphinx/locale; tx push -s)``
 * ``python utils/bump_version.py X.Y.0b1``
 * Check diff by ``git diff``
-* Edit CHANGES if empty section exists
 * ``git commit -am 'Bump to X.Y.0 beta1'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
-* ``twine check dist/Sphinx-X.Y.Z*``
-* ``twine upload dist/Sphinx-X.Y.Z* --sign --identity [your GPG key]``
+* ``twine check dist/Sphinx-*``
+* ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.0b1``
 * ``python utils/bump_version.py --in-develop X.Y.0b2`` (ex. 1.6.0b2)
@@ -56,7 +53,6 @@ for first beta releases
 * ``git commit -am 'Bump version'``
 * ``git push origin master``
 * open https://github.com/sphinx-doc/sphinx/settings/branches and make ``X.Y`` branch protected
-* Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
 
@@ -67,12 +63,11 @@ for other beta releases
 * Run ``git fetch; git status`` and check nothing changed
 * ``python utils/bump_version.py X.Y.0bN``
 * Check diff by ``git diff``
-* Edit CHANGES if empty section exists
 * ``git commit -am 'Bump to X.Y.0 betaN'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
-* ``twine check dist/Sphinx-X.Y.Z*``
-* ``twine upload dist/Sphinx-X.Y.Z* --sign --identity [your GPG key]``
+* ``twine check dist/Sphinx-*``
+* ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.0bN``
 * ``python utils/bump_version.py --in-develop X.Y.0bM`` (ex. 1.6.0b3)
@@ -82,7 +77,6 @@ for other beta releases
 * ``git checkout master``
 * ``git merge X.Y``
 * ``git push origin master``
-* Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
 
@@ -97,12 +91,11 @@ for major releases
 * Run ``git commit -am 'Update message catalogs'``
 * ``python utils/bump_version.py X.Y.0``
 * Check diff by ``git diff``
-* Edit CHANGES if empty section exists
 * ``git commit -am 'Bump to X.Y.0 final'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
-* ``twine check dist/Sphinx-X.Y.Z*``
-* ``twine upload dist/Sphinx-X.Y.Z* --sign --identity [your GPG key]``
+* ``twine check dist/Sphinx-*``
+* ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.0``
 * ``python utils/bump_version.py --in-develop X.Y.1b0`` (ex. 1.6.1b0)
@@ -117,6 +110,5 @@ for major releases
 * Run ``git tag A.B`` to paste a tag instead branch
 * Run ``git push origin :A.B --tags`` to remove old stable branch
 * open https://readthedocs.org/dashboard/sphinx/versions/ and enable the released version
-* Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce

@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #7197: LaTeX: platex cause error to build image directive with target url
+* #7223: Sphinx builds has been slower since 2.4.0
+
 Testing
 --------
 
