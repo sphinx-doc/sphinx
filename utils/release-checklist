@@ -8,7 +8,6 @@ for stable releases
 * Run ``git fetch; git status`` and check nothing changed
 * ``python utils/bump_version.py X.Y.Z``
 * Check diff by ``git diff``
-* Edit CHANGES if empty section exists
 * ``git commit -am 'Bump to X.Y.Z final'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
@@ -36,7 +35,6 @@ for first beta releases
 * Run ``(cd sphinx/locale; tx push -s)``
 * ``python utils/bump_version.py X.Y.0b1``
 * Check diff by ``git diff``
-* Edit CHANGES if empty section exists
 * ``git commit -am 'Bump to X.Y.0 beta1'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
@@ -66,7 +64,6 @@ for other beta releases
 * Run ``git fetch; git status`` and check nothing changed
 * ``python utils/bump_version.py X.Y.0bN``
 * Check diff by ``git diff``
-* Edit CHANGES if empty section exists
 * ``git commit -am 'Bump to X.Y.0 betaN'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
@@ -95,7 +92,6 @@ for major releases
 * Run ``git commit -am 'Update message catalogs'``
 * ``python utils/bump_version.py X.Y.0``
 * Check diff by ``git diff``
-* Edit CHANGES if empty section exists
 * ``git commit -am 'Bump to X.Y.0 final'``
 * ``make clean``
 * ``python setup.py release bdist_wheel sdist``
