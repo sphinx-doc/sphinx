@@ -139,9 +139,16 @@ class Target(SphinxDirective):
     def run(self) -> List[Node]:
         # normalize whitespace in fullname like XRefRole does
         fullname = ws_re.sub(' ', self.arguments[0].strip())
-        targetname = '%s-%s' % (self.name, fullname)
-        node = nodes.target('', '', ids=[targetname])
+        node_id = make_id(self.env, self.state.document, self.name, fullname)
+        node = nodes.target('', '', ids=[node_id])
         self.set_source_info(node)
+
+        # Assign old styled node_id not to break old hyperlinks (if possible)
+        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+        old_node_id = self.make_old_id(fullname)
+        if old_node_id not in self.state.document.ids and old_node_id not in node['ids']:
+            node['ids'].append(old_node_id)
+
         self.state.document.note_explicit_target(node)
         ret = [node]  # type: List[Node]
         if self.indextemplate:
@@ -151,17 +158,24 @@ class Target(SphinxDirective):
             if colon != -1:
                 indextype = indexentry[:colon].strip()
                 indexentry = indexentry[colon + 1:].strip()
-            inode = addnodes.index(entries=[(indextype, indexentry,
-                                             targetname, '', None)])
+            inode = addnodes.index(entries=[(indextype, indexentry, node_id, '', None)])
             ret.insert(0, inode)
         name = self.name
         if ':' in self.name:
             _, name = self.name.split(':', 1)
 
         std = cast(StandardDomain, self.env.get_domain('std'))
-        std.note_object(name, fullname, targetname, location=node)
+        std.note_object(name, fullname, node_id, location=node)
 
         return ret
+
+    def make_old_id(self, name: str) -> str:
+        """Generate old styled node_id for targets.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return self.name + '-' + name
 
 
 class Cmdoption(ObjectDescription):
