@@ -66,9 +66,17 @@ class GenericObject(ObjectDescription):
         return name
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
-        targetname = '%s-%s' % (self.objtype, name)
-        signode['ids'].append(targetname)
+        node_id = make_id(self.env, self.state.document, self.objtype, name)
+        signode['ids'].append(node_id)
+
+        # Assign old styled node_id not to break old hyperlinks (if possible)
+        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+        old_node_id = self.make_old_id(name)
+        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
+            signode['ids'].append(old_node_id)
+
         self.state.document.note_explicit_target(signode)
+
         if self.indextemplate:
             colon = self.indextemplate.find(':')
             if colon != -1:
@@ -77,11 +85,18 @@ class GenericObject(ObjectDescription):
             else:
                 indextype = 'single'
                 indexentry = self.indextemplate % (name,)
-            self.indexnode['entries'].append((indextype, indexentry,
-                                              targetname, '', None))
+            self.indexnode['entries'].append((indextype, indexentry, node_id, '', None))
 
         std = cast(StandardDomain, self.env.get_domain('std'))
-        std.note_object(self.objtype, name, targetname, location=signode)
+        std.note_object(self.objtype, name, node_id, location=signode)
+
+    def make_old_id(self, name: str) -> str:
+        """Generate old styled node_id for generic objects.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return self.objtype + '-' + name
 
 
 class EnvVar(GenericObject):
