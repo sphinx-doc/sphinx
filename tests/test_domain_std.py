@@ -183,7 +183,7 @@ def test_glossary_warning(app, status, warning):
             "   term-case4\n"
             "   term-case4\n")
     restructuredtext.parse(app, text, "case4")
-    assert ("case4.txt:3: WARNING: duplicate term description of term-case4, "
+    assert ("case4.rst:3: WARNING: duplicate term description of term-case4, "
             "other instance in case4" in warning.getvalue())
 
 

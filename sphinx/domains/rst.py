@@ -46,7 +46,7 @@ class ReSTMarkup(ObjectDescription):
             self.state.document.note_explicit_target(signode)
 
             domain = cast(ReSTDomain, self.env.get_domain('rst'))
-            domain.note_object(self.objtype, name, location=(self.env.docname, self.lineno))
+            domain.note_object(self.objtype, name, location=signode)
 
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
@@ -136,7 +136,7 @@ class ReSTDirectiveOption(ReSTMarkup):
 
             objname = ':'.join(filter(None, [directive_name, name]))
             domain = cast(ReSTDomain, self.env.get_domain('rst'))
-            domain.note_object(self.objtype, objname, location=(self.env.docname, self.lineno))
+            domain.note_object(self.objtype, objname, location=signode)
 
         if directive_name:
             key = name[0].upper()

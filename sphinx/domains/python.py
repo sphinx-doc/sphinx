@@ -365,8 +365,7 @@ class PyObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
 
             domain = cast(PythonDomain, self.env.get_domain('py'))
-            domain.note_object(fullname, self.objtype,
-                               location=(self.env.docname, self.lineno))
+            domain.note_object(fullname, self.objtype, location=signode)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
