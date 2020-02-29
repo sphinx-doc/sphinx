@@ -874,6 +874,19 @@ mainly contained in information units, such as the language reference.
    .. versionchanged:: 1.1
       Added ``see`` and ``seealso`` types, as well as marking main entries.
 
+   .. rubric:: options
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.  For example::
+
+        .. index:: Python
+           :name: py-index
+
+   .. versionadded:: 3.0
+
 .. rst:role:: index
 
    While the :rst:dir:`index` directive is a block-level markup and links to the

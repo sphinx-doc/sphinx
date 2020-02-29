@@ -278,7 +278,7 @@ def test_pyfunction_signature_full_py38(app):
     text = ".. py:function:: hello(*, a)"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
-                [desc_parameterlist, ("*",
+                [desc_parameterlist, ([desc_parameter, "*"],
                                       [desc_parameter, ("a",
                                                         "=None")])])
 
@@ -287,9 +287,9 @@ def test_pyfunction_signature_full_py38(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, "a"],
-                                      "/",
+                                      [desc_parameter, "/"],
                                       [desc_parameter, "b"],
-                                      "*",
+                                      [desc_parameter, "*"],
                                       [desc_parameter, ("c",
                                                         "=None")])])
 
@@ -298,8 +298,8 @@ def test_pyfunction_signature_full_py38(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, "a"],
-                                      "/",
-                                      "*",
+                                      [desc_parameter, "/"],
+                                      [desc_parameter, "*"],
                                       [desc_parameter, ("b",
                                                         "=None")])])
 
@@ -308,7 +308,7 @@ def test_pyfunction_signature_full_py38(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, "a"],
-                                      "/")])
+                                      [desc_parameter, "/"])])
 
 
 def test_optional_pyfunction_signature(app):
@@ -626,3 +626,26 @@ def test_module_index_not_collapsed(app):
          ('s', [IndexEntry('sphinx', 0, 'index', 'module-sphinx', '', '', '')])],
         True
     )
+
+
+@pytest.mark.sphinx(freshenv=True, confoverrides={'modindex_common_prefix': ['sphinx.']})
+def test_modindex_common_prefix(app):
+    text = (".. py:module:: docutils\n"
+            ".. py:module:: sphinx\n"
+            ".. py:module:: sphinx.config\n"
+            ".. py:module:: sphinx.builders\n"
+            ".. py:module:: sphinx.builders.html\n"
+            ".. py:module:: sphinx_intl\n")
+    restructuredtext.parse(app, text)
+    index = PythonModuleIndex(app.env.get_domain('py'))
+    assert index.generate() == (
+        [('b', [IndexEntry('sphinx.builders', 1, 'index', 'module-sphinx.builders', '', '', ''),  # NOQA
+                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx.builders.html', '', '', '')]),  # NOQA
+         ('c', [IndexEntry('sphinx.config', 0, 'index', 'module-sphinx.config', '', '', '')]),
+         ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
+         ('s', [IndexEntry('sphinx', 0, 'index', 'module-sphinx', '', '', ''),
+                IndexEntry('sphinx_intl', 0, 'index', 'module-sphinx_intl', '', '', '')])],
+        True
+    )
+
+

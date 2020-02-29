@@ -81,8 +81,7 @@ class GenericObject(ObjectDescription):
                                               targetname, '', None))
 
         std = cast(StandardDomain, self.env.get_domain('std'))
-        std.note_object(self.objtype, name, targetname,
-                        location=(self.env.docname, self.lineno))
+        std.note_object(self.objtype, name, targetname, location=signode)
 
 
 class EnvVar(GenericObject):
@@ -127,6 +126,7 @@ class Target(SphinxDirective):
         fullname = ws_re.sub(' ', self.arguments[0].strip())
         targetname = '%s-%s' % (self.name, fullname)
         node = nodes.target('', '', ids=[targetname])
+        self.set_source_info(node)
         self.state.document.note_explicit_target(node)
         ret = [node]  # type: List[Node]
         if self.indextemplate:
@@ -144,7 +144,7 @@ class Target(SphinxDirective):
             _, name = self.name.split(':', 1)
 
         std = cast(StandardDomain, self.env.get_domain('std'))
-        std.note_object(name, fullname, targetname, location=(self.env.docname, self.lineno))
+        std.note_object(name, fullname, targetname, location=node)
 
         return ret
 
@@ -165,7 +165,7 @@ class Cmdoption(ObjectDescription):
                 logger.warning(__('Malformed option description %r, should '
                                   'look like "opt", "-opt args", "--opt args", '
                                   '"/opt args" or "+opt args"'), potential_option,
-                               location=(self.env.docname, self.lineno))
+                               location=signode)
                 continue
             optname, args = m.groups()
             if count:
@@ -274,7 +274,7 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
         term['ids'].append(node_id)
 
     std = cast(StandardDomain, env.get_domain('std'))
-    std.note_object('term', termtext.lower(), node_id, location=(env.docname, lineno))
+    std.note_object('term', termtext.lower(), node_id, location=term)
 
     # add an index entry too
     indexnode = addnodes.index()
@@ -439,6 +439,7 @@ class ProductionList(SphinxDirective):
     def run(self) -> List[Node]:
         domain = cast(StandardDomain, self.env.get_domain('std'))
         node = addnodes.productionlist()  # type: Element
+        self.set_source_info(node)
         # The backslash handling is from ObjectDescription.get_signatures
         nl_escape_re = re.compile(r'\\\n')
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
@@ -474,7 +475,7 @@ class ProductionList(SphinxDirective):
                 else:
                     objName = name
                 domain.note_object(objtype='token', name=objName, labelid=idname,
-                                   location=(self.env.docname, self.lineno))
+                                   location=node)
             subnode.extend(token_xrefs(tokens, productionGroup))
             node.append(subnode)
         return [node]

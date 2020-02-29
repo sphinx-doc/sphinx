@@ -72,12 +72,12 @@ def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
     for param in sig.parameters.values():
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
-            params += nodes.Text('/')
+            params += addnodes.desc_parameter('', nodes.Text('/'))
         if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
                                                               param.POSITIONAL_ONLY,
                                                               None):
             # PEP-3102: Separator for Keyword Only Parameter: *
-            params += nodes.Text('*')
+            params += addnodes.desc_parameter('', nodes.Text('*'))
 
         node = addnodes.desc_parameter()
         if param.kind == param.VAR_POSITIONAL:
@@ -100,7 +100,7 @@ def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
 
     if last_kind == Parameter.POSITIONAL_ONLY:
         # PEP-570: Separator for Positional Only Parameter: /
-        params += nodes.Text('/')
+        params += addnodes.desc_parameter('', nodes.Text('/'))
 
     return params
 
@@ -365,8 +365,7 @@ class PyObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
 
             domain = cast(PythonDomain, self.env.get_domain('py'))
-            domain.note_object(fullname, self.objtype,
-                               location=(self.env.docname, self.lineno))
+            domain.note_object(fullname, self.objtype, location=signode)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:

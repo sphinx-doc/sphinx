@@ -36,7 +36,7 @@ nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
 
 
-def optional_int(argument):
+def optional_int(argument: str) -> int:
     """
     Check for an integer argument or None value; raise ``ValueError`` if not.
     """
@@ -171,6 +171,7 @@ class ObjectDescription(SphinxDirective):
             # add a signature node for each signature in the current unit
             # and add a reference target for it
             signode = addnodes.desc_signature(sig, '')
+            self.set_source_info(signode)
             node.append(signode)
             try:
                 # name can also be a tuple, e.g. (classname, objname);

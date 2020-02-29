@@ -113,6 +113,28 @@ def test_create_seealso_index(app):
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
+def test_create_index_with_name(app):
+    text = (".. index:: single: docutils\n"
+            "   :name: ref1\n"
+            ".. index:: single: Python\n"
+            "   :name: ref2\n"
+            ".. index:: Sphinx\n")
+    restructuredtext.parse(app, text)
+    index = IndexEntries(app.env).create_index(app.builder)
+
+    # check index is created correctly
+    assert len(index) == 3
+    assert index[0] == ('D', [('docutils', [[('', '#ref1')], [], None])])
+    assert index[1] == ('P', [('Python', [[('', '#ref2')], [], None])])
+    assert index[2] == ('S', [('Sphinx', [[('', '#index-0')], [], None])])
+
+    # check the reference labels are created correctly
+    std = app.env.get_domain('std')
+    assert std.anonlabels['ref1'] == ('index', 'ref1')
+    assert std.anonlabels['ref2'] == ('index', 'ref2')
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
 def test_create_index_by_key(app):
     # At present, only glossary directive is able to create index key
     text = (".. glossary::\n"
