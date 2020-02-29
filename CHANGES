@@ -27,6 +27,10 @@ Incompatible changes
   modules have node_id for cross reference
 * #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
   to ``.. js:function:: parseInt``
+* #6903: rst domain: Internal data structure has changed. Now objects have
+  node_id for cross reference
+* #7229: rst domain: Non intended behavior is removed such as ``numref_`` links
+  to ``.. rst:role:: numref``
 
 Deprecated
 ----------
