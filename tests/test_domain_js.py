@@ -91,22 +91,22 @@ def test_domain_js_objects(app, status, warning):
     assert 'module_b.submodule' in modules
     assert 'module_b.submodule' in objects
 
-    assert objects['module_a.submodule.ModTopLevel'] == ('module', 'class')
-    assert objects['module_a.submodule.ModTopLevel.mod_child_1'] == ('module', 'method')
-    assert objects['module_a.submodule.ModTopLevel.mod_child_2'] == ('module', 'method')
-    assert objects['module_b.submodule.ModTopLevel'] == ('module', 'class')
+    assert objects['module_a.submodule.ModTopLevel'][2] == 'class'
+    assert objects['module_a.submodule.ModTopLevel.mod_child_1'][2] == 'method'
+    assert objects['module_a.submodule.ModTopLevel.mod_child_2'][2] == 'method'
+    assert objects['module_b.submodule.ModTopLevel'][2] == 'class'
 
-    assert objects['TopLevel'] == ('roles', 'class')
-    assert objects['top_level'] == ('roles', 'function')
-    assert objects['NestedParentA'] == ('roles', 'class')
-    assert objects['NestedParentA.child_1'] == ('roles', 'function')
-    assert objects['NestedParentA.any_child'] == ('roles', 'function')
-    assert objects['NestedParentA.NestedChildA'] == ('roles', 'class')
-    assert objects['NestedParentA.NestedChildA.subchild_1'] == ('roles', 'function')
-    assert objects['NestedParentA.NestedChildA.subchild_2'] == ('roles', 'function')
-    assert objects['NestedParentA.child_2'] == ('roles', 'function')
-    assert objects['NestedParentB'] == ('roles', 'class')
-    assert objects['NestedParentB.child_1'] == ('roles', 'function')
+    assert objects['TopLevel'][2] == 'class'
+    assert objects['top_level'][2] == 'function'
+    assert objects['NestedParentA'][2] == 'class'
+    assert objects['NestedParentA.child_1'][2] == 'function'
+    assert objects['NestedParentA.any_child'][2] == 'function'
+    assert objects['NestedParentA.NestedChildA'][2] == 'class'
+    assert objects['NestedParentA.NestedChildA.subchild_1'][2] == 'function'
+    assert objects['NestedParentA.NestedChildA.subchild_2'][2] == 'function'
+    assert objects['NestedParentA.child_2'][2] == 'function'
+    assert objects['NestedParentB'][2] == 'class'
+    assert objects['NestedParentB.child_1'][2] == 'function'
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
@@ -120,21 +120,28 @@ def test_domain_js_find_obj(app, status, warning):
 
     assert (find_obj(None, None, 'NONEXISTANT', 'class') == (None, None))
     assert (find_obj(None, None, 'NestedParentA', 'class') ==
-            ('NestedParentA', ('roles', 'class')))
+            ('NestedParentA', ('roles', 'nestedparenta', 'class')))
     assert (find_obj(None, None, 'NestedParentA.NestedChildA', 'class') ==
-            ('NestedParentA.NestedChildA', ('roles', 'class')))
+            ('NestedParentA.NestedChildA',
+             ('roles', 'nestedparenta-nestedchilda', 'class')))
     assert (find_obj(None, 'NestedParentA', 'NestedChildA', 'class') ==
-            ('NestedParentA.NestedChildA', ('roles', 'class')))
+            ('NestedParentA.NestedChildA',
+             ('roles', 'nestedparenta-nestedchilda', 'class')))
     assert (find_obj(None, None, 'NestedParentA.NestedChildA.subchild_1', 'func') ==
-            ('NestedParentA.NestedChildA.subchild_1', ('roles', 'function')))
+            ('NestedParentA.NestedChildA.subchild_1',
+             ('roles', 'nestedparenta-nestedchilda-subchild-1', 'function')))
     assert (find_obj(None, 'NestedParentA', 'NestedChildA.subchild_1', 'func') ==
-            ('NestedParentA.NestedChildA.subchild_1', ('roles', 'function')))
+            ('NestedParentA.NestedChildA.subchild_1',
+             ('roles', 'nestedparenta-nestedchilda-subchild-1', 'function')))
     assert (find_obj(None, 'NestedParentA.NestedChildA', 'subchild_1', 'func') ==
-            ('NestedParentA.NestedChildA.subchild_1', ('roles', 'function')))
+            ('NestedParentA.NestedChildA.subchild_1',
+             ('roles', 'nestedparenta-nestedchilda-subchild-1', 'function')))
     assert (find_obj('module_a.submodule', 'ModTopLevel', 'mod_child_2', 'meth') ==
-            ('module_a.submodule.ModTopLevel.mod_child_2', ('module', 'method')))
+            ('module_a.submodule.ModTopLevel.mod_child_2',
+             ('module', 'module-a-submodule-modtoplevel-mod-child-2', 'method')))
     assert (find_obj('module_b.submodule', 'ModTopLevel', 'module_a.submodule', 'mod') ==
-            ('module_a.submodule', ('module', 'module')))
+            ('module_a.submodule',
+             ('module', 'module-module-a-submodule', 'module')))
 
 
 def test_get_full_qualified_name():
@@ -198,7 +205,7 @@ def test_js_class(app):
                                                     [desc_parameterlist, ()])],
                                   [desc_content, ()])]))
     assert_node(doctree[0], addnodes.index,
-                entries=[("single", "Application() (class)", "Application", "", None)])
+                entries=[("single", "Application() (class)", "application", "", None)])
     assert_node(doctree[1], addnodes.desc, domain="js", objtype="class", noindex=False)
 
 

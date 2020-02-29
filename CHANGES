@@ -23,6 +23,10 @@ Incompatible changes
 * Due to the scoping changes for :rst:dir:`productionlist` some uses of
   :rst:role:`token` must be modified to include the scope which was previously
   ignored.
+* #6903: js domain: Internal data structure has changed. Both objects and
+  modules have node_id for cross reference
+* #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
+  to ``.. js:function:: parseInt``
 
 Deprecated
 ----------
@@ -58,6 +62,7 @@ Features added
 * #7032: html: :confval:`html_scaled_image_link` will be disabled for images having
   ``no-scaled-link`` class
 * #7144: Add CSS class indicating its domain for each desc node
+* #7211: latex: Use babel for Chinese document when using XeLaTeX
 * #7220: genindex: Show "main" index entries at first
 
 Bugs fixed
