@@ -159,6 +159,37 @@ the ``--pre`` flag.
    $ pip install -U --pre sphinx
 
 
+Docker
+------
+
+Docker images for Sphinx are published on the `Docker Hub <https://hub.docker.com/>`_. There are two kind of images:
+
+- `sphinxdoc/sphinx <https://hub.docker.com/repository/docker/sphinxdoc/sphinx>`_
+- `sphinxdoc/sphinx-latexpdf <https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf>`_
+
+Former one is used for standard usage of Sphinx, and latter one is mainly used for PDF builds using LaTeX. 
+Please choose one for your purpose.
+
+.. note::
+
+   sphinxdoc/sphinx-latexpdf contains TeXLive packages. So the image is very large (over 2GB!).
+
+.. hint::
+
+   When using docker images, please use ``docker run`` command to invoke sphinx commands.  For example,
+   you can use following command to create a Sphinx project::
+
+      $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
+
+   And you can following command this to build HTML document::
+
+      $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make html
+
+For more details, please read `README file`__ of docker images.
+
+.. __: https://hub.docker.com/repository/docker/sphinxdoc/sphinx
+
+
 Installation from source
 ------------------------
 
