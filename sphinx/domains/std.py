@@ -489,27 +489,35 @@ class ProductionList(SphinxDirective):
             subnode = addnodes.production(rule)
             subnode['tokenname'] = name.strip()
             if subnode['tokenname']:
-                # nodes.make_id converts '_' to '-',
-                # so we can use '_' to delimit group from name,
-                # and make sure we don't clash with other IDs.
-                idname = 'grammar-token-%s_%s' \
-                         % (nodes.make_id(productionGroup), nodes.make_id(name))
-                if idname not in self.state.document.ids:
-                    subnode['ids'].append(idname)
+                prefix = 'grammar-token-%s' % productionGroup
+                node_id = make_id(self.env, self.state.document, prefix, name)
+                subnode['ids'].append(node_id)
 
-                idnameOld = nodes.make_id('grammar-token-' + name)
-                if idnameOld not in self.state.document.ids:
-                    subnode['ids'].append(idnameOld)
+                # Assign old styled node_id not to break old hyperlinks (if possible)
+                # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+                old_node_id = self.make_old_id(name)
+                if (old_node_id not in self.state.document.ids and
+                        old_node_id not in subnode['ids']):
+                    subnode['ids'].append(old_node_id)
+
                 self.state.document.note_implicit_target(subnode, subnode)
+
                 if len(productionGroup) != 0:
                     objName = "%s:%s" % (productionGroup, name)
                 else:
                     objName = name
-                domain.note_object(objtype='token', name=objName, labelid=idname,
-                                   location=node)
+                domain.note_object('token', objName, node_id, location=node)
             subnode.extend(token_xrefs(tokens, productionGroup))
             node.append(subnode)
         return [node]
+
+    def make_old_id(self, token: str) -> str:
+        """Generate old styled node_id for tokens.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return nodes.make_id('grammar-token-' + token)
 
 
 class TokenXRefRole(XRefRole):
