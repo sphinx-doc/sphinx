@@ -113,6 +113,21 @@ def test_create_seealso_index(app):
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
+def test_create_main_index(app):
+    text = (".. index:: !docutils\n"
+            ".. index:: docutils\n"
+            ".. index:: pip; install\n"
+            ".. index:: !pip; install\n")
+    restructuredtext.parse(app, text)
+    index = IndexEntries(app.env).create_index(app.builder)
+    assert len(index) == 2
+    assert index[0] == ('D', [('docutils', [[('main', '#index-0'),
+                                             ('', '#index-1')], [], None])])
+    assert index[1] == ('P', [('pip', [[], [('install', [('main', '#index-3'),
+                                                         ('', '#index-2')])], None])])
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
 def test_create_index_with_name(app):
     text = (".. index:: single: docutils\n"
             "   :name: ref1\n"

@@ -58,6 +58,7 @@ Features added
 * #7032: html: :confval:`html_scaled_image_link` will be disabled for images having
   ``no-scaled-link`` class
 * #7144: Add CSS class indicating its domain for each desc node
+* #7220: genindex: Show "main" index entries at first
 
 Bugs fixed
 ----------
