@@ -176,34 +176,20 @@ Please choose one for your purpose.
 
    sphinxdoc/sphinx-latexpdf contains TeXLive packages. So the image is very large (over 2GB!).
 
-.. todo:: The description after this line is not about "installation". So it might be better to move other place.
+.. hint::
 
-You can create a Sphinx project::
+   When using docker images, please use ``docker run`` command to invoke sphinx commands.  For example,
+   you can use following command to create a Sphinx project::
 
-   $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
+      $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
 
-You can build HTML document::
+   And you can following command this to build HTML document::
 
-   $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make html
+      $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make html
 
-You can build EPUB document::
+For more details, please read `README file`__ of docker images.
 
-   $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make epub
-
-You can build PDF document::
-
-   $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx-latexpdf make latexpdf
-
-If you would like to install dependencies, use sphinxdoc/sphinx as a base image
-
-.. code-block:: docker
-
-   # in your Dockerfile
-   FROM sphinxdoc/sphinx
-
-   WORKDIR /docs
-   ADD requirements.txt /docs
-   RUN pip3 install -r requirements.txt
+.. __: https://hub.docker.com/repository/docker/sphinxdoc/sphinx
 
 
 Installation from source
