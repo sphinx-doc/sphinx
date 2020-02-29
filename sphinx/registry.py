@@ -347,7 +347,7 @@ class SphinxComponentRegistry:
 
     def add_translator(self, name: str, translator: "Type[nodes.NodeVisitor]",
                        override: bool = False) -> None:
-        logger.debug('[app] Change of translator for the %s builder.' % name)
+        logger.debug('[app] Change of translator for the %s builder.', name)
         if name in self.translators and not override:
             raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
