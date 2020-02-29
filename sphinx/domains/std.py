@@ -214,16 +214,18 @@ class Cmdoption(ObjectDescription):
     def add_target_and_index(self, firstname: str, sig: str, signode: desc_signature) -> None:
         currprogram = self.env.ref_context.get('std:program')
         for optname in signode.get('allnames', []):
-            targetname = optname.replace('/', '-')
-            if not targetname.startswith('-'):
-                targetname = '-arg-' + targetname
+            prefixes = ['cmdoption']
             if currprogram:
-                targetname = '-' + currprogram + targetname
-            targetname = 'cmdoption' + targetname
-            signode['names'].append(targetname)
+                prefixes.append(currprogram)
+            if not optname.startswith(('-', '/')):
+                prefixes.append('arg')
+            prefix = '-'.join(prefixes)
+            node_id = make_id(self.env, self.state.document, prefix, optname)
+            signode['ids'].append(node_id)
+
+        self.state.document.note_explicit_target(signode)
 
         domain = cast(StandardDomain, self.env.get_domain('std'))
-        self.state.document.note_explicit_target(signode)
         for optname in signode.get('allnames', []):
             domain.add_program_option(currprogram, optname,
                                       self.env.docname, signode['ids'][0])
