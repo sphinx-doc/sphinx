@@ -161,34 +161,6 @@ the ``--pre`` flag.
    $ pip install -U --pre sphinx
 
 
-Installation from source
-------------------------
-
-You can install Sphinx directly from a clone of the `Git repository`__.  This
-can be done either by cloning the repo and installing from the local clone, on
-simply installing directly via :command:`git`.
-
-::
-
-   $ git clone https://github.com/sphinx-doc/sphinx
-   $ cd sphinx
-   $ pip install .
-
-::
-
-   $ pip install git+https://github.com/sphinx-doc/sphinx
-
-You can also download a snapshot of the Git repo in either `tar.gz`__ or
-`zip`__ format.  Once downloaded and extracted, these can be installed with
-:command:`pip` as above.
-
-.. highlight:: default
-
-__ https://github.com/sphinx-doc/sphinx
-__ https://github.com/sphinx-doc/sphinx/archive/master.tar.gz
-__ https://github.com/sphinx-doc/sphinx/archive/master.zip
-
-
 Docker
 ------
 
@@ -232,3 +204,31 @@ If you would like to install dependencies, use sphinxdoc/sphinx as a base image
    WORKDIR /docs
    ADD requirements.txt /docs
    RUN pip3 install -r requirements.txt
+
+
+Installation from source
+------------------------
+
+You can install Sphinx directly from a clone of the `Git repository`__.  This
+can be done either by cloning the repo and installing from the local clone, on
+simply installing directly via :command:`git`.
+
+::
+
+   $ git clone https://github.com/sphinx-doc/sphinx
+   $ cd sphinx
+   $ pip install .
+
+::
+
+   $ pip install git+https://github.com/sphinx-doc/sphinx
+
+You can also download a snapshot of the Git repo in either `tar.gz`__ or
+`zip`__ format.  Once downloaded and extracted, these can be installed with
+:command:`pip` as above.
+
+.. highlight:: default
+
+__ https://github.com/sphinx-doc/sphinx
+__ https://github.com/sphinx-doc/sphinx/archive/master.tar.gz
+__ https://github.com/sphinx-doc/sphinx/archive/master.zip
