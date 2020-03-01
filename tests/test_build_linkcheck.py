@@ -67,9 +67,6 @@ def test_defaults_json(app, status, warning):
     assert dnerow['status'] == 'broken'
     assert dnerow['code'] == 0
     assert dnerow['uri'] == 'https://localhost:7777/doesnotexist'
-    #assert dnerow['info'] == "HTTPSConnectionPool(host='localhost', port=7777): Max retries exceeded with url: /doesnotexist (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x7f447b3b9710>: Failed to establish a new connection: [Errno 111] Connection refused'))"
-    #assert "[Errno 111] Connection refused" in dnerow['info']
-    #assert "[WinError 10061] No connection could be made because the target machine actively refused it'" in dnerow['info']
     assert rowsby['https://www.google.com/image2.png'] == {
         'filename': 'links.txt',
         'lineno': 16,
