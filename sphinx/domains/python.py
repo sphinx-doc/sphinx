@@ -358,19 +358,22 @@ class PyObject(ObjectDescription):
                              signode: desc_signature) -> None:
         modname = self.options.get('module', self.env.ref_context.get('py:module'))
         fullname = (modname + '.' if modname else '') + name_cls[0]
-        # note target
-        if fullname not in self.state.document.ids:
-            signode['names'].append(fullname)
-            signode['ids'].append(fullname)
-            self.state.document.note_explicit_target(signode)
+        node_id = make_id(self.env, self.state.document, modname or '', name_cls[0])
+        signode['ids'].append(node_id)
 
-            domain = cast(PythonDomain, self.env.get_domain('py'))
-            domain.note_object(fullname, self.objtype, location=signode)
+        # Assign old styled node_id(fullname) not to break old hyperlinks (if possible)
+        # Note: Will removed in Sphinx-5.0  (RemovedInSphinx50Warning)
+        if node_id != fullname and fullname not in self.state.document.ids:
+            signode['ids'].append(fullname)
+
+        self.state.document.note_explicit_target(signode)
+
+        domain = cast(PythonDomain, self.env.get_domain('py'))
+        domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
-            self.indexnode['entries'].append(('single', indextext,
-                                              fullname, '', None))
+            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def before_content(self) -> None:
         """Handle object nesting before content
@@ -805,7 +808,7 @@ class PyModule(SphinxDirective):
                                self.options.get('synopsis', ''),
                                self.options.get('platform', ''),
                                'deprecated' in self.options)
-            domain.note_object(modname, 'module', location=target)
+            domain.note_object(modname, 'module', node_id, location=target)
 
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
@@ -1008,10 +1011,10 @@ class PythonDomain(Domain):
     ]
 
     @property
-    def objects(self) -> Dict[str, Tuple[str, str]]:
-        return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+    def objects(self) -> Dict[str, Tuple[str, str, str]]:
+        return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
 
-    def note_object(self, name: str, objtype: str, location: Any = None) -> None:
+    def note_object(self, name: str, objtype: str, node_id: str, location: Any = None) -> None:
         """Note a python object for cross reference.
 
         .. versionadded:: 2.1
@@ -1021,7 +1024,7 @@ class PythonDomain(Domain):
             logger.warning(__('duplicate object description of %s, '
                               'other instance in %s, use :noindex: for one of them'),
                            name, docname, location=location)
-        self.objects[name] = (self.env.docname, objtype)
+        self.objects[name] = (self.env.docname, node_id, objtype)
 
     @property
     def modules(self) -> Dict[str, Tuple[str, str, str, str, bool]]:
@@ -1036,7 +1039,7 @@ class PythonDomain(Domain):
         self.modules[name] = (self.env.docname, node_id, synopsis, platform, deprecated)
 
     def clear_doc(self, docname: str) -> None:
-        for fullname, (fn, _l) in list(self.objects.items()):
+        for fullname, (fn, _x, _x) in list(self.objects.items()):
             if fn == docname:
                 del self.objects[fullname]
         for modname, (fn, _x, _x, _x, _y) in list(self.modules.items()):
@@ -1045,16 +1048,16 @@ class PythonDomain(Domain):
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates?
-        for fullname, (fn, objtype) in otherdata['objects'].items():
+        for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                self.objects[fullname] = (fn, objtype)
+                self.objects[fullname] = (fn, node_id, objtype)
         for modname, data in otherdata['modules'].items():
             if data[0] in docnames:
                 self.modules[modname] = data
 
     def find_obj(self, env: BuildEnvironment, modname: str, classname: str,
                  name: str, type: str, searchmode: int = 0
-                 ) -> List[Tuple[str, Tuple[str, str]]]:
+                 ) -> List[Tuple[str, Tuple[str, str, str]]]:
         """Find a Python object for "name", perhaps using the given module
         and/or classname.  Returns a list of (name, object entry) tuples.
         """
@@ -1065,7 +1068,7 @@ class PythonDomain(Domain):
         if not name:
             return []
 
-        matches = []  # type: List[Tuple[str, Tuple[str, str]]]
+        matches = []  # type: List[Tuple[str, Tuple[str, str, str]]]
 
         newname = None
         if searchmode == 1:
@@ -1076,20 +1079,20 @@ class PythonDomain(Domain):
             if objtypes is not None:
                 if modname and classname:
                     fullname = modname + '.' + classname + '.' + name
-                    if fullname in self.objects and self.objects[fullname][1] in objtypes:
+                    if fullname in self.objects and self.objects[fullname][2] in objtypes:
                         newname = fullname
                 if not newname:
                     if modname and modname + '.' + name in self.objects and \
-                       self.objects[modname + '.' + name][1] in objtypes:
+                       self.objects[modname + '.' + name][2] in objtypes:
                         newname = modname + '.' + name
-                    elif name in self.objects and self.objects[name][1] in objtypes:
+                    elif name in self.objects and self.objects[name][2] in objtypes:
                         newname = name
                     else:
                         # "fuzzy" searching mode
                         searchname = '.' + name
                         matches = [(oname, self.objects[oname]) for oname in self.objects
                                    if oname.endswith(searchname) and
-                                   self.objects[oname][1] in objtypes]
+                                   self.objects[oname][2] in objtypes]
         else:
             # NOTE: searching for exact match, object type is not considered
             if name in self.objects:
@@ -1137,10 +1140,10 @@ class PythonDomain(Domain):
                            type='ref', subtype='python', location=node)
         name, obj = matches[0]
 
-        if obj[1] == 'module':
+        if obj[2] == 'module':
             return self._make_module_refnode(builder, fromdocname, name, contnode)
         else:
-            return make_refnode(builder, fromdocname, obj[0], name, contnode, name)
+            return make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
@@ -1152,13 +1155,13 @@ class PythonDomain(Domain):
         # always search in "refspecific" mode with the :any: role
         matches = self.find_obj(env, modname, clsname, target, None, 1)
         for name, obj in matches:
-            if obj[1] == 'module':
+            if obj[2] == 'module':
                 results.append(('py:mod',
                                 self._make_module_refnode(builder, fromdocname,
                                                           name, contnode)))
             else:
-                results.append(('py:' + self.role_for_objtype(obj[1]),
-                                make_refnode(builder, fromdocname, obj[0], name,
+                results.append(('py:' + self.role_for_objtype(obj[2]),
+                                make_refnode(builder, fromdocname, obj[0], obj[1],
                                              contnode, name)))
         return results
 
@@ -1178,9 +1181,9 @@ class PythonDomain(Domain):
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
         for modname, info in self.modules.items():
             yield (modname, modname, 'module', info[0], info[1], 0)
-        for refname, (docname, type) in self.objects.items():
+        for refname, (docname, node_id, type) in self.objects.items():
             if type != 'module':  # modules are already handled
-                yield (refname, refname, type, docname, refname, 1)
+                yield (refname, refname, type, docname, node_id, 1)
 
     def get_full_qualified_name(self, node: Element) -> str:
         modname = node.get('py:module')
