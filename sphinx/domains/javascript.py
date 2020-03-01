@@ -34,24 +34,6 @@ from sphinx.util.nodes import make_id, make_refnode
 logger = logging.getLogger(__name__)
 
 
-def make_old_jsmod_id(modname: str) -> str:
-    """Generate old styled node_id for JS modules.
-
-    .. note:: Old Styled node_id was used until Sphinx-3.0.
-              This will be removed in Sphinx-5.0.
-    """
-    return 'module-' + modname
-
-
-def make_old_jsobj_id(fullname: str) -> str:
-    """Generate old styled node_id for JS objects.
-
-    .. note:: Old Styled node_id was used until Sphinx-3.0.
-              This will be removed in Sphinx-5.0.
-    """
-    return fullname.replace('$', '_S_')
-
-
 class JSObject(ObjectDescription):
     """
     Description of a JavaScript object.
@@ -129,7 +111,7 @@ class JSObject(ObjectDescription):
 
         # Assign old styled node_id not to break old hyperlinks (if possible)
         # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-        old_node_id = make_old_jsobj_id(fullname)
+        old_node_id = self.make_old_id(fullname)
         if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
             signode['ids'].append(old_node_id)
 
@@ -211,6 +193,14 @@ class JSObject(ObjectDescription):
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
 
+    def make_old_id(self, fullname: str) -> str:
+        """Generate old styled node_id for JS objects.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return fullname.replace('$', '_S_')
+
 
 class JSCallable(JSObject):
     """Description of a JavaScript function, method or constructor."""
@@ -282,7 +272,7 @@ class JSModule(SphinxDirective):
 
             # Assign old styled node_id not to break old hyperlinks (if possible)
             # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-            old_node_id = make_old_jsmod_id(mod_name)
+            old_node_id = self.make_old_id(mod_name)
             if old_node_id not in self.state.document.ids and old_node_id not in target['ids']:
                 target['ids'].append(old_node_id)
 
@@ -292,6 +282,14 @@ class JSModule(SphinxDirective):
             inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
         return ret
+
+    def make_old_id(self, modname: str) -> str:
+        """Generate old styled node_id for JS modules.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return 'module-' + modname
 
 
 class JSXRefRole(XRefRole):
