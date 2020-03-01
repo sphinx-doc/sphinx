@@ -45,7 +45,6 @@ package.
 
 .. automethod:: Sphinx.add_enumerable_node(node, figtype, title_getter=None, \*\*kwds)
 
-.. method:: Sphinx.add_directive(name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive(name, directiveclass)
 
 .. automethod:: Sphinx.add_role(name, role)
@@ -54,7 +53,6 @@ package.
 
 .. automethod:: Sphinx.add_domain(domain)
 
-.. method:: Sphinx.add_directive_to_domain(domain, name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive_to_domain(domain, name, directiveclass)
 
 .. automethod:: Sphinx.add_role_to_domain(domain, name, role)
@@ -107,6 +105,7 @@ Emitting events
 ---------------
 
 .. class:: Sphinx
+   :noindex:
 
    .. automethod:: emit(event, \*arguments)
 

@@ -227,6 +227,7 @@ them to generate links or output multiply used elements.
    documents.
 
 .. function:: pathto(file, 1)
+   :noindex:
 
    Return the path to a *file* which is a filename relative to the root of the
    generated output.  Use this to refer to static files.
@@ -412,10 +413,6 @@ are in HTML form), these variables are also available:
    The name of the copied source file for the current document.  This is only
    nonempty if the :confval:`html_copy_source` value is ``True``.
    This has empty value on creating automatically-generated files.
-
-.. data:: title
-
-   The page title.
 
 .. data:: toc
 
