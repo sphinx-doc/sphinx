@@ -94,9 +94,9 @@ class IndexEntries:
             return (not main, uri)  # show main entries at first
 
         for indexentry in new.values():
-            indexentry[0] = sorted(indexentry[0], key=keyfunc0)
+            indexentry[0].sort(key=keyfunc0)
             for subentry in indexentry[1].values():
-                subentry[0] = sorted(subentry[0], key=keyfunc0)  # type: ignore
+                subentry[0].sort(key=keyfunc0)  # type: ignore
 
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
