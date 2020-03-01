@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import json
 import queue
 import re
 import socket
@@ -90,6 +91,8 @@ class CheckExternalLinksBuilder(Builder):
         socket.setdefaulttimeout(5.0)
         # create output file
         open(path.join(self.outdir, 'output.txt'), 'w').close()
+        # create JSON output file
+        open(path.join(self.outdir, 'output.json'), 'w').close()
 
         # create queues and worker threads
         self.wqueue = queue.Queue()  # type: queue.Queue
@@ -225,9 +228,16 @@ class CheckExternalLinksBuilder(Builder):
 
     def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
         uri, docname, lineno, status, info, code = result
+
+        filename = self.env.doc2path(docname, None)
+        linkstat = dict(filename=filename, lineno=lineno,
+                        status=status, code=code, uri=uri,
+                        info=info)
         if status == 'unchecked':
+            self.write_linkstat(linkstat)
             return
         if status == 'working' and info == 'old':
+            self.write_linkstat(linkstat)
             return
         if lineno:
             logger.info('(line %4d) ', lineno, nonl=True)
@@ -236,18 +246,22 @@ class CheckExternalLinksBuilder(Builder):
                 logger.info(darkgray('-ignored- ') + uri + ': ' + info)
             else:
                 logger.info(darkgray('-ignored- ') + uri)
+            self.write_linkstat(linkstat)
         elif status == 'local':
             logger.info(darkgray('-local-   ') + uri)
-            self.write_entry('local', docname, lineno, uri)
+            self.write_entry('local', docname, filename, lineno, uri)
+            self.write_linkstat(linkstat)
         elif status == 'working':
             logger.info(darkgreen('ok        ') + uri + info)
+            self.write_linkstat(linkstat)
         elif status == 'broken':
-            self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
                 logger.warning(__('broken link: %s (%s)'), uri, info,
-                               location=(self.env.doc2path(docname), lineno))
+                               location=(filename, lineno))
             else:
                 logger.info(red('broken    ') + uri + red(' - ' + info))
+            self.write_entry('broken', docname, filename, lineno, uri + ': ' + info)
+            self.write_linkstat(linkstat)
         elif status == 'redirected':
             try:
                 text, color = {
@@ -259,9 +273,11 @@ class CheckExternalLinksBuilder(Builder):
                 }[code]
             except KeyError:
                 text, color = ('with unknown code', purple)
-            self.write_entry('redirected ' + text, docname, lineno,
-                             uri + ' to ' + info)
+            linkstat['text'] = text
             logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
+            self.write_entry('redirected ' + text, docname, filename,
+                             lineno, uri + ' to ' + info)
+            self.write_linkstat(linkstat)
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
@@ -301,10 +317,15 @@ class CheckExternalLinksBuilder(Builder):
         if self.broken:
             self.app.statuscode = 1
 
-    def write_entry(self, what: str, docname: str, line: int, uri: str) -> None:
-        with open(path.join(self.outdir, 'output.txt'), 'a', encoding='utf-8') as output:
-            output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
-                                               line, what, uri))
+    def write_entry(self, what: str, docname: str, filename: str, line: int,
+                    uri: str) -> None:
+        with open(path.join(self.outdir, 'output.txt'), 'a') as output:
+            output.write("%s:%s: [%s] %s\n" % (filename, line, what, uri))
+
+    def write_linkstat(self, data: dict) -> None:
+        with open(path.join(self.outdir, 'output.json'), 'a') as output:
+            output.write(json.dumps(data))
+            output.write('\n')
 
     def finish(self) -> None:
         for worker in self.workers:
