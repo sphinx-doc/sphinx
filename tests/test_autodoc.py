@@ -1582,3 +1582,30 @@ def test_singledispatch():
         '   A function for general use.',
         '   '
     ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='singledispatchmethod is available since python3.8')
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatchmethod():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatchmethod', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatchmethod',
+        '',
+        '',
+        '.. py:class:: Foo',
+        '   :module: target.singledispatchmethod',
+        '',
+        '   docstring',
+        '   ',
+        '   ',
+        '   .. py:method:: Foo.meth(arg, kwarg=None)',
+        '      Foo.meth(arg: int, kwarg=None)',
+        '      Foo.meth(arg: str, kwarg=None)',
+        '      :module: target.singledispatchmethod',
+        '   ',
+        '      A method for general use.',
+        '      '
+    ]

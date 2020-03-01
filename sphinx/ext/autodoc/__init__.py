@@ -1457,6 +1457,66 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         pass
 
 
+class SingledispatchMethodDocumenter(MethodDocumenter):
+    """
+    Specialized Documenter subclass for singledispatch'ed methods.
+    """
+    objtype = 'singledispatch_method'
+    directivetype = 'method'
+    member_order = 50
+
+    # before MethodDocumenter
+    priority = MethodDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        if super().can_document_member(member, membername, isattr, parent) and parent.object:
+            meth = parent.object.__dict__.get(membername)
+            return inspect.is_singledispatch_method(meth)
+        else:
+            return False
+
+    def add_directive_header(self, sig: str) -> None:
+        sourcename = self.get_sourcename()
+
+        # intercept generated directive headers
+        # TODO: It is very hacky to use mock to intercept header generation
+        with patch.object(self, 'add_line') as add_line:
+            super().add_directive_header(sig)
+
+        # output first line of header
+        self.add_line(*add_line.call_args_list[0][0])
+
+        # inserts signature of singledispatch'ed functions
+        meth = self.parent.__dict__.get(self.objpath[-1])
+        for typ, func in meth.dispatcher.registry.items():
+            if typ is object:
+                pass  # default implementation. skipped.
+            else:
+                self.annotate_to_first_argument(func, typ)
+
+                documenter = MethodDocumenter(self.directive, '')
+                documenter.object = func
+                self.add_line('   %s%s' % (self.format_name(),
+                                           documenter.format_signature()),
+                              sourcename)
+
+        # output remains of directive header
+        for call in add_line.call_args_list[1:]:
+            self.add_line(*call[0])
+
+    def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
+        """Annotate type hint to the first argument of function if needed."""
+        sig = inspect.signature(func, bound_method=True)
+        if len(sig.parameters) == 0:
+            return
+
+        name = list(sig.parameters)[0]
+        if name not in func.__annotations__:
+            func.__annotations__[name] = typ
+
+
 class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for attributes.
@@ -1672,6 +1732,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(SingledispatchFunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
+    app.add_autodocumenter(SingledispatchMethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)

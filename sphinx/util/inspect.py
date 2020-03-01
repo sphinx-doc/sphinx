@@ -235,6 +235,15 @@ def is_singledispatch_function(obj: Any) -> bool:
         return False
 
 
+def is_singledispatch_method(obj: Any) -> bool:
+    """Check if the object is singledispatch method."""
+    try:
+        from functools import singledispatchmethod  # type: ignore
+        return isinstance(obj, singledispatchmethod)
+    except ImportError:  # py35-37
+        return False
+
+
 def isfunction(obj: Any) -> bool:
     """Check if the object is function."""
     return inspect.isfunction(unwrap(obj))
