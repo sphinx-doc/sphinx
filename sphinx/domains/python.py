@@ -621,9 +621,7 @@ class PyClassmember(PyObject):
 
 
 class PyClassMemberMixin(_PyObjectMixinBase):
-    def _split_member_name(
-        self: PyObject, mod: str, name: str
-    ) -> Tuple[Optional[str], str]:
+    def _split_member_name(self, mod: str, name: str) -> Tuple[Optional[str], str]:
         try:
             clsname, selfname = name.rsplit('.', 1)
             if mod and self.env.config.add_module_names:
