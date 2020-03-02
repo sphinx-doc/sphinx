@@ -13,6 +13,7 @@ import inspect
 import re
 import typing
 import warnings
+from abc import ABC
 from inspect import Parameter
 from typing import Any, Optional, Dict, Iterable, Iterator, List, Tuple
 from typing import cast, TYPE_CHECKING
@@ -41,9 +42,6 @@ from sphinx.util.typing import TextlikeNode
 if TYPE_CHECKING:
     # For type annotation
     from typing import Type  # for python3.5.1
-    _PyObjectMixinBase = 'PyObject'
-else:
-    _PyObjectMixinBase = object
 
 logger = logging.getLogger(__name__)
 
@@ -620,7 +618,7 @@ class PyClassmember(PyObject):
             return ''
 
 
-class PyClassMemberMixin(_PyObjectMixinBase):
+class PyClassMemberBase(PyObject, ABC):
     def _split_member_name(self, mod: str, name: str) -> Tuple[Optional[str], str]:
         try:
             clsname, selfname = name.rsplit('.', 1)
@@ -636,7 +634,7 @@ class PyClassMemberMixin(_PyObjectMixinBase):
                 return None, name
 
 
-class PyMethod(PyClassMemberMixin, PyObject):
+class PyMethod(PyClassMemberBase):
     """Description of a method."""
 
     option_spec = PyObject.option_spec.copy()
@@ -711,7 +709,7 @@ class PyStaticMethod(PyMethod):
         return super().run()
 
 
-class PyAttribute(PyClassMemberMixin, PyObject):
+class PyAttribute(PyClassMemberBase):
     """Description of an attribute."""
 
     option_spec = PyObject.option_spec.copy()
@@ -740,7 +738,7 @@ class PyAttribute(PyClassMemberMixin, PyObject):
         return _('%s (%s attribute)') % (attrname, clsname)
 
 
-class PyProperty(PyClassMemberMixin, PyObject):
+class PyProperty(PyClassMemberBase):
     """Description of a property."""
 
     option_spec = PyObject.option_spec.copy()
