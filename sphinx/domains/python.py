@@ -15,7 +15,7 @@ import typing
 import warnings
 from inspect import Parameter
 from typing import Any, Optional, Dict, Iterable, Iterator, List, Tuple
-from typing import cast
+from typing import cast, TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -38,9 +38,12 @@ from sphinx.util.inspect import signature_from_str
 from sphinx.util.nodes import make_id, make_refnode
 from sphinx.util.typing import TextlikeNode
 
-if False:
+if TYPE_CHECKING:
     # For type annotation
     from typing import Type  # for python3.5.1
+    _PyObjectMixinBase = 'PyObject'
+else:
+    _PyObjectMixinBase = object
 
 logger = logging.getLogger(__name__)
 
@@ -617,7 +620,7 @@ class PyClassmember(PyObject):
             return ''
 
 
-class PyClassMemberMixin:
+class PyClassMemberMixin(_PyObjectMixinBase):
     def _split_member_name(
         self: PyObject, mod: str, name: str
     ) -> Tuple[Optional[str], str]:
