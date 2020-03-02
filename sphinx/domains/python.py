@@ -614,7 +614,23 @@ class PyClassmember(PyObject):
             return ''
 
 
-class PyMethod(PyObject):
+class PyClassMemberMixin:
+    def _split_member_name(self, mod: str, name: str):
+        try:
+            clsname, selfname = name.rsplit('.', 1)
+            if mod and self.env.config.add_module_names:
+                clsname = '.'.join([mod, clsname])
+            return clsname, selfname
+        except ValueError:
+            if mod:
+                return None, _('%s() (in module %s)') % (name, mod)
+            elif self.needs_arglist():
+                return None, '%s()' % name
+            else:
+                return None, name
+
+
+class PyMethod(PyClassMemberMixin, PyObject):
     """Description of a method."""
 
     option_spec = PyObject.option_spec.copy()
@@ -627,7 +643,8 @@ class PyMethod(PyObject):
     })
 
     def needs_arglist(self) -> bool:
-        return True
+        # deprecation warning emitted in get_signature_prefix
+        return 'property' not in self.options
 
     def get_signature_prefix(self, sig: str) -> str:
         prefix = []
@@ -652,16 +669,9 @@ class PyMethod(PyObject):
             return ''
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
-        name, cls = name_cls
-        try:
-            clsname, methname = name.rsplit('.', 1)
-            if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
-        except ValueError:
-            if modname:
-                return _('%s() (in module %s)') % (name, modname)
-            else:
-                return '%s()' % name
+        clsname, methname = self._split_member_name(modname, name_cls[0])
+        if clsname is None:
+            return methname
 
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
@@ -695,7 +705,7 @@ class PyStaticMethod(PyMethod):
         return super().run()
 
 
-class PyAttribute(PyObject):
+class PyAttribute(PyClassMemberMixin, PyObject):
     """Description of an attribute."""
 
     option_spec = PyObject.option_spec.copy()
@@ -703,7 +713,6 @@ class PyAttribute(PyObject):
         'type': directives.unchanged,
         'value': directives.unchanged,
     })
-    fmt = _('%s (%s attribute)')
 
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         fullname, prefix = super().handle_signature(sig, signode)
@@ -719,28 +728,20 @@ class PyAttribute(PyObject):
         return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
-        name, cls = name_cls
-        try:
-            clsname, attrname = name.rsplit('.', 1)
-            if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
-        except ValueError:
-            if modname:
-                return _('%s (in module %s)') % (name, modname)
-            else:
-                return name
-
-        return self.fmt % (attrname, clsname)
+        clsname, attrname = self._split_member_name(modname, name_cls[0])
+        if clsname is None:
+            return attrname
+        return _('%s (%s attribute)') % (attrname, clsname)
 
 
-class PyProperty(PyAttribute):
+class PyProperty(PyClassMemberMixin, PyObject):
     """Description of a property."""
 
-    option_spec = PyAttribute.option_spec.copy()
+    option_spec = PyObject.option_spec.copy()
     option_spec.update({
+        'type': directives.unchanged,
         'abstractmethod': directives.flag,
     })
-    fmt = _('%s (%s property)')
 
     def run(self) -> List[Node]:
         # properties and attributes need to be transparently switchable:
@@ -748,11 +749,26 @@ class PyProperty(PyAttribute):
         self.name = 'py:attribute'
         return super().run()
 
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        typ = self.options.get('type')
+        if typ:
+            signode += addnodes.desc_annotation(typ, ': ' + typ)
+
+        return fullname, prefix
+
     def get_signature_prefix(self, sig: str) -> str:
         prefix = 'property '
         if 'abstractmethod' in self.options:
             prefix = 'abstract ' + prefix
         return prefix
+
+    def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
+        clsname, propname = self._split_member_name(modname, name_cls[0])
+        if clsname is None:
+            return propname
+        return _('%s (%s property)') % (propname, clsname)
 
 
 class PyDecoratorMixin:
