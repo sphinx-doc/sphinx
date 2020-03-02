@@ -14,8 +14,8 @@ import re
 import typing
 import warnings
 from inspect import Parameter
-from typing import Any, Dict, Iterable, Iterator, List, Tuple, Type
-from typing import cast
+from typing import Any, Optional, Dict, Iterable, Iterator, List, Tuple
+from typing import cast, TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -38,6 +38,9 @@ from sphinx.util.inspect import signature_from_str
 from sphinx.util.nodes import make_id, make_refnode
 from sphinx.util.typing import TextlikeNode
 
+if TYPE_CHECKING:
+    # For type annotation
+    from typing import Type  # for python3.5.1
 
 logger = logging.getLogger(__name__)
 
@@ -614,8 +617,14 @@ class PyClassmember(PyObject):
             return ''
 
 
-class PyClassMemberMixin:
-    def _split_member_name(self, mod: str, name: str):
+# Mypy needs to know what kinds of objects this can be mixed into
+_Base = PyObject if TYPE_CHECKING else object
+
+
+class PyClassMemberMixin(_Base):
+    def _split_member_name(
+        self, mod: str, name: str
+    ) -> Tuple[Optional[str], str]:
         try:
             clsname, selfname = name.rsplit('.', 1)
             if mod and self.env.config.add_module_names:
