@@ -189,7 +189,13 @@ def test_domain_py_find_obj(app, status, warning):
 
     app.builder.build_all()
 
+    # not found
     assert (find_obj(None, None, 'NONEXISTANT', 'class') == [])
+
+    # objtype not matched
+    assert (find_obj(None, None, 'NestedParentA', 'func') == [])
+
+    # matched
     assert (find_obj(None, None, 'NestedParentA', 'class') ==
             [('NestedParentA', ('roles', 'nestedparenta', 'class'))])
     assert (find_obj(None, None, 'NestedParentA.NestedChildA', 'class') ==

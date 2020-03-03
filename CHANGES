@@ -92,6 +92,8 @@ Bugs fixed
 * #5637: autodoc: Incorrect handling of nested class names on show-inheritance
 * #5637: inheritance_diagram: Incorrect handling of nested class names
 * #7139: ``code-block:: guess`` does not work
+* #7243: py domain: All ``:py:`` roles can refer all kind of python objects even
+  if objtype not matched
 
 Testing
 --------

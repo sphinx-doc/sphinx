@@ -1068,14 +1068,14 @@ class PythonDomain(Domain):
         if not name:
             return []
 
-        matches = []  # type: List[Tuple[str, Tuple[str, str, str]]]
+        if type is None:
+            objtypes = list(self.object_types)
+        else:
+            objtypes = self.objtypes_for_role(type)
 
+        matches = []  # type: List[Tuple[str, Tuple[str, str, str]]]
         newname = None
         if searchmode == 1:
-            if type is None:
-                objtypes = list(self.object_types)
-            else:
-                objtypes = self.objtypes_for_role(type)
             if objtypes is not None:
                 if modname and classname:
                     fullname = modname + '.' + classname + '.' + name
@@ -1094,27 +1094,34 @@ class PythonDomain(Domain):
                                    if oname.endswith(searchname) and
                                    self.objects[oname][2] in objtypes]
         else:
-            # NOTE: searching for exact match, object type is not considered
-            if name in self.objects:
+            # NOTE: searching for exact match
+            if name in self.objects and self.objects[name][2] in objtypes:
                 newname = name
             elif type == 'mod':
-                # only exact matches allowed for modules
                 return []
-            elif classname and classname + '.' + name in self.objects:
-                newname = classname + '.' + name
-            elif modname and modname + '.' + name in self.objects:
-                newname = modname + '.' + name
-            elif modname and classname and \
-                    modname + '.' + classname + '.' + name in self.objects:
-                newname = modname + '.' + classname + '.' + name
-            # special case: builtin exceptions have module "exceptions" set
-            elif type == 'exc' and '.' not in name and \
-                    'exceptions.' + name in self.objects:
-                newname = 'exceptions.' + name
-            # special case: object methods
-            elif type in ('func', 'meth') and '.' not in name and \
-                    'object.' + name in self.objects:
-                newname = 'object.' + name
+
+            candidates = [name]
+            if type == 'mod':
+                # Only exact match is allowed for modules search
+                pass
+            else:
+                if classname:
+                    candidates.append(classname + '.' + name)
+                if modname:
+                    candidates.append(modname + '.' + name)
+                if modname and classname:
+                    candidates.append(modname + '.' + classname + '.' + name)
+                if type == 'exc' and '.' not in name:
+                    # special case: builtin exceptions have module "exceptions" set
+                    candidates.append('exceptions.' + name)
+                if type in ('func', 'meth') and '.' not in name:
+                    # special case: object methods
+                    candidates.append('object.' + name)
+
+            for fullname in candidates:
+                if fullname in self.objects and self.objects[fullname][2] in objtypes:
+                    newname = fullname
+
         if newname is not None:
             matches.append((newname, self.objects[newname]))
         return matches
