@@ -49,7 +49,8 @@ def stringify(annotation: Any) -> str:
         return repr(annotation)
     elif annotation is NoneType:  # type: ignore
         return 'None'
-    elif getattr(annotation, '__module__', None) == 'builtins':
+    elif (getattr(annotation, '__module__', None) == 'builtins' and
+          hasattr(annotation, '__qualname__')):
         return annotation.__qualname__
     elif annotation is Ellipsis:
         return '...'
@@ -88,6 +89,8 @@ def _stringify_py37(annotation: Any) -> str:
             args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
             returns = stringify(annotation.__args__[-1])
             return '%s[[%s], %s]' % (qualname, args, returns)
+        elif str(annotation).startswith('typing.Annotated'):  # for py39+
+            return stringify(annotation.__args__[0])
         elif annotation._special:
             return qualname
         else:
