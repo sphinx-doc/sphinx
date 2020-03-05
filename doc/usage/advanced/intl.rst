@@ -93,6 +93,8 @@ section describe an easy way to translate with *sphinx-intl*.
    This case-study assumes that :confval:`locale_dirs` is set to ``locale/`` and
    :confval:`gettext_compact` is set to ``False`` (the Sphinx document is
    already configured as such).
+   
+#. Make sure that ``sphinx.ext.intersphinx`` is included in your ``extensions`` in ``conf.py``.
 
 #. Extract translatable messages into pot files.
 
