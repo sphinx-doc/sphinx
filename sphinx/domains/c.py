@@ -27,7 +27,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, TypedField
-from sphinx.util.nodes import make_refnode
+from sphinx.util.nodes import make_id, make_refnode
 
 
 logger = logging.getLogger(__name__)
@@ -197,21 +197,23 @@ class CObject(ObjectDescription):
             return ''
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
-        # for C API items we add a prefix since names are usually not qualified
-        # by a module name and so easily clash with e.g. section titles
-        targetname = 'c.' + name
-        if targetname not in self.state.document.ids:
-            signode['names'].append(targetname)
-            signode['ids'].append(targetname)
-            self.state.document.note_explicit_target(signode)
+        node_id = make_id(self.env, self.state.document, 'c', name)
+        signode['ids'].append(node_id)
 
-            domain = cast(CDomain, self.env.get_domain('c'))
-            domain.note_object(name, self.objtype)
+        # Assign old styled node_id not to break old hyperlinks (if possible)
+        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+        old_node_id = self.make_old_id(name)
+        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
+            signode['ids'].append(old_node_id)
+
+        self.state.document.note_explicit_target(signode)
+
+        domain = cast(CDomain, self.env.get_domain('c'))
+        domain.note_object(name, self.objtype, node_id)
 
         indextext = self.get_index_text(name)
         if indextext:
-            self.indexnode['entries'].append(('single', indextext,
-                                              targetname, '', None))
+            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def before_content(self) -> None:
         self.typename_set = False
@@ -223,6 +225,14 @@ class CObject(ObjectDescription):
     def after_content(self) -> None:
         if self.typename_set:
             self.env.ref_context.pop('c:type', None)
+
+    def make_old_id(self, name: str) -> str:
+        """Generate old styled node_id for C objects.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return 'c.' + name
 
 
 class CXRefRole(XRefRole):
@@ -267,31 +277,31 @@ class CDomain(Domain):
         'type':   CXRefRole(),
     }
     initial_data = {
-        'objects': {},  # fullname -> docname, objtype
-    }  # type: Dict[str, Dict[str, Tuple[str, Any]]]
+        'objects': {},  # fullname -> docname, node_id, objtype
+    }  # type: Dict[str, Dict[str, Tuple[str, str, str]]]
 
     @property
-    def objects(self) -> Dict[str, Tuple[str, str]]:
-        return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+    def objects(self) -> Dict[str, Tuple[str, str, str]]:
+        return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
 
-    def note_object(self, name: str, objtype: str, location: Any = None) -> None:
+    def note_object(self, name: str, objtype: str, node_id: str, location: Any = None) -> None:
         if name in self.objects:
             docname = self.objects[name][0]
             logger.warning(__('duplicate C object description of %s, '
                               'other instance in %s, use :noindex: for one of them'),
                            name, docname, location=location)
-        self.objects[name] = (self.env.docname, objtype)
+        self.objects[name] = (self.env.docname, node_id, objtype)
 
     def clear_doc(self, docname: str) -> None:
-        for fullname, (fn, _l) in list(self.objects.items()):
+        for fullname, (fn, node_id, _l) in list(self.objects.items()):
             if fn == docname:
                 del self.objects[fullname]
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
-        for fullname, (fn, objtype) in otherdata['objects'].items():
+        for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                self.data['objects'][fullname] = (fn, objtype)
+                self.data['objects'][fullname] = (fn, node_id, objtype)
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
@@ -303,9 +313,8 @@ class CDomain(Domain):
             return contnode
         if target not in self.objects:
             return None
-        obj = self.objects[target]
-        return make_refnode(builder, fromdocname, obj[0], 'c.' + target,
-                            contnode, target)
+        docname, node_id, objtype = self.objects[target]
+        return make_refnode(builder, fromdocname, docname, node_id, contnode, target)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
@@ -314,14 +323,13 @@ class CDomain(Domain):
         target = target.rstrip(' *')
         if target not in self.objects:
             return []
-        obj = self.objects[target]
-        return [('c:' + self.role_for_objtype(obj[1]),
-                 make_refnode(builder, fromdocname, obj[0], 'c.' + target,
-                              contnode, target))]
+        docname, node_id, objtype = self.objects[target]
+        return [('c:' + self.role_for_objtype(objtype),
+                 make_refnode(builder, fromdocname, docname, node_id, contnode, target))]
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
-        for refname, (docname, type) in list(self.objects.items()):
-            yield (refname, refname, type, docname, 'c.' + refname, 1)
+        for refname, (docname, node_id, objtype) in list(self.objects.items()):
+            yield (refname, refname, objtype, docname, node_id, 1)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
