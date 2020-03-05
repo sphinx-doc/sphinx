@@ -60,9 +60,7 @@ class peek_iter:
         return self
 
     def __next__(self, n: int = None) -> Any:
-        # note: prevent 2to3 to transform self.next() in next(self) which
-        # causes an infinite loop !
-        return getattr(self, 'next')(n)
+        return self.next(n)
 
     def _fillcache(self, n: int) -> None:
         """Cache `n` items. If `n` is 0 or None, then 1 item is cached."""

@@ -10,12 +10,9 @@
 
 import gettext
 import locale
-import warnings
 from collections import UserString, defaultdict
 from gettext import NullTranslations
 from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
-
-from sphinx.deprecation import RemovedInSphinx30Warning
 
 
 class _TranslationProxy(UserString):
@@ -104,24 +101,6 @@ class _TranslationProxy(UserString):
             return 'i' + repr(str(self.data))
         except Exception:
             return '<%s broken>' % self.__class__.__name__
-
-
-def mygettext(string: str) -> str:
-    """Used instead of _ when creating TranslationProxies, because _ is
-    not bound yet at that time.
-    """
-    warnings.warn('sphinx.locale.mygettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    return _(string)
-
-
-def lazy_gettext(string: str) -> str:
-    """A lazy version of `gettext`."""
-    # if isinstance(string, _TranslationProxy):
-    #     return string
-    warnings.warn('sphinx.locale.laxy_gettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    return _TranslationProxy(mygettext, string)  # type: ignore
 
 
 translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
@@ -218,7 +197,7 @@ def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
     return translator.gettext(message)
 
 
-def get_translation(catalog, namespace='general'):
+def get_translation(catalog: str, namespace: str = 'general') -> Callable:
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the
@@ -264,12 +243,6 @@ _ = get_translation('sphinx')
 #: Translation function for console messages
 #: This function follows locale setting (`LC_ALL`, `LC_MESSAGES` and so on).
 __ = get_translation('sphinx', 'console')
-
-
-def l_(*args):
-    warnings.warn('sphinx.locale.l_() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    return _(*args)
 
 
 # labels

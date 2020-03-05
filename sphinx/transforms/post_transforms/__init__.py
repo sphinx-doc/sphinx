@@ -131,7 +131,7 @@ class ReferencesResolver(SphinxPostTransform):
         if not results:
             return None
         if len(results) > 1:
-            def stringify(name, node):
+            def stringify(name: str, node: Element) -> str:
                 reftitle = node.get('reftitle', node.astext())
                 return ':%s:`%s`' % (name, reftitle)
             candidates = ' or '.join(stringify(name, role) for name, role in results)

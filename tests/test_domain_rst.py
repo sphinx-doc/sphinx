@@ -76,7 +76,7 @@ def test_rst_directive_option(app):
                                   [desc_content, ()])]))
     assert_node(doctree[0],
                 entries=[("single", ":foo: (directive option)",
-                          "directive:option--foo", "", "F")])
+                          "directive-option-foo", "", "F")])
     assert_node(doctree[1], addnodes.desc, desctype="directive:option",
                 domain="rst", objtype="directive:option", noindex=False)
 
@@ -90,7 +90,7 @@ def test_rst_directive_option_with_argument(app):
                                   [desc_content, ()])]))
     assert_node(doctree[0],
                 entries=[("single", ":foo: (directive option)",
-                          "directive:option--foo", "", "F")])
+                          "directive-option-foo", "", "F")])
     assert_node(doctree[1], addnodes.desc, desctype="directive:option",
                 domain="rst", objtype="directive:option", noindex=False)
 
@@ -105,7 +105,7 @@ def test_rst_directive_option_type(app):
                                   [desc_content, ()])]))
     assert_node(doctree[0],
                 entries=[("single", ":foo: (directive option)",
-                          "directive:option--foo", "", "F")])
+                          "directive-option-foo", "", "F")])
     assert_node(doctree[1], addnodes.desc, desctype="directive:option",
                 domain="rst", objtype="directive:option", noindex=False)
 
@@ -121,7 +121,7 @@ def test_rst_directive_and_directive_option(app):
                                                   desc)])]))
     assert_node(doctree[1][1][0],
                 entries=[("pair", "foo (directive); :bar: (directive option)",
-                          "directive:option-foo-bar", "", "B")])
+                          "directive-option-foo-bar", "", "B")])
     assert_node(doctree[1][1][1], ([desc_signature, desc_name, ":bar:"],
                                    [desc_content, ()]))
     assert_node(doctree[1][1][1], addnodes.desc, desctype="directive:option",

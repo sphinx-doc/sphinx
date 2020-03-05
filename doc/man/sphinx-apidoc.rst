@@ -5,7 +5,7 @@ Synopsis
 --------
 
 **sphinx-apidoc** [*OPTIONS*] -o <*OUTPUT_PATH*> <*MODULE_PATH*>
-[*EXCLUDE_PATTERN*, ...]
+[*EXCLUDE_PATTERN* ...]
 
 Description
 -----------
@@ -38,6 +38,11 @@ Options
 .. option:: -o <OUTPUT_PATH>
 
    Directory to place the output files. If it does not exist, it is created.
+
+.. option:: -q
+
+   Do not output anything on standard output, only write warnings and errors to
+   standard error.
 
 .. option:: -f, --force
 

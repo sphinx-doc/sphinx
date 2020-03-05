@@ -12,7 +12,6 @@ import platform
 
 import pytest
 
-from sphinx.ext.autodoc import merge_autodoc_default_flags
 from test_autodoc import do_autodoc
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
@@ -479,11 +478,36 @@ def test_autodoc_typehints_signature(app):
         '   :module: target.typehints',
         '',
         '   ',
+        '   .. py:method:: Math.decr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '   ',
+        '   ',
+        '   .. py:method:: Math.horse(a: str, b: int) -> None',
+        '      :module: target.typehints',
+        '   ',
+        '   ',
         '   .. py:method:: Math.incr(a: int, b: int = 1) -> int',
         '      :module: target.typehints',
         '   ',
+        '   ',
+        '   .. py:method:: Math.nothing() -> None',
+        '      :module: target.typehints',
+        '   ',
+        '',
+        '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
+        'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: decr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        '',
         '',
         '.. py:function:: incr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: missing_attr(c, a: str, b: Optional[str] = None) -> str',
         '   :module: target.typehints',
         ''
     ]
@@ -505,35 +529,56 @@ def test_autodoc_typehints_none(app):
         '   :module: target.typehints',
         '',
         '   ',
+        '   .. py:method:: Math.decr(a, b=1)',
+        '      :module: target.typehints',
+        '   ',
+        '   ',
+        '   .. py:method:: Math.horse(a, b)',
+        '      :module: target.typehints',
+        '   ',
+        '   ',
         '   .. py:method:: Math.incr(a, b=1)',
         '      :module: target.typehints',
         '   ',
+        '   ',
+        '   .. py:method:: Math.nothing()',
+        '      :module: target.typehints',
+        '   ',
+        '',
+        '.. py:function:: complex_func(arg1, arg2, arg3=None, *args, **kwargs)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: decr(a, b=1)',
+        '   :module: target.typehints',
+        '',
         '',
         '.. py:function:: incr(a, b=1)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: missing_attr(c, a, b=None)',
         '   :module: target.typehints',
         ''
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-@pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
-def test_merge_autodoc_default_flags1(app):
-    app.config.autodoc_default_flags = ['members', 'undoc-members']
-    merge_autodoc_default_flags(app, app.config)
-    assert app.config.autodoc_default_options == {'members': None,
-                                                  'undoc-members': None}
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-@pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
-def test_merge_autodoc_default_flags2(app):
-    app.config.autodoc_default_flags = ['members', 'undoc-members']
-    app.config.autodoc_default_options = {'members': 'this,that,order',
-                                          'inherited-members': 'this'}
-    merge_autodoc_default_flags(app, app.config)
-    assert app.config.autodoc_default_options == {'members': None,
-                                                  'undoc-members': None,
-                                                  'inherited-members': 'this'}
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'extensions': ['sphinx.ext.autodoc.typehints'],
+                                   'autodoc_typehints': 'description'})
+def test_autodoc_typehints_description(app):
+    app.build()
+    context = (app.outdir / 'index.txt').read_text()
+    assert ('target.typehints.incr(a, b=1)\n'
+            '\n'
+            '   Parameters:\n'
+            '      * **a** (*int*) --\n'
+            '\n'
+            '      * **b** (*int*) --\n'
+            '\n'
+            '   Return type:\n'
+            '      int\n'
+            in context)
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -545,7 +590,7 @@ def test_autodoc_default_options(app):
     actual = do_autodoc(app, 'class', 'target.CustomIter')
     assert '   .. py:method:: target.CustomIter' not in actual
     actual = do_autodoc(app, 'module', 'target')
-    assert '.. py:function:: save_traceback(app: Sphinx) -> str' not in actual
+    assert '.. py:function:: save_traceback(app)' not in actual
 
     # with :members:
     app.config.autodoc_default_options = {'members': None}
@@ -608,16 +653,6 @@ def test_autodoc_default_options(app):
         assert '      list of weak references to the object (if defined)' in actual
     assert '   .. py:method:: CustomIter.snafucate()' in actual
     assert '      Makes this snafucated.' in actual
-
-    # with :imported-members:
-    app.config.autodoc_default_options = {
-        'members': None,
-        'imported-members': None,
-        'ignore-module-all': None,
-    }
-    actual = do_autodoc(app, 'module', 'target')
-    print('\n'.join(actual))
-    assert '.. py:function:: save_traceback(app: Sphinx) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

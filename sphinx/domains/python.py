@@ -10,6 +10,7 @@
 
 import re
 import warnings
+from inspect import Parameter
 from typing import Any, Dict, Iterable, Iterator, List, Tuple
 from typing import cast
 
@@ -17,13 +18,11 @@ from docutils import nodes
 from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 
-from sphinx import addnodes, locale
+from sphinx import addnodes
 from sphinx.addnodes import pending_xref, desc_signature
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import (
-    DeprecatedDict, RemovedInSphinx30Warning, RemovedInSphinx40Warning
-)
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
@@ -32,6 +31,7 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.inspect import signature_from_str
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import TextlikeNode
 
@@ -63,12 +63,46 @@ pairindextypes = {
     'builtin':   _('built-in function'),
 }
 
-locale.pairindextypes = DeprecatedDict(
-    pairindextypes,
-    'sphinx.locale.pairindextypes is deprecated. '
-    'Please use sphinx.domains.python.pairindextypes instead.',
-    RemovedInSphinx30Warning
-)
+
+def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
+    """Parse a list of arguments using AST parser"""
+    params = addnodes.desc_parameterlist(arglist)
+    sig = signature_from_str('(%s)' % arglist)
+    last_kind = None
+    for param in sig.parameters.values():
+        if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
+            # PEP-570: Separator for Positional Only Parameter: /
+            params += addnodes.desc_parameter('', nodes.Text('/'))
+        if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
+                                                              param.POSITIONAL_ONLY,
+                                                              None):
+            # PEP-3102: Separator for Keyword Only Parameter: *
+            params += addnodes.desc_parameter('', nodes.Text('*'))
+
+        node = addnodes.desc_parameter()
+        if param.kind == param.VAR_POSITIONAL:
+            node += nodes.Text('*' + param.name)
+        elif param.kind == param.VAR_KEYWORD:
+            node += nodes.Text('**' + param.name)
+        else:
+            node += nodes.Text(param.name)
+
+        if param.annotation is not param.empty:
+            node += nodes.Text(': ' + param.annotation)
+        if param.default is not param.empty:
+            if param.annotation is not param.empty:
+                node += nodes.Text(' = ' + str(param.default))
+            else:
+                node += nodes.Text('=' + str(param.default))
+
+        params += node
+        last_kind = param.kind
+
+    if last_kind == Parameter.POSITIONAL_ONLY:
+        # PEP-570: Separator for Positional Only Parameter: /
+        params += addnodes.desc_parameter('', nodes.Text('/'))
+
+    return params
 
 
 def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
@@ -293,7 +327,15 @@ class PyObject(ObjectDescription):
 
         signode += addnodes.desc_name(name, name)
         if arglist:
-            _pseudo_parse_arglist(signode, arglist)
+            try:
+                signode += _parse_arglist(arglist)
+            except SyntaxError:
+                # fallback to parse arglist original parser.
+                # it supports to represent optional arguments (ex. "func(foo [, bar])")
+                _pseudo_parse_arglist(signode, arglist)
+            except NotImplementedError as exc:
+                logger.warning("could not parse arglist (%r): %s", arglist, exc)
+                _pseudo_parse_arglist(signode, arglist)
         else:
             if self.needs_arglist():
                 # for callables, add an empty parameter list
@@ -320,12 +362,10 @@ class PyObject(ObjectDescription):
         if fullname not in self.state.document.ids:
             signode['names'].append(fullname)
             signode['ids'].append(fullname)
-            signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
             domain = cast(PythonDomain, self.env.get_domain('py'))
-            domain.note_object(fullname, self.objtype,
-                               location=(self.env.docname, self.lineno))
+            domain.note_object(fullname, self.objtype, location=signode)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
@@ -397,7 +437,7 @@ class PyModulelevel(PyObject):
     """
 
     def run(self) -> List[Node]:
-        warnings.warn('PyClassmember is deprecated.',
+        warnings.warn('PyModulelevel is deprecated.',
                       RemovedInSphinx40Warning)
 
         return super().run()
@@ -445,6 +485,25 @@ class PyFunction(PyObject):
 
 class PyVariable(PyObject):
     """Description of a variable."""
+
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'type': directives.unchanged,
+        'value': directives.unchanged,
+    })
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        typ = self.options.get('type')
+        if typ:
+            signode += addnodes.desc_annotation(typ, ': ' + typ)
+
+        value = self.options.get('value')
+        if value:
+            signode += addnodes.desc_annotation(value, ' = ' + value)
+
+        return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls
@@ -638,6 +697,25 @@ class PyStaticMethod(PyMethod):
 class PyAttribute(PyObject):
     """Description of an attribute."""
 
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'type': directives.unchanged,
+        'value': directives.unchanged,
+    })
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        typ = self.options.get('type')
+        if typ:
+            signode += addnodes.desc_annotation(typ, ': ' + typ)
+
+        value = self.options.get('value')
+        if value:
+            signode += addnodes.desc_annotation(value, ' = ' + value)
+
+        return fullname, prefix
+
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls
         try:
@@ -771,6 +849,21 @@ class PyXRefRole(XRefRole):
             target = target[1:]
             refnode['refspecific'] = True
         return title, target
+
+
+def filter_meta_fields(app: Sphinx, domain: str, objtype: str, content: Element) -> None:
+    """Filter ``:meta:`` field from its docstring."""
+    if domain != 'py':
+        return
+
+    for node in content:
+        if isinstance(node, nodes.field_list):
+            fields = cast(List[nodes.field], node)
+            for field in fields:
+                field_name = cast(nodes.field_body, field[0]).astext().strip()
+                if field_name == 'meta' or field_name.startswith('meta '):
+                    node.remove(field)
+                    break
 
 
 class PythonModuleIndex(Index):
@@ -941,7 +1034,8 @@ class PythonDomain(Domain):
                 self.modules[modname] = data
 
     def find_obj(self, env: BuildEnvironment, modname: str, classname: str,
-                 name: str, type: str, searchmode: int = 0) -> List[Tuple[str, Any]]:
+                 name: str, type: str, searchmode: int = 0
+                 ) -> List[Tuple[str, Tuple[str, str]]]:
         """Find a Python object for "name", perhaps using the given module
         and/or classname.  Returns a list of (name, object entry) tuples.
         """
@@ -952,7 +1046,7 @@ class PythonDomain(Domain):
         if not name:
             return []
 
-        matches = []  # type: List[Tuple[str, Any]]
+        matches = []  # type: List[Tuple[str, Tuple[str, str]]]
 
         newname = None
         if searchmode == 1:
@@ -1011,6 +1105,11 @@ class PythonDomain(Domain):
         searchmode = 1 if node.hasattr('refspecific') else 0
         matches = self.find_obj(env, modname, clsname, target,
                                 type, searchmode)
+
+        if not matches and type == 'attr':
+            # fallback to meth (for property)
+            matches = self.find_obj(env, modname, clsname, target, 'meth', searchmode)
+
         if not matches:
             return None
         elif len(matches) > 1:
@@ -1076,7 +1175,10 @@ class PythonDomain(Domain):
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
+    app.setup_extension('sphinx.directives')
+
     app.add_domain(PythonDomain)
+    app.connect('object-description-transform', filter_meta_fields)
 
     return {
         'version': 'builtin',

@@ -28,7 +28,7 @@ from sphinx import package_dir, __display_version__
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -53,7 +53,7 @@ if False:
     from typing import Type  # for python3.5.1
 
 
-# HTML5 Writer is avialable or not
+# HTML5 Writer is available or not
 if is_html5_writer_available():
     from sphinx.writers.html5 import HTML5Translator
     html5_ready = True
@@ -101,35 +101,6 @@ class Stylesheet(str):
             self.attributes['title'] = args[1]
 
         return self
-
-
-class JSContainer(list):
-    """The container for JavaScript scripts."""
-    def insert(self, index: int, obj: str) -> None:
-        warnings.warn('To modify script_files in the theme is deprecated. '
-                      'Please insert a <script> tag directly in your theme instead.',
-                      RemovedInSphinx30Warning, stacklevel=3)
-        super().insert(index, obj)
-
-    def extend(self, other: List[str]) -> None:  # type: ignore
-        warnings.warn('To modify script_files in the theme is deprecated. '
-                      'Please insert a <script> tag directly in your theme instead.',
-                      RemovedInSphinx30Warning, stacklevel=3)
-        for item in other:
-            self.append(item)
-
-    def __iadd__(self, other: List[str]) -> "JSContainer":  # type: ignore
-        warnings.warn('To modify script_files in the theme is deprecated. '
-                      'Please insert a <script> tag directly in your theme instead.',
-                      RemovedInSphinx30Warning, stacklevel=3)
-        for item in other:
-            self.append(item)
-        return self
-
-    def __add__(self, other: List[str]) -> "JSContainer":
-        ret = JSContainer(self)
-        ret += other
-        return ret
 
 
 class JavaScript(str):
@@ -234,7 +205,7 @@ class StandaloneHTMLBuilder(Builder):
         self.css_files = []  # type: List[Dict[str, str]]
 
         # JS files
-        self.script_files = JSContainer()  # type: List[JavaScript]
+        self.script_files = []  # type: List[JavaScript]
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
@@ -836,13 +807,17 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
             for node in doctree.traverse(nodes.image):
-                scale_keys = ('scale', 'width', 'height')
-                if not any((key in node) for key in scale_keys) or \
-                   isinstance(node.parent, nodes.reference):
-                    # docutils does unfortunately not preserve the
-                    # ``target`` attribute on images, so we need to check
-                    # the parent node here.
+                if not any((key in node) for key in ['scale', 'width', 'height']):
+                    # resizing options are not given. scaled image link is available
+                    # only for resized images.
                     continue
+                elif isinstance(node.parent, nodes.reference):
+                    # A image having hyperlink target
+                    continue
+                elif 'no-scaled-link' in node['classes']:
+                    # scaled image link is disabled for this node
+                    continue
+
                 uri = node['uri']
                 reference = nodes.reference('', '', internal=True)
                 if uri in self.images:
@@ -876,7 +851,11 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
             try:
-                self.indexer.feed(pagename, filename, title, doctree)
+                metadata = self.env.metadata.get(pagename, {})
+                if 'nosearch' in metadata:
+                    self.indexer.feed(pagename, filename, '', new_document(''))
+                else:
+                    self.indexer.feed(pagename, filename, title, doctree)
             except TypeError:
                 # fallback for old search-adapters
                 self.indexer.feed(pagename, title, doctree)  # type: ignore
@@ -999,15 +978,6 @@ class StandaloneHTMLBuilder(Builder):
                 return True
             return False
         ctx['hasdoc'] = hasdoc
-
-        def warn(*args: Any, **kwargs: Any) -> str:
-            """Simple warn() wrapper for themes."""
-            warnings.warn('The template function warn() was deprecated. '
-                          'Use warning() instead.',
-                          RemovedInSphinx30Warning, stacklevel=2)
-            logger.warning(*args, **kwargs)
-            return ''  # return empty string
-        ctx['warn'] = warn
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
         self.add_sidebars(pagename, ctx)

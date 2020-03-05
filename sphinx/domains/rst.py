@@ -25,7 +25,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.nodes import make_refnode
+from sphinx.util.nodes import make_id, make_refnode
 
 
 logger = logging.getLogger(__name__)
@@ -39,23 +39,34 @@ class ReSTMarkup(ObjectDescription):
     """
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
-        targetname = self.objtype + '-' + name
-        if targetname not in self.state.document.ids:
-            signode['names'].append(targetname)
-            signode['ids'].append(targetname)
-            signode['first'] = (not self.names)
-            self.state.document.note_explicit_target(signode)
+        node_id = make_id(self.env, self.state.document, self.objtype, name)
+        signode['ids'].append(node_id)
 
-            domain = cast(ReSTDomain, self.env.get_domain('rst'))
-            domain.note_object(self.objtype, name, location=(self.env.docname, self.lineno))
+        # Assign old styled node_id not to break old hyperlinks (if possible)
+        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+        old_node_id = self.make_old_id(name)
+        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
+            signode['ids'].append(old_node_id)
+
+        self.state.document.note_explicit_target(signode)
+
+        domain = cast(ReSTDomain, self.env.get_domain('rst'))
+        domain.note_object(self.objtype, name, node_id, location=signode)
 
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
-            self.indexnode['entries'].append(('single', indextext,
-                                              targetname, '', None))
+            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def get_index_text(self, objectname: str, name: str) -> str:
         return ''
+
+    def make_old_id(self, name: str) -> str:
+        """Generate old styled node_id for reST markups.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return self.objtype + '-' + name
 
 
 def parse_directive(d: str) -> Tuple[str, str]:
@@ -128,27 +139,37 @@ class ReSTDirectiveOption(ReSTMarkup):
         return name
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
-        directive_name = self.current_directive
-        targetname = '-'.join([self.objtype, self.current_directive, name])
-        if targetname not in self.state.document.ids:
-            signode['names'].append(targetname)
-            signode['ids'].append(targetname)
-            signode['first'] = (not self.names)
-            self.state.document.note_explicit_target(signode)
+        domain = cast(ReSTDomain, self.env.get_domain('rst'))
 
-            objname = ':'.join(filter(None, [directive_name, name]))
-            domain = cast(ReSTDomain, self.env.get_domain('rst'))
-            domain.note_object(self.objtype, objname, location=(self.env.docname, self.lineno))
+        directive_name = self.current_directive
+        if directive_name:
+            prefix = '-'.join([self.objtype, directive_name])
+            objname = ':'.join([directive_name, name])
+        else:
+            prefix = self.objtype
+            objname = name
+
+        node_id = make_id(self.env, self.state.document, prefix, name)
+        signode['ids'].append(node_id)
+
+        # Assign old styled node_id not to break old hyperlinks (if possible)
+        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+        old_node_id = self.make_old_id(name)
+        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
+            signode['ids'].append(old_node_id)
+
+        self.state.document.note_explicit_target(signode)
+        domain.note_object(self.objtype, objname, node_id, location=signode)
 
         if directive_name:
             key = name[0].upper()
             pair = [_('%s (directive)') % directive_name,
                     _(':%s: (directive option)') % name]
-            self.indexnode['entries'].append(('pair', '; '.join(pair), targetname, '', key))
+            self.indexnode['entries'].append(('pair', '; '.join(pair), node_id, '', key))
         else:
             key = name[0].upper()
             text = _(':%s: (directive option)') % name
-            self.indexnode['entries'].append(('single', text, targetname, '', key))
+            self.indexnode['entries'].append(('single', text, node_id, '', key))
 
     @property
     def current_directive(self) -> str:
@@ -157,6 +178,14 @@ class ReSTDirectiveOption(ReSTMarkup):
             return directives[-1]
         else:
             return ''
+
+    def make_old_id(self, name: str) -> str:
+        """Generate old styled node_id for directive options.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return '-'.join([self.objtype, self.current_directive, name])
 
 
 class ReSTRole(ReSTMarkup):
@@ -195,37 +224,36 @@ class ReSTDomain(Domain):
     }  # type: Dict[str, Dict[Tuple[str, str], str]]
 
     @property
-    def objects(self) -> Dict[Tuple[str, str], str]:
-        return self.data.setdefault('objects', {})  # (objtype, fullname) -> docname
+    def objects(self) -> Dict[Tuple[str, str], Tuple[str, str]]:
+        return self.data.setdefault('objects', {})  # (objtype, fullname) -> (docname, node_id)
 
-    def note_object(self, objtype: str, name: str, location: Any = None) -> None:
+    def note_object(self, objtype: str, name: str, node_id: str, location: Any = None) -> None:
         if (objtype, name) in self.objects:
-            docname = self.objects[objtype, name]
+            docname, node_id = self.objects[objtype, name]
             logger.warning(__('duplicate description of %s %s, other instance in %s') %
                            (objtype, name, docname), location=location)
 
-        self.objects[objtype, name] = self.env.docname
+        self.objects[objtype, name] = (self.env.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
-        for (typ, name), doc in list(self.objects.items()):
+        for (typ, name), (doc, node_id) in list(self.objects.items()):
             if doc == docname:
                 del self.objects[typ, name]
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
-        for (typ, name), doc in otherdata['objects'].items():
+        for (typ, name), (doc, node_id) in otherdata['objects'].items():
             if doc in docnames:
-                self.objects[typ, name] = doc
+                self.objects[typ, name] = (doc, node_id)
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
                      ) -> Element:
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
-            todocname = self.objects.get((objtype, target))
+            todocname, node_id = self.objects.get((objtype, target), (None, None))
             if todocname:
-                return make_refnode(builder, fromdocname, todocname,
-                                    objtype + '-' + target,
+                return make_refnode(builder, fromdocname, todocname, node_id,
                                     contnode, target + ' ' + objtype)
         return None
 
@@ -234,17 +262,16 @@ class ReSTDomain(Domain):
                          ) -> List[Tuple[str, Element]]:
         results = []  # type: List[Tuple[str, Element]]
         for objtype in self.object_types:
-            todocname = self.objects.get((objtype, target))
+            todocname, node_id = self.objects.get((objtype, target), (None, None))
             if todocname:
                 results.append(('rst:' + self.role_for_objtype(objtype),
-                                make_refnode(builder, fromdocname, todocname,
-                                             objtype + '-' + target,
+                                make_refnode(builder, fromdocname, todocname, node_id,
                                              contnode, target + ' ' + objtype)))
         return results
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
-        for (typ, name), docname in self.data['objects'].items():
-            yield name, name, typ, docname, typ + '-' + name, 1
+        for (typ, name), (docname, node_id) in self.data['objects'].items():
+            yield name, name, typ, docname, node_id, 1
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -252,7 +279,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

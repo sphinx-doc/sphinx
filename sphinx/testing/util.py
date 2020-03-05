@@ -11,10 +11,12 @@ import os
 import re
 import sys
 import warnings
+from io import StringIO
 from typing import Any, Dict, Generator, IO, List, Pattern
 from xml.etree import ElementTree
 
 from docutils import nodes
+from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
@@ -47,7 +49,7 @@ def assert_startswith(thing: str, prefix: str) -> None:
         assert False, '%r does not start with %r' % (thing, prefix)
 
 
-def assert_node(node: nodes.Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
+def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
     if cls:
         if isinstance(cls, list):
             assert_node(node, cls[0], xpath=xpath, **kwargs)
@@ -101,6 +103,8 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
+    _status = None  # type: StringIO
+    _warning = None  # type: StringIO
 
     def __init__(self, buildername: str = 'html', srcdir: path = None, freshenv: bool = False,
                  confoverrides: Dict = None, status: IO = None, warning: IO = None,

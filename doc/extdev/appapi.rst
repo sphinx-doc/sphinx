@@ -54,8 +54,6 @@ package.
 
 .. automethod:: Sphinx.add_domain(domain)
 
-.. automethod:: Sphinx.override_domain(domain)
-
 .. method:: Sphinx.add_directive_to_domain(domain, name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive_to_domain(domain, name, directiveclass)
 
@@ -217,6 +215,14 @@ connect handlers to the events.  Example:
    ``:math:`...```.
 
    .. versionadded:: 0.5
+
+.. event:: object-description-transform (app, domain, objtype, contentnode)
+
+   Emitted when an object description directive has run.  The *domain* and
+   *objtype* arguments are strings indicating object description of the object.
+   And *contentnode* is a content for the object.  It can be modified in-place.
+
+   .. versionadded:: 2.4
 
 .. event:: doctree-read (app, doctree)
 

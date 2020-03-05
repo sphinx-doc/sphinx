@@ -591,7 +591,7 @@ class IndexInSectionTitleTransform(SphinxTransform):
     """
     default_priority = 400
 
-    def apply(self):
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.title):
             if isinstance(node.parent, nodes.section):
                 for i, index in enumerate(node.traverse(addnodes.index)):

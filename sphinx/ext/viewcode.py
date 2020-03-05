@@ -9,7 +9,6 @@
 """
 
 import traceback
-import warnings
 from typing import Any, Dict, Iterable, Iterator, Set, Tuple
 
 from docutils import nodes
@@ -18,8 +17,6 @@ from docutils.nodes import Element, Node
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
@@ -57,20 +54,20 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
     if app.builder.name.startswith("epub") and not env.config.viewcode_enable_epub:
         return
 
-    def has_tag(modname, fullname, docname, refname):
+    def has_tag(modname: str, fullname: str, docname: str, refname: str) -> bool:
         entry = env._viewcode_modules.get(modname, None)  # type: ignore
         if entry is False:
-            return
+            return False
 
         code_tags = app.emit_firstresult('viewcode-find-source', modname)
         if code_tags is None:
             try:
                 analyzer = ModuleAnalyzer.for_module(modname)
+                analyzer.find_tags()
             except Exception:
                 env._viewcode_modules[modname] = False  # type: ignore
-                return
+                return False
 
-            analyzer.find_tags()
             code = analyzer.code
             tags = analyzer.tags
         else:
@@ -83,6 +80,8 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         if fullname in tags:
             used[fullname] = docname
             return True
+
+        return False
 
     for objnode in doctree.traverse(addnodes.desc):
         if objnode.get('domain') != 'py':
@@ -234,18 +233,10 @@ def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
     yield ('_modules/index', context, 'page.html')
 
 
-def migrate_viewcode_import(app: Sphinx, config: Config) -> None:
-    if config.viewcode_import is not None:
-        warnings.warn('viewcode_import was renamed to viewcode_follow_imported_members. '
-                      'Please update your configuration.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)
-    app.connect('config-inited', migrate_viewcode_import)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('html-collect-pages', collect_pages)

@@ -18,7 +18,7 @@ from typing import (
     Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple, Union
 )
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -154,26 +154,7 @@ class Config:
                                  'env', []),
     }  # type: Dict[str, Tuple]
 
-    def __init__(self, *args: Any) -> None:
-        if len(args) == 4:
-            # old style arguments: (dirname, filename, overrides, tags)
-            warnings.warn('The argument of Config() class has been changed. '
-                          'Use Config.read() to read configuration from conf.py.',
-                          RemovedInSphinx30Warning, stacklevel=2)
-            dirname, filename, overrides, tags = args
-            if dirname is None:
-                config = {}  # type: Dict[str, Any]
-            else:
-                config = eval_config_file(path.join(dirname, filename), tags)
-        else:
-            # new style arguments: (config={}, overrides={})
-            if len(args) == 0:
-                config, overrides = {}, {}
-            elif len(args) == 1:
-                config, overrides = args[0], {}
-            else:
-                config, overrides = args[:2]
-
+    def __init__(self, config: Dict[str, Any] = {}, overrides: Dict[str, Any] = {}) -> None:
         self.overrides = dict(overrides)
         self.values = Config.config_values.copy()
         self._raw_config = config
@@ -192,16 +173,6 @@ class Config:
         filename = path.join(confdir, CONFIG_FILENAME)
         namespace = eval_config_file(filename, tags)
         return cls(namespace, overrides or {})
-
-    def check_types(self) -> None:
-        warnings.warn('Config.check_types() is deprecated. Use check_confval_types() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        check_confval_types(None, self)
-
-    def check_unicode(self) -> None:
-        warnings.warn('Config.check_unicode() is deprecated. Use check_unicode() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        check_unicode(self)
 
     def convert_overrides(self, name: str, value: Any) -> Any:
         if not isinstance(value, str):
@@ -353,6 +324,9 @@ def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
             msg = __("The configuration file (or one of the modules it imports) "
                      "called sys.exit()")
             raise ConfigError(msg)
+        except ConfigError:
+            # pass through ConfigError from conf.py as is.  It will be shown in console.
+            raise
         except Exception:
             msg = __("There is a programmable error in your configuration file:\n\n%s")
             raise ConfigError(msg % traceback.format_exc())

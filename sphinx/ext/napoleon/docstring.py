@@ -101,8 +101,8 @@ class GoogleDocstring:
 
     """
 
-    _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>[a-zA-Z0-9_.-]+)`|"
-                           r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
+    _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>~?[a-zA-Z0-9_.-]+)`|"
+                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.X)
 
     def __init__(self, docstring: Union[str, List[str]], config: SphinxConfig = None,
                  app: Sphinx = None, what: str = '', name: str = '',
@@ -561,7 +561,7 @@ class GoogleDocstring:
                     lines = self._consume_to_next_section()
             self._parsed_lines.extend(lines)
 
-    def _parse_admonition(self, admonition, section):
+    def _parse_admonition(self, admonition: str, section: str) -> List[str]:
         # type (str, str) -> List[str]
         lines = self._consume_to_next_section()
         return self._format_admonition(admonition, lines)
@@ -603,7 +603,7 @@ class GoogleDocstring:
         label = labels.get(section.lower(), section)
         return self._parse_generic_section(label, use_admonition)
 
-    def _parse_custom_generic_section(self, section):
+    def _parse_custom_generic_section(self, section: str) -> List[str]:
         # for now, no admonition for simple custom sections
         return self._parse_generic_section(section, False)
 

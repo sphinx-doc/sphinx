@@ -8,7 +8,34 @@
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
+from sphinx.util.docstrings import (
+    extract_metadata, prepare_docstring, prepare_commentdoc
+)
+
+
+def test_extract_metadata():
+    metadata = extract_metadata(":meta foo: bar\n"
+                                ":meta baz:\n")
+    assert metadata == {'foo': 'bar', 'baz': ''}
+
+    # field_list like text following just after paragaph is not a field_list
+    metadata = extract_metadata("blah blah blah\n"
+                                ":meta foo: bar\n"
+                                ":meta baz:\n")
+    assert metadata == {}
+
+    # field_list like text following after blank line is a field_list
+    metadata = extract_metadata("blah blah blah\n"
+                                "\n"
+                                ":meta foo: bar\n"
+                                ":meta baz:\n")
+    assert metadata == {'foo': 'bar', 'baz': ''}
+
+    # non field_list item breaks field_list
+    metadata = extract_metadata(":meta foo: bar\n"
+                                "blah blah blah\n"
+                                ":meta baz:\n")
+    assert metadata == {'foo': 'bar'}
 
 
 def test_prepare_docstring():

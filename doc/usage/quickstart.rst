@@ -6,7 +6,7 @@ Once Sphinx is :doc:`installed </usage/installation>`, you can proceed with
 setting up your first Sphinx project. To ease the process of getting started,
 Sphinx provides a tool, :program:`sphinx-quickstart`, which will generate a
 documentation source directory and populate it with some defaults. We're going
-to use the :program:`sphinx-quickstart` tool here, though it's use by no means
+to use the :program:`sphinx-quickstart` tool here, though its use is by no means
 necessary.
 
 
@@ -26,9 +26,6 @@ configuration values from a few questions it asks you. To use this, run:
 
    $ sphinx-quickstart
 
-Answer each question asked. Be sure to say yes to the ``autodoc`` extension, as
-we will use this later.
-
 There is also an automatic "API documentation" generator called
 :program:`sphinx-apidoc`; see :doc:`/man/sphinx-apidoc` for details.
 
@@ -37,12 +34,11 @@ Defining document structure
 ---------------------------
 
 Let's assume you've run :program:`sphinx-quickstart`.  It created a source
-directory with :file:`conf.py` and a master document, :file:`index.rst` (if you
-accepted the defaults).  The main function of the :term:`master document` is to
-serve as a welcome page, and to contain the root of the "table of contents
-tree" (or *toctree*).  This is one of the main things that Sphinx adds to
-reStructuredText, a way to connect multiple files to a single hierarchy of
-documents.
+directory with :file:`conf.py` and a master document, :file:`index.rst`.  The
+main function of the :term:`master document` is to serve as a welcome page, and
+to contain the root of the "table of contents tree" (or *toctree*).  This is one
+of the main things that Sphinx adds to reStructuredText, a way to connect
+multiple files to a single hierarchy of documents.
 
 .. sidebar:: reStructuredText directives
 
@@ -103,7 +99,7 @@ In Sphinx source files, you can use most features of standard
 For example, you can add cross-file references in a portable way (which works
 for all output types) using the :rst:role:`ref` role.
 
-For an example, if you are viewing the HTML version you can look at the source
+For an example, if you are viewing the HTML version, you can look at the source
 for this document -- use the "Show Source" link in the sidebar.
 
 .. todo:: Update the below link when we add new guides on these.
@@ -233,8 +229,7 @@ customize a config value that is not automatically added by
 
 Keep in mind that the file uses Python syntax for strings, numbers, lists and
 so on.  The file is saved in UTF-8 by default, as indicated by the encoding
-declaration in the first line.  If you use non-ASCII characters in any string
-value, you need to use Python Unicode strings (like ``project = u'Exposé'``).
+declaration in the first line.
 
 |more| See :doc:`/usage/configuration` for documentation of all available
 config values.
@@ -252,10 +247,12 @@ module that provides additional features for Sphinx projects) called *autodoc*.
 
 In order to use *autodoc*, you need to activate it in :file:`conf.py` by
 putting the string ``'sphinx.ext.autodoc'`` into the list assigned to the
-:confval:`extensions` config value.  Then, you have a few additional directives
-at your disposal.
+:confval:`extensions` config value::
 
-For example, to document the function ``io.open()``, reading its signature and
+   extensions = ['sphinx.ext.autodoc']
+
+Then, you have a few additional directives at your disposal.  For example, to
+document the function ``io.open()``, reading its signature and
 docstring from the source file, you'd write this::
 
    .. autofunction:: io.open

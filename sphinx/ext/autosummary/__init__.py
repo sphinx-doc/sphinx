@@ -745,7 +745,8 @@ def process_generate_options(app: Sphinx) -> None:
     with mock(app.config.autosummary_mock_imports):
         generate_autosummary_docs(genfiles, builder=app.builder,
                                   suffix=suffix, base_path=app.srcdir,
-                                  app=app, imported_members=imported_members)
+                                  app=app, imported_members=imported_members,
+                                  overwrite=app.config.autosummary_generate_overwrite)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -768,6 +769,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_generate', [], True, [bool])
+    app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')
     app.add_config_value('autosummary_imported_members', [], False, [bool])

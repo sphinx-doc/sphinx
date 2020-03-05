@@ -15,13 +15,12 @@ import os
 import re
 import shutil
 import sys
-import time
 import warnings
 from io import StringIO
 from os import path
 from typing import Any, Generator, Iterator, List, Tuple
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 
 try:
     # for ALT Linux (#6712)
@@ -142,27 +141,6 @@ def make_filename(string: str) -> str:
 
 def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
-
-
-def ustrftime(format: str, *args: Any) -> str:
-    """[DEPRECATED] strftime for unicode strings."""
-    warnings.warn('sphinx.util.osutil.ustrtime is deprecated for removal',
-                  RemovedInSphinx30Warning, stacklevel=2)
-
-    if not args:
-        # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
-        # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
-        source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
-        if source_date_epoch is not None:
-            time_struct = time.gmtime(float(source_date_epoch))
-            args = [time_struct]  # type: ignore
-    # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
-    # https://bugs.python.org/issue8304
-    try:
-        return time.strftime(format, *args)
-    except UnicodeEncodeError:
-        r = time.strftime(format.encode('unicode-escape').decode(), *args)
-        return r.encode().decode('unicode-escape')
 
 
 def relpath(path: str, start: str = os.curdir) -> str:

@@ -8,8 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import html
-import warnings
 from functools import partial
 from importlib import import_module
 from typing import Any, Dict
@@ -26,8 +24,6 @@ from pygments.style import Style
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 
-from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.ext import doctest
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging, texescape
@@ -65,7 +61,7 @@ class PygmentsBridge:
     latex_formatter = LatexFormatter
 
     def __init__(self, dest: str = 'html', stylename: str = 'sphinx',
-                 trim_doctest_flags: bool = None, latex_engine: str = None) -> None:
+                 latex_engine: str = None) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
 
@@ -76,11 +72,6 @@ class PygmentsBridge:
         else:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
-
-        self.trim_doctest_flags = trim_doctest_flags
-        if trim_doctest_flags is not None:
-            warnings.warn('trim_doctest_flags option for PygmentsBridge is now deprecated.',
-                          RemovedInSphinx30Warning, stacklevel=2)
 
     def get_style(self, stylename: str) -> Style:
         if stylename is None or stylename == 'sphinx':
@@ -96,19 +87,6 @@ class PygmentsBridge:
     def get_formatter(self, **kwargs: Any) -> Formatter:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
-
-    def unhighlighted(self, source: str) -> str:
-        warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        if self.dest == 'html':
-            return '<pre>' + html.escape(source) + '</pre>\n'
-        else:
-            # first, escape highlighting characters like Pygments does
-            source = source.translate(escape_hl_chars)
-            # then, escape all characters nonrepresentable in LaTeX
-            source = texescape.escape(source, self.latex_engine)
-            return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
-                   source + '\\end{Verbatim}\n'
 
     def get_lexer(self, source: str, lang: str, opts: Dict = None,
                   force: bool = False, location: Any = None) -> Lexer:
@@ -127,11 +105,6 @@ class PygmentsBridge:
                 lang = 'pycon3'
             else:
                 lang = 'python3'
-        elif lang == 'guess':
-            try:
-                lexer = guess_lexer(source)
-            except Exception:
-                lexer = lexers['none']
 
         if lang in lexers:
             # just return custom lexers here (without installing raiseonerror filter)
@@ -141,7 +114,7 @@ class PygmentsBridge:
         else:
             try:
                 if lang == 'guess':
-                    lexer = guess_lexer(lang, **opts)
+                    lexer = guess_lexer(source, **opts)
                 else:
                     lexer = get_lexer_by_name(lang, **opts)
             except ClassNotFound:
@@ -160,11 +133,6 @@ class PygmentsBridge:
             source = source.decode()
 
         lexer = self.get_lexer(source, lang, opts, force, location)
-
-        # trim doctest options if wanted
-        if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:
-            source = doctest.blankline_re.sub('', source)
-            source = doctest.doctestopt_re.sub('', source)
 
         # highlight via Pygments
         formatter = self.get_formatter(**kwargs)

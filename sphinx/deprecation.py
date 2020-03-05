@@ -15,15 +15,15 @@ from typing import Any, Dict
 from typing import Type  # for python3.5.1
 
 
-class RemovedInSphinx30Warning(DeprecationWarning):
+class RemovedInSphinx40Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx40Warning(PendingDeprecationWarning):
+class RemovedInSphinx50Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx30Warning
+RemovedInNextVersionWarning = RemovedInSphinx40Warning
 
 
 def deprecated_alias(modname: str, objects: Dict, warning: Type[Warning]) -> None:

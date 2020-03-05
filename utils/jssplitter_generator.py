@@ -133,7 +133,7 @@ with open('../sphinx/search/jssplitter.py', 'w') as f:
     f.write(python_src)
 
 with open('./regression_test.js', 'w') as f:
-    f.write(js_test_src.encode())
+    f.write(js_test_src)
 
 print("starting test...")
 result = subprocess.call(['node', './regression_test.js'])

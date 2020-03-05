@@ -127,6 +127,23 @@ def test_toctree_glob_and_url(app):
 
 
 @pytest.mark.sphinx(testroot='toctree-glob')
+def test_reversed_toctree(app):
+    text = (".. toctree::\n"
+            "   :reversed:\n"
+            "\n"
+            "   foo\n"
+            "   bar/index\n"
+            "   baz\n")
+
+    app.env.find_files(app.config, app.builder)
+    doctree = restructuredtext.parse(app, text, 'index')
+    assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
+    assert_node(doctree[0][0],
+                entries=[(None, 'baz'), (None, 'bar/index'), (None, 'foo')],
+                includefiles=['baz', 'bar/index', 'foo'])
+
+
+@pytest.mark.sphinx(testroot='toctree-glob')
 def test_toctree_twice(app):
     text = (".. toctree::\n"
             "\n"

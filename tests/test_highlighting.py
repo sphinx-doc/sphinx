@@ -40,7 +40,7 @@ class ComplainOnUnhighlighted(PygmentsBridge):
 
 
 def test_add_lexer(app, status, warning):
-    app.add_lexer('test', MyLexer())
+    app.add_lexer('test', MyLexer)
 
     bridge = PygmentsBridge('html')
     ret = bridge.highlight_block('ab', 'test')

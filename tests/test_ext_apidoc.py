@@ -275,7 +275,7 @@ def test_multibyte_parameters(make_app, apidoc):
     assert (outdir / 'conf.py').isfile()
     assert (outdir / 'index.rst').isfile()
 
-    conf_py = (outdir / 'conf.py').text()
+    conf_py = (outdir / 'conf.py').read_text()
     assert "project = 'プロジェクト名'" in conf_py
     assert "author = '著者名'" in conf_py
     assert "version = 'バージョン'" in conf_py
@@ -408,11 +408,13 @@ def test_private(tempdir):
     # without --private option
     apidoc_main(['-o', tempdir, tempdir])
     assert (tempdir / 'hello.rst').exists()
+    assert ':private-members:' not in (tempdir / 'hello.rst').read_text()
     assert not (tempdir / '_world.rst').exists()
 
     # with --private option
-    apidoc_main(['--private', '-o', tempdir, tempdir])
+    apidoc_main(['--private', '-f', '-o', tempdir, tempdir])
     assert (tempdir / 'hello.rst').exists()
+    assert ':private-members:' in (tempdir / 'hello.rst').read_text()
     assert (tempdir / '_world.rst').exists()
 
 
@@ -424,7 +426,7 @@ def test_toc_file(tempdir):
     apidoc_main(['-o', tempdir, tempdir])
     assert (outdir / 'modules.rst').exists()
 
-    content = (outdir / 'modules.rst').text()
+    content = (outdir / 'modules.rst').read_text()
     assert content == ("test_toc_file0\n"
                        "==============\n"
                        "\n"
@@ -440,7 +442,7 @@ def test_module_file(tempdir):
     apidoc_main(['-o', tempdir, tempdir])
     assert (outdir / 'example.rst').exists()
 
-    content = (outdir / 'example.rst').text()
+    content = (outdir / 'example.rst').read_text()
     assert content == ("example module\n"
                        "==============\n"
                        "\n"
@@ -456,7 +458,7 @@ def test_module_file_noheadings(tempdir):
     apidoc_main(['--no-headings', '-o', tempdir, tempdir])
     assert (outdir / 'example.rst').exists()
 
-    content = (outdir / 'example.rst').text()
+    content = (outdir / 'example.rst').read_text()
     assert content == (".. automodule:: example\n"
                        "   :members:\n"
                        "   :undoc-members:\n"
@@ -475,7 +477,7 @@ def test_package_file(tempdir):
     assert (outdir / 'testpkg.rst').exists()
     assert (outdir / 'testpkg.subpkg.rst').exists()
 
-    content = (outdir / 'testpkg.rst').text()
+    content = (outdir / 'testpkg.rst').read_text()
     assert content == ("testpkg package\n"
                        "===============\n"
                        "\n"
@@ -514,7 +516,7 @@ def test_package_file(tempdir):
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n")
 
-    content = (outdir / 'testpkg.subpkg.rst').text()
+    content = (outdir / 'testpkg.subpkg.rst').read_text()
     assert content == ("testpkg.subpkg package\n"
                        "======================\n"
                        "\n"
@@ -536,7 +538,7 @@ def test_package_file_separate(tempdir):
     assert (outdir / 'testpkg.rst').exists()
     assert (outdir / 'testpkg.example.rst').exists()
 
-    content = (outdir / 'testpkg.rst').text()
+    content = (outdir / 'testpkg.rst').read_text()
     assert content == ("testpkg package\n"
                        "===============\n"
                        "\n"
@@ -555,7 +557,7 @@ def test_package_file_separate(tempdir):
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n")
 
-    content = (outdir / 'testpkg.example.rst').text()
+    content = (outdir / 'testpkg.example.rst').read_text()
     assert content == ("testpkg.example module\n"
                        "======================\n"
                        "\n"
@@ -572,7 +574,7 @@ def test_package_file_module_first(tempdir):
     (outdir / 'testpkg' / 'example.py').write_text('')
     apidoc_main(['--module-first', '-o', tempdir, tempdir])
 
-    content = (outdir / 'testpkg.rst').text()
+    content = (outdir / 'testpkg.rst').read_text()
     assert content == ("testpkg package\n"
                        "===============\n"
                        "\n"
@@ -601,7 +603,7 @@ def test_package_file_without_submodules(tempdir):
     apidoc_main(['-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
 
-    content = (outdir / 'testpkg.rst').text()
+    content = (outdir / 'testpkg.rst').read_text()
     assert content == ("testpkg package\n"
                        "===============\n"
                        "\n"
@@ -621,7 +623,7 @@ def test_namespace_package_file(tempdir):
     apidoc_main(['--implicit-namespace', '-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
 
-    content = (outdir / 'testpkg.rst').text()
+    content = (outdir / 'testpkg.rst').read_text()
     assert content == ("testpkg namespace\n"
                        "=================\n"
                        "\n"

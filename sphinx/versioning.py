@@ -9,17 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 import pickle
-import warnings
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
 from typing import Any, Dict, Iterator
 from uuid import uuid4
 
-from docutils import nodes
 from docutils.nodes import Node
 
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import SphinxTransform
 
 if False:
@@ -175,14 +172,6 @@ class UIDTransform(SphinxTransform):
             list(add_uids(self.document, env.versioning_condition))
         else:
             list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
-
-
-def prepare(document: nodes.document) -> None:
-    """Simple wrapper for UIDTransform."""
-    warnings.warn('versioning.prepare() is deprecated. Use UIDTransform instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    transform = UIDTransform(document)
-    transform.apply()
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

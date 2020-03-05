@@ -31,11 +31,6 @@ if "%1" == "" goto all-pdf
 
 if "%1" == "all-pdf" (
 	:all-pdf
-{%- if latex_engine == 'platex' %}
-	for %%i in (*.png *.gif *.jpg *.jpeg *.pdf) do (
-		extractbb %%i
-	)
-{%- endif %}
 	for %%i in (*.tex) do (
 		%PDFLATEX% %LATEXMKOPTS% %%i
 	)

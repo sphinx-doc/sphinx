@@ -20,7 +20,7 @@ import babel.dates
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -151,9 +151,8 @@ def find_catalog_files(docname: str, srcdir: str, locale_dirs: List[str],
 
 
 def find_catalog_source_files(locale_dirs: List[str], locale: str, domains: List[str] = None,
-                              gettext_compact: bool = None, charset: str = 'utf-8',
-                              force_all: bool = False, excluded: Matcher = Matcher([])
-                              ) -> Set[CatalogInfo]:
+                              charset: str = 'utf-8', force_all: bool = False,
+                              excluded: Matcher = Matcher([])) -> Set[CatalogInfo]:
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -169,9 +168,6 @@ def find_catalog_source_files(locale_dirs: List[str], locale: str, domains: List
     """
     warnings.warn('find_catalog_source_files() is deprecated.',
                   RemovedInSphinx40Warning, stacklevel=2)
-    if gettext_compact is not None:
-        warnings.warn('gettext_compact argument for find_catalog_source_files() '
-                      'is deprecated.', RemovedInSphinx30Warning, stacklevel=2)
 
     catalogs = set()  # type: Set[CatalogInfo]
 

@@ -8,8 +8,38 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 import sys
-from typing import List
+from typing import Dict, List
+
+from docutils.parsers.rst.states import Body
+
+
+field_list_item_re = re.compile(Body.patterns['field_marker'])
+
+
+def extract_metadata(s: str) -> Dict[str, str]:
+    """Extract metadata from docstring."""
+    in_other_element = False
+    metadata = {}  # type: Dict[str, str]
+
+    if not s:
+        return metadata
+
+    for line in prepare_docstring(s):
+        if line.strip() == '':
+            in_other_element = False
+        else:
+            matched = field_list_item_re.match(line)
+            if matched and not in_other_element:
+                field_name = matched.group()[1:].split(':', 1)[0]
+                if field_name.startswith('meta '):
+                    name = field_name[5:].strip()
+                    metadata[name] = line[matched.end():].strip()
+            else:
+                in_other_element = True
+
+    return metadata
 
 
 def prepare_docstring(s: str, ignore: int = 1, tabsize: int = 8) -> List[str]:

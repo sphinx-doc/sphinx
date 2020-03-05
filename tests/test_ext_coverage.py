@@ -17,7 +17,7 @@ import pytest
 def test_build(app, status, warning):
     app.builder.build_all()
 
-    py_undoc = (app.outdir / 'python.txt').text()
+    py_undoc = (app.outdir / 'python.txt').read_text()
     assert py_undoc.startswith('Undocumented Python objects\n'
                                '===========================\n')
     assert 'autodoc_target\n--------------\n' in py_undoc
@@ -28,13 +28,13 @@ def test_build(app, status, warning):
 
     assert ' * mod -- No module named mod'  # in the "failed import" section
 
-    c_undoc = (app.outdir / 'c.txt').text()
+    c_undoc = (app.outdir / 'c.txt').read_text()
     assert c_undoc.startswith('Undocumented C API elements\n'
                               '===========================\n')
     assert 'api.h' in c_undoc
     assert ' * Py_SphinxTest' in c_undoc
 
-    undoc_py, undoc_c = pickle.loads((app.outdir / 'undoc.pickle').bytes())
+    undoc_py, undoc_c = pickle.loads((app.outdir / 'undoc.pickle').read_bytes())
     assert len(undoc_c) == 1
     # the key is the full path to the header file, which isn't testable
     assert list(undoc_c.values())[0] == {('function', 'Py_SphinxTest')}
@@ -50,7 +50,7 @@ def test_build(app, status, warning):
 @pytest.mark.sphinx('coverage', testroot='ext-coverage')
 def test_coverage_ignore_pyobjects(app, status, warning):
     app.builder.build_all()
-    actual = (app.outdir / 'python.txt').text()
+    actual = (app.outdir / 'python.txt').read_text()
     expected = '''Undocumented Python objects
 ===========================
 coverage_not_ignored

@@ -24,7 +24,7 @@ matrix:
       env:
         - TOXENV=du15
         - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
-    - python: '3.8'
+    - python: 'nightly'
       env:
         - TOXENV=du16
     - python: '3.6'

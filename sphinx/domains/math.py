@@ -15,7 +15,6 @@ from docutils import nodes
 from docutils.nodes import Element, Node, system_message
 from docutils.nodes import make_id
 
-from sphinx.addnodes import math_block as displaymath
 from sphinx.addnodes import pending_xref
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain
@@ -54,7 +53,6 @@ class MathDomain(Domain):
         'eq': 'equation not found: %(target)s',
     }
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
-        displaymath: ('displaymath', None),
         nodes.math_block: ('displaymath', None),
     }
     roles = {

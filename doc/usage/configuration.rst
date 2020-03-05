@@ -574,7 +574,7 @@ General configuration
    A dictionary of options that modify how the lexer specified by
    :confval:`highlight_language` generates highlighted source code. These are
    lexer-specific; for the options understood by each, see the
-   `Pygments documentation <http://pygments.org/docs/lexers/>`_.
+   `Pygments documentation <https://pygments.org/docs/lexers.html>`_.
 
    .. versionadded:: 1.3
 
@@ -781,7 +781,7 @@ documentation on :ref:`intl` for details.
    i18n additionally. You can specify below names:
 
    :index: index terms
-   :literal-block: literal blocks: ``::`` and ``code-block``.
+   :literal-block: literal blocks (``::`` annotation and ``code-block`` directive)
    :doctest-block: doctest block
    :raw: raw content
    :image: image/figure uri and alt
@@ -949,7 +949,7 @@ that use Sphinx's HTMLWriter class.
 
    Example::
 
-       html_css_files = ['custom.css'
+       html_css_files = ['custom.css',
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
 
@@ -1357,7 +1357,20 @@ that use Sphinx's HTMLWriter class.
    'target' option or scale related options: 'scale', 'width', 'height'.
    The default is ``True``.
 
+   Document authors can this feature manually with giving ``no-scaled-link``
+   class to the image:
+
+   .. code-block:: rst
+
+      .. image:: sphinx.png
+         :scale: 50%
+         :class: no-scaled-link
+
    .. versionadded:: 1.3
+
+   .. versionchanged:: 2.4
+
+      It is disabled for images having ``no-scaled-link`` class
 
 .. confval:: html_math_renderer
 

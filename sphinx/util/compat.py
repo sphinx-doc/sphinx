@@ -15,25 +15,12 @@ from typing import Any, Dict
 from docutils.utils import get_source_line
 
 from sphinx import addnodes
-from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.transforms import SphinxTransform
-from sphinx.util import import_object
 
 if False:
     # For type annotation
     from sphinx.application import Sphinx
-
-
-def deprecate_source_parsers(app: "Sphinx", config: Config) -> None:
-    if config.source_parsers:
-        warnings.warn('The config variable "source_parsers" is deprecated. '
-                      'Please update your extension for the parser and remove the setting.',
-                      RemovedInSphinx30Warning)
-        for suffix, parser in config.source_parsers.items():
-            if isinstance(parser, str):
-                parser = import_object(parser, 'source parser')
-            app.add_source_parser(suffix, parser)
 
 
 def register_application_for_autosummary(app: "Sphinx") -> None:
@@ -65,7 +52,6 @@ class IndexEntriesMigrator(SphinxTransform):
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(IndexEntriesMigrator)
-    app.connect('config-inited', deprecate_source_parsers)
     app.connect('builder-inited', register_application_for_autosummary)
 
     return {
