@@ -59,4 +59,4 @@ At the moment, these metadata fields are recognized:
 
    .. note:: object search is still available even if `nosearch` option is set.
 
-   .. versionadded:: 2.4
+   .. versionadded:: 3.0
