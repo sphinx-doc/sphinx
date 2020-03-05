@@ -70,6 +70,8 @@ Features added
 * #7211: latex: Use babel for Chinese document when using XeLaTeX
 * #7220: genindex: Show "main" index entries at first
 * #7103: linkcheck: writes all links to ``output.json``
+* #7025: html search: full text search can be disabled for individual document
+  using ``:nosearch:`` file-wide metadata
 
 Bugs fixed
 ----------
@@ -194,8 +196,6 @@ Features added
 * #6966: graphviz: Support ``:class:`` option
 * #6696: html: ``:scale:`` option of image/figure directive not working for SVG
   images (imagesize-1.2.0 or above is required)
-* #7025: html search: full text search can be disabled for individual document
-  using ``:nosearch:`` file-wide metadata
 * #6994: imgconverter: Support illustrator file (.ai) to .png conversion
 * autodoc: Support Positional-Only Argument separator (PEP-570 compliant)
 * autodoc: Support type annotations for variables
