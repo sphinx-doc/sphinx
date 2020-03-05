@@ -218,7 +218,7 @@ def test_html4_output(app, status, warning):
          "[@class='rfc reference external']/strong", 'RFC 1'),
         (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
          "[@class='rfc reference external']/strong", 'Request for Comments #1'),
-        (".//a[@href='objects.html#envvar-HOME']"
+        (".//a[@href='objects.html#envvar-home']"
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),

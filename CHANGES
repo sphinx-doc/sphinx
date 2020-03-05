@@ -48,6 +48,10 @@ Incompatible changes
   modules have node_id for cross reference
 * #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
   to ``.. js:function:: parseInt``
+* #6903: rst domain: Internal data structure has changed. Now objects have
+  node_id for cross reference
+* #7229: rst domain: Non intended behavior is removed such as ``numref_`` links
+  to ``.. rst:role:: numref``
 
 Deprecated
 ----------
@@ -69,6 +73,7 @@ Features added
   not to document inherited members of the class and uppers
 * #6830: autodoc: consider a member private if docstring contains
   ``:meta private:`` in info-field-list
+* #7165: autodoc: Support Annotated type (PEP-593)
 * #6558: glossary: emit a warning for duplicated glossary entry
 * #3106: domain: Register hyperlink target for index page automatically
 * #6558: std domain: emit a warning for duplicated generic objects
@@ -84,6 +89,10 @@ Features added
   ``no-scaled-link`` class
 * #7144: Add CSS class indicating its domain for each desc node
 * #7211: latex: Use babel for Chinese document when using XeLaTeX
+* #7220: genindex: Show "main" index entries at first
+* #7103: linkcheck: writes all links to ``output.json``
+* #7025: html search: full text search can be disabled for individual document
+  using ``:nosearch:`` file-wide metadata
 
 Bugs fixed
 ----------
@@ -101,7 +110,7 @@ Bugs fixed
 Testing
 --------
 
-Release 2.4.4 (in development)
+Release 2.4.5 (in development)
 ==============================
 
 Dependencies
@@ -119,11 +128,17 @@ Features added
 Bugs fixed
 ----------
 
-* #7197: LaTeX: platex cause error to build image directive with target url
-* #7223: Sphinx builds has been slower since 2.4.0
-
 Testing
 --------
+
+Release 2.4.4 (released Mar 05, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7197: LaTeX: platex cause error to build image directive with target url
+* #7223: Sphinx builds has been slower since 2.4.0
 
 Release 2.4.3 (released Feb 22, 2020)
 =====================================
@@ -208,8 +223,6 @@ Features added
 * #6966: graphviz: Support ``:class:`` option
 * #6696: html: ``:scale:`` option of image/figure directive not working for SVG
   images (imagesize-1.2.0 or above is required)
-* #7025: html search: full text search can be disabled for individual document
-  using ``:nosearch:`` file-wide metadata
 * #6994: imgconverter: Support illustrator file (.ai) to .png conversion
 * autodoc: Support Positional-Only Argument separator (PEP-570 compliant)
 * autodoc: Support type annotations for variables

@@ -1524,6 +1524,24 @@ def test_autodoc_typed_instance_variables(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 9), reason='py39+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_Annotated(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.annotated', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.annotated',
+        '',
+        '',
+        '.. py:function:: hello(name: str) -> None',
+        '   :module: target.annotated',
+        '',
+        '   docstring',
+        '   '
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='pycode-egg')
 def test_autodoc_for_egged_code(app):
     options = {"members": None,

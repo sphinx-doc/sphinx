@@ -320,9 +320,13 @@ def test_epub_anchor_id(app):
     app.build()
 
     html = (app.outdir / 'index.xhtml').read_text()
-    assert '<p id="std-setting-STATICFILES_FINDERS">blah blah blah</p>' in html
-    assert '<span id="std-setting-STATICFILES_SECTION"></span><h1>blah blah blah</h1>' in html
-    assert 'see <a class="reference internal" href="#std-setting-STATICFILES_FINDERS">' in html
+    assert ('<p id="std-setting-staticfiles-finders">'
+            '<span id="std-setting-STATICFILES_FINDERS"></span>'
+            'blah blah blah</p>' in html)
+    assert ('<span id="std-setting-staticfiles-section"></span>'
+            '<span id="std-setting-STATICFILES_SECTION"></span>'
+            '<h1>blah blah blah</h1>' in html)
+    assert 'see <a class="reference internal" href="#std-setting-staticfiles-finders">' in html
 
 
 @pytest.mark.sphinx('epub', testroot='html_assets')

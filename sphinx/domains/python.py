@@ -334,7 +334,7 @@ class PyObject(ObjectDescription):
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
                 _pseudo_parse_arglist(signode, arglist)
             except NotImplementedError as exc:
-                logger.warning(exc)
+                logger.warning("could not parse arglist (%r): %s", arglist, exc)
                 _pseudo_parse_arglist(signode, arglist)
         else:
             if self.needs_arglist():
@@ -437,7 +437,7 @@ class PyModulelevel(PyObject):
     """
 
     def run(self) -> List[Node]:
-        warnings.warn('PyClassmember is deprecated.',
+        warnings.warn('PyModulelevel is deprecated.',
                       RemovedInSphinx40Warning)
 
         return super().run()
@@ -1034,7 +1034,8 @@ class PythonDomain(Domain):
                 self.modules[modname] = data
 
     def find_obj(self, env: BuildEnvironment, modname: str, classname: str,
-                 name: str, type: str, searchmode: int = 0) -> List[Tuple[str, Any]]:
+                 name: str, type: str, searchmode: int = 0
+                 ) -> List[Tuple[str, Tuple[str, str]]]:
         """Find a Python object for "name", perhaps using the given module
         and/or classname.  Returns a list of (name, object entry) tuples.
         """
@@ -1045,7 +1046,7 @@ class PythonDomain(Domain):
         if not name:
             return []
 
-        matches = []  # type: List[Tuple[str, Any]]
+        matches = []  # type: List[Tuple[str, Tuple[str, str]]]
 
         newname = None
         if searchmode == 1:

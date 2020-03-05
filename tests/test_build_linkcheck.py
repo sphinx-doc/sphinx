@@ -8,6 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import json
+import re
 from unittest import mock
 import pytest
 
@@ -20,7 +22,7 @@ def test_defaults(app, status, warning):
     content = (app.outdir / 'output.txt').read_text()
 
     print(content)
-    # looking for '#top' and 'does-not-exist' not found should fail
+    # looking for '#top' and '#does-not-exist' not found should fail
     assert "Anchor 'top' not found" in content
     assert "Anchor 'does-not-exist' not found" in content
     # looking for non-existent URL should fail
@@ -29,6 +31,58 @@ def test_defaults(app, status, warning):
     assert "Not Found for url: https://www.google.com/image.png" in content
     assert "Not Found for url: https://www.google.com/image2.png" in content
     assert len(content.splitlines()) == 5
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
+def test_defaults_json(app, status, warning):
+    app.builder.build_all()
+
+    assert (app.outdir / 'output.json').exists()
+    content = (app.outdir / 'output.json').read_text()
+    print(content)
+
+    rows = [json.loads(x) for x in content.splitlines()]
+    row = rows[0]
+    for attr in ["filename", "lineno", "status", "code", "uri",
+                 "info"]:
+        assert attr in row
+
+    assert len(content.splitlines()) == 8
+    assert len(rows) == 8
+    # the output order of the rows is not stable
+    # due to possible variance in network latency
+    rowsby = {row["uri"]:row for row in rows}
+    assert rowsby["https://www.google.com#!bar"] == {
+        'filename': 'links.txt',
+        'lineno': 10,
+        'status': 'working',
+        'code': 0,
+        'uri': 'https://www.google.com#!bar',
+        'info': ''
+    }
+    # looking for non-existent URL should fail
+    dnerow = rowsby['https://localhost:7777/doesnotexist']
+    assert dnerow['filename'] == 'links.txt'
+    assert dnerow['lineno'] == 13
+    assert dnerow['status'] == 'broken'
+    assert dnerow['code'] == 0
+    assert dnerow['uri'] == 'https://localhost:7777/doesnotexist'
+    assert rowsby['https://www.google.com/image2.png'] == {
+        'filename': 'links.txt',
+        'lineno': 16,
+        'status': 'broken',
+        'code': 0,
+        'uri': 'https://www.google.com/image2.png',
+        'info': '404 Client Error: Not Found for url: https://www.google.com/image2.png'
+    }
+    # looking for '#top' and '#does-not-exist' not found should fail
+    assert "Anchor 'top' not found" == \
+        rowsby["https://www.google.com/#top"]["info"]
+    assert "Anchor 'does-not-exist' not found" == \
+        rowsby["http://www.sphinx-doc.org/en/1.7/intro.html#does-not-exist"]["info"]
+    # images should fail
+    assert "Not Found for url: https://www.google.com/image.png" in \
+        rowsby["https://www.google.com/image.png"]["info"]
 
 
 @pytest.mark.sphinx(
