@@ -817,7 +817,7 @@ Macros
      multiple paragraphs in header cells of tables.
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
-  .. versionadded:: 2.4.0
+  .. versionadded:: 3.0
      ``\sphinxkeyboard``
 - ``\sphinxtableofcontents``: it is a
   wrapper (defined differently in :file:`sphinxhowto.cls` and in
