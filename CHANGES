@@ -56,6 +56,7 @@ Features added
 * #3106: domain: Register hyperlink target for index page automatically
 * #6558: std domain: emit a warning for duplicated generic objects
 * #6830: py domain: Add new event: :event:`object-description-transform`
+* #6895: py domain: Do not emit nitpicky warnings for built-in types
 * py domain: Support lambda functions in function signature
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`

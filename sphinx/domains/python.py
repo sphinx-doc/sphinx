@@ -8,7 +8,10 @@
     :license: BSD, see LICENSE for details.
 """
 
+import builtins
+import inspect
 import re
+import typing
 import warnings
 from inspect import Parameter
 from typing import Any, Dict, Iterable, Iterator, List, Tuple
@@ -1173,11 +1176,37 @@ class PythonDomain(Domain):
             return '.'.join(filter(None, [modname, clsname, target]))
 
 
+def builtin_resolver(app: Sphinx, env: BuildEnvironment,
+                     node: pending_xref, contnode: Element) -> Element:
+    """Do not emit nitpicky warnings for built-in types."""
+    def istyping(s: str) -> bool:
+        if s.startswith('typing.'):
+            s = s.split('.', 1)[1]
+
+        return s in typing.__all__  # type: ignore
+
+    if node.get('refdomain') != 'py':
+        return None
+    elif node.get('reftype') == 'obj' and node.get('reftarget') == 'None':
+        return contnode
+    elif node.get('reftype') in ('class', 'exc'):
+        reftarget = node.get('reftarget')
+        if inspect.isclass(getattr(builtins, reftarget, None)):
+            # built-in class
+            return contnode
+        elif istyping(reftarget):
+            # typing class
+            return contnode
+
+    return None
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.setup_extension('sphinx.directives')
 
     app.add_domain(PythonDomain)
     app.connect('object-description-transform', filter_meta_fields)
+    app.connect('missing-reference', builtin_resolver, priority=900)
 
     return {
         'version': 'builtin',
