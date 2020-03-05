@@ -437,7 +437,7 @@ class PyModulelevel(PyObject):
     """
 
     def run(self) -> List[Node]:
-        warnings.warn('PyClassmember is deprecated.',
+        warnings.warn('PyModulelevel is deprecated.',
                       RemovedInSphinx40Warning)
 
         return super().run()

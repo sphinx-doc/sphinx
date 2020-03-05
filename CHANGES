@@ -89,7 +89,7 @@ Bugs fixed
 Testing
 --------
 
-Release 2.4.4 (in development)
+Release 2.4.5 (in development)
 ==============================
 
 Dependencies
@@ -107,11 +107,17 @@ Features added
 Bugs fixed
 ----------
 
-* #7197: LaTeX: platex cause error to build image directive with target url
-* #7223: Sphinx builds has been slower since 2.4.0
-
 Testing
 --------
+
+Release 2.4.4 (released Mar 05, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7197: LaTeX: platex cause error to build image directive with target url
+* #7223: Sphinx builds has been slower since 2.4.0
 
 Release 2.4.3 (released Feb 22, 2020)
 =====================================
