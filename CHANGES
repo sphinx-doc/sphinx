@@ -31,6 +31,8 @@ Incompatible changes
   node_id for cross reference
 * #7229: rst domain: Non intended behavior is removed such as ``numref_`` links
   to ``.. rst:role:: numref``
+* #7243: c domain: Internal data structure has changed.  Now keys for objects
+  is a pair of objtype and objname
 
 Deprecated
 ----------
@@ -55,6 +57,8 @@ Features added
 * #7165: autodoc: Support Annotated type (PEP-593)
 * #6558: glossary: emit a warning for duplicated glossary entry
 * #3106: domain: Register hyperlink target for index page automatically
+* #7243: c domain: All ``:c:*:`` roles can refer all kind of C objects even if
+  objtype not matched
 * #6558: std domain: emit a warning for duplicated generic objects
 * #6830: py domain: Add new event: :event:`object-description-transform`
 * py domain: Support lambda functions in function signature

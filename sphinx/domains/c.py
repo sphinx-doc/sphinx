@@ -271,57 +271,64 @@ class CDomain(Domain):
     }  # type: Dict[str, Dict[str, Tuple[str, Any]]]
 
     @property
-    def objects(self) -> Dict[str, Tuple[str, str]]:
-        return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+    def objects(self) -> Dict[Tuple[str, str], str]:
+        return self.data.setdefault('objects', {})  # objtype, fullname -> docname
 
     def note_object(self, name: str, objtype: str, location: Any = None) -> None:
-        if name in self.objects:
-            docname = self.objects[name][0]
+        if (objtype, name) in self.objects:
+            docname = self.objects[objtype, name]
             logger.warning(__('duplicate C object description of %s, '
                               'other instance in %s, use :noindex: for one of them'),
                            name, docname, location=location)
-        self.objects[name] = (self.env.docname, objtype)
+        self.objects[objtype, name] = self.env.docname
 
     def clear_doc(self, docname: str) -> None:
-        for fullname, (fn, _l) in list(self.objects.items()):
+        for key, fn in list(self.objects.items()):
             if fn == docname:
-                del self.objects[fullname]
+                del self.objects[key]
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
-        for fullname, (fn, objtype) in otherdata['objects'].items():
+        for key, fn in otherdata['objects'].items():
             if fn in docnames:
-                self.data['objects'][fullname] = (fn, objtype)
+                self.objects[key] = fn
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
                      ) -> Element:
+        objtypes = self.objtypes_for_role(typ)
         # strip pointer asterisk
         target = target.rstrip(' *')
         # becase TypedField can generate xrefs
         if target in CObject.stopwords:
             return contnode
-        if target not in self.objects:
-            return None
-        obj = self.objects[target]
-        return make_refnode(builder, fromdocname, obj[0], 'c.' + target,
-                            contnode, target)
+        for objtype in objtypes:
+            if (objtype, target) in self.objects:
+                docname = self.objects[objtype, target]
+                return make_refnode(builder, fromdocname, docname, 'c.' + target,
+                                    contnode, target)
+
+        return None
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
                          ) -> List[Tuple[str, Element]]:
         # strip pointer asterisk
         target = target.rstrip(' *')
-        if target not in self.objects:
-            return []
-        obj = self.objects[target]
-        return [('c:' + self.role_for_objtype(obj[1]),
-                 make_refnode(builder, fromdocname, obj[0], 'c.' + target,
-                              contnode, target))]
+
+        results = []  # type: List[Tuple[str, Element]]
+        for (objtype, objname), docname in self.objects.items():
+            if target == objname:
+                role = 'c:' + self.role_for_objtype(objtype)
+                refnode = make_refnode(builder, fromdocname, docname, 'c.' + target,
+                                       contnode, target)
+                results.append((role, refnode))
+
+        return results
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
-        for refname, (docname, type) in list(self.objects.items()):
-            yield (refname, refname, type, docname, 'c.' + refname, 1)
+        for (objtype, objname), docname in list(self.objects.items()):
+            yield (objname, objname, objtype, docname, 'c.' + objname, 1)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -329,7 +336,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
