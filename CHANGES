@@ -31,6 +31,10 @@ Incompatible changes
   node_id for cross reference
 * #7229: rst domain: Non intended behavior is removed such as ``numref_`` links
   to ``.. rst:role:: numref``
+* #6903: py domain: Internal data structure has changed. Both objects and
+  modules have node_id for cross reference
+* #6903: py domain: Non intended behavior is removed such as ``say_hello_``
+  links to ``.. py:function:: say_hello()``
 
 Deprecated
 ----------
