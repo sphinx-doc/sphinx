@@ -50,13 +50,6 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-SHORTHANDOFF = r'''
-\ifdefined\shorthandoff
-  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
-  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
-\fi
-'''
-
 MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
                      "subsubsection", "paragraph", "subparagraph"]
@@ -394,44 +387,6 @@ class LaTeXTranslator(SphinxTranslator):
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
                            self.config.language)
-
-        # set up multilingual module...
-        if self.elements['latex_engine'] == 'pdflatex':
-            if not self.babel.uses_cyrillic():
-                if 'X2' in self.elements['fontenc']:
-                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.elements['textcyrillic'] = ('\\usepackage[Xtwo]'
-                                                     '{sphinxcyrillic}')
-                elif 'T2A' in self.elements['fontenc']:
-                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.elements['textcyrillic'] = ('\\usepackage[TtwoA]'
-                                                     '{sphinxcyrillic}')
-            if 'LGR' in self.elements['fontenc']:
-                self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-            else:
-                self.elements['textgreek'] = ''
-        # 'babel' key is public and user setting must be obeyed
-        if self.elements['babel']:
-            self.elements['classoptions'] += ',' + self.babel.get_language()
-            # this branch is not taken for xelatex/lualatex if default settings
-            self.elements['multilingual'] = self.elements['babel']
-            if self.config.language:
-                self.elements['shorthandoff'] = SHORTHANDOFF
-
-                # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
-                    self.elements['fontpkg'] = ''
-        elif self.elements['polyglossia']:
-            self.elements['classoptions'] += ',' + self.babel.get_language()
-            options = self.babel.get_mainlanguage_options()
-            if options:
-                mainlanguage = r'\setmainlanguage[%s]{%s}' % (options,
-                                                              self.babel.get_language())
-            else:
-                mainlanguage = r'\setmainlanguage{%s}' % self.babel.get_language()
-
-            self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
-                                                        mainlanguage)
 
         minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
         if self.document.get('tocdepth'):
@@ -2177,6 +2132,7 @@ deprecated_alias('sphinx.writers.latex',
                      'DEFAULT_SETTINGS': constants.DEFAULT_SETTINGS,
                      'LUALATEX_DEFAULT_FONTPKG': constants.LUALATEX_DEFAULT_FONTPKG,
                      'PDFLATEX_DEFAULT_FONTPKG': constants.PDFLATEX_DEFAULT_FONTPKG,
+                     'SHORTHANDOFF': constants.SHORTHANDOFF,
                      'XELATEX_DEFAULT_FONTPKG': constants.XELATEX_DEFAULT_FONTPKG,
                      'XELATEX_GREEK_DEFAULT_FONTPKG': constants.XELATEX_GREEK_DEFAULT_FONTPKG,
                      'ExtBabel': ExtBabel,

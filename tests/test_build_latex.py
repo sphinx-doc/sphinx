@@ -99,7 +99,7 @@ def skip_if_stylefiles_notfound(testfunc):
 def test_build_latex_doc(app, status, warning, engine, docclass):
     app.config.latex_engine = engine
     app.config.latex_documents = [app.config.latex_documents[0][:4] + (docclass,)]
-    app.builder.init_context()
+    app.builder.init()
 
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
