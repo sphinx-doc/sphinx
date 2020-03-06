@@ -20,7 +20,7 @@ from test_build_html import ENV_WARNINGS
 
 from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, ThemeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
 from sphinx.util.osutil import cd, ensuredir
@@ -163,6 +163,65 @@ def test_latex_basic(app, status, warning):
     assert r'\title{The basic Sphinx documentation for testing}' in result
     assert r'\release{}' in result
     assert r'\renewcommand{\releasename}{}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')]
+                    })
+def test_latex_basic_manual(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{report}' in result
+    assert r'\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')]
+                    })
+def test_latex_basic_howto(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{article}' in result
+    assert r'\documentclass[letterpaper,10pt,english]{sphinxhowto}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={
+                        'language': 'ja',
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')]
+                    })
+def test_latex_basic_manual_ja(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{jsbook}' in result
+    assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={
+                        'language': 'ja',
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')]
+                    })
+def test_latex_basic_howto_ja(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{jreport}' in result
+    assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxhowto}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-theme')
+def test_latex_theme(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{book}' in result
+    assert r'\documentclass[letterpaper,10pt,english]{sphinxbook}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language': 'zh'})
@@ -1415,6 +1474,7 @@ def test_default_latex_documents():
                      'author': "Wolfgang Schäuble & G'Beckstein."})
     config.init_values()
     config.add('latex_engine', None, True, None)
+    config.add('latex_theme', 'manual', True, None)
     expected = [('index', 'stasi.tex', 'STASI™ Documentation',
                  r"Wolfgang Schäuble \& G\textquotesingle{}Beckstein.\@{}", 'manual')]
     assert default_latex_documents(config) == expected

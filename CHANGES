@@ -42,6 +42,7 @@ Deprecated
 * ``sphinx.testing.path.Path.text()``
 * ``sphinx.testing.path.Path.bytes()``
 * ``sphinx.util.inspect.getargspec()``
+* ``sphinx.writers.latex.LaTeXWriter.format_docclass()``
 
 Features added
 --------------
@@ -68,6 +69,7 @@ Features added
   ``no-scaled-link`` class
 * #7144: Add CSS class indicating its domain for each desc node
 * #7211: latex: Use babel for Chinese document when using XeLaTeX
+* #6672: LaTeX: Support LaTeX Theming (experimental)
 * #7005: LaTeX: Add LaTeX styling macro for :rst:role:`kbd` role
 * #7220: genindex: Show "main" index entries at first
 * #7103: linkcheck: writes all links to ``output.json``
