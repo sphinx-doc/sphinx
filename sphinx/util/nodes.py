@@ -537,10 +537,12 @@ def process_only_nodes(document: Node, tags: "Tags") -> None:
                 node.replace_self(nodes.comment())
 
 
-# monkey-patch Element.copy to copy the rawsource and line
-# for docutils-0.14 or older versions.
-
 def _new_copy(self: Element) -> Element:
+    """monkey-patch Element.copy to copy the rawsource and line
+    for docutils-0.16 or older versions.
+
+    refs: https://sourceforge.net/p/docutils/patches/165/
+    """
     newnode = self.__class__(self.rawsource, **self.attributes)
     if isinstance(self, nodes.Element):
         newnode.source = self.source
