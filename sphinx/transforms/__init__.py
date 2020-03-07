@@ -22,7 +22,6 @@ from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
@@ -392,18 +391,6 @@ class ManpageLink(SphinxTransform):
             if r:
                 info = r.groupdict()
             node.attributes.update(info)
-
-
-from sphinx.domains.citation import (  # NOQA
-    CitationDefinitionTransform, CitationReferenceTransform
-)
-
-deprecated_alias('sphinx.transforms',
-                 {
-                     'CitationReferences': CitationReferenceTransform,
-                     'SmartQuotesSkipper': CitationDefinitionTransform,
-                 },
-                 RemovedInSphinx40Warning)
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

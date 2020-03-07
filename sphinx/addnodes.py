@@ -8,14 +8,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from typing import Any, Dict, List, Sequence
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Element, Node
-
-from sphinx.deprecation import RemovedInSphinx40Warning
+from docutils.nodes import Element
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -323,20 +320,6 @@ class literal_strong(nodes.strong, not_smartquotable):
     """Node that behaves like `strong`, but further text processors are not
     applied (e.g. smartypants for HTML output).
     """
-
-
-class abbreviation(nodes.abbreviation):
-    """Node for abbreviations with explanations.
-
-    .. deprecated:: 2.0
-    """
-
-    def __init__(self, rawsource: str = '', text: str = '',
-                 *children: Node, **attributes: Any) -> None:
-        warnings.warn("abbrevition node for Sphinx was replaced by docutils'.",
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-        super().__init__(rawsource, text, *children, **attributes)
 
 
 class manpage(nodes.Inline, nodes.FixedTextElement):

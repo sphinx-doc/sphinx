@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 import codecs
-import warnings
 from typing import Any, List, Type
 from typing import TYPE_CHECKING
 
@@ -23,9 +22,7 @@ from docutils.transforms import Transform
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.environment import BuildEnvironment
-from sphinx.errors import FiletypeNotFoundError
 from sphinx.transforms import (
     AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
 )
@@ -62,18 +59,6 @@ class SphinxBaseReader(standalone.Reader):
             args = args[1:]
 
         super().__init__(*args, **kwargs)
-
-    @property
-    def app(self) -> "Sphinx":
-        warnings.warn('SphinxBaseReader.app is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self._app
-
-    @property
-    def env(self) -> BuildEnvironment:
-        warnings.warn('SphinxBaseReader.env is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self._env
 
     def setup(self, app: "Sphinx") -> None:
         self._app = app      # hold application object only for compatibility
@@ -219,11 +204,3 @@ def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.docum
 
     pub.publish()
     return pub.document
-
-
-deprecated_alias('sphinx.io',
-                 {
-                     'FiletypeNotFoundError': FiletypeNotFoundError,
-                     'get_filetype': get_filetype,
-                 },
-                 RemovedInSphinx40Warning)

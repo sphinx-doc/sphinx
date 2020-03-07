@@ -10,19 +10,17 @@
 
 import os
 import pickle
-import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
 from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
@@ -320,28 +318,13 @@ class BuildEnvironment:
         """
         return self.project.path2doc(filename)
 
-    def doc2path(self, docname: str, base: Union[bool, str] = True, suffix: str = None) -> str:
+    def doc2path(self, docname: str, base: bool = True) -> str:
         """Return the filename for the document name.
 
         If *base* is True, return absolute path under self.srcdir.
-        If *base* is None, return relative path to self.srcdir.
-        If *base* is a path string, return absolute path under that.
-        If *suffix* is not None, add it instead of config.source_suffix.
+        If *base* is False, return relative path to self.srcdir.
         """
-        if suffix:
-            warnings.warn('The suffix argument for doc2path() is deprecated.',
-                          RemovedInSphinx40Warning)
-        if base not in (True, False, None):
-            warnings.warn('The string style base argument for doc2path() is deprecated.',
-                          RemovedInSphinx40Warning)
-
-        pathname = self.project.doc2path(docname, base is True)
-        if suffix:
-            filename, _ = path.splitext(pathname)
-            pathname = filename + suffix
-        if base and base is not True:
-            pathname = path.join(base, pathname)  # type: ignore
-        return pathname
+        return self.project.doc2path(docname, base)
 
     def relfn2path(self, filename: str, docname: str = None) -> Tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
@@ -639,19 +622,3 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.check_consistency()
         self.events.emit('env-check-consistency', self)
-
-    @property
-    def indexentries(self) -> Dict[str, List[Tuple[str, str, str, str, str]]]:
-        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        from sphinx.domains.index import IndexDomain
-        domain = cast(IndexDomain, self.get_domain('index'))
-        return domain.entries
-
-    @indexentries.setter
-    def indexentries(self, entries: Dict[str, List[Tuple[str, str, str, str, str]]]) -> None:
-        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        from sphinx.domains.index import IndexDomain
-        domain = cast(IndexDomain, self.get_domain('index'))
-        domain.data['entries'] = entries

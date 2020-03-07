@@ -10,7 +10,6 @@
 """
 
 import html
-import warnings
 from os import path
 from typing import Any, Dict, List, NamedTuple, Set, Tuple
 
@@ -18,7 +17,6 @@ from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import _epub_base
 from sphinx.config import Config, ENUM
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
@@ -84,10 +82,6 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.build_navigation_doc()
         self.build_toc()
         self.build_epub()
-
-    def validate_config_value(self) -> None:
-        warnings.warn('Epub3Builder.validate_config_value() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
 
     def content_metadata(self) -> Dict:
         """Create a dictionary with all metadata for the content.opf
@@ -166,15 +160,9 @@ class Epub3Builder(_epub_base.EpubBuilder):
         metadata['navlist'] = navlist
         return metadata
 
-    def build_navigation_doc(self, outdir: str = None, outname: str = 'nav.xhtml') -> None:
+    def build_navigation_doc(self) -> None:
         """Write the metainfo file nav.xhtml."""
-        if outdir:
-            warnings.warn('The arguments of Epub3Builder.build_navigation_doc() '
-                          'is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
-        else:
-            outdir = self.outdir
-
-        logger.info(__('writing %s file...'), outname)
+        logger.info(__('writing nav.xhtml file...'))
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(
@@ -186,13 +174,12 @@ class Epub3Builder(_epub_base.EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'),
-                        path.join(outdir, outname),
+        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'), self.outdir,
                         self.navigation_doc_metadata(navlist))
 
         # Add nav.xhtml to epub file
-        if outname not in self.files:
-            self.files.append(outname)
+        if 'nav.xhtml' not in self.files:
+            self.files.append('nav.xhtml')
 
 
 def validate_config_values(app: Sphinx) -> None:

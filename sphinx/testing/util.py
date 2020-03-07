@@ -21,16 +21,13 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
 
 
 __all__ = [
-    'Struct',
-    'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
-    'remove_unicode_literals',
+    'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
 ]
 
 
@@ -177,12 +174,6 @@ class SphinxTestAppWrapperForSkipBuilding:
 
 
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
-
-
-def remove_unicode_literals(s: str) -> str:
-    warnings.warn('remove_unicode_literals() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
 
 
 def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:

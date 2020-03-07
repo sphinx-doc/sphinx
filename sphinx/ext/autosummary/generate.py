@@ -27,7 +27,7 @@ import sys
 import warnings
 from gettext import NullTranslations
 from os import path
-from typing import Any, Callable, Dict, List, NamedTuple, Set, Tuple, Type, Union
+from typing import Any, Dict, List, NamedTuple, Set, Tuple, Type, Union
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -38,7 +38,7 @@ from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.locale import __
@@ -268,25 +268,10 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
 
 def generate_autosummary_docs(sources: List[str], output_dir: str = None,
-                              suffix: str = '.rst', warn: Callable = None,
-                              info: Callable = None, base_path: str = None,
+                              suffix: str = '.rst', base_path: str = None,
                               builder: Builder = None, template_dir: str = None,
                               imported_members: bool = False, app: Any = None,
                               overwrite: bool = True) -> None:
-    if info:
-        warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
-                      RemovedInSphinx40Warning)
-        _info = info
-    else:
-        _info = logger.info
-
-    if warn:
-        warnings.warn('warn argument for generate_autosummary_docs() is deprecated.',
-                      RemovedInSphinx40Warning)
-        _warn = warn
-    else:
-        _warn = logger.warning
-
     if builder:
         warnings.warn('builder argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx50Warning)
@@ -298,11 +283,11 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
-    _info(__('[autosummary] generating autosummary for: %s') %
-          ', '.join(showed_sources))
+    logger.info(__('[autosummary] generating autosummary for: %s') %
+                ', '.join(showed_sources))
 
     if output_dir:
-        _info(__('[autosummary] writing to %s') % output_dir)
+        logger.info(__('[autosummary] writing to %s') % output_dir)
 
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
@@ -328,7 +313,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         try:
             name, obj, parent, mod_name = import_by_name(entry.name)
         except ImportError as e:
-            _warn(__('[autosummary] failed to import %r: %s') % (entry.name, e))
+            logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
             continue
 
         context = {}
@@ -357,8 +342,8 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     # descend recursively to new files
     if new_files:
         generate_autosummary_docs(new_files, output_dir=output_dir,
-                                  suffix=suffix, warn=warn, info=info,
-                                  base_path=base_path,
+                                  suffix=suffix, base_path=base_path,
+                                  builder=builder, template_dir=template_dir,
                                   imported_members=imported_members, app=app,
                                   overwrite=overwrite)
 

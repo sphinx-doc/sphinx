@@ -18,7 +18,7 @@ class RemovedInSphinx40Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx50Warning(PendingDeprecationWarning):
+class RemovedInSphinx50Warning(DeprecationWarning):
     pass
 
 
@@ -26,7 +26,7 @@ class RemovedInSphinx60Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx40Warning
+RemovedInNextVersionWarning = RemovedInSphinx50Warning
 
 
 def deprecated_alias(modname: str, objects: Dict, warning: "Type[Warning]") -> None:

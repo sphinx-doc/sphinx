@@ -14,7 +14,6 @@ import os
 import pickle
 import platform
 import sys
-import warnings
 from collections import deque
 from io import StringIO
 from os import path
@@ -30,14 +29,13 @@ from pygments.lexer import Lexer
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
 from sphinx.extension import Extension
-from sphinx.highlighting import lexer_classes, lexers
+from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
@@ -861,13 +859,6 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_javascript(self, filename: str, **kwargs: str) -> None:
-        """An alias of :meth:`add_js_file`."""
-        warnings.warn('The app.add_javascript() is deprecated. '
-                      'Please use app.add_js_file() instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        self.add_js_file(filename, **kwargs)
-
     def add_js_file(self, filename: str, **kwargs: str) -> None:
         """Register a JavaScript file to include in the HTML output.
 
@@ -938,24 +929,6 @@ class Sphinx:
         if hasattr(self.builder, 'add_css_file'):
             self.builder.add_css_file(filename, **kwargs)  # type: ignore
 
-    def add_stylesheet(self, filename: str, alternate: bool = False, title: str = None
-                       ) -> None:
-        """An alias of :meth:`add_css_file`."""
-        warnings.warn('The app.add_stylesheet() is deprecated. '
-                      'Please use app.add_css_file() instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-        attributes = {}  # type: Dict[str, str]
-        if alternate:
-            attributes['rel'] = 'alternate stylesheet'
-        else:
-            attributes['rel'] = 'stylesheet'
-
-        if title:
-            attributes['title'] = title
-
-        self.add_css_file(filename, **attributes)
-
     def add_latex_package(self, packagename: str, options: str = None) -> None:
         r"""Register a package to include in the LaTeX source code.
 
@@ -974,7 +947,7 @@ class Sphinx:
         """
         self.registry.add_latex_package(packagename, options)
 
-    def add_lexer(self, alias: str, lexer: Union[Lexer, "Type[Lexer]"]) -> None:
+    def add_lexer(self, alias: str, lexer: Type[Lexer]) -> None:
         """Register a new lexer for source code.
 
         Use *lexer* to highlight code blocks with the given language *alias*.
@@ -985,13 +958,7 @@ class Sphinx:
            still supported until Sphinx-3.x.
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
-        if isinstance(lexer, Lexer):
-            warnings.warn('app.add_lexer() API changed; '
-                          'Please give lexer class instead instance',
-                          RemovedInSphinx40Warning)
-            lexers[alias] = lexer
-        else:
-            lexer_classes[alias] = lexer
+        lexer_classes[alias] = lexer
 
     def add_autodocumenter(self, cls: Any, override: bool = False) -> None:
         """Register a new documenter class for the autodoc extension.

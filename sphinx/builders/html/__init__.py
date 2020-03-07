@@ -12,7 +12,6 @@ import html
 import posixpath
 import re
 import sys
-import warnings
 from hashlib import md5
 from os import path
 from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple, Type
@@ -28,7 +27,6 @@ from sphinx import package_dir, __display_version__
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -864,21 +862,11 @@ class StandaloneHTMLBuilder(Builder):
         # only index pages with title
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
-            try:
-                metadata = self.env.metadata.get(pagename, {})
-                if 'nosearch' in metadata:
-                    self.indexer.feed(pagename, filename, '', new_document(''))
-                else:
-                    self.indexer.feed(pagename, filename, title, doctree)
-            except TypeError:
-                # fallback for old search-adapters
-                self.indexer.feed(pagename, title, doctree)  # type: ignore
-                indexer_name = self.indexer.__class__.__name__
-                warnings.warn(
-                    'The %s.feed() method signature is deprecated. Update to '
-                    '%s.feed(docname, filename, title, doctree).' % (
-                        indexer_name, indexer_name),
-                    RemovedInSphinx40Warning)
+            metadata = self.env.metadata.get(pagename, {})
+            if 'nosearch' in metadata:
+                self.indexer.feed(pagename, filename, '', new_document(''))
+            else:
+                self.indexer.feed(pagename, filename, title, doctree)
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if 'includehidden' not in kwargs:

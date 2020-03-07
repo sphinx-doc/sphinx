@@ -7,24 +7,21 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import gettext
+
 import os
 import re
-import warnings
 from datetime import datetime, timezone
 from os import path
-from typing import Callable, Generator, List, NamedTuple, Set, Tuple
+from typing import Callable, Generator, List, NamedTuple, Tuple
 from typing import TYPE_CHECKING
 
 import babel.dates
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.matching import Matcher
 from sphinx.util.osutil import SEP, canon_path, relpath
 
 if TYPE_CHECKING:
@@ -120,86 +117,12 @@ class CatalogRepository:
             yield CatalogInfo(basedir, domain, self.encoding)
 
 
-def find_catalog(docname: str, compaction: bool) -> str:
-    warnings.warn('find_catalog() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    if compaction:
-        ret = docname.split(SEP, 1)[0]
-    else:
-        ret = docname
-
-    return ret
-
-
 def docname_to_domain(docname: str, compation: bool) -> str:
     """Convert docname to domain for catalogs."""
     if compation:
         return docname.split(SEP, 1)[0]
     else:
         return docname
-
-
-def find_catalog_files(docname: str, srcdir: str, locale_dirs: List[str],
-                       lang: str, compaction: bool) -> List[str]:
-    warnings.warn('find_catalog_files() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    if not(lang and locale_dirs):
-        return []
-
-    domain = find_catalog(docname, compaction)
-    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
-             for dir_ in locale_dirs]
-    files = [relpath(f, srcdir) for f in files if f]
-    return files
-
-
-def find_catalog_source_files(locale_dirs: List[str], locale: str, domains: List[str] = None,
-                              charset: str = 'utf-8', force_all: bool = False,
-                              excluded: Matcher = Matcher([])) -> Set[CatalogInfo]:
-    """
-    :param list locale_dirs:
-       list of path as `['locale_dir1', 'locale_dir2', ...]` to find
-       translation catalogs. Each path contains a structure such as
-       `<locale>/LC_MESSAGES/domain.po`.
-    :param str locale: a language as `'en'`
-    :param list domains: list of domain names to get. If empty list or None
-       is specified, get all domain names. default is None.
-    :param boolean force_all:
-       Set True if you want to get all catalogs rather than updated catalogs.
-       default is False.
-    :return: [CatalogInfo(), ...]
-    """
-    warnings.warn('find_catalog_source_files() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-
-    catalogs = set()  # type: Set[CatalogInfo]
-
-    if not locale:
-        return catalogs  # locale is not specified
-
-    for locale_dir in locale_dirs:
-        if not locale_dir:
-            continue  # skip system locale directory
-
-        base_dir = path.join(locale_dir, locale, 'LC_MESSAGES')
-
-        if not path.exists(base_dir):
-            continue  # locale path is not found
-
-        for dirpath, dirnames, filenames in os.walk(base_dir, followlinks=True):
-            filenames = [f for f in filenames if f.endswith('.po')]
-            for filename in filenames:
-                if excluded(path.join(relpath(dirpath, base_dir), filename)):
-                    continue
-                base = path.splitext(filename)[0]
-                domain = relpath(path.join(dirpath, base), base_dir).replace(path.sep, SEP)
-                if domains and domain not in domains:
-                    continue
-                cat = CatalogInfo(base_dir, domain, charset)
-                if force_all or cat.is_outdated():
-                    catalogs.add(cat)
-
-    return catalogs
 
 
 # date_format mappings: ustrftime() to bable.dates.format_datetime()
