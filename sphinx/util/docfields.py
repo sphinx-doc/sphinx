@@ -10,7 +10,7 @@
 """
 
 import warnings
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Type, Union
 from typing import cast
 
 from docutils import nodes
@@ -22,7 +22,6 @@ from sphinx.util.typing import TextlikeNode
 
 if False:
     # For type annotation
-    from typing import Type  # for python3.5.1
     from sphinx.environment import BuildEnvironment
     from sphinx.directive import ObjectDescription
 

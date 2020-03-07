@@ -10,7 +10,7 @@
 
 from os import path
 from textwrap import indent
-from typing import Any, Dict, List, Tuple, TypeVar
+from typing import Any, Dict, List, Tuple, Type, TypeVar
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -31,7 +31,6 @@ from sphinx.util.nodes import (
 
 if False:
     # For type annotation
-    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 

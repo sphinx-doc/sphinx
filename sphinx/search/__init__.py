@@ -13,7 +13,7 @@ import re
 import warnings
 from importlib import import_module
 from os import path
-from typing import Any, Dict, IO, Iterable, List, Tuple, Set
+from typing import Any, Dict, IO, Iterable, List, Tuple, Set, Type
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -24,10 +24,6 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.search.jssplitter import splitter_code
 from sphinx.util import jsdump, rpartition
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 class SearchLanguage:

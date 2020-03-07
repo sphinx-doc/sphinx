@@ -15,7 +15,7 @@ from copy import copy
 from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
-from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple, Type
 from typing import cast
 
 import docutils
@@ -36,7 +36,6 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Type  # for python3.5.1
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment

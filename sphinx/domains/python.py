@@ -14,7 +14,7 @@ import re
 import typing
 import warnings
 from inspect import Parameter
-from typing import Any, Dict, Iterable, Iterator, List, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, Tuple, Type
 from typing import cast
 
 from docutils import nodes
@@ -37,10 +37,6 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.inspect import signature_from_str
 from sphinx.util.nodes import make_id, make_refnode
 from sphinx.util.typing import TextlikeNode
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 logger = logging.getLogger(__name__)

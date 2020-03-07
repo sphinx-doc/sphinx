@@ -10,8 +10,7 @@
 
 import re
 import warnings
-from typing import Any, Dict, List, Tuple
-from typing import Type  # for python3.5.1
+from typing import Any, Dict, List, Tuple, Type
 
 from docutils import nodes, utils
 from docutils.nodes import Element, Node, TextElement, system_message

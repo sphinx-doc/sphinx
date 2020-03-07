@@ -772,4 +772,3 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         for id in node['ids'][1:]:
             self.body.append('<span id="%s"></span>' % id)
             node['ids'].remove(id)
-

@@ -12,7 +12,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, IO, List, Tuple, Union
+from typing import Any, Dict, Generator, IO, List, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -23,7 +23,6 @@ from sphinx.util.console import colorize
 
 if False:
     # For type annotation
-    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 

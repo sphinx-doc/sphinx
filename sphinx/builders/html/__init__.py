@@ -15,7 +15,7 @@ import sys
 import warnings
 from hashlib import md5
 from os import path
-from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
+from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple, Type
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -47,10 +47,6 @@ from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, movefile, copyfile
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 # HTML5 Writer is available or not

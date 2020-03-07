@@ -10,7 +10,7 @@
 
 import re
 import warnings
-from typing import Any, Callable, Iterable, List, Set, Tuple
+from typing import Any, Callable, Iterable, List, Set, Tuple, Type
 from typing import cast
 
 from docutils import nodes
@@ -26,7 +26,6 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Type  # for python3.5.1
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.utils.tags import Tags

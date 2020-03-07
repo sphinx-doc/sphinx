@@ -14,7 +14,7 @@ import importlib
 import re
 import warnings
 from types import ModuleType
-from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Union
+from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
 
 from docutils.statemachine import StringList
 
@@ -36,7 +36,6 @@ from sphinx.util.typing import stringify as stringify_typehint
 
 if False:
     # For type annotation
-    from typing import Type  # NOQA # for python3.5.1
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
 
@@ -262,7 +261,7 @@ class Documenter:
         self.analyzer = None        # type: ModuleAnalyzer
 
     @property
-    def documenters(self) -> Dict[str, "Type[Documenter]"]:
+    def documenters(self) -> Dict[str, Type["Documenter"]]:
         """Returns registered Documenter classes"""
         return get_documenters(self.env.app)
 
@@ -1591,7 +1590,7 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
             return []
 
 
-def get_documenters(app: Sphinx) -> Dict[str, "Type[Documenter]"]:
+def get_documenters(app: Sphinx) -> Dict[str, Type[Documenter]]:
     """Returns registered Documenter classes"""
     return app.registry.documenters
 

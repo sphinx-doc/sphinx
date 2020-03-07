@@ -9,8 +9,7 @@
 """
 import codecs
 import warnings
-from typing import Any, List
-from typing import Type  # for python3.5.1
+from typing import Any, List, Type
 
 from docutils import nodes
 from docutils.core import Publisher

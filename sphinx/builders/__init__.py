@@ -11,7 +11,7 @@
 import pickle
 import time
 from os import path
-from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -44,7 +44,6 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 

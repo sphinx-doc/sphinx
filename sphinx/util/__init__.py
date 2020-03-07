@@ -25,7 +25,7 @@ from hashlib import md5
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
+from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Type
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from sphinx.deprecation import RemovedInSphinx40Warning
@@ -51,7 +51,6 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 

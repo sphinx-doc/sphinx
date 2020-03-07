@@ -349,7 +349,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         for varname in varnames:
             self.add_entry(varname)
 
-    def visit_AnnAssign(self, node: ast.AST) -> None:  # Note: ast.AnnAssign not found in py35
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         """Handles AnnAssign node and pick up a variable comment."""
         self.visit_Assign(node)  # type: ignore
 
