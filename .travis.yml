@@ -11,22 +11,19 @@ env:
 
 matrix:
   include:
-    - python: '3.5'
-      env:
-        - TOXENV=du12
     - python: '3.6'
       env:
-        - TOXENV=du13
+        - TOXENV=du14
     - python: '3.7'
       env:
-        - TOXENV=du14
+        - TOXENV=du15
     - python: '3.8'
       env:
-        - TOXENV=du15
+        - TOXENV=du16
         - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
     - python: 'nightly'
       env:
-        - TOXENV=du16
+        - TOXENV=py39
     - python: '3.6'
       env: TOXENV=docs
     - python: '3.6'
