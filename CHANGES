@@ -58,6 +58,7 @@ Features added
 * #6830: autodoc: consider a member private if docstring contains
   ``:meta private:`` in info-field-list
 * #7165: autodoc: Support Annotated type (PEP-593)
+* #2815: autodoc: Support singledispatch functions and methods
 * #6558: glossary: emit a warning for duplicated glossary entry
 * #3106: domain: Register hyperlink target for index page automatically
 * #6558: std domain: emit a warning for duplicated generic objects

@@ -1563,3 +1563,49 @@ def test_autodoc_for_egged_code(app):
         '   :module: sample',
         ''
     ]
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatch():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatch', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatch',
+        '',
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '   func(arg: int, kwarg=None)',
+        '   func(arg: str, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '   '
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='singledispatchmethod is available since python3.8')
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatchmethod():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatchmethod', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatchmethod',
+        '',
+        '',
+        '.. py:class:: Foo',
+        '   :module: target.singledispatchmethod',
+        '',
+        '   docstring',
+        '   ',
+        '   ',
+        '   .. py:method:: Foo.meth(arg, kwarg=None)',
+        '      Foo.meth(arg: int, kwarg=None)',
+        '      Foo.meth(arg: str, kwarg=None)',
+        '      :module: target.singledispatchmethod',
+        '   ',
+        '      A method for general use.',
+        '      '
+    ]
