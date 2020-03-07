@@ -585,13 +585,13 @@ def test_pyproperty(app):
                                   [desc_content, (addnodes.index, desc)])]))
     # py:property
     assert_node(doctree[1][1][0], addnodes.index,
-                entries=[('single', 'prop (Class property)', 'Class.prop', '', None)])
+                entries=[('single', 'prop (Class property)', 'class-prop', '', None)])
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, "abstract property "],
                                                      [desc_name, "prop"],
                                                      [desc_annotation, ": str"])],
                                    [desc_content, ()]))
     assert 'Class.prop' in domain.objects
-    assert domain.objects['Class.prop'] == ('index', 'property')
+    assert domain.objects['Class.prop'] == ('index', 'class-prop', 'property')
 
 
 @pytest.mark.sphinx(freshenv=True)

@@ -1272,7 +1272,7 @@ def test_html_inventory_entries(app):
 
     # properties and attributes have equal invdata entries as they can be switched transparently
     assert 'mod.Cls.attr' in invdata['py:attribute']
-    assert 'mod.Cls.prop' in invdata['py:attribute']
+    assert 'mod.Cls.prop' in invdata['py:property']
 
 
 @pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
