@@ -10,7 +10,6 @@
 
 import os
 import posixpath
-import sys
 import warnings
 from typing import Any, Iterable, Tuple
 from typing import cast
@@ -21,7 +20,7 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -88,10 +87,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def visit_desc_signature(self, node: Element) -> None:
         # the id is set automatically
         self.body.append(self.starttag(node, 'dt'))
-        # anchor for per-desc interactive data
-        if node.parent['objtype'] != 'describe' \
-           and node['ids'] and node['first']:
-            self.body.append('<!--[%s]-->' % node['ids'][0])
 
     def depart_desc_signature(self, node: Element) -> None:
         if not node.get('is_multiline'):
@@ -777,29 +772,3 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
-    # --------- METHODS FOR COMPATIBILITY --------------------------------------
-
-    @property
-    def highlightlang(self) -> str:
-        warnings.warn('HTMLTranslator.highlightlang is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.builder.config.highlight_language
-
-    @property
-    def highlightlang_base(self) -> str:
-        warnings.warn('HTMLTranslator.highlightlang_base is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.builder.config.highlight_language
-
-    @property
-    def highlightopts(self) -> str:
-        warnings.warn('HTMLTranslator.highlightopts is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.builder.config.highlight_options
-
-    @property
-    def highlightlinenothreshold(self) -> int:
-        warnings.warn('HTMLTranslator.highlightlinenothreshold is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return sys.maxsize

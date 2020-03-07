@@ -10,7 +10,6 @@ ALLDVI = $(addsuffix .dvi,$(ALLDOCS))
 ALLXDV =
 {% endif -%}
 ALLPS  = $(addsuffix .ps,$(ALLDOCS))
-ALLIMGS = $(wildcard *.png *.gif *.jpg *.jpeg)
 
 # Prefix for archive names
 ARCHIVEPREFIX =
@@ -46,15 +45,7 @@ LATEX = latexmk -dvi
 PDFLATEX = latexmk -pdf -dvi- -ps-
 {% endif %}
 
-%.png %.gif %.jpg %.jpeg: FORCE_MAKE
-	extractbb '$@'
-
-{% if latex_engine in ('platex', 'uplatex') -%}
-%.dvi: %.tex $(ALLIMGS) FORCE_MAKE
-	for f in *.pdf; do extractbb "$$f"; done
-	$(LATEX) $(LATEXMKOPTS) '$<'
-
-{% elif latex_engine != 'xelatex' -%}
+{% if latex_engine != 'xelatex' -%}
 %.dvi: %.tex FORCE_MAKE
 	$(LATEX) $(LATEXMKOPTS) '$<'
 
@@ -62,12 +53,7 @@ PDFLATEX = latexmk -pdf -dvi- -ps-
 %.ps: %.dvi
 	dvips '$<'
 
-{% if latex_engine in ('platex', 'uplatex') -%}
-%.pdf: %.tex $(ALLIMGS) FORCE_MAKE
-	for f in *.pdf; do extractbb "$$f"; done
-{%- else -%}
 %.pdf: %.tex FORCE_MAKE
-{%- endif %}
 	$(PDFLATEX) $(LATEXMKOPTS) '$<'
 
 all: $(ALLPDF)

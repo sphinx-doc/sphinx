@@ -28,16 +28,13 @@ from time import mktime, strptime
 from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
-from docutils.utils import relative_path
-
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import (
     PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError
 )
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
-from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.typing import PathMatcher
 from sphinx.util import smartypants  # noqa
 
@@ -45,7 +42,7 @@ from sphinx.util import smartypants  # noqa
 # prune unused ones indiscriminately
 from sphinx.util.osutil import (  # noqa
     SEP, os_path, relative_uri, ensuredir, walk, mtimes_of_files, movefile,
-    copyfile, copytimes, make_filename, ustrftime)
+    copyfile, copytimes, make_filename)
 from sphinx.util.nodes import (   # noqa
     nested_parse_with_titles, split_explicit_title, explicit_title_re,
     caption_ref_re)
@@ -56,7 +53,7 @@ if False:
     # For type annotation
     from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
-    from sphinx.builders import Builder
+
 
 logger = logging.getLogger(__name__)
 
@@ -199,35 +196,6 @@ class DownloadFiles(dict):
         for filename, (docs, dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
-
-
-def copy_static_entry(source: str, targetdir: str, builder: "Builder", context: Dict = {},
-                      exclude_matchers: Tuple[PathMatcher, ...] = (), level: int = 0) -> None:
-    """[DEPRECATED] Copy a HTML builder static_path entry from source to targetdir.
-
-    Handles all possible cases of files, directories and subdirectories.
-    """
-    warnings.warn('sphinx.util.copy_static_entry is deprecated for removal',
-                  RemovedInSphinx30Warning, stacklevel=2)
-
-    if exclude_matchers:
-        relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
-        for matcher in exclude_matchers:
-            if matcher(relpath):
-                return
-    if path.isfile(source):
-        copy_asset_file(source, targetdir, context, builder.templates)
-    elif path.isdir(source):
-        ensuredir(targetdir)
-        for entry in os.listdir(source):
-            if entry.startswith('.'):
-                continue
-            newtarget = targetdir
-            if path.isdir(path.join(source, entry)):
-                newtarget = path.join(targetdir, entry)
-            copy_static_entry(path.join(source, entry), newtarget,
-                              builder, context, level=level + 1,
-                              exclude_matchers=exclude_matchers)
 
 
 _DEBUG_HEADER = '''\
@@ -681,7 +649,7 @@ class progress_message:
 
     def __call__(self, f: Callable) -> Callable:
         @functools.wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             with self:
                 return f(*args, **kwargs)
 

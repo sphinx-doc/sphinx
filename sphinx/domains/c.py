@@ -203,7 +203,6 @@ class CObject(ObjectDescription):
         if targetname not in self.state.document.ids:
             signode['names'].append(targetname)
             signode['ids'].append(targetname)
-            signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
             domain = cast(CDomain, self.env.get_domain('c'))

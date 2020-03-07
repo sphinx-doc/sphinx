@@ -184,9 +184,19 @@ ADDITIONAL_SETTINGS = {
         'babel':        '\\usepackage{babel}',
     },
     ('xelatex', 'zh'): {
+        'polyglossia':  '',
+        'babel':        '\\usepackage{babel}',
         'fontenc':      '\\usepackage{xeCJK}',
     },
     ('xelatex', 'el'): {
         'fontpkg':      XELATEX_GREEK_DEFAULT_FONTPKG,
     },
 }  # type: Dict[Any, Dict[str, Any]]
+
+
+SHORTHANDOFF = r'''
+\ifdefined\shorthandoff
+  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
+  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
+\fi
+'''

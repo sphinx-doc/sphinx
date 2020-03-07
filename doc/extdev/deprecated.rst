@@ -26,6 +26,46 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``desc_signature['first']``
+     -
+     - 3.0
+     - N/A
+
+   * - ``sphinx.directives.DescDirective``
+     - 3.0
+     - 5.0
+     - ``sphinx.directives.ObjectDescription``
+
+   * - ``sphinx.domains.std.StandardDomain.add_object()``
+     - 3.0
+     - 5.0
+     - ``sphinx.domains.std.StandardDomain.note_object()``
+
+   * - ``sphinx.parsers.Parser.app``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - ``sphinx.testing.path.Path.text()``
+     - 3.0
+     - 5.0
+     - ``sphinx.testing.path.Path.read_text()``
+
+   * - ``sphinx.testing.path.Path.bytes()``
+     - 3.0
+     - 5.0
+     - ``sphinx.testing.path.Path.read_bytes()``
+
+   * - ``sphinx.util.inspect.getargspec()``
+     - 3.0
+     - 5.0
+     - ``inspect.getargspec()``
+
+   * - ``sphinx.writers.latex.LaTeXWriter.format_docclass()``
+     - 3.0
+     - 5.0
+     - LaTeX Themes
+
    * - ``decode`` argument of ``sphinx.pycode.ModuleAnalyzer()``
      - 2.4
      - 4.0

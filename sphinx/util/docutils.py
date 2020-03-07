@@ -10,8 +10,6 @@
 
 import os
 import re
-import types
-import warnings
 from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
@@ -24,14 +22,12 @@ import docutils
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.nodes import Element, Node, system_message
-from docutils.parsers.rst import Directive, directives, roles, convert_directive_function
+from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import StateMachine, State, StringList
 from docutils.utils import Reporter, unescape
 
-from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.errors import ExtensionError, SphinxError
-from sphinx.locale import __
+from sphinx.errors import SphinxError
 from sphinx.util import logging
 from sphinx.util.typing import RoleFunction
 
@@ -279,25 +275,6 @@ def is_html5_writer_available() -> bool:
     return __version_info__ > (0, 13, 0)
 
 
-def directive_helper(obj: Any, has_content: bool = None,
-                     argument_spec: Tuple[int, int, bool] = None, **option_spec: Any
-                     ) -> Any:
-    warnings.warn('function based directive support is now deprecated. '
-                  'Use class based directive instead.',
-                  RemovedInSphinx30Warning)
-
-    if isinstance(obj, (types.FunctionType, types.MethodType)):
-        obj.content = has_content                       # type: ignore
-        obj.arguments = argument_spec or (0, 0, False)  # type: ignore
-        obj.options = option_spec                       # type: ignore
-        return convert_directive_function(obj)
-    else:
-        if has_content or argument_spec or option_spec:
-            raise ExtensionError(__('when adding directive classes, no '
-                                    'additional arguments may be given'))
-        return obj
-
-
 @contextmanager
 def switch_source_input(state: State, content: StringList) -> Generator[None, None, None]:
     """Switch current source input of state temporarily."""
@@ -467,7 +444,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.config = builder.config
         self.settings = document.settings
 
-    def dispatch_visit(self, node):
+    def dispatch_visit(self, node: Node) -> None:
         """
         Dispatch node to appropriate visitor method.
         The priority of visitor method is:
@@ -479,13 +456,14 @@ class SphinxTranslator(nodes.NodeVisitor):
         for node_class in node.__class__.__mro__:
             method = getattr(self, 'visit_%s' % (node_class.__name__), None)
             if method:
-                logger.debug('SphinxTranslator.dispatch_visit calling %s for %s' %
-                             (method.__name__, node))
-                return method(node)
+                logger.debug('SphinxTranslator.dispatch_visit calling %s for %s',
+                             method.__name__, node)
+                method(node)
+                break
         else:
             super().dispatch_visit(node)
 
-    def dispatch_departure(self, node):
+    def dispatch_departure(self, node: Node) -> None:
         """
         Dispatch node to appropriate departure method.
         The priority of departure method is:
@@ -497,9 +475,10 @@ class SphinxTranslator(nodes.NodeVisitor):
         for node_class in node.__class__.__mro__:
             method = getattr(self, 'depart_%s' % (node_class.__name__), None)
             if method:
-                logger.debug('SphinxTranslator.dispatch_departure calling %s for %s' %
-                             (method.__name__, node))
-                return method(node)
+                logger.debug('SphinxTranslator.dispatch_departure calling %s for %s',
+                             method.__name__, node)
+                method(node)
+                break
         else:
             super().dispatch_departure(node)
 

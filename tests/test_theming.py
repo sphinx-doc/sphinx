@@ -76,16 +76,16 @@ def test_js_source(app, status, warning):
 
     v = '3.4.1'
     msg = 'jquery.js version does not match to {v}'.format(v=v)
-    jquery_min = (app.outdir / '_static' / 'jquery.js').text()
+    jquery_min = (app.outdir / '_static' / 'jquery.js').read_text()
     assert 'jQuery v{v}'.format(v=v) in jquery_min, msg
-    jquery_src = (app.outdir / '_static' / 'jquery-{v}.js'.format(v=v)).text()
+    jquery_src = (app.outdir / '_static' / 'jquery-{v}.js'.format(v=v)).read_text()
     assert 'jQuery JavaScript Library v{v}'.format(v=v) in jquery_src, msg
 
     v = '1.3.1'
     msg = 'underscore.js version does not match to {v}'.format(v=v)
-    underscore_min = (app.outdir / '_static' / 'underscore.js').text()
+    underscore_min = (app.outdir / '_static' / 'underscore.js').read_text()
     assert 'Underscore.js {v}'.format(v=v) in underscore_min, msg
-    underscore_src = (app.outdir / '_static' / 'underscore-{v}.js'.format(v=v)).text()
+    underscore_src = (app.outdir / '_static' / 'underscore-{v}.js'.format(v=v)).read_text()
     assert 'Underscore.js {v}'.format(v=v) in underscore_src, msg
 
 
@@ -108,12 +108,12 @@ def test_staticfiles(app, status, warning):
     app.build()
     assert (app.outdir / '_static' / 'staticimg.png').exists()
     assert (app.outdir / '_static' / 'statictmpl.html').exists()
-    assert (app.outdir / '_static' / 'statictmpl.html').text() == (
+    assert (app.outdir / '_static' / 'statictmpl.html').read_text() == (
         '<!-- testing static templates -->\n'
         '<html><project>Python</project></html>'
     )
 
-    result = (app.outdir / 'index.html').text()
+    result = (app.outdir / 'index.html').read_text()
     assert '<meta name="testopt" content="optdefault" />' in result
 
 
@@ -122,7 +122,7 @@ def test_theme_sidebars(app, status, warning):
     app.build()
 
     # test-theme specifies globaltoc and searchbox as default sidebars
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert '<h3><a href="#">Table of Contents</a></h3>' in result
     assert '<h3>Related Topics</h3>' not in result
     assert '<h3>This Page</h3>' not in result

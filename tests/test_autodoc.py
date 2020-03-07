@@ -582,6 +582,30 @@ def test_autodoc_inherited_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_inherited_members_Base(app):
+    options = {"members": None,
+               "inherited-members": "Base",
+               "special-members": None}
+
+    # check methods for object class are shown
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
+    assert '   .. py:method:: Derived.inheritedmeth()' in actual
+    assert '   .. py:method:: Derived.inheritedclassmeth' not in actual
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_inherited_members_None(app):
+    options = {"members": None,
+               "inherited-members": "None",
+               "special-members": None}
+
+    # check methods for object class are shown
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
+    assert '   .. py:method:: Derived.__init__' in actual
+    assert '   .. py:method:: Derived.__str__' in actual
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_imported_members(app):
     options = {"members": None,
                "imported-members": None,
@@ -661,6 +685,7 @@ def test_autodoc_ignore_module_all(app):
     assert list(filter(lambda l: 'class::' in l, actual)) == [
         '.. py:class:: Class(arg)',
         '.. py:class:: CustomDict',
+        '.. py:class:: InnerChild',
         '.. py:class:: InstAttCls()',
         '.. py:class:: Outer',
         '   .. py:class:: Outer.Inner',
@@ -749,6 +774,18 @@ def test_autodoc_inner_class(app):
         '   ',
         '      Foo',
         '      ',
+    ]
+
+    options['show-inheritance'] = True
+    actual = do_autodoc(app, 'class', 'target.InnerChild', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: InnerChild',
+        '   :module: target', '',
+        '   Bases: :class:`target.Outer.Inner`',
+        '',
+        '   InnerChild docstring',
+        '   '
     ]
 
 
@@ -1319,7 +1356,23 @@ def test_coroutine():
         '      :async:',
         '   ',
         '      A documented coroutine function',
-        '      '
+        '      ',
+        '   ',
+        '   .. py:method:: AsyncClass.do_coroutine2()',
+        '      :module: target.coroutine',
+        '      :async:',
+        '      :classmethod:',
+        '   ',
+        '      A documented coroutine classmethod',
+        '      ',
+        '   ',
+        '   .. py:method:: AsyncClass.do_coroutine3()',
+        '      :module: target.coroutine',
+        '      :async:',
+        '      :staticmethod:',
+        '   ',
+        '      A documented coroutine staticmethod',
+        '      ',
     ]
 
 
@@ -1471,6 +1524,24 @@ def test_autodoc_typed_instance_variables(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 9), reason='py39+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_Annotated(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.annotated', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.annotated',
+        '',
+        '',
+        '.. py:function:: hello(name: str) -> None',
+        '   :module: target.annotated',
+        '',
+        '   docstring',
+        '   '
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='pycode-egg')
 def test_autodoc_for_egged_code(app):
     options = {"members": None,
@@ -1491,4 +1562,50 @@ def test_autodoc_for_egged_code(app):
         '.. py:function:: hello(s)',
         '   :module: sample',
         ''
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatch():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatch', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatch',
+        '',
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '   func(arg: int, kwarg=None)',
+        '   func(arg: str, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '   '
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='singledispatchmethod is available since python3.8')
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatchmethod():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatchmethod', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatchmethod',
+        '',
+        '',
+        '.. py:class:: Foo',
+        '   :module: target.singledispatchmethod',
+        '',
+        '   docstring',
+        '   ',
+        '   ',
+        '   .. py:method:: Foo.meth(arg, kwarg=None)',
+        '      Foo.meth(arg: int, kwarg=None)',
+        '      Foo.meth(arg: str, kwarg=None)',
+        '      :module: target.singledispatchmethod',
+        '   ',
+        '      A method for general use.',
+        '      '
     ]

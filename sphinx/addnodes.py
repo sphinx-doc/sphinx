@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Sequence
 from docutils import nodes
 from docutils.nodes import Node
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 
 if False:
     # For type annotation
@@ -199,59 +199,6 @@ class production(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single grammar production rule."""
 
 
-# math nodes
-
-
-class math(nodes.math):
-    """Node for inline equations.
-
-    .. warning:: This node is provided to keep compatibility only.
-                 It will be removed in nearly future.  Don't use this from your extension.
-
-    .. deprecated:: 1.8
-       Use ``docutils.nodes.math`` instead.
-    """
-
-    def __getitem__(self, key):
-        """Special accessor for supporting ``node['latex']``."""
-        if key == 'latex' and 'latex' not in self.attributes:
-            warnings.warn("math node for Sphinx was replaced by docutils'. "
-                          "Therefore please use ``node.astext()`` to get an equation instead.",
-                          RemovedInSphinx30Warning, stacklevel=2)
-            return self.astext()
-        else:
-            return super().__getitem__(key)
-
-
-class math_block(nodes.math_block):
-    """Node for block level equations.
-
-    .. warning:: This node is provided to keep compatibility only.
-                 It will be removed in nearly future.  Don't use this from your extension.
-
-    .. deprecated:: 1.8
-    """
-
-    def __getitem__(self, key):
-        if key == 'latex' and 'latex' not in self.attributes:
-            warnings.warn("displaymath node for Sphinx was replaced by docutils'. "
-                          "Therefore please use ``node.astext()`` to get an equation instead.",
-                          RemovedInSphinx30Warning, stacklevel=2)
-            return self.astext()
-        else:
-            return super().__getitem__(key)
-
-
-class displaymath(math_block):
-    """Node for block level equations.
-
-    .. warning:: This node is provided to keep compatibility only.
-                 It will be removed in nearly future.  Don't use this from your extension.
-
-    .. deprecated:: 1.8
-    """
-
-
 # other directive-level nodes
 
 class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
@@ -389,7 +336,6 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(seealso)
     app.add_node(productionlist)
     app.add_node(production)
-    app.add_node(displaymath)
     app.add_node(index)
     app.add_node(centered)
     app.add_node(acks)

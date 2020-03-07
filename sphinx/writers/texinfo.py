@@ -10,16 +10,14 @@
 
 import re
 import textwrap
-import warnings
 from os import path
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Pattern, Set, Tuple, Union
+from typing import Any, Dict, Iterable, Iterator, List, Pattern, Set, Tuple, Union
 from typing import cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, __display_version__
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
@@ -1528,11 +1526,3 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n@example\n%s\n@end example\n\n' %
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
-
-    def _make_visit_admonition(name: str) -> Callable[["TexinfoTranslator", Element], None]:  # type: ignore  # NOQA
-        warnings.warn('TexinfoTranslator._make_visit_admonition() is deprecated.',
-                      RemovedInSphinx30Warning)
-
-        def visit(self: "TexinfoTranslator", node: Element) -> None:
-            self.visit_admonition(node, admonitionlabels[name])
-        return visit

@@ -1,4 +1,101 @@
-Release 2.4.2 (in development)
+Release 3.0.0 (in development)
+==============================
+
+Dependencies
+------------
+
+* LaTeX: drop dependency on :program:`extractbb` for image inclusion in
+  Japanese documents as ``.xbb`` files are unneeded by :program:`dvipdfmx`
+  since TeXLive2015 (refs: #6189)
+* babel-2.0 or above is available (Unpinned)
+
+Incompatible changes
+--------------------
+
+* Drop features and APIs deprecated in 1.8.x
+* #247: autosummary: stub files are overwritten automatically by default.  see
+  :confval:`autosummary_generate_overwrite` to change the behavior
+* #5923: autodoc: the members of ``object`` class are not documented by default
+  when ``:inherited-members:`` and ``:special-members:`` are given.
+* #6830: py domain: ``meta`` fields in info-field-list becomes reserved.  They
+  are not displayed on output document now
+* The structure of ``sphinx.events.EventManager.listeners`` has changed
+* Due to the scoping changes for :rst:dir:`productionlist` some uses of
+  :rst:role:`token` must be modified to include the scope which was previously
+  ignored.
+* #6903: Internal data structure of Python, reST and standard domains have
+  changed.  The node_id is added to the index of objects and modules.  Now they
+  contains a pair of docname and node_id for cross reference.
+* #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
+  to ``.. js:function:: parseInt``
+* #7229: rst domain: Non intended behavior is removed such as ``numref_`` links
+  to ``.. rst:role:: numref``
+* #6903: py domain: Non intended behavior is removed such as ``say_hello_``
+  links to ``.. py:function:: say_hello()``
+
+Deprecated
+----------
+
+* ``desc_signature['first']``
+* ``sphinx.directives.DescDirective``
+* ``sphinx.domains.std.StandardDomain.add_object()``
+* ``sphinx.parsers.Parser.app``
+* ``sphinx.testing.path.Path.text()``
+* ``sphinx.testing.path.Path.bytes()``
+* ``sphinx.util.inspect.getargspec()``
+* ``sphinx.writers.latex.LaTeXWriter.format_docclass()``
+
+Features added
+--------------
+
+* #247: autosummary: Add :confval:`autosummary_generate_overwrite` to overwrite
+  old stub file
+* #5923: autodoc: ``:inherited-members:`` option takes a name of anchestor class
+  not to document inherited members of the class and uppers
+* #6830: autodoc: consider a member private if docstring contains
+  ``:meta private:`` in info-field-list
+* #7165: autodoc: Support Annotated type (PEP-593)
+* #2815: autodoc: Support singledispatch functions and methods
+* #6558: glossary: emit a warning for duplicated glossary entry
+* #3106: domain: Register hyperlink target for index page automatically
+* #6558: std domain: emit a warning for duplicated generic objects
+* #6830: py domain: Add new event: :event:`object-description-transform`
+* #6895: py domain: Do not emit nitpicky warnings for built-in types
+* py domain: Support lambda functions in function signature
+* Support priority of event handlers. For more detail, see
+  :py:meth:`.Sphinx.connect()`
+* #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
+  in the documentation.
+* #1027: Support backslash line continuation in :rst:dir:`productionlist`.
+* #7108: config: Allow to show an error message from conf.py via ``ConfigError``
+* #7032: html: :confval:`html_scaled_image_link` will be disabled for images having
+  ``no-scaled-link`` class
+* #7144: Add CSS class indicating its domain for each desc node
+* #7211: latex: Use babel for Chinese document when using XeLaTeX
+* #6672: LaTeX: Support LaTeX Theming (experimental)
+* #7005: LaTeX: Add LaTeX styling macro for :rst:role:`kbd` role
+* #7220: genindex: Show "main" index entries at first
+* #7103: linkcheck: writes all links to ``output.json``
+* #7025: html search: full text search can be disabled for individual document
+  using ``:nosearch:`` file-wide metadata
+
+Bugs fixed
+----------
+
+* C++, fix cross reference lookup in certain cases involving
+  function overloads.
+* #5078: C++, fix cross reference lookup when a directive contains multiple
+  declarations.
+* C++, suppress warnings for directly dependent typenames in cross references
+  generated automatically in signatures.
+* #5637: autodoc: Incorrect handling of nested class names on show-inheritance
+* #5637: inheritance_diagram: Incorrect handling of nested class names
+* #7139: ``code-block:: guess`` does not work
+
+Testing
+--------
+
+Release 2.4.5 (in development)
 ==============================
 
 Dependencies
@@ -18,6 +115,44 @@ Bugs fixed
 
 Testing
 --------
+
+Release 2.4.4 (released Mar 05, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7197: LaTeX: platex cause error to build image directive with target url
+* #7223: Sphinx builds has been slower since 2.4.0
+
+Release 2.4.3 (released Feb 22, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7184: autodoc: ``*args`` and ``**kwarg`` in type comments are not handled
+  properly
+* #7189: autodoc: classmethod coroutines are not detected
+* #7183: intersphinx: ``:attr:`` reference to property is broken
+* #6244, #6387: html search: Search breaks/hangs when built with dirhtml builder
+* #7195: todo: emit doctree-resolved event with non-document node incorrectly
+
+Release 2.4.2 (released Feb 19, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7138: autodoc: ``autodoc.typehints`` crashed when variable has unbound object
+  as a value
+* #7156: autodoc: separator for keyword only arguments is not shown
+* #7146: autodoc: IndexError is raised on suppressed type_comment found
+* #7161: autodoc: typehints extension does not support parallel build
+* #7178: autodoc: TypeError is raised on fetching type annotations
+* #7151: crashed when extension assigns a value to ``env.indexentries``
+* #7170: text: Remove debug print
+* #7137: viewcode: Avoid to crash when non-python code given
 
 Release 2.4.1 (released Feb 11, 2020)
 =====================================
@@ -2017,7 +2152,7 @@ Features removed
 
 * ``termsep`` node
 * defindex.html template
-* LDML format support in `today`, `today_fmt` and `html_last_updated_fmt`
+* LDML format support in ``today``, ``today_fmt`` and ``html_last_updated_fmt``
 * ``:inline:`` option for the directives of sphinx.ext.graphviz extension
 * sphinx.ext.pngmath extension
 * ``sphinx.util.compat.make_admonition()``
@@ -4821,7 +4956,7 @@ Features added
 
   - Added a "nitpicky" mode that emits warnings for all missing
     references.  It is activated by the :option:`sphinx-build -n` command-line
-    switch or the `nitpicky` config value.
+    switch or the :confval:`nitpicky` config value.
   - Added ``latexpdf`` target in quickstart Makefile.
 
 * Markup:

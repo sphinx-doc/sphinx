@@ -18,19 +18,19 @@ from docutils.nodes import Element
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.config import ENUM
+from sphinx.config import Config, ENUM
 from sphinx.util import inspect, typing
 
 
-def config_inited(app, config):
+def config_inited(app: Sphinx, config: Config) -> None:
     if config.autodoc_typehints == 'description':
         # HACK: override this to make autodoc suppressing typehints in signatures
-        config.autodoc_typehints = 'none'
+        config.autodoc_typehints = 'none'  # type: ignore
 
         # preserve user settings
-        app._autodoc_typehints_description = True
+        app._autodoc_typehints_description = True  # type: ignore
     else:
-        app._autodoc_typehints_description = False
+        app._autodoc_typehints_description = False  # type: ignore
 
 
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
@@ -46,7 +46,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                     annotation[param.name] = typing.stringify(param.annotation)
             if sig.return_annotation is not sig.empty:
                 annotation['return'] = typing.stringify(sig.return_annotation)
-    except TypeError:
+    except (TypeError, ValueError):
         pass
 
 
@@ -140,10 +140,16 @@ def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> No
         node += field
 
 
-def setup(app):
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.setup_extension('sphinx.ext.autodoc')
     app.config.values['autodoc_typehints'] = ('signature', True,
                                               ENUM("signature", "description", "none"))
     app.connect('config-inited', config_inited)
     app.connect('autodoc-process-signature', record_typehints)
     app.connect('object-description-transform', merge_typehints)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

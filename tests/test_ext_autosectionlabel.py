@@ -21,7 +21,7 @@ from sphinx.util import docutils
 def test_autosectionlabel_html(app, status, warning, skipped_labels=False):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     html = ('<li><p><a class="reference internal" href="#introduce-of-sphinx">'
             '<span class=".*?">Introduce of Sphinx</span></a></p></li>')
     assert re.search(html, content, re.S)
@@ -69,7 +69,7 @@ def test_autosectionlabel_prefix_document_html(app, status, warning):
 def test_autosectionlabel_maxdepth(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
 
     # depth: 1
     html = ('<li><p><a class="reference internal" href="#test-ext-autosectionlabel">'

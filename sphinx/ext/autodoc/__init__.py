@@ -14,16 +14,15 @@ import importlib
 import re
 import warnings
 from types import ModuleType
-from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Union
+from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
+from unittest.mock import patch
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.application import Sphinx
-from sphinx.config import Config, ENUM
-from sphinx.deprecation import (
-    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
-)
+from sphinx.config import ENUM
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
 from sphinx.ext.autodoc.mock import mock
@@ -32,7 +31,7 @@ from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect
 from sphinx.util import logging
 from sphinx.util import rpartition
-from sphinx.util.docstrings import prepare_docstring
+from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import getdoc, object_description, safe_getattr, stringify_signature
 from sphinx.util.typing import stringify as stringify_typehint
 
@@ -82,6 +81,14 @@ def members_set_option(arg: Any) -> Union[object, Set[str]]:
     if arg is None:
         return ALL
     return {x.strip() for x in arg.split(',') if x.strip()}
+
+
+def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
+    """Used to convert the :members: option to auto directives."""
+    if arg is None:
+        return 'object'
+    else:
+        return arg
 
 
 SUPPRESS = object()
@@ -516,6 +523,17 @@ class Documenter:
         The user can override the skipping decision by connecting to the
         ``autodoc-skip-member`` event.
         """
+        def is_filtered_inherited_member(name: str) -> bool:
+            if inspect.isclass(self.object):
+                for cls in self.object.__mro__:
+                    if cls.__name__ == self.options.inherited_members and cls != self.object:
+                        # given member is a member of specified *super class*
+                        return True
+                    elif name in cls.__dict__:
+                        return False
+
+            return False
+
         ret = []
 
         # search for members in source code too
@@ -545,32 +563,45 @@ class Documenter:
                     doc = None
             has_doc = bool(doc)
 
+            metadata = extract_metadata(doc)
+            if 'private' in metadata:
+                # consider a member private if docstring has "private" metadata
+                isprivate = True
+            else:
+                isprivate = membername.startswith('_')
+
             keep = False
             if want_all and membername.startswith('__') and \
                     membername.endswith('__') and len(membername) > 4:
                 # special __methods__
-                if self.options.special_members is ALL and \
-                        membername != '__doc__':
-                    keep = has_doc or self.options.undoc_members
-                elif self.options.special_members and \
-                    self.options.special_members is not ALL and \
-                        membername in self.options.special_members:
-                    keep = has_doc or self.options.undoc_members
+                if self.options.special_members is ALL:
+                    if membername == '__doc__':
+                        keep = False
+                    elif is_filtered_inherited_member(membername):
+                        keep = False
+                    else:
+                        keep = has_doc or self.options.undoc_members
+                elif self.options.special_members:
+                    if membername in self.options.special_members:
+                        keep = has_doc or self.options.undoc_members
             elif (namespace, membername) in attr_docs:
-                if want_all and membername.startswith('_'):
+                if want_all and isprivate:
                     # ignore members whose name starts with _ by default
                     keep = self.options.private_members
                 else:
                     # keep documented attributes
                     keep = True
                 isattr = True
-            elif want_all and membername.startswith('_'):
+            elif want_all and isprivate:
                 # ignore members whose name starts with _ by default
                 keep = self.options.private_members and \
                     (has_doc or self.options.undoc_members)
             else:
-                # ignore undocumented members if :undoc-members: is not given
-                keep = has_doc or self.options.undoc_members
+                if self.options.members is ALL and is_filtered_inherited_member(membername):
+                    keep = False
+                else:
+                    # ignore undocumented members if :undoc-members: is not given
+                    keep = has_doc or self.options.undoc_members
 
             # give the user a chance to decide whether this member
             # should be skipped
@@ -744,7 +775,7 @@ class ModuleDocumenter(Documenter):
 
     option_spec = {
         'members': members_option, 'undoc-members': bool_option,
-        'noindex': bool_option, 'inherited-members': bool_option,
+        'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
         'member-order': identity, 'exclude-members': members_set_option,
@@ -1026,6 +1057,62 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             self.add_line('   :async:', sourcename)
 
 
+class SingledispatchFunctionDocumenter(FunctionDocumenter):
+    """
+    Specialized Documenter subclass for singledispatch'ed functions.
+    """
+    objtype = 'singledispatch_function'
+    directivetype = 'function'
+    member_order = 30
+
+    # before FunctionDocumenter
+    priority = FunctionDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        return (super().can_document_member(member, membername, isattr, parent) and
+                inspect.is_singledispatch_function(member))
+
+    def add_directive_header(self, sig: str) -> None:
+        sourcename = self.get_sourcename()
+
+        # intercept generated directive headers
+        # TODO: It is very hacky to use mock to intercept header generation
+        with patch.object(self, 'add_line') as add_line:
+            super().add_directive_header(sig)
+
+        # output first line of header
+        self.add_line(*add_line.call_args_list[0][0])
+
+        # inserts signature of singledispatch'ed functions
+        for typ, func in self.object.registry.items():
+            if typ is object:
+                pass  # default implementation. skipped.
+            else:
+                self.annotate_to_first_argument(func, typ)
+
+                documenter = FunctionDocumenter(self.directive, '')
+                documenter.object = func
+                self.add_line('   %s%s' % (self.format_name(),
+                                           documenter.format_signature()),
+                              sourcename)
+
+        # output remains of directive header
+        for call in add_line.call_args_list[1:]:
+            self.add_line(*call[0])
+
+    def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
+        """Annotate type hint to the first argument of function if needed."""
+        sig = inspect.signature(func)
+        if len(sig.parameters) == 0:
+            return
+
+        name = list(sig.parameters)[0]
+        if name not in func.__annotations__:
+            func.__annotations__[name] = typ
+
+
 class DecoratorDocumenter(FunctionDocumenter):
     """
     Specialized Documenter subclass for decorator functions.
@@ -1035,7 +1122,7 @@ class DecoratorDocumenter(FunctionDocumenter):
     # must be lower than FunctionDocumenter
     priority = -1
 
-    def format_args(self, **kwargs):
+    def format_args(self, **kwargs: Any) -> Any:
         args = super().format_args(**kwargs)
         if ',' in args:
             return args
@@ -1051,7 +1138,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     member_order = 20
     option_spec = {
         'members': members_option, 'undoc-members': bool_option,
-        'noindex': bool_option, 'inherited-members': bool_option,
+        'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'member-order': identity,
         'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
@@ -1116,7 +1203,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             if hasattr(self.object, '__bases__') and len(self.object.__bases__):
                 bases = [':class:`%s`' % b.__name__
                          if b.__module__ in ('__builtin__', 'builtins')
-                         else ':class:`%s.%s`' % (b.__module__, b.__name__)
+                         else ':class:`%s.%s`' % (b.__module__, b.__qualname__)
                          for b in self.object.__bases__]
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
                               sourcename)
@@ -1236,7 +1323,7 @@ class DataDocumenter(ModuleLevelDocumenter):
         if not self.options.annotation:
             # obtain annotation for this data
             annotations = getattr(self.parent, '__annotations__', {})
-            if self.objpath[-1] in annotations:
+            if annotations and self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
             else:
@@ -1370,6 +1457,66 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         pass
 
 
+class SingledispatchMethodDocumenter(MethodDocumenter):
+    """
+    Specialized Documenter subclass for singledispatch'ed methods.
+    """
+    objtype = 'singledispatch_method'
+    directivetype = 'method'
+    member_order = 50
+
+    # before MethodDocumenter
+    priority = MethodDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        if super().can_document_member(member, membername, isattr, parent) and parent.object:
+            meth = parent.object.__dict__.get(membername)
+            return inspect.is_singledispatch_method(meth)
+        else:
+            return False
+
+    def add_directive_header(self, sig: str) -> None:
+        sourcename = self.get_sourcename()
+
+        # intercept generated directive headers
+        # TODO: It is very hacky to use mock to intercept header generation
+        with patch.object(self, 'add_line') as add_line:
+            super().add_directive_header(sig)
+
+        # output first line of header
+        self.add_line(*add_line.call_args_list[0][0])
+
+        # inserts signature of singledispatch'ed functions
+        meth = self.parent.__dict__.get(self.objpath[-1])
+        for typ, func in meth.dispatcher.registry.items():
+            if typ is object:
+                pass  # default implementation. skipped.
+            else:
+                self.annotate_to_first_argument(func, typ)
+
+                documenter = MethodDocumenter(self.directive, '')
+                documenter.object = func
+                self.add_line('   %s%s' % (self.format_name(),
+                                           documenter.format_signature()),
+                              sourcename)
+
+        # output remains of directive header
+        for call in add_line.call_args_list[1:]:
+            self.add_line(*call[0])
+
+    def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
+        """Annotate type hint to the first argument of function if needed."""
+        sig = inspect.signature(func, bound_method=True)
+        if len(sig.parameters) == 0:
+            return
+
+        name = list(sig.parameters)[0]
+        if name not in func.__annotations__:
+            func.__annotations__[name] = typ
+
+
 class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for attributes.
@@ -1424,7 +1571,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             if not self._datadescriptor:
                 # obtain annotation for this attribute
                 annotations = getattr(self.parent, '__annotations__', {})
-                if self.objpath[-1] in annotations:
+                if annotations and self.objpath[-1] in annotations:
                     objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                     self.add_line('   :type: ' + objrepr, sourcename)
                 else:
@@ -1575,38 +1722,6 @@ def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
     return safe_getattr(obj, name, *defargs)
 
 
-def merge_autodoc_default_flags(app: Sphinx, config: Config) -> None:
-    """This merges the autodoc_default_flags to autodoc_default_options."""
-    if not config.autodoc_default_flags:
-        return
-
-    # Note: this option will be removed in Sphinx-4.0.  But I marked this as
-    # RemovedInSphinx *30* Warning because we have to emit warnings for users
-    # who will be still in use with Sphinx-3.x.  So we should replace this by
-    # logger.warning() on 3.0.0 release.
-    warnings.warn('autodoc_default_flags is now deprecated. '
-                  'Please use autodoc_default_options instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-
-    for option in config.autodoc_default_flags:
-        if isinstance(option, str):
-            config.autodoc_default_options[option] = None
-        else:
-            logger.warning(
-                __("Ignoring invalid option in autodoc_default_flags: %r"),
-                option, type='autodoc'
-            )
-
-
-from sphinx.ext.autodoc.mock import _MockImporter  # NOQA
-
-deprecated_alias('sphinx.ext.autodoc',
-                 {
-                     '_MockImporter': _MockImporter,
-                 },
-                 RemovedInSphinx40Warning)
-
-
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ModuleDocumenter)
     app.add_autodocumenter(ClassDocumenter)
@@ -1614,8 +1729,10 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(DataDeclarationDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
+    app.add_autodocumenter(SingledispatchFunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
+    app.add_autodocumenter(SingledispatchMethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)
@@ -1635,7 +1752,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
 
-    app.connect('config-inited', merge_autodoc_default_flags)
     app.setup_extension('sphinx.ext.autodoc.type_comment')
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

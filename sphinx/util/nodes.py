@@ -443,7 +443,7 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
     if prefix:
         idformat = prefix + "-%s"
     else:
-        idformat = document.settings.id_prefix + "%s"
+        idformat = (document.settings.id_prefix or "id") + "%s"
 
     # try to generate node_id by *term*
     if prefix and term:
@@ -451,6 +451,10 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
         if node_id == prefix:
             # *term* is not good to generate a node_id.
             node_id = None
+    elif term:
+        node_id = nodes.make_id(term)
+        if node_id == '':
+            node_id = None  # fallback to None
 
     while node_id is None or node_id in document.ids:
         node_id = idformat % env.new_serialno(prefix)

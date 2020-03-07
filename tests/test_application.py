@@ -61,19 +61,12 @@ def test_extension_in_blacklist(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='add_source_parser')
-@pytest.mark.filterwarnings('ignore:The config variable "source_parsers"')
-@pytest.mark.filterwarnings('ignore:app.add_source_parser\\(\\) does not support suffix')
 def test_add_source_parser(app, status, warning):
-    assert set(app.config.source_suffix) == {'.rst', '.md', '.test'}
+    assert set(app.config.source_suffix) == {'.rst', '.test'}
 
     # .rst; only in :confval:`source_suffix`
     assert '.rst' not in app.registry.get_source_parsers()
     assert app.registry.source_suffix['.rst'] is None
-
-    # .md; configured by :confval:`source_suffix` and :confval:`source_parsers`
-    assert '.md' in app.registry.get_source_parsers()
-    assert app.registry.source_suffix['.md'] == '.md'
-    assert app.registry.get_source_parsers()['.md'].__name__ == 'DummyMarkdownParser'
 
     # .test; configured by API
     assert app.registry.source_suffix['.test'] == 'test'

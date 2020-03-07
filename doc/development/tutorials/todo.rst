@@ -107,6 +107,20 @@ is just a "general" node.
    <http://docutils.sourceforge.net/docs/ref/doctree.html>`__ and :ref:`Sphinx
    <nodes>`.
 
+.. attention::
+
+   It is important to know that while you can extend Sphinx without
+   leaving your ``conf.py``, if you declare an inherited node right
+   there, you'll hit an unobvious :py:class:`PickleError`. So if
+   something goes wrong, please make sure that you put inherited nodes
+   into a separate Python module.
+
+   For more details, see:
+
+   - https://github.com/sphinx-doc/sphinx/issues/6751
+   - https://github.com/sphinx-doc/sphinx/issues/1493
+   - https://github.com/sphinx-doc/sphinx/issues/1424
+
 .. rubric:: The directive classes
 
 A directive class is a class deriving usually from

@@ -10,15 +10,11 @@
 
 import base64
 import imghdr
-import warnings
 from collections import OrderedDict
-from io import BytesIO
 from os import path
 from typing import IO, NamedTuple, Tuple
 
 import imagesize
-
-from sphinx.deprecation import RemovedInSphinx30Warning
 
 try:
     from PIL import Image
@@ -49,12 +45,8 @@ def get_image_size(filename: str) -> Tuple[int, int]:
             size = (int(size[0]), int(size[1]))
 
         if size is None and Image:  # fallback to Pillow
-            im = Image.open(filename)
-            size = im.size
-            try:
-                im.fp.close()
-            except Exception:
-                pass
+            with Image.open(filename) as im:
+                size = im.size
 
         return size
     except Exception:
@@ -69,16 +61,10 @@ def guess_mimetype_for_stream(stream: IO, default: str = None) -> str:
         return default
 
 
-def guess_mimetype(filename: str = '', content: bytes = None, default: str = None) -> str:
+def guess_mimetype(filename: str = '', default: str = None) -> str:
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
-    elif content:
-        # TODO: When the content argument is removed, make filename a required
-        # argument.
-        warnings.warn('The content argument of guess_mimetype() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return guess_mimetype_for_stream(BytesIO(content), default=default)
     elif path.exists(filename):
         with open(filename, 'rb') as f:
             return guess_mimetype_for_stream(f, default=default)

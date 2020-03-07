@@ -16,8 +16,6 @@ from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes
-from sphinx import locale
-from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
 from sphinx.domains import Domain
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
@@ -40,13 +38,6 @@ versionlabel_classes = {
     'versionchanged':   'changed',
     'deprecated':       'deprecated',
 }
-
-locale.versionlabels = DeprecatedDict(
-    versionlabels,
-    'sphinx.locale.versionlabels is deprecated. '
-    'Please use sphinx.domains.changeset.versionlabels instead.',
-    RemovedInSphinx30Warning
-)
 
 
 # TODO: move to typing.NamedTuple after dropping py35 support (see #5958)

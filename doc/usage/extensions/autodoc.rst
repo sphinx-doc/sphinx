@@ -140,6 +140,20 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.1
 
+   * autodoc considers a member private if its docstring contains
+     ``:meta private:`` in its :ref:`info-field-lists`.
+     For example:
+
+     .. code-block:: rst
+
+        def my_function(my_arg, my_other_arg):
+            """blah blah blah
+
+            :meta private:
+            """
+
+     .. versionadded:: 3.0
+
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
 
@@ -157,7 +171,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
-     ``inherited-members`` flag option, in addition to ``members``::
+     ``inherited-members`` option, in addition to ``members``::
 
         .. autoclass:: Noodle
            :members:
@@ -166,10 +180,28 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      This can be combined with ``undoc-members`` to document *all* available
      members of the class or module.
 
+     It can take an anchestor class not to document inherited members from it.
+     By default, members of ``object`` class are not documented.  To show them
+     all, give ``None`` to the option.
+
+     For example; If your class ``Foo`` is derived from ``list`` class and
+     you don't want to document ``list.__len__()``, you should specify a
+     option ``:inherited-members: list`` to avoid special members of list
+     class.
+
+     Another example; If your class Foo has ``__str__`` special method and
+     autodoc directive has both ``inherited-members`` and ``special-members``,
+     ``__str__`` will be documented as in the past, but other special method
+     that are not implemented in your class ``Foo``.
+
      Note: this will lead to markup errors if the inherited members come from a
      module whose docstrings are not reST formatted.
 
      .. versionadded:: 0.3
+
+     .. versionchanged:: 3.0
+
+        It takes an anchestor class name as an argument.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
@@ -307,9 +339,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       ``__doc__`` attribute of the given function or method.  That means that if
       a decorator replaces the decorated function with another, it must copy the
       original ``__doc__`` to the new function.
-
-      From Python 2.5, :func:`functools.wraps` can be used to create
-      well-behaved decorating functions.
 
 
 Configuration

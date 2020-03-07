@@ -34,6 +34,7 @@ Sphinx documentation contents
    changes
    examples
    authors
+   code_of_conduct
 
 
 

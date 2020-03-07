@@ -12,11 +12,10 @@
 """
 
 import re
-import sys
 import warnings
 from collections import defaultdict
 from os import path
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Pattern, Tuple, Set, Union
+from typing import Any, Dict, Iterable, Iterator, List, Tuple, Set, Union
 from typing import cast
 
 from docutils import nodes, writers
@@ -25,7 +24,7 @@ from docutils.nodes import Element, Node, Text
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.deprecation import (
-    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
+    RemovedInSphinx40Warning, RemovedInSphinx50Warning, deprecated_alias
 )
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
@@ -46,16 +45,10 @@ except ImportError:
 if False:
     # For type annotation
     from sphinx.builders.latex import LaTeXBuilder
+    from sphinx.builders.latex.theming import Theme
 
 
 logger = logging.getLogger(__name__)
-
-SHORTHANDOFF = r'''
-\ifdefined\shorthandoff
-  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
-  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
-\fi
-'''
 
 MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
@@ -96,9 +89,16 @@ class LaTeXWriter(writers.Writer):
     def __init__(self, builder: "LaTeXBuilder") -> None:
         super().__init__()
         self.builder = builder
+        self.theme = None  # type: Theme
 
     def translate(self) -> None:
-        visitor = self.builder.create_translator(self.document, self.builder)
+        try:
+            visitor = self.builder.create_translator(self.document, self.builder, self.theme)
+        except TypeError:
+            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
+                          RemovedInSphinx50Warning)
+            visitor = self.builder.create_translator(self.document, self.builder)
+
         self.document.walkabout(visitor)
         self.output = cast(LaTeXTranslator, visitor).astext()
 
@@ -131,18 +131,6 @@ class Table:
                                                 # it maps table location to cell_id
                                                 # (cell = rectangular area)
         self.cell_id = 0                        # last assigned cell_id
-
-    @property
-    def caption_footnotetexts(self) -> List[str]:
-        warnings.warn('table.caption_footnotetexts is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
-
-    @property
-    def header_footnotetexts(self) -> List[str]:
-        warnings.warn('table.header_footnotetexts is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
 
     def is_longtable(self) -> bool:
         """True if and only if table uses longtable environment."""
@@ -296,9 +284,15 @@ class LaTeXTranslator(SphinxTranslator):
     # sphinx specific document classes
     docclasses = ('howto', 'manual')
 
-    def __init__(self, document: nodes.document, builder: "LaTeXBuilder") -> None:
+    def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
+                 theme: "Theme" = None) -> None:
         super().__init__(document, builder)
         self.body = []  # type: List[str]
+        self.theme = theme
+
+        if theme is None:
+            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
+                          RemovedInSphinx50Warning)
 
         # flags
         self.in_title = 0
@@ -321,21 +315,32 @@ class LaTeXTranslator(SphinxTranslator):
         # sort out some elements
         self.elements = self.builder.context.copy()
 
-        # but some have other interface in config file
-        self.elements['wrapperclass'] = self.format_docclass(document.get('docclass'))
-
-        # we assume LaTeX class provides \chapter command except in case
-        # of non-Japanese 'howto' case
+        # initial section names
         self.sectionnames = LATEXSECTIONNAMES[:]
-        if document.get('docclass') == 'howto':
-            docclass = self.config.latex_docclass.get('howto', 'article')
-            if docclass[0] == 'j':  # Japanese class...
-                pass
-            else:
+
+        if self.theme:
+            # new style: control sectioning via theme's setting
+            #
+            # .. note:: template variables(elements) are already assigned in builder
+            docclass = self.theme.docclass
+            if self.theme.toplevel_sectioning == 'section':
                 self.sectionnames.remove('chapter')
         else:
-            docclass = self.config.latex_docclass.get('manual', 'report')
-        self.elements['docclass'] = docclass
+            # old style: sectioning control is hard-coded
+            # but some have other interface in config file
+            self.elements['wrapperclass'] = self.format_docclass(self.settings.docclass)
+
+            # we assume LaTeX class provides \chapter command except in case
+            # of non-Japanese 'howto' case
+            if document.get('docclass') == 'howto':
+                docclass = self.config.latex_docclass.get('howto', 'article')
+                if docclass[0] == 'j':  # Japanese class...
+                    pass
+                else:
+                    self.sectionnames.remove('chapter')
+            else:
+                docclass = self.config.latex_docclass.get('manual', 'report')
+            self.elements['docclass'] = docclass
 
         # determine top section level
         self.top_sectionlevel = 1
@@ -382,44 +387,6 @@ class LaTeXTranslator(SphinxTranslator):
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
                            self.config.language)
-
-        # set up multilingual module...
-        if self.elements['latex_engine'] == 'pdflatex':
-            if not self.babel.uses_cyrillic():
-                if 'X2' in self.elements['fontenc']:
-                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.elements['textcyrillic'] = ('\\usepackage[Xtwo]'
-                                                     '{sphinxcyrillic}')
-                elif 'T2A' in self.elements['fontenc']:
-                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.elements['textcyrillic'] = ('\\usepackage[TtwoA]'
-                                                     '{sphinxcyrillic}')
-            if 'LGR' in self.elements['fontenc']:
-                self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-            else:
-                self.elements['textgreek'] = ''
-        # 'babel' key is public and user setting must be obeyed
-        if self.elements['babel']:
-            self.elements['classoptions'] += ',' + self.babel.get_language()
-            # this branch is not taken for xelatex/lualatex if default settings
-            self.elements['multilingual'] = self.elements['babel']
-            if self.config.language:
-                self.elements['shorthandoff'] = SHORTHANDOFF
-
-                # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
-                    self.elements['fontpkg'] = ''
-        elif self.elements['polyglossia']:
-            self.elements['classoptions'] += ',' + self.babel.get_language()
-            options = self.babel.get_mainlanguage_options()
-            if options:
-                mainlanguage = r'\setmainlanguage[%s]{%s}' % (options,
-                                                              self.babel.get_language())
-            else:
-                mainlanguage = r'\setmainlanguage{%s}' % self.babel.get_language()
-
-            self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
-                                                        mainlanguage)
 
         minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
         if self.document.get('tocdepth'):
@@ -484,28 +451,11 @@ class LaTeXTranslator(SphinxTranslator):
         self.body = self.bodystack.pop()
         return body
 
-    def restrict_footnote(self, node: Element) -> None:
-        warnings.warn('LaTeXWriter.restrict_footnote() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        if self.footnote_restricted is None:
-            self.footnote_restricted = node
-            self.pending_footnotes = []
-
-    def unrestrict_footnote(self, node: Element) -> None:
-        warnings.warn('LaTeXWriter.unrestrict_footnote() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        if self.footnote_restricted == node:
-            self.footnote_restricted = None
-            for footnode in self.pending_footnotes:
-                footnode['footnotetext'] = True
-                footnode.walkabout(self)
-            self.pending_footnotes = []
-
     def format_docclass(self, docclass: str) -> str:
         """ prepends prefix to sphinx document classes
         """
+        warnings.warn('LaTeXWriter.format_docclass() is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
         if docclass in self.docclasses:
             docclass = 'sphinx' + docclass
         return docclass
@@ -1501,8 +1451,8 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_attribution(self, node: Element) -> None:
         self.body.append('\n\\end{flushright}\n')
 
-    def visit_index(self, node: Element, scre: Pattern = None) -> None:
-        def escape(value):
+    def visit_index(self, node: Element) -> None:
+        def escape(value: str) -> str:
             value = self.encode(value)
             value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
             value = value.replace(r'\}', r'\sphinxrightcurlybrace{}')
@@ -1512,17 +1462,13 @@ class LaTeXTranslator(SphinxTranslator):
             value = value.replace('|', r'\textbar{}')
             return value
 
-        def style(string):
+        def style(string: str) -> str:
             match = EXTRA_RE.match(string)
             if match:
                 return match.expand(r'\\spxentry{\1}\\spxextra{\2}')
             else:
                 return '\\spxentry{%s}' % string
 
-        if scre:
-            warnings.warn(('LaTeXTranslator.visit_index() optional argument '
-                           '"scre" is deprecated. It is ignored.'),
-                          RemovedInSphinx30Warning, stacklevel=2)
         if not node.get('inline', True):
             self.body.append('\n')
         entries = node['entries']
@@ -1758,6 +1704,8 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_literal(self, node: Element) -> None:
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
+        elif 'kbd' in node['classes']:
+            self.body.append(r'\sphinxkeyboard{\sphinxupquote{')
         else:
             self.body.append(r'\sphinxcode{\sphinxupquote{')
 
@@ -2122,61 +2070,6 @@ class LaTeXTranslator(SphinxTranslator):
                       RemovedInSphinx40Warning, stacklevel=2)
         return 0
 
-    @property
-    def footnotestack(self) -> List[Dict[str, List[Union[collected_footnote, bool]]]]:
-        warnings.warn('LaTeXWriter.footnotestack is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
-
-    @property
-    def bibitems(self) -> List[List[str]]:
-        warnings.warn('LaTeXTranslator.bibitems() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
-
-    @property
-    def in_container_literal_block(self) -> int:
-        warnings.warn('LaTeXTranslator.in_container_literal_block is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return 0
-
-    @property
-    def next_section_ids(self) -> Set[str]:
-        warnings.warn('LaTeXTranslator.next_section_ids is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return set()
-
-    @property
-    def next_hyperlink_ids(self) -> Dict:
-        warnings.warn('LaTeXTranslator.next_hyperlink_ids is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return {}
-
-    def push_hyperlink_ids(self, figtype: str, ids: Set[str]) -> None:
-        warnings.warn('LaTeXTranslator.push_hyperlink_ids() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        pass
-
-    def pop_hyperlink_ids(self, figtype: str) -> Set[str]:
-        warnings.warn('LaTeXTranslator.pop_hyperlink_ids() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return set()
-
-    @property
-    def hlsettingstack(self) -> List[List[Union[str, int]]]:
-        warnings.warn('LaTeXTranslator.hlsettingstack is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return [[self.builder.config.highlight_language, sys.maxsize]]
-
-    def check_latex_elements(self) -> None:
-        warnings.warn('check_latex_elements() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        for key in self.builder.config.latex_elements:
-            if key not in self.elements:
-                msg = __("Unknown configure key: latex_elements[%r] is ignored.")
-                logger.warning(msg % key)
-
     def babel_defmacro(self, name: str, definition: str) -> str:
         warnings.warn('babel_defmacro() is deprecated.',
                       RemovedInSphinx40Warning)
@@ -2189,15 +2082,6 @@ class LaTeXTranslator(SphinxTranslator):
             suffix = ''
 
         return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
-
-    def _make_visit_admonition(name: str) -> Callable[["LaTeXTranslator", Element], None]:  # type: ignore  # NOQA
-        warnings.warn('LaTeXTranslator._make_visit_admonition() is deprecated.',
-                      RemovedInSphinx30Warning)
-
-        def visit_admonition(self: "LaTeXTranslator", node: Element) -> None:
-            self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
-                             (name, admonitionlabels[name]))
-        return visit_admonition
 
     def generate_numfig_format(self, builder: "LaTeXBuilder") -> str:
         warnings.warn('generate_numfig_format() is deprecated.',
@@ -2239,22 +2123,16 @@ class LaTeXTranslator(SphinxTranslator):
 
 # Import old modules here for compatibility
 from sphinx.builders.latex import constants  # NOQA
-from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA
 from sphinx.builders.latex.util import ExtBabel  # NOQA
 
 
-deprecated_alias('sphinx.writers.latex',
-                 {
-                     'ShowUrlsTransform': ShowUrlsTransform,
-                     'URI_SCHEMES': URI_SCHEMES,
-                 },
-                 RemovedInSphinx30Warning)
 deprecated_alias('sphinx.writers.latex',
                  {
                      'ADDITIONAL_SETTINGS': constants.ADDITIONAL_SETTINGS,
                      'DEFAULT_SETTINGS': constants.DEFAULT_SETTINGS,
                      'LUALATEX_DEFAULT_FONTPKG': constants.LUALATEX_DEFAULT_FONTPKG,
                      'PDFLATEX_DEFAULT_FONTPKG': constants.PDFLATEX_DEFAULT_FONTPKG,
+                     'SHORTHANDOFF': constants.SHORTHANDOFF,
                      'XELATEX_DEFAULT_FONTPKG': constants.XELATEX_DEFAULT_FONTPKG,
                      'XELATEX_GREEK_DEFAULT_FONTPKG': constants.XELATEX_GREEK_DEFAULT_FONTPKG,
                      'ExtBabel': ExtBabel,

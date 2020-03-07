@@ -121,6 +121,17 @@ The following blocks exist in the ``layout.html`` template:
     The contents of the document itself.  It contains the block "body" where the
     individual content is put by subtemplates like ``page.html``.
 
+    .. note::
+        In order for the built-in JavaScript search to show a page preview on
+        the results page, the document or body content should be wrapped in an
+        HTML element containing the ``role="main"`` attribute. For example:
+
+        .. sourcecode:: html+jinja
+
+            <div role="main">
+              {% block document %}{% endblock %}
+            </div>
+
 `sidebar1` / `sidebar2`
     A possible location for a sidebar.  `sidebar1` appears before the document
     and is empty by default, `sidebar2` after the document and contains the
@@ -216,6 +227,7 @@ them to generate links or output multiply used elements.
    documents.
 
 .. function:: pathto(file, 1)
+   :noindex:
 
    Return the path to a *file* which is a filename relative to the root of the
    generated output.  Use this to refer to static files.
@@ -402,10 +414,6 @@ are in HTML form), these variables are also available:
    nonempty if the :confval:`html_copy_source` value is ``True``.
    This has empty value on creating automatically-generated files.
 
-.. data:: title
-
-   The page title.
-
 .. data:: toc
 
    The local table of contents for the current page, rendered as HTML bullet
@@ -427,5 +435,3 @@ are in HTML form), these variables are also available:
 
    * ``includehidden`` (``False`` by default): if true, the TOC tree will also
      contain hidden entries.
-
-

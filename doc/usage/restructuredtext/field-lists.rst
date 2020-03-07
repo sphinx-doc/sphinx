@@ -51,3 +51,12 @@ At the moment, these metadata fields are recognized:
        :orphan:
 
    .. versionadded:: 1.0
+
+``nosearch``
+   If set, full text search for this file is disabled. ::
+
+       :nosearch:
+
+   .. note:: object search is still available even if `nosearch` option is set.
+
+   .. versionadded:: 3.0

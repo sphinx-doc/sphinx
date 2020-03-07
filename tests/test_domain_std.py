@@ -8,10 +8,14 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pytest
+
 from unittest import mock
 
 from docutils import nodes
 from docutils.nodes import definition, definition_list, definition_list_item, term
+
+from html5lib import HTMLParser
 
 from sphinx import addnodes
 from sphinx.addnodes import (
@@ -20,6 +24,7 @@ from sphinx.addnodes import (
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+from sphinx.util import docutils
 
 
 def test_process_doc_handle_figure_caption():
@@ -172,6 +177,15 @@ def test_glossary_warning(app, status, warning):
     assert ("case3.rst:4: WARNING: glossary term must be preceded by empty line"
             in warning.getvalue())
 
+    # duplicated terms
+    text = (".. glossary::\n"
+            "\n"
+            "   term-case4\n"
+            "   term-case4\n")
+    restructuredtext.parse(app, text, "case4")
+    assert ("case4.rst:3: WARNING: duplicate term description of term-case4, "
+            "other instance in case4" in warning.getvalue())
+
 
 def test_glossary_comment(app):
     text = (".. glossary::\n"
@@ -303,3 +317,59 @@ def test_multiple_cmdoptions(app):
     assert ('cmd', '--output') in domain.progoptions
     assert domain.progoptions[('cmd', '-o')] == ('index', 'cmdoption-cmd-o')
     assert domain.progoptions[('cmd', '--output')] == ('index', 'cmdoption-cmd-o')
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx(testroot='productionlist')
+def test_productionlist(app, status, warning):
+    app.builder.build_all()
+
+    warnings = warning.getvalue().split("\n");
+    assert len(warnings) == 2
+    assert warnings[-1] == ''
+    assert "Dup2.rst:4: WARNING: duplicate token description of Dup, other instance in Dup1" in warnings[0]
+
+    with (app.outdir / 'index.html').open('rb') as f:
+        etree = HTMLParser(namespaceHTMLElements=False).parse(f)
+    ul = list(etree.iter('ul'))[1]
+    cases = []
+    for li in list(ul):
+        assert len(list(li)) == 1
+        p = list(li)[0]
+        assert p.tag == 'p'
+        text = str(p.text).strip(' :')
+        assert len(list(p)) == 1
+        a = list(p)[0]
+        assert a.tag == 'a'
+        link = a.get('href')
+        assert len(list(a)) == 1
+        code = list(a)[0]
+        assert code.tag == 'code'
+        assert len(list(code)) == 1
+        span = list(code)[0]
+        assert span.tag == 'span'
+        linkText = span.text.strip()
+        cases.append((text, link, linkText))
+    assert cases == [
+        ('A', 'Bare.html#grammar-token-a', 'A'),
+        ('B', 'Bare.html#grammar-token-b', 'B'),
+        ('P1:A', 'P1.html#grammar-token-p1-a', 'P1:A'),
+        ('P1:B', 'P1.html#grammar-token-p1-b', 'P1:B'),
+        ('P2:A', 'P1.html#grammar-token-p1-a', 'P1:A'),
+        ('P2:B', 'P2.html#grammar-token-p2-b', 'P2:B'),
+        ('Explicit title A, plain', 'Bare.html#grammar-token-a', 'MyTitle'),
+        ('Explicit title A, colon', 'Bare.html#grammar-token-a', 'My:Title'),
+        ('Explicit title P1:A, plain', 'P1.html#grammar-token-p1-a', 'MyTitle'),
+        ('Explicit title P1:A, colon', 'P1.html#grammar-token-p1-a', 'My:Title'),
+        ('Tilde A', 'Bare.html#grammar-token-a', 'A'),
+        ('Tilde P1:A', 'P1.html#grammar-token-p1-a', 'A'),
+        ('Tilde explicit title P1:A', 'P1.html#grammar-token-p1-a', '~MyTitle'),
+        ('Tilde, explicit title P1:A', 'P1.html#grammar-token-p1-a', 'MyTitle'),
+        ('Dup', 'Dup2.html#grammar-token-dup', 'Dup'),
+        ('FirstLine', 'firstLineRule.html#grammar-token-firstline', 'FirstLine'),
+        ('SecondLine', 'firstLineRule.html#grammar-token-secondline', 'SecondLine'),
+    ]
+
+    text = (app.outdir / 'LineContinuation.html').read_text()
+    assert "A</strong> ::=  B C D    E F G" in text

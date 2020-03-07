@@ -9,9 +9,7 @@
 """
 
 import traceback
-import warnings
 from importlib import import_module
-from inspect import isclass
 from types import MethodType
 from typing import Any, Callable, Dict, Iterator, List, Tuple, Union
 
@@ -25,18 +23,15 @@ from pkg_resources import iter_entry_points
 
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
-from sphinx.io import SphinxFileInput
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.docutils import directive_helper
 from sphinx.util.logging import prefixed_warnings
 from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -176,17 +171,9 @@ class SphinxComponentRegistry:
 
             yield domain
 
-    def override_domain(self, domain: "Type[Domain]") -> None:
-        warnings.warn('registry.override_domain() is deprecated. '
-                      'Use app.add_domain(domain, override=True) instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        self.add_domain(domain, override=True)
-
-    def add_directive_to_domain(self, domain: str, name: str, obj: Any,
-                                has_content: bool = None, argument_spec: Any = None,
-                                override: bool = False, **option_spec: Any) -> None:
-        logger.debug('[app] adding directive to domain: %r',
-                     (domain, name, obj, has_content, argument_spec, option_spec))
+    def add_directive_to_domain(self, domain: str, name: str,
+                                cls: "Type[Directive]", override: bool = False) -> None:
+        logger.debug('[app] adding directive to domain: %r', (domain, name, cls))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
 
@@ -194,10 +181,7 @@ class SphinxComponentRegistry:
         if name in directives and not override:
             raise ExtensionError(__('The %r directive is already registered to domain %s') %
                                  (name, domain))
-        if not isclass(obj) or not issubclass(obj, Directive):
-            directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
-        else:
-            directives[name] = obj
+        directives[name] = cls
 
     def add_role_to_domain(self, domain: str, name: str,
                            role: Union[RoleFunction, XRefRole], override: bool = False
@@ -273,27 +257,8 @@ class SphinxComponentRegistry:
         else:
             self.source_suffix[suffix] = filetype
 
-    def add_source_parser(self, *args: Any, **kwargs: Any) -> None:
-        logger.debug('[app] adding search source_parser: %r', args)
-        if len(args) == 1:
-            # new sytle arguments: (source_parser)
-            suffix = None       # type: str
-            parser = args[0]    # type: Type[Parser]
-        else:
-            # old style arguments: (suffix, source_parser)
-            warnings.warn('app.add_source_parser() does not support suffix argument. '
-                          'Use app.add_source_suffix() instead.',
-                          RemovedInSphinx30Warning, stacklevel=3)
-            suffix = args[0]
-            parser = args[1]
-
-        if suffix:
-            self.add_source_suffix(suffix, suffix, override=True)
-
-        if len(parser.supported) == 0:
-            warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
-                          'attribute: %s' % parser.__name__,
-                          RemovedInSphinx30Warning, stacklevel=3)
+    def add_source_parser(self, parser: "Type[Parser]", **kwargs: Any) -> None:
+        logger.debug('[app] adding search source_parser: %r', parser)
 
         # create a map from filetype to parser
         for filetype in parser.supported:
@@ -302,12 +267,6 @@ class SphinxComponentRegistry:
                                      filetype)
             else:
                 self.source_parsers[filetype] = parser
-
-        # also maps suffix to parser
-        #
-        # This rescues old styled parsers which does not have ``supported`` filetypes.
-        if suffix:
-            self.source_parsers[suffix] = parser
 
     def get_source_parser(self, filetype: str) -> "Type[Parser]":
         try:
@@ -325,16 +284,6 @@ class SphinxComponentRegistry:
             parser.set_application(app)
         return parser
 
-    def add_source_input(self, input_class: "Type[SphinxFileInput]", override: bool = False
-                         ) -> None:
-        warnings.warn('registry.source_input() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        for filetype in input_class.supported:
-            if filetype in self.source_inputs and not override:
-                raise ExtensionError(__('source_input for %r is already registered') %
-                                     filetype)
-            self.source_inputs[filetype] = input_class
-
     def get_source_input(self, filetype: str) -> "Type[Input]":
         try:
             return self.source_inputs[filetype]
@@ -347,7 +296,7 @@ class SphinxComponentRegistry:
 
     def add_translator(self, name: str, translator: "Type[nodes.NodeVisitor]",
                        override: bool = False) -> None:
-        logger.debug('[app] Change of translator for the %s builder.' % name)
+        logger.debug('[app] Change of translator for the %s builder.', name)
         if name in self.translators and not override:
             raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
@@ -407,7 +356,7 @@ class SphinxComponentRegistry:
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
         self.autodoc_attrgettrs[typ] = attrgetter
 
-    def add_css_files(self, filename, **attributes):
+    def add_css_files(self, filename: str, **attributes: str) -> None:
         self.css_files.append((filename, attributes))
 
     def add_js_file(self, filename: str, **attributes: str) -> None:

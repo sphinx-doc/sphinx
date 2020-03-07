@@ -14,7 +14,6 @@ from contextlib import contextmanager
 from typing import Any, Generator, Union
 from urllib.parse import urlsplit
 
-import pkg_resources
 import requests
 
 import sphinx
@@ -36,28 +35,6 @@ except ImportError:
     except ImportError:
         # for requests < 2.4.0
         InsecureRequestWarning = None  # type: ignore
-
-try:
-    from requests.packages.urllib3.exceptions import InsecurePlatformWarning
-except ImportError:
-    try:
-        # for Debian-jessie
-        from urllib3.exceptions import InsecurePlatformWarning  # type: ignore
-    except ImportError:
-        # for requests < 2.4.0
-        InsecurePlatformWarning = None  # type: ignore
-
-# try to load requests[security] (but only if SSL is available)
-try:
-    import ssl  # NOQA
-except ImportError:
-    pass
-else:
-    try:
-        pkg_resources.require(['requests[security]'])
-    except (pkg_resources.DistributionNotFound,
-            pkg_resources.VersionConflict):
-        pass  # ignored
 
 
 useragent_header = [('User-Agent',

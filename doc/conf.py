@@ -14,7 +14,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2019, Georg Brandl and the Sphinx team'
+copyright = '2007-2020, Georg Brandl and the Sphinx team'
 version = sphinx.__display_version__
 release = version
 show_authors = True
@@ -146,6 +146,9 @@ def setup(app):
     app.add_object_type('confval', 'confval',
                         objname='configuration value',
                         indextemplate='pair: %s; configuration value')
+    app.add_object_type('setuptools-confval', 'setuptools-confval',
+                        objname='setuptools configuration value',
+                        indextemplate='pair: %s; setuptools configuration value')
     fdesc = GroupedField('parameter', label='Parameters',
                          names=['param'], can_collapse=True)
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,

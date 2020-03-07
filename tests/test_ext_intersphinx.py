@@ -190,6 +190,12 @@ def test_missing_reference_pydomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'func()'
 
+    # py:attr context helps to search objects
+    kwargs = {'py:module': 'module1'}
+    node, contnode = fake_node('py', 'attr', 'Foo.bar', 'Foo.bar', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'Foo.bar'
+
 
 def test_missing_reference_stddomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
@@ -236,7 +242,7 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     load_mappings(app)
 
     app.build()
-    html = (app.outdir / 'index.html').text()
+    html = (app.outdir / 'index.html').read_text()
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
             ' title="(in foo v2.0)">'

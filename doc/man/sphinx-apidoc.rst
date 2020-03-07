@@ -5,7 +5,7 @@ Synopsis
 --------
 
 **sphinx-apidoc** [*OPTIONS*] -o <*OUTPUT_PATH*> <*MODULE_PATH*>
-[*EXCLUDE_PATTERN*, ...]
+[*EXCLUDE_PATTERN* ...]
 
 Description
 -----------

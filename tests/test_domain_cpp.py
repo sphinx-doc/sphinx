@@ -796,6 +796,25 @@ def filter_warnings(warning, file):
     return res
 
 
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_multi_decl_lookup(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "lookup-key-overload")
+    assert len(ws) == 0
+
+    ws = filter_warnings(warning, "multi-decl-lookup")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "warn-template-param-qualified-name")
+    assert len(ws) == 2
+    assert "WARNING: cpp:type reference target not found: T::typeWarn" in ws[0]
+    assert "WARNING: cpp:type reference target not found: T::U::typeWarn" in ws[1]
+
+
 @pytest.mark.sphinx(testroot='domain-cpp')
 def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     app.builder.build_all()
@@ -872,14 +891,14 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in parenPatterns:
         check(s, t, f)
 
@@ -915,14 +934,14 @@ def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, wa
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in parenPatterns:
         check(s, t, f)
 
@@ -932,7 +951,7 @@ def test_xref_consistency(app, status, warning):
     app.builder.build_all()
 
     test = 'xref_consistency.html'
-    output = (app.outdir / test).text()
+    output = (app.outdir / test).read_text()
 
     def classes(role, tag):
         pattern = (r'{role}-role:.*?'
