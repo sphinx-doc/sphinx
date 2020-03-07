@@ -52,6 +52,10 @@ Incompatible changes
   node_id for cross reference
 * #7229: rst domain: Non intended behavior is removed such as ``numref_`` links
   to ``.. rst:role:: numref``
+* #6903: py domain: Internal data structure has changed. Both objects and
+  modules have node_id for cross reference
+* #6903: py domain: Non intended behavior is removed such as ``say_hello_``
+  links to ``.. py:function:: say_hello()``
 
 Deprecated
 ----------
@@ -63,6 +67,7 @@ Deprecated
 * ``sphinx.testing.path.Path.text()``
 * ``sphinx.testing.path.Path.bytes()``
 * ``sphinx.util.inspect.getargspec()``
+* ``sphinx.writers.latex.LaTeXWriter.format_docclass()``
 
 Features added
 --------------
@@ -78,6 +83,7 @@ Features added
 * #3106: domain: Register hyperlink target for index page automatically
 * #6558: std domain: emit a warning for duplicated generic objects
 * #6830: py domain: Add new event: :event:`object-description-transform`
+* #6895: py domain: Do not emit nitpicky warnings for built-in types
 * py domain: Support lambda functions in function signature
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`
@@ -89,6 +95,8 @@ Features added
   ``no-scaled-link`` class
 * #7144: Add CSS class indicating its domain for each desc node
 * #7211: latex: Use babel for Chinese document when using XeLaTeX
+* #6672: LaTeX: Support LaTeX Theming (experimental)
+* #7005: LaTeX: Add LaTeX styling macro for :rst:role:`kbd` role
 * #7220: genindex: Show "main" index entries at first
 * #7103: linkcheck: writes all links to ``output.json``
 * #7025: html search: full text search can be disabled for individual document

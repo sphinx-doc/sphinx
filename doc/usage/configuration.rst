@@ -1904,7 +1904,7 @@ These options influence LaTeX output.
 
    This value determines how to group the document tree into LaTeX source files.
    It must be a list of tuples ``(startdocname, targetname, title, author,
-   documentclass, toctree_only)``, where the items are:
+   theme, toctree_only)``, where the items are:
 
    *startdocname*
      String that specifies the :term:`document name` of the LaTeX file's master
@@ -1926,13 +1926,8 @@ These options influence LaTeX output.
      applies.  Use ``\\and`` to separate multiple authors, as in:
      ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
 
-   *documentclass*
-     Normally, one of ``'manual'`` or ``'howto'`` (provided by Sphinx and based
-     on ``'report'``, resp. ``'article'``; Japanese documents use ``'jsbook'``,
-     resp. ``'jreport'``.) "howto" (non-Japanese) documents will not get
-     appendices. Also they have a simpler title page.  Other document classes
-     can be given. Independently of the document class, the "sphinx" package is
-     always loaded in order to define Sphinx's custom LaTeX commands.
+   *theme*
+     LaTeX theme.  See :confval:`latex_theme`.
 
    *toctree_only*
      Must be ``True`` or ``False``.  If true, the *startdoc* document itself is
@@ -2086,6 +2081,33 @@ These options influence LaTeX output.
    .. versionchanged:: 1.2
       This overrides the files which is provided from Sphinx such as
       ``sphinx.sty``.
+
+.. confval:: latex_theme
+
+   The "theme" that the LaTeX output should use.  It is a collection of settings
+   for LaTeX output (ex. document class, top level sectioning unit and so on).
+
+   As a built-in LaTeX themes, ``manual`` and ``howto`` are bundled.
+
+   ``manual``
+     A LaTeX theme for writing a manual.  It imports the ``report`` document
+     class (Japanese documents use ``jsbook``).
+
+   ``howto``
+     A LaTeX theme for writing an article.  It imports the ``article`` document
+     class (Japanese documents use ``jreport`` rather).  :confval:`latex_appendices`
+     is available only for this theme.
+
+   It defaults to ``'manual'``.
+
+   .. versionadded:: 3.0
+
+.. confval:: latex_theme_path
+
+   A list of paths that contain custom LaTeX themes as subdirectories.  Relative
+   paths are taken as relative to the configuration directory.
+
+   .. versionadded:: 3.0
 
 
 .. _text-options:

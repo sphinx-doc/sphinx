@@ -23,7 +23,9 @@ from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.deprecation import (
+    RemovedInSphinx40Warning, RemovedInSphinx50Warning, deprecated_alias
+)
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -43,16 +45,10 @@ except ImportError:
 if False:
     # For type annotation
     from sphinx.builders.latex import LaTeXBuilder
+    from sphinx.builders.latex.theming import Theme
 
 
 logger = logging.getLogger(__name__)
-
-SHORTHANDOFF = r'''
-\ifdefined\shorthandoff
-  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
-  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
-\fi
-'''
 
 MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
@@ -93,9 +89,16 @@ class LaTeXWriter(writers.Writer):
     def __init__(self, builder: "LaTeXBuilder") -> None:
         super().__init__()
         self.builder = builder
+        self.theme = None  # type: Theme
 
     def translate(self) -> None:
-        visitor = self.builder.create_translator(self.document, self.builder)
+        try:
+            visitor = self.builder.create_translator(self.document, self.builder, self.theme)
+        except TypeError:
+            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
+                          RemovedInSphinx50Warning)
+            visitor = self.builder.create_translator(self.document, self.builder)
+
         self.document.walkabout(visitor)
         self.output = cast(LaTeXTranslator, visitor).astext()
 
@@ -281,9 +284,15 @@ class LaTeXTranslator(SphinxTranslator):
     # sphinx specific document classes
     docclasses = ('howto', 'manual')
 
-    def __init__(self, document: nodes.document, builder: "LaTeXBuilder") -> None:
+    def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
+                 theme: "Theme" = None) -> None:
         super().__init__(document, builder)
         self.body = []  # type: List[str]
+        self.theme = theme
+
+        if theme is None:
+            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
+                          RemovedInSphinx50Warning)
 
         # flags
         self.in_title = 0
@@ -306,21 +315,32 @@ class LaTeXTranslator(SphinxTranslator):
         # sort out some elements
         self.elements = self.builder.context.copy()
 
-        # but some have other interface in config file
-        self.elements['wrapperclass'] = self.format_docclass(document.get('docclass'))
-
-        # we assume LaTeX class provides \chapter command except in case
-        # of non-Japanese 'howto' case
+        # initial section names
         self.sectionnames = LATEXSECTIONNAMES[:]
-        if document.get('docclass') == 'howto':
-            docclass = self.config.latex_docclass.get('howto', 'article')
-            if docclass[0] == 'j':  # Japanese class...
-                pass
-            else:
+
+        if self.theme:
+            # new style: control sectioning via theme's setting
+            #
+            # .. note:: template variables(elements) are already assigned in builder
+            docclass = self.theme.docclass
+            if self.theme.toplevel_sectioning == 'section':
                 self.sectionnames.remove('chapter')
         else:
-            docclass = self.config.latex_docclass.get('manual', 'report')
-        self.elements['docclass'] = docclass
+            # old style: sectioning control is hard-coded
+            # but some have other interface in config file
+            self.elements['wrapperclass'] = self.format_docclass(self.settings.docclass)
+
+            # we assume LaTeX class provides \chapter command except in case
+            # of non-Japanese 'howto' case
+            if document.get('docclass') == 'howto':
+                docclass = self.config.latex_docclass.get('howto', 'article')
+                if docclass[0] == 'j':  # Japanese class...
+                    pass
+                else:
+                    self.sectionnames.remove('chapter')
+            else:
+                docclass = self.config.latex_docclass.get('manual', 'report')
+            self.elements['docclass'] = docclass
 
         # determine top section level
         self.top_sectionlevel = 1
@@ -367,44 +387,6 @@ class LaTeXTranslator(SphinxTranslator):
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
                            self.config.language)
-
-        # set up multilingual module...
-        if self.elements['latex_engine'] == 'pdflatex':
-            if not self.babel.uses_cyrillic():
-                if 'X2' in self.elements['fontenc']:
-                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.elements['textcyrillic'] = ('\\usepackage[Xtwo]'
-                                                     '{sphinxcyrillic}')
-                elif 'T2A' in self.elements['fontenc']:
-                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.elements['textcyrillic'] = ('\\usepackage[TtwoA]'
-                                                     '{sphinxcyrillic}')
-            if 'LGR' in self.elements['fontenc']:
-                self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-            else:
-                self.elements['textgreek'] = ''
-        # 'babel' key is public and user setting must be obeyed
-        if self.elements['babel']:
-            self.elements['classoptions'] += ',' + self.babel.get_language()
-            # this branch is not taken for xelatex/lualatex if default settings
-            self.elements['multilingual'] = self.elements['babel']
-            if self.config.language:
-                self.elements['shorthandoff'] = SHORTHANDOFF
-
-                # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
-                    self.elements['fontpkg'] = ''
-        elif self.elements['polyglossia']:
-            self.elements['classoptions'] += ',' + self.babel.get_language()
-            options = self.babel.get_mainlanguage_options()
-            if options:
-                mainlanguage = r'\setmainlanguage[%s]{%s}' % (options,
-                                                              self.babel.get_language())
-            else:
-                mainlanguage = r'\setmainlanguage{%s}' % self.babel.get_language()
-
-            self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
-                                                        mainlanguage)
 
         minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
         if self.document.get('tocdepth'):
@@ -472,6 +454,8 @@ class LaTeXTranslator(SphinxTranslator):
     def format_docclass(self, docclass: str) -> str:
         """ prepends prefix to sphinx document classes
         """
+        warnings.warn('LaTeXWriter.format_docclass() is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
         if docclass in self.docclasses:
             docclass = 'sphinx' + docclass
         return docclass
@@ -1720,6 +1704,8 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_literal(self, node: Element) -> None:
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
+        elif 'kbd' in node['classes']:
+            self.body.append(r'\sphinxkeyboard{\sphinxupquote{')
         else:
             self.body.append(r'\sphinxcode{\sphinxupquote{')
 
@@ -2146,6 +2132,7 @@ deprecated_alias('sphinx.writers.latex',
                      'DEFAULT_SETTINGS': constants.DEFAULT_SETTINGS,
                      'LUALATEX_DEFAULT_FONTPKG': constants.LUALATEX_DEFAULT_FONTPKG,
                      'PDFLATEX_DEFAULT_FONTPKG': constants.PDFLATEX_DEFAULT_FONTPKG,
+                     'SHORTHANDOFF': constants.SHORTHANDOFF,
                      'XELATEX_DEFAULT_FONTPKG': constants.XELATEX_DEFAULT_FONTPKG,
                      'XELATEX_GREEK_DEFAULT_FONTPKG': constants.XELATEX_GREEK_DEFAULT_FONTPKG,
                      'ExtBabel': ExtBabel,

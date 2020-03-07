@@ -176,8 +176,8 @@ def test_html4_output(app, status, warning):
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dl[@class='py class']/dt[@id='autodoc_target.Class']", ''),
-        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
+        (".//dl[@class='py class']/dt[@id='autodoc-target-class']", ''),
+        (".//dl[@class='py function']/dt[@id='autodoc-target-function']/em", r'\*\*kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
@@ -222,7 +222,7 @@ def test_html4_output(app, status, warning):
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
-        (".//a[@href='#grammar-token-_try-stmt']"
+        (".//a[@href='#grammar-token-try-stmt']"
          "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
@@ -254,7 +254,7 @@ def test_html4_output(app, status, warning):
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-_try1-stmt']/code/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token-try1-stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
@@ -262,7 +262,7 @@ def test_html4_output(app, status, warning):
         (".//p", 'Always present'),
         # tests for ``any`` role
         (".//a[@href='#with']/span", 'headings'),
-        (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
+        (".//a[@href='objects.html#func-without-body']/code/span", 'objects'),
         # tests for numeric labels
         (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
         # tests for smartypants
@@ -274,18 +274,18 @@ def test_html4_output(app, status, warning):
         (".//p", 'Il dit : « C’est “super” ! »'),
     ],
     'objects.html': [
-        (".//dt[@id='mod.Cls.meth1']", ''),
-        (".//dt[@id='errmod.Error']", ''),
+        (".//dt[@id='mod-cls-meth1']", ''),
+        (".//dt[@id='errmod-error']", ''),
         (".//dt/code", r'long\(parameter,\s* list\)'),
         (".//dt/code", 'another one'),
-        (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
+        (".//a[@href='#mod-cls'][@class='reference internal']", ''),
         (".//dl[@class='std userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
         (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # docfields
-        (".//a[@class='reference internal'][@href='#TimeInt']/em", 'TimeInt'),
-        (".//a[@class='reference internal'][@href='#Time']", 'Time'),
-        (".//a[@class='reference internal'][@href='#errmod.Error']/strong", 'Error'),
+        (".//a[@class='reference internal'][@href='#timeint']/em", 'TimeInt'),
+        (".//a[@class='reference internal'][@href='#time']", 'Time'),
+        (".//a[@class='reference internal'][@href='#errmod-error']/strong", 'Error'),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#c.Sphinx_DoSomething']", ''),

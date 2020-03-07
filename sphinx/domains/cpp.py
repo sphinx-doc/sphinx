@@ -11,11 +11,14 @@
 import re
 import warnings
 from copy import deepcopy
-from typing import Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Type, Union
+from typing import (
+    Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Type, TypeVar, Union
+)
 
 from docutils import nodes, utils
-from docutils.nodes import Element, Node, TextElement
+from docutils.nodes import Element, Node, TextElement, system_message
 from docutils.parsers.rst import directives
+from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
@@ -39,6 +42,7 @@ from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)
 StringifyTransform = Callable[[Any], str]
+T = TypeVar('T')
 
 """
     Important note on ids
@@ -652,7 +656,7 @@ class ASTCPPAttribute(ASTBase):
     def __init__(self, arg: str) -> None:
         self.arg = arg
 
-    def _stringify(self, transform):
+    def _stringify(self, transform: StringifyTransform) -> str:
         return "[[" + self.arg + "]]"
 
     def describe_signature(self, signode: desc_signature) -> None:
@@ -733,12 +737,13 @@ class ASTPointerLiteral(ASTBase):
     def get_id(self, version: int) -> str:
         return 'LDnE'
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('nullptr'))
 
 
 class ASTBooleanLiteral(ASTBase):
-    def __init__(self, value):
+    def __init__(self, value: bool) -> None:
         self.value = value
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -753,7 +758,8 @@ class ASTBooleanLiteral(ASTBase):
         else:
             return 'L0E'
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text(str(self)))
 
 
@@ -767,7 +773,8 @@ class ASTNumberLiteral(ASTBase):
     def get_id(self, version: int) -> str:
         return "L%sE" % self.data
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
@@ -802,7 +809,8 @@ class ASTCharLiteral(ASTBase):
     def get_id(self, version: int) -> str:
         return self.type + str(self.value)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
@@ -818,7 +826,8 @@ class ASTStringLiteral(ASTBase):
         # note: the length is not really correct with escaping
         return "LA%d_KcE" % (len(self.data) - 2)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
@@ -830,7 +839,8 @@ class ASTThisLiteral(ASTBase):
     def get_id(self, version: int) -> str:
         return "fpT"
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text("this"))
 
 
@@ -844,7 +854,8 @@ class ASTParenExpr(ASTBase):
     def get_id(self, version: int) -> str:
         return self.expr.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('(', '('))
         self.expr.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')', ')'))
@@ -894,7 +905,8 @@ class ASTFoldExpr(ASTBase):
             res.append(self.rightExpr.get_id(version))
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('('))
         if self.leftExpr:
             self.leftExpr.describe_signature(signode, mode, env, symbol)
@@ -936,7 +948,8 @@ class ASTBinOpExpr(ASTBase):
         res.append(self.exprs[-1].get_id(version))
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         self.exprs[0].describe_signature(signode, mode, env, symbol)
         for i in range(1, len(self.exprs)):
             signode.append(nodes.Text(' '))
@@ -970,7 +983,8 @@ class ASTAssignmentExpr(ASTBase):
         res.append(self.exprs[-1].get_id(version))
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         self.exprs[0].describe_signature(signode, mode, env, symbol)
         for i in range(1, len(self.exprs)):
             signode.append(nodes.Text(' '))
@@ -994,7 +1008,8 @@ class ASTCastExpr(ASTBase):
     def get_id(self, version: int) -> str:
         return 'cv' + self.typ.get_id(version) + self.expr.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('('))
         self.typ.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')'))
@@ -1012,7 +1027,8 @@ class ASTUnaryOpExpr(ASTBase):
     def get_id(self, version: int) -> str:
         return _id_operator_unary_v2[self.op] + self.expr.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text(self.op))
         self.expr.describe_signature(signode, mode, env, symbol)
 
@@ -1027,7 +1043,8 @@ class ASTSizeofParamPack(ASTBase):
     def get_id(self, version: int) -> str:
         return 'sZ' + self.identifier.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('sizeof...('))
         self.identifier.describe_signature(signode, mode, env,
                                            symbol=symbol, prefix="", templateArgs="")
@@ -1044,7 +1061,8 @@ class ASTSizeofType(ASTBase):
     def get_id(self, version: int) -> str:
         return 'st' + self.typ.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('sizeof('))
         self.typ.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')'))
@@ -1060,7 +1078,8 @@ class ASTSizeofExpr(ASTBase):
     def get_id(self, version: int) -> str:
         return 'sz' + self.expr.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('sizeof '))
         self.expr.describe_signature(signode, mode, env, symbol)
 
@@ -1075,7 +1094,8 @@ class ASTAlignofExpr(ASTBase):
     def get_id(self, version: int) -> str:
         return 'at' + self.typ.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('alignof('))
         self.typ.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')'))
@@ -1091,7 +1111,8 @@ class ASTNoexceptExpr(ASTBase):
     def get_id(self, version: int) -> str:
         return 'nx' + self.expr.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('noexcept('))
         self.expr.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')'))
@@ -1130,7 +1151,8 @@ class ASTNewExpr(ASTBase):
             res.append('E')
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         if self.rooted:
             signode.append(nodes.Text('::'))
         signode.append(nodes.Text('new '))
@@ -1166,7 +1188,8 @@ class ASTDeleteExpr(ASTBase):
             id = "dl"
         return id + self.expr.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         if self.rooted:
             signode.append(nodes.Text('::'))
         signode.append(nodes.Text('delete '))
@@ -1196,7 +1219,8 @@ class ASTExplicitCast(ASTBase):
                 self.typ.get_id(version) +
                 self.expr.get_id(version))
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text(self.cast))
         signode.append(nodes.Text('<'))
         self.typ.describe_signature(signode, mode, env, symbol)
@@ -1218,7 +1242,8 @@ class ASTTypeId(ASTBase):
         prefix = 'ti' if self.isType else 'te'
         return prefix + self.typeOrExpr.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('typeid'))
         signode.append(nodes.Text('('))
         self.typeOrExpr.describe_signature(signode, mode, env, symbol)
@@ -1239,7 +1264,8 @@ class ASTPostfixCallExpr(ASTBase):
         res.append('E')
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         self.lst.describe_signature(signode, mode, env, symbol)
 
 
@@ -1253,7 +1279,8 @@ class ASTPostfixArray(ASTBase):
     def get_id(self, idPrefix: str, version: int) -> str:
         return 'ix' + idPrefix + self.expr.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('['))
         self.expr.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(']'))
@@ -1266,7 +1293,8 @@ class ASTPostfixInc(ASTBase):
     def get_id(self, idPrefix: str, version: int) -> str:
         return 'pp' + idPrefix
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('++'))
 
 
@@ -1277,7 +1305,8 @@ class ASTPostfixDec(ASTBase):
     def get_id(self, idPrefix: str, version: int) -> str:
         return 'mm' + idPrefix
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('--'))
 
 
@@ -1291,7 +1320,8 @@ class ASTPostfixMember(ASTBase):
     def get_id(self, idPrefix: str, version: int) -> str:
         return 'dt' + idPrefix + self.name.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('.'))
         self.name.describe_signature(signode, 'noneIsName', env, symbol)
 
@@ -1306,7 +1336,8 @@ class ASTPostfixMemberOfPointer(ASTBase):
     def get_id(self, idPrefix: str, version: int) -> str:
         return 'pt' + idPrefix + self.name.get_id(version)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('->'))
         self.name.describe_signature(signode, 'noneIsName', env, symbol)
 
@@ -1329,7 +1360,8 @@ class ASTPostfixExpr(ASTBase):
             id = p.get_id(id, version)
         return id
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         self.prefix.describe_signature(signode, mode, env, symbol)
         for p in self.postFixes:
             p.describe_signature(signode, mode, env, symbol)
@@ -1346,7 +1378,8 @@ class ASTPackExpansionExpr(ASTBase):
         id = self.expr.get_id(version)
         return 'sp' + id
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         self.expr.describe_signature(signode, mode, env, symbol)
         signode += nodes.Text('...')
 
@@ -1361,7 +1394,8 @@ class ASTFallbackExpr(ASTBase):
     def get_id(self, version: int) -> str:
         return str(self.expr)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode += nodes.Text(self.expr)
 
 
@@ -1667,13 +1701,13 @@ class ASTTemplateParams(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol", lineSpec: bool = None
                            ) -> None:
         # 'lineSpec' is defaulted becuase of template template parameters
-        def makeLine(parentNode=parentNode):
+        def makeLine(parentNode: desc_signature = parentNode) -> addnodes.desc_signature_line:
             signode = addnodes.desc_signature_line()
             parentNode += signode
             signode.sphinx_cpp_tagname = 'templateParams'
             return signode
         if self.isNested:
-            lineNode = parentNode
+            lineNode = parentNode  # type: Element
         else:
             lineNode = makeLine()
         lineNode += nodes.Text("template<")
@@ -1822,7 +1856,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
 
 
 class ASTOperator(ASTBase):
-    def is_anon(self):
+    def is_anon(self) -> bool:
         return False
 
     def is_operator(self) -> bool:
@@ -2300,11 +2334,11 @@ class ASTParametersQualifiers(ASTBase):
             paramlist += param
         signode += paramlist
 
-        def _add_anno(signode, text):
+        def _add_anno(signode: desc_signature, text: str) -> None:
             signode += nodes.Text(' ')
             signode += addnodes.desc_annotation(text, text)
 
-        def _add_text(signode, text):
+        def _add_text(signode: desc_signature, text: str) -> None:
             signode += nodes.Text(' ' + text)
 
         if self.volatile:
@@ -2376,7 +2410,7 @@ class ASTDeclSpecsSimple(ASTBase):
         return ' '.join(res)
 
     def describe_signature(self, modifiers: List[Node]) -> None:
-        def _add(modifiers, text):
+        def _add(modifiers: List[Node], text: str) -> None:
             if len(modifiers) > 0:
                 modifiers.append(nodes.Text(' '))
             modifiers.append(addnodes.desc_annotation(text, text))
@@ -2456,9 +2490,9 @@ class ASTDeclSpecs(ASTBase):
     def describe_signature(self, signode: desc_signature, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         _verify_description_mode(mode)
-        modifiers = []  # type: List[nodes.Node]
+        modifiers = []  # type: List[Node]
 
-        def _add(modifiers, text):
+        def _add(modifiers: List[Node], text: str) -> None:
             if len(modifiers) > 0:
                 modifiers.append(nodes.Text(' '))
             modifiers.append(addnodes.desc_annotation(text, text))
@@ -2503,7 +2537,8 @@ class ASTArray(ASTBase):
         else:
             return 'A_'
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         _verify_description_mode(mode)
         signode.append(nodes.Text("["))
         if self.size:
@@ -2595,7 +2630,7 @@ class ASTDeclaratorPtr(ASTBase):
         if len(self.attrs) > 0 and (self.volatile or self.const):
             signode += nodes.Text(' ')
 
-        def _add_anno(signode, text):
+        def _add_anno(signode: desc_signature, text: str) -> None:
             signode += addnodes.desc_annotation(text, text)
         if self.volatile:
             _add_anno(signode, 'volatile')
@@ -2795,7 +2830,7 @@ class ASTDeclaratorMemPtr(ASTBase):
         self.className.describe_signature(signode, mode, env, symbol)
         signode += nodes.Text('::*')
 
-        def _add_anno(signode, text):
+        def _add_anno(signode: desc_signature, text: str) -> None:
             signode += addnodes.desc_annotation(text, text)
         if self.volatile:
             _add_anno(signode, 'volatile')
@@ -3565,7 +3600,7 @@ class Symbol:
     debug_show_tree = False
 
     @staticmethod
-    def debug_print(*args):
+    def debug_print(*args: Any) -> None:
         print(Symbol.debug_indent_string * Symbol.debug_indent, end="")
         print(*args)
 
@@ -3627,7 +3662,7 @@ class Symbol:
         # and symbol addition should be done as well
         self._add_template_and_function_params()
 
-    def _add_template_and_function_params(self):
+    def _add_template_and_function_params(self) -> None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("_add_template_and_function_params:")
@@ -3663,7 +3698,7 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
 
-    def remove(self):
+    def remove(self) -> None:
         if self.parent is None:
             return
         assert self in self.parent._children
@@ -3771,7 +3806,7 @@ class Symbol:
             Symbol.debug_print("correctPrimaryTemplateAargs:", correctPrimaryTemplateArgs)
             Symbol.debug_print("searchInSiblings:           ", searchInSiblings)
 
-        def isSpecialization():
+        def isSpecialization() -> bool:
             # the names of the template parameters must be given exactly as args
             # and params that are packs must in the args be the name expanded
             if len(templateParams.params) != len(templateArgs.args):
@@ -6509,7 +6544,7 @@ class CPPObject(ObjectDescription):
     def describe_signature(self, signode: desc_signature, ast: Any, options: Dict) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
-    def run(self):
+    def run(self) -> List[Node]:
         env = self.state.document.settings.env  # from ObjectDescription.run
         if 'cpp:parent_symbol' not in env.temp_data:
             root = env.domaindata['cpp']['root_symbol']
@@ -6617,7 +6652,7 @@ class CPPClassObject(CPPObject):
     object_type = 'class'
 
     @property
-    def display_object_type(self):
+    def display_object_type(self) -> str:
         # the distinction between class and struct is only cosmetic
         assert self.objtype in ('class', 'struct')
         return self.objtype
@@ -6733,7 +6768,8 @@ class CPPNamespacePopObject(SphinxDirective):
 
 
 class AliasNode(nodes.Element):
-    def __init__(self, sig, env=None, parentKey=None):
+    def __init__(self, sig: str, env: "BuildEnvironment" = None,
+                 parentKey: LookupKey = None) -> None:
         super().__init__()
         self.sig = sig
         if env is not None:
@@ -6745,8 +6781,8 @@ class AliasNode(nodes.Element):
             assert parentKey is not None
             self.parentKey = parentKey
 
-    def copy(self):
-        return self.__class__(self.sig, env=None, parentKey=self.parentKey)
+    def copy(self: T) -> T:
+        return self.__class__(self.sig, env=None, parentKey=self.parentKey)  # type: ignore
 
 
 class AliasTransform(SphinxTransform):
@@ -6755,7 +6791,7 @@ class AliasTransform(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(AliasNode):
             class Warner:
-                def warn(self, msg):
+                def warn(self, msg: Any) -> None:
                     logger.warning(msg, location=node)
             warner = Warner()
             sig = node.sig
@@ -6898,7 +6934,7 @@ class CPPXRefRole(XRefRole):
 
 
 class CPPExprRole:
-    def __init__(self, asCode):
+    def __init__(self, asCode: bool) -> None:
         if asCode:
             # render the expression as inline code
             self.class_type = 'cpp-expr'
@@ -6908,9 +6944,11 @@ class CPPExprRole:
             self.class_type = 'cpp-texpr'
             self.node_type = nodes.inline
 
-    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    def __call__(self, typ: str, rawtext: str, text: str, lineno: int,
+                 inliner: Inliner, options: Dict = {}, content: List[str] = []
+                 ) -> Tuple[List[Node], List[system_message]]:
         class Warner:
-            def warn(self, msg):
+            def warn(self, msg: str) -> None:
                 inliner.reporter.warning(msg, line=lineno)
         text = utils.unescape(text).replace('\n', ' ')
         env = inliner.document.settings.env
@@ -7056,7 +7094,7 @@ class CPPDomain(Domain):
                             typ: str, target: str, node: pending_xref, contnode: Element,
                             emitWarnings: bool = True) -> Tuple[Element, str]:
         class Warner:
-            def warn(self, msg):
+            def warn(self, msg: str) -> None:
                 if emitWarnings:
                     logger.warning(msg, location=node)
         warner = Warner()
@@ -7067,7 +7105,8 @@ class CPPDomain(Domain):
         try:
             ast, isShorthand = parser.parse_xref_object()
         except DefinitionError as e:
-            def findWarning(e):  # as arg to stop flake8 from complaining
+            # as arg to stop flake8 from complaining
+            def findWarning(e: Exception) -> Tuple[str, Exception]:
                 if typ != 'any' and typ != 'func':
                     return target, e
                 # hax on top of the paren hax to try to get correct errors
@@ -7138,7 +7177,7 @@ class CPPDomain(Domain):
             typ = 'class'
         declTyp = s.declaration.objectType
 
-        def checkType():
+        def checkType() -> bool:
             if typ == 'any' or typ == 'identifier':
                 return True
             if declTyp == 'templateParam':
