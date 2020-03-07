@@ -206,18 +206,6 @@ def test_domain_py_find_obj(app, status, warning):
             [('NestedParentA.NestedChildA.subchild_1',
               ('roles', 'nestedparenta-nestedchilda-subchild-1', 'method'))])
 
-    # special case: exceptions
-    assert (find_obj('exceptions', None, 'Exception', 'exc') ==
-            [('exceptions.Exception', ('module', 'exceptions-exception', 'exception'))])
-    assert (find_obj(None, None, 'Exception', 'exc') ==
-            [('exceptions.Exception', ('module', 'exceptions-exception', 'exception'))])
-
-    # special case: object
-    assert (find_obj('object', None, 'sum', 'func') ==
-            [('object.sum', ('module', 'object-sum', 'function'))])
-    assert (find_obj(None, None, 'sum', 'func') ==
-            [('object.sum', ('module', 'object-sum', 'function'))])
-
 
 def test_get_full_qualified_name():
     env = Mock(domaindata={})

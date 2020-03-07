@@ -32,6 +32,8 @@ Incompatible changes
   to ``.. rst:role:: numref``
 * #6903: py domain: Non intended behavior is removed such as ``say_hello_``
   links to ``.. py:function:: say_hello()``
+* #7246: py domain: Drop special cross reference helper for exceptions,
+  functions and methods
 
 Deprecated
 ----------
