@@ -10,6 +10,7 @@
 
 import logging
 import logging.handlers
+import os
 from collections import defaultdict
 from contextlib import contextmanager
 from typing import Any, Dict, Generator, IO, List, Tuple, Union
@@ -449,10 +450,13 @@ class SphinxLogRecordTranslator(logging.Filter):
         location = getattr(record, 'location', None)
         if isinstance(location, tuple):
             docname, lineno = location
-            if docname and lineno:
-                record.location = '%s:%s' % (self.app.env.doc2path(docname), lineno)
-            elif docname:
-                record.location = '%s' % self.app.env.doc2path(docname)
+            if docname:
+                if os.path.isabs(docname):
+                    record.location = docname
+                else:
+                    record.location = self.app.env.doc2path(docname)
+                if lineno:
+                    record.location += ":{}".format(lineno)
             else:
                 record.location = None
         elif isinstance(location, nodes.Node):
