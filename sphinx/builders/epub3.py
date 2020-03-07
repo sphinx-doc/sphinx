@@ -11,9 +11,8 @@
 
 import html
 import warnings
-from collections import namedtuple
 from os import path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, NamedTuple, Set, Tuple
 
 from sphinx import package_dir
 from sphinx.application import Sphinx
@@ -29,7 +28,12 @@ from sphinx.util.osutil import make_filename
 logger = logging.getLogger(__name__)
 
 
-NavPoint = namedtuple('NavPoint', ['text', 'refuri', 'children'])
+class NavPoint(NamedTuple):
+    text: str
+    refuri: str
+    children: List[Any]     # mypy does not support recursive types
+                            # https://github.com/python/mypy/issues/7069
+
 
 # writing modes
 PAGE_PROGRESSION_DIRECTIONS = {

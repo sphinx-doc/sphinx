@@ -11,10 +11,9 @@ import gettext
 import os
 import re
 import warnings
-from collections import namedtuple
 from datetime import datetime, timezone
 from os import path
-from typing import Callable, Generator, List, Set, Tuple
+from typing import Callable, Generator, List, NamedTuple, Set, Tuple
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -34,7 +33,11 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
+
+class LocaleFileInfoBase(NamedTuple):
+    base_dir: str
+    domain: str
+    charset: str
 
 
 class CatalogInfo(LocaleFileInfoBase):
