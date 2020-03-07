@@ -747,12 +747,6 @@ class PyProperty(PyClassMemberBase):
         'abstractmethod': directives.flag,
     })
 
-    def run(self) -> List[Node]:
-        # properties and attributes need to be transparently switchable:
-        # making one into the other doesn’t break APIs so it shouldn’t break doc links.
-        self.name = 'py:attribute'
-        return super().run()
-
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         fullname, prefix = super().handle_signature(sig, signode)
 

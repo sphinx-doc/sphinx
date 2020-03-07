@@ -554,17 +554,13 @@ def test_pyattribute(app):
             "\n"
             "   .. py:attribute:: attr\n"
             "      :type: str\n"
-            "      :value: ''\n"
-            "   .. py:property:: prop\n")
+            "      :value: ''\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "class "],
                                                     [desc_name, "Class"])],
-                                  [desc_content, (addnodes.index,
-                                                  desc,
-                                                  addnodes.index,
-                                                  desc)])]))
+                                  [desc_content, (addnodes.index, desc)])]))
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'attr (Class attribute)', 'class-attr', '', None)])
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "attr"],
@@ -574,14 +570,28 @@ def test_pyattribute(app):
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'class-attr', 'attribute')
 
+
+def test_pyproperty(app):
+    text = (".. py:class:: Class\n"
+            "\n"
+            "   .. py:property:: prop\n"
+            "      :abstractmethod:\n"
+            "      :type: str\n")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Class"])],
+                                  [desc_content, (addnodes.index, desc)])]))
     # py:property
-    assert_node(doctree[1][1][2], addnodes.index,
+    assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'prop (Class property)', 'Class.prop', '', None)])
-    assert_node(doctree[1][1][3], ([desc_signature, ([desc_annotation, "property "],
-                                                     [desc_name, "prop"],)],
+    assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, "abstract property "],
+                                                     [desc_name, "prop"],
+                                                     [desc_annotation, ": str"])],
                                    [desc_content, ()]))
     assert 'Class.prop' in domain.objects
-    assert domain.objects['Class.prop'] == ('index', 'attribute')
+    assert domain.objects['Class.prop'] == ('index', 'property')
 
 
 @pytest.mark.sphinx(freshenv=True)
