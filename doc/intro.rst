@@ -55,7 +55,7 @@ See the :ref:`pertinent section in the FAQ list <usingwith>`.
 Prerequisites
 -------------
 
-Sphinx needs at least **Python 3.5** to run.
+Sphinx needs at least **Python 3.6** to run.
 It also depends on 3rd party libraries such as docutils_ and jinja2_, but they
 are automatically installed when sphinx is installed.
 

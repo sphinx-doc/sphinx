@@ -4,6 +4,8 @@ Release 4.0.0 (in development)
 Dependencies
 ------------
 
+* Drop python 3.5 support
+
 Incompatible changes
 --------------------
 

@@ -10,8 +10,8 @@ import sphinx
 with open('README.rst') as f:
     long_desc = f.read()
 
-if sys.version_info < (3, 5):
-    print('ERROR: Sphinx requires at least Python 3.5 to run.')
+if sys.version_info < (3, 6):
+    print('ERROR: Sphinx requires at least Python 3.6 to run.')
     sys.exit(1)
 
 install_requires = [
@@ -198,7 +198,6 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
@@ -238,7 +237,7 @@ setup(
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
     },
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     install_requires=install_requires,
     extras_require=extras_require,
     cmdclass=cmdclass,
