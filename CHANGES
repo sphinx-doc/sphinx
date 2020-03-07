@@ -5,6 +5,7 @@ Dependencies
 ------------
 
 * Drop python 3.5 support
+* Drop docutils 0.12 and 0.13 support
 
 Incompatible changes
 --------------------
