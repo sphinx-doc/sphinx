@@ -26,6 +26,7 @@ from importlib import import_module
 from os import path
 from time import mktime, strptime
 from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Type
+from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from sphinx.deprecation import RemovedInSphinx40Warning
@@ -49,8 +50,7 @@ from sphinx.util.nodes import (   # noqa
 from sphinx.util.matching import patfilter  # noqa
 
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

@@ -11,6 +11,7 @@
 import re
 import warnings
 from typing import Any, Dict, List, Tuple, Type
+from typing import TYPE_CHECKING
 
 from docutils import nodes, utils
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -26,8 +27,7 @@ from sphinx.util.nodes import (
 )
 from sphinx.util.typing import RoleFunction
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 

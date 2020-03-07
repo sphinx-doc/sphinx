@@ -14,6 +14,7 @@ import warnings
 from datetime import datetime, timezone
 from os import path
 from typing import Callable, Generator, List, NamedTuple, Set, Tuple
+from typing import TYPE_CHECKING
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -26,8 +27,7 @@ from sphinx.util import logging
 from sphinx.util.matching import Matcher
 from sphinx.util.osutil import SEP, canon_path, relpath
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
 
 

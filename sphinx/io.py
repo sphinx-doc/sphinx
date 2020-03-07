@@ -10,6 +10,7 @@
 import codecs
 import warnings
 from typing import Any, List, Type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.core import Publisher
@@ -37,8 +38,7 @@ from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

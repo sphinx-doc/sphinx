@@ -12,6 +12,7 @@ import pickle
 import time
 from os import path
 from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -42,8 +43,7 @@ try:
 except ImportError:
     multiprocessing = None
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

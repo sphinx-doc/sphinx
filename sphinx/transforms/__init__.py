@@ -10,6 +10,7 @@
 
 import re
 from typing import Any, Dict, Generator, List, Tuple
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -28,8 +29,7 @@ from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.domain.std import StandardDomain
     from sphinx.environment import BuildEnvironment

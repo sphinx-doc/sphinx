@@ -9,7 +9,7 @@
 """
 
 from typing import Any, Iterable, List
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -20,8 +20,7 @@ from sphinx.util import url_re, logging
 from sphinx.util.matching import Matcher
 from sphinx.util.nodes import clean_astext, process_only_nodes
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 

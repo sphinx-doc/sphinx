@@ -10,7 +10,7 @@
 
 import re
 from typing import Any, Dict, List, Tuple
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -26,8 +26,7 @@ from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import DirectiveOption
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

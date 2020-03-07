@@ -11,7 +11,7 @@
 
 import copy
 from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Type, Union
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -23,8 +23,7 @@ from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.typing import RoleFunction
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 

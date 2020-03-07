@@ -11,7 +11,7 @@
 
 import warnings
 from typing import Any, Dict, List, Tuple, Type, Union
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -20,8 +20,7 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.util.typing import TextlikeNode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.directive import ObjectDescription
 

@@ -9,7 +9,7 @@
 """
 
 from typing import Any, Dict, List, NamedTuple
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -20,8 +20,7 @@ from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
 
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 

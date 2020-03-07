@@ -15,7 +15,7 @@ from collections import defaultdict
 from copy import copy
 from os import path
 from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -36,8 +36,7 @@ from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
 

@@ -15,6 +15,7 @@ import re
 import warnings
 from types import ModuleType
 from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from docutils.statemachine import StringList
 
@@ -34,8 +35,7 @@ from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import getdoc, object_description, safe_getattr, stringify_signature
 from sphinx.util.typing import stringify as stringify_typehint
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
 

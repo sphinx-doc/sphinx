@@ -12,6 +12,7 @@ import traceback
 from importlib import import_module
 from types import MethodType
 from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.io import Input
@@ -35,8 +36,7 @@ from sphinx.util import logging
 from sphinx.util.logging import prefixed_warnings
 from sphinx.util.typing import RoleFunction, TitleGetter
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
 

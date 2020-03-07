@@ -12,7 +12,7 @@ import os
 import posixpath
 import warnings
 from typing import Any, Iterable, Tuple
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -26,8 +26,7 @@ from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.html import StandaloneHTMLBuilder
 
 
