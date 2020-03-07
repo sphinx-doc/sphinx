@@ -42,6 +42,7 @@ Deprecated
 * ``desc_signature['first']``
 * ``sphinx.directives.DescDirective``
 * ``sphinx.domains.std.StandardDomain.add_object()``
+* ``sphinx.domains.python.PyDecoratorMixin``
 * ``sphinx.parsers.Parser.app``
 * ``sphinx.testing.path.Path.text()``
 * ``sphinx.testing.path.Path.bytes()``
