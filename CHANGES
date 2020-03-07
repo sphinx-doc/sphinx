@@ -26,6 +26,8 @@ Incompatible changes
 * #6903: Internal data structure of Python, reST and standard domains have
   changed.  The node_id is added to the index of objects and modules.  Now they
   contains a pair of docname and node_id for cross reference.
+* #7276: C++ domain: Non intended behavior is removed such as ``say_hello_``
+  links to ``.. cpp:function:: say_hello()``
 * #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
   to ``.. js:function:: parseInt``
 * #7229: rst domain: Non intended behavior is removed such as ``numref_`` links

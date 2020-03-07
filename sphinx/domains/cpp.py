@@ -6512,10 +6512,6 @@ class CPPObject(ObjectDescription):
             names = self.env.domaindata['cpp']['names']
             if name not in names:
                 names[name] = ast.symbol.docname
-                signode['names'].append(name)
-            else:
-                # print("[CPP] non-unique name:", name)
-                pass
             # always add the newest id
             assert newestId
             signode['ids'].append(newestId)
