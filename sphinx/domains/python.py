@@ -397,8 +397,14 @@ class PyModulelevel(PyObject):
     """
 
     def run(self) -> List[Node]:
-        warnings.warn('PyModulelevel is deprecated.',
-                      RemovedInSphinx40Warning)
+        for cls in self.__class__.__mro__:
+            if cls.__name__ != 'DirectiveAdapter':
+                warnings.warn('PyModulelevel is deprecated. '
+                              'Please check the implementation of %s' % cls,
+                              RemovedInSphinx40Warning)
+                break
+        else:
+            warnings.warn('PyModulelevel is deprecated', RemovedInSphinx40Warning)
 
         return super().run()
 
@@ -500,8 +506,14 @@ class PyClassmember(PyObject):
     """
 
     def run(self) -> List[Node]:
-        warnings.warn('PyClassmember is deprecated.',
-                      RemovedInSphinx40Warning)
+        for cls in self.__class__.__mro__:
+            if cls.__name__ != 'DirectiveAdapter':
+                warnings.warn('PyClassmember is deprecated. '
+                              'Please check the implementation of %s' % cls,
+                              RemovedInSphinx40Warning)
+                break
+        else:
+            warnings.warn('PyClassmember is deprecated', RemovedInSphinx40Warning)
 
         return super().run()
 
