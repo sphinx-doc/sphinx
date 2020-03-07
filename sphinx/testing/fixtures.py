@@ -76,7 +76,6 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
     args = [pargs[i] for i in sorted(pargs.keys())]
 
     # ##### process pytest.mark.test_params
-
     if test_params['shared_result']:
         if 'srcdir' in kwargs:
             raise pytest.Exception('You can not spcify shared_result and '

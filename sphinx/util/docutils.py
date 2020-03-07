@@ -15,8 +15,8 @@ from copy import copy
 from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
-from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple
-from typing import cast
+from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, cast
 
 import docutils
 from docutils import nodes
@@ -34,9 +34,7 @@ from sphinx.util.typing import RoleFunction
 logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment

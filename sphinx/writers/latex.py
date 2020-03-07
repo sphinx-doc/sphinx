@@ -16,7 +16,7 @@ import warnings
 from collections import defaultdict
 from os import path
 from typing import Any, Dict, Iterable, Iterator, List, Tuple, Set, Union
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -42,8 +42,7 @@ except ImportError:
     # In Debain/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
     from roman import toRoman  # type: ignore
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.latex import LaTeXBuilder
     from sphinx.builders.latex.theming import Theme
 

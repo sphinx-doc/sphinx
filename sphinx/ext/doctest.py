@@ -16,7 +16,8 @@ import time
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
@@ -33,9 +34,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

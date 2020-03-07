@@ -24,7 +24,6 @@ from sphinx.addnodes import (
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
-from sphinx.util import docutils
 
 
 def test_process_doc_handle_figure_caption():
@@ -319,8 +318,6 @@ def test_multiple_cmdoptions(app):
     assert domain.progoptions[('cmd', '--output')] == ('index', 'cmdoption-cmd-o')
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='productionlist')
 def test_productionlist(app, status, warning):
     app.builder.build_all()

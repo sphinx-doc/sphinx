@@ -19,10 +19,6 @@ from subprocess import PIPE
 
 from .deprecation import RemovedInNextVersionWarning
 
-if False:
-    # For type annotation
-    from typing import Any  # NOQA
-
 
 # by default, all DeprecationWarning under sphinx package will be emit.
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
@@ -56,8 +52,8 @@ if __version__.endswith('+'):
     __version__ = __version__[:-1]  # remove '+' for PEP-440 version spec.
     try:
         ret = subprocess.run(['git', 'show', '-s', '--pretty=format:%h'],
-                             stdout=PIPE, stderr=PIPE)
+                             stdout=PIPE, stderr=PIPE, encoding='ascii')
         if ret.stdout:
-            __display_version__ += '/' + ret.stdout.decode('ascii').strip()
+            __display_version__ += '/' + ret.stdout.strip()
     except Exception:
         pass

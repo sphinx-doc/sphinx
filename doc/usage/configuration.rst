@@ -467,11 +467,10 @@ General configuration
 
 .. confval:: smartquotes_action
 
-   This string, for use with Docutils ``0.14`` or later, customizes the Smart
-   Quotes transform.  See the file :file:`smartquotes.py` at the `Docutils
-   repository`__ for details.  The default ``'qDe'`` educates normal **q**\
-   uote characters ``"``, ``'``, em- and en-**D**\ ashes ``---``, ``--``, and
-   **e**\ llipses ``...``.
+   This string customizes the Smart Quotes transform.  See the file
+   :file:`smartquotes.py` at the `Docutils repository`__ for details.  The
+   default ``'qDe'`` educates normal **q**\ uote characters ``"``, ``'``,
+   em- and en-**D**\ ashes ``---``, ``--``, and **e**\ llipses ``...``.
 
    .. versionadded:: 1.6.6
 
@@ -1381,8 +1380,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_experimental_html5_writer
 
-   Output is processed with HTML5 writer.  This feature needs docutils 0.13 or
-   newer.  Default is ``False``.
+   Output is processed with HTML5 writer.  Default is ``False``.
 
    .. versionadded:: 1.6
 

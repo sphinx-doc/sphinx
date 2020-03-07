@@ -11,8 +11,7 @@
 import sys
 import warnings
 from importlib import import_module
-from typing import Any, Dict
-from typing import Type  # for python3.5.1
+from typing import Any, Dict, Type
 
 
 class RemovedInSphinx40Warning(DeprecationWarning):
@@ -20,6 +19,10 @@ class RemovedInSphinx40Warning(DeprecationWarning):
 
 
 class RemovedInSphinx50Warning(PendingDeprecationWarning):
+    pass
+
+
+class RemovedInSphinx60Warning(PendingDeprecationWarning):
     pass
 
 

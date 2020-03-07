@@ -11,8 +11,7 @@
 import importlib
 import traceback
 import warnings
-from collections import namedtuple
-from typing import Any, Callable, Dict, List, Mapping, Tuple
+from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Tuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
@@ -122,7 +121,10 @@ def get_module_members(module: Any) -> List[Tuple[str, Any]]:
     return sorted(list(members.values()))
 
 
-Attribute = namedtuple('Attribute', ['name', 'directly_defined', 'value'])
+class Attribute(NamedTuple):
+    name: str
+    directly_defined: bool
+    value: Any
 
 
 def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,

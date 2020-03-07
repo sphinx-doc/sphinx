@@ -17,6 +17,7 @@ from os import path, getenv
 from typing import (
     Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple, Union
 )
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -28,8 +29,7 @@ from sphinx.util.pycompat import execfile_
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -39,9 +39,11 @@ CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
-ConfigValue = NamedTuple('ConfigValue', [('name', str),
-                                         ('value', Any),
-                                         ('rebuild', Union[bool, str])])
+
+class ConfigValue(NamedTuple):
+    name: str
+    value: Any
+    rebuild: Union[bool, str]
 
 
 def is_serializable(obj: Any) -> bool:

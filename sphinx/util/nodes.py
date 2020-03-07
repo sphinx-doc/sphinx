@@ -10,8 +10,8 @@
 
 import re
 import warnings
-from typing import Any, Callable, Iterable, List, Set, Tuple
-from typing import cast
+from typing import Any, Callable, Iterable, List, Set, Tuple, Type
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -24,9 +24,7 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.utils.tags import Tags
@@ -537,10 +535,12 @@ def process_only_nodes(document: Node, tags: "Tags") -> None:
                 node.replace_self(nodes.comment())
 
 
-# monkey-patch Element.copy to copy the rawsource and line
-# for docutils-0.14 or older versions.
-
 def _new_copy(self: Element) -> Element:
+    """monkey-patch Element.copy to copy the rawsource and line
+    for docutils-0.16 or older versions.
+
+    refs: https://sourceforge.net/p/docutils/patches/165/
+    """
     newnode = self.__class__(self.rawsource, **self.attributes)
     if isinstance(self, nodes.Element):
         newnode.source = self.source

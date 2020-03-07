@@ -10,8 +10,8 @@
 """
 
 import copy
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Union
-from typing import cast
+from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Type, Union
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -23,9 +23,7 @@ from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.typing import RoleFunction
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 

@@ -13,7 +13,7 @@ import re
 import textwrap
 from itertools import groupby, chain
 from typing import Any, Dict, Generator, List, Iterable, Optional, Set, Tuple, Union
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -23,8 +23,7 @@ from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.docutils import SphinxTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.text import TextBuilder
 
 

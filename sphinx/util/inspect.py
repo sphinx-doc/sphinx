@@ -24,7 +24,7 @@ from typing import Any, Callable, Mapping, List, Tuple
 from typing import cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
-from sphinx.pycode.ast import ast  # for py35-37
+from sphinx.pycode.ast import ast  # for py36-37
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 from sphinx.util.typing import stringify as stringify_annotation

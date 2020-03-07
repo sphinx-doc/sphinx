@@ -13,7 +13,7 @@ from collections import defaultdict, OrderedDict
 from datetime import datetime, tzinfo, timedelta
 from os import path, walk, getenv
 from time import time
-from typing import Any, Dict, Iterable, Generator, List, Set, Tuple, Union
+from typing import Any, DefaultDict, Dict, Iterable, Generator, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes
@@ -33,10 +33,6 @@ from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import ensuredir, canon_path, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
-
-if False:
-    # For type annotation
-    from typing import DefaultDict  # for python3.5.1
 
 logger = logging.getLogger(__name__)
 

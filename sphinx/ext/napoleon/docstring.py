@@ -13,16 +13,12 @@
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 _directive_regex = re.compile(r'\.\. \S+::')

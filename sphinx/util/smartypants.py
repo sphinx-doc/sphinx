@@ -26,11 +26,17 @@
 """
 
 import re
+import warnings
 from typing import Generator, Iterable, Tuple
 
 from docutils.utils import smartquotes
 
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.util.docutils import __version_info__ as docutils_version
+
+
+warnings.warn('sphinx.util.smartypants is deprecated.',
+              RemovedInSphinx60Warning)
 
 
 langquotes = {'af':           '“”‘’',

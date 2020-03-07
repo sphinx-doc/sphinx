@@ -14,14 +14,14 @@ import warnings
 from collections import defaultdict
 from operator import attrgetter
 from typing import Any, Callable, Dict, List, NamedTuple
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

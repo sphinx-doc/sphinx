@@ -12,7 +12,7 @@ import os
 import posixpath
 import warnings
 from typing import Any, Iterable, Tuple
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -20,14 +20,13 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx60Warning
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.html import StandaloneHTMLBuilder
 
 
@@ -703,22 +702,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten to add even/odd classes
 
-    def generate_targets_for_table(self, node: Element) -> None:
-        """Generate hyperlink targets for tables.
-
-        Original visit_table() generates hyperlink targets inside table tags
-        (<table>) if multiple IDs are assigned to listings.
-        That is invalid DOM structure.  (This is a bug of docutils <= 0.13.1)
-
-        This exports hyperlink targets before tables to make valid DOM structure.
-        """
-        for id in node['ids'][1:]:
-            self.body.append('<span id="%s"></span>' % id)
-            node['ids'].remove(id)
-
     def visit_table(self, node: Element) -> None:
-        self.generate_targets_for_table(node)
-
         self._table_row_index = 0
 
         classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
@@ -772,3 +756,18 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
+
+    def generate_targets_for_table(self, node: Element) -> None:
+        """Generate hyperlink targets for tables.
+
+        Original visit_table() generates hyperlink targets inside table tags
+        (<table>) if multiple IDs are assigned to listings.
+        That is invalid DOM structure.  (This is a bug of docutils <= 0.13.1)
+
+        This exports hyperlink targets before tables to make valid DOM structure.
+        """
+        warnings.warn('generate_targets_for_table() is deprecated',
+                      RemovedInSphinx60Warning, stacklevel=2)
+        for id in node['ids'][1:]:
+            self.body.append('<span id="%s"></span>' % id)
+            node['ids'].remove(id)

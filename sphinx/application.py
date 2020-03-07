@@ -18,7 +18,8 @@ import warnings
 from collections import deque
 from io import StringIO
 from os import path
-from typing import Any, Callable, Dict, IO, List, Tuple, Union
+from typing import Any, Callable, Dict, IO, List, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element, TextElement
@@ -53,10 +54,7 @@ from sphinx.util.osutil import abspath, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
-if False:
-    # For type annotation
-    from docutils.nodes import Node  # NOQA
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 

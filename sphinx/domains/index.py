@@ -9,6 +9,7 @@
 """
 
 from typing import Any, Dict, Iterable, List, Tuple
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
@@ -22,8 +23,7 @@ from sphinx.util import split_index_msg
 from sphinx.util.docutils import ReferenceRole, SphinxDirective
 from sphinx.util.nodes import process_index_entry
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

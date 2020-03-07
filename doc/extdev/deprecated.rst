@@ -26,6 +26,26 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.directives.patches.CSVTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.diretives.tables.CSVTable``
+
+   * - ``sphinx.directives.patches.ListTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.diretives.tables.ListSVTable``
+
+   * - ``sphinx.directives.patches.RSTTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.diretives.tables.RSTTable``
+
+   * - ``sphinx.util.smartypants``
+     - 4.0
+     - 6.0
+     - ``docutils.utils.smartyquotes``
+
    * - ``desc_signature['first']``
      -
      - 3.0

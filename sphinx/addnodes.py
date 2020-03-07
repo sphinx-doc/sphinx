@@ -10,14 +10,14 @@
 
 import warnings
 from typing import Any, Dict, List, Sequence
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
