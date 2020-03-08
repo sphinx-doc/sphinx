@@ -740,7 +740,7 @@ class StandaloneHTMLBuilder(Builder):
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
             f.write(self.highlighter.get_stylesheet())
 
-        if self.dark_hightlighter:
+        if self.dark_highlighter:
             with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
                 f.write(self.dark_highlighter.get_stylesheet())
 
