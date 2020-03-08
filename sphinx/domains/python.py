@@ -1110,14 +1110,6 @@ class PythonDomain(Domain):
             elif modname and classname and \
                     modname + '.' + classname + '.' + name in self.objects:
                 newname = modname + '.' + classname + '.' + name
-            # special case: builtin exceptions have module "exceptions" set
-            elif type == 'exc' and '.' not in name and \
-                    'exceptions.' + name in self.objects:
-                newname = 'exceptions.' + name
-            # special case: object methods
-            elif type in ('func', 'meth') and '.' not in name and \
-                    'object.' + name in self.objects:
-                newname = 'object.' + name
         if newname is not None:
             matches.append((newname, self.objects[newname]))
         return matches
