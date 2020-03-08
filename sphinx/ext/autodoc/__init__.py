@@ -1004,7 +1004,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter)))
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.env.config.autodoc_typehints == 'none':
+        if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
         if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
@@ -1744,7 +1744,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
-    app.add_config_value('autodoc_typehints', "signature", True, ENUM("signature", "none"))
+    app.add_config_value('autodoc_typehints', "signature", True,
+                         ENUM("signature", "description", "none"))
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
     app.add_event('autodoc-before-process-signature')
@@ -1753,5 +1754,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-skip-member')
 
     app.setup_extension('sphinx.ext.autodoc.type_comment')
+    app.setup_extension('sphinx.ext.autodoc.typehints')
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

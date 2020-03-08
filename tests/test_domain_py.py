@@ -206,18 +206,6 @@ def test_domain_py_find_obj(app, status, warning):
             [('NestedParentA.NestedChildA.subchild_1',
               ('roles', 'nestedparenta-nestedchilda-subchild-1', 'method'))])
 
-    # special case: exceptions
-    assert (find_obj('exceptions', None, 'Exception', 'exc') ==
-            [('exceptions.Exception', ('module', 'exceptions-exception', 'exception'))])
-    assert (find_obj(None, None, 'Exception', 'exc') ==
-            [('exceptions.Exception', ('module', 'exceptions-exception', 'exception'))])
-
-    # special case: object
-    assert (find_obj('object', None, 'sum', 'func') ==
-            [('object.sum', ('module', 'object-sum', 'function'))])
-    assert (find_obj(None, None, 'sum', 'func') ==
-            [('object.sum', ('module', 'object-sum', 'function'))])
-
 
 def test_get_full_qualified_name():
     env = Mock(domaindata={})
@@ -595,6 +583,36 @@ def test_pyattribute(app):
                                    [desc_content, ()]))
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'class-attr', 'attribute')
+
+
+def test_pydecorator_signature(app):
+    text = ".. py:decorator:: deco"
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_addname, "@"],
+                                                    [desc_name, "deco"])],
+                                  desc_content)]))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+
+    assert 'deco' in domain.objects
+    assert domain.objects['deco'] == ('index', 'deco', 'function')
+
+
+def test_pydecoratormethod_signature(app):
+    text = ".. py:decoratormethod:: deco"
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_addname, "@"],
+                                                    [desc_name, "deco"])],
+                                  desc_content)]))
+    assert_node(doctree[1], addnodes.desc, desctype="method",
+                domain="py", objtype="method", noindex=False)
+
+    assert 'deco' in domain.objects
+    assert domain.objects['deco'] == ('index', 'deco', 'method')
 
 
 @pytest.mark.sphinx(freshenv=True)

@@ -462,10 +462,9 @@ def test_mocked_module_imports(app, warning):
     assert warning.getvalue() == ''
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': "signature"})
 def test_autodoc_typehints_signature(app):
-    app.config.autodoc_typehints = "signature"
-
     options = {"members": None,
                "undoc-members": True}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
@@ -513,10 +512,9 @@ def test_autodoc_typehints_signature(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': "none"})
 def test_autodoc_typehints_none(app):
-    app.config.autodoc_typehints = "none"
-
     options = {"members": None,
                "undoc-members": True}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
@@ -564,8 +562,7 @@ def test_autodoc_typehints_none(app):
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
-                    confoverrides={'extensions': ['sphinx.ext.autodoc.typehints'],
-                                   'autodoc_typehints': 'description'})
+                    confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description(app):
     app.build()
     context = (app.outdir / 'index.txt').read_text()
