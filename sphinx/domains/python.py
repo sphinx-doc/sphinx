@@ -25,7 +25,7 @@ from sphinx import addnodes
 from sphinx.addnodes import pending_xref, desc_signature
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
@@ -489,6 +489,23 @@ class PyFunction(PyObject):
             return _('%s() (built-in function)') % name
 
 
+class PyDecoratorFunction(PyFunction):
+    """Description of a decorator."""
+
+    def run(self) -> List[Node]:
+        # a decorator function is a function after all
+        self.name = 'py:function'
+        return super().run()
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        ret = super().handle_signature(sig, signode)
+        signode.insert(0, addnodes.desc_addname('@', '@'))
+        return ret
+
+    def needs_arglist(self) -> bool:
+        return False
+
+
 class PyVariable(PyObject):
     """Description of a variable."""
 
@@ -700,6 +717,22 @@ class PyStaticMethod(PyMethod):
         return super().run()
 
 
+class PyDecoratorMethod(PyMethod):
+    """Description of a decoratormethod."""
+
+    def run(self) -> List[Node]:
+        self.name = 'py:method'
+        return super().run()
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        ret = super().handle_signature(sig, signode)
+        signode.insert(0, addnodes.desc_addname('@', '@'))
+        return ret
+
+    def needs_arglist(self) -> bool:
+        return False
+
+
 class PyAttribute(PyObject):
     """Description of an attribute."""
 
@@ -742,31 +775,21 @@ class PyDecoratorMixin:
     Mixin for decorator directives.
     """
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        for cls in self.__class__.__mro__:
+            if cls.__name__ != 'DirectiveAdapter':
+                warnings.warn('PyDecoratorMixin is deprecated. '
+                              'Please check the implementation of %s' % cls,
+                              RemovedInSphinx50Warning)
+                break
+        else:
+            warnings.warn('PyDecoratorMixin is deprecated', RemovedInSphinx50Warning)
+
         ret = super().handle_signature(sig, signode)  # type: ignore
         signode.insert(0, addnodes.desc_addname('@', '@'))
         return ret
 
     def needs_arglist(self) -> bool:
         return False
-
-
-class PyDecoratorFunction(PyDecoratorMixin, PyModulelevel):
-    """
-    Directive to mark functions meant to be used as decorators.
-    """
-    def run(self) -> List[Node]:
-        # a decorator function is a function after all
-        self.name = 'py:function'
-        return super().run()
-
-
-class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
-    """
-    Directive to mark methods meant to be used as decorators.
-    """
-    def run(self) -> List[Node]:
-        self.name = 'py:method'
-        return super().run()
 
 
 class PyModule(SphinxDirective):
