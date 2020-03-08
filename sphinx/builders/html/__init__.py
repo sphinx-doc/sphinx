@@ -15,7 +15,7 @@ import sys
 import warnings
 from hashlib import md5
 from os import path
-from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
+from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple, Union
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -241,10 +241,10 @@ class StandaloneHTMLBuilder(Builder):
         candidates = [path.join(dir, self.config.language,
                                 'LC_MESSAGES', 'sphinx.js')
                       for dir in self.config.locale_dirs] + \
-                     [path.join(package_dir, 'locale', self.config.language,
-                                'LC_MESSAGES', 'sphinx.js'),
-                      path.join(sys.prefix, 'share/sphinx/locale',
-                                self.config.language, 'sphinx.js')]
+            [path.join(package_dir, 'locale', self.config.language,
+                       'LC_MESSAGES', 'sphinx.js'),
+             path.join(sys.prefix, 'share/sphinx/locale',
+                       self.config.language, 'sphinx.js')]
 
         for jsfile in candidates:
             if path.isfile(jsfile):
@@ -264,19 +264,32 @@ class StandaloneHTMLBuilder(Builder):
 
     def init_highlighter(self) -> None:
         # determine Pygments style and create the highlighter
+        style = 'sphinx'
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
         elif self.theme:
             style = self.theme.get_config('theme', 'pygments_style', 'none')
-        else:
-            style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
+        dark_style = None
+        if self.config.html_pygments_dark_style is not None:
+            dark_style = self.config.pygments_dark_style
+        elif self.theme:
+            dark_style = self.theme.get_config('theme', 'pygments_dark_style', 'none')
+        
+        if dark_style is not None:
+            self.dark_highlighter = PygmentsBridge('html', dark_style)
+        else:
+            self.dark_highlighter = None
+
     def init_aux_highlighters(self) -> None:
-        self.aux_highlighters = {}  # type: Dict[str, PygmentsBridge]
-        for style, media_query in self.config.html_aux_pygments_styles.items():
-            self.aux_highlighters[style] = PygmentsBridge('html', style)
-            self.add_css_file('pygments-%s.css' % style, media=media_query)
+        self.aux_highlighters: Dict[str, Tuple[PygmentsBridge, Union[str, Iterable[str]]]] = {}
+        if self.config.html_aux_pygments_styles is not None:
+            aux_styles = self.config.html_aux_pygments_styles.items()
+        elif self.theme and self.theme.config.has_section('auxiliary_styles'):
+            aux_styles = self.theme.config.items('options')
+        for style, css_selector in aux_styles.items():
+            self.aux_highlighters[style] = (PygmentsBridge('html', style), css_selector)
 
     def init_css_files(self) -> None:
         for filename, attrs in self.app.registry.css_files:
@@ -490,7 +503,8 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
-            'html5_doctype': html5_ready and not self.config.html4_writer
+            'html5_doctype': html5_ready and not self.config.html4_writer,
+            'pygments_dark_style': self.dark_highlighter is not None,
         }
         if self.theme:
             self.globalcontext.update(
@@ -725,12 +739,15 @@ class StandaloneHTMLBuilder(Builder):
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
             f.write(self.highlighter.get_stylesheet())
 
+        with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
+            f.write(self.dark_highlighter.get_stylesheet())
+
     def create_pygments_aux_style_files(self) -> None:
         """create a style file for pygments."""
-        for style, highlighter in self.aux_highlighters.items():
+        for style, (highlighter, css_selector) in self.aux_highlighters.items():
             filename = 'pygments-%s.css' % style
             with open(path.join(self.outdir, '_static', filename), 'w') as f:
-                f.write(highlighter.get_stylesheet())
+                f.write(highlighter.get_stylesheet(css_selector=css_selector))
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
@@ -1196,7 +1213,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_style', None, 'html', [str])
     app.add_config_value('html_logo', None, 'html', [str])
     app.add_config_value('html_favicon', None, 'html', [str])
-    app.add_config_value('html_aux_pygments_styles', {}, 'html')
+    app.add_config_value('html_pygments_dark', None, 'html', [str])
+    app.add_config_value('html_pygments_aux_styles', {}, 'html')
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
