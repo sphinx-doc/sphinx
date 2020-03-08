@@ -286,7 +286,7 @@ class StandaloneHTMLBuilder(Builder):
         self.aux_highlighters = \
             {}  # type: Dict[str, Tuple[PygmentsBridge, Union[str, Iterable[str]]]]
         if self.config.html_pygments_aux_styles is not None:
-            aux_styles = self.config.html_pygments_aux_styles.items()
+            aux_styles = self.config.html_pygments_aux_styles
         elif self.theme and self.theme.config.has_section('auxiliary_styles'):
             aux_styles = self.theme.config.items('options')
         for style, css_selector in aux_styles.items():
@@ -1215,7 +1215,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_logo', None, 'html', [str])
     app.add_config_value('html_favicon', None, 'html', [str])
     app.add_config_value('html_pygments_dark_style', None, 'html', [str])
-    app.add_config_value('html_pygments_aux_styles', {}, 'html')
+    app.add_config_value('html_pygments_aux_styles', None, 'html', [dict])
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
