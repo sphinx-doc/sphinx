@@ -289,7 +289,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_pygments_aux_styles is not None:
             aux_styles = self.config.html_pygments_aux_styles
         elif self.theme and self.theme.config.has_section('auxiliary_styles'):
-            aux_styles = self.theme.config.items('options')
+            aux_styles = dict(self.theme.config.items('options'))
         for style, css_selector in aux_styles.items():
             self.aux_highlighters[style] = (PygmentsBridge('html', style), css_selector)
 
