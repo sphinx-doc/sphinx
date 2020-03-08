@@ -275,7 +275,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_pygments_dark_style is not None:
             dark_style = self.config.pygments_dark_style
         elif self.theme:
-            dark_style = self.theme.get_config('theme', 'pygments_dark_style', 'none')
+            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
         else:
             dark_style = None
 
