@@ -241,10 +241,10 @@ class StandaloneHTMLBuilder(Builder):
         candidates = [path.join(dir, self.config.language,
                                 'LC_MESSAGES', 'sphinx.js')
                       for dir in self.config.locale_dirs] + \
-            [path.join(package_dir, 'locale', self.config.language,
-                       'LC_MESSAGES', 'sphinx.js'),
-             path.join(sys.prefix, 'share/sphinx/locale',
-                       self.config.language, 'sphinx.js')]
+                     [path.join(package_dir, 'locale', self.config.language,
+                                'LC_MESSAGES', 'sphinx.js'),
+                      path.join(sys.prefix, 'share/sphinx/locale',
+                                self.config.language, 'sphinx.js')]
 
         for jsfile in candidates:
             if path.isfile(jsfile):
@@ -264,18 +264,20 @@ class StandaloneHTMLBuilder(Builder):
 
     def init_highlighter(self) -> None:
         # determine Pygments style and create the highlighter
-        style = 'sphinx'
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
         elif self.theme:
             style = self.theme.get_config('theme', 'pygments_style', 'none')
+        else:
+            style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
-        dark_style = None
         if self.config.html_pygments_dark_style is not None:
             dark_style = self.config.pygments_dark_style
         elif self.theme:
             dark_style = self.theme.get_config('theme', 'pygments_dark_style', 'none')
+        else:
+            dark_style = None
 
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
