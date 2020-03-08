@@ -1214,7 +1214,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_style', None, 'html', [str])
     app.add_config_value('html_logo', None, 'html', [str])
     app.add_config_value('html_favicon', None, 'html', [str])
-    app.add_config_value('html_pygments_dark', None, 'html', [str])
+    app.add_config_value('html_pygments_dark_style', None, 'html', [str])
     app.add_config_value('html_pygments_aux_styles', {}, 'html')
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
