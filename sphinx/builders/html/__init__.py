@@ -276,14 +276,15 @@ class StandaloneHTMLBuilder(Builder):
             dark_style = self.config.pygments_dark_style
         elif self.theme:
             dark_style = self.theme.get_config('theme', 'pygments_dark_style', 'none')
-        
+
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
         else:
             self.dark_highlighter = None
 
     def init_aux_highlighters(self) -> None:
-        self.aux_highlighters: Dict[str, Tuple[PygmentsBridge, Union[str, Iterable[str]]]] = {}
+        self.aux_highlighters = \
+            {}  # type: Dict[str, Tuple[PygmentsBridge, Union[str, Iterable[str]]]]
         if self.config.html_aux_pygments_styles is not None:
             aux_styles = self.config.html_aux_pygments_styles.items()
         elif self.theme and self.theme.config.has_section('auxiliary_styles'):
