@@ -287,13 +287,10 @@ class StandaloneHTMLBuilder(Builder):
     def init_aux_highlighters(self) -> None:
         self.aux_highlighters = \
             {}  # type: Dict[str, Tuple[PygmentsBridge, Union[str, Iterable[str]]]]
-        aux_styles = {}  # type: Dict[str, Union[str, Iterable[str]]]
-        if self.config.html_pygments_aux_styles is not None:
-            aux_styles = self.config.html_pygments_aux_styles
-        elif self.theme and self.theme.config.has_section('auxiliary_styles'):
-            aux_styles = dict(self.theme.config.items('options'))
-        for style, css_selector in aux_styles.items():
-            self.aux_highlighters[style] = (PygmentsBridge('html', style), css_selector)
+
+        if self.theme and self.theme.config.has_section('auxiliary_styles'):
+            for style, css_selector in self.theme.config.items('options'):
+                self.aux_highlighters[style] = (PygmentsBridge('html', style), css_selector)
 
     def init_css_files(self) -> None:
         for filename, attrs in self.app.registry.css_files:
@@ -1218,7 +1215,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_logo', None, 'html', [str])
     app.add_config_value('html_favicon', None, 'html', [str])
     app.add_config_value('html_pygments_dark_style', None, 'html', [str])
-    app.add_config_value('html_pygments_aux_styles', None, 'html', [dict])
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
