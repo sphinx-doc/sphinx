@@ -44,7 +44,7 @@ def test_cut_lines(app):
         '   :module: target.process_docstring',
         '',
         '   second line',
-        '   '
+        '',
     ]
 
 
@@ -60,7 +60,7 @@ def test_between(app):
         '   :module: target.process_docstring',
         '',
         '   second line',
-        '   '
+        '',
     ]
 
 
@@ -77,5 +77,5 @@ def test_between_exclude(app):
         '',
         '   first line',
         '   third line',
-        '   '
+        '',
     ]

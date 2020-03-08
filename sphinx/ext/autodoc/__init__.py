@@ -269,7 +269,10 @@ class Documenter:
 
     def add_line(self, line: str, source: str, *lineno: int) -> None:
         """Append one line of generated reST to the output."""
-        self.directive.result.append(self.indent + line, source, *lineno)
+        if line.strip():  # not a blank line
+            self.directive.result.append(self.indent + line, source, *lineno)
+        else:
+            self.directive.result.append('', source, *lineno)
 
     def resolve_name(self, modname: str, parents: Any, path: str, base: Any
                      ) -> Tuple[str, List[str]]:
