@@ -585,6 +585,36 @@ def test_pyattribute(app):
     assert domain.objects['Class.attr'] == ('index', 'class-attr', 'attribute')
 
 
+def test_pydecorator_signature(app):
+    text = ".. py:decorator:: deco"
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_addname, "@"],
+                                                    [desc_name, "deco"])],
+                                  desc_content)]))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+
+    assert 'deco' in domain.objects
+    assert domain.objects['deco'] == ('index', 'deco', 'function')
+
+
+def test_pydecoratormethod_signature(app):
+    text = ".. py:decoratormethod:: deco"
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_addname, "@"],
+                                                    [desc_name, "deco"])],
+                                  desc_content)]))
+    assert_node(doctree[1], addnodes.desc, desctype="method",
+                domain="py", objtype="method", noindex=False)
+
+    assert 'deco' in domain.objects
+    assert domain.objects['deco'] == ('index', 'deco', 'method')
+
+
 @pytest.mark.sphinx(freshenv=True)
 def test_module_index(app):
     text = (".. py:module:: docutils\n"

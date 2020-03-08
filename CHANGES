@@ -23,18 +23,17 @@ Incompatible changes
 * Due to the scoping changes for :rst:dir:`productionlist` some uses of
   :rst:role:`token` must be modified to include the scope which was previously
   ignored.
-* #6903: js domain: Internal data structure has changed. Both objects and
-  modules have node_id for cross reference
+* #6903: Internal data structure of Python, reST and standard domains have
+  changed.  The node_id is added to the index of objects and modules.  Now they
+  contains a pair of docname and node_id for cross reference.
 * #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
   to ``.. js:function:: parseInt``
-* #6903: rst domain: Internal data structure has changed. Now objects have
-  node_id for cross reference
 * #7229: rst domain: Non intended behavior is removed such as ``numref_`` links
   to ``.. rst:role:: numref``
-* #6903: py domain: Internal data structure has changed. Both objects and
-  modules have node_id for cross reference
 * #6903: py domain: Non intended behavior is removed such as ``say_hello_``
   links to ``.. py:function:: say_hello()``
+* #7246: py domain: Drop special cross reference helper for exceptions,
+  functions and methods
 
 Deprecated
 ----------
@@ -42,6 +41,7 @@ Deprecated
 * ``desc_signature['first']``
 * ``sphinx.directives.DescDirective``
 * ``sphinx.domains.std.StandardDomain.add_object()``
+* ``sphinx.domains.python.PyDecoratorMixin``
 * ``sphinx.parsers.Parser.app``
 * ``sphinx.testing.path.Path.text()``
 * ``sphinx.testing.path.Path.bytes()``
@@ -58,6 +58,7 @@ Features added
 * #6830: autodoc: consider a member private if docstring contains
   ``:meta private:`` in info-field-list
 * #7165: autodoc: Support Annotated type (PEP-593)
+* #2815: autodoc: Support singledispatch functions and methods
 * #7079: autodoc: :confval:`autodoc_typehints` accepts ``"description"``
   configuration.  It shows typehints as object description
 * #6558: glossary: emit a warning for duplicated glossary entry
@@ -93,6 +94,7 @@ Bugs fixed
 * C++, suppress warnings for directly dependent typenames in cross references
   generated automatically in signatures.
 * #5637: autodoc: Incorrect handling of nested class names on show-inheritance
+* #7267: autodoc: error message for invalid directive options has wrong location
 * #5637: inheritance_diagram: Incorrect handling of nested class names
 * #7139: ``code-block:: guess`` does not work
 
