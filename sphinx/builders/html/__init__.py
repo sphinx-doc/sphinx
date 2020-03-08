@@ -740,8 +740,9 @@ class StandaloneHTMLBuilder(Builder):
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
             f.write(self.highlighter.get_stylesheet())
 
-        with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
-            f.write(self.dark_highlighter.get_stylesheet())
+        if self.dark_hightlighter:
+            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
+                f.write(self.dark_highlighter.get_stylesheet())
 
     def create_pygments_aux_style_files(self) -> None:
         """create a style file for pygments."""
