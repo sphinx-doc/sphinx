@@ -285,6 +285,7 @@ class StandaloneHTMLBuilder(Builder):
     def init_aux_highlighters(self) -> None:
         self.aux_highlighters = \
             {}  # type: Dict[str, Tuple[PygmentsBridge, Union[str, Iterable[str]]]]
+        aux_styles = {}  # type: Dict[str, Union[str, Iterable[str]]]
         if self.config.html_pygments_aux_styles is not None:
             aux_styles = self.config.html_pygments_aux_styles
         elif self.theme and self.theme.config.has_section('auxiliary_styles'):
