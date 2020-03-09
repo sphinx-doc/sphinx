@@ -251,7 +251,7 @@ var Search = {
         var item = results.pop();
         var listItem = $('<li style="display:none"></li>');
         var requestUrl = "";
-        if (DOCUMENTATION_OPTIONS.BUILDER === 'dirhtml') {
+        if (DOCUMENTATION_OPTIONS.NO_SEARCH_SUFFIX) {
           // dirhtml builder
           var dirname = item[0] + '/';
           if (dirname.match(/\/index\/$/)) {

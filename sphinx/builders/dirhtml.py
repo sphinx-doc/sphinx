@@ -9,7 +9,7 @@
 """
 
 from os import path
-from typing import Any, Dict
+from typing import Any, Dict, Set
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -44,6 +44,10 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
                                     'index' + self.out_suffix)
 
         return outfilename
+
+    def prepare_writing(self, docnames: Set[str]) -> None:
+        super().prepare_writing(docnames)
+        self.globalcontext['no_search_suffix'] = True
 
 
 # for compatibility
