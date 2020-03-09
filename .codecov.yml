@@ -4,6 +4,3 @@ coverage:
     project:
       default:
         enabled: no
-    patch:
-      default:
-        enabled: no
