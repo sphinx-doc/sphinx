@@ -4,7 +4,6 @@ var DOCUMENTATION_OPTIONS = {
     LANGUAGE: '{{ language }}',
     COLLAPSE_INDEX: false,
     BUILDER: '{{ builder }}',
-    NO_SEARCH_SUFFIX: {{ 'true' if no_search_suffix|tobool else 'false' }},
     FILE_SUFFIX: '{{ file_suffix }}',
     HAS_SOURCE: {{ has_source|lower }},
     SOURCELINK_SUFFIX: '{{ sourcelink_suffix }}',
