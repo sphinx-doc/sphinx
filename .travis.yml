@@ -23,7 +23,9 @@ matrix:
     - python: '3.8'
       env:
         - TOXENV=du15
-        - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
+          # Disable codecov temporarily
+          # refs: https://github.com/sphinx-doc/sphinx/pull/7286#issuecomment-596617853
+          # - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
     - python: 'nightly'
       env:
         - TOXENV=du16
