@@ -1,6 +1,6 @@
-language: python
-sudo: false
+os: linux
 dist: xenial
+language: python
 cache: pip
 
 env:
@@ -9,7 +9,7 @@ env:
     - SKIP_LATEX_BUILD=1
     - IS_PYTHON=true
 
-matrix:
+jobs:
   include:
     - python: '3.5'
       env:
@@ -37,8 +37,7 @@ matrix:
       env: TOXENV=flake8
 
     - language: node_js
-      node_js:
-        - 10.7
+      node_js: '10.7'
       env: IS_PYTHON=false
       services: xvfb
 
