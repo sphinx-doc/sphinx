@@ -48,7 +48,7 @@ extras_require = {
         'docutils-stubs',
     ],
     'test': [
-        'pytest < 5.3.3',
+        'pytest',
         'pytest-cov',
         'html5lib',
         'typed_ast',  # for py35-37

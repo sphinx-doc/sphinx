@@ -469,6 +469,7 @@ class StandaloneHTMLBuilder(Builder):
             'show_source': self.config.html_show_sourcelink,
             'sourcelink_suffix': self.config.html_sourcelink_suffix,
             'file_suffix': self.out_suffix,
+            'link_suffix': self.link_suffix,
             'script_files': self.script_files,
             'language': self.config.language,
             'css_files': self.css_files,

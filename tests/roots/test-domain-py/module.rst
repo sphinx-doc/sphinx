@@ -51,3 +51,11 @@ module
 .. py:attribute:: attr2
 
    :type: :doc:`index`
+
+.. py:module:: exceptions
+
+.. py:exception:: Exception
+
+.. py:module:: object
+
+.. py:function:: sum()

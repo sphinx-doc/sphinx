@@ -16,6 +16,7 @@ import warnings
 from types import ModuleType
 from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 from docutils.statemachine import StringList
 
@@ -1002,7 +1003,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter)))
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.env.config.autodoc_typehints == 'none':
+        if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
         if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
@@ -1053,6 +1054,62 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         if inspect.iscoroutinefunction(self.object):
             self.add_line('   :async:', sourcename)
+
+
+class SingledispatchFunctionDocumenter(FunctionDocumenter):
+    """
+    Specialized Documenter subclass for singledispatch'ed functions.
+    """
+    objtype = 'singledispatch_function'
+    directivetype = 'function'
+    member_order = 30
+
+    # before FunctionDocumenter
+    priority = FunctionDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        return (super().can_document_member(member, membername, isattr, parent) and
+                inspect.is_singledispatch_function(member))
+
+    def add_directive_header(self, sig: str) -> None:
+        sourcename = self.get_sourcename()
+
+        # intercept generated directive headers
+        # TODO: It is very hacky to use mock to intercept header generation
+        with patch.object(self, 'add_line') as add_line:
+            super().add_directive_header(sig)
+
+        # output first line of header
+        self.add_line(*add_line.call_args_list[0][0])
+
+        # inserts signature of singledispatch'ed functions
+        for typ, func in self.object.registry.items():
+            if typ is object:
+                pass  # default implementation. skipped.
+            else:
+                self.annotate_to_first_argument(func, typ)
+
+                documenter = FunctionDocumenter(self.directive, '')
+                documenter.object = func
+                self.add_line('   %s%s' % (self.format_name(),
+                                           documenter.format_signature()),
+                              sourcename)
+
+        # output remains of directive header
+        for call in add_line.call_args_list[1:]:
+            self.add_line(*call[0])
+
+    def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
+        """Annotate type hint to the first argument of function if needed."""
+        sig = inspect.signature(func)
+        if len(sig.parameters) == 0:
+            return
+
+        name = list(sig.parameters)[0]
+        if name not in func.__annotations__:
+            func.__annotations__[name] = typ
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -1399,6 +1456,66 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         pass
 
 
+class SingledispatchMethodDocumenter(MethodDocumenter):
+    """
+    Specialized Documenter subclass for singledispatch'ed methods.
+    """
+    objtype = 'singledispatch_method'
+    directivetype = 'method'
+    member_order = 50
+
+    # before MethodDocumenter
+    priority = MethodDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        if super().can_document_member(member, membername, isattr, parent) and parent.object:
+            meth = parent.object.__dict__.get(membername)
+            return inspect.is_singledispatch_method(meth)
+        else:
+            return False
+
+    def add_directive_header(self, sig: str) -> None:
+        sourcename = self.get_sourcename()
+
+        # intercept generated directive headers
+        # TODO: It is very hacky to use mock to intercept header generation
+        with patch.object(self, 'add_line') as add_line:
+            super().add_directive_header(sig)
+
+        # output first line of header
+        self.add_line(*add_line.call_args_list[0][0])
+
+        # inserts signature of singledispatch'ed functions
+        meth = self.parent.__dict__.get(self.objpath[-1])
+        for typ, func in meth.dispatcher.registry.items():
+            if typ is object:
+                pass  # default implementation. skipped.
+            else:
+                self.annotate_to_first_argument(func, typ)
+
+                documenter = MethodDocumenter(self.directive, '')
+                documenter.object = func
+                self.add_line('   %s%s' % (self.format_name(),
+                                           documenter.format_signature()),
+                              sourcename)
+
+        # output remains of directive header
+        for call in add_line.call_args_list[1:]:
+            self.add_line(*call[0])
+
+    def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
+        """Annotate type hint to the first argument of function if needed."""
+        sig = inspect.signature(func, bound_method=True)
+        if len(sig.parameters) == 0:
+            return
+
+        name = list(sig.parameters)[0]
+        if name not in func.__annotations__:
+            func.__annotations__[name] = typ
+
+
 class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for attributes.
@@ -1611,8 +1728,10 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(DataDeclarationDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
+    app.add_autodocumenter(SingledispatchFunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
+    app.add_autodocumenter(SingledispatchMethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)
@@ -1624,7 +1743,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
-    app.add_config_value('autodoc_typehints', "signature", True, ENUM("signature", "none"))
+    app.add_config_value('autodoc_typehints', "signature", True,
+                         ENUM("signature", "description", "none"))
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
     app.add_event('autodoc-before-process-signature')
@@ -1633,5 +1753,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-skip-member')
 
     app.setup_extension('sphinx.ext.autodoc.type_comment')
+    app.setup_extension('sphinx.ext.autodoc.typehints')
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

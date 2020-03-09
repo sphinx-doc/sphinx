@@ -18,19 +18,7 @@ from docutils.nodes import Element
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.config import Config, ENUM
 from sphinx.util import inspect, typing
-
-
-def config_inited(app: Sphinx, config: Config) -> None:
-    if config.autodoc_typehints == 'description':
-        # HACK: override this to make autodoc suppressing typehints in signatures
-        config.autodoc_typehints = 'none'  # type: ignore
-
-        # preserve user settings
-        app._autodoc_typehints_description = True  # type: ignore
-    else:
-        app._autodoc_typehints_description = False  # type: ignore
 
 
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
@@ -53,7 +41,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
 def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element) -> None:
     if domain != 'py':
         return
-    if app._autodoc_typehints_description is False:  # type: ignore
+    if app.config.autodoc_typehints != 'description':
         return
 
     signature = cast(addnodes.desc_signature, contentnode.parent[0])
@@ -141,10 +129,6 @@ def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> No
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
-    app.setup_extension('sphinx.ext.autodoc')
-    app.config.values['autodoc_typehints'] = ('signature', True,
-                                              ENUM("signature", "description", "none"))
-    app.connect('config-inited', config_inited)
     app.connect('autodoc-process-signature', record_typehints)
     app.connect('object-description-transform', merge_typehints)
 
