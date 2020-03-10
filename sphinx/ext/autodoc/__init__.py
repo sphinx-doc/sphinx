@@ -13,6 +13,7 @@
 import importlib
 import re
 import warnings
+from inspect import Parameter
 from types import ModuleType
 from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
 from unittest.mock import patch
@@ -1108,9 +1109,10 @@ class SingledispatchFunctionDocumenter(FunctionDocumenter):
         if len(sig.parameters) == 0:
             return
 
-        name = list(sig.parameters)[0]
-        if name not in func.__annotations__:
-            func.__annotations__[name] = typ
+        params = list(sig.parameters.values())
+        if params[0].annotation is Parameter.empty:
+            params[0] = params[0].replace(annotation=typ)
+            func.__signature__ = sig.replace(parameters=params)  # type: ignore
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -1508,13 +1510,14 @@ class SingledispatchMethodDocumenter(MethodDocumenter):
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
-        sig = inspect.signature(func, bound_method=True)
-        if len(sig.parameters) == 0:
+        sig = inspect.signature(func)
+        if len(sig.parameters) == 1:
             return
 
-        name = list(sig.parameters)[0]
-        if name not in func.__annotations__:
-            func.__annotations__[name] = typ
+        params = list(sig.parameters.values())
+        if params[1].annotation is Parameter.empty:
+            params[1] = params[1].replace(annotation=typ)
+            func.__signature__ = sig.replace(parameters=params)  # type: ignore
 
 
 class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
