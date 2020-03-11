@@ -359,7 +359,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             else:
                 config.intersphinx_mapping[key] = (name, (uri, inv))
         except Exception as exc:
-            logger.warning(__('Fail to read intersphinx_mapping[%s], Ignored: %r'), key, exc)
+            logger.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), key, exc)
             config.intersphinx_mapping.pop(key)
 
 

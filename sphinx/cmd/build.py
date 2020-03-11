@@ -180,7 +180,7 @@ files can be built by specifying individual filenames.
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       help=__("With -W, keep going when getting warnings"))
+                       help=__("with -W, keep going when getting warnings"))
     group.add_argument('-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('-P', action='store_true', dest='pdb',

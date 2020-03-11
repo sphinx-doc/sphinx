@@ -44,7 +44,7 @@ extras_require = {
     'lint': [
         'flake8>=3.5.0',
         'flake8-import-order',
-        'mypy>=0.761',
+        'mypy>=0.770',
         'docutils-stubs',
     ],
     'test': [

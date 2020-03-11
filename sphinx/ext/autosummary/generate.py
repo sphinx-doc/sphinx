@@ -146,7 +146,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             return app.emit_firstresult('autodoc-skip-member', objtype, name,
                                         obj, False, {})
         except Exception as exc:
-            logger.warning(__('autosummary: failed to determine %r to be documented.'
+            logger.warning(__('autosummary: failed to determine %r to be documented, '
                               'the following exception was raised:\n%s'),
                            name, exc, type='autosummary')
             return False
