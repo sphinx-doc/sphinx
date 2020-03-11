@@ -201,6 +201,10 @@ def test_resolve_xref_for_properties(app, status, warning):
             ' title="module_a.submodule.ModTopLevel.prop">'
             '<code class="xref py py-meth docutils literal notranslate"><span class="pre">'
             'prop</span> <span class="pre">method</span></code></a>' in content)
+    assert ('Link to <a class="reference internal" href="#module_a.submodule.ModTopLevel.prop"'
+            ' title="module_a.submodule.ModTopLevel.prop">'
+            '<code class="xref py py-attr docutils literal notranslate"><span class="pre">'
+            'prop</span> <span class="pre">attribute</span></code></a>' in content)
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
@@ -796,6 +800,29 @@ def test_pyattribute(app):
     assert_node(doctree[1][1][1][0][1][3], pending_xref, **{"py:class": "Class"})
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'Class.attr', 'attribute', False)
+
+
+def test_pyproperty(app):
+    text = (".. py:class:: Class\n"
+            "\n"
+            "   .. py:property:: prop\n"
+            "      :abstractmethod:\n"
+            "      :type: str\n")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_name, "Class"])],
+                                  [desc_content, (addnodes.index,
+                                                  desc)])]))
+    assert_node(doctree[1][1][0], addnodes.index,
+                entries=[('single', 'prop (Class property)', 'Class.prop', '', None)])
+    assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, "abstract property "],
+                                                     [desc_name, "prop"],
+                                                     [desc_annotation, ": str"])],
+                                   [desc_content, ()]))
+    assert 'Class.prop' in domain.objects
+    assert domain.objects['Class.prop'] == ('index', 'Class.prop', 'property', False)
 
 
 def test_pydecorator_signature(app):
