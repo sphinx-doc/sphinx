@@ -489,7 +489,7 @@ class Sphinx:
            other values.
         """
         logger.debug('[app] adding config value: %r',
-                     (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
+                     (name, default, rebuild) + ((types,) if types else ()))
         if rebuild in (False, True):
             rebuild = 'env' if rebuild else ''
         self.config.add(name, default, rebuild, types)
