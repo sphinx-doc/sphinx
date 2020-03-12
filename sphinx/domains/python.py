@@ -647,6 +647,12 @@ class PyMethod(PyClassMemberBase):
         # deprecation warning emitted in get_signature_prefix
         return 'property' not in self.options
 
+    def _warn_property(self):
+        logger.warning(
+            'Use the directive `attribute` instead of '
+            'the directive `method` for properties.'
+        )
+
     def get_signature_prefix(self, sig: str) -> str:
         prefix = []
         if 'abstractmethod' in self.options:
@@ -656,10 +662,7 @@ class PyMethod(PyClassMemberBase):
         if 'classmethod' in self.options:
             prefix.append('classmethod')
         if 'property' in self.options:
-            logger.warning(
-                'Use the directive `attribute` instead of '
-                'the directive `method` for properties.'
-            )
+            self._warn_property()
             prefix.append('property')
         if 'staticmethod' in self.options:
             prefix.append('static')
@@ -677,6 +680,9 @@ class PyMethod(PyClassMemberBase):
 
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
+        elif 'property' in self.options:
+            self._warn_property()
+            return _('%s() (%s property)') % (methname, clsname)
         elif 'staticmethod' in self.options:
             return _('%s() (%s static method)') % (methname, clsname)
         else:
