@@ -19,6 +19,7 @@ from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
+from sphinx.util.inspect import isproperty
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
@@ -580,8 +581,9 @@ class GoogleDocstring:
                     lines.append(':vartype %s: %s' % (_name, _type))
             else:
                 prop = getattr(self._obj, _name, None)
-                if isinstance(prop, property) and (
+                if isproperty(prop) and (
                     prop.__doc__ is None or
+                    # namedtuple / typing.NamedTuple
                     not prop.__doc__.startswith('Alias for field number ')
                 ):
                     lines.extend(['.. property:: ' + _name, ''])
