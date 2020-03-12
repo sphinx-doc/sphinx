@@ -165,7 +165,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                            name, exc, type='autosummary')
             return False
 
-    def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
+    def get_members(obj: Any, objtypes: Set[str], include_public: List[str] = [],
                     imported: bool = True) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
         public = []  # type: List[str]
@@ -175,9 +175,9 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             except AttributeError:
                 continue
             documenter = get_documenter(app, value, obj)
-            if documenter.objtype in types:
+            if documenter.objtype in objtypes:
                 # skip imported members if expected
-                if imported or getattr(value, '__module__', None) == obj.__name__:
+                if not isinstance(obj, types.ModuleType) or imported and _is_submodule(_obj_module(value), obj.__name__):
                     skipped = skip_member(value, name, documenter.objtype)
                     if skipped is True:
                         pass
