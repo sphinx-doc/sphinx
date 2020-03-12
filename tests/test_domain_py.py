@@ -560,7 +560,8 @@ def test_pyattribute(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "class "],
                                                     [desc_name, "Class"])],
-                                  [desc_content, (addnodes.index, desc)])]))
+                                  [desc_content, (addnodes.index,
+                                                  desc)])]))
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'attr (Class attribute)', 'class-attr', '', None)])
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "attr"],
