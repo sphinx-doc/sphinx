@@ -10,8 +10,8 @@ import sphinx
 with open('README.rst') as f:
     long_desc = f.read()
 
-if sys.version_info < (3, 5):
-    print('ERROR: Sphinx requires at least Python 3.5 to run.')
+if sys.version_info < (3, 6):
+    print('ERROR: Sphinx requires at least Python 3.6 to run.')
     sys.exit(1)
 
 install_requires = [
@@ -23,9 +23,9 @@ install_requires = [
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.12',
+    'docutils>=0.14',
     'snowballstemmer>=1.1',
-    'babel>=1.3,!=2.0',
+    'babel>=1.3',
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests>=2.5.0',
@@ -41,14 +41,17 @@ extras_require = {
     'docs': [
         'sphinxcontrib-websupport',
     ],
+    'lint': [
+        'flake8>=3.5.0',
+        'flake8-import-order',
+        'mypy>=0.770',
+        'docutils-stubs',
+    ],
     'test': [
         'pytest',
         'pytest-cov',
         'html5lib',
-        'flake8>=3.5.0',
-        'flake8-import-order',
-        'mypy>=0.720',
-        'docutils-stubs',
+        'typed_ast',  # for py35-37
     ],
 }
 
@@ -176,6 +179,10 @@ setup(
     description='Python documentation generator',
     long_description=long_desc,
     long_description_content_type='text/x-rst',
+    project_urls={
+        "Code": "https://github.com/sphinx-doc/sphinx",
+        "Issue tracker": "https://github.com/sphinx-doc/sphinx/issues",
+    },
     zip_safe=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -191,7 +198,6 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
@@ -216,6 +222,9 @@ setup(
     ],
     platforms='any',
     packages=find_packages(exclude=['tests', 'utils']),
+    package_data = {
+        'sphinx': ['py.typed'],
+    },
     include_package_data=True,
     entry_points={
         'console_scripts': [
@@ -228,7 +237,7 @@ setup(
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
     },
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     install_requires=install_requires,
     extras_require=extras_require,
     cmdclass=cmdclass,

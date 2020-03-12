@@ -48,7 +48,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -60,7 +60,7 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Type
 from typing import cast
 
 from docutils import nodes
@@ -87,10 +87,6 @@ from sphinx.util.docutils import (
 )
 from sphinx.util.matching import Matcher
 from sphinx.writers.html import HTMLTranslator
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 logger = logging.getLogger(__name__)
@@ -722,7 +718,7 @@ def process_generate_options(app: Sphinx) -> None:
                     if os.path.isfile(env.doc2path(x))]
     else:
         ext = list(app.config.source_suffix)
-        genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
+        genfiles = [genfile + (ext[0] if not genfile.endswith(tuple(ext)) else '')
                     for genfile in genfiles]
 
         for entry in genfiles[:]:

@@ -4,7 +4,7 @@
 
     Base class of epub2/epub3 builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,9 +12,8 @@ import html
 import os
 import re
 import warnings
-from collections import namedtuple
 from os import path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, NamedTuple, Set, Tuple
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
@@ -85,10 +84,30 @@ VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
 REFURI_RE = re.compile("([^#:]*#)(.*)")
 
 
-ManifestItem = namedtuple('ManifestItem', ['href', 'id', 'media_type'])
-Spine = namedtuple('Spine', ['idref', 'linear'])
-Guide = namedtuple('Guide', ['type', 'title', 'uri'])
-NavPoint = namedtuple('NavPoint', ['navpoint', 'playorder', 'text', 'refuri', 'children'])
+class ManifestItem(NamedTuple):
+    href: str
+    id: str
+    media_type: str
+
+
+class Spine(NamedTuple):
+    idref: str
+    linear: bool
+
+
+class Guide(NamedTuple):
+    type: str
+    title: str
+    uri: str
+
+
+class NavPoint(NamedTuple):
+    navpoint: str
+    playorder: int
+    text: str
+    refuri: str
+    children: List[Any]     # mypy does not support recursive types
+                            # https://github.com/python/mypy/issues/7069
 
 
 def sphinx_smarty_pants(t: str, language: str = 'en') -> str:
@@ -272,7 +291,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 if ':' in node_id:
                     target['ids'][i] = self.fix_fragment('', node_id)
 
-            next_node = target.next_node(siblings=True)  # type: Node
+            next_node = target.next_node(ascend=True)  # type: Node
             if isinstance(next_node, nodes.Element):
                 for i, node_id in enumerate(next_node['ids']):
                     if ':' in node_id:
@@ -635,7 +654,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         the parent node is reinserted in the subnav.
         """
         navstack = []  # type: List[NavPoint]
-        navstack.append(NavPoint('dummy', '', '', '', []))
+        navstack.append(NavPoint('dummy', 0, '', '', []))
         level = 0
         lastnode = None
         for node in nodes:

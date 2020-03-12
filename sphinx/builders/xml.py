@@ -4,12 +4,12 @@
 
     Docutils-native XML and pseudo-XML builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
-from typing import Any, Dict, Iterator, Set, Union
+from typing import Any, Dict, Iterator, Set, Type, Union
 
 from docutils import nodes
 from docutils.io import StringOutput
@@ -22,10 +22,6 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.xml import XMLWriter, PseudoXMLWriter
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 logger = logging.getLogger(__name__)

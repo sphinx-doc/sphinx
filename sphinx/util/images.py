@@ -4,7 +4,7 @@
 
     Image utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,6 +28,7 @@ mime_suffixes = OrderedDict([
     ('.pdf', 'application/pdf'),
     ('.svg', 'image/svg+xml'),
     ('.svgz', 'image/svg+xml'),
+    ('.ai', 'application/illustrator'),
 ])
 
 DataURI = NamedTuple('DataURI', [('mimetype', str),
@@ -40,6 +41,8 @@ def get_image_size(filename: str) -> Tuple[int, int]:
         size = imagesize.get(filename)
         if size[0] == -1:
             size = None
+        elif isinstance(size[0], float) or isinstance(size[1], float):
+            size = (int(size[0]), int(size[1]))
 
         if size is None and Image:  # fallback to Pillow
             with Image.open(filename) as im:

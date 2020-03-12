@@ -4,7 +4,7 @@
 
     Test the Pygments highlighting bridge.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -40,7 +40,7 @@ class ComplainOnUnhighlighted(PygmentsBridge):
 
 
 def test_add_lexer(app, status, warning):
-    app.add_lexer('test', MyLexer())
+    app.add_lexer('test', MyLexer)
 
     bridge = PygmentsBridge('html')
     ret = bridge.highlight_block('ab', 'test')

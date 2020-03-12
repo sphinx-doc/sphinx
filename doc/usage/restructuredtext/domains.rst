@@ -195,6 +195,18 @@ The following directives are provided for module and class contents:
    as "defined constants."  Class and object attributes are not documented
    using this environment.
 
+   .. rubric:: options
+
+   .. rst:directive:option:: type: type of the variable
+      :type: text
+
+      .. versionadded:: 2.4
+
+   .. rst:directive:option:: value: initial value of the variable
+      :type: text
+
+      .. versionadded:: 2.4
+
 .. rst:directive:: .. py:exception:: name
 
    Describes an exception class.  The signature can, but need not include
@@ -228,6 +240,18 @@ The following directives are provided for module and class contents:
    Describes an object data attribute.  The description should include
    information about the type of the data to be expected and whether it may be
    changed directly.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: type: type of the attribute
+      :type: text
+
+      .. versionadded:: 2.4
+
+   .. rst:directive:option:: value: initial value of the attribute
+      :type: text
+
+      .. versionadded:: 2.4
 
 .. rst:directive:: .. py:method:: name(parameters)
 
@@ -354,6 +378,9 @@ Info field lists
 ~~~~~~~~~~~~~~~~
 
 .. versionadded:: 0.4
+.. versionchanged:: 3.0
+
+   meta fields are added.
 
 Inside Python object description directives, reST field lists with these fields
 are recognized and formatted nicely:
@@ -367,6 +394,10 @@ are recognized and formatted nicely:
 * ``vartype``: Type of a variable.  Creates a link if possible.
 * ``returns``, ``return``: Description of the return value.
 * ``rtype``: Return type.  Creates a link if possible.
+* ``meta``: Add metadata to description of the python object.  The metadata will
+  not be shown on output document.  For example, ``:meta private:`` indicates
+  the python object is private member.  It is used in
+  :py:mod:`sphinx.ext.autodoc` for filtering members.
 
 .. note::
 
@@ -1530,7 +1561,7 @@ These roles are provided to refer to the described objects:
 The Math Domain
 ---------------
 
-The math domain (name **math**) provides the following roles::
+The math domain (name **math**) provides the following roles:
 
 .. rst:role:: math:numref
 

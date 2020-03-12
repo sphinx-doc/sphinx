@@ -4,7 +4,7 @@
 
     The C language domain.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -203,7 +203,6 @@ class CObject(ObjectDescription):
         if targetname not in self.state.document.ids:
             signode['names'].append(targetname)
             signode['ids'].append(targetname)
-            signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
 
             domain = cast(CDomain, self.env.get_domain('c'))

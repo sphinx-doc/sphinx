@@ -4,7 +4,7 @@
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
@@ -84,7 +84,7 @@ def test_object_inventory(app):
     refs = app.env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs
-    assert refs['func_without_module'] == ('objects', 'function')
+    assert refs['func_without_module'] == ('objects', 'func-without-module', 'function')
     assert 'func_without_module2' in refs
     assert 'mod.func_in_module' in refs
     assert 'mod.Cls' in refs
@@ -99,7 +99,7 @@ def test_object_inventory(app):
     assert 'func_noindex' not in refs
 
     assert app.env.domaindata['py']['modules']['mod'] == \
-        ('objects', 'Module synopsis.', 'UNIX', False)
+        ('objects', 'module-mod', 'Module synopsis.', 'UNIX', False)
 
     assert app.env.domains['py'].data is app.env.domaindata['py']
     assert app.env.domains['c'].data is app.env.domaindata['c']

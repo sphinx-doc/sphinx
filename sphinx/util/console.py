@@ -4,7 +4,7 @@
 
     Format colored console output.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -35,7 +35,7 @@ def get_terminal_width() -> int:
         import termios
         import fcntl
         import struct
-        call = fcntl.ioctl(0, termios.TIOCGWINSZ,
+        call = fcntl.ioctl(0, termios.TIOCGWINSZ,  # type: ignore
                            struct.pack('hhhh', 0, 0, 0, 0))
         height, width = struct.unpack('hhhh', call)[:2]
         terminal_width = width

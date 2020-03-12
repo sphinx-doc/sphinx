@@ -6,23 +6,19 @@
     Classes for docstring parsing and formatting.
 
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
@@ -101,8 +97,8 @@ class GoogleDocstring:
 
     """
 
-    _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>[a-zA-Z0-9_.-]+)`|"
-                           r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
+    _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>~?[a-zA-Z0-9_.-]+)`|"
+                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.X)
 
     def __init__(self, docstring: Union[str, List[str]], config: SphinxConfig = None,
                  app: Sphinx = None, what: str = '', name: str = '',
@@ -112,7 +108,7 @@ class GoogleDocstring:
 
         if not self._config:
             from sphinx.ext.napoleon import Config
-            self._config = self._app and self._app.config or Config()  # type: ignore
+            self._config = self._app.config if self._app else Config()  # type: ignore
 
         if not what:
             if inspect.isclass(obj):
@@ -385,7 +381,7 @@ class GoogleDocstring:
     def _format_field(self, _name: str, _type: str, _desc: List[str]) -> List[str]:
         _desc = self._strip_empty(_desc)
         has_desc = any(_desc)
-        separator = has_desc and ' -- ' or ''
+        separator = ' -- ' if has_desc else ''
         if _name:
             if _type:
                 if '`' in _type:
@@ -561,7 +557,7 @@ class GoogleDocstring:
                     lines = self._consume_to_next_section()
             self._parsed_lines.extend(lines)
 
-    def _parse_admonition(self, admonition, section):
+    def _parse_admonition(self, admonition: str, section: str) -> List[str]:
         # type (str, str) -> List[str]
         lines = self._consume_to_next_section()
         return self._format_admonition(admonition, lines)
@@ -603,7 +599,7 @@ class GoogleDocstring:
         label = labels.get(section.lower(), section)
         return self._parse_generic_section(label, use_admonition)
 
-    def _parse_custom_generic_section(self, section):
+    def _parse_custom_generic_section(self, section: str) -> List[str]:
         # for now, no admonition for simple custom sections
         return self._parse_generic_section(section, False)
 

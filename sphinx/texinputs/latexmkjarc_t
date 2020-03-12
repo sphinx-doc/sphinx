@@ -1,4 +1,4 @@
-$latex = 'platex ' . $ENV{'LATEXOPTS'} . ' -kanji=utf8 %O %S';
+$latex = '{{ latex_engine }} ' . $ENV{'LATEXOPTS'} . ' -kanji=utf8 %O %S';
 $dvipdf = 'dvipdfmx %O -o %D %S';
 $makeindex = 'internal mendex %S %B %D';
 sub mendex {

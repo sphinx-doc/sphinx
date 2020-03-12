@@ -4,7 +4,7 @@
 
     Logging utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,8 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, IO, List, Tuple, Union
+from typing import Any, Dict, Generator, IO, List, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -21,9 +22,7 @@ from docutils.utils import get_source_line
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -119,14 +118,14 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
-    def log(self, level: Union[int, str], msg: str, *args, **kwargs) -> None:
+    def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
         else:
             levelno = LEVEL_NAMES[level]
             super().log(levelno, msg, *args, **kwargs)
 
-    def verbose(self, msg: str, *args, **kwargs) -> None:
+    def verbose(self, msg: str, *args: Any, **kwargs: Any) -> None:
         self.log(VERBOSE, msg, *args, **kwargs)
 
     def process(self, msg: str, kwargs: Dict) -> Tuple[str, Dict]:  # type: ignore

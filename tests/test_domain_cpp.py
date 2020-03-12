@@ -4,7 +4,7 @@
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,7 +16,6 @@ import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
-from sphinx.util import docutils
 
 
 def parse(name, string):
@@ -333,6 +332,16 @@ def test_member_definitions():
     check('member', 'extern thread_local int myInt', {1: 'myInt__i', 2: '5myInt'})
     check('member', 'thread_local extern int myInt', {1: 'myInt__i', 2: '5myInt'},
           'extern thread_local int myInt')
+
+    # tests based on https://en.cppreference.com/w/cpp/language/bit_field
+    check('member', 'int b : 3', {1: 'b__i', 2: '1b'})
+    check('member', 'int b : 8 = 42', {1: 'b__i', 2: '1b'})
+    check('member', 'int b : 8{42}', {1: 'b__i', 2: '1b'})
+    # TODO: enable once the ternary operator is supported
+    #check('member', 'int b : true ? 8 : a = 42', {1: 'b__i', 2: '1b'})
+    # TODO: enable once the ternary operator is supported
+    #check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
+    check('member', 'int b : 1 || new int{0}', {1: 'b__i', 2: '1b'})
 
 
 def test_function_definitions():
@@ -776,15 +785,80 @@ def test_xref_parsing():
 #     raise DefinitionError("")
 
 
+def filter_warnings(warning, file):
+    lines = warning.getvalue().split("\n");
+    res = [l for l in lines if "domain-cpp" in l and "{}.rst".format(file) in l and
+           "WARNING: document isn't included in any toctree" not in l]
+    print("Filtered warnings for file '{}':".format(file))
+    for w in res:
+        print(w)
+    return res
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_multi_decl_lookup(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "lookup-key-overload")
+    assert len(ws) == 0
+
+    ws = filter_warnings(warning, "multi-decl-lookup")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "warn-template-param-qualified-name")
+    assert len(ws) == 2
+    assert "WARNING: cpp:type reference target not found: T::typeWarn" in ws[0]
+    assert "WARNING: cpp:type reference target not found: T::U::typeWarn" in ws[1]
+
+
 @pytest.mark.sphinx(testroot='domain-cpp')
 def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     app.builder.build_all()
+    ws = filter_warnings(warning, "roles-targets-ok")
+    assert len(ws) == 0
 
-    # TODO: properly check for the warnings we expect
+    ws = filter_warnings(warning, "roles-targets-warn")
+    # the roles that should be able to generate warnings:
+    allRoles = ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator']
+    ok = [  # targetType, okRoles
+        ('class', ['class', 'struct', 'type']),
+        ('union', ['union', 'type']),
+        ('func', ['func', 'type']),
+        ('member', ['member', 'var']),
+        ('type', ['type']),
+        ('concept', ['concept']),
+        ('enum', ['type', 'enum']),
+        ('enumerator', ['enumerator']),
+        ('tParam', ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator', 'functionParam']),
+        ('functionParam', ['member', 'var']),
+    ]
+    warn = []
+    for targetType, roles in ok:
+        txtTargetType = "function" if targetType == "func" else targetType
+        for r in allRoles:
+            if r not in roles:
+                warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+    warn = list(sorted(warn))
+    for w in ws:
+        assert "targets a" in w
+    ws = [w[w.index("WARNING:"):] for w in ws]
+    ws = list(sorted(ws))
+    print("Expected warnings:")
+    for w in warn:
+        print(w)
+    print("Actual warnings:")
+    for w in ws:
+        print(w)
+
+    for i in range(min(len(warn), len(ws))):
+        assert ws[i].startswith(warn[i])
+
+    assert len(ws) == len(warn)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
@@ -814,20 +888,18 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in parenPatterns:
         check(s, t, f)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
 def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()
@@ -857,14 +929,14 @@ def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, wa
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in parenPatterns:
         check(s, t, f)
 
@@ -874,7 +946,7 @@ def test_xref_consistency(app, status, warning):
     app.builder.build_all()
 
     test = 'xref_consistency.html'
-    output = (app.outdir / test).text()
+    output = (app.outdir / test).read_text()
 
     def classes(role, tag):
         pattern = (r'{role}-role:.*?'

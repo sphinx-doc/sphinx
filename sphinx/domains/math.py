@@ -4,12 +4,13 @@
 
     The math domain.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
 from typing import Any, Dict, Iterable, List, Tuple
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -24,8 +25,7 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
 

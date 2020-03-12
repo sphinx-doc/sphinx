@@ -4,33 +4,29 @@
 
     Highlight code blocks using Pygments.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from functools import partial
 from importlib import import_module
+from typing import Any, Dict
 
 from pygments import highlight
 from pygments.filters import ErrorToken
+from pygments.formatter import Formatter
 from pygments.formatters import HtmlFormatter, LatexFormatter
 from pygments.lexer import Lexer
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
     CLexer, TextLexer, RstLexer
+from pygments.style import Style
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
-from sphinx.util import logging
-from sphinx.util.texescape import tex_hl_escape_map_new
-
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from pygments.formatter import Formatter  # NOQA
-    from pygments.style import Style  # NOQA
+from sphinx.util import logging, texescape
 
 
 logger = logging.getLogger(__name__)
@@ -64,9 +60,10 @@ class PygmentsBridge:
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx'):
-        # type: (str, str) -> None
+    def __init__(self, dest: str = 'html', stylename: str = 'sphinx',
+                 latex_engine: str = None) -> None:
         self.dest = dest
+        self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
         self.formatter_args = {'style': style}  # type: Dict[str, Any]
@@ -76,8 +73,7 @@ class PygmentsBridge:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
 
-    def get_style(self, stylename):
-        # type: (str) -> Style
+    def get_style(self, stylename: str) -> Style:
         if stylename is None or stylename == 'sphinx':
             return SphinxStyle
         elif stylename == 'none':
@@ -88,13 +84,12 @@ class PygmentsBridge:
         else:
             return get_style_by_name(stylename)
 
-    def get_formatter(self, **kwargs):
-        # type: (Any) -> Formatter
+    def get_formatter(self, **kwargs: Any) -> Formatter:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
-    def get_lexer(self, source, lang, opts=None, force=False, location=None):
-        # type: (str, str, Dict, bool, Any) -> Lexer
+    def get_lexer(self, source: str, lang: str, opts: Dict = None,
+                  force: bool = False, location: Any = None) -> Lexer:
         if not opts:
             opts = {}
 
@@ -110,11 +105,6 @@ class PygmentsBridge:
                 lang = 'pycon3'
             else:
                 lang = 'python3'
-        elif lang == 'guess':
-            try:
-                lexer = guess_lexer(source)
-            except Exception:
-                lexer = lexers['none']
 
         if lang in lexers:
             # just return custom lexers here (without installing raiseonerror filter)
@@ -124,7 +114,7 @@ class PygmentsBridge:
         else:
             try:
                 if lang == 'guess':
-                    lexer = guess_lexer(lang, **opts)
+                    lexer = guess_lexer(source, **opts)
                 else:
                     lexer = get_lexer_by_name(lang, **opts)
             except ClassNotFound:
@@ -137,8 +127,8 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(self, source, lang, opts=None, force=False, location=None, **kwargs):
-        # type: (str, str, Dict, bool, Any, Any) -> str
+    def highlight_block(self, source: str, lang: str, opts: Dict = None,
+                        force: bool = False, location: Any = None, **kwargs: Any) -> str:
         if not isinstance(source, str):
             source = source.decode()
 
@@ -164,10 +154,10 @@ class PygmentsBridge:
         if self.dest == 'html':
             return hlsource
         else:
-            return hlsource.translate(tex_hl_escape_map_new)
+            # MEMO: this is done to escape Unicode chars with non-Unicode engines
+            return texescape.hlescape(hlsource, self.latex_engine)
 
-    def get_stylesheet(self):
-        # type: () -> str
+    def get_stylesheet(self) -> str:
         formatter = self.get_formatter()
         if self.dest == 'html':
             return formatter.get_style_defs('.highlight')

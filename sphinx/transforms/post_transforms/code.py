@@ -4,24 +4,21 @@
 
     transforms for code-blocks.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
-from typing import NamedTuple, Union
+from typing import Any, Dict, List, NamedTuple, Union
 
 from docutils import nodes
+from docutils.nodes import Node
 from pygments.lexers import PythonConsoleLexer, guess_lexer
 
 from sphinx import addnodes
+from sphinx.application import Sphinx
 from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 HighlightSetting = NamedTuple('HighlightSetting', [('language', str),
@@ -39,8 +36,7 @@ class HighlightLanguageTransform(SphinxTransform):
     """
     default_priority = 400
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         visitor = HighlightLanguageVisitor(self.document,
                                            self.config.highlight_language)
         self.document.walkabout(visitor)
@@ -50,44 +46,35 @@ class HighlightLanguageTransform(SphinxTransform):
 
 
 class HighlightLanguageVisitor(nodes.NodeVisitor):
-    def __init__(self, document, default_language):
-        # type: (nodes.document, str) -> None
+    def __init__(self, document: nodes.document, default_language: str) -> None:
         self.default_setting = HighlightSetting(default_language, False, sys.maxsize)
         self.settings = []  # type: List[HighlightSetting]
         super().__init__(document)
 
-    def unknown_visit(self, node):
-        # type: (nodes.Node) -> None
+    def unknown_visit(self, node: Node) -> None:
         pass
 
-    def unknown_departure(self, node):
-        # type: (nodes.Node) -> None
+    def unknown_departure(self, node: Node) -> None:
         pass
 
-    def visit_document(self, node):
-        # type: (nodes.Node) -> None
+    def visit_document(self, node: Node) -> None:
         self.settings.append(self.default_setting)
 
-    def depart_document(self, node):
-        # type: (nodes.Node) -> None
+    def depart_document(self, node: Node) -> None:
         self.settings.pop()
 
-    def visit_start_of_file(self, node):
-        # type: (nodes.Node) -> None
+    def visit_start_of_file(self, node: Node) -> None:
         self.settings.append(self.default_setting)
 
-    def depart_start_of_file(self, node):
-        # type: (nodes.Node) -> None
+    def depart_start_of_file(self, node: Node) -> None:
         self.settings.pop()
 
-    def visit_highlightlang(self, node):
-        # type: (addnodes.highlightlang) -> None
+    def visit_highlightlang(self, node: addnodes.highlightlang) -> None:
         self.settings[-1] = HighlightSetting(node['lang'],
                                              node['force'],
                                              node['linenothreshold'])
 
-    def visit_literal_block(self, node):
-        # type: (nodes.literal_block) -> None
+    def visit_literal_block(self, node: nodes.literal_block) -> None:
         setting = self.settings[-1]
         if 'language' not in node:
             node['language'] = setting.language
@@ -105,8 +92,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
     """
     default_priority = HighlightLanguageTransform.default_priority + 1
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         if not self.config.trim_doctest_flags:
             return
 
@@ -118,8 +104,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
             self.strip_doctest_flags(dbnode)
 
     @staticmethod
-    def strip_doctest_flags(node):
-        # type: (Union[nodes.literal_block, nodes.doctest_block]) -> None
+    def strip_doctest_flags(node: Union[nodes.literal_block, nodes.doctest_block]) -> None:
         source = node.rawsource
         source = doctest.blankline_re.sub('', source)
         source = doctest.doctestopt_re.sub('', source)
@@ -127,8 +112,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
         node[:] = [nodes.Text(source)]
 
     @staticmethod
-    def is_pyconsole(node):
-        # type: (nodes.literal_block) -> bool
+    def is_pyconsole(node: nodes.literal_block) -> bool:
         if node.rawsource != node.astext():
             return False  # skip parsed-literal node
 
@@ -147,8 +131,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
         return False
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(HighlightLanguageTransform)
     app.add_post_transform(TrimDoctestFlagsTransform)
 

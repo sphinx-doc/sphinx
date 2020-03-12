@@ -5,7 +5,7 @@
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,7 +16,8 @@ import time
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
@@ -33,9 +34,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -286,7 +285,7 @@ class DocTestBuilder(Builder):
         # for doctest examples but unusable for multi-statement code such
         # as setup code -- to be able to use doctest error reporting with
         # that code nevertheless, we monkey-patch the "compile" it uses.
-        doctest.compile = self.compile
+        doctest.compile = self.compile  # type: ignore
 
         sys.path[0:0] = self.config.doctest_path
 
@@ -326,7 +325,7 @@ class DocTestBuilder(Builder):
     def finish(self) -> None:
         # write executive summary
         def s(v: int) -> str:
-            return v != 1 and 's' or ''
+            return 's' if v != 1 else ''
         repl = (self.total_tries, s(self.total_tries),
                 self.total_failures, s(self.total_failures),
                 self.setup_failures, s(self.setup_failures),
@@ -507,7 +506,7 @@ Doctest summary
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
                 try:
-                    test = parser.get_doctest(code[0].code, {}, group.name,  # type: ignore
+                    test = parser.get_doctest(code[0].code, {}, group.name,
                                               code[0].filename, code[0].lineno)
                 except Exception:
                     logger.warning(__('ignoring invalid doctest code: %r'), code[0].code,
@@ -523,8 +522,8 @@ Doctest summary
                 self.type = 'single'  # as for ordinary doctests
             else:
                 # testcode and output separate
-                output = code[1] and code[1].code or ''
-                options = code[1] and code[1].options or {}
+                output = code[1].code if code[1] else ''
+                options = code[1].options if code[1] else {}
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception

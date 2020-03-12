@@ -1,6 +1,6 @@
-language: python
-sudo: false
+os: linux
 dist: xenial
+language: python
 cache: pip
 
 env:
@@ -9,20 +9,23 @@ env:
     - SKIP_LATEX_BUILD=1
     - IS_PYTHON=true
 
-matrix:
+jobs:
   include:
-    - python: '3.5'
-      env:
-        - TOXENV=du12
     - python: '3.6'
       env:
-        - TOXENV=du13
+        - TOXENV=du14
     - python: '3.7'
       env:
-        - TOXENV=du14
-        - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
+        - TOXENV=du15
+    - python: '3.8'
+      env:
+        - TOXENV=du16
+          # Disable codecov temporarily
+          # refs: https://github.com/sphinx-doc/sphinx/pull/7286#issuecomment-596617853
+          # - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
     - python: 'nightly'
-      env: TOXENV=py38
+      env:
+        - TOXENV=py39
     - python: '3.6'
       env: TOXENV=docs
     - python: '3.6'
@@ -33,8 +36,7 @@ matrix:
       env: TOXENV=flake8
 
     - language: node_js
-      node_js:
-        - 10.7
+      node_js: '10.7'
       env: IS_PYTHON=false
       services: xvfb
 

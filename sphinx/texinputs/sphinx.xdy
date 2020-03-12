@@ -112,12 +112,14 @@
 (merge-rule "\_" "_" :string)
 (merge-rule "{[}" "[" :string)
 (merge-rule "{]}" "]" :string)
-(merge-rule "{}`" "`" :string)
 (merge-rule "\textbackslash{}" "\" :string)  ; " for Emacs syntax highlighting
 (merge-rule "\textasciitilde{}" "~~" :string); the ~~ escape is needed here
+(merge-rule "\textasciicircum{}" "^" :string)
+(merge-rule "\sphinxhyphen{}" "-" :string)
+(merge-rule "\textquotesingle{}" "'" :string)
+(merge-rule "\textasciigrave{}" "`" :string)
 (merge-rule "\textless{}" "<" :string)
 (merge-rule "\textgreater{}" ">" :string)
-(merge-rule "\textasciicircum{}" "^" :string)
 (merge-rule "\P{}" "¶" :string)
 (merge-rule "\S{}" "§" :string)
 (merge-rule "\texteuro{}" "€" :string)

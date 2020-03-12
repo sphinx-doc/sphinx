@@ -4,7 +4,7 @@
 
     Utility functions for docutils.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,8 +15,8 @@ from copy import copy
 from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
-from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple
-from typing import cast
+from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, cast
 
 import docutils
 from docutils import nodes
@@ -34,9 +34,7 @@ from sphinx.util.typing import RoleFunction
 logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
@@ -50,13 +48,13 @@ additional_nodes = set()  # type: Set[Type[nodes.Element]]
 def docutils_namespace() -> Generator[None, None, None]:
     """Create namespace for reST parsers."""
     try:
-        _directives = copy(directives._directives)
-        _roles = copy(roles._roles)
+        _directives = copy(directives._directives)  # type: ignore
+        _roles = copy(roles._roles)  # type: ignore
 
         yield
     finally:
-        directives._directives = _directives
-        roles._roles = _roles
+        directives._directives = _directives  # type: ignore
+        roles._roles = _roles  # type: ignore
 
         for node in list(additional_nodes):
             unregister_node(node)
@@ -65,7 +63,7 @@ def docutils_namespace() -> Generator[None, None, None]:
 
 def is_directive_registered(name: str) -> bool:
     """Check the *name* directive is already registered."""
-    return name in directives._directives
+    return name in directives._directives  # type: ignore
 
 
 def register_directive(name: str, directive: "Type[Directive]") -> None:
@@ -79,7 +77,7 @@ def register_directive(name: str, directive: "Type[Directive]") -> None:
 
 def is_role_registered(name: str) -> bool:
     """Check the *name* role is already registered."""
-    return name in roles._roles
+    return name in roles._roles  # type: ignore
 
 
 def register_role(name: str, role: RoleFunction) -> None:
@@ -93,7 +91,7 @@ def register_role(name: str, role: RoleFunction) -> None:
 
 def unregister_role(name: str) -> None:
     """Unregister a role from docutils."""
-    roles._roles.pop(name, None)
+    roles._roles.pop(name, None)  # type: ignore
 
 
 def is_node_registered(node: "Type[Element]") -> bool:
@@ -108,7 +106,7 @@ def register_node(node: "Type[Element]") -> None:
     inside ``docutils_namespace()`` to prevent side-effects.
     """
     if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-        nodes._add_node_class_names([node.__name__])
+        nodes._add_node_class_names([node.__name__])  # type: ignore
         additional_nodes.add(node)
 
 
@@ -183,9 +181,8 @@ class sphinx_domains:
     def __enter__(self) -> None:
         self.enable()
 
-    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> None:  # NOQA
         self.disable()
-        return False
 
     def enable(self) -> None:
         self.directive_func = directives.directive
@@ -297,7 +294,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
 class SphinxFileOutput(FileOutput):
     """Better FileOutput class for Sphinx."""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
         super().__init__(**kwargs)
 
@@ -430,7 +427,10 @@ class ReferenceRole(SphinxRole):
 class SphinxTranslator(nodes.NodeVisitor):
     """A base class for Sphinx translators.
 
-    This class provides helper methods for Sphinx translators.
+    This class adds a support for visitor/departure method for super node class
+    if visitor/departure method for node class is not found.
+
+    It also provides helper methods for Sphinx translators.
 
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
@@ -441,6 +441,44 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
+
+    def dispatch_visit(self, node: Node) -> None:
+        """
+        Dispatch node to appropriate visitor method.
+        The priority of visitor method is:
+
+        1. ``self.visit_{node_class}()``
+        2. ``self.visit_{supre_node_class}()``
+        3. ``self.unknown_visit()``
+        """
+        for node_class in node.__class__.__mro__:
+            method = getattr(self, 'visit_%s' % (node_class.__name__), None)
+            if method:
+                logger.debug('SphinxTranslator.dispatch_visit calling %s for %s',
+                             method.__name__, node)
+                method(node)
+                break
+        else:
+            super().dispatch_visit(node)
+
+    def dispatch_departure(self, node: Node) -> None:
+        """
+        Dispatch node to appropriate departure method.
+        The priority of departure method is:
+
+        1. ``self.depart_{node_class}()``
+        2. ``self.depart_{super_node_class}()``
+        3. ``self.unknown_departure()``
+        """
+        for node_class in node.__class__.__mro__:
+            method = getattr(self, 'depart_%s' % (node_class.__name__), None)
+            if method:
+                logger.debug('SphinxTranslator.dispatch_departure calling %s for %s',
+                             method.__name__, node)
+                method(node)
+                break
+        else:
+            super().dispatch_departure(node)
 
 
 # cache a vanilla instance of nodes.document

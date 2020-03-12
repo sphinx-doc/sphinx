@@ -5,7 +5,7 @@
     Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -80,7 +80,7 @@ class CoverageBuilder(Builder):
     def get_outdated_docs(self) -> str:
         return 'coverage overview'
 
-    def write(self, *ignored) -> None:
+    def write(self, *ignored: Any) -> None:
         self.py_undoc = {}  # type: Dict[str, Dict[str, Any]]
         self.build_py_coverage()
         self.write_py_coverage()
@@ -123,7 +123,7 @@ class CoverageBuilder(Builder):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                 op.write('\n')
 
-    def ignore_pyobj(self, full_name):
+    def ignore_pyobj(self, full_name: str) -> bool:
         for exp in self.py_ignorexps:
             if exp.search(full_name):
                 return True

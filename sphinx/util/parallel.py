@@ -4,11 +4,13 @@
 
     Parallel building utilities.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
+import platform
+import sys
 import time
 import traceback
 from math import sqrt
@@ -26,7 +28,12 @@ logger = logging.getLogger(__name__)
 
 
 # our parallel functionality only works for the forking Process
-parallel_available = multiprocessing and (os.name == 'posix')
+#
+# Note: "fork" is not recommended on macOS and py38+.
+#       see https://bugs.python.org/issue33725
+parallel_available = (multiprocessing and
+                      (os.name == 'posix') and
+                      not (sys.version_info > (3, 8) and platform.system() == 'Darwin'))
 
 
 class SerialTasks:

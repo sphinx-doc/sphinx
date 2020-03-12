@@ -9,11 +9,11 @@ Complementary to translations provided for Sphinx-generated messages such as
 navigation bars, Sphinx provides mechanisms facilitating *document* translations
 in itself.  See the :ref:`intl-options` for details on configuration.
 
-.. figure:: /_static/translation.png
+.. figure:: /_static/translation.svg
    :width: 100%
 
-   Workflow visualization of translations in Sphinx.  (The stick-figure is taken
-   from an `XKCD comic <https://xkcd.com/779/>`_.)
+   Workflow visualization of translations in Sphinx.  (The figure is created by
+   `plantuml <http://plantuml.com>`_.)
 
 .. contents::
    :local:

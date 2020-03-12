@@ -4,7 +4,7 @@
 
     Test the build process with gettext builder with the test root.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,7 +31,7 @@ def test_build_gettext(app):
     assert (app.outdir / 'subdir.pot').isfile()
 
     # regression test for issue #960
-    catalog = (app.outdir / 'markup.pot').text()
+    catalog = (app.outdir / 'markup.pot').read_text()
     assert 'msgid "something, something else, something more"' in catalog
 
 
@@ -84,7 +84,7 @@ def test_gettext_index_entries(app):
             return m.groups()[0]
         return None
 
-    pot = (app.outdir / 'index_entries.pot').text()
+    pot = (app.outdir / 'index_entries.pot').read_text()
     msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
 
     expected_msgids = [
@@ -133,7 +133,7 @@ def test_gettext_disable_index_entries(app):
             return m.groups()[0]
         return None
 
-    pot = (app.outdir / 'index_entries.pot').text()
+    pot = (app.outdir / 'index_entries.pot').read_text()
     msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
 
     expected_msgids = [
@@ -156,7 +156,7 @@ def test_gettext_template(app):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
 
-    result = (app.outdir / 'sphinx.pot').text()
+    result = (app.outdir / 'sphinx.pot').read_text()
     assert "Welcome" in result
     assert "Sphinx %(version)s" in result
 
@@ -166,7 +166,7 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
 
-    result = (app.outdir / 'sphinx.pot').text()
+    result = (app.outdir / 'sphinx.pot').read_text()
     assert re.search(
         ('msgid "Template 1".*'
          'msgid "This is Template 1\\.".*'

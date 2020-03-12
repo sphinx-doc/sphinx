@@ -4,7 +4,7 @@
 
     Master layout template for Sphinx themes.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- block doctype -%}{%- if html5_doctype %}
@@ -87,7 +87,7 @@
 {%- endmacro %}
 
 {%- macro script() %}
-    <script type="text/javascript" id="documentation_options" data-url_root="{{ pathto('', 1) }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
+    <script id="documentation_options" data-url_root="{{ pathto('', 1) }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
     {%- for js in script_files %}
     {{ js_tag(js) }}
     {%- endfor %}

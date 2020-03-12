@@ -4,21 +4,22 @@
 
     Utility function and classes for Sphinx projects.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
+from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import get_matching_files
 from sphinx.util import logging
+from sphinx.util import path_stabilize
 from sphinx.util.matching import compile_matchers
 from sphinx.util.osutil import SEP, relpath
 
-if False:
-    # For type annotation
-    from typing import Dict, List, Set  # NOQA
+if TYPE_CHECKING:
+    from typing import Dict, List, Set
 
 
 logger = logging.getLogger(__name__)
@@ -71,6 +72,7 @@ class Project:
             filename = relpath(filename, self.srcdir)
         for suffix in self.source_suffix:
             if filename.endswith(suffix):
+                filename = path_stabilize(filename)
                 return filename[:-len(suffix)]
 
         # the file does not have docname

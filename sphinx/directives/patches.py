@@ -2,12 +2,13 @@
     sphinx.directives.patches
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
 from typing import Any, Dict, List, Tuple
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id, system_message
@@ -15,13 +16,13 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, html, tables
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import optional_int
 from sphinx.domains.math import MathDomain
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -73,6 +74,11 @@ class RSTTable(tables.RSTTable):
 
     Only for docutils-0.13 or older version."""
 
+    def run(self) -> List[Node]:
+        warnings.warn('RSTTable is deprecated.',
+                      RemovedInSphinx60Warning)
+        return super().run()
+
     def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
         if title:
@@ -86,6 +92,11 @@ class CSVTable(tables.CSVTable):
 
     Only for docutils-0.13 or older version."""
 
+    def run(self) -> List[Node]:
+        warnings.warn('RSTTable is deprecated.',
+                      RemovedInSphinx60Warning)
+        return super().run()
+
     def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
         if title:
@@ -98,6 +109,11 @@ class ListTable(tables.ListTable):
     """The list-table directive which sets source and line information to its caption.
 
     Only for docutils-0.13 or older version."""
+
+    def run(self) -> List[Node]:
+        warnings.warn('RSTTable is deprecated.',
+                      RemovedInSphinx60Warning)
+        return super().run()
 
     def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
@@ -209,9 +225,6 @@ class MathDirective(SphinxDirective):
 def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
-    directives.register_directive('table', RSTTable)
-    directives.register_directive('csv-table', CSVTable)
-    directives.register_directive('list-table', ListTable)
     directives.register_directive('code', Code)
     directives.register_directive('math', MathDirective)
 

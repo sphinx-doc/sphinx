@@ -4,13 +4,14 @@
 
     Inventory utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import re
 import zlib
 from typing import Callable, IO, Iterator
+from typing import TYPE_CHECKING
 
 from sphinx.util import logging
 from sphinx.util.typing import Inventory
@@ -19,8 +20,7 @@ from sphinx.util.typing import Inventory
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
@@ -122,7 +122,7 @@ class InventoryFile:
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
-            m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)',
+            m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+?(\S*)\s+(.*)',
                          line.rstrip())
             if not m:
                 continue

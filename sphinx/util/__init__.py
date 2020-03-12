@@ -4,7 +4,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,11 +25,14 @@ from hashlib import md5
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
+from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Type
+from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
+from sphinx.errors import (
+    PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError
+)
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
@@ -47,9 +50,7 @@ from sphinx.util.nodes import (   # noqa
 from sphinx.util.matching import patfilter  # noqa
 
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -115,6 +116,15 @@ def get_matching_docs(dirname: str, suffixes: List[str],
             if fnmatch.fnmatch(filename, suffixpattern):
                 yield filename[:-len(suffixpattern) + 1]
                 break
+
+
+def get_filetype(source_suffix: Dict[str, str], filename: str) -> str:
+    for suffix, filetype in source_suffix.items():
+        if filename.endswith(suffix):
+            # If default filetype (None), considered as restructuredtext.
+            return filetype or 'restructuredtext'
+    else:
+        raise FiletypeNotFoundError
 
 
 class FilenameUniqDict(dict):
@@ -220,7 +230,7 @@ def save_traceback(app: "Sphinx") -> str:
                    platform.python_version(),
                    platform.python_implementation(),
                    docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__,
+                   jinja2.__version__,  # type: ignore
                    last_msgs)).encode())
     if app is not None:
         for ext in app.extensions.values():
@@ -239,6 +249,8 @@ def get_module_source(modname: str) -> Tuple[str, str]:
     Can return ('file', 'filename') in which case the source is in the given
     file, or ('string', 'source') which which case the source is the string.
     """
+    warnings.warn('get_module_source() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     try:
         mod = import_module(modname)
     except Exception as err:
@@ -301,6 +313,8 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 def detect_encoding(readline: Callable[[], bytes]) -> str:
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
+    warnings.warn('sphinx.util.detect_encoding() is deprecated',
+                  RemovedInSphinx40Warning)
 
     def read_or_stop() -> bytes:
         try:
@@ -435,7 +449,7 @@ def force_decode(string: str, encoding: str) -> str:
 
 
 class attrdict(dict):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         warnings.warn('The attrdict class is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
@@ -634,7 +648,7 @@ class progress_message:
 
     def __call__(self, f: Callable) -> Callable:
         @functools.wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             with self:
                 return f(*args, **kwargs)
 

@@ -226,6 +226,25 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
 
      .. versionadded:: 1.5
 
+  ``'extrapackages'``
+     Additional LaTeX packages.  For example:
+
+     .. code-block:: python
+
+         latex_elements = {
+             'packages': r'\usepackage{isodate}'
+         }
+
+     It defaults to empty.
+
+     The specified LaTeX packages will be loaded before
+     hyperref package and packages loaded from Sphinx extensions.
+
+     .. hint:: If you'd like to load additional LaTeX packages after hyperref, use
+               ``'preamble'`` key instead.
+
+     .. versionadded:: 2.3
+
   ``'footer'``
      Additional footer content (before the indices), default empty.
 
@@ -289,6 +308,11 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
 
      .. attention::
 
+        If Greek is main language, do not use this key.  Since Sphinx 2.2.1,
+        ``xelatex`` will be used automatically as :confval:`latex_engine`.
+        Formerly, Sphinx did not support producing PDF via LaTeX with Greek as
+        main language.
+
         Prior to 2.0, Unicode Greek letters were escaped to use LaTeX math
         mark-up.  This is not the case anymore, and the above must be used
         (only in case of ``'pdflatex'`` engine) if the source contains such
@@ -310,12 +334,19 @@ into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
      .. versionchanged:: 2.0
         ``'lualatex'`` executes
         ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` to disable TeX
-        ligatures.
+        ligatures transforming `<<` and `>>` as escaping working with
+        ``pdflatex/xelatex`` failed with ``lualatex``.
      .. versionchanged:: 2.0
         Detection of ``LGR``, ``T2A``, ``X2`` to trigger support of
         occasional Greek or Cyrillic (``'pdflatex'`` only, as this support
         is provided natively by ``'platex'`` and only requires suitable
         font with ``'xelatex'/'lualatex'``).
+     .. versionchanged:: 2.3.0
+        ``'xelatex'`` also executes
+        ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` in order to avoid
+        contractions of ``--`` into en-dash or transforms of straight quotes
+        into curly ones in PDF (in non-literal text paragraphs) despite
+        :confval:`smartquotes` being set to ``False``.
 
   ``'textgreek'``
      The default (``'pdflatex'`` only) is
@@ -595,11 +626,14 @@ macros may be significant.
     default ``true``. Allows linebreaks inside inline literals: but extra
     potential break-points (additionally to those allowed by LaTeX at spaces
     or for hyphenation) are currently inserted only after the characters
-    ``. , ; ? ! /``. Due to TeX internals, white space in the line will be
-    stretched (or shrunk) in order to accomodate the linebreak.
+    ``. , ; ? ! /`` and ``\``. Due to TeX internals, white space in the line
+    will be stretched (or shrunk) in order to accomodate the linebreak.
 
     .. versionadded:: 1.5
        set this option value to ``false`` to recover former behaviour.
+
+    .. versionchanged:: 2.3.0
+       added potential breakpoint at ``\`` characters.
 
 ``verbatimvisiblespace``
     default ``\textcolor{red}{\textvisiblespace}``. When a long code line is
@@ -783,6 +817,8 @@ Macros
      multiple paragraphs in header cells of tables.
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
+  .. versionadded:: 3.0
+     ``\sphinxkeyboard``
 - ``\sphinxtableofcontents``: it is a
   wrapper (defined differently in :file:`sphinxhowto.cls` and in
   :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.  The macro

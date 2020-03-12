@@ -4,16 +4,18 @@
 
     Index entries adapters for sphinx.environment.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import bisect
+
 import re
 import unicodedata
 from itertools import groupby
 from typing import Any, Dict, Pattern, List, Tuple
+from typing import cast
 
 from sphinx.builders import Builder
+from sphinx.domains.index import IndexDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
@@ -50,10 +52,10 @@ class IndexEntries:
                 except NoUri:
                     pass
                 else:
-                    # maintain links in sorted/deterministic order
-                    bisect.insort(entry[0], (main, uri))
+                    entry[0].append((main, uri))
 
-        for fn, entries in self.env.indexentries.items():
+        domain = cast(IndexDomain, self.env.get_domain('index'))
+        for fn, entries in domain.entries.items():
             # new entry types must be listed in directives/other.py!
             for type, value, tid, main, index_key in entries:
                 try:
@@ -85,6 +87,16 @@ class IndexEntries:
                         logger.warning(__('unknown index entry type %r'), type, location=fn)
                 except ValueError as err:
                     logger.warning(str(err), location=fn)
+
+        # sort the index entries for same keyword.
+        def keyfunc0(entry: Tuple[str, str]) -> Tuple[bool, str]:
+            main, uri = entry
+            return (not main, uri)  # show main entries at first
+
+        for indexentry in new.values():
+            indexentry[0].sort(key=keyfunc0)
+            for subentry in indexentry[1].values():
+                subentry[0].sort(key=keyfunc0)  # type: ignore
 
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from

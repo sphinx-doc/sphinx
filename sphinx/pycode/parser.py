@@ -4,10 +4,9 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import ast
 import inspect
 import itertools
 import re
@@ -16,6 +15,9 @@ import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 from typing import Any, Dict, List, Tuple
+
+from sphinx.pycode.ast import ast  # for py37 or older
+from sphinx.pycode.ast import parse, unparse
 
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
@@ -117,7 +119,7 @@ class Token:
         else:
             raise ValueError('Unknown value: %r' % other)
 
-    def match(self, *conditions) -> bool:
+    def match(self, *conditions: Any) -> bool:
         return any(self == candidate for candidate in conditions)
 
     def __repr__(self) -> str:
@@ -226,6 +228,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.current_classes = []       # type: List[str]
         self.current_function = None    # type: ast.FunctionDef
         self.comments = {}              # type: Dict[Tuple[str, str], str]
+        self.annotations = {}           # type: Dict[Tuple[str, str], str]
         self.previous = None            # type: ast.AST
         self.deforders = {}             # type: Dict[str, int]
         super().__init__()
@@ -253,6 +256,18 @@ class VariableCommentPicker(ast.NodeVisitor):
             context = ".".join(self.context)
 
         self.comments[(context, name)] = comment
+
+    def add_variable_annotation(self, name: str, annotation: ast.AST) -> None:
+        if self.current_function:
+            if self.current_classes and self.context[-1] == "__init__":
+                # store variable comments inside __init__ method of classes
+                context = ".".join(self.context[:-1])
+            else:
+                return
+        else:
+            context = ".".join(self.context)
+
+        self.annotations[(context, name)] = unparse(annotation)
 
     def get_self(self) -> ast.arg:
         """Returns the name of first argument if in function."""
@@ -295,6 +310,14 @@ class VariableCommentPicker(ast.NodeVisitor):
         except TypeError:
             return  # this assignment is not new definition!
 
+        # record annotation
+        if hasattr(node, 'annotation') and node.annotation:  # type: ignore
+            for varname in varnames:
+                self.add_variable_annotation(varname, node.annotation)  # type: ignore
+        elif hasattr(node, 'type_comment') and node.type_comment:
+            for varname in varnames:
+                self.add_variable_annotation(varname, node.type_comment)  # type: ignore
+
         # check comments after assignment
         parser = AfterCommentParser([current_line[node.col_offset:]] +
                                     self.buffers[node.lineno:])
@@ -326,7 +349,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         for varname in varnames:
             self.add_entry(varname)
 
-    def visit_AnnAssign(self, node: ast.AST) -> None:  # Note: ast.AnnAssign not found in py35
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         """Handles AnnAssign node and pick up a variable comment."""
         self.visit_Assign(node)  # type: ignore
 
@@ -468,6 +491,7 @@ class Parser:
     def __init__(self, code: str, encoding: str = 'utf-8') -> None:
         self.code = filter_whitespace(code)
         self.encoding = encoding
+        self.annotations = {}       # type: Dict[Tuple[str, str], str]
         self.comments = {}          # type: Dict[Tuple[str, str], str]
         self.deforders = {}         # type: Dict[str, int]
         self.definitions = {}       # type: Dict[str, Tuple[str, int, int]]
@@ -479,9 +503,10 @@ class Parser:
 
     def parse_comments(self) -> None:
         """Parse the code and pick up comments."""
-        tree = ast.parse(self.code.encode())
+        tree = parse(self.code)
         picker = VariableCommentPicker(self.code.splitlines(True), self.encoding)
         picker.visit(tree)
+        self.annotations = picker.annotations
         self.comments = picker.comments
         self.deforders = picker.deforders
 

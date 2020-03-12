@@ -4,7 +4,7 @@
 
     Image converter extension for Sphinx
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -27,6 +27,7 @@ class ImagemagickConverter(ImageConverter):
         ('image/svg+xml', 'image/png'),
         ('image/gif', 'image/png'),
         ('application/pdf', 'image/png'),
+        ('application/illustrator', 'image/png'),
     ]
 
     def is_available(self) -> bool:
@@ -37,7 +38,7 @@ class ImagemagickConverter(ImageConverter):
             subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
             return True
         except OSError:
-            logger.warning(__('convert command %r cannot be run.'
+            logger.warning(__('convert command %r cannot be run, '
                               'check the image_converter setting'),
                            self.config.image_converter)
             return False
@@ -61,7 +62,7 @@ class ImagemagickConverter(ImageConverter):
             subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
             return True
         except OSError:
-            logger.warning(__('convert command %r cannot be run.'
+            logger.warning(__('convert command %r cannot be run, '
                               'check the image_converter setting'),
                            self.config.image_converter)
             return False

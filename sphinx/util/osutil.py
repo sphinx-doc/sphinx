@@ -4,7 +4,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,14 +18,15 @@ import sys
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Tuple
+from typing import Any, Generator, Iterator, List, Tuple, Type
 
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.testing.path import path as Path
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+try:
+    # for ALT Linux (#6712)
+    from sphinx.testing.path import path as Path
+except ImportError:
+    Path = None  # type: ignore
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
@@ -156,7 +157,7 @@ fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
 def abspath(pathdir: str) -> str:
-    if isinstance(pathdir, Path):
+    if Path is not None and isinstance(pathdir, Path):
         return pathdir.abspath()
     else:
         pathdir = path.abspath(pathdir)

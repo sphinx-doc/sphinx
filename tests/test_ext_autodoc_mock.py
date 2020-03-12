@@ -4,7 +4,7 @@
 
     Test the autodoc extension.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -96,3 +96,24 @@ def test_abc_MockObject():
     assert isinstance(obj, Base)
     assert isinstance(obj, _MockObject)
     assert isinstance(obj.some_method(), Derived)
+
+
+def test_mock_decorator():
+    mock = _MockObject()
+
+    @mock.function_deco
+    def func():
+        """docstring"""
+
+    class Foo:
+        @mock.method_deco
+        def meth(self):
+            """docstring"""
+
+    @mock.class_deco
+    class Bar:
+        """docstring"""
+
+    assert func.__doc__ == "docstring"
+    assert Foo.meth.__doc__ == "docstring"
+    assert Bar.__doc__ == "docstring"

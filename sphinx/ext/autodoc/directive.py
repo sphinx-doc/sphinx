@@ -7,7 +7,7 @@
 """
 
 import warnings
-from typing import Any, Callable, Dict, List, Set
+from typing import Any, Callable, Dict, List, Set, Type
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -22,10 +22,6 @@ from sphinx.ext.autodoc import Documenter, Options, get_documenters
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 logger = logging.getLogger(__name__)
@@ -137,7 +133,7 @@ class AutodocDirective(SphinxDirective):
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
             logger.error('An option to %s is either unknown or has an invalid value: %s' %
-                         (self.name, exc), location=(source, lineno))
+                         (self.name, exc), location=(self.env.docname, lineno))
             return []
 
         # generate the output

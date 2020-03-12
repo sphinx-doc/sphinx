@@ -2,7 +2,7 @@
     sphinx.directives.code
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -10,6 +10,7 @@ import sys
 import warnings
 from difflib import unified_diff
 from typing import Any, Dict, List, Tuple
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -24,8 +25,7 @@ from sphinx.util import logging
 from sphinx.util import parselinenos
 from sphinx.util.docutils import SphinxDirective
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
@@ -348,7 +348,7 @@ class LiteralIncludeReader:
                         return lines[:lineno + 1]
                     else:
                         if lineno == 0:
-                            return []
+                            pass  # end-before ignores first line
                         else:
                             return lines[:lineno]
             if inclusive is True:

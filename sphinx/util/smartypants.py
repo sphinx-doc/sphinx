@@ -26,11 +26,17 @@
 """
 
 import re
+import warnings
 from typing import Generator, Iterable, Tuple
 
 from docutils.utils import smartquotes
 
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.util.docutils import __version_info__ as docutils_version
+
+
+warnings.warn('sphinx.util.smartypants is deprecated.',
+              RemovedInSphinx60Warning)
 
 
 langquotes = {'af':           '“”‘’',
@@ -155,7 +161,7 @@ def educateQuotes(text: str, language: str = 'en') -> str:
 
     # Special case for decade abbreviations (the '80s):
     if language.startswith('en'):  # TODO similar cases in other languages?
-        text = re.sub(r"""'(?=\d{2}s)""", apostrophe, text, re.UNICODE)
+        text = re.sub(r"""'(?=\d{2}s)""", apostrophe, text, flags=re.UNICODE)
 
     close_class = r"""[^\ \t\r\n\[\{\(\-]"""
     dec_dashes = r"""&#8211;|&#8212;"""

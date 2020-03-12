@@ -4,14 +4,14 @@
 
     Docutils node-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import warnings
-from typing import Any, Callable, Iterable, List, Set, Tuple
-from typing import cast
+from typing import Any, Callable, Iterable, List, Set, Tuple, Type
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -24,10 +24,9 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
     from sphinx.utils.tags import Tags
 
 logger = logging.getLogger(__name__)
@@ -60,7 +59,7 @@ class NodeMatcher:
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *classes: "Type[Node]", **attrs) -> None:
+    def __init__(self, *classes: "Type[Node]", **attrs: Any) -> None:
         self.classes = classes
         self.attrs = attrs
 
@@ -148,7 +147,7 @@ def apply_source_workaround(node: Element) -> None:
         logger.debug('[i18n] PATCH: %r to have rawsource: %s',
                      get_full_module_name(node), repr_domxml(node))
         # strip classifier from rawsource of term
-        for classifier in reversed(node.parent.traverse(nodes.classifier)):
+        for classifier in reversed(list(node.parent.traverse(nodes.classifier))):
             node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
                                     '', node.rawsource)
 
@@ -198,7 +197,7 @@ def is_translatable(node: Node) -> bool:
     if isinstance(node, addnodes.translatable):
         return True
 
-    if isinstance(node, nodes.Inline) and 'translatable' not in node:
+    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore
         # inline node must not be translated if 'translatable' is not set
         return False
 
@@ -435,6 +434,32 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
     return tree
 
 
+def make_id(env: "BuildEnvironment", document: nodes.document,
+            prefix: str = '', term: str = None) -> str:
+    """Generate an appropriate node_id for given *prefix* and *term*."""
+    node_id = None
+    if prefix:
+        idformat = prefix + "-%s"
+    else:
+        idformat = (document.settings.id_prefix or "id") + "%s"
+
+    # try to generate node_id by *term*
+    if prefix and term:
+        node_id = nodes.make_id(idformat % term)
+        if node_id == prefix:
+            # *term* is not good to generate a node_id.
+            node_id = None
+    elif term:
+        node_id = nodes.make_id(term)
+        if node_id == '':
+            node_id = None  # fallback to None
+
+    while node_id is None or node_id in document.ids:
+        node_id = idformat % env.new_serialno(prefix)
+
+    return node_id
+
+
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
                  child: Node, title: str = None) -> nodes.reference:
     """Shortcut to create a reference node."""
@@ -510,10 +535,12 @@ def process_only_nodes(document: Node, tags: "Tags") -> None:
                 node.replace_self(nodes.comment())
 
 
-# monkey-patch Element.copy to copy the rawsource and line
-# for docutils-0.14 or older versions.
-
 def _new_copy(self: Element) -> Element:
+    """monkey-patch Element.copy to copy the rawsource and line
+    for docutils-0.16 or older versions.
+
+    refs: https://sourceforge.net/p/docutils/patches/165/
+    """
     newnode = self.__class__(self.rawsource, **self.attributes)
     if isinstance(self, nodes.Element):
         newnode.source = self.source

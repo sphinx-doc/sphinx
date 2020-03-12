@@ -13,7 +13,7 @@ f"""
        generate:
                sphinx-autogen -o source/generated source/*.rst
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,7 +25,7 @@ import re
 import sys
 import types
 import warnings
-from typing import Any, Callable, Dict, List, Set, Tuple
+from typing import Any, Callable, Dict, List, Set, Tuple, Type
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -45,10 +45,6 @@ from sphinx.util import rst
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +56,11 @@ class DummyApplication:
         self.registry = SphinxComponentRegistry()
         self.messagelog = []  # type: List[str]
         self.verbosity = 0
+        self._warncount = 0
+        self.warningiserror = False
+
+    def emit_firstresult(self, *args: Any) -> None:
+        pass
 
 
 def setup_documenters(app: Any) -> None:
@@ -67,13 +68,15 @@ def setup_documenters(app: Any) -> None:
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter,
+        SingledispatchFunctionDocumenter,
     )
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter,
+        SingledispatchFunctionDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
@@ -152,9 +155,20 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         if not template.exists(template_name):
             template_name = 'autosummary/base.rst'
 
+    def skip_member(obj: Any, name: str, objtype: str) -> bool:
+        try:
+            return app.emit_firstresult('autodoc-skip-member', objtype, name,
+                                        obj, False, {})
+        except Exception as exc:
+            logger.warning(__('autosummary: failed to determine %r to be documented, '
+                              'the following exception was raised:\n%s'),
+                           name, exc, type='autosummary')
+            return False
+
     def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
                     imported: bool = True) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
+        public = []  # type: List[str]
         for name in dir(obj):
             try:
                 value = safe_getattr(obj, name)
@@ -162,11 +176,20 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                 continue
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
+                # skip imported members if expected
                 if imported or getattr(value, '__module__', None) == obj.__name__:
-                    # skip imported members if expected
-                    items.append(name)
-        public = [x for x in items
-                  if x in include_public or not x.startswith('_')]
+                    skipped = skip_member(value, name, documenter.objtype)
+                    if skipped is True:
+                        pass
+                    elif skipped is False:
+                        # show the member forcedly
+                        items.append(name)
+                        public.append(name)
+                    else:
+                        items.append(name)
+                        if name in include_public or not name.startswith('_'):
+                            # considers member as public
+                            public.append(name)
         return public, items
 
     ns = {}  # type: Dict[str, Any]
@@ -263,7 +286,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         try:
             name, obj, parent, mod_name = import_by_name(name)
         except ImportError as e:
-            _warn('[autosummary] failed to import %r: %s' % (name, e))
+            _warn(__('[autosummary] failed to import %r: %s') % (name, e))
             continue
 
         content = generate_autosummary_content(name, obj, parent, template, template_name,
@@ -290,8 +313,8 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir, app=app,
-                                  imported_members=imported_members,
+                                  template_dir=template_dir,
+                                  imported_members=imported_members, app=app,
                                   overwrite=overwrite)
 
 

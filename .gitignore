@@ -23,6 +23,7 @@ distribute-*
 env/
 build/
 dist/
+docker/
 Sphinx.egg-info/
 doc/_build/
 doc/locale/

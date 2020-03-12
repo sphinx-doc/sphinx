@@ -7,7 +7,7 @@
     all todos of your project and lists them along with a backlink to the
     original location.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -27,10 +27,9 @@ from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
-from sphinx.util import logging
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util import logging, texescape
+from sphinx.util.docutils import SphinxDirective, new_document
 from sphinx.util.nodes import make_refnode
-from sphinx.util.texescape import tex_escape_map
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
 
@@ -160,6 +159,7 @@ class TodoListProcessor:
 
     def process(self, doctree: nodes.document, docname: str) -> None:
         todos = sum(self.domain.todos.values(), [])  # type: List[todo_node]
+        document = new_document('')
         for node in doctree.traverse(todolist):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
@@ -176,7 +176,11 @@ class TodoListProcessor:
                 new_todo['ids'].clear()
 
                 # (Recursively) resolve references in the todo content
-                self.env.resolve_references(new_todo, todo['docname'], self.builder)  # type: ignore  # NOQA
+                #
+                # Note: To resolve references, it is needed to wrap it with document node
+                document += new_todo
+                self.env.resolve_references(document, todo['docname'], self.builder)
+                document.remove(new_todo)
                 content.append(new_todo)
 
                 todo_ref = self.create_todo_reference(todo, docname)
@@ -301,8 +305,10 @@ def latex_visit_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     if self.config.todo_include_todos:
         self.body.append('\n\\begin{sphinxadmonition}{note}{')
         self.body.append(self.hypertarget_to(node))
+
         title_node = cast(nodes.title, node[0])
-        self.body.append('%s:}' % title_node.astext().translate(tex_escape_map))
+        title = texescape.escape(title_node.astext(), self.config.latex_engine)
+        self.body.append('%s:}' % title)
         node.pop(0)
     else:
         raise nodes.SkipNode

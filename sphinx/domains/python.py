@@ -4,13 +4,17 @@
 
     The Python domain.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import builtins
+import inspect
 import re
+import typing
 import warnings
-from typing import Any, Dict, Iterable, Iterator, List, Tuple
+from inspect import Parameter
+from typing import Any, Dict, Iterable, Iterator, List, Tuple, Type
 from typing import cast
 
 from docutils import nodes
@@ -21,7 +25,7 @@ from sphinx import addnodes
 from sphinx.addnodes import pending_xref, desc_signature
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
@@ -30,12 +34,9 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import make_refnode
+from sphinx.util.inspect import signature_from_str
+from sphinx.util.nodes import make_id, make_refnode
 from sphinx.util.typing import TextlikeNode
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 logger = logging.getLogger(__name__)
@@ -60,6 +61,47 @@ pairindextypes = {
     'statement': _('statement'),
     'builtin':   _('built-in function'),
 }
+
+
+def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
+    """Parse a list of arguments using AST parser"""
+    params = addnodes.desc_parameterlist(arglist)
+    sig = signature_from_str('(%s)' % arglist)
+    last_kind = None
+    for param in sig.parameters.values():
+        if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
+            # PEP-570: Separator for Positional Only Parameter: /
+            params += addnodes.desc_parameter('', nodes.Text('/'))
+        if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
+                                                              param.POSITIONAL_ONLY,
+                                                              None):
+            # PEP-3102: Separator for Keyword Only Parameter: *
+            params += addnodes.desc_parameter('', nodes.Text('*'))
+
+        node = addnodes.desc_parameter()
+        if param.kind == param.VAR_POSITIONAL:
+            node += nodes.Text('*' + param.name)
+        elif param.kind == param.VAR_KEYWORD:
+            node += nodes.Text('**' + param.name)
+        else:
+            node += nodes.Text(param.name)
+
+        if param.annotation is not param.empty:
+            node += nodes.Text(': ' + param.annotation)
+        if param.default is not param.empty:
+            if param.annotation is not param.empty:
+                node += nodes.Text(' = ' + str(param.default))
+            else:
+                node += nodes.Text('=' + str(param.default))
+
+        params += node
+        last_kind = param.kind
+
+    if last_kind == Parameter.POSITIONAL_ONLY:
+        # PEP-570: Separator for Positional Only Parameter: /
+        params += addnodes.desc_parameter('', nodes.Text('/'))
+
+    return params
 
 
 def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
@@ -284,7 +326,15 @@ class PyObject(ObjectDescription):
 
         signode += addnodes.desc_name(name, name)
         if arglist:
-            _pseudo_parse_arglist(signode, arglist)
+            try:
+                signode += _parse_arglist(arglist)
+            except SyntaxError:
+                # fallback to parse arglist original parser.
+                # it supports to represent optional arguments (ex. "func(foo [, bar])")
+                _pseudo_parse_arglist(signode, arglist)
+            except NotImplementedError as exc:
+                logger.warning("could not parse arglist (%r): %s", arglist, exc)
+                _pseudo_parse_arglist(signode, arglist)
         else:
             if self.needs_arglist():
                 # for callables, add an empty parameter list
@@ -306,22 +356,23 @@ class PyObject(ObjectDescription):
     def add_target_and_index(self, name_cls: Tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         modname = self.options.get('module', self.env.ref_context.get('py:module'))
-        fullname = (modname and modname + '.' or '') + name_cls[0]
-        # note target
-        if fullname not in self.state.document.ids:
-            signode['names'].append(fullname)
-            signode['ids'].append(fullname)
-            signode['first'] = (not self.names)
-            self.state.document.note_explicit_target(signode)
+        fullname = (modname + '.' if modname else '') + name_cls[0]
+        node_id = make_id(self.env, self.state.document, modname or '', name_cls[0])
+        signode['ids'].append(node_id)
 
-            domain = cast(PythonDomain, self.env.get_domain('py'))
-            domain.note_object(fullname, self.objtype,
-                               location=(self.env.docname, self.lineno))
+        # Assign old styled node_id(fullname) not to break old hyperlinks (if possible)
+        # Note: Will removed in Sphinx-5.0  (RemovedInSphinx50Warning)
+        if node_id != fullname and fullname not in self.state.document.ids:
+            signode['ids'].append(fullname)
+
+        self.state.document.note_explicit_target(signode)
+
+        domain = cast(PythonDomain, self.env.get_domain('py'))
+        domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
-            self.indexnode['entries'].append(('single', indextext,
-                                              fullname, '', None))
+            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def before_content(self) -> None:
         """Handle object nesting before content
@@ -388,8 +439,14 @@ class PyModulelevel(PyObject):
     """
 
     def run(self) -> List[Node]:
-        warnings.warn('PyClassmember is deprecated.',
-                      RemovedInSphinx40Warning)
+        for cls in self.__class__.__mro__:
+            if cls.__name__ != 'DirectiveAdapter':
+                warnings.warn('PyModulelevel is deprecated. '
+                              'Please check the implementation of %s' % cls,
+                              RemovedInSphinx40Warning)
+                break
+        else:
+            warnings.warn('PyModulelevel is deprecated', RemovedInSphinx40Warning)
 
         return super().run()
 
@@ -434,8 +491,44 @@ class PyFunction(PyObject):
             return _('%s() (built-in function)') % name
 
 
+class PyDecoratorFunction(PyFunction):
+    """Description of a decorator."""
+
+    def run(self) -> List[Node]:
+        # a decorator function is a function after all
+        self.name = 'py:function'
+        return super().run()
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        ret = super().handle_signature(sig, signode)
+        signode.insert(0, addnodes.desc_addname('@', '@'))
+        return ret
+
+    def needs_arglist(self) -> bool:
+        return False
+
+
 class PyVariable(PyObject):
     """Description of a variable."""
+
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'type': directives.unchanged,
+        'value': directives.unchanged,
+    })
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        typ = self.options.get('type')
+        if typ:
+            signode += addnodes.desc_annotation(typ, ': ' + typ)
+
+        value = self.options.get('value')
+        if value:
+            signode += addnodes.desc_annotation(value, ' = ' + value)
+
+        return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls
@@ -472,8 +565,14 @@ class PyClassmember(PyObject):
     """
 
     def run(self) -> List[Node]:
-        warnings.warn('PyClassmember is deprecated.',
-                      RemovedInSphinx40Warning)
+        for cls in self.__class__.__mro__:
+            if cls.__name__ != 'DirectiveAdapter':
+                warnings.warn('PyClassmember is deprecated. '
+                              'Please check the implementation of %s' % cls,
+                              RemovedInSphinx40Warning)
+                break
+        else:
+            warnings.warn('PyClassmember is deprecated', RemovedInSphinx40Warning)
 
         return super().run()
 
@@ -626,8 +725,43 @@ class PyStaticMethod(PyMethod):
         return super().run()
 
 
+class PyDecoratorMethod(PyMethod):
+    """Description of a decoratormethod."""
+
+    def run(self) -> List[Node]:
+        self.name = 'py:method'
+        return super().run()
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        ret = super().handle_signature(sig, signode)
+        signode.insert(0, addnodes.desc_addname('@', '@'))
+        return ret
+
+    def needs_arglist(self) -> bool:
+        return False
+
+
 class PyAttribute(PyObject):
     """Description of an attribute."""
+
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'type': directives.unchanged,
+        'value': directives.unchanged,
+    })
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        typ = self.options.get('type')
+        if typ:
+            signode += addnodes.desc_annotation(typ, ': ' + typ)
+
+        value = self.options.get('value')
+        if value:
+            signode += addnodes.desc_annotation(value, ' = ' + value)
+
+        return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls
@@ -649,31 +783,21 @@ class PyDecoratorMixin:
     Mixin for decorator directives.
     """
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        for cls in self.__class__.__mro__:
+            if cls.__name__ != 'DirectiveAdapter':
+                warnings.warn('PyDecoratorMixin is deprecated. '
+                              'Please check the implementation of %s' % cls,
+                              RemovedInSphinx50Warning)
+                break
+        else:
+            warnings.warn('PyDecoratorMixin is deprecated', RemovedInSphinx50Warning)
+
         ret = super().handle_signature(sig, signode)  # type: ignore
         signode.insert(0, addnodes.desc_addname('@', '@'))
         return ret
 
     def needs_arglist(self) -> bool:
         return False
-
-
-class PyDecoratorFunction(PyDecoratorMixin, PyModulelevel):
-    """
-    Directive to mark functions meant to be used as decorators.
-    """
-    def run(self) -> List[Node]:
-        # a decorator function is a function after all
-        self.name = 'py:function'
-        return super().run()
-
-
-class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
-    """
-    Directive to mark methods meant to be used as decorators.
-    """
-    def run(self) -> List[Node]:
-        self.name = 'py:method'
-        return super().run()
 
 
 class PyModule(SphinxDirective):
@@ -701,23 +825,42 @@ class PyModule(SphinxDirective):
         ret = []  # type: List[Node]
         if not noindex:
             # note module to the domain
+            node_id = make_id(self.env, self.state.document, 'module', modname)
+            target = nodes.target('', '', ids=[node_id], ismod=True)
+            self.set_source_info(target)
+
+            # Assign old styled node_id not to break old hyperlinks (if possible)
+            # Note: Will removed in Sphinx-5.0  (RemovedInSphinx50Warning)
+            old_node_id = self.make_old_id(modname)
+            if node_id != old_node_id and old_node_id not in self.state.document.ids:
+                target['ids'].append(old_node_id)
+
+            self.state.document.note_explicit_target(target)
+
             domain.note_module(modname,
+                               node_id,
                                self.options.get('synopsis', ''),
                                self.options.get('platform', ''),
                                'deprecated' in self.options)
-            domain.note_object(modname, 'module', location=(self.env.docname, self.lineno))
+            domain.note_object(modname, 'module', node_id, location=target)
 
-            targetnode = nodes.target('', '', ids=['module-' + modname],
-                                      ismod=True)
-            self.state.document.note_explicit_target(targetnode)
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
-            ret.append(targetnode)
+            ret.append(target)
             indextext = _('%s (module)') % modname
-            inode = addnodes.index(entries=[('single', indextext,
-                                             'module-' + modname, '', None)])
+            inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
         return ret
+
+    def make_old_id(self, name: str) -> str:
+        """Generate old styled node_id.
+
+        Old styled node_id is incompatible with docutils' node_id.
+        It can contain dots and hyphens.
+
+        .. note:: Old styled node_id was mainly used until Sphinx-3.0.
+        """
+        return 'module-%s' % name
 
 
 class PyCurrentModule(SphinxDirective):
@@ -764,6 +907,21 @@ class PyXRefRole(XRefRole):
         return title, target
 
 
+def filter_meta_fields(app: Sphinx, domain: str, objtype: str, content: Element) -> None:
+    """Filter ``:meta:`` field from its docstring."""
+    if domain != 'py':
+        return
+
+    for node in content:
+        if isinstance(node, nodes.field_list):
+            fields = cast(List[nodes.field], node)
+            for field in fields:
+                field_name = cast(nodes.field_body, field[0]).astext().strip()
+                if field_name == 'meta' or field_name.startswith('meta '):
+                    node.remove(field)
+                    break
+
+
 class PythonModuleIndex(Index):
     """
     Index subclass to provide the Python module index.
@@ -786,7 +944,7 @@ class PythonModuleIndex(Index):
         # sort out collapsable modules
         prev_modname = ''
         num_toplevels = 0
-        for modname, (docname, synopsis, platforms, deprecated) in modules:
+        for modname, (docname, node_id, synopsis, platforms, deprecated) in modules:
             if docnames and docname not in docnames:
                 continue
 
@@ -821,10 +979,9 @@ class PythonModuleIndex(Index):
                 num_toplevels += 1
                 subtype = 0
 
-            qualifier = deprecated and _('Deprecated') or ''
+            qualifier = _('Deprecated') if deprecated else ''
             entries.append(IndexEntry(stripped + modname, subtype, docname,
-                                      'module-' + stripped + modname, platforms,
-                                      qualifier, synopsis))
+                                      node_id, platforms, qualifier, synopsis))
             prev_modname = modname
 
         # apply heuristics when to collapse modindex at page load:
@@ -888,10 +1045,10 @@ class PythonDomain(Domain):
     ]
 
     @property
-    def objects(self) -> Dict[str, Tuple[str, str]]:
-        return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+    def objects(self) -> Dict[str, Tuple[str, str, str]]:
+        return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
 
-    def note_object(self, name: str, objtype: str, location: Any = None) -> None:
+    def note_object(self, name: str, objtype: str, node_id: str, location: Any = None) -> None:
         """Note a python object for cross reference.
 
         .. versionadded:: 2.1
@@ -901,38 +1058,40 @@ class PythonDomain(Domain):
             logger.warning(__('duplicate object description of %s, '
                               'other instance in %s, use :noindex: for one of them'),
                            name, docname, location=location)
-        self.objects[name] = (self.env.docname, objtype)
+        self.objects[name] = (self.env.docname, node_id, objtype)
 
     @property
-    def modules(self) -> Dict[str, Tuple[str, str, str, bool]]:
-        return self.data.setdefault('modules', {})  # modname -> docname, synopsis, platform, deprecated  # NOQA
+    def modules(self) -> Dict[str, Tuple[str, str, str, str, bool]]:
+        return self.data.setdefault('modules', {})  # modname -> docname, node_id, synopsis, platform, deprecated  # NOQA
 
-    def note_module(self, name: str, synopsis: str, platform: str, deprecated: bool) -> None:
+    def note_module(self, name: str, node_id: str, synopsis: str,
+                    platform: str, deprecated: bool) -> None:
         """Note a python module for cross reference.
 
         .. versionadded:: 2.1
         """
-        self.modules[name] = (self.env.docname, synopsis, platform, deprecated)
+        self.modules[name] = (self.env.docname, node_id, synopsis, platform, deprecated)
 
     def clear_doc(self, docname: str) -> None:
-        for fullname, (fn, _l) in list(self.objects.items()):
+        for fullname, (fn, _x, _x) in list(self.objects.items()):
             if fn == docname:
                 del self.objects[fullname]
-        for modname, (fn, _x, _x, _y) in list(self.modules.items()):
+        for modname, (fn, _x, _x, _x, _y) in list(self.modules.items()):
             if fn == docname:
                 del self.modules[modname]
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates?
-        for fullname, (fn, objtype) in otherdata['objects'].items():
+        for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                self.objects[fullname] = (fn, objtype)
+                self.objects[fullname] = (fn, node_id, objtype)
         for modname, data in otherdata['modules'].items():
             if data[0] in docnames:
                 self.modules[modname] = data
 
     def find_obj(self, env: BuildEnvironment, modname: str, classname: str,
-                 name: str, type: str, searchmode: int = 0) -> List[Tuple[str, Any]]:
+                 name: str, type: str, searchmode: int = 0
+                 ) -> List[Tuple[str, Tuple[str, str, str]]]:
         """Find a Python object for "name", perhaps using the given module
         and/or classname.  Returns a list of (name, object entry) tuples.
         """
@@ -943,7 +1102,7 @@ class PythonDomain(Domain):
         if not name:
             return []
 
-        matches = []  # type: List[Tuple[str, Any]]
+        matches = []  # type: List[Tuple[str, Tuple[str, str, str]]]
 
         newname = None
         if searchmode == 1:
@@ -954,20 +1113,20 @@ class PythonDomain(Domain):
             if objtypes is not None:
                 if modname and classname:
                     fullname = modname + '.' + classname + '.' + name
-                    if fullname in self.objects and self.objects[fullname][1] in objtypes:
+                    if fullname in self.objects and self.objects[fullname][2] in objtypes:
                         newname = fullname
                 if not newname:
                     if modname and modname + '.' + name in self.objects and \
-                       self.objects[modname + '.' + name][1] in objtypes:
+                       self.objects[modname + '.' + name][2] in objtypes:
                         newname = modname + '.' + name
-                    elif name in self.objects and self.objects[name][1] in objtypes:
+                    elif name in self.objects and self.objects[name][2] in objtypes:
                         newname = name
                     else:
                         # "fuzzy" searching mode
                         searchname = '.' + name
                         matches = [(oname, self.objects[oname]) for oname in self.objects
                                    if oname.endswith(searchname) and
-                                   self.objects[oname][1] in objtypes]
+                                   self.objects[oname][2] in objtypes]
         else:
             # NOTE: searching for exact match, object type is not considered
             if name in self.objects:
@@ -982,14 +1141,6 @@ class PythonDomain(Domain):
             elif modname and classname and \
                     modname + '.' + classname + '.' + name in self.objects:
                 newname = modname + '.' + classname + '.' + name
-            # special case: builtin exceptions have module "exceptions" set
-            elif type == 'exc' and '.' not in name and \
-                    'exceptions.' + name in self.objects:
-                newname = 'exceptions.' + name
-            # special case: object methods
-            elif type in ('func', 'meth') and '.' not in name and \
-                    'object.' + name in self.objects:
-                newname = 'object.' + name
         if newname is not None:
             matches.append((newname, self.objects[newname]))
         return matches
@@ -999,9 +1150,14 @@ class PythonDomain(Domain):
                      ) -> Element:
         modname = node.get('py:module')
         clsname = node.get('py:class')
-        searchmode = node.hasattr('refspecific') and 1 or 0
+        searchmode = 1 if node.hasattr('refspecific') else 0
         matches = self.find_obj(env, modname, clsname, target,
                                 type, searchmode)
+
+        if not matches and type == 'attr':
+            # fallback to meth (for property)
+            matches = self.find_obj(env, modname, clsname, target, 'meth', searchmode)
+
         if not matches:
             return None
         elif len(matches) > 1:
@@ -1010,10 +1166,10 @@ class PythonDomain(Domain):
                            type='ref', subtype='python', location=node)
         name, obj = matches[0]
 
-        if obj[1] == 'module':
+        if obj[2] == 'module':
             return self._make_module_refnode(builder, fromdocname, name, contnode)
         else:
-            return make_refnode(builder, fromdocname, obj[0], name, contnode, name)
+            return make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
@@ -1025,20 +1181,20 @@ class PythonDomain(Domain):
         # always search in "refspecific" mode with the :any: role
         matches = self.find_obj(env, modname, clsname, target, None, 1)
         for name, obj in matches:
-            if obj[1] == 'module':
+            if obj[2] == 'module':
                 results.append(('py:mod',
                                 self._make_module_refnode(builder, fromdocname,
                                                           name, contnode)))
             else:
-                results.append(('py:' + self.role_for_objtype(obj[1]),
-                                make_refnode(builder, fromdocname, obj[0], name,
+                results.append(('py:' + self.role_for_objtype(obj[2]),
+                                make_refnode(builder, fromdocname, obj[0], obj[1],
                                              contnode, name)))
         return results
 
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,
                              contnode: Node) -> Element:
         # get additional info for modules
-        docname, synopsis, platform, deprecated = self.modules[name]
+        docname, node_id, synopsis, platform, deprecated = self.modules[name]
         title = name
         if synopsis:
             title += ': ' + synopsis
@@ -1046,15 +1202,14 @@ class PythonDomain(Domain):
             title += _(' (deprecated)')
         if platform:
             title += ' (' + platform + ')'
-        return make_refnode(builder, fromdocname, docname,
-                            'module-' + name, contnode, title)
+        return make_refnode(builder, fromdocname, docname, node_id, contnode, title)
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
         for modname, info in self.modules.items():
-            yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
-        for refname, (docname, type) in self.objects.items():
+            yield (modname, modname, 'module', info[0], info[1], 0)
+        for refname, (docname, node_id, type) in self.objects.items():
             if type != 'module':  # modules are already handled
-                yield (refname, refname, type, docname, refname, 1)
+                yield (refname, refname, type, docname, node_id, 1)
 
     def get_full_qualified_name(self, node: Element) -> str:
         modname = node.get('py:module')
@@ -1066,12 +1221,41 @@ class PythonDomain(Domain):
             return '.'.join(filter(None, [modname, clsname, target]))
 
 
+def builtin_resolver(app: Sphinx, env: BuildEnvironment,
+                     node: pending_xref, contnode: Element) -> Element:
+    """Do not emit nitpicky warnings for built-in types."""
+    def istyping(s: str) -> bool:
+        if s.startswith('typing.'):
+            s = s.split('.', 1)[1]
+
+        return s in typing.__all__  # type: ignore
+
+    if node.get('refdomain') != 'py':
+        return None
+    elif node.get('reftype') == 'obj' and node.get('reftarget') == 'None':
+        return contnode
+    elif node.get('reftype') in ('class', 'exc'):
+        reftarget = node.get('reftarget')
+        if inspect.isclass(getattr(builtins, reftarget, None)):
+            # built-in class
+            return contnode
+        elif istyping(reftarget):
+            # typing class
+            return contnode
+
+    return None
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
+    app.setup_extension('sphinx.directives')
+
     app.add_domain(PythonDomain)
+    app.connect('object-description-transform', filter_meta_fields)
+    app.connect('missing-reference', builtin_resolver, priority=900)
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
