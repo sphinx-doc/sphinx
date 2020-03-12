@@ -1,4 +1,4 @@
-"""
+f"""
     sphinx.ext.autosummary.generate
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -23,6 +23,7 @@ import os
 import pydoc
 import re
 import sys
+import types
 import warnings
 from typing import Any, Callable, Dict, List, Set, Tuple
 
@@ -93,7 +94,16 @@ def _underline(title: str, line: str = '=') -> str:
 
 
 def _is_submodule(module, parent):
-    return module.startswith(parent + ".")
+    """Test if specified module is parent or sub-module of parent"""
+    return module is not None and (parent == module or module.startswith(parent + "."))
+
+
+def _obj_module(o):
+    """Returns object module name"""
+    if isinstance(o, types.ModuleType):
+        return getattr(o, '__name__')
+
+    return getattr(o, '__module__', None)
 
 
 class AutosummaryRenderer:
@@ -152,8 +162,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                 continue
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
-                if imported or getattr(value, '__module__', None) == obj.__name__ or\
-                        (documenter.objtype == 'module' and _is_submodule(value.__name__, obj.__name__)):
+                if imported or getattr(value, '__module__', None) == obj.__name__:
                     # skip imported members if expected
                     items.append(name)
         public = [x for x in items
@@ -282,6 +291,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
                                   template_dir=template_dir, app=app,
+                                  imported_members=imported_members,
                                   overwrite=overwrite)
 
 
