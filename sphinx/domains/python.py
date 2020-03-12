@@ -15,7 +15,7 @@ import typing
 import warnings
 from abc import ABC
 from inspect import Parameter
-from typing import Any, Optional, Dict, Iterable, Iterator, List, Tuple, Type
+from typing import Any, Dict, Iterable, Iterator, List, Tuple, Type
 from typing import cast
 
 from docutils import nodes
@@ -634,7 +634,7 @@ class PyClassMemberBase(PyObject, ABC):
 class PyMethod(PyClassMemberBase):
     """Description of a method."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec = PyObject.option_spec.copy()  # type: Dict
     option_spec.update({
         'abstractmethod': directives.flag,
         'async': directives.flag,
@@ -692,7 +692,7 @@ class PyMethod(PyClassMemberBase):
 class PyClassMethod(PyMethod):
     """Description of a classmethod."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec = PyObject.option_spec.copy()  # type: Dict
 
     def run(self) -> List[Node]:
         self.name = 'py:method'
@@ -704,7 +704,7 @@ class PyClassMethod(PyMethod):
 class PyStaticMethod(PyMethod):
     """Description of a staticmethod."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec = PyObject.option_spec.copy()  # type: Dict
 
     def run(self) -> List[Node]:
         self.name = 'py:method'
@@ -716,7 +716,7 @@ class PyStaticMethod(PyMethod):
 class PyAttribute(PyClassMemberBase):
     """Description of an attribute."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec = PyObject.option_spec.copy()  # type: Dict
     option_spec.update({
         'type': directives.unchanged,
         'value': directives.unchanged,
@@ -746,7 +746,7 @@ class PyAttribute(PyClassMemberBase):
 class PyProperty(PyClassMemberBase):
     """Description of a property."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec = PyObject.option_spec.copy()  # type: Dict
     option_spec.update({
         'type': directives.unchanged,
         'abstractmethod': directives.flag,

@@ -1508,9 +1508,9 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         sourcename = self.get_sourcename()
         if inspect.isabstractmethod(self.object):
             self.add_line('   :abstractmethod:', sourcename)
-        sig = inspect.signature(self.object.fget)
-        if sig.return_annotation is not sig.empty:
-            ret_type = stringify_typehint(sig.return_annotation)
+        signature = inspect.signature(self.object.fget)
+        if signature.return_annotation is not signature.empty:
+            ret_type = stringify_typehint(signature.return_annotation)
             self.add_line('   :type:' + ret_type, sourcename)
 
 
