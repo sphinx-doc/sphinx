@@ -616,19 +616,19 @@ class PyClassmember(PyObject):
 
 
 class PyClassMemberBase(PyObject, ABC):
-    def _split_member_name(self, mod: str, name: str) -> Tuple[Optional[str], str]:
-        try:
-            clsname, selfname = name.rsplit('.', 1)
-            if mod and self.env.config.add_module_names:
-                clsname = '.'.join([mod, clsname])
-            return clsname, selfname
-        except ValueError:
-            if mod:
-                return None, _('%s() (in module %s)') % (name, mod)
-            elif self.needs_arglist():
-                return None, '%s()' % name
-            else:
-                return None, name
+    def _split_member_name(self, mod: str, name: str) -> Tuple[str, str]:
+        clsname, selfname = name.rsplit('.', 1)
+        if mod and self.env.config.add_module_names:
+            clsname = '.'.join([mod, clsname])
+        return clsname, selfname
+    
+    def _fallback_name(self, mod: str, name: str) -> str:
+        if mod:
+            return _('%s() (in module %s)') % (name, mod)
+        elif self.needs_arglist():
+            return '%s()' % name
+        else:
+            return name
 
 
 class PyMethod(PyClassMemberBase):
@@ -670,9 +670,10 @@ class PyMethod(PyClassMemberBase):
             return ''
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
-        clsname, methname = self._split_member_name(modname, name_cls[0])
-        if clsname is None:
-            return methname
+        try:
+            clsname, methname = self._split_member_name(modname, name_cls[0])
+        except ValueError:
+            return self._fallback_name(modname, name_cls[0])
 
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
@@ -729,9 +730,10 @@ class PyAttribute(PyClassMemberBase):
         return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
-        clsname, attrname = self._split_member_name(modname, name_cls[0])
-        if clsname is None:
-            return attrname
+        try:
+            clsname, attrname = self._split_member_name(modname, name_cls[0])
+        except ValueError:
+            return self._fallback_name(modname, name_cls[0])
         return _('%s (%s attribute)') % (attrname, clsname)
 
 
@@ -760,9 +762,10 @@ class PyProperty(PyClassMemberBase):
         return prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
-        clsname, propname = self._split_member_name(modname, name_cls[0])
-        if clsname is None:
-            return propname
+        try:
+            clsname, propname = self._split_member_name(modname, name_cls[0])
+        except ValueError:
+            return self._fallback_name(modname, name_cls[0])
         return _('%s (%s property)') % (propname, clsname)
 
 
