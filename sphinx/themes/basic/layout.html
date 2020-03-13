@@ -96,9 +96,6 @@
 {%- macro css() %}
     <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
-    {%- if pygments_dark_style %}
-    <link rel="stylesheet" href="{{ pathto('_static/pygments_dark.css', 1) }}" type="text/css" media="(prefers-color-scheme: dark)" id="pygments_dark_css" />
-    {%- endif %}
     {%- for css in css_files %}
       {%- if css|attr("filename") %}
     {{ css_tag(css) }}

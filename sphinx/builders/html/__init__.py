@@ -505,7 +505,6 @@ class StandaloneHTMLBuilder(Builder):
             'logo': logo,
             'favicon': favicon,
             'html5_doctype': html5_ready and not self.config.html4_writer,
-            'pygments_dark_style': self.dark_highlighter is not None,
         }
         if self.theme:
             self.globalcontext.update(
@@ -743,6 +742,9 @@ class StandaloneHTMLBuilder(Builder):
         if self.dark_highlighter:
             with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
                 f.write(self.dark_highlighter.get_stylesheet())
+            self.add_css_file('pygments_dark.css',
+                              media='(prefers-color-scheme: dark)',
+                              id='pygments_dark_css')
 
     def create_pygments_aux_style_files(self) -> None:
         """create a style file for pygments."""
