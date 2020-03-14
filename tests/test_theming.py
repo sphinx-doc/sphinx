@@ -11,8 +11,8 @@
 import os
 
 import alabaster
-import pytest
 
+import pytest
 from sphinx.theming import ThemeError
 
 
@@ -119,7 +119,7 @@ def test_staticfiles(app, status, warning):
 
 @pytest.mark.sphinx(testroot='theming',
                     confoverrides={'html_theme': 'test-theme'})
-def test_staticfiles(app, status, warning):
+def test_dark_style(app, status, warning):
     style = app.builder.dark_highlighter.formatter_args.get('style')
     assert style.__name__ == 'MonokaiStyle'
 
@@ -127,10 +127,10 @@ def test_staticfiles(app, status, warning):
     assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
     result = (app.outdir / 'index.html').read_text()
-    assert '<link rel="stylesheet" href="_static/pygments.css" type="text/css">' in result
-    assert ('<link rel="stylesheet" href="_static/pygments_dark.css"'
-            'type="text/css" media="(prefers-color-scheme: dark)"'
-            'id="pygments_dark_css">') in result
+    assert '<link rel="stylesheet" href="_static/pygments.css" type="text/css" />' in result
+    assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
+            'rel="stylesheet" type="text/css" '
+            'href="_static/pygments_dark.css" />') in result
 
 
 @pytest.mark.sphinx(testroot='theming')
