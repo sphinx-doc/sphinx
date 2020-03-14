@@ -1525,6 +1525,21 @@ def test_html_pygments_for_classic_theme(app):
     assert style.__name__ == 'SphinxStyle'
 
 
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'html_pygments_dark_style': 'monokai'})
+def test_html_pygments_style_manually(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'MonokaiStyle'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'html_theme_options.pygments_dark_style':
+                    'solarized-dark'})
+def test_html_pygments_for_classic_theme(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'SolarizedDarkStyle'
+
+
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
 def test_validate_html_extra_path(app):
     (app.confdir / '_static').makedirs()
