@@ -15,7 +15,7 @@ import sys
 import warnings
 from hashlib import md5
 from os import path
-from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple, Union
+from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
 
 from docutils import nodes
 from docutils.core import publish_parts
