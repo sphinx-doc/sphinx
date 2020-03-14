@@ -337,7 +337,8 @@ class PyObject(ObjectDescription):
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
                 _pseudo_parse_arglist(signode, arglist)
             except NotImplementedError as exc:
-                logger.warning("could not parse arglist (%r): %s", arglist, exc)
+                logger.warning("could not parse arglist (%r): %s", arglist, exc,
+                               location=signode)
                 _pseudo_parse_arglist(signode, arglist)
         else:
             if self.needs_arglist():
