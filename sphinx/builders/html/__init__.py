@@ -271,9 +271,7 @@ class StandaloneHTMLBuilder(Builder):
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
-        if self.config.html_pygments_dark_style is not None:
-            dark_style = self.config.html_pygments_dark_style
-        elif self.theme:
+        if self.theme:
             dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
         else:
             dark_style = None
@@ -1200,7 +1198,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_style', None, 'html', [str])
     app.add_config_value('html_logo', None, 'html', [str])
     app.add_config_value('html_favicon', None, 'html', [str])
-    app.add_config_value('html_pygments_dark_style', None, 'html', [str])
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')

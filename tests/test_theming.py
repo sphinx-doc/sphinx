@@ -117,6 +117,22 @@ def test_staticfiles(app, status, warning):
     assert '<meta name="testopt" content="optdefault" />' in result
 
 
+@pytest.mark.sphinx(testroot='theming',
+                    confoverrides={'html_theme': 'test-theme'})
+def test_staticfiles(app, status, warning):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'MonokaiStyle'
+
+    app.build()
+    assert (app.outdir / '_static' / 'pygments_dark.css').exists()
+
+    result = (app.outdir / 'index.html').read_text()
+    assert '<link rel="stylesheet" href="_static/pygments.css" type="text/css">' in result
+    assert ('<link rel="stylesheet" href="_static/pygments_dark.css"'
+            'type="text/css" media="(prefers-color-scheme: dark)"'
+            'id="pygments_dark_css">') in result
+
+
 @pytest.mark.sphinx(testroot='theming')
 def test_theme_sidebars(app, status, warning):
     app.build()
