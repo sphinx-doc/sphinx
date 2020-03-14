@@ -120,7 +120,7 @@ def test_staticfiles(app, status, warning):
 @pytest.mark.sphinx(testroot='theming',
                     confoverrides={'html_theme': 'test-theme'})
 def test_staticfiles(app, status, warning):
-    style = app.builder.highlighter.formatter_args.get('style')
+    style = app.builder.dark_highlighter.formatter_args.get('style')
     assert style.__name__ == 'MonokaiStyle'
 
     app.build()
