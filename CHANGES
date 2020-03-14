@@ -23,7 +23,7 @@ Incompatible changes
 * Due to the scoping changes for :rst:dir:`productionlist` some uses of
   :rst:role:`token` must be modified to include the scope which was previously
   ignored.
-* #6903: Internal data structure of Python, reST and standard domains have
+* #6903: Internal data structure of C, Python, reST and standard domains have
   changed.  The node_id is added to the index of objects and modules.  Now they
   contains a pair of docname and node_id for cross reference.
 * #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
