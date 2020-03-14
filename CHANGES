@@ -99,6 +99,7 @@ Bugs fixed
 * #7139: ``code-block:: guess`` does not work
 * #7278: html search: Fix use of ``html_file_suffix`` instead of
   ``html_link_suffix`` in search results
+* #7179: std domain: Fix whitespaces are suppressed on referring GenericObject
 
 Testing
 --------
