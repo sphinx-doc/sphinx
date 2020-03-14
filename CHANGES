@@ -103,6 +103,7 @@ Bugs fixed
 * #7278: html search: Fix use of ``html_file_suffix`` instead of
   ``html_link_suffix`` in search results
 * #7179: std domain: Fix whitespaces are suppressed on referring GenericObject
+* #7289: console: use bright colors instead of bold
 
 Testing
 --------
