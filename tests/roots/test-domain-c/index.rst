@@ -36,3 +36,11 @@ directives
 
 - :c:member:`A.@data.a`
 - :c:member:`A.a`
+
+- :c:expr:`unsigned int`
+- :c:texpr:`unsigned int`
+
+.. c:var:: A a
+
+- :c:expr:`a->b`
+- :c:texpr:`a->b`

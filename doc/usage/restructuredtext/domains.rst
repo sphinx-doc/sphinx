@@ -674,6 +674,38 @@ Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
 .. versionadded:: 3.0
 
 
+Inline Expressions and Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. rst:role:: c:expr
+              c:texpr
+
+   Insert a C expression or type either as inline code (``cpp:expr``)
+   or inline text (``cpp:texpr``). For example::
+
+      .. c:var:: int a = 42
+
+      .. c:function:: int f(int i)
+
+      An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
+
+      A type: :c:expr:`const Data*`
+      (or as text :c:texpr:`const Data*`).
+
+   will be rendered as follows:
+
+   .. c:var:: int a = 42
+
+   .. c:function:: int f(int i)
+
+   An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
+
+   A type: :c:expr:`const Data*`
+   (or as text :c:texpr:`const Data*`).
+
+   .. versionadded:: 3.0
+
+
 .. _cpp-domain:
 
 The C++ Domain

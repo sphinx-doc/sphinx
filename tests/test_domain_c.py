@@ -86,17 +86,34 @@ def check(name, input, idDict, output=None):
 
 
 def test_expressions():
-    return  # TODO
-    def exprCheck(expr, id, id4=None):
-        ids = 'IE1CIA%s_1aE'
-        idDict = {2: ids % expr, 3: ids % id}
-        if id4 is not None:
-            idDict[4] = ids % id4
-        check('class', 'template<> C<a[%s]>' % expr, idDict)
+    def exprCheck(expr, output=None):
+        parser = DefinitionParser(expr, None)
+        parser.allowFallbackExpressionParsing = False
+        ast = parser.parse_expression()
+        parser.assert_end()
+        # first a simple check of the AST
+        if output is None:
+            output = expr
+        res = str(ast)
+        if res != output:
+            print("")
+            print("Input:    ", input)
+            print("Result:   ", res)
+            print("Expected: ", output)
+            raise DefinitionError("")
+    # type expressions
+    exprCheck('int*')
+    exprCheck('int *const*')
+    exprCheck('int *volatile*')
+    exprCheck('int *restrict*')
+    exprCheck('int *(*)(double)')
+    exprCheck('const int*')
+
+    # actual expressions
+
     # primary
-    exprCheck('nullptr', 'LDnE')
-    exprCheck('true', 'L1E')
-    exprCheck('false', 'L0E')
+    exprCheck('true')
+    exprCheck('false')
     ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1']
     unsignedSuffix = ['', 'u', 'U']
     longSuffix = ['', 'l', 'L', 'll', 'LL']
@@ -104,9 +121,9 @@ def test_expressions():
         for u in unsignedSuffix:
             for l in longSuffix:
                 expr = i + u + l
-                exprCheck(expr, 'L' + expr + 'E')
+                exprCheck(expr)
                 expr = i + l + u
-                exprCheck(expr, 'L' + expr + 'E')
+                exprCheck(expr)
     for suffix in ['', 'f', 'F', 'l', 'L']:
         for e in [
                 '5e42', '5e+42', '5e-42',
@@ -114,134 +131,90 @@ def test_expressions():
                 '.5', '.5e42', '.5e+42', '.5e-42',
                 '5.0', '5.0e42', '5.0e+42', '5.0e-42']:
             expr = e + suffix
-            exprCheck(expr, 'L' + expr + 'E')
+            exprCheck(expr)
         for e in [
                 'ApF', 'Ap+F', 'Ap-F',
                 'A.', 'A.pF', 'A.p+F', 'A.p-F',
                 '.A', '.ApF', '.Ap+F', '.Ap-F',
                 'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']:
             expr = "0x" + e + suffix
-            exprCheck(expr, 'L' + expr + 'E')
-    exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
-    exprCheck('this', 'fpT')
+            exprCheck(expr)
+    exprCheck('"abc\\"cba"')  # string
     # character literals
-    for p, t in [('', 'c'), ('u8', 'c'), ('u', 'Ds'), ('U', 'Di'), ('L', 'w')]:
-        exprCheck(p + "'a'", t + "97")
-        exprCheck(p + "'\\n'", t + "10")
-        exprCheck(p + "'\\012'", t + "10")
-        exprCheck(p + "'\\0'", t + "0")
-        exprCheck(p + "'\\x0a'", t + "10")
-        exprCheck(p + "'\\x0A'", t + "10")
-        exprCheck(p + "'\\u0a42'", t + "2626")
-        exprCheck(p + "'\\u0A42'", t + "2626")
-        exprCheck(p + "'\\U0001f34c'", t + "127820")
-        exprCheck(p + "'\\U0001F34C'", t + "127820")
+    for p in ['', 'u8', 'u', 'U', 'L']:
+        exprCheck(p + "'a'")
+        exprCheck(p + "'\\n'")
+        exprCheck(p + "'\\012'")
+        exprCheck(p + "'\\0'")
+        exprCheck(p + "'\\x0a'")
+        exprCheck(p + "'\\x0A'")
+        exprCheck(p + "'\\u0a42'")
+        exprCheck(p + "'\\u0A42'")
+        exprCheck(p + "'\\U0001f34c'")
+        exprCheck(p + "'\\U0001F34C'")
 
-    # TODO: user-defined lit
-    exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
-    exprCheck('(Ns + ...)', '(Ns + ...)', id4='frpl2Ns')
-    exprCheck('(Ns + ... + 0)', '(Ns + ... + 0)', id4='fLpl2NsL0E')
-    exprCheck('(5)', 'L5E')
-    exprCheck('C', '1C')
+    exprCheck('(5)')
+    exprCheck('C')
     # postfix
-    exprCheck('A(2)', 'cl1AL2EE')
-    exprCheck('A[2]', 'ix1AL2E')
-    exprCheck('a.b.c', 'dtdt1a1b1c')
-    exprCheck('a->b->c', 'ptpt1a1b1c')
-    exprCheck('i++', 'pp1i')
-    exprCheck('i--', 'mm1i')
-    exprCheck('dynamic_cast<T&>(i)++', 'ppdcR1T1i')
-    exprCheck('static_cast<T&>(i)++', 'ppscR1T1i')
-    exprCheck('reinterpret_cast<T&>(i)++', 'pprcR1T1i')
-    exprCheck('const_cast<T&>(i)++', 'ppccR1T1i')
-    exprCheck('typeid(T).name', 'dtti1T4name')
-    exprCheck('typeid(a + b).name', 'dttepl1a1b4name')
+    exprCheck('A(2)')
+    exprCheck('A[2]')
+    exprCheck('a.b.c')
+    exprCheck('a->b->c')
+    exprCheck('i++')
+    exprCheck('i--')
     # unary
-    exprCheck('++5', 'pp_L5E')
-    exprCheck('--5', 'mm_L5E')
-    exprCheck('*5', 'deL5E')
-    exprCheck('&5', 'adL5E')
-    exprCheck('+5', 'psL5E')
-    exprCheck('-5', 'ngL5E')
-    exprCheck('!5', 'ntL5E')
-    exprCheck('~5', 'coL5E')
-    exprCheck('sizeof...(a)', 'sZ1a')
-    exprCheck('sizeof(T)', 'st1T')
-    exprCheck('sizeof -42', 'szngL42E')
-    exprCheck('alignof(T)', 'at1T')
-    exprCheck('noexcept(-42)', 'nxngL42E')
-    # new-expression
-    exprCheck('new int', 'nw_iE')
-    exprCheck('new volatile int', 'nw_ViE')
-    exprCheck('new int[42]', 'nw_AL42E_iE')
-    exprCheck('new int()', 'nw_ipiE')
-    exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
-    exprCheck('::new int', 'nw_iE')
-    exprCheck('new int{}', 'nw_iilE')
-    exprCheck('new int{5, 42}', 'nw_iilL5EL42EE')
-    # delete-expression
-    exprCheck('delete p', 'dl1p')
-    exprCheck('delete [] p', 'da1p')
-    exprCheck('::delete p', 'dl1p')
-    exprCheck('::delete [] p', 'da1p')
+    exprCheck('++5')
+    exprCheck('--5')
+    exprCheck('*5')
+    exprCheck('&5')
+    exprCheck('+5')
+    exprCheck('-5')
+    exprCheck('!5')
+    exprCheck('~5')
+    exprCheck('sizeof(T)')
+    exprCheck('sizeof -42')
+    exprCheck('alignof(T)')
     # cast
-    exprCheck('(int)2', 'cviL2E')
+    exprCheck('(int)2')
     # binary op
-    exprCheck('5 || 42', 'ooL5EL42E')
-    exprCheck('5 && 42', 'aaL5EL42E')
-    exprCheck('5 | 42', 'orL5EL42E')
-    exprCheck('5 ^ 42', 'eoL5EL42E')
-    exprCheck('5 & 42', 'anL5EL42E')
+    exprCheck('5 || 42')
+    exprCheck('5 && 42')
+    exprCheck('5 | 42')
+    exprCheck('5 ^ 42')
+    exprCheck('5 & 42')
     # ['==', '!=']
-    exprCheck('5 == 42', 'eqL5EL42E')
-    exprCheck('5 != 42', 'neL5EL42E')
+    exprCheck('5 == 42')
+    exprCheck('5 != 42')
     # ['<=', '>=', '<', '>']
-    exprCheck('5 <= 42', 'leL5EL42E')
-    exprCheck('5 >= 42', 'geL5EL42E')
-    exprCheck('5 < 42', 'ltL5EL42E')
-    exprCheck('5 > 42', 'gtL5EL42E')
+    exprCheck('5 <= 42')
+    exprCheck('5 >= 42')
+    exprCheck('5 < 42')
+    exprCheck('5 > 42')
     # ['<<', '>>']
-    exprCheck('5 << 42', 'lsL5EL42E')
-    exprCheck('5 >> 42', 'rsL5EL42E')
+    exprCheck('5 << 42')
+    exprCheck('5 >> 42')
     # ['+', '-']
-    exprCheck('5 + 42', 'plL5EL42E')
-    exprCheck('5 - 42', 'miL5EL42E')
+    exprCheck('5 + 42')
+    exprCheck('5 - 42')
     # ['*', '/', '%']
-    exprCheck('5 * 42', 'mlL5EL42E')
-    exprCheck('5 / 42', 'dvL5EL42E')
-    exprCheck('5 % 42', 'rmL5EL42E')
+    exprCheck('5 * 42')
+    exprCheck('5 / 42')
+    exprCheck('5 % 42')
     # ['.*', '->*']
-    exprCheck('5 .* 42', 'dsL5EL42E')
-    exprCheck('5 ->* 42', 'pmL5EL42E')
     # conditional
     # TODO
     # assignment
-    exprCheck('a = 5', 'aS1aL5E')
-    exprCheck('a *= 5', 'mL1aL5E')
-    exprCheck('a /= 5', 'dV1aL5E')
-    exprCheck('a %= 5', 'rM1aL5E')
-    exprCheck('a += 5', 'pL1aL5E')
-    exprCheck('a -= 5', 'mI1aL5E')
-    exprCheck('a >>= 5', 'rS1aL5E')
-    exprCheck('a <<= 5', 'lS1aL5E')
-    exprCheck('a &= 5', 'aN1aL5E')
-    exprCheck('a ^= 5', 'eO1aL5E')
-    exprCheck('a |= 5', 'oR1aL5E')
-
-    # Additional tests
-    # a < expression that starts with something that could be a template
-    exprCheck('A < 42', 'lt1AL42E')
-    check('function', 'template<> void f(A<B, 2> &v)',
-          {2: "IE1fR1AI1BX2EE", 3: "IE1fR1AI1BXL2EEE", 4: "IE1fvR1AI1BXL2EEE"})
-    exprCheck('A<1>::value', 'N1AIXL1EEE5valueE')
-    check('class', "template<int T = 42> A", {2: "I_iE1A"})
-    check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
-
-    exprCheck('operator()()', 'clclE')
-    exprCheck('operator()<int>()', 'clclIiEE')
-
-    # pack expansion
-    exprCheck('a(b(c, 1 + d...)..., e(f..., g))', 'cl1aspcl1b1cspplL1E1dEcl1esp1f1gEE')
+    exprCheck('a = 5')
+    exprCheck('a *= 5')
+    exprCheck('a /= 5')
+    exprCheck('a %= 5')
+    exprCheck('a += 5')
+    exprCheck('a -= 5')
+    exprCheck('a >>= 5')
+    exprCheck('a <<= 5')
+    exprCheck('a &= 5')
+    exprCheck('a ^= 5')
+    exprCheck('a |= 5')
 
 
 def test_type_definitions():
@@ -249,6 +222,9 @@ def test_type_definitions():
 
     check('type', "bool *b", {1: 'b'})
     check('type', "bool *const b", {1: 'b'})
+    check('type', "bool *const *b", {1: 'b'})
+    check('type', "bool *volatile *b", {1: 'b'})
+    check('type', "bool *restrict *b", {1: 'b'})
     check('type', "bool *volatile const b", {1: 'b'})
     check('type', "bool *volatile const b", {1: 'b'})
     check('type', "bool *volatile const *b", {1: 'b'})
@@ -394,38 +370,22 @@ def test_anon_definitions():
 
 
 def test_initializers():
-    return  # TODO
-    idsMember = {1: 'v__T', 2: '1v'}
-    idsFunction = {1: 'f__T', 2: '1f1T'}
-    idsTemplate = {2: 'I_1TE1fv', 4: 'I_1TE1fvv'}
+    idsMember = {1: 'v'}
+    idsFunction = {1: 'f'}
     # no init
     check('member', 'T v', idsMember)
     check('function', 'void f(T v)', idsFunction)
-    check('function', 'template<T v> void f()', idsTemplate)
     # with '=', assignment-expression
     check('member', 'T v = 42', idsMember)
     check('function', 'void f(T v = 42)', idsFunction)
-    check('function', 'template<T v = 42> void f()', idsTemplate)
     # with '=', braced-init
     check('member', 'T v = {}', idsMember)
     check('function', 'void f(T v = {})', idsFunction)
-    check('function', 'template<T v = {}> void f()', idsTemplate)
     check('member', 'T v = {42, 42, 42}', idsMember)
     check('function', 'void f(T v = {42, 42, 42})', idsFunction)
-    check('function', 'template<T v = {42, 42, 42}> void f()', idsTemplate)
     check('member', 'T v = {42, 42, 42,}', idsMember)
     check('function', 'void f(T v = {42, 42, 42,})', idsFunction)
-    check('function', 'template<T v = {42, 42, 42,}> void f()', idsTemplate)
-    check('member', 'T v = {42, 42, args...}', idsMember)
-    check('function', 'void f(T v = {42, 42, args...})', idsFunction)
-    check('function', 'template<T v = {42, 42, args...}> void f()', idsTemplate)
-    # without '=', braced-init
-    check('member', 'T v{}', idsMember)
-    check('member', 'T v{42, 42, 42}', idsMember)
-    check('member', 'T v{42, 42, 42,}', idsMember)
-    check('member', 'T v{42, 42, args...}', idsMember)
-    # other
-    check('member', 'T v = T{}', idsMember)
+    # TODO: designator-list
 
 
 def test_attributes():

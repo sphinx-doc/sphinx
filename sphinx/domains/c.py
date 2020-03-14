@@ -14,8 +14,9 @@ from typing import (
 )
 from typing import cast
 
-from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils import nodes, utils
+from docutils.nodes import Element, Node, TextElement, system_message
+from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.addnodes import pending_xref, desc_signature
@@ -30,7 +31,10 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.cfamily import (
     NoOldIdError, ASTBase, verify_description_mode, StringifyTransform,
-    BaseParser, DefinitionError, identifier_re, anon_identifier_re
+    BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
+    identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
+    hex_literal_re, binary_literal_re, float_literal_re,
+    char_literal_re
 )
 from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
@@ -48,6 +52,24 @@ _keywords = [
     '_Noreturn', 'noreturn', '_Static_assert', 'static_assert',
     '_Thread_local', 'thread_local',
 ]
+
+# these are ordered by preceedence
+_expression_bin_ops = [
+    ['||'],
+    ['&&'],
+    ['|'],
+    ['^'],
+    ['&'],
+    ['==', '!='],
+    ['<=', '>=', '<', '>'],
+    ['<<', '>>'],
+    ['+', '-'],
+    ['*', '/', '%'],
+    ['.*', '->*']
+]
+_expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "~"]
+_expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
+                              ">>=", "<<=", "&=", "^=", "|="]
 
 _max_id = 1
 _id_prefix = [None, 'c.', 'Cv2.']
@@ -69,7 +91,307 @@ class _DuplicateSymbolError(Exception):
         return "Internal C duplicate symbol error:\n%s" % self.symbol.dump(0)
 
 
-##############################################################################################
+################################################################################
+# Expressions and Literals
+################################################################################
+
+class ASTBooleanLiteral(ASTBase):
+    def __init__(self, value: bool) -> None:
+        self.value = value
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        if self.value:
+            return 'true'
+        else:
+            return 'false'
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text(str(self)))
+
+
+class ASTNumberLiteral(ASTBase):
+    def __init__(self, data: str) -> None:
+        self.data = data
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return self.data
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        txt = str(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTCharLiteral(ASTBase):
+    def __init__(self, prefix: str, data: str) -> None:
+        self.prefix = prefix  # may be None when no prefix
+        self.data = data
+        decoded = data.encode().decode('unicode-escape')
+        if len(decoded) == 1:
+            self.value = ord(decoded)
+        else:
+            raise UnsupportedMultiCharacterCharLiteral(decoded)
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        if self.prefix is None:
+            return "'" + self.data + "'"
+        else:
+            return self.prefix + "'" + self.data + "'"
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        txt = str(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTStringLiteral(ASTBase):
+    def __init__(self, data: str) -> None:
+        self.data = data
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return self.data
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        txt = str(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTParenExpr(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return '(' + transform(self.expr) + ')'
+
+    def get_id(self, version: int) -> str:
+        return self.expr.get_id(version)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('(', '('))
+        self.expr.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')', ')'))
+
+
+class ASTBinOpExpr(ASTBase):
+    def __init__(self, exprs, ops):
+        assert len(exprs) > 0
+        assert len(exprs) == len(ops) + 1
+        self.exprs = exprs
+        self.ops = ops
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = []
+        res.append(transform(self.exprs[0]))
+        for i in range(1, len(self.exprs)):
+            res.append(' ')
+            res.append(self.ops[i - 1])
+            res.append(' ')
+            res.append(transform(self.exprs[i]))
+        return ''.join(res)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        self.exprs[0].describe_signature(signode, mode, env, symbol)
+        for i in range(1, len(self.exprs)):
+            signode.append(nodes.Text(' '))
+            signode.append(nodes.Text(self.ops[i - 1]))
+            signode.append(nodes.Text(' '))
+            self.exprs[i].describe_signature(signode, mode, env, symbol)
+
+
+class ASTAssignmentExpr(ASTBase):
+    def __init__(self, exprs, ops):
+        assert len(exprs) > 0
+        assert len(exprs) == len(ops) + 1
+        self.exprs = exprs
+        self.ops = ops
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = []
+        res.append(transform(self.exprs[0]))
+        for i in range(1, len(self.exprs)):
+            res.append(' ')
+            res.append(self.ops[i - 1])
+            res.append(' ')
+            res.append(transform(self.exprs[i]))
+        return ''.join(res)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        self.exprs[0].describe_signature(signode, mode, env, symbol)
+        for i in range(1, len(self.exprs)):
+            signode.append(nodes.Text(' '))
+            signode.append(nodes.Text(self.ops[i - 1]))
+            signode.append(nodes.Text(' '))
+            self.exprs[i].describe_signature(signode, mode, env, symbol)
+
+
+class ASTCastExpr(ASTBase):
+    def __init__(self, typ, expr):
+        self.typ = typ
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = ['(']
+        res.append(transform(self.typ))
+        res.append(')')
+        res.append(transform(self.expr))
+        return ''.join(res)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('('))
+        self.typ.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+        self.expr.describe_signature(signode, mode, env, symbol)
+
+
+class ASTUnaryOpExpr(ASTBase):
+    def __init__(self, op, expr):
+        self.op = op
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return transform(self.op) + transform(self.expr)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text(self.op))
+        self.expr.describe_signature(signode, mode, env, symbol)
+
+
+class ASTSizeofType(ASTBase):
+    def __init__(self, typ):
+        self.typ = typ
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return "sizeof(" + transform(self.typ) + ")"
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('sizeof('))
+        self.typ.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTSizeofExpr(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return "sizeof " + transform(self.expr)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('sizeof '))
+        self.expr.describe_signature(signode, mode, env, symbol)
+
+
+class ASTAlignofExpr(ASTBase):
+    def __init__(self, typ):
+        self.typ = typ
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return "alignof(" + transform(self.typ) + ")"
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('alignof('))
+        self.typ.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTPostfixCallExpr(ASTBase):
+    def __init__(self, lst: Union["ASTParenExprList", "ASTBracedInitList"]) -> None:
+        self.lst = lst
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return transform(self.lst)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        self.lst.describe_signature(signode, mode, env, symbol)
+
+
+class ASTPostfixArray(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return '[' + transform(self.expr) + ']'
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('['))
+        self.expr.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(']'))
+
+
+class ASTPostfixInc(ASTBase):
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return '++'
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('++'))
+
+
+class ASTPostfixDec(ASTBase):
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return '--'
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('--'))
+
+
+class ASTPostfixMember(ASTBase):
+    def __init__(self, name):
+        self.name = name
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return '.' + transform(self.name)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('.'))
+        self.name.describe_signature(signode, 'noneIsName', env, symbol)
+
+
+class ASTPostfixMemberOfPointer(ASTBase):
+    def __init__(self, name):
+        self.name = name
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return '->' + transform(self.name)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode.append(nodes.Text('->'))
+        self.name.describe_signature(signode, 'noneIsName', env, symbol)
+
+
+class ASTPostfixExpr(ASTBase):
+    def __init__(self, prefix, postFixes):
+        assert len(postFixes) > 0
+        self.prefix = prefix
+        self.postFixes = postFixes
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = [transform(self.prefix)]
+        for p in self.postFixes:
+            res.append(transform(p))
+        return ''.join(res)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        self.prefix.describe_signature(signode, mode, env, symbol)
+        for p in self.postFixes:
+            p.describe_signature(signode, mode, env, symbol)
+
 
 class ASTFallbackExpr(ASTBase):
     def __init__(self, expr):
@@ -452,7 +774,9 @@ class ASTDeclaratorPtr(ASTBase):
         return self.next.function_params
 
     def require_space_after_declSpecs(self) -> bool:
-        return True
+        return self.const or self.volatile or self.restrict or \
+            len(self.attrs) > 0 or \
+            self.next.require_space_after_declSpecs()
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['*']
@@ -598,9 +922,7 @@ class ASTDeclaratorNameBitField(ASTBase):
         if self.declId:
             res.append(transform(self.declId))
         res.append(" : ")
-        # TODO: when size is properly parsed
-        # res.append(transform(self.size))
-        res.append(self.size)
+        res.append(transform(self.size))
         return ''.join(res)
 
     def describe_signature(self, signode: desc_signature, mode: str,
@@ -609,9 +931,56 @@ class ASTDeclaratorNameBitField(ASTBase):
         if self.declId:
             self.declId.describe_signature(signode, mode, env, symbol)
         signode += nodes.Text(' : ', ' : ')
-        # TODO: when size is properly parsed
-        # self.size.describe_signature(signode, mode, env, symbol)
+        self.size.describe_signature(signode, mode, env, symbol)
         signode += nodes.Text(self.size, self.size)
+
+
+class ASTParenExprList(ASTBase):
+    def __init__(self, exprs: List[Any]) -> None:
+        self.exprs = exprs
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        exprs = [transform(e) for e in self.exprs]
+        return '(%s)' % ', '.join(exprs)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        verify_description_mode(mode)
+        signode.append(nodes.Text('('))
+        first = True
+        for e in self.exprs:
+            if not first:
+                signode.append(nodes.Text(', '))
+            else:
+                first = False
+            e.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTBracedInitList(ASTBase):
+    def __init__(self, exprs: List[Any], trailingComma: bool) -> None:
+        self.exprs = exprs
+        self.trailingComma = trailingComma
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        exprs = [transform(e) for e in self.exprs]
+        trailingComma = ',' if self.trailingComma else ''
+        return '{%s%s}' % (', '.join(exprs), trailingComma)
+
+    def describe_signature(self, signode: desc_signature, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        verify_description_mode(mode)
+        signode.append(nodes.Text('{'))
+        first = True
+        for e in self.exprs:
+            if not first:
+                signode.append(nodes.Text(', '))
+            else:
+                first = False
+            e.describe_signature(signode, mode, env, symbol)
+        if self.trailingComma:
+            signode.append(nodes.Text(','))
+        signode.append(nodes.Text('}'))
 
 
 class ASTInitializer(ASTBase):
@@ -1526,6 +1895,25 @@ class DefinitionParser(BaseParser):
 
     _prefix_keys = ('struct', 'enum', 'union')
 
+    def _parse_string(self):
+        if self.current_char != '"':
+            return None
+        startPos = self.pos
+        self.pos += 1
+        escape = False
+        while True:
+            if self.eof:
+                self.fail("Unexpected end during inside string.")
+            elif self.current_char == '"' and not escape:
+                self.pos += 1
+                break
+            elif self.current_char == '\\':
+                escape = True
+            else:
+                escape = False
+            self.pos += 1
+        return self.definition[startPos:self.pos]
+
     def _parse_attribute(self) -> Any:
         return None
         # self.skip_ws()
@@ -1586,23 +1974,340 @@ class DefinitionParser(BaseParser):
 
         return None
 
+    def _parse_literal(self):
+        # -> integer-literal
+        #  | character-literal
+        #  | floating-literal
+        #  | string-literal
+        #  | boolean-literal -> "false" | "true"
+        self.skip_ws()
+        if self.skip_word('true'):
+            return ASTBooleanLiteral(True)
+        if self.skip_word('false'):
+            return ASTBooleanLiteral(False)
+        for regex in [float_literal_re, binary_literal_re, hex_literal_re,
+                      integer_literal_re, octal_literal_re]:
+            pos = self.pos
+            if self.match(regex):
+                while self.current_char in 'uUlLfF':
+                    self.pos += 1
+                return ASTNumberLiteral(self.definition[pos:self.pos])
+
+        string = self._parse_string()
+        if string is not None:
+            return ASTStringLiteral(string)
+
+        # character-literal
+        if self.match(char_literal_re):
+            prefix = self.last_match.group(1)  # may be None when no prefix
+            data = self.last_match.group(2)
+            try:
+                return ASTCharLiteral(prefix, data)
+            except UnicodeDecodeError as e:
+                self.fail("Can not handle character literal. Internal error was: %s" % e)
+            except UnsupportedMultiCharacterCharLiteral:
+                self.fail("Can not handle character literal"
+                          " resulting in multiple decoded characters.")
+        return None
+
+    def _parse_paren_expression(self):
+        # "(" expression ")"
+        if self.current_char != '(':
+            return None
+        self.pos += 1
+        res = self._parse_expression()
+        self.skip_ws()
+        if not self.skip_string(')'):
+            self.fail("Expected ')' in end of parenthesized expression.")
+        return ASTParenExpr(res)
+
+    def _parse_primary_expression(self):
+        # literal
+        # "(" expression ")"
+        # id-expression -> we parse this with _parse_nested_name
+        self.skip_ws()
+        res = self._parse_literal()
+        if res is not None:
+            return res
+        res = self._parse_paren_expression()
+        if res is not None:
+            return res
+        return self._parse_nested_name()
+
+    def _parse_initializer_list(self, name: str, open: str, close: str
+                                ) -> Tuple[List[Any], bool]:
+        # Parse open and close with the actual initializer-list inbetween
+        # -> initializer-clause '...'[opt]
+        #  | initializer-list ',' initializer-clause '...'[opt]
+        # TODO: designators
+        self.skip_ws()
+        if not self.skip_string_and_ws(open):
+            return None, None
+        if self.skip_string(close):
+            return [], False
+
+        exprs = []
+        trailingComma = False
+        while True:
+            self.skip_ws()
+            expr = self._parse_expression()
+            self.skip_ws()
+            exprs.append(expr)
+            self.skip_ws()
+            if self.skip_string(close):
+                break
+            if not self.skip_string_and_ws(','):
+                self.fail("Error in %s, expected ',' or '%s'." % (name, close))
+            if self.current_char == close and close == '}':
+                self.pos += 1
+                trailingComma = True
+                break
+        return exprs, trailingComma
+
+    def _parse_paren_expression_list(self) -> ASTParenExprList:
+        # -> '(' expression-list ')'
+        # though, we relax it to also allow empty parens
+        # as it's needed in some cases
+        #
+        # expression-list
+        # -> initializer-list
+        exprs, trailingComma = self._parse_initializer_list("parenthesized expression-list",
+                                                            '(', ')')
+        if exprs is None:
+            return None
+        return ASTParenExprList(exprs)
+
+    def _parse_braced_init_list(self) -> ASTBracedInitList:
+        # -> '{' initializer-list ','[opt] '}'
+        #  | '{' '}'
+        exprs, trailingComma = self._parse_initializer_list("braced-init-list", '{', '}')
+        if exprs is None:
+            return None
+        return ASTBracedInitList(exprs, trailingComma)
+
+    def _parse_postfix_expression(self):
+        # -> primary
+        #  | postfix "[" expression "]"
+        #  | postfix "[" braced-init-list [opt] "]"
+        #  | postfix "(" expression-list [opt] ")"
+        #  | postfix "." id-expression
+        #  | postfix "->" id-expression
+        #  | postfix "++"
+        #  | postfix "--"
+
+        prefix = self._parse_primary_expression()
+
+        # and now parse postfixes
+        postFixes = []  # type: List[Any]
+        while True:
+            self.skip_ws()
+            if self.skip_string_and_ws('['):
+                expr = self._parse_expression()
+                self.skip_ws()
+                if not self.skip_string(']'):
+                    self.fail("Expected ']' in end of postfix expression.")
+                postFixes.append(ASTPostfixArray(expr))
+                continue
+            if self.skip_string('.'):
+                if self.skip_string('*'):
+                    # don't steal the dot
+                    self.pos -= 2
+                elif self.skip_string('..'):
+                    # don't steal the dot
+                    self.pos -= 3
+                else:
+                    name = self._parse_nested_name()
+                    postFixes.append(ASTPostfixMember(name))
+                    continue
+            if self.skip_string('->'):
+                if self.skip_string('*'):
+                    # don't steal the arrow
+                    self.pos -= 3
+                else:
+                    name = self._parse_nested_name()
+                    postFixes.append(ASTPostfixMemberOfPointer(name))
+                    continue
+            if self.skip_string('++'):
+                postFixes.append(ASTPostfixInc())
+                continue
+            if self.skip_string('--'):
+                postFixes.append(ASTPostfixDec())
+                continue
+            lst = self._parse_paren_expression_list()
+            if lst is not None:
+                postFixes.append(ASTPostfixCallExpr(lst))
+                continue
+            break
+        if len(postFixes) == 0:
+            return prefix
+        else:
+            return ASTPostfixExpr(prefix, postFixes)
+
+    def _parse_unary_expression(self):
+        # -> postfix
+        #  | "++" cast
+        #  | "--" cast
+        #  | unary-operator cast -> (* | & | + | - | ! | ~) cast
+        # The rest:
+        #  | "sizeof" unary
+        #  | "sizeof" "(" type-id ")"
+        #  | "alignof" "(" type-id ")"
+        self.skip_ws()
+        for op in _expression_unary_ops:
+            # TODO: hmm, should we be able to backtrack here?
+            if self.skip_string(op):
+                expr = self._parse_cast_expression()
+                return ASTUnaryOpExpr(op, expr)
+        if self.skip_word_and_ws('sizeof'):
+            if self.skip_string_and_ws('('):
+                typ = self._parse_type(named=False)
+                self.skip_ws()
+                if not self.skip_string(')'):
+                    self.fail("Expecting ')' to end 'sizeof'.")
+                return ASTSizeofType(typ)
+            expr = self._parse_unary_expression()
+            return ASTSizeofExpr(expr)
+        if self.skip_word_and_ws('alignof'):
+            if not self.skip_string_and_ws('('):
+                self.fail("Expecting '(' after 'alignof'.")
+            typ = self._parse_type(named=False)
+            self.skip_ws()
+            if not self.skip_string(')'):
+                self.fail("Expecting ')' to end 'alignof'.")
+            return ASTAlignofExpr(typ)
+        return self._parse_postfix_expression()
+
+    def _parse_cast_expression(self):
+        # -> unary  | "(" type-id ")" cast
+        pos = self.pos
+        self.skip_ws()
+        if self.skip_string('('):
+            try:
+                typ = self._parse_type(False)
+                if not self.skip_string(')'):
+                    self.fail("Expected ')' in cast expression.")
+                expr = self._parse_cast_expression()
+                return ASTCastExpr(typ, expr)
+            except DefinitionError as exCast:
+                self.pos = pos
+                try:
+                    return self._parse_unary_expression()
+                except DefinitionError as exUnary:
+                    errs = []
+                    errs.append((exCast, "If type cast expression"))
+                    errs.append((exUnary, "If unary expression"))
+                    raise self._make_multi_error(errs, "Error in cast expression.")
+        else:
+            return self._parse_unary_expression()
+
+    def _parse_logical_or_expression(self):
+        # logical-or     = logical-and      ||
+        # logical-and    = inclusive-or     &&
+        # inclusive-or   = exclusive-or     |
+        # exclusive-or   = and              ^
+        # and            = equality         &
+        # equality       = relational       ==, !=
+        # relational     = shift            <, >, <=, >=
+        # shift          = additive         <<, >>
+        # additive       = multiplicative   +, -
+        # multiplicative = pm               *, /, %
+        # pm             = cast             .*, ->*
+        def _parse_bin_op_expr(self, opId):
+            if opId + 1 == len(_expression_bin_ops):
+                def parser():
+                    return self._parse_cast_expression()
+            else:
+                def parser():
+                    return _parse_bin_op_expr(self, opId + 1)
+            exprs = []
+            ops = []
+            exprs.append(parser())
+            while True:
+                self.skip_ws()
+                pos = self.pos
+                oneMore = False
+                for op in _expression_bin_ops[opId]:
+                    if not self.skip_string(op):
+                        continue
+                    if op == '&' and self.current_char == '&':
+                        # don't split the && 'token'
+                        self.pos -= 1
+                        # and btw. && has lower precedence, so we are done
+                        break
+                    try:
+                        expr = parser()
+                        exprs.append(expr)
+                        ops.append(op)
+                        oneMore = True
+                        break
+                    except DefinitionError:
+                        self.pos = pos
+                if not oneMore:
+                    break
+            return ASTBinOpExpr(exprs, ops)
+        return _parse_bin_op_expr(self, 0)
+
+    def _parse_conditional_expression_tail(self, orExprHead):
+        # -> "?" expression ":" assignment-expression
+        return None
+
+    def _parse_assignment_expression(self):
+        # -> conditional-expression
+        #  | logical-or-expression assignment-operator initializer-clause
+        # -> conditional-expression ->
+        #     logical-or-expression
+        #   | logical-or-expression "?" expression ":" assignment-expression
+        #   | logical-or-expression assignment-operator initializer-clause
+        exprs = []
+        ops = []
+        orExpr = self._parse_logical_or_expression()
+        exprs.append(orExpr)
+        # TODO: handle ternary with _parse_conditional_expression_tail
+        while True:
+            oneMore = False
+            self.skip_ws()
+            for op in _expression_assignment_ops:
+                if not self.skip_string(op):
+                    continue
+                expr = self._parse_logical_or_expression()
+                exprs.append(expr)
+                ops.append(op)
+                oneMore = True
+            if not oneMore:
+                break
+        if len(ops) == 0:
+            return orExpr
+        else:
+            return ASTAssignmentExpr(exprs, ops)
+
+    def _parse_constant_expression(self):
+        # -> conditional-expression
+        orExpr = self._parse_logical_or_expression()
+        # TODO: use _parse_conditional_expression_tail
+        return orExpr
+
+    def _parse_expression(self):
+        # -> assignment-expression
+        #  | expression "," assignment-expresion
+        # TODO: actually parse the second production
+        return self._parse_assignment_expression()
+
     def _parse_expression_fallback(self, end, parser, allow=True):
         # Stupidly "parse" an expression.
         # 'end' should be a list of characters which ends the expression.
 
         # first try to use the provided parser
-        # TODO: copy-paste and adapt real expression parser
-        # prevPos = self.pos
-        # try:
-        #     return parser()
-        # except DefinitionError as e:
-        #     # some places (e.g., template parameters) we really don't want to use fallback,
-        #     # and for testing we may want to globally disable it
-        #     if not allow or not self.allowFallbackExpressionParsing:
-        #         raise
-        #     self.warn("Parsing of expression failed. Using fallback parser."
-        #               " Error was:\n%s" % e)
-        #     self.pos = prevPos
+        prevPos = self.pos
+        try:
+            return parser()
+        except DefinitionError as e:
+            # some places (e.g., template parameters) we really don't want to use fallback,
+            # and for testing we may want to globally disable it
+            if not allow or not self.allowFallbackExpressionParsing:
+                raise
+            self.warn("Parsing of expression failed. Using fallback parser."
+                      " Error was:\n%s" % e)
+            self.pos = prevPos
         # and then the fallback scanning
         assert end is not None
         self.skip_ws()
@@ -1831,7 +2536,7 @@ class DefinitionParser(BaseParser):
                     continue
 
                 def parser():
-                    return self._parse_expression(inTemplate=False)
+                    return self._parse_expression()
 
                 value = self._parse_expression_fallback([']'], parser)
                 if not self.skip_string(']'):
@@ -1846,9 +2551,7 @@ class DefinitionParser(BaseParser):
             if named and paramMode == 'type' and typed:
                 self.skip_ws()
                 if self.skip_string(':'):
-                    # TODO: copy-paste and adapt proper parser
-                    # size = self._parse_constant_expression(inTemplate=False)
-                    size = self.read_rest().strip()
+                    size = self._parse_constant_expression()
                     return ASTDeclaratorNameBitField(declId=declId, size=size)
         return ASTDeclaratorNameParam(declId=declId, arrayOps=arrayOps,
                                       param=param)
@@ -1939,10 +2642,9 @@ class DefinitionParser(BaseParser):
         if not self.skip_string('='):
             return None
 
-        # TODO: implement
-        # bracedInit = self._parse_braced_init_list()
-        # if bracedInit is not None:
-        #     return ASTInitializer(bracedInit)
+        bracedInit = self._parse_braced_init_list()
+        if bracedInit is not None:
+            return ASTInitializer(bracedInit)
 
         if outer == 'member':
             fallbackEnd = []  # type: List[str]
@@ -2077,7 +2779,7 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
 
             def parser():
-                return self._parse_constant_expression(inTemplate=False)
+                return self._parse_constant_expression()
 
             initVal = self._parse_expression_fallback([], parser)
             init = ASTInitializer(initVal)
@@ -2118,6 +2820,26 @@ class DefinitionParser(BaseParser):
         self.skip_string('()')
         self.assert_end()
         return name
+
+    def parse_expression(self):
+        pos = self.pos
+        try:
+            expr = self._parse_expression()
+            self.skip_ws()
+            self.assert_end()
+        except DefinitionError as exExpr:
+            self.pos = pos
+            try:
+                expr = self._parse_type(False)
+                self.skip_ws()
+                self.assert_end()
+            except DefinitionError as exType:
+                header = "Error when parsing (type) expression."
+                errs = []
+                errs.append((exExpr, "If expression"))
+                errs.append((exType, "If type"))
+                raise self._make_multi_error(errs, header)
+        return expr
 
 
 def _make_phony_error_name() -> ASTNestedName:
@@ -2365,6 +3087,44 @@ class CXRefRole(XRefRole):
         return title, target
 
 
+class CExprRole:
+    def __init__(self, asCode: bool) -> None:
+        if asCode:
+            # render the expression as inline code
+            self.class_type = 'c-expr'
+            self.node_type = nodes.literal  # type: Type[TextElement]
+        else:
+            # render the expression as inline text
+            self.class_type = 'c-texpr'
+            self.node_type = nodes.inline
+
+    def __call__(self, typ: str, rawtext: str, text: str, lineno: int,
+                 inliner: Inliner, options: Dict = {}, content: List[str] = []
+                 ) -> Tuple[List[Node], List[system_message]]:
+        class Warner:
+            def warn(self, msg: str) -> None:
+                inliner.reporter.warning(msg, line=lineno)
+        text = utils.unescape(text).replace('\n', ' ')
+        env = inliner.document.settings.env
+        parser = DefinitionParser(text, Warner())
+        # attempt to mimic XRefRole classes, except that...
+        classes = ['xref', 'c', self.class_type]
+        try:
+            ast = parser.parse_expression()
+        except DefinitionError as ex:
+            Warner().warn('Unparseable C expression: %r\n%s' % (text, ex))
+            # see below
+            return [self.node_type(text, text, classes=classes)], []
+        parentSymbol = env.temp_data.get('cpp:parent_symbol', None)
+        if parentSymbol is None:
+            parentSymbol = env.domaindata['c']['root_symbol']
+        # ...most if not all of these classes should really apply to the individual references,
+        # not the container node
+        signode = self.node_type(classes=classes)
+        ast.describe_signature(signode, 'markType', env, parentSymbol)
+        return [signode], []
+
+
 class CDomain(Domain):
     """C language domain."""
     name = 'c'
@@ -2399,6 +3159,8 @@ class CDomain(Domain):
         'enum': CXRefRole(),
         'enumerator': CXRefRole(),
         'type': CXRefRole(),
+        'expr': CExprRole(asCode=True),
+        'texpr': CExprRole(asCode=False)
     }
     initial_data = {
         'root_symbol': Symbol(None, None, None, None),

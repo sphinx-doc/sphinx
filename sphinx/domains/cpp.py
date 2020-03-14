@@ -36,7 +36,10 @@ from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
 from sphinx.util.cfamily import (
     NoOldIdError, ASTBase, verify_description_mode, StringifyTransform,
-    BaseParser, DefinitionError, identifier_re, anon_identifier_re
+    BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
+    identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
+    hex_literal_re, binary_literal_re, float_literal_re,
+    char_literal_re
 )
 from sphinx.util.docfields import Field, GroupedField
 from sphinx.util.docutils import SphinxDirective
@@ -295,37 +298,6 @@ T = TypeVar('T')
         grammar:
             nested-name
 """
-
-_integer_literal_re = re.compile(r'[1-9][0-9]*')
-_octal_literal_re = re.compile(r'0[0-7]*')
-_hex_literal_re = re.compile(r'0[xX][0-9a-fA-F][0-9a-fA-F]*')
-_binary_literal_re = re.compile(r'0[bB][01][01]*')
-_integer_suffix_re = re.compile(r'')
-_float_literal_re = re.compile(r'''(?x)
-    [+-]?(
-    # decimal
-      ([0-9]+[eE][+-]?[0-9]+)
-    | ([0-9]*\.[0-9]+([eE][+-]?[0-9]+)?)
-    | ([0-9]+\.([eE][+-]?[0-9]+)?)
-    # hex
-    | (0[xX][0-9a-fA-F]+[pP][+-]?[0-9a-fA-F]+)
-    | (0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+([pP][+-]?[0-9a-fA-F]+)?)
-    | (0[xX][0-9a-fA-F]+\.([pP][+-]?[0-9a-fA-F]+)?)
-    )
-''')
-_char_literal_re = re.compile(r'''(?x)
-    ((?:u8)|u|U|L)?
-    '(
-      (?:[^\\'])
-    | (\\(
-        (?:['"?\\abfnrtv])
-      | (?:[0-7]{1,3})
-      | (?:x[0-9a-fA-F]{2})
-      | (?:u[0-9a-fA-F]{4})
-      | (?:U[0-9a-fA-F]{8})
-      ))
-    )'
-''')
 
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
@@ -714,15 +686,6 @@ class ASTNumberLiteral(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         txt = str(self)
         signode.append(nodes.Text(txt, txt))
-
-
-class UnsupportedMultiCharacterCharLiteral(Exception):
-    @property
-    def decoded(self) -> str:
-        warnings.warn('%s.decoded is deprecated. '
-                      'Coerce the instance to a string instead.' % self.__class__.__name__,
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return str(self)
 
 
 class ASTCharLiteral(ASTBase):
@@ -4561,8 +4524,8 @@ class DefinitionParser(BaseParser):
             return ASTBooleanLiteral(True)
         if self.skip_word('false'):
             return ASTBooleanLiteral(False)
-        for regex in [_float_literal_re, _binary_literal_re, _hex_literal_re,
-                      _integer_literal_re, _octal_literal_re]:
+        for regex in [float_literal_re, binary_literal_re, hex_literal_re,
+                      integer_literal_re, octal_literal_re]:
             pos = self.pos
             if self.match(regex):
                 while self.current_char in 'uUlLfF':
@@ -4574,7 +4537,7 @@ class DefinitionParser(BaseParser):
             return ASTStringLiteral(string)
 
         # character-literal
-        if self.match(_char_literal_re):
+        if self.match(char_literal_re):
             prefix = self.last_match.group(1)  # may be None when no prefix
             data = self.last_match.group(2)
             try:

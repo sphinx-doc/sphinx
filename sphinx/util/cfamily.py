@@ -31,6 +31,35 @@ identifier_re = re.compile(r'''(?x)
     )
     [a-zA-Z0-9_]*\b
 ''')
+integer_literal_re = re.compile(r'[1-9][0-9]*')
+octal_literal_re = re.compile(r'0[0-7]*')
+hex_literal_re = re.compile(r'0[xX][0-9a-fA-F][0-9a-fA-F]*')
+binary_literal_re = re.compile(r'0[bB][01][01]*')
+float_literal_re = re.compile(r'''(?x)
+    [+-]?(
+    # decimal
+      ([0-9]+[eE][+-]?[0-9]+)
+    | ([0-9]*\.[0-9]+([eE][+-]?[0-9]+)?)
+    | ([0-9]+\.([eE][+-]?[0-9]+)?)
+    # hex
+    | (0[xX][0-9a-fA-F]+[pP][+-]?[0-9a-fA-F]+)
+    | (0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+([pP][+-]?[0-9a-fA-F]+)?)
+    | (0[xX][0-9a-fA-F]+\.([pP][+-]?[0-9a-fA-F]+)?)
+    )
+''')
+char_literal_re = re.compile(r'''(?x)
+    ((?:u8)|u|U|L)?
+    '(
+      (?:[^\\'])
+    | (\\(
+        (?:['"?\\abfnrtv])
+      | (?:[0-7]{1,3})
+      | (?:x[0-9a-fA-F]{2})
+      | (?:u[0-9a-fA-F]{4})
+      | (?:U[0-9a-fA-F]{8})
+      ))
+    )'
+''')
 
 
 def verify_description_mode(mode: str) -> None:
@@ -77,6 +106,15 @@ class ASTBase:
 
     def __repr__(self) -> str:
         return '<%s>' % self.__class__.__name__
+
+
+class UnsupportedMultiCharacterCharLiteral(Exception):
+    @property
+    def decoded(self) -> str:
+        warnings.warn('%s.decoded is deprecated. '
+                      'Coerce the instance to a string instead.' % self.__class__.__name__,
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return str(self)
 
 
 class DefinitionError(Exception):
