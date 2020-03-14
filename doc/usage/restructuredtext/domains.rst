@@ -552,6 +552,15 @@ The C Domain
 
 The C domain (name **c**) is suited for documentation of C API.
 
+.. rst:directive:: .. c:member:: declaration
+                   .. c:var:: declaration
+
+   Describes a C struct member or variable. Example signature::
+
+      .. c:member:: PyObject *PyTypeObject.tp_bases
+
+   The difference between the two directives is only cosmetic.
+
 .. rst:directive:: .. c:function:: function prototype
 
    Describes a C function. The signature should be given as in C, e.g.::
@@ -561,18 +570,38 @@ The C domain (name **c**) is suited for documentation of C API.
    Note that you don't have to backslash-escape asterisks in the signature, as
    it is not parsed by the reST inliner.
 
-.. rst:directive:: .. c:member:: declaration
-                   .. c:var:: declaration
-
-   Describes a C struct member or variable. Example signature::
-
-      .. c:member:: PyObject *PyTypeObject.tp_bases
-
 .. rst:directive:: .. c:macro:: name
                    .. c:macro:: name(arg list)
 
    Describes a C macro, i.e., a C-language ``#define``, without the replacement
    text.
+
+   .. versionadded:: 3.0
+      The function style variant.
+
+.. rst:directive:: .. c:struct:: name
+
+   Describes a C struct.
+
+   .. versionadded:: 3.0
+
+.. rst:directive:: .. c:union:: name
+
+   Describes a C union.
+
+   .. versionadded:: 3.0
+
+.. rst:directive:: .. c:enum:: name
+
+   Describes a C enum.
+
+   .. versionadded:: 3.0
+
+.. rst:directive:: .. c:enumerator:: name
+
+   Describes a C enumerator.
+
+   .. versionadded:: 3.0
 
 .. rst:directive:: .. c:type:: typedef-like declaration
                    .. c:type:: name
@@ -588,22 +617,61 @@ Cross-referencing C constructs
 The following roles create cross-references to C-language constructs if they
 are defined in the documentation:
 
-.. rst:role:: c:func
-
-   Reference a C-language function. Should include trailing parentheses.
-
 .. rst:role:: c:member
               c:data
+              c:var
+              c:func
+              c:macro
+              c:struct
+              c:union
+              c:enum
+              c:enumerator
+              c:type
 
-   Reference a C-language member of a struct or variable.
+   Reference a C declaration, as defined above.
+   Note that :rst:role:`c:member`, :rst:role:`c:data`, and
+   :rst:role:`c:var` are equivalent.
 
-.. rst:role:: c:macro
+   .. versionadded:: 3.0
+      The var, struct, union, enum, and enumerator roles.
 
-   Reference a simple C macro, as defined above.
 
-.. rst:role:: c:type
+Anonymous Entities
+~~~~~~~~~~~~~~~~~~
 
-   Reference a C-language type.
+C supports anonymous structs, enums, and unions.
+For the sake of documentation they must be given some name that starts with
+``@``, e.g., ``@42`` or ``@data``.
+These names can also be used in cross-references,
+though nested symbols will be found even when omitted.
+The ``@...`` name will always be rendered as **[anonymous]** (possibly as a
+link).
+
+Example::
+
+   .. c:struct:: Data
+
+      .. c:union:: @data
+
+         .. c:var:: int a
+
+         .. c:var:: double b
+
+   Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
+
+This will be rendered as:
+
+.. c:struct:: Data
+
+   .. c:union:: @data
+
+      .. c:var:: int a
+
+      .. c:var:: double b
+
+Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
+
+.. versionadded:: 3.0
 
 
 .. _cpp-domain:

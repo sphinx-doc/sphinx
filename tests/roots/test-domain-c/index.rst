@@ -7,11 +7,32 @@ directives
 .. c:function:: int hello(char *name)
 
 .. c:member:: float Sphinx.version
+.. c:var:: int version
 
 .. c:macro::  IS_SPHINX
-
 .. c:macro::  SPHINX(arg1, arg2)
 
-.. c:type:: Sphinx
+.. c:struct:: MyStruct
+.. c:union:: MyUnion
+.. c:enum:: MyEnum
 
-.. c:var:: int version
+   .. c:enumerator:: MyEnumerator
+
+      :c:enumerator:`MyEnumerator`
+
+   :c:enumerator:`MyEnumerator`
+
+:c:enumerator:`MyEnumerator`
+
+.. c:type:: Sphinx
+.. c:type:: int SphinxVersionNum
+
+
+.. c:struct:: A
+
+   .. c:union:: @data
+
+      .. c:member:: int a
+
+- :c:member:`A.@data.a`
+- :c:member:`A.a`

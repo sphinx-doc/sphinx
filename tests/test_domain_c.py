@@ -246,9 +246,6 @@ def test_expressions():
 
 def test_type_definitions():
     check('type', "T", {1: "T"})
-    check('type', "struct T", {1: 'T'})
-    check('type', "enum T", {1: 'T'})
-    check('type', "union T", {1: 'T'})
 
     check('type', "bool *b", {1: 'b'})
     check('type', "bool *const b", {1: 'b'})
@@ -301,9 +298,6 @@ def test_member_definitions():
     check('member', 'restrict volatile const int a', {1: 'a'})
 
     check('member', 'T t', {1: 't'})
-    check('member', 'struct T t', {1: 't'})
-    check('member', 'enum T t', {1: 't'})
-    check('member', 'union T t', {1: 't'})
 
     check('member', 'int a[]', {1: 'a'})
 
@@ -376,20 +370,18 @@ def test_function_definitions():
 
 
 def test_union_definitions():
-    return  # TODO
-    check('union', 'A', {2: "1A"})
+    check('struct', 'A', {1: 'A'})
+
+
+def test_union_definitions():
+    check('union', 'A', {1: 'A'})
 
 
 def test_enum_definitions():
-    return  # TODO
-    check('enum', 'A', {2: "1A"})
-    check('enum', 'A : std::underlying_type<B>::type', {2: "1A"})
-    check('enum', 'A : unsigned int', {2: "1A"})
-    check('enum', 'public A', {2: "1A"}, output='A')
-    check('enum', 'private A', {2: "1A"})
+    check('enum', 'A', {1: 'A'})
 
-    check('enumerator', 'A', {2: "1A"})
-    check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
+    check('enumerator', 'A', {1: 'A'})
+    check('enumerator', 'A = 42', {1: 'A'})
 
 
 def test_anon_definitions():
