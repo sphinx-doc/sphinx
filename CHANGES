@@ -25,7 +25,7 @@ Incompatible changes
 * Due to the scoping changes for :rst:dir:`productionlist` some uses of
   :rst:role:`token` must be modified to include the scope which was previously
   ignored.
-* #6903: Internal data structure of C, Python, reST and standard domains have
+* #6903: Internal data structure of Python, reST and standard domains have
   changed.  The node_id is added to the index of objects and modules.  Now they
   contains a pair of docname and node_id for cross reference.
 * #7276: C++ domain: Non intended behavior is removed such as ``say_hello_``
@@ -38,6 +38,8 @@ Incompatible changes
   links to ``.. py:function:: say_hello()``
 * #7246: py domain: Drop special cross reference helper for exceptions,
   functions and methods
+* The C domain has been rewritten, with additional directives and roles.
+  The existing ones are now more strict, resulting in new warnings.
 
 Deprecated
 ----------
@@ -91,6 +93,14 @@ Features added
   using ``:nosearch:`` file-wide metadata
 * #7142: html theme: Add a theme option: ``pygments_dark_style`` to switch the
   style of code-blocks in dark mode
+* The C domain has been rewritten adding for example:
+
+  - Cross-referencing respecting the current scope.
+  - Possible to document anonymous entities.
+  - More specific directives and roles for each type of entitiy,
+    e.g., handling scoping of enumerators.
+  - New role :rst:role:`c:expr` for rendering expressions and types
+    in text.
 
 Bugs fixed
 ----------
@@ -109,6 +119,8 @@ Bugs fixed
   ``html_link_suffix`` in search results
 * #7179: std domain: Fix whitespaces are suppressed on referring GenericObject
 * #7289: console: use bright colors instead of bold
+* #1539: C, parse array types.
+* #2377: C, parse function pointers even in complex types.
 
 Testing
 --------
