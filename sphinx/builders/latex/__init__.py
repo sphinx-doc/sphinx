@@ -129,6 +129,7 @@ class LaTeXBuilder(Builder):
         self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
         self.themes = ThemeFactory(self.app)
         self.usepackages = self.app.registry.latex_packages
+        self.usepackages_after_hyperref = self.app.registry.latex_packages_after_hyperref
         texescape.init()
 
         self.init_context()
@@ -180,6 +181,7 @@ class LaTeXBuilder(Builder):
 
         # Apply extension settings to context
         self.context['packages'] = self.usepackages
+        self.context['packages_after_hyperref'] = self.usepackages_after_hyperref
 
         # Apply user settings to context
         self.context.update(self.config.latex_elements)

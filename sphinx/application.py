@@ -968,12 +968,14 @@ class Sphinx:
 
         self.add_css_file(filename, **attributes)
 
-    def add_latex_package(self, packagename: str, options: str = None) -> None:
+    def add_latex_package(self, packagename: str, options: str = None,
+                          after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
 
         Add *packagename* to the list of packages that LaTeX source code will
         include.  If you provide *options*, it will be taken to `\usepackage`
-        declaration.
+        declaration.  If you set *after_hyperref* truthy, the package will be
+        loaded after ``hyperref`` package.
 
         .. code-block:: python
 
@@ -983,8 +985,11 @@ class Sphinx:
            # => \usepackage[foo,bar]{mypackage}
 
         .. versionadded:: 1.3
+        .. versionadded:: 3.1
+
+           *after_hyperref* option.
         """
-        self.registry.add_latex_package(packagename, options)
+        self.registry.add_latex_package(packagename, options, after_hyperref)
 
     def add_lexer(self, alias: str, lexer: Union[Lexer, "Type[Lexer]"]) -> None:
         """Register a new lexer for source code.
