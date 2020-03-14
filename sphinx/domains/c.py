@@ -1889,8 +1889,9 @@ class Symbol:
 class DefinitionParser(BaseParser):
     # those without signedness and size modifiers
     # see https://en.cppreference.com/w/cpp/language/types
-    _simple_fundemental_types = (
+    _simple_fundamental_types = (
         'void', '_Bool', 'bool', 'char', 'int', 'float', 'double',
+        '__int64',
     )
 
     _prefix_keys = ('struct', 'enum', 'union')
@@ -2357,9 +2358,9 @@ class DefinitionParser(BaseParser):
         return ASTNestedName(names, rooted)
 
     def _parse_trailing_type_spec(self) -> Any:
-        # fundemental types
+        # fundamental types
         self.skip_ws()
-        for t in self._simple_fundemental_types:
+        for t in self._simple_fundamental_types:
             if self.skip_word(t):
                 return ASTTrailingTypeSpecFundamental(t)
 
@@ -2382,6 +2383,8 @@ class DefinitionParser(BaseParser):
             elements.append('int')
         elif self.skip_word_and_ws('double'):
             elements.append('double')
+        elif self.skip_word_and_ws('__int64'):
+            elements.append('__int64')
         if len(elements) > 0:
             return ASTTrailingTypeSpecFundamental(' '.join(elements))
 
@@ -3205,6 +3208,9 @@ class CDomain(Domain):
             print(self.data['root_symbol'].dump(0))
             print("process_doc end:", docname)
 
+    def process_field_xref(self, pnode: pending_xref) -> None:
+        pnode.attributes.update(self.env.ref_context)
+
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         if Symbol.debug_show_tree:
             print("merge_domaindata:")
@@ -3238,13 +3244,6 @@ class CDomain(Domain):
                     logger.warning(msg, location=node)
 
         warner = Warner()
-
-        # strip pointer asterisk
-        target = target.rstrip(' *')
-
-        # becase TypedField can generate xrefs
-        if target in _keywords:
-            raise NoUri(target, typ)
 
         parser = DefinitionParser(target, warner)
         try:

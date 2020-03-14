@@ -6,6 +6,12 @@ directives
 
 .. c:function:: int hello(char *name)
 
+   :rtype: int
+
+.. c:function:: MyStruct hello2(char *name)
+
+   :rtype: MyStruct
+
 .. c:member:: float Sphinx.version
 .. c:var:: int version
 

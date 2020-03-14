@@ -108,6 +108,8 @@ def test_expressions():
     exprCheck('int *restrict*')
     exprCheck('int *(*)(double)')
     exprCheck('const int*')
+    exprCheck('__int64')
+    exprCheck('unsigned __int64')
 
     # actual expressions
 
@@ -260,6 +262,8 @@ def test_member_definitions():
     check('member', 'double a', {1: 'a'})
 
     check('member', 'unsigned long a', {1: 'a'})
+    check('member', '__int64 a', {1: 'a'})
+    check('member', 'unsigned __int64 a', {1: 'a'})
 
     check('member', 'int .a', {1: 'a'})
 
