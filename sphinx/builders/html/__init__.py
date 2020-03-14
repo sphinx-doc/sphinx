@@ -218,7 +218,6 @@ class StandaloneHTMLBuilder(Builder):
 
         self.init_templates()
         self.init_highlighter()
-        self.init_aux_highlighters()
         self.init_css_files()
         self.init_js_files()
 
@@ -281,16 +280,11 @@ class StandaloneHTMLBuilder(Builder):
 
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
+            self.add_css_file('pygments_dark.css',
+                              media='(prefers-color-scheme: dark)',
+                              id='pygments_dark_css')
         else:
             self.dark_highlighter = None
-
-    def init_aux_highlighters(self) -> None:
-        self.aux_highlighters = \
-            {}  # type: Dict[str, Tuple[PygmentsBridge, Union[str, Iterable[str]]]]
-
-        if self.theme and self.theme.config.has_section('auxiliary_styles'):
-            for style, css_selector in self.theme.config.items('options'):
-                self.aux_highlighters[style] = (PygmentsBridge('html', style), css_selector)
 
     def init_css_files(self) -> None:
         for filename, attrs in self.app.registry.css_files:
@@ -742,16 +736,6 @@ class StandaloneHTMLBuilder(Builder):
         if self.dark_highlighter:
             with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
                 f.write(self.dark_highlighter.get_stylesheet())
-            self.add_css_file('pygments_dark.css',
-                              media='(prefers-color-scheme: dark)',
-                              id='pygments_dark_css')
-
-    def create_pygments_aux_style_files(self) -> None:
-        """create a style file for pygments."""
-        for style, (highlighter, css_selector) in self.aux_highlighters.items():
-            filename = 'pygments-%s.css' % style
-            with open(path.join(self.outdir, '_static', filename), 'w') as f:
-                f.write(highlighter.get_stylesheet(css_selector=css_selector))
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
@@ -802,7 +786,6 @@ class StandaloneHTMLBuilder(Builder):
                     context.update(self.indexer.context_for_searchtool())
 
                 self.create_pygments_style_file()
-                self.create_pygments_aux_style_files()
                 self.copy_translation_js()
                 self.copy_stemmer_js()
                 self.copy_theme_static_files(context)
