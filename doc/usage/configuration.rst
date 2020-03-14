@@ -939,6 +939,13 @@ that use Sphinx's HTMLWriter class.
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
 
+.. confval:: html_pygments_dark_style
+
+   The style name to use for an additional Pygments stylesheet similar to
+   :confval:`pygments_style` . If not set and the theme defines a default
+   ``'pygments_dark_style'`` it will be used, otherwise no additional style
+   will be generated. See :doc:`/usage/theming` for further information.
+
 .. confval:: html_css_files
 
    A list of CSS files.  The entry must be a *filename* string or a tuple
