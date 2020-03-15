@@ -40,6 +40,8 @@ Incompatible changes
   functions and methods
 * The C domain has been rewritten, with additional directives and roles.
   The existing ones are now more strict, resulting in new warnings.
+* The attribute ``sphinx_cpp_tagname`` in the ``desc_signature_line`` node
+  has been renamed to ``sphinx_line_type``.
 
 Deprecated
 ----------

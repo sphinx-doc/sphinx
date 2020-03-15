@@ -1,10 +1,10 @@
 """
     sphinx.util.cfamily
-    ~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~
 
     Utility functions common to the C and C++ domains.
 
-    :copyright: Copyright 2020-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,7 @@ import re
 import warnings
 from copy import deepcopy
 from typing import (
-    Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Type, TypeVar, Union
+    Any, Callable, List, Match, Pattern, Tuple
 )
 
 from sphinx.deprecation import RemovedInSphinx40Warning

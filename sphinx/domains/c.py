@@ -10,7 +10,7 @@
 
 import re
 from typing import (
-    Any, Callable, Dict, Iterator, List, Tuple, Type, Union
+    Any, Callable, Dict, Iterator, List, Type, Tuple, Union
 )
 from typing import cast
 
@@ -25,7 +25,6 @@ from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
-from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
@@ -1220,7 +1219,7 @@ class ASTDeclaration(ASTBase):
         signode['is_multiline'] = True
         # Put each line in a desc_signature_line node.
         mainDeclNode = addnodes.desc_signature_line()
-        mainDeclNode.sphinx_c_tagname = 'declarator'
+        mainDeclNode.sphinx_line_type = 'declarator'
         mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
         signode += mainDeclNode
 

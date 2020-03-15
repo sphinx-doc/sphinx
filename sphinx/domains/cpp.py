@@ -9,9 +9,8 @@
 """
 
 import re
-import warnings
 from typing import (
-    Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Type, TypeVar, Union
+    Any, Callable, Dict, Iterator, List, Tuple, Type, TypeVar, Union
 )
 
 from docutils import nodes, utils
@@ -24,7 +23,6 @@ from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
@@ -70,7 +68,7 @@ T = TypeVar('T')
 
     Each signature is in a desc_signature node, where all children are
     desc_signature_line nodes. Each of these lines will have the attribute
-    'sphinx_cpp_tagname' set to one of the following (prioritized):
+    'sphinx_line_type' set to one of the following (prioritized):
     - 'declarator', if the line contains the name of the declared object.
     - 'templateParams', if the line starts a template parameter list,
     - 'templateParams', if the line has template parameters
@@ -1604,7 +1602,7 @@ class ASTTemplateParams(ASTBase):
         def makeLine(parentNode: desc_signature = parentNode) -> addnodes.desc_signature_line:
             signode = addnodes.desc_signature_line()
             parentNode += signode
-            signode.sphinx_cpp_tagname = 'templateParams'
+            signode.sphinx_line_type = 'templateParams'
             return signode
         if self.isNested:
             lineNode = parentNode  # type: Element
@@ -1713,7 +1711,7 @@ class ASTTemplateIntroduction(ASTBase):
         # Note: 'lineSpec' has no effect on template introductions.
         signode = addnodes.desc_signature_line()
         parentNode += signode
-        signode.sphinx_cpp_tagname = 'templateIntroduction'
+        signode.sphinx_line_type = 'templateIntroduction'
         self.concept.describe_signature(signode, 'markType', env, symbol)
         signode += nodes.Text('{')
         first = True
@@ -3416,7 +3414,7 @@ class ASTDeclaration(ASTBase):
         signode['is_multiline'] = True
         # Put each line in a desc_signature_line node.
         mainDeclNode = addnodes.desc_signature_line()
-        mainDeclNode.sphinx_cpp_tagname = 'declarator'
+        mainDeclNode.sphinx_line_type = 'declarator'
         mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
 
         if self.templatePrefix:
