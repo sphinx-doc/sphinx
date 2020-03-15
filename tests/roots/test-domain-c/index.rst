@@ -4,7 +4,7 @@ test-domain-c
 directives
 ----------
 
-.. c:function:: int hello(char *name)
+.. c:function:: int hello(const char *name)
 
    :rtype: int
 

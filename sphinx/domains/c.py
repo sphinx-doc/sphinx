@@ -655,10 +655,7 @@ class ASTDeclSpecsSimple(ASTBase):
         def _add(modifiers: List[Node], text: str) -> None:
             if len(modifiers) > 0:
                 modifiers.append(nodes.Text(' '))
-            # TODO: should probably do
-            # modifiers.append(addnodes.desc_annotation(text, text))
-            # but for now emulate the old output:
-            modifiers.append(nodes.Text(text))
+            modifiers.append(addnodes.desc_annotation(text, text))
 
         for attr in self.attrs:
             if len(modifiers) > 0:
