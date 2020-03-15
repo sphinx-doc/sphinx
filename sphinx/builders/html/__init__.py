@@ -271,6 +271,19 @@ class StandaloneHTMLBuilder(Builder):
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
+        if self.theme:
+            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
+        else:
+            dark_style = None
+
+        if dark_style is not None:
+            self.dark_highlighter = PygmentsBridge('html', dark_style)
+            self.add_css_file('pygments_dark.css',
+                              media='(prefers-color-scheme: dark)',
+                              id='pygments_dark_css')
+        else:
+            self.dark_highlighter = None
+
     def init_css_files(self) -> None:
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
@@ -484,7 +497,7 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
-            'html5_doctype': html5_ready and not self.config.html4_writer
+            'html5_doctype': html5_ready and not self.config.html4_writer,
         }
         if self.theme:
             self.globalcontext.update(
@@ -718,6 +731,10 @@ class StandaloneHTMLBuilder(Builder):
         """create a style file for pygments."""
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
             f.write(self.highlighter.get_stylesheet())
+
+        if self.dark_highlighter:
+            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
+                f.write(self.dark_highlighter.get_stylesheet())
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
