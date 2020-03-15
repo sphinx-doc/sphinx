@@ -89,6 +89,8 @@ Features added
 * #7103: linkcheck: writes all links to ``output.json``
 * #7025: html search: full text search can be disabled for individual document
   using ``:nosearch:`` file-wide metadata
+* #7142: html theme: Add a theme option: ``pygments_dark_style`` to switch the
+  style of code-blocks in dark mode
 
 Bugs fixed
 ----------
