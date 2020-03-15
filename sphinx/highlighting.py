@@ -10,7 +10,7 @@
 
 from functools import partial
 from importlib import import_module
-from typing import Any, Dict, Union, Iterable
+from typing import Any, Dict
 
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -157,9 +157,9 @@ class PygmentsBridge:
             # MEMO: this is done to escape Unicode chars with non-Unicode engines
             return texescape.hlescape(hlsource, self.latex_engine)
 
-    def get_stylesheet(self, *, css_selector: Union[str, Iterable[str]] = '.highlight') -> str:
+    def get_stylesheet(self) -> str:
         formatter = self.get_formatter()
         if self.dest == 'html':
-            return formatter.get_style_defs(css_selector)
+            return formatter.get_style_defs('.highlight')
         else:
             return formatter.get_style_defs() + _LATEX_ADD_STYLES
