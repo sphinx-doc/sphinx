@@ -1215,8 +1215,14 @@ class ASTDeclaration(ASTBase):
                            env: "BuildEnvironment", options: Dict) -> None:
         verify_description_mode(mode)
         assert self.symbol
-
-        mainDeclNode = signode
+        # The caller of the domain added a desc_signature node.
+        # Always enable multiline:
+        signode['is_multiline'] = True
+        # Put each line in a desc_signature_line node.
+        mainDeclNode = addnodes.desc_signature_line()
+        mainDeclNode.sphinx_c_tagname = 'declarator'
+        mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
+        signode += mainDeclNode
 
         if self.objectType == 'member':
             pass
