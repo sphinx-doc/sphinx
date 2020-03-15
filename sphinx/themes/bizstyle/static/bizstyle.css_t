@@ -51,8 +51,12 @@ div.body {
 
 {%- if theme_rightsidebar|tobool %}
 div.bodywrapper {
-    margin: 0 240px 0 0;
+    margin: 0 calc({{ theme_sidebarwidth|todim }} + 30px) 0 0;
     border-right: 1px solid #ccc;
+}
+{%- else %}
+div.bodywrapper {
+    margin: 0 0 0 calc({{ theme_sidebarwidth|todim }} + 30px);
 }
 {%- endif %}
 
@@ -103,7 +107,7 @@ div.sphinxsidebarwrapper {
 div.sphinxsidebar {
     margin: 0;
     padding: 0.5em 12px 12px 12px;
-    width: 210px;
+    width: {{ theme_sidebarwidth|todim }};
     {%- if theme_rightsidebar|tobool %}
     float: right;
     {%- endif %}
