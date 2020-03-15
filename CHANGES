@@ -46,6 +46,7 @@ Deprecated
 * ``sphinx.directives.DescDirective``
 * ``sphinx.domains.std.StandardDomain.add_object()``
 * ``sphinx.domains.python.PyDecoratorMixin``
+* ``sphinx.ext.autodoc.get_documenters()``
 * ``sphinx.parsers.Parser.app``
 * ``sphinx.testing.path.Path.text()``
 * ``sphinx.testing.path.Path.bytes()``

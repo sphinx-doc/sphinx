@@ -18,7 +18,7 @@ from docutils.utils import Reporter, assemble_option_dict
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc import Documenter, Options, get_documenters
+from sphinx.ext.autodoc import Documenter, Options
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
@@ -129,7 +129,7 @@ class AutodocDirective(SphinxDirective):
 
         # look up target Documenter
         objtype = self.name[4:]  # strip prefix (auto-).
-        doccls = get_documenters(self.env.app)[objtype]
+        doccls = self.env.app.registry.documenters[objtype]
 
         # process the options with the selected documenter's option_spec
         try:
