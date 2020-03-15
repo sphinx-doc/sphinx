@@ -10,7 +10,7 @@
 
 import re
 from typing import (
-    Any, Callable, Dict, Iterator, List, Tuple, Union
+    Any, Callable, Dict, Iterator, List, Tuple, Type, Union
 )
 from typing import cast
 
@@ -569,7 +569,7 @@ class ASTFunctionParameter(ASTBase):
         else:
             return transform(self.arg)
 
-    def describe_signature(self, signode: desc_signature, mode: str,
+    def describe_signature(self, signode: Any, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         if self.ellipsis:
@@ -1479,7 +1479,7 @@ class Symbol:
             Symbol.debug_indent -= 2
 
     def _symbol_lookup(self, nestedName: ASTNestedName,
-                       onMissingQualifiedSymbol: Callable[["Symbol", ASTIdentifier, Any], "Symbol"],  # NOQA
+                       onMissingQualifiedSymbol: Callable[["Symbol", ASTIdentifier], "Symbol"],  # NOQA
                        ancestorLookupType: str, matchSelf: bool,
                        recurseInAnon: bool, searchInSiblings: bool) -> SymbolLookupResult:
         # TODO: further simplification from C++ to C
@@ -1507,18 +1507,11 @@ class Symbol:
             # walk up until we find the first identifier
             firstName = names[0]
             while parentSymbol.parent:
-                if parentSymbol.find_identifier(firstName.identifier,
+                if parentSymbol.find_identifier(firstName,
                                                 matchSelf=matchSelf,
                                                 recurseInAnon=recurseInAnon,
                                                 searchInSiblings=searchInSiblings):
-                    # if we are in the scope of a constructor but wants to
-                    # reference the class we need to walk one extra up
-                    if (len(names) == 1 and ancestorLookupType == 'class' and matchSelf and
-                            parentSymbol.parent and
-                            parentSymbol.parent.ident == firstName.ident):
-                        pass
-                    else:
-                        break
+                    break
                 parentSymbol = parentSymbol.parent
 
         if Symbol.debug_lookup:
@@ -2968,7 +2961,7 @@ class CObject(ObjectDescription):
         env.temp_data['c:last_symbol'] = None
         return super().run()
 
-    def handle_signature(self, sig: str, signode: desc_signature) -> str:
+    def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
         parentSymbol = self.env.temp_data['c:parent_symbol']  # type: Symbol
 
         parser = DefinitionParser(sig, self)
@@ -3168,7 +3161,7 @@ class CDomain(Domain):
     initial_data = {
         'root_symbol': Symbol(None, None, None, None),
         'objects': {},  # fullname -> docname, node_id, objtype
-    }  # type: Dict[str, Dict[str, Tuple[str, Any]]]
+    }  # type: Dict[str, Union[Symbol, Dict[str, Tuple[str, str, str]]]]
 
     @property
     def objects(self) -> Dict[str, Tuple[str, str, str]]:
