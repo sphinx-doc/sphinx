@@ -121,15 +121,16 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
 
     with open(outdir / 'a.b.c.rst') as f:
         rst = f.read()
-        assert ".. toctree::\n\n   a.b.c.d\n" in rst
+
+        assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.c.d\n" in rst
 
     with open(outdir / 'a.b.e.rst') as f:
         rst = f.read()
-        assert ".. toctree::\n\n   a.b.e.f\n" in rst
+        assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.e.f\n" in rst
 
     with open(outdir / 'a.b.x.rst') as f:
         rst = f.read()
-        assert ".. toctree::\n\n   a.b.x.y\n" in rst
+        assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.x.y\n" in rst
 
     app = make_app('text', srcdir=outdir)
     app.build()
@@ -485,6 +486,7 @@ def test_package_file(tempdir):
                        "-----------\n"
                        "\n"
                        ".. toctree::\n"
+                       "   :maxdepth: 4\n"
                        "\n"
                        "   testpkg.subpkg\n"
                        "\n"
@@ -546,6 +548,7 @@ def test_package_file_separate(tempdir):
                        "----------\n"
                        "\n"
                        ".. toctree::\n"
+                       "   :maxdepth: 4\n"
                        "\n"
                        "   testpkg.example\n"
                        "\n"
