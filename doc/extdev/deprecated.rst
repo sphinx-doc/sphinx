@@ -41,6 +41,16 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.parsers.rst.diretives.tables.RSTTable``
 
+   * - ``sphinx.util.pycompat.convert_with_2to3()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.execfile_()``
+     - 4.0
+     - 6.0
+     - N/A
+
    * - ``sphinx.util.smartypants``
      - 4.0
      - 6.0

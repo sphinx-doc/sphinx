@@ -16,6 +16,8 @@ Deprecated
 * ``sphinx.directives.patches.CSVTable``
 * ``sphinx.directives.patches.ListTable``
 * ``sphinx.directives.patches.RSTTable``
+* ``sphinx.util.pycompat.convert_with_2to3()``
+* ``sphinx.util.pycompat.execfile_()``
 * ``sphinx.util.smartypants``
 
 Features added
