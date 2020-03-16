@@ -110,6 +110,20 @@ def test_expressions():
         if id4 is not None:
             idDict[4] = ids % id4
         check('class', 'template<> C<a[%s]>' % expr, idDict)
+
+        class Config:
+            cpp_id_attributes = ["id_attr"]
+            cpp_paren_attributes = ["paren_attr"]
+
+        parser = DefinitionParser(expr, None, Config())
+        parser.allowFallbackExpressionParsing = False
+        ast = parser.parse_expression()
+        res = str(ast)
+        if res != expr:
+            print("")
+            print("Input:    ", expr)
+            print("Result:   ", res)
+            raise DefinitionError("")
     # primary
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
@@ -214,11 +228,14 @@ def test_expressions():
     exprCheck('5 != 42', 'neL5EL42E')
     # ['<=', '>=', '<', '>']
     exprCheck('5 <= 42', 'leL5EL42E')
+    exprCheck('A <= 42', 'le1AL42E')
     exprCheck('5 >= 42', 'geL5EL42E')
     exprCheck('5 < 42', 'ltL5EL42E')
+    exprCheck('A < 42', 'lt1AL42E')
     exprCheck('5 > 42', 'gtL5EL42E')
     # ['<<', '>>']
     exprCheck('5 << 42', 'lsL5EL42E')
+    exprCheck('A << 42', 'ls1AL42E')
     exprCheck('5 >> 42', 'rsL5EL42E')
     # ['+', '-']
     exprCheck('5 + 42', 'plL5EL42E')
