@@ -2910,16 +2910,17 @@ class DefinitionParser(BaseParser):
         self.assert_end()
         return name
 
-    def parse_expression(self):
+    def parse_expression(self) -> Union[ASTExpression, ASTType]:
         pos = self.pos
+        res = None  # type: Union[ASTExpression, ASTType]
         try:
-            expr = self._parse_expression()
+            res = self._parse_expression()
             self.skip_ws()
             self.assert_end()
         except DefinitionError as exExpr:
             self.pos = pos
             try:
-                expr = self._parse_type(False)
+                res = self._parse_type(False)
                 self.skip_ws()
                 self.assert_end()
             except DefinitionError as exType:
@@ -2928,7 +2929,7 @@ class DefinitionParser(BaseParser):
                 errs.append((exExpr, "If expression"))
                 errs.append((exType, "If type"))
                 raise self._make_multi_error(errs, header)
-        return expr
+        return res
 
 
 def _make_phony_error_name() -> ASTNestedName:
