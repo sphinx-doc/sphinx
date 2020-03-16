@@ -33,7 +33,7 @@ from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
 from sphinx.util.cfamily import (
-    NoOldIdError, ASTBase, verify_description_mode, StringifyTransform,
+    NoOldIdError, ASTBaseBase, verify_description_mode, StringifyTransform,
     BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
     identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
     hex_literal_re, binary_literal_re, float_literal_re,
@@ -553,6 +553,10 @@ class _DuplicateSymbolError(Exception):
 
     def __str__(self) -> str:
         return "Internal C++ duplicate symbol error:\n%s" % self.symbol.dump(0)
+
+
+class ASTBase(ASTBaseBase):
+    pass
 
 
 ################################################################################
