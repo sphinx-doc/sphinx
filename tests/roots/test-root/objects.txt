@@ -107,15 +107,15 @@ Referring to :func:`nothing <>`.
 C items
 =======
 
-.. c:function:: Sphinx_DoSomething()
+.. c:function:: void Sphinx_DoSomething()
 
-.. c:member:: SphinxStruct.member
+.. c:member:: int SphinxStruct.member
 
 .. c:macro:: SPHINX_USE_PYTHON
 
 .. c:type:: SphinxType
 
-.. c:var:: sphinx_global
+.. c:var:: int sphinx_global
 
 
 Javascript items

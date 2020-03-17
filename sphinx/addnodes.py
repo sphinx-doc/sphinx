@@ -119,7 +119,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     It should only be used in a ``desc_signature`` with ``is_multiline`` set.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
-    sphinx_cpp_tagname = ''
+    sphinx_line_type = ''
 
 
 # nodes to use within a desc_signature or desc_signature_line

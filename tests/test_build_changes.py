@@ -28,7 +28,7 @@ def test_build(app):
     assert path_html in htmltext
 
     malloc_html = (
-        '<b>Test_Malloc</b>: <i>changed:</i> Changed in version 0.6:'
+        '<b>void *Test_Malloc(size_t n)</b>: <i>changed:</i> Changed in version 0.6:'
         ' Can now be replaced with a different allocator.</a>')
     assert malloc_html in htmltext
 

@@ -552,47 +552,62 @@ The C Domain
 
 The C domain (name **c**) is suited for documentation of C API.
 
+.. rst:directive:: .. c:member:: declaration
+                   .. c:var:: declaration
+
+   Describes a C struct member or variable. Example signature::
+
+      .. c:member:: PyObject *PyTypeObject.tp_bases
+
+   The difference between the two directives is only cosmetic.
+
 .. rst:directive:: .. c:function:: function prototype
 
    Describes a C function. The signature should be given as in C, e.g.::
 
-      .. c:function:: PyObject* PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
-
-   This is also used to describe function-like preprocessor macros.  The names
-   of the arguments should be given so they may be used in the description.
+      .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
 
    Note that you don't have to backslash-escape asterisks in the signature, as
    it is not parsed by the reST inliner.
 
-.. rst:directive:: .. c:member:: declaration
-
-   Describes a C struct member. Example signature::
-
-      .. c:member:: PyObject* PyTypeObject.tp_bases
-
-   The text of the description should include the range of values allowed, how
-   the value should be interpreted, and whether the value can be changed.
-   References to structure members in text should use the ``member`` role.
-
 .. rst:directive:: .. c:macro:: name
+                   .. c:macro:: name(arg list)
 
-   Describes a "simple" C macro.  Simple macros are macros which are used for
-   code expansion, but which do not take arguments so cannot be described as
-   functions.  This is a simple C-language ``#define``.  Examples of its use in
-   the Python documentation include :c:macro:`PyObject_HEAD` and
-   :c:macro:`Py_BEGIN_ALLOW_THREADS`.
+   Describes a C macro, i.e., a C-language ``#define``, without the replacement
+   text.
 
-.. rst:directive:: .. c:type:: name
+   .. versionadded:: 3.0
+      The function style variant.
 
-   Describes a C type (whether defined by a typedef or struct). The signature
-   should just be the type name.
+.. rst:directive:: .. c:struct:: name
 
-.. rst:directive:: .. c:var:: declaration
+   Describes a C struct.
 
-   Describes a global C variable.  The signature should include the type, such
-   as::
+   .. versionadded:: 3.0
 
-      .. c:var:: PyObject* PyClass_Type
+.. rst:directive:: .. c:union:: name
+
+   Describes a C union.
+
+   .. versionadded:: 3.0
+
+.. rst:directive:: .. c:enum:: name
+
+   Describes a C enum.
+
+   .. versionadded:: 3.0
+
+.. rst:directive:: .. c:enumerator:: name
+
+   Describes a C enumerator.
+
+   .. versionadded:: 3.0
+
+.. rst:directive:: .. c:type:: typedef-like declaration
+                   .. c:type:: name
+
+   Describes a C type, either as a typedef, or the alias for an unspecified
+   type.
 
 .. _c-roles:
 
@@ -602,25 +617,93 @@ Cross-referencing C constructs
 The following roles create cross-references to C-language constructs if they
 are defined in the documentation:
 
-.. rst:role:: c:func
-
-   Reference a C-language function. Should include trailing parentheses.
-
 .. rst:role:: c:member
+              c:data
+              c:var
+              c:func
+              c:macro
+              c:struct
+              c:union
+              c:enum
+              c:enumerator
+              c:type
 
-   Reference a C-language member of a struct.
+   Reference a C declaration, as defined above.
+   Note that :rst:role:`c:member`, :rst:role:`c:data`, and
+   :rst:role:`c:var` are equivalent.
 
-.. rst:role:: c:macro
+   .. versionadded:: 3.0
+      The var, struct, union, enum, and enumerator roles.
 
-   Reference a "simple" C macro, as defined above.
 
-.. rst:role:: c:type
+Anonymous Entities
+~~~~~~~~~~~~~~~~~~
 
-   Reference a C-language type.
+C supports anonymous structs, enums, and unions.
+For the sake of documentation they must be given some name that starts with
+``@``, e.g., ``@42`` or ``@data``.
+These names can also be used in cross-references,
+though nested symbols will be found even when omitted.
+The ``@...`` name will always be rendered as **[anonymous]** (possibly as a
+link).
 
-.. rst:role:: c:data
+Example::
 
-   Reference a C-language variable.
+   .. c:struct:: Data
+
+      .. c:union:: @data
+
+         .. c:var:: int a
+
+         .. c:var:: double b
+
+   Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
+
+This will be rendered as:
+
+.. c:struct:: Data
+
+   .. c:union:: @data
+
+      .. c:var:: int a
+
+      .. c:var:: double b
+
+Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
+
+.. versionadded:: 3.0
+
+
+Inline Expressions and Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. rst:role:: c:expr
+              c:texpr
+
+   Insert a C expression or type either as inline code (``cpp:expr``)
+   or inline text (``cpp:texpr``). For example::
+
+      .. c:var:: int a = 42
+
+      .. c:function:: int f(int i)
+
+      An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
+
+      A type: :c:expr:`const Data*`
+      (or as text :c:texpr:`const Data*`).
+
+   will be rendered as follows:
+
+   .. c:var:: int a = 42
+
+   .. c:function:: int f(int i)
+
+   An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
+
+   A type: :c:expr:`const Data*`
+   (or as text :c:texpr:`const Data*`).
+
+   .. versionadded:: 3.0
 
 
 .. _cpp-domain:
