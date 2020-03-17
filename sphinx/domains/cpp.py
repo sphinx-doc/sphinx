@@ -6983,7 +6983,7 @@ class CPPDomain(Domain):
         # the non-identifier refs are cross-references, which should be processed:
         # - fix parenthesis due to operator() and add_function_parentheses
         if typ != "identifier":
-            title = contnode.pop(0).astext()  # type: ignore
+            title = contnode.pop(0).astext()
             # If it's operator(), we need to add '()' if explicit function parens
             # are requested. Then the Sphinx machinery will add another pair.
             # Also, if it's an 'any' ref that resolves to a function, we need to add

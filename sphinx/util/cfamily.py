@@ -14,7 +14,9 @@ from copy import deepcopy
 from typing import (
     Any, Callable, List, Match, Pattern, Tuple, Union
 )
+
 from docutils import nodes
+
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.util import logging
 
