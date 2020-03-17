@@ -28,7 +28,7 @@ from sphinx.util import docutils
 
 
 def parse(name, string):
-    parser = DefinitionParser(string, None)
+    parser = DefinitionParser(string, location=None, emitWarnings=True)
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
@@ -87,7 +87,7 @@ def check(name, input, idDict, output=None):
 
 def test_expressions():
     def exprCheck(expr, output=None):
-        parser = DefinitionParser(expr, None)
+        parser = DefinitionParser(expr, location=None, emitWarnings=True)
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         parser.assert_end()
@@ -437,21 +437,6 @@ def test_attributes():
           output='int *[[attr]] volatile const i')
     check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
     check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
-
-
-def test_xref_parsing():
-    return  # TODO
-    def check(target):
-        class Config:
-            cpp_id_attributes = ["id_attr"]
-            cpp_paren_attributes = ["paren_attr"]
-        parser = DefinitionParser(target, None, Config())
-        ast, isShorthand = parser.parse_xref_object()
-        parser.assert_end()
-    check('f')
-    check('f()')
-    check('void f()')
-    check('T f()')
 
 
 # def test_print():

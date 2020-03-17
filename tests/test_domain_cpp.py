@@ -23,7 +23,9 @@ def parse(name, string):
     class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
-    parser = DefinitionParser(string, None, Config())
+    parser = DefinitionParser(string, location=None,
+                              emitWarnings=True,
+                              config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
@@ -115,7 +117,9 @@ def test_expressions():
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
 
-        parser = DefinitionParser(expr, None, Config())
+        parser = DefinitionParser(expr, location=None,
+                                  emitWarnings=True,
+                                  config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         res = str(ast)
@@ -787,7 +791,9 @@ def test_xref_parsing():
         class Config:
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
-        parser = DefinitionParser(target, None, Config())
+        parser = DefinitionParser(target, location=None,
+                                  emitWarnings=True,
+                                  config=Config())
         ast, isShorthand = parser.parse_xref_object()
         parser.assert_end()
     check('f')

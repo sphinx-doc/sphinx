@@ -12,11 +12,13 @@ import re
 import warnings
 from copy import deepcopy
 from typing import (
-    Any, Callable, List, Match, Pattern, Tuple
+    Any, Callable, List, Match, Pattern, Tuple, Union
 )
-
+from docutils import nodes
 from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.util import logging
 
+logger = logging.getLogger(__name__)
 
 StringifyTransform = Callable[[Any], str]
 
@@ -127,9 +129,13 @@ class DefinitionError(Exception):
 
 
 class BaseParser:
-    def __init__(self, definition: Any, warnEnv: Any) -> None:
-        self.warnEnv = warnEnv
+    def __init__(self, definition: str, *,
+                 location: Union[nodes.Node, Tuple[str, int]],
+                 emitWarnings: bool) -> None:
         self.definition = definition.strip()
+        self.location = location  # for warnings
+        self.emitWarnings = emitWarnings
+
         self.pos = 0
         self.end = len(self.definition)
         self.last_match = None  # type: Match
@@ -179,10 +185,8 @@ class BaseParser:
         raise self._make_multi_error(errors, '')
 
     def warn(self, msg: str) -> None:
-        if self.warnEnv:
-            self.warnEnv.warn(msg)
-        else:
-            print("Warning: %s" % msg)
+        if self.emitWarnings:
+            logger.warning(msg, location=self.location)
 
     def match(self, regex: Pattern) -> bool:
         match = regex.match(self.definition, self.pos)

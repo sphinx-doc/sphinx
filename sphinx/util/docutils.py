@@ -330,9 +330,13 @@ class SphinxDirective(Directive):
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
+    def get_source_info(self) -> Tuple[str, int]:
+        """Get source and line number."""
+        return self.state_machine.get_source_and_line(self.lineno)
+
     def set_source_info(self, node: Node) -> None:
         """Set source and line number to the node."""
-        node.source, node.line = self.state_machine.get_source_and_line(self.lineno)
+        node.source, node.line = self.get_source_info()
 
 
 class SphinxRole:
@@ -388,12 +392,13 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def set_source_info(self, node: Node, lineno: int = None) -> None:
+    def get_source_info(self, lineno: int = None) -> Tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
+        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
-        source_info = self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
-        node.source, node.line = source_info
+    def set_source_info(self, node: Node, lineno: int = None) -> None:
+        node.source, node.line = self.get_source_info(lineno)
 
 
 class ReferenceRole(SphinxRole):

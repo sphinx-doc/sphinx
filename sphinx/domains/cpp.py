@@ -13,10 +13,9 @@ from typing import (
     Any, Callable, Dict, Iterator, List, Tuple, Type, TypeVar, Union
 )
 
-from docutils import nodes, utils
+from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
@@ -28,7 +27,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
-from sphinx.roles import XRefRole
+from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
@@ -4409,8 +4408,12 @@ class DefinitionParser(BaseParser):
 
     _prefix_keys = ('class', 'struct', 'enum', 'union', 'typename')
 
-    def __init__(self, definition: Any, warnEnv: Any, config: "Config") -> None:
-        super().__init__(definition, warnEnv)
+    def __init__(self, definition: str, *,
+                 location: Union[nodes.Node, Tuple[str, int]],
+                 emitWarnings: bool,
+                 config: "Config") -> None:
+        super().__init__(definition,
+                         location=location, emitWarnings=emitWarnings)
         self.config = config
 
     def _parse_string(self):
@@ -6210,9 +6213,6 @@ class CPPObject(ObjectDescription):
     option_spec = dict(ObjectDescription.option_spec)
     option_spec['tparam-line-spec'] = directives.flag
 
-    def warn(self, msg: Union[str, Exception]) -> None:
-        self.state_machine.reporter.warning(msg, line=self.lineno)
-
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
         assert ast.objectType == 'enumerator'
         # find the parent, if it exists && is an enum
@@ -6270,8 +6270,9 @@ class CPPObject(ObjectDescription):
         newestId = ids[0]
         assert newestId  # shouldn't be None
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
-            self.warn('Index id generation for C++ object "%s" failed, please '
-                      'report as bug (id=%s).' % (ast, newestId))
+            logger.warning('Index id generation for C++ object "%s" failed, please '
+                           'report as bug (id=%s).', ast, newestId,
+                           location=self.get_source_info())
 
         name = ast.symbol.get_full_nested_name().get_display_string().lstrip(':')
         # Add index entry, but not if it's a declaration inside a concept
@@ -6348,8 +6349,10 @@ class CPPObject(ObjectDescription):
         parentSymbol = env.temp_data['cpp:parent_symbol']
         parentDecl = parentSymbol.declaration
         if parentDecl is not None and parentDecl.objectType == 'function':
-            self.warn("C++ declarations inside functions are not supported." +
-                      " Parent function is " + str(parentSymbol.get_full_nested_name()))
+            logger.warning("C++ declarations inside functions are not supported." +
+                           " Parent function is " +
+                           str(parentSymbol.get_full_nested_name()),
+                           location=self.get_source_info())
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             env.temp_data['cpp:last_symbol'] = symbol
@@ -6363,12 +6366,14 @@ class CPPObject(ObjectDescription):
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
         parentSymbol = self.env.temp_data['cpp:parent_symbol']
 
-        parser = DefinitionParser(sig, self, self.env.config)
+        parser = DefinitionParser(sig, location=signode,
+                                  emitWarnings=True,
+                                  config=self.env.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
         except DefinitionError as e:
-            self.warn(e)
+            logger.warning(e, location=signode)
             # It is easier to assume some phony name than handling the error in
             # the possibly inner declarations.
             name = _make_phony_error_name()
@@ -6390,7 +6395,7 @@ class CPPObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['cpp:last_symbol'] = e.symbol
-            self.warn("Duplicate declaration, %s" % sig)
+            logger.warning("Duplicate declaration, %s", sig, location=signode)
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -6465,21 +6470,21 @@ class CPPNamespaceObject(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {}  # type: Dict
 
-    def warn(self, msg: Union[str, Exception]) -> None:
-        self.state_machine.reporter.warning(msg, line=self.lineno)
-
     def run(self) -> List[Node]:
         rootSymbol = self.env.domaindata['cpp']['root_symbol']
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             symbol = rootSymbol
             stack = []  # type: List[Symbol]
         else:
-            parser = DefinitionParser(self.arguments[0], self, self.config)
+            parser = DefinitionParser(self.arguments[0],
+                                      location=self.get_source_info(),
+                                      emitWarnings=True,
+                                      config=self.config)
             try:
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
             except DefinitionError as e:
-                self.warn(e)
+                logger.warning(e, location=self.get_source_info())
                 name = _make_phony_error_name()
                 ast = ASTNamespace(name, None)
             symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
@@ -6497,18 +6502,18 @@ class CPPNamespacePushObject(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {}  # type: Dict
 
-    def warn(self, msg: Union[str, Exception]) -> None:
-        self.state_machine.reporter.warning(msg, line=self.lineno)
-
     def run(self) -> List[Node]:
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
-        parser = DefinitionParser(self.arguments[0], self, self.config)
+        parser = DefinitionParser(self.arguments[0],
+                                  location=self.get_source_info(),
+                                  emitWarnings=True,
+                                  config=self.config)
         try:
             ast = parser.parse_namespace_object()
             parser.assert_end()
         except DefinitionError as e:
-            self.warn(e)
+            logger.warning(e, location=self.get_source_info())
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
         oldParent = self.env.temp_data.get('cpp:parent_symbol', None)
@@ -6530,13 +6535,11 @@ class CPPNamespacePopObject(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {}  # type: Dict
 
-    def warn(self, msg: Union[str, Exception]) -> None:
-        self.state_machine.reporter.warning(msg, line=self.lineno)
-
     def run(self) -> List[Node]:
         stack = self.env.temp_data.get('cpp:namespace_stack', None)
         if not stack or len(stack) == 0:
-            self.warn("C++ namespace pop on empty stack. Defaulting to gobal scope.")
+            logger.warning("C++ namespace pop on empty stack. Defaulting to gobal scope.",
+                           location=self.get_source_info())
             stack = []
         else:
             stack.pop()
@@ -6573,18 +6576,17 @@ class AliasTransform(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(AliasNode):
-            class Warner:
-                def warn(self, msg: Any) -> None:
-                    logger.warning(msg, location=node)
-            warner = Warner()
             sig = node.sig
             parentKey = node.parentKey
             try:
-                parser = DefinitionParser(sig, warner, self.env.config)
+                parser = DefinitionParser(sig,
+                                          location=node,
+                                          emitWarnings=True,
+                                          config=self.env.config)
                 ast, isShorthand = parser.parse_xref_object()
                 parser.assert_end()
             except DefinitionError as e:
-                warner.warn(e)
+                logger.warning(e, location=node)
                 ast, isShorthand = None, None
 
             if ast is None:
@@ -6716,8 +6718,9 @@ class CPPXRefRole(XRefRole):
         return title, target
 
 
-class CPPExprRole:
+class CPPExprRole(SphinxRole):
     def __init__(self, asCode: bool) -> None:
+        super().__init__()
         if asCode:
             # render the expression as inline code
             self.class_type = 'cpp-expr'
@@ -6727,30 +6730,28 @@ class CPPExprRole:
             self.class_type = 'cpp-texpr'
             self.node_type = nodes.inline
 
-    def __call__(self, typ: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: Dict = {}, content: List[str] = []
-                 ) -> Tuple[List[Node], List[system_message]]:
-        class Warner:
-            def warn(self, msg: str) -> None:
-                inliner.reporter.warning(msg, line=lineno)
-        text = utils.unescape(text).replace('\n', ' ')
-        env = inliner.document.settings.env
-        parser = DefinitionParser(text, Warner(), env.config)
+    def run(self) -> Tuple[List[Node], List[system_message]]:
+        text = self.text.replace('\n', ' ')
+        parser = DefinitionParser(text,
+                                  location=self.get_source_info(),
+                                  emitWarnings=True,
+                                  config=self.config)
         # attempt to mimic XRefRole classes, except that...
         classes = ['xref', 'cpp', self.class_type]
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
-            Warner().warn('Unparseable C++ expression: %r\n%s' % (text, ex))
+            logger.warning('Unparseable C++ expression: %r\n%s', text, ex,
+                           location=self.get_source_info())
             # see below
             return [self.node_type(text, text, classes=classes)], []
-        parentSymbol = env.temp_data.get('cpp:parent_symbol', None)
+        parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
         if parentSymbol is None:
-            parentSymbol = env.domaindata['cpp']['root_symbol']
+            parentSymbol = self.env.domaindata['cpp']['root_symbol']
         # ...most if not all of these classes should really apply to the individual references,
         # not the container node
         signode = self.node_type(classes=classes)
-        ast.describe_signature(signode, 'markType', env, parentSymbol)
+        ast.describe_signature(signode, 'markType', self.env, parentSymbol)
         return [signode], []
 
 
@@ -6876,15 +6877,12 @@ class CPPDomain(Domain):
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref, contnode: Element,
                             emitWarnings: bool = True) -> Tuple[Element, str]:
-        class Warner:
-            def warn(self, msg: str) -> None:
-                if emitWarnings:
-                    logger.warning(msg, location=node)
-        warner = Warner()
         # add parens again for those that could be functions
         if typ == 'any' or typ == 'func':
             target += '()'
-        parser = DefinitionParser(target, warner, env.config)
+        parser = DefinitionParser(target, location=node,
+                                  emitWarnings=emitWarnings,
+                                  config=env.config)
         try:
             ast, isShorthand = parser.parse_xref_object()
         except DefinitionError as e:
@@ -6893,7 +6891,10 @@ class CPPDomain(Domain):
                 if typ != 'any' and typ != 'func':
                     return target, e
                 # hax on top of the paren hax to try to get correct errors
-                parser2 = DefinitionParser(target[:-2], warner, env.config)
+                parser2 = DefinitionParser(target[:-2],
+                                           location=node,
+                                           emitWarnings=emitWarnings,
+                                           config=env.config)
                 try:
                     parser2.parse_xref_object()
                 except DefinitionError as e2:
@@ -6901,7 +6902,9 @@ class CPPDomain(Domain):
                 # strange, that we don't get the error now, use the original
                 return target, e
             t, ex = findWarning(e)
-            warner.warn('Unparseable C++ cross-reference: %r\n%s' % (t, ex))
+            if emitWarnings:
+                logger.warning('Unparseable C++ cross-reference: %r\n%s', t, ex,
+                               location=node)
             return None, None
         parentKey = node.get("cpp:parent_key", None)  # type: LookupKey
         rootSymbol = self.data['root_symbol']
@@ -6974,10 +6977,11 @@ class CPPDomain(Domain):
                 return declTyp in objtypes
             print("Type is %s (originally: %s), declType is %s" % (typ, origTyp, declTyp))
             assert False
-        if not checkType():
-            warner.warn("cpp:%s targets a %s (%s)."
-                        % (origTyp, s.declaration.objectType,
-                           s.get_full_nested_name()))
+        if not checkType() and emitWarnings:
+            logger.warning("cpp:%s targets a %s (%s).",
+                           origTyp, s.declaration.objectType,
+                           s.get_full_nested_name(),
+                           location=node)
 
         declaration = s.declaration
         if isShorthand:
@@ -6991,7 +6995,7 @@ class CPPDomain(Domain):
         # the non-identifier refs are cross-references, which should be processed:
         # - fix parenthesis due to operator() and add_function_parentheses
         if typ != "identifier":
-            title = contnode.pop(0).astext()
+            title = contnode.pop(0).astext()  # type: ignore
             # If it's operator(), we need to add '()' if explicit function parens
             # are requested. Then the Sphinx machinery will add another pair.
             # Also, if it's an 'any' ref that resolves to a function, we need to add
