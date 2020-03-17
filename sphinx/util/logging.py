@@ -220,16 +220,15 @@ def pending_warnings() -> Generator[logging.Handler, None, None]:
 
 
 @contextmanager
-def pending_logging() -> Generator[MemoryHandler, None, None]:
-    """Contextmanager to pend logging all logs temporary.
+def suppress_logging() -> Generator[MemoryHandler, None, None]:
+    """Contextmanager to suppress logging all logs temporary.
 
     For example::
 
-        >>> with pending_logging():
-        >>>     logger.warning('Warning message!')  # not flushed yet
+        >>> with suppress_logging():
+        >>>     logger.warning('Warning message!')  # suppressed
         >>>     some_long_process()
         >>>
-        Warning message!  # the warning is flushed here
     """
     logger = logging.getLogger(NAMESPACE)
     memhandler = MemoryHandler()
@@ -248,6 +247,24 @@ def pending_logging() -> Generator[MemoryHandler, None, None]:
         for handler in handlers:
             logger.addHandler(handler)
 
+
+@contextmanager
+def pending_logging() -> Generator[MemoryHandler, None, None]:
+    """Contextmanager to pend logging all logs temporary.
+
+    For example::
+
+        >>> with pending_logging():
+        >>>     logger.warning('Warning message!')  # not flushed yet
+        >>>     some_long_process()
+        >>>
+        Warning message!  # the warning is flushed here
+    """
+    logger = logging.getLogger(NAMESPACE)
+    try:
+        with suppress_logging() as memhandler:
+            yield memhandler
+    finally:
         memhandler.flushTo(logger)
 
 
