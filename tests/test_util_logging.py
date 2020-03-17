@@ -233,6 +233,20 @@ def test_warning_location(app, status, warning):
     assert colorize('red', 'WARNING: message7') in warning.getvalue()
 
 
+def test_suppress_logging(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.warning('message1')
+    with logging.suppress_logging():
+        logger.warning('message2')
+        assert 'WARNING: message1' in warning.getvalue()
+        assert 'WARNING: message2' not in warning.getvalue()
+
+    assert 'WARNING: message1' in warning.getvalue()
+    assert 'WARNING: message2' not in warning.getvalue()
+
+
 def test_pending_warnings(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
