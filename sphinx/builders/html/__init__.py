@@ -552,7 +552,7 @@ class StandaloneHTMLBuilder(Builder):
         title = self.render_partial(title_node)['title'] if title_node else ''
 
         # Suffix for the document
-        source_suffix = path.splitext(self.env.doc2path(docname))[1]
+        source_suffix = self.env.doc2path(docname, False)[len(docname):]
 
         # the name for the copied source
         if self.config.html_copy_source:
