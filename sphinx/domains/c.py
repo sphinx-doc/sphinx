@@ -3054,7 +3054,7 @@ class CObject(ObjectDescription):
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol = self.env.temp_data['c:parent_symbol']  # type: Symbol
 
-        parser = DefinitionParser(sig, location=signode, emitWarnings=True)
+        parser = DefinitionParser(sig, location=signode)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -3187,8 +3187,7 @@ class CExprRole(SphinxRole):
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
         text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text, location=self.get_source_info(),
-                                  emitWarnings=True)
+        parser = DefinitionParser(text, location=self.get_source_info())
         # attempt to mimic XRefRole classes, except that...
         classes = ['xref', 'c', self.class_type]
         try:
@@ -3316,15 +3315,14 @@ class CDomain(Domain):
                     ourObjects[fullname] = (fn, id_, objtype)
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                            typ: str, target: str, node: pending_xref, contnode: Element,
-                            emitWarnings: bool = True) -> Tuple[Element, str]:
-        parser = DefinitionParser(target, location=node, emitWarnings=emitWarnings)
+                            typ: str, target: str, node: pending_xref,
+                            contnode: Element) -> Tuple[Element, str]:
+        parser = DefinitionParser(target, location=node)
         try:
             name = parser.parse_xref_object()
         except DefinitionError as e:
-            if emitWarnings:
-                logger.warning('Unparseable C cross-reference: %r\n%s', target, e,
-                               location=node)
+            logger.warning('Unparseable C cross-reference: %r\n%s', target, e,
+                           location=node)
             return None, None
         parentKey = node.get("c:parent_key", None)  # type: LookupKey
         rootSymbol = self.data['root_symbol']
@@ -3354,17 +3352,17 @@ class CDomain(Domain):
                             ), declaration.objectType
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element,
-                     emitWarnings: bool = True) -> Element:
+                     typ: str, target: str, node: pending_xref,
+                     contnode: Element) -> Element:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
                          ) -> List[Tuple[str, Element]]:
-        retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
-                                                    'any', target, node, contnode,
-                                                    emitWarnings=False)
+        with logging.suppress_logging():
+            retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
+                                                        'any', target, node, contnode)
         if retnode:
             return [('c:' + self.role_for_objtype(objtype), retnode)]
         return []

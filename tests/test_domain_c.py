@@ -28,7 +28,7 @@ from sphinx.util import docutils
 
 
 def parse(name, string):
-    parser = DefinitionParser(string, location=None, emitWarnings=True)
+    parser = DefinitionParser(string, location=None)
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
@@ -87,7 +87,7 @@ def check(name, input, idDict, output=None):
 
 def test_expressions():
     def exprCheck(expr, output=None):
-        parser = DefinitionParser(expr, location=None, emitWarnings=True)
+        parser = DefinitionParser(expr, location=None)
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         parser.assert_end()

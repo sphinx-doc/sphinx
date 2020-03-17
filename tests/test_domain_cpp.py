@@ -24,7 +24,6 @@ def parse(name, string):
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, location=None,
-                              emitWarnings=True,
                               config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
@@ -118,7 +117,6 @@ def test_expressions():
             cpp_paren_attributes = ["paren_attr"]
 
         parser = DefinitionParser(expr, location=None,
-                                  emitWarnings=True,
                                   config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
@@ -792,7 +790,6 @@ def test_xref_parsing():
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
         parser = DefinitionParser(target, location=None,
-                                  emitWarnings=True,
                                   config=Config())
         ast, isShorthand = parser.parse_xref_object()
         parser.assert_end()

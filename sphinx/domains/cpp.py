@@ -4410,10 +4410,8 @@ class DefinitionParser(BaseParser):
 
     def __init__(self, definition: str, *,
                  location: Union[nodes.Node, Tuple[str, int]],
-                 emitWarnings: bool,
                  config: "Config") -> None:
-        super().__init__(definition,
-                         location=location, emitWarnings=emitWarnings)
+        super().__init__(definition, location=location)
         self.config = config
 
     def _parse_string(self):
@@ -6366,9 +6364,7 @@ class CPPObject(ObjectDescription):
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
         parentSymbol = self.env.temp_data['cpp:parent_symbol']
 
-        parser = DefinitionParser(sig, location=signode,
-                                  emitWarnings=True,
-                                  config=self.env.config)
+        parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -6478,7 +6474,6 @@ class CPPNamespaceObject(SphinxDirective):
         else:
             parser = DefinitionParser(self.arguments[0],
                                       location=self.get_source_info(),
-                                      emitWarnings=True,
                                       config=self.config)
             try:
                 ast = parser.parse_namespace_object()
@@ -6507,7 +6502,6 @@ class CPPNamespacePushObject(SphinxDirective):
             return []
         parser = DefinitionParser(self.arguments[0],
                                   location=self.get_source_info(),
-                                  emitWarnings=True,
                                   config=self.config)
         try:
             ast = parser.parse_namespace_object()
@@ -6579,9 +6573,7 @@ class AliasTransform(SphinxTransform):
             sig = node.sig
             parentKey = node.parentKey
             try:
-                parser = DefinitionParser(sig,
-                                          location=node,
-                                          emitWarnings=True,
+                parser = DefinitionParser(sig, location=node,
                                           config=self.env.config)
                 ast, isShorthand = parser.parse_xref_object()
                 parser.assert_end()
@@ -6734,7 +6726,6 @@ class CPPExprRole(SphinxRole):
         text = self.text.replace('\n', ' ')
         parser = DefinitionParser(text,
                                   location=self.get_source_info(),
-                                  emitWarnings=True,
                                   config=self.config)
         # attempt to mimic XRefRole classes, except that...
         classes = ['xref', 'cpp', self.class_type]
@@ -6875,13 +6866,12 @@ class CPPDomain(Domain):
                     ourNames[name] = docname
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                            typ: str, target: str, node: pending_xref, contnode: Element,
-                            emitWarnings: bool = True) -> Tuple[Element, str]:
+                            typ: str, target: str, node: pending_xref,
+                            contnode: Element) -> Tuple[Element, str]:
         # add parens again for those that could be functions
         if typ == 'any' or typ == 'func':
             target += '()'
         parser = DefinitionParser(target, location=node,
-                                  emitWarnings=emitWarnings,
                                   config=env.config)
         try:
             ast, isShorthand = parser.parse_xref_object()
@@ -6893,7 +6883,6 @@ class CPPDomain(Domain):
                 # hax on top of the paren hax to try to get correct errors
                 parser2 = DefinitionParser(target[:-2],
                                            location=node,
-                                           emitWarnings=emitWarnings,
                                            config=env.config)
                 try:
                     parser2.parse_xref_object()
@@ -6902,9 +6891,8 @@ class CPPDomain(Domain):
                 # strange, that we don't get the error now, use the original
                 return target, e
             t, ex = findWarning(e)
-            if emitWarnings:
-                logger.warning('Unparseable C++ cross-reference: %r\n%s', t, ex,
-                               location=node)
+            logger.warning('Unparseable C++ cross-reference: %r\n%s', t, ex,
+                           location=node)
             return None, None
         parentKey = node.get("cpp:parent_key", None)  # type: LookupKey
         rootSymbol = self.data['root_symbol']
@@ -6977,7 +6965,7 @@ class CPPDomain(Domain):
                 return declTyp in objtypes
             print("Type is %s (originally: %s), declType is %s" % (typ, origTyp, declTyp))
             assert False
-        if not checkType() and emitWarnings:
+        if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",
                            origTyp, s.declaration.objectType,
                            s.get_full_nested_name(),
@@ -7044,9 +7032,9 @@ class CPPDomain(Domain):
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
                          ) -> List[Tuple[str, Element]]:
-        retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
-                                                    'any', target, node, contnode,
-                                                    emitWarnings=False)
+        with logging.suppress_logging():
+            retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
+                                                        'any', target, node, contnode)
         if retnode:
             if objtype == 'templateParam':
                 return [('cpp:templateParam', retnode)]

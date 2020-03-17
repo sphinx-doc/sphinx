@@ -130,11 +130,9 @@ class DefinitionError(Exception):
 
 class BaseParser:
     def __init__(self, definition: str, *,
-                 location: Union[nodes.Node, Tuple[str, int]],
-                 emitWarnings: bool) -> None:
+                 location: Union[nodes.Node, Tuple[str, int]]) -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
-        self.emitWarnings = emitWarnings
 
         self.pos = 0
         self.end = len(self.definition)
@@ -185,8 +183,7 @@ class BaseParser:
         raise self._make_multi_error(errors, '')
 
     def warn(self, msg: str) -> None:
-        if self.emitWarnings:
-            logger.warning(msg, location=self.location)
+        logger.warning(msg, location=self.location)
 
     def match(self, regex: Pattern) -> bool:
         match = regex.match(self.definition, self.pos)
