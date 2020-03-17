@@ -106,6 +106,9 @@ Features added
   - New role :rst:role:`c:expr` for rendering expressions and types
     in text.
 
+* Added ``SphinxDirective.get_source_info()``
+  and ``SphinxRole.get_source_info()``.
+
 Bugs fixed
 ----------
 

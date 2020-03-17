@@ -14,9 +14,8 @@ from typing import (
 )
 from typing import cast
 
-from docutils import nodes, utils
+from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
-from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.addnodes import pending_xref
@@ -26,7 +25,7 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
-from sphinx.roles import XRefRole
+from sphinx.roles import SphinxRole, XRefRole
 from sphinx.util import logging
 from sphinx.util.cfamily import (
     NoOldIdError, ASTBaseBase, verify_description_mode, StringifyTransform,
@@ -2951,9 +2950,6 @@ class CObject(ObjectDescription):
               names=('rtype',)),
     ]
 
-    def warn(self, msg: Union[str, Exception]) -> None:
-        self.state_machine.reporter.warning(msg, line=self.lineno)
-
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
         assert ast.objectType == 'enumerator'
         # find the parent, if it exists && is an enum
@@ -3058,12 +3054,12 @@ class CObject(ObjectDescription):
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol = self.env.temp_data['c:parent_symbol']  # type: Symbol
 
-        parser = DefinitionParser(sig, self)
+        parser = DefinitionParser(sig, location=signode)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
         except DefinitionError as e:
-            self.warn(e)
+            logger.warning(e, location=signode)
             # It is easier to assume some phony name than handling the error in
             # the possibly inner declarations.
             name = _make_phony_error_name()
@@ -3085,7 +3081,7 @@ class CObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['c:last_symbol'] = e.symbol
-            self.warn("Duplicate declaration, %s" % sig)
+            logger.warning("Duplicate declaration, %s", sig, location=signode)
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -3177,8 +3173,9 @@ class CXRefRole(XRefRole):
         return title, target
 
 
-class CExprRole:
+class CExprRole(SphinxRole):
     def __init__(self, asCode: bool) -> None:
+        super().__init__()
         if asCode:
             # render the expression as inline code
             self.class_type = 'c-expr'
@@ -3188,30 +3185,25 @@ class CExprRole:
             self.class_type = 'c-texpr'
             self.node_type = nodes.inline
 
-    def __call__(self, typ: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: Dict = {}, content: List[str] = []
-                 ) -> Tuple[List[Node], List[system_message]]:
-        class Warner:
-            def warn(self, msg: str) -> None:
-                inliner.reporter.warning(msg, line=lineno)
-        text = utils.unescape(text).replace('\n', ' ')
-        env = inliner.document.settings.env
-        parser = DefinitionParser(text, Warner())
+    def run(self) -> Tuple[List[Node], List[system_message]]:
+        text = self.text.replace('\n', ' ')
+        parser = DefinitionParser(text, location=self.get_source_info())
         # attempt to mimic XRefRole classes, except that...
         classes = ['xref', 'c', self.class_type]
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
-            Warner().warn('Unparseable C expression: %r\n%s' % (text, ex))
+            logger.warning('Unparseable C expression: %r\n%s', text, ex,
+                           location=self.get_source_info())
             # see below
             return [self.node_type(text, text, classes=classes)], []
-        parentSymbol = env.temp_data.get('cpp:parent_symbol', None)
+        parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
         if parentSymbol is None:
-            parentSymbol = env.domaindata['c']['root_symbol']
+            parentSymbol = self.env.domaindata['c']['root_symbol']
         # ...most if not all of these classes should really apply to the individual references,
         # not the container node
         signode = self.node_type(classes=classes)
-        ast.describe_signature(signode, 'markType', env, parentSymbol)
+        ast.describe_signature(signode, 'markType', self.env, parentSymbol)
         return [signode], []
 
 
@@ -3323,20 +3315,14 @@ class CDomain(Domain):
                     ourObjects[fullname] = (fn, id_, objtype)
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                            typ: str, target: str, node: pending_xref, contnode: Element,
-                            emitWarnings: bool = True) -> Tuple[Element, str]:
-        class Warner:
-            def warn(self, msg: str) -> None:
-                if emitWarnings:
-                    logger.warning(msg, location=node)
-
-        warner = Warner()
-
-        parser = DefinitionParser(target, warner)
+                            typ: str, target: str, node: pending_xref,
+                            contnode: Element) -> Tuple[Element, str]:
+        parser = DefinitionParser(target, location=node)
         try:
             name = parser.parse_xref_object()
         except DefinitionError as e:
-            warner.warn('Unparseable C cross-reference: %r\n%s' % (target, e))
+            logger.warning('Unparseable C cross-reference: %r\n%s', target, e,
+                           location=node)
             return None, None
         parentKey = node.get("c:parent_key", None)  # type: LookupKey
         rootSymbol = self.data['root_symbol']
@@ -3366,17 +3352,17 @@ class CDomain(Domain):
                             ), declaration.objectType
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element,
-                     emitWarnings: bool = True) -> Element:
+                     typ: str, target: str, node: pending_xref,
+                     contnode: Element) -> Element:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
                          ) -> List[Tuple[str, Element]]:
-        retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
-                                                    'any', target, node, contnode,
-                                                    emitWarnings=False)
+        with logging.suppress_logging():
+            retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
+                                                        'any', target, node, contnode)
         if retnode:
             return [('c:' + self.role_for_objtype(objtype), retnode)]
         return []
