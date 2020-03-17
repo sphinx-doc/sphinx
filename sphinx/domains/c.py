@@ -79,7 +79,7 @@ _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
 
 
 class _DuplicateSymbolError(Exception):
-    def __init__(self, symbol: "Symbol", declaration: Any) -> None:
+    def __init__(self, symbol: "Symbol", declaration: "ASTDeclaration") -> None:
         assert symbol
         assert declaration
         self.symbol = symbol
