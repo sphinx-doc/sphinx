@@ -1526,6 +1526,11 @@ def test_html_pygments_for_classic_theme(app):
     assert style.__name__ == 'SphinxStyle'
 
 
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_dark_pygments_style_default(app):
+    assert app.builder.dark_highlighter is None
+
+
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
 def test_validate_html_extra_path(app):
     (app.confdir / '_static').makedirs()

@@ -5371,9 +5371,13 @@ class DefinitionParser:
                 prevErrors.append((e, "If type argument"))
                 self.pos = pos
                 try:
+                    # actually here we shouldn't use the fallback parser (hence allow=False),
+                    # because if actually took the < in an expression, then we _will_ fail,
+                    # which is handled elsewhere. E.g., :cpp:expr:`A <= 0`.
                     def parser():
                         return self._parse_constant_expression(inTemplate=True)
-                    value = self._parse_expression_fallback([',', '>'], parser)
+                    value = self._parse_expression_fallback(
+                        [',', '>'], parser, allow=False)
                     self.skip_ws()
                     if self.skip_string('>'):
                         parsedEnd = True
@@ -6512,10 +6516,6 @@ class CPPObject(ObjectDescription):
             names = self.env.domaindata['cpp']['names']
             if name not in names:
                 names[name] = ast.symbol.docname
-                signode['names'].append(name)
-            else:
-                # print("[CPP] non-unique name:", name)
-                pass
             # always add the newest id
             assert newestId
             signode['ids'].append(newestId)
