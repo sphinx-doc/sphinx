@@ -124,6 +124,7 @@ Bugs fixed
 * #7139: ``code-block:: guess`` does not work
 * #7278: html search: Fix use of ``html_file_suffix`` instead of
   ``html_link_suffix`` in search results
+* #7297: html theme: ``bizstyle`` does not support ``sidebarwidth``
 * #7179: std domain: Fix whitespaces are suppressed on referring GenericObject
 * #7289: console: use bright colors instead of bold
 * #1539: C, parse array types.
