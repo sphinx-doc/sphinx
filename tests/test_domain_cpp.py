@@ -461,6 +461,13 @@ def test_function_definitions():
     with pytest.raises(DefinitionError):
         parse('function', 'int foo(D d=x(a')
     check('function', 'int foo(const A&... a)', {1: "foo__ACRDp", 2: "3fooDpRK1A"})
+    check('function', 'int foo(const A&...)', {1: "foo__ACRDp", 2: "3fooDpRK1A"})
+    check('function', 'int foo(const A*... a)', {1: "foo__ACPDp", 2: "3fooDpPK1A"})
+    check('function', 'int foo(const A*...)', {1: "foo__ACPDp", 2: "3fooDpPK1A"})
+    check('function', 'int foo(const int A::*... a)', {2: "3fooDpM1AKi"})
+    check('function', 'int foo(const int A::*...)', {2: "3fooDpM1AKi"})
+    #check('function', 'int foo(int (*a)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
+    #check('function', 'int foo(int (*)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
     check('function', 'virtual void f()', {1: "f", 2: "1fv"})
     # test for ::nestedName, from issue 1738
     check("function", "result(int val, ::std::error_category const &cat)",
@@ -502,18 +509,21 @@ def test_function_definitions():
     check('function', 'void f(int C::*)', {2: '1fM1Ci'})
     check('function', 'void f(int C::* p)', {2: '1fM1Ci'})
     check('function', 'void f(int ::C::* p)', {2: '1fM1Ci'})
-    check('function', 'void f(int C::* const)', {2: '1fKM1Ci'})
-    check('function', 'void f(int C::* const&)', {2: '1fRKM1Ci'})
-    check('function', 'void f(int C::* volatile)', {2: '1fVM1Ci'})
-    check('function', 'void f(int C::* const volatile)', {2: '1fVKM1Ci'},
-          output='void f(int C::* volatile const)')
-    check('function', 'void f(int C::* volatile const)', {2: '1fVKM1Ci'})
+    check('function', 'void f(int C::*const)', {2: '1fKM1Ci'})
+    check('function', 'void f(int C::*const&)', {2: '1fRKM1Ci'})
+    check('function', 'void f(int C::*volatile)', {2: '1fVM1Ci'})
+    check('function', 'void f(int C::*const volatile)', {2: '1fVKM1Ci'},
+          output='void f(int C::*volatile const)')
+    check('function', 'void f(int C::*volatile const)', {2: '1fVKM1Ci'})
     check('function', 'void f(int (C::*)(float, double))', {2: '1fM1CFifdE'})
     check('function', 'void f(int (C::* p)(float, double))', {2: '1fM1CFifdE'})
     check('function', 'void f(int (::C::* p)(float, double))', {2: '1fM1CFifdE'})
     check('function', 'void f(void (C::*)() const &)', {2: '1fM1CKRFvvE'})
     check('function', 'int C::* f(int, double)', {2: '1fid'})
-    check('function', 'void f(int C::* *)', {2: '1fPM1Ci'})
+    check('function', 'void f(int C::* *p)', {2: '1fPM1Ci'})
+    check('function', 'void f(int C::**)', {2: '1fPM1Ci'})
+    check('function', 'void f(int C::*const *p)', {2: '1fPKM1Ci'})
+    check('function', 'void f(int C::*const*)', {2: '1fPKM1Ci'})
 
     # exceptions from return type mangling
     check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
