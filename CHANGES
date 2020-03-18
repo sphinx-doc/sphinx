@@ -114,6 +114,8 @@ Features added
 
 * Added ``SphinxDirective.get_source_info()``
   and ``SphinxRole.get_source_info()``.
+* #7324: sphinx-build: Emit a warning if multiple files having different file
+  extensions for same document found
 
 Bugs fixed
 ----------
