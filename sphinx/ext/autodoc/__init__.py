@@ -23,7 +23,7 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.config import ENUM
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
 from sphinx.ext.autodoc.mock import mock
@@ -266,7 +266,7 @@ class Documenter:
     @property
     def documenters(self) -> Dict[str, "Type[Documenter]"]:
         """Returns registered Documenter classes"""
-        return get_documenters(self.env.app)
+        return self.env.app.registry.documenters
 
     def add_line(self, line: str, source: str, *lineno: int) -> None:
         """Append one line of generated reST to the output."""
@@ -1713,6 +1713,7 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
 
 def get_documenters(app: Sphinx) -> Dict[str, "Type[Documenter]"]:
     """Returns registered Documenter classes"""
+    warnings.warn("get_documenters() is deprecated.", RemovedInSphinx50Warning)
     return app.registry.documenters
 
 
