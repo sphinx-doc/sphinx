@@ -2288,8 +2288,7 @@ class ASTDeclaratorPtr(ASTDeclarator):
         return self.next.function_params
 
     def require_space_after_declSpecs(self) -> bool:
-        # TODO: if has paramPack, then False ?
-        return True
+        return self.next.require_space_after_declSpecs()
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['*']
@@ -2304,7 +2303,7 @@ class ASTDeclaratorPtr(ASTDeclarator):
                 res.append(' ')
             res.append('const')
         if self.const or self.volatile or len(self.attrs) > 0:
-            if self.next.require_space_after_declSpecs:
+            if self.next.require_space_after_declSpecs():
                 res.append(' ')
         res.append(transform(self.next))
         return ''.join(res)
@@ -2364,7 +2363,7 @@ class ASTDeclaratorPtr(ASTDeclarator):
                 signode += nodes.Text(' ')
             _add_anno(signode, 'const')
         if self.const or self.volatile or len(self.attrs) > 0:
-            if self.next.require_space_after_declSpecs:
+            if self.next.require_space_after_declSpecs():
                 signode += nodes.Text(' ')
         self.next.describe_signature(signode, mode, env, symbol)
 
@@ -2394,7 +2393,7 @@ class ASTDeclaratorRef(ASTDeclarator):
         res = ['&']
         for a in self.attrs:
             res.append(transform(a))
-        if len(self.attrs) > 0 and self.next.require_space_after_declSpecs:
+        if len(self.attrs) > 0 and self.next.require_space_after_declSpecs():
             res.append(' ')
         res.append(transform(self.next))
         return ''.join(res)
@@ -2425,7 +2424,7 @@ class ASTDeclaratorRef(ASTDeclarator):
         signode += nodes.Text("&")
         for a in self.attrs:
             a.describe_signature(signode)
-        if len(self.attrs) > 0 and self.next.require_space_after_declSpecs:
+        if len(self.attrs) > 0 and self.next.require_space_after_declSpecs():
             signode += nodes.Text(' ')
         self.next.describe_signature(signode, mode, env, symbol)
 
@@ -2507,9 +2506,11 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
         res.append(transform(self.className))
         res.append('::*')
         if self.volatile:
-            res.append(' volatile')
+            res.append('volatile')
         if self.const:
-            res.append(' const')
+            if self.volatile:
+                res.append(' ')
+            res.append('const')
         if self.next.require_space_after_declSpecs():
             res.append(' ')
         res.append(transform(self.next))
@@ -2565,8 +2566,7 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
                 signode += nodes.Text(' ')
             _add_anno(signode, 'const')
         if self.next.require_space_after_declSpecs():
-            if self.volatile or self.const:
-                signode += nodes.Text(' ')
+            signode += nodes.Text(' ')
         self.next.describe_signature(signode, mode, env, symbol)
 
 
