@@ -123,6 +123,7 @@ Bugs fixed
 * #7267: autodoc: error message for invalid directive options has wrong location
 * #5637: inheritance_diagram: Incorrect handling of nested class names
 * #7139: ``code-block:: guess`` does not work
+* #7325: html: source_suffix containing dot leads to wrong source link
 * #7278: html search: Fix use of ``html_file_suffix`` instead of
   ``html_link_suffix`` in search results
 * #7297: html theme: ``bizstyle`` does not support ``sidebarwidth``

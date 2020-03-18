@@ -332,7 +332,7 @@ class BuildEnvironment:
         if suffix:
             warnings.warn('The suffix argument for doc2path() is deprecated.',
                           RemovedInSphinx40Warning)
-        if base not in (True, None):
+        if base not in (True, False, None):
             warnings.warn('The string style base argument for doc2path() is deprecated.',
                           RemovedInSphinx40Warning)
 
