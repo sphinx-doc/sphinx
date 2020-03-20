@@ -60,7 +60,6 @@ class ObjectDescription(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    strip_backslashes = None
     option_spec = {
         'noindex': directives.flag,
     }  # type: Dict[str, DirectiveOption]
@@ -92,28 +91,9 @@ class ObjectDescription(SphinxDirective):
         """
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
-
-        Backslash-escaping of newlines is supported.
         """
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
-
-        # Stripping of backslashes can be overridden by the user config,
-        # otherwise the object it self may have an opinion, and
-        # otherwise we don't do stripping.
-        do_stripping = False
-        conf_stripping = self.env.config.signature_backslash_strip_domain_override
-        if conf_stripping is None:
-            # no user config override, use the object opinion if any
-            if self.strip_backslashes is not None:
-                do_stripping = self.strip_backslashes
-        else:
-            # could be overridden by the user
-            if len(conf_stripping) == 0:
-                # override always (i.e., the old behaviour)
-                do_stripping = True
-            elif self.domain is not None:
-                do_stripping = self.domain in conf_stripping
-        if do_stripping:
+        if self.config.strip_signature_backslash:
             # remove backslashes to support (dummy) escapes; helps Vim highlighting
             return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
         else:
@@ -318,7 +298,7 @@ deprecated_alias('sphinx.directives',
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.add_config_value("signature_backslash_strip_domain_override", None, 'env')
+    app.add_config_value("strip_signature_backslash", False, 'env')
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)

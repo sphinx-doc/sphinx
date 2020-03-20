@@ -634,14 +634,13 @@ General configuration
    .. versionchanged:: 1.1
       Now also removes ``<BLANKLINE>``.
 
-.. confval:: signature_backslash_strip_domain_override
+.. confval:: strip_signature_backslash
 
-    A list of domain names for which to forcibly reinstate backslash stripping.
-    The value ``None`` means "no domains" while ``[]`` means every domain
-    (i.e., the behaviour before version 3.0).
-    Default is ``None``.
-    When backslash stripping is enabled then every occurrence of ``\\`` in a domain
-    directive will be changed to ``\``, even within string literals.
+   Default is ``False``.
+   When backslash stripping is enabled then every occurrence of ``\\`` in a
+   domain directive will be changed to ``\``, even within string literals.
+   This was the behaviour before version 3.0, and setting this variable to
+   ``True`` will reinstate that behaviour.
 
     .. versionadded:: 3.0
 
