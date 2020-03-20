@@ -193,7 +193,7 @@ def test_format_signature():
     assert formatsig('function', 'f', f, None, None) == '(a, b, c=1, **d)'
     assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
     assert formatsig('function', 'f', f, None, 'None') == '(a, b, c=1, **d) -> None'
-    assert formatsig('function', 'g', g, None, None) == r"(a='\\n')"
+    assert formatsig('function', 'g', g, None, None) == r"(a='\n')"
 
     # test for classes
     class D:
@@ -247,12 +247,12 @@ def test_format_signature():
     assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
     assert formatsig('method', 'H.foo', H.foo1, 'a', None) == '(a)'
     assert formatsig('method', 'H.foo', H.foo2, None, None) == '(*c)'
-    assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\\n')"
+    assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\n')"
 
     # test bound methods interpreted as functions
     assert formatsig('function', 'foo', H().foo1, None, None) == '(b, *c)'
     assert formatsig('function', 'foo', H().foo2, None, None) == '(*c)'
-    assert formatsig('function', 'foo', H().foo3, None, None) == r"(d='\\n')"
+    assert formatsig('function', 'foo', H().foo3, None, None) == r"(d='\n')"
 
     # test exception handling (exception is caught and args is '')
     directive.env.config.autodoc_docstring_signature = False
