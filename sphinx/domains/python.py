@@ -370,7 +370,7 @@ class PyObject(ObjectDescription):
                              signode: desc_signature) -> None:
         modname = self.options.get('module', self.env.ref_context.get('py:module'))
         fullname = (modname + '.' if modname else '') + name_cls[0]
-        node_id = make_id(self.env, self.state.document, modname or '', name_cls[0])
+        node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
 
         # Assign old styled node_id(fullname) not to break old hyperlinks (if possible)
