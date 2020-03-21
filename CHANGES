@@ -141,6 +141,7 @@ Bugs fixed
 * #2377: C, parse function pointers even in complex types.
 * #7345: sphinx-build: Sphinx crashes if output directory exists as a file
 * #7290: sphinx-build: Ignore bdb.BdbQuit when handling exceptions
+* #6240: napoleon: Attributes and Methods sections ignore :noindex: option
 
 Testing
 --------
