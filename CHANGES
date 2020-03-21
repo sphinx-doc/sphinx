@@ -81,6 +81,8 @@ Features added
 * #6895: py domain: Do not emit nitpicky warnings for built-in types
 * py domain: Support lambda functions in function signature
 * #6417: py domain: Allow to make a style for arguments of functions and methods
+* #7238, #7239: py domain: Emit a warning on describing a python object if the
+  entry is already added as the same name
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`
 * #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
