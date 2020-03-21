@@ -13,6 +13,7 @@
 import importlib
 import re
 import warnings
+from inspect import Parameter
 from types import ModuleType
 from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
 from typing import TYPE_CHECKING
@@ -23,7 +24,7 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.config import ENUM
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
 from sphinx.ext.autodoc.mock import mock
@@ -264,7 +265,7 @@ class Documenter:
     @property
     def documenters(self) -> Dict[str, Type["Documenter"]]:
         """Returns registered Documenter classes"""
-        return get_documenters(self.env.app)
+        return self.env.app.registry.documenters
 
     def add_line(self, line: str, source: str, *lineno: int) -> None:
         """Append one line of generated reST to the output."""
@@ -1041,8 +1042,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 sig = inspect.signature(self.object.__init__, bound_method=True)
                 args = stringify_signature(sig, show_return_annotation=False, **kwargs)
 
-        # escape backslashes for reST
-        args = args.replace('\\', '\\\\')
+        if self.env.config.strip_signature_backslash:
+            # escape backslashes for reST
+            args = args.replace('\\', '\\\\')
         return args
 
     def document_members(self, all_members: bool = False) -> None:
@@ -1107,9 +1109,10 @@ class SingledispatchFunctionDocumenter(FunctionDocumenter):
         if len(sig.parameters) == 0:
             return
 
-        name = list(sig.parameters)[0]
-        if name not in func.__annotations__:
-            func.__annotations__[name] = typ
+        params = list(sig.parameters.values())
+        if params[0].annotation is Parameter.empty:
+            params[0] = params[0].replace(annotation=typ)
+            func.__signature__ = sig.replace(parameters=params)  # type: ignore
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -1434,8 +1437,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             sig = inspect.signature(self.object, bound_method=True)
         args = stringify_signature(sig, **kwargs)
 
-        # escape backslashes for reST
-        args = args.replace('\\', '\\\\')
+        if self.env.config.strip_signature_backslash:
+            # escape backslashes for reST
+            args = args.replace('\\', '\\\\')
         return args
 
     def add_directive_header(self, sig: str) -> None:
@@ -1507,13 +1511,14 @@ class SingledispatchMethodDocumenter(MethodDocumenter):
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
-        sig = inspect.signature(func, bound_method=True)
-        if len(sig.parameters) == 0:
+        sig = inspect.signature(func)
+        if len(sig.parameters) == 1:
             return
 
-        name = list(sig.parameters)[0]
-        if name not in func.__annotations__:
-            func.__annotations__[name] = typ
+        params = list(sig.parameters.values())
+        if params[1].annotation is Parameter.empty:
+            params[1] = params[1].replace(annotation=typ)
+            func.__signature__ = sig.replace(parameters=params)  # type: ignore
 
 
 class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
@@ -1709,6 +1714,7 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
 
 def get_documenters(app: Sphinx) -> Dict[str, Type[Documenter]]:
     """Returns registered Documenter classes"""
+    warnings.warn("get_documenters() is deprecated.", RemovedInSphinx50Warning)
     return app.registry.documenters
 
 

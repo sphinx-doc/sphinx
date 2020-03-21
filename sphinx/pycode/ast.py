@@ -9,7 +9,7 @@
 """
 
 import sys
-from typing import List
+from typing import Dict, List, Type
 
 if sys.version_info > (3, 8):
     import ast
@@ -19,6 +19,29 @@ else:
         from typed_ast import ast3 as ast
     except ImportError:
         import ast  # type: ignore
+
+
+OPERATORS = {
+    ast.Add: "+",
+    ast.And: "and",
+    ast.BitAnd: "&",
+    ast.BitOr: "|",
+    ast.BitXor: "^",
+    ast.Div: "/",
+    ast.FloorDiv: "//",
+    ast.Invert: "~",
+    ast.LShift: "<<",
+    ast.MatMult: "@",
+    ast.Mult: "*",
+    ast.Mod: "%",
+    ast.Not: "not",
+    ast.Pow: "**",
+    ast.Or: "or",
+    ast.RShift: ">>",
+    ast.Sub: "-",
+    ast.UAdd: "+",
+    ast.USub: "-",
+}  # type: Dict[Type[ast.AST], str]
 
 
 def parse(code: str, mode: str = 'exec') -> "ast.AST":
@@ -41,6 +64,8 @@ def unparse(node: ast.AST) -> str:
         return None
     elif isinstance(node, str):
         return node
+    elif node.__class__ in OPERATORS:
+        return OPERATORS[node.__class__]
     elif isinstance(node, ast.arg):
         if node.annotation:
             return "%s: %s" % (node.arg, unparse(node.annotation))
@@ -50,6 +75,11 @@ def unparse(node: ast.AST) -> str:
         return unparse_arguments(node)
     elif isinstance(node, ast.Attribute):
         return "%s.%s" % (unparse(node.value), node.attr)
+    elif isinstance(node, ast.BinOp):
+        return " ".join(unparse(e) for e in [node.left, node.op, node.right])
+    elif isinstance(node, ast.BoolOp):
+        op = " %s " % unparse(node.op)
+        return op.join(unparse(e) for e in node.values)
     elif isinstance(node, ast.Bytes):
         return repr(node.s)
     elif isinstance(node, ast.Call):
@@ -81,6 +111,8 @@ def unparse(node: ast.AST) -> str:
         return repr(node.s)
     elif isinstance(node, ast.Subscript):
         return "%s[%s]" % (unparse(node.value), unparse(node.slice))
+    elif isinstance(node, ast.UnaryOp):
+        return "%s %s" % (unparse(node.op), unparse(node.operand))
     elif isinstance(node, ast.Tuple):
         return ", ".join(unparse(e) for e in node.elts)
     elif sys.version_info > (3, 6) and isinstance(node, ast.Constant):

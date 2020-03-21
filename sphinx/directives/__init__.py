@@ -90,12 +90,13 @@ class ObjectDescription(SphinxDirective):
         """
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
-
-        Backslash-escaping of newlines is supported.
         """
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
-        # remove backslashes to support (dummy) escapes; helps Vim highlighting
-        return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
+        if self.config.strip_signature_backslash:
+            # remove backslashes to support (dummy) escapes; helps Vim highlighting
+            return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
+        else:
+            return [line.strip() for line in lines]
 
     def handle_signature(self, sig: str, signode: desc_signature) -> Any:
         """
@@ -296,6 +297,7 @@ deprecated_alias('sphinx.directives',
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
+    app.add_config_value("strip_signature_backslash", False, 'env')
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)

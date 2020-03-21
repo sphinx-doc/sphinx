@@ -180,7 +180,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      This can be combined with ``undoc-members`` to document *all* available
      members of the class or module.
 
-     It can take an anchestor class not to document inherited members from it.
+     It can take an ancestor class not to document inherited members from it.
      By default, members of ``object`` class are not documented.  To show them
      all, give ``None`` to the option.
 

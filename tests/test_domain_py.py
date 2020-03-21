@@ -17,7 +17,8 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.addnodes import (
     desc, desc_addname, desc_annotation, desc_content, desc_name, desc_optional,
-    desc_parameter, desc_parameterlist, desc_returns, desc_signature
+    desc_parameter, desc_parameterlist, desc_returns, desc_signature,
+    desc_sig_name, desc_sig_operator, desc_sig_punctuation,
 )
 from sphinx.domains import IndexEntry
 from sphinx.domains.python import (
@@ -246,8 +247,10 @@ def test_pyfunction_signature(app):
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
     assert_node(doctree[1][0][1],
-                [desc_parameterlist, desc_parameter, ("name",
-                                                      ": str")])
+                [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"],
+                                                      [desc_sig_punctuation, ":"],
+                                                      " ",
+                                                      [nodes.inline, "str"])])
 
 
 def test_pyfunction_signature_full(app):
@@ -262,17 +265,31 @@ def test_pyfunction_signature_full(app):
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
     assert_node(doctree[1][0][1],
-                [desc_parameterlist, ([desc_parameter, ("a",
-                                                        ": str")],
-                                      [desc_parameter, ("b",
-                                                        "=1")],
-                                      [desc_parameter, ("*args",
-                                                        ": str")],
-                                      [desc_parameter, ("c",
-                                                        ": bool",
-                                                        " = True")],
-                                      [desc_parameter, ("**kwargs",
-                                                        ": str")])])
+                [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "a"],
+                                                        [desc_sig_punctuation, ":"],
+                                                        " ",
+                                                        [desc_sig_name, "str"])],
+                                      [desc_parameter, ([desc_sig_name, "b"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "1"])],
+                                      [desc_parameter, ([desc_sig_operator, "*"],
+                                                        [desc_sig_name, "args"],
+                                                        [desc_sig_punctuation, ":"],
+                                                        " ",
+                                                        [desc_sig_name, "str"])],
+                                      [desc_parameter, ([desc_sig_name, "c"],
+                                                        [desc_sig_punctuation, ":"],
+                                                        " ",
+                                                        [desc_sig_name, "bool"],
+                                                        " ",
+                                                        [desc_sig_operator, "="],
+                                                        " ",
+                                                        [nodes.inline, "True"])],
+                                      [desc_parameter, ([desc_sig_operator, "**"],
+                                                        [desc_sig_name, "kwargs"],
+                                                        [desc_sig_punctuation, ":"],
+                                                        " ",
+                                                        [desc_sig_name, "str"])])])
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
@@ -281,37 +298,40 @@ def test_pyfunction_signature_full_py38(app):
     text = ".. py:function:: hello(*, a)"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
-                [desc_parameterlist, ([desc_parameter, "*"],
-                                      [desc_parameter, ("a",
-                                                        "=None")])])
+                [desc_parameterlist, ([desc_parameter, nodes.inline, "*"],
+                                      [desc_parameter, ([desc_sig_name, "a"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "None"])])])
 
     # case: separator in the middle
     text = ".. py:function:: hello(a, /, b, *, c)"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
-                [desc_parameterlist, ([desc_parameter, "a"],
-                                      [desc_parameter, "/"],
-                                      [desc_parameter, "b"],
-                                      [desc_parameter, "*"],
-                                      [desc_parameter, ("c",
-                                                        "=None")])])
+                [desc_parameterlist, ([desc_parameter, desc_sig_name, "a"],
+                                      [desc_parameter, desc_sig_operator, "/"],
+                                      [desc_parameter, desc_sig_name, "b"],
+                                      [desc_parameter, desc_sig_operator, "*"],
+                                      [desc_parameter, ([desc_sig_name, "c"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "None"])])])
 
     # case: separator in the middle (2)
     text = ".. py:function:: hello(a, /, *, b)"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
-                [desc_parameterlist, ([desc_parameter, "a"],
-                                      [desc_parameter, "/"],
-                                      [desc_parameter, "*"],
-                                      [desc_parameter, ("b",
-                                                        "=None")])])
+                [desc_parameterlist, ([desc_parameter, desc_sig_name, "a"],
+                                      [desc_parameter, desc_sig_operator, "/"],
+                                      [desc_parameter, desc_sig_operator, "*"],
+                                      [desc_parameter, ([desc_sig_name, "b"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "None"])])])
 
     # case: separator at tail
     text = ".. py:function:: hello(a, /)"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
-                [desc_parameterlist, ([desc_parameter, "a"],
-                                      [desc_parameter, "/"])])
+                [desc_parameterlist, ([desc_parameter, desc_sig_name, "a"],
+                                      [desc_parameter, desc_sig_operator, "/"])])
 
 
 def test_optional_pyfunction_signature(app):

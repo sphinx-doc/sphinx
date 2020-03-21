@@ -50,6 +50,8 @@ Incompatible changes
   when ``:inherited-members:`` and ``:special-members:`` are given.
 * #6830: py domain: ``meta`` fields in info-field-list becomes reserved.  They
   are not displayed on output document now
+* #6417: py domain: doctree of desc_parameterlist has been changed.  The
+  argument names, annotations and default values are wrapped with inline node
 * The structure of ``sphinx.events.EventManager.listeners`` has changed
 * Due to the scoping changes for :rst:dir:`productionlist` some uses of
   :rst:role:`token` must be modified to include the scope which was previously
@@ -57,6 +59,8 @@ Incompatible changes
 * #6903: Internal data structure of Python, reST and standard domains have
   changed.  The node_id is added to the index of objects and modules.  Now they
   contains a pair of docname and node_id for cross reference.
+* #7276: C++ domain: Non intended behavior is removed such as ``say_hello_``
+  links to ``.. cpp:function:: say_hello()``
 * #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
   to ``.. js:function:: parseInt``
 * #7229: rst domain: Non intended behavior is removed such as ``numref_`` links
@@ -65,6 +69,13 @@ Incompatible changes
   links to ``.. py:function:: say_hello()``
 * #7246: py domain: Drop special cross reference helper for exceptions,
   functions and methods
+* The C domain has been rewritten, with additional directives and roles.
+  The existing ones are now more strict, resulting in new warnings.
+* The attribute ``sphinx_cpp_tagname`` in the ``desc_signature_line`` node
+  has been renamed to ``sphinx_line_type``.
+* #6462: double backslashes in domain directives are no longer replaced by
+  single backslashes as default. A new configuration value
+  :confval:`strip_signature_backslash` can be used by users to reenable it.
 
 Deprecated
 ----------
@@ -73,6 +84,7 @@ Deprecated
 * ``sphinx.directives.DescDirective``
 * ``sphinx.domains.std.StandardDomain.add_object()``
 * ``sphinx.domains.python.PyDecoratorMixin``
+* ``sphinx.ext.autodoc.get_documenters()``
 * ``sphinx.parsers.Parser.app``
 * ``sphinx.testing.path.Path.text()``
 * ``sphinx.testing.path.Path.bytes()``
@@ -92,12 +104,14 @@ Features added
 * #2815: autodoc: Support singledispatch functions and methods
 * #7079: autodoc: :confval:`autodoc_typehints` accepts ``"description"``
   configuration.  It shows typehints as object description
+* #7314: apidoc: Propagate ``--maxdepth`` option through package documents
 * #6558: glossary: emit a warning for duplicated glossary entry
 * #3106: domain: Register hyperlink target for index page automatically
 * #6558: std domain: emit a warning for duplicated generic objects
 * #6830: py domain: Add new event: :event:`object-description-transform`
 * #6895: py domain: Do not emit nitpicky warnings for built-in types
 * py domain: Support lambda functions in function signature
+* #6417: py domain: Allow to make a style for arguments of functions and methods
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`
 * #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
@@ -114,6 +128,21 @@ Features added
 * #7103: linkcheck: writes all links to ``output.json``
 * #7025: html search: full text search can be disabled for individual document
   using ``:nosearch:`` file-wide metadata
+* #7293: html search: Allow to override JavaScript splitter via
+  ``SearchLanguage.js_splitter_code``
+* #7142: html theme: Add a theme option: ``pygments_dark_style`` to switch the
+  style of code-blocks in dark mode
+* The C domain has been rewritten adding for example:
+
+  - Cross-referencing respecting the current scope.
+  - Possible to document anonymous entities.
+  - More specific directives and roles for each type of entitiy,
+    e.g., handling scoping of enumerators.
+  - New role :rst:role:`c:expr` for rendering expressions and types
+    in text.
+
+* Added ``SphinxDirective.get_source_info()``
+  and ``SphinxRole.get_source_info()``.
 
 Bugs fixed
 ----------
@@ -126,10 +155,21 @@ Bugs fixed
   generated automatically in signatures.
 * #5637: autodoc: Incorrect handling of nested class names on show-inheritance
 * #7267: autodoc: error message for invalid directive options has wrong location
+* #7329: autodoc: info-field-list is wrongly generated from type hints into the
+  class description even if ``autoclass_content='class'`` set
 * #5637: inheritance_diagram: Incorrect handling of nested class names
 * #7139: ``code-block:: guess`` does not work
+* #7325: html: source_suffix containing dot leads to wrong source link
 * #7278: html search: Fix use of ``html_file_suffix`` instead of
   ``html_link_suffix`` in search results
+* #7297: html theme: ``bizstyle`` does not support ``sidebarwidth``
+* #3842: singlehtml: Path to images broken when master doc is not in source root
+* #7179: std domain: Fix whitespaces are suppressed on referring GenericObject
+* #7289: console: use bright colors instead of bold
+* #1539: C, parse array types.
+* #2377: C, parse function pointers even in complex types.
+* #7345: sphinx-build: Sphinx crashes if output directory exists as a file
+* #7290: sphinx-build: Ignore bdb.BdbQuit when handling exceptions
 
 Testing
 --------

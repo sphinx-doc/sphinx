@@ -175,6 +175,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
         'separatemodules': opts.separatemodules,
         'automodule_options': options,
         'show_headings': not opts.noheadings,
+        'maxdepth': opts.maxdepth,
     }
     text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
     write_file(pkgname, text, opts)

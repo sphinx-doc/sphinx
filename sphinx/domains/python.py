@@ -71,35 +71,43 @@ def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
     for param in sig.parameters.values():
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
-            params += addnodes.desc_parameter('', nodes.Text('/'))
+            params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
         if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
                                                               param.POSITIONAL_ONLY,
                                                               None):
             # PEP-3102: Separator for Keyword Only Parameter: *
-            params += addnodes.desc_parameter('', nodes.Text('*'))
+            params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '*'))
 
         node = addnodes.desc_parameter()
         if param.kind == param.VAR_POSITIONAL:
-            node += nodes.Text('*' + param.name)
+            node += addnodes.desc_sig_operator('', '*')
+            node += addnodes.desc_sig_name('', param.name)
         elif param.kind == param.VAR_KEYWORD:
-            node += nodes.Text('**' + param.name)
+            node += addnodes.desc_sig_operator('', '**')
+            node += addnodes.desc_sig_name('', param.name)
         else:
-            node += nodes.Text(param.name)
+            node += addnodes.desc_sig_name('', param.name)
 
         if param.annotation is not param.empty:
-            node += nodes.Text(': ' + param.annotation)
+            node += addnodes.desc_sig_punctuation('', ':')
+            node += nodes.Text(' ')
+            node += addnodes.desc_sig_name('', param.annotation)
         if param.default is not param.empty:
             if param.annotation is not param.empty:
-                node += nodes.Text(' = ' + str(param.default))
+                node += nodes.Text(' ')
+                node += addnodes.desc_sig_operator('', '=')
+                node += nodes.Text(' ')
             else:
-                node += nodes.Text('=' + str(param.default))
+                node += addnodes.desc_sig_operator('', '=')
+            node += nodes.inline('', param.default, classes=['default_value'],
+                                 support_smartquotes=False)
 
         params += node
         last_kind = param.kind
 
     if last_kind == Parameter.POSITIONAL_ONLY:
         # PEP-570: Separator for Positional Only Parameter: /
-        params += addnodes.desc_parameter('', nodes.Text('/'))
+        params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
 
     return params
 
@@ -333,7 +341,8 @@ class PyObject(ObjectDescription):
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
                 _pseudo_parse_arglist(signode, arglist)
             except NotImplementedError as exc:
-                logger.warning("could not parse arglist (%r): %s", arglist, exc)
+                logger.warning("could not parse arglist (%r): %s", arglist, exc,
+                               location=signode)
                 _pseudo_parse_arglist(signode, arglist)
         else:
             if self.needs_arglist():

@@ -633,6 +633,16 @@ General configuration
    .. versionchanged:: 1.1
       Now also removes ``<BLANKLINE>``.
 
+.. confval:: strip_signature_backslash
+
+   Default is ``False``.
+   When backslash stripping is enabled then every occurrence of ``\\`` in a
+   domain directive will be changed to ``\``, even within string literals.
+   This was the behaviour before version 3.0, and setting this variable to
+   ``True`` will reinstate that behaviour.
+
+    .. versionadded:: 3.0
+
 
 .. _intl-options:
 

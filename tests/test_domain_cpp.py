@@ -22,7 +22,8 @@ def parse(name, string):
     class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
-    parser = DefinitionParser(string, None, Config())
+    parser = DefinitionParser(string, location=None,
+                              config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
@@ -109,6 +110,21 @@ def test_expressions():
         if id4 is not None:
             idDict[4] = ids % id4
         check('class', 'template<> C<a[%s]>' % expr, idDict)
+
+        class Config:
+            cpp_id_attributes = ["id_attr"]
+            cpp_paren_attributes = ["paren_attr"]
+
+        parser = DefinitionParser(expr, location=None,
+                                  config=Config())
+        parser.allowFallbackExpressionParsing = False
+        ast = parser.parse_expression()
+        res = str(ast)
+        if res != expr:
+            print("")
+            print("Input:    ", expr)
+            print("Result:   ", res)
+            raise DefinitionError("")
     # primary
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
@@ -213,11 +229,14 @@ def test_expressions():
     exprCheck('5 != 42', 'neL5EL42E')
     # ['<=', '>=', '<', '>']
     exprCheck('5 <= 42', 'leL5EL42E')
+    exprCheck('A <= 42', 'le1AL42E')
     exprCheck('5 >= 42', 'geL5EL42E')
     exprCheck('5 < 42', 'ltL5EL42E')
+    exprCheck('A < 42', 'lt1AL42E')
     exprCheck('5 > 42', 'gtL5EL42E')
     # ['<<', '>>']
     exprCheck('5 << 42', 'lsL5EL42E')
+    exprCheck('A << 42', 'ls1AL42E')
     exprCheck('5 >> 42', 'rsL5EL42E')
     # ['+', '-']
     exprCheck('5 + 42', 'plL5EL42E')
@@ -441,6 +460,13 @@ def test_function_definitions():
     with pytest.raises(DefinitionError):
         parse('function', 'int foo(D d=x(a')
     check('function', 'int foo(const A&... a)', {1: "foo__ACRDp", 2: "3fooDpRK1A"})
+    check('function', 'int foo(const A&...)', {1: "foo__ACRDp", 2: "3fooDpRK1A"})
+    check('function', 'int foo(const A*... a)', {1: "foo__ACPDp", 2: "3fooDpPK1A"})
+    check('function', 'int foo(const A*...)', {1: "foo__ACPDp", 2: "3fooDpPK1A"})
+    check('function', 'int foo(const int A::*... a)', {2: "3fooDpM1AKi"})
+    check('function', 'int foo(const int A::*...)', {2: "3fooDpM1AKi"})
+    #check('function', 'int foo(int (*a)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
+    #check('function', 'int foo(int (*)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
     check('function', 'virtual void f()', {1: "f", 2: "1fv"})
     # test for ::nestedName, from issue 1738
     check("function", "result(int val, ::std::error_category const &cat)",
@@ -482,18 +508,21 @@ def test_function_definitions():
     check('function', 'void f(int C::*)', {2: '1fM1Ci'})
     check('function', 'void f(int C::* p)', {2: '1fM1Ci'})
     check('function', 'void f(int ::C::* p)', {2: '1fM1Ci'})
-    check('function', 'void f(int C::* const)', {2: '1fKM1Ci'})
-    check('function', 'void f(int C::* const&)', {2: '1fRKM1Ci'})
-    check('function', 'void f(int C::* volatile)', {2: '1fVM1Ci'})
-    check('function', 'void f(int C::* const volatile)', {2: '1fVKM1Ci'},
-          output='void f(int C::* volatile const)')
-    check('function', 'void f(int C::* volatile const)', {2: '1fVKM1Ci'})
+    check('function', 'void f(int C::*const)', {2: '1fKM1Ci'})
+    check('function', 'void f(int C::*const&)', {2: '1fRKM1Ci'})
+    check('function', 'void f(int C::*volatile)', {2: '1fVM1Ci'})
+    check('function', 'void f(int C::*const volatile)', {2: '1fVKM1Ci'},
+          output='void f(int C::*volatile const)')
+    check('function', 'void f(int C::*volatile const)', {2: '1fVKM1Ci'})
     check('function', 'void f(int (C::*)(float, double))', {2: '1fM1CFifdE'})
     check('function', 'void f(int (C::* p)(float, double))', {2: '1fM1CFifdE'})
     check('function', 'void f(int (::C::* p)(float, double))', {2: '1fM1CFifdE'})
     check('function', 'void f(void (C::*)() const &)', {2: '1fM1CKRFvvE'})
     check('function', 'int C::* f(int, double)', {2: '1fid'})
-    check('function', 'void f(int C::* *)', {2: '1fPM1Ci'})
+    check('function', 'void f(int C::* *p)', {2: '1fPM1Ci'})
+    check('function', 'void f(int C::**)', {2: '1fPM1Ci'})
+    check('function', 'void f(int C::*const *p)', {2: '1fPKM1Ci'})
+    check('function', 'void f(int C::*const*)', {2: '1fPKM1Ci'})
 
     # exceptions from return type mangling
     check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
@@ -769,7 +798,8 @@ def test_xref_parsing():
         class Config:
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
-        parser = DefinitionParser(target, None, Config())
+        parser = DefinitionParser(target, location=None,
+                                  config=Config())
         ast, isShorthand = parser.parse_xref_object()
         parser.assert_end()
     check('f')
@@ -812,6 +842,22 @@ def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warnin
     assert len(ws) == 2
     assert "WARNING: cpp:type reference target not found: T::typeWarn" in ws[0]
     assert "WARNING: cpp:type reference target not found: T::U::typeWarn" in ws[1]
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_backslash_ok(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "backslash")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp',
+                    confoverrides={'nitpicky': True, 'strip_signature_backslash': True})
+def test_build_domain_cpp_backslash_ok(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "backslash")
+    assert len(ws) == 1
+    assert "WARNING: Parsing of expression failed. Using fallback parser." in ws[0]
 
 
 @pytest.mark.sphinx(testroot='domain-cpp')

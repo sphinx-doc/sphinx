@@ -161,6 +161,10 @@ class Sphinx:
             raise ApplicationError(__('Cannot find source directory (%s)') %
                                    self.srcdir)
 
+        if path.exists(self.outdir) and not path.isdir(self.outdir):
+            raise ApplicationError(__('Output directory (%s) is not a directory') %
+                                   self.srcdir)
+
         if self.srcdir == self.outdir:
             raise ApplicationError(__('Source directory and destination '
                                       'directory cannot be identical'))
@@ -348,13 +352,15 @@ class Sphinx:
                       else __('finished with problems'))
             if self._warncount:
                 if self.warningiserror:
-                    msg = __('build %s, %s warning (with warnings treated as errors).',
-                             'build %s, %s warnings (with warnings treated as errors).',
-                             self._warncount)
+                    if self._warncount == 1:
+                        msg = __('build %s, %s warning (with warnings treated as errors).')
+                    else:
+                        msg = __('build %s, %s warnings (with warnings treated as errors).')
                 else:
-                    msg = __('build %s, %s warning.',
-                             'build %s, %s warnings.',
-                             self._warncount)
+                    if self._warncount == 1:
+                        msg = __('build %s, %s warning.')
+                    else:
+                        msg = __('build %s, %s warnings.')
 
                 logger.info(bold(msg % (status, self._warncount)))
             else:
