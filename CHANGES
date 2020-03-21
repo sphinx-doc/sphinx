@@ -124,6 +124,8 @@ Bugs fixed
   generated automatically in signatures.
 * #5637: autodoc: Incorrect handling of nested class names on show-inheritance
 * #7267: autodoc: error message for invalid directive options has wrong location
+* #7329: autodoc: info-field-list is wrongly generated from type hints into the
+  class description even if ``autoclass_content='class'`` set
 * #5637: inheritance_diagram: Incorrect handling of nested class names
 * #7139: ``code-block:: guess`` does not work
 * #7325: html: source_suffix containing dot leads to wrong source link

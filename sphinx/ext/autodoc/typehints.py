@@ -43,6 +43,8 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
         return
     if app.config.autodoc_typehints != 'description':
         return
+    if objtype == 'class' and app.config.autoclass_content not in ('init', 'both'):
+        return
 
     signature = cast(addnodes.desc_signature, contentnode.parent[0])
     if signature['module']:
