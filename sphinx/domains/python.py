@@ -103,7 +103,8 @@ def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
                 node += nodes.Text(' ')
             else:
                 node += addnodes.desc_sig_operator('', '=')
-            node += nodes.inline('', param.default, classes=['default_value'])
+            node += nodes.inline('', param.default, classes=['default_value'],
+                                 support_smartquotes=False)
 
         params += node
         last_kind = param.kind
