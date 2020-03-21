@@ -118,6 +118,7 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
+    KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color']
 
     def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:
         if isinstance(level, int):
@@ -131,16 +132,9 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
 
     def process(self, msg: str, kwargs: Dict) -> Tuple[str, Dict]:  # type: ignore
         extra = kwargs.setdefault('extra', {})
-        if 'type' in kwargs:
-            extra['type'] = kwargs.pop('type')
-        if 'subtype' in kwargs:
-            extra['subtype'] = kwargs.pop('subtype')
-        if 'location' in kwargs:
-            extra['location'] = kwargs.pop('location')
-        if 'nonl' in kwargs:
-            extra['nonl'] = kwargs.pop('nonl')
-        if 'color' in kwargs:
-            extra['color'] = kwargs.pop('color')
+        for keyword in self.KEYWORDS:
+            if keyword in kwargs:
+                extra[keyword] = kwargs.pop(keyword)
 
         return msg, kwargs
 
