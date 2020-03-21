@@ -42,6 +42,9 @@ Incompatible changes
   The existing ones are now more strict, resulting in new warnings.
 * The attribute ``sphinx_cpp_tagname`` in the ``desc_signature_line`` node
   has been renamed to ``sphinx_line_type``.
+* #6462: double backslashes in domain directives are no longer replaced by
+  single backslashes as default. A new configuration value
+  :confval:`strip_signature_backslash` can be used by users to reenable it.
 
 Deprecated
 ----------

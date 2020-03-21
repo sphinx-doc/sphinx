@@ -1043,8 +1043,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 sig = inspect.signature(self.object.__init__, bound_method=True)
                 args = stringify_signature(sig, show_return_annotation=False, **kwargs)
 
-        # escape backslashes for reST
-        args = args.replace('\\', '\\\\')
+        if self.env.config.strip_signature_backslash:
+            # escape backslashes for reST
+            args = args.replace('\\', '\\\\')
         return args
 
     def document_members(self, all_members: bool = False) -> None:
@@ -1437,8 +1438,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             sig = inspect.signature(self.object, bound_method=True)
         args = stringify_signature(sig, **kwargs)
 
-        # escape backslashes for reST
-        args = args.replace('\\', '\\\\')
+        if self.env.config.strip_signature_backslash:
+            # escape backslashes for reST
+            args = args.replace('\\', '\\\\')
         return args
 
     def add_directive_header(self, sig: str) -> None:
