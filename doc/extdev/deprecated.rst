@@ -51,6 +51,11 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.registry.documenters``
 
+   * - ``sphinx.ext.autosummary.process_autosummary_toc()``
+     - 3.0
+     - 5.0
+     - N/A
+
    * - ``sphinx.parsers.Parser.app``
      - 3.0
      - 5.0
