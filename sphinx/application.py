@@ -163,6 +163,10 @@ class Sphinx:
             raise ApplicationError(__('Cannot find source directory (%s)') %
                                    self.srcdir)
 
+        if path.exists(self.outdir) and not path.isdir(self.outdir):
+            raise ApplicationError(__('Output directory (%s) is not a directory') %
+                                   self.srcdir)
+
         if self.srcdir == self.outdir:
             raise ApplicationError(__('Source directory and destination '
                                       'directory cannot be identical'))

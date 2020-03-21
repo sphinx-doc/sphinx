@@ -137,6 +137,7 @@ Bugs fixed
 * #7289: console: use bright colors instead of bold
 * #1539: C, parse array types.
 * #2377: C, parse function pointers even in complex types.
+* #7345: sphinx-build: Sphinx crashes if output directory exists as a file
 
 Testing
 --------
