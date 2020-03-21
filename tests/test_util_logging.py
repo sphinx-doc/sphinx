@@ -103,6 +103,17 @@ def test_nonl_info_log(app, status, warning):
     assert 'message1message2\nmessage3' in status.getvalue()
 
 
+def test_once_warning_log(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.warning('message: %d', 1, once=True)
+    logger.warning('message: %d', 1, once=True)
+    logger.warning('message: %d', 2, once=True)
+
+    assert 'WARNING: message: 1\nWARNING: message: 2\n' in strip_escseq(warning.getvalue())
+
+
 def test_is_suppressed_warning():
     suppress_warnings = ["ref", "files.*", "rest.duplicated_labels"]
 

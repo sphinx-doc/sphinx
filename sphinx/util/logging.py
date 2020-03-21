@@ -118,7 +118,7 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
-    KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color']
+    KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
     def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:
         if isinstance(level, int):
@@ -440,6 +440,26 @@ class MessagePrefixFilter(logging.Filter):
         return True
 
 
+class OnceFilter(logging.Filter):
+    """Show the message only once."""
+
+    def __init__(self, name: str = '') -> None:
+        super().__init__(name)
+        self.messages = {}  # type: Dict[str, List]
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        once = getattr(record, 'once', '')
+        if not once:
+            return True
+        else:
+            params = self.messages.setdefault(record.msg, [])
+            if record.args in params:
+                return False
+
+            params.append(record.args)
+            return True
+
+
 class SphinxLogRecordTranslator(logging.Filter):
     """Converts a log record to one Sphinx expects
 
@@ -557,6 +577,7 @@ def setup(app: "Sphinx", status: IO, warning: IO) -> None:
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
     warning_handler.addFilter(WarningIsErrorFilter(app))
+    warning_handler.addFilter(OnceFilter())
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(ColorizeFormatter())
 
