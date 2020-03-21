@@ -83,6 +83,7 @@ Features added
 * #6417: py domain: Allow to make a style for arguments of functions and methods
 * #7238, #7239: py domain: Emit a warning on describing a python object if the
   entry is already added as the same name
+* #7341: py domain: type annotations in singature are converted to cross refs
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`
 * #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
