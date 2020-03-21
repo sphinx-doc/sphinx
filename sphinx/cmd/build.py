@@ -29,6 +29,11 @@ from sphinx.util.docutils import docutils_namespace, patch_docutils
 
 
 def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
+    import bdb
+
+    if isinstance(exception, bdb.BdbQuit):
+        return
+
     if args.pdb:
         import pdb
         print(red(__('Exception occurred while building, starting debugger:')),
