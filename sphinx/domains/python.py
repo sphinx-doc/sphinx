@@ -70,6 +70,11 @@ pairindextypes = {
 ObjectEntry = NamedTuple('ObjectEntry', [('docname', str),
                                          ('node_id', str),
                                          ('objtype', str)])
+ModuleEntry = NamedTuple('ModuleEntry', [('docname', str),
+                                         ('node_id', str),
+                                         ('synopsis', str),
+                                         ('platform', str),
+                                         ('deprecated', bool)])
 
 
 def _parse_annotation(annotation: str) -> List[Node]:
@@ -1133,8 +1138,8 @@ class PythonDomain(Domain):
         self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype)
 
     @property
-    def modules(self) -> Dict[str, Tuple[str, str, str, str, bool]]:
-        return self.data.setdefault('modules', {})  # modname -> docname, node_id, synopsis, platform, deprecated  # NOQA
+    def modules(self) -> Dict[str, ModuleEntry]:
+        return self.data.setdefault('modules', {})  # modname -> ModuleEntry
 
     def note_module(self, name: str, node_id: str, synopsis: str,
                     platform: str, deprecated: bool) -> None:
@@ -1142,14 +1147,15 @@ class PythonDomain(Domain):
 
         .. versionadded:: 2.1
         """
-        self.modules[name] = (self.env.docname, node_id, synopsis, platform, deprecated)
+        self.modules[name] = ModuleEntry(self.env.docname, node_id,
+                                         synopsis, platform, deprecated)
 
     def clear_doc(self, docname: str) -> None:
         for fullname, obj in list(self.objects.items()):
             if obj.docname == docname:
                 del self.objects[fullname]
-        for modname, (fn, _x, _x, _x, _y) in list(self.modules.items()):
-            if fn == docname:
+        for modname, mod in list(self.modules.items()):
+            if mod.docname == docname:
                 del self.modules[modname]
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
@@ -1157,9 +1163,9 @@ class PythonDomain(Domain):
         for fullname, obj in otherdata['objects'].items():
             if obj.docname in docnames:
                 self.objects[fullname] = obj
-        for modname, data in otherdata['modules'].items():
-            if data[0] in docnames:
-                self.modules[modname] = data
+        for modname, mod in otherdata['modules'].items():
+            if mod.docname in docnames:
+                self.modules[modname] = mod
 
     def find_obj(self, env: BuildEnvironment, modname: str, classname: str,
                  name: str, type: str, searchmode: int = 0
@@ -1266,19 +1272,20 @@ class PythonDomain(Domain):
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,
                              contnode: Node) -> Element:
         # get additional info for modules
-        docname, node_id, synopsis, platform, deprecated = self.modules[name]
+        module = self.modules[name]
         title = name
-        if synopsis:
-            title += ': ' + synopsis
-        if deprecated:
+        if module.synopsis:
+            title += ': ' + module.synopsis
+        if module.deprecated:
             title += _(' (deprecated)')
-        if platform:
-            title += ' (' + platform + ')'
-        return make_refnode(builder, fromdocname, docname, node_id, contnode, title)
+        if module.platform:
+            title += ' (' + module.platform + ')'
+        return make_refnode(builder, fromdocname, module.docname, module.node_id,
+                            contnode, title)
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
-        for modname, info in self.modules.items():
-            yield (modname, modname, 'module', info[0], info[1], 0)
+        for modname, mod in self.modules.items():
+            yield (modname, modname, 'module', mod.docname, mod.node_id, 0)
         for refname, obj in self.objects.items():
             if obj.objtype != 'module':  # modules are already handled
                 yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
