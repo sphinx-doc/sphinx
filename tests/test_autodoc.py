@@ -22,6 +22,13 @@ from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
+try:
+    # Enable pyximport to test cython module
+    import pyximport
+    pyximport.install()
+except ImportError:
+    pyximport = None
+
 app = None
 
 
@@ -1607,5 +1614,24 @@ def test_singledispatchmethod():
         '      :module: target.singledispatchmethod',
         '',
         '      A method for general use.',
+        '',
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
+@pytest.mark.skipif(pyximport is None, reason='cython is not installed')
+def test_cython():
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.cython', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.cython',
+        '',
+        '',
+        '.. py:function:: foo(*args, **kwargs)',
+        '   :module: target.cython',
+        '',
+        '   Docstring.',
         '',
     ]
