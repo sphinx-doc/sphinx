@@ -461,8 +461,6 @@ class SphinxTranslator(nodes.NodeVisitor):
         for node_class in node.__class__.__mro__:
             method = getattr(self, 'visit_%s' % (node_class.__name__), None)
             if method:
-                logger.debug('SphinxTranslator.dispatch_visit calling %s for %s',
-                             method.__name__, node)
                 method(node)
                 break
         else:
@@ -480,8 +478,6 @@ class SphinxTranslator(nodes.NodeVisitor):
         for node_class in node.__class__.__mro__:
             method = getattr(self, 'depart_%s' % (node_class.__name__), None)
             if method:
-                logger.debug('SphinxTranslator.dispatch_departure calling %s for %s',
-                             method.__name__, node)
                 method(node)
                 break
         else:
