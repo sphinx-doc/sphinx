@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7364: autosummary: crashed when :confval:`autosummary_generate` is False
+
 Testing
 --------
 
