@@ -176,9 +176,9 @@ def test_html4_output(app, status, warning):
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dl[@class='py class']/dt[@id='autodoc-target-class']", ''),
-        (".//dl[@class='py function']/dt[@id='autodoc-target-function']/em/span", r'\*\*'),
-        (".//dl[@class='py function']/dt[@id='autodoc-target-function']/em/span", r'kwds'),
+        (".//dl[@class='py class']/dt[@id='autodoc_target.class']", ''),
+        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'\*\*'),
+        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
@@ -223,7 +223,7 @@ def test_html4_output(app, status, warning):
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
-        (".//a[@href='#grammar-token-try-stmt']"
+        (".//a[@href='#grammar-token-try_stmt']"
          "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
@@ -255,7 +255,7 @@ def test_html4_output(app, status, warning):
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-try1-stmt']/code/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
@@ -263,7 +263,7 @@ def test_html4_output(app, status, warning):
         (".//p", 'Always present'),
         # tests for ``any`` role
         (".//a[@href='#with']/span", 'headings'),
-        (".//a[@href='objects.html#func-without-body']/code/span", 'objects'),
+        (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
         # tests for numeric labels
         (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
         # tests for smartypants
@@ -275,18 +275,18 @@ def test_html4_output(app, status, warning):
         (".//p", 'Il dit : « C’est “super” ! »'),
     ],
     'objects.html': [
-        (".//dt[@id='mod-cls-meth1']", ''),
-        (".//dt[@id='errmod-error']", ''),
+        (".//dt[@id='mod.cls.meth1']", ''),
+        (".//dt[@id='errmod.error']", ''),
         (".//dt/code", r'long\(parameter,\s* list\)'),
         (".//dt/code", 'another one'),
-        (".//a[@href='#mod-cls'][@class='reference internal']", ''),
+        (".//a[@href='#mod.cls'][@class='reference internal']", ''),
         (".//dl[@class='std userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
         (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # docfields
         (".//a[@class='reference internal'][@href='#timeint']/em", 'TimeInt'),
         (".//a[@class='reference internal'][@href='#time']", 'Time'),
-        (".//a[@class='reference internal'][@href='#errmod-error']/strong", 'Error'),
+        (".//a[@class='reference internal'][@href='#errmod.error']/strong", 'Error'),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#c.Sphinx_DoSomething']", ''),
@@ -325,7 +325,7 @@ def test_html4_output(app, status, warning):
          '\\+p'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-objc']/code/span",
          '--ObjC\\+\\+'),
-        (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin-option']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin.option']/code/span",
          '--plugin.option'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-create-auth-token']"
          "/code/span",

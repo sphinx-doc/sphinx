@@ -870,7 +870,7 @@ def test_xml_refs_in_python_domain(app):
     assert_elem(
         para0[0],
         ['SEE THIS DECORATOR:', 'sensitive_variables()', '.'],
-        ['sensitive-sensitive-variables'])
+        ['sensitive.sensitive_variables'])
 
 
 @sphinx_intl

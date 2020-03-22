@@ -123,25 +123,25 @@ def test_domain_js_find_obj(app, status, warning):
             ('NestedParentA', ('roles', 'nestedparenta', 'class')))
     assert (find_obj(None, None, 'NestedParentA.NestedChildA', 'class') ==
             ('NestedParentA.NestedChildA',
-             ('roles', 'nestedparenta-nestedchilda', 'class')))
+             ('roles', 'nestedparenta.nestedchilda', 'class')))
     assert (find_obj(None, 'NestedParentA', 'NestedChildA', 'class') ==
             ('NestedParentA.NestedChildA',
-             ('roles', 'nestedparenta-nestedchilda', 'class')))
+             ('roles', 'nestedparenta.nestedchilda', 'class')))
     assert (find_obj(None, None, 'NestedParentA.NestedChildA.subchild_1', 'func') ==
             ('NestedParentA.NestedChildA.subchild_1',
-             ('roles', 'nestedparenta-nestedchilda-subchild-1', 'function')))
+             ('roles', 'nestedparenta.nestedchilda.subchild_1', 'function')))
     assert (find_obj(None, 'NestedParentA', 'NestedChildA.subchild_1', 'func') ==
             ('NestedParentA.NestedChildA.subchild_1',
-             ('roles', 'nestedparenta-nestedchilda-subchild-1', 'function')))
+             ('roles', 'nestedparenta.nestedchilda.subchild_1', 'function')))
     assert (find_obj(None, 'NestedParentA.NestedChildA', 'subchild_1', 'func') ==
             ('NestedParentA.NestedChildA.subchild_1',
-             ('roles', 'nestedparenta-nestedchilda-subchild-1', 'function')))
+             ('roles', 'nestedparenta.nestedchilda.subchild_1', 'function')))
     assert (find_obj('module_a.submodule', 'ModTopLevel', 'mod_child_2', 'meth') ==
             ('module_a.submodule.ModTopLevel.mod_child_2',
-             ('module', 'module-a-submodule-modtoplevel-mod-child-2', 'method')))
+             ('module', 'module_a.submodule.modtoplevel.mod_child_2', 'method')))
     assert (find_obj('module_b.submodule', 'ModTopLevel', 'module_a.submodule', 'mod') ==
             ('module_a.submodule',
-             ('module', 'module-module-a-submodule', 'module')))
+             ('module', 'module-module_a.submodule', 'module')))
 
 
 def test_get_full_qualified_name():
