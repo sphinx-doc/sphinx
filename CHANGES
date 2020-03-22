@@ -1,5 +1,5 @@
-Release 3.0.0 (in development)
-==============================
+Release 3.0.0 beta1 (released Mar 23, 2020)
+===========================================
 
 Dependencies
 ------------
@@ -148,9 +148,6 @@ Bugs fixed
 * #7345: sphinx-build: Sphinx crashes if output directory exists as a file
 * #7290: sphinx-build: Ignore bdb.BdbQuit when handling exceptions
 * #6240: napoleon: Attributes and Methods sections ignore :noindex: option
-
-Testing
---------
 
 Release 2.4.5 (in development)
 ==============================
