@@ -1011,7 +1011,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
-        if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
+        if ((inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object)) and
+                not inspect.is_cython_function_or_method(self.object)):
             # cannot introspect arguments of a C function or method
             return None
         try:
@@ -1430,7 +1431,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if self.env.config.autodoc_typehints == 'none':
             kwargs.setdefault('show_annotation', False)
 
-        if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
+        if ((inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object)) and
+                not inspect.is_cython_function_or_method(self.object)):
             # can never get arguments of a C function or method
             return None
         if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
