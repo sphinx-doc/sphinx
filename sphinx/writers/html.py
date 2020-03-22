@@ -11,6 +11,7 @@
 import copy
 import os
 import posixpath
+import re
 import warnings
 from typing import Any, Iterable, Tuple
 from typing import cast
@@ -36,6 +37,19 @@ logger = logging.getLogger(__name__)
 
 # A good overview of the purpose behind these classes can be found here:
 # http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
+
+
+def multiply_length(length: str, scale: int) -> str:
+    """Multiply *length* (width or height) by *scale*."""
+    matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
+    if not matched:
+        return length
+    elif scale == 100:
+        return length
+    else:
+        amount, unit = matched.groups()
+        result = float(amount) * scale / 100
+        return "%s%s" % (int(result), unit)
 
 
 class HTMLWriter(Writer):
@@ -597,11 +611,10 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             if 'height' in node:
                 atts['height'] = node['height']
             if 'scale' in node:
-                scale = node['scale'] / 100.0
                 if 'width' in atts:
-                    atts['width'] = int(atts['width']) * scale
+                    atts['width'] = multiply_length(atts['width'], node['scale'])
                 if 'height' in atts:
-                    atts['height'] = int(atts['height']) * scale
+                    atts['height'] = multiply_length(atts['height'], node['scale'])
             atts['alt'] = node.get('alt', uri)
             if 'align' in node:
                 atts['class'] = 'align-%s' % node['align']
