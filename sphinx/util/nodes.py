@@ -9,6 +9,7 @@
 """
 
 import re
+import unicodedata
 import warnings
 from typing import Any, Callable, Iterable, List, Set, Tuple, Type
 from typing import TYPE_CHECKING, cast
@@ -434,6 +435,79 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
     return tree
 
 
+def _make_id(string: str) -> str:
+    """Convert `string` into an identifier and return it.
+
+    This function is a modified version of ``docutils.nodes.make_id()`` of
+    docutils-0.16.
+
+    Changes:
+
+    * Allow to use dots (".") and underscores ("_") for an identifier
+      without a leading character.
+
+    # Author: David Goodger <goodger@python.org>
+    # Maintainer: docutils-develop@lists.sourceforge.net
+    # Copyright: This module has been placed in the public domain.
+    """
+    id = string.lower()
+    id = id.translate(_non_id_translate_digraphs)
+    id = id.translate(_non_id_translate)
+    # get rid of non-ascii characters.
+    # 'ascii' lowercase to prevent problems with turkish locale.
+    id = unicodedata.normalize('NFKD', id).encode('ascii', 'ignore').decode('ascii')
+    # shrink runs of whitespace and replace by hyphen
+    id = _non_id_chars.sub('-', ' '.join(id.split()))
+    id = _non_id_at_ends.sub('', id)
+    return str(id)
+
+
+_non_id_chars = re.compile('[^a-z0-9._]+')
+_non_id_at_ends = re.compile('^[-0-9._]+|-+$')
+_non_id_translate = {
+    0x00f8: u'o',       # o with stroke
+    0x0111: u'd',       # d with stroke
+    0x0127: u'h',       # h with stroke
+    0x0131: u'i',       # dotless i
+    0x0142: u'l',       # l with stroke
+    0x0167: u't',       # t with stroke
+    0x0180: u'b',       # b with stroke
+    0x0183: u'b',       # b with topbar
+    0x0188: u'c',       # c with hook
+    0x018c: u'd',       # d with topbar
+    0x0192: u'f',       # f with hook
+    0x0199: u'k',       # k with hook
+    0x019a: u'l',       # l with bar
+    0x019e: u'n',       # n with long right leg
+    0x01a5: u'p',       # p with hook
+    0x01ab: u't',       # t with palatal hook
+    0x01ad: u't',       # t with hook
+    0x01b4: u'y',       # y with hook
+    0x01b6: u'z',       # z with stroke
+    0x01e5: u'g',       # g with stroke
+    0x0225: u'z',       # z with hook
+    0x0234: u'l',       # l with curl
+    0x0235: u'n',       # n with curl
+    0x0236: u't',       # t with curl
+    0x0237: u'j',       # dotless j
+    0x023c: u'c',       # c with stroke
+    0x023f: u's',       # s with swash tail
+    0x0240: u'z',       # z with swash tail
+    0x0247: u'e',       # e with stroke
+    0x0249: u'j',       # j with stroke
+    0x024b: u'q',       # q with hook tail
+    0x024d: u'r',       # r with stroke
+    0x024f: u'y',       # y with stroke
+}
+_non_id_translate_digraphs = {
+    0x00df: u'sz',      # ligature sz
+    0x00e6: u'ae',      # ae
+    0x0153: u'oe',      # ligature oe
+    0x0238: u'db',      # db digraph
+    0x0239: u'qp',      # qp digraph
+}
+
+
 def make_id(env: "BuildEnvironment", document: nodes.document,
             prefix: str = '', term: str = None) -> str:
     """Generate an appropriate node_id for given *prefix* and *term*."""
@@ -445,12 +519,12 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
 
     # try to generate node_id by *term*
     if prefix and term:
-        node_id = nodes.make_id(idformat % term)
+        node_id = _make_id(idformat % term)
         if node_id == prefix:
             # *term* is not good to generate a node_id.
             node_id = None
     elif term:
-        node_id = nodes.make_id(term)
+        node_id = _make_id(term)
         if node_id == '':
             node_id = None  # fallback to None
 

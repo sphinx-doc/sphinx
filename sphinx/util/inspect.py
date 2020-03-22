@@ -197,6 +197,14 @@ def isabstractmethod(obj: Any) -> bool:
     return safe_getattr(obj, '__isabstractmethod__', False) is True
 
 
+def is_cython_function_or_method(obj: Any) -> bool:
+    """Check if the object is a function or method in cython."""
+    try:
+        return obj.__class__.__name__ == 'cython_function_or_method'
+    except AttributeError:
+        return False
+
+
 def isattributedescriptor(obj: Any) -> bool:
     """Check if the object is an attribute like descriptor."""
     if inspect.isdatadescriptor(object):
@@ -206,6 +214,9 @@ def isattributedescriptor(obj: Any) -> bool:
         # non data descriptor
         if isfunction(obj) or isbuiltin(obj) or inspect.ismethod(obj):
             # attribute must not be either function, builtin and method
+            return False
+        elif is_cython_function_or_method(obj):
+            # attribute must not be either function and method (for cython)
             return False
         elif inspect.isclass(obj):
             # attribute must not be a class

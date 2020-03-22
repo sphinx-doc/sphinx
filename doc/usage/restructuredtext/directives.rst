@@ -48,6 +48,12 @@ tables of contents.  The ``toctree`` directive is the central element.
    to the source directory.  A numeric ``maxdepth`` option may be given to
    indicate the depth of the tree; by default, all levels are included. [#]_
 
+   The representation of "TOC tree" is changed in each output format.  The
+   builders that output multiple files (ex. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   LaTeX, man page, etc.) replace it with the content of the documents on the
+   TOC tree.
+
    Consider this example (taken from the Python docs' library reference index)::
 
       .. toctree::

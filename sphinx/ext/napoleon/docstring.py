@@ -579,7 +579,11 @@ class GoogleDocstring:
                 if _type:
                     lines.append(':vartype %s: %s' % (_name, _type))
             else:
-                lines.extend(['.. attribute:: ' + _name, ''])
+                lines.append('.. attribute:: ' + _name)
+                if self._opt and 'noindex' in self._opt:
+                    lines.append('   :noindex:')
+                lines.append('')
+
                 fields = self._format_field('', '', _desc)
                 lines.extend(self._indent(fields, 3))
                 if _type:
@@ -637,6 +641,8 @@ class GoogleDocstring:
         lines = []  # type: List[str]
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
+            if self._opt and 'noindex' in self._opt:
+                lines.append('   :noindex:')
             if _desc:
                 lines.extend([''] + self._indent(_desc, 3))
             lines.append('')

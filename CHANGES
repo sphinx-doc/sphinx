@@ -29,8 +29,29 @@ Bugs fixed
 Testing
 --------
 
-Release 3.0.0 (in development)
-==============================
+Release 3.0.0 beta2 (in development)
+====================================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 3.0.0 beta1 (released Mar 23, 2020)
+===========================================
 
 Dependencies
 ------------
@@ -85,6 +106,7 @@ Deprecated
 * ``sphinx.domains.std.StandardDomain.add_object()``
 * ``sphinx.domains.python.PyDecoratorMixin``
 * ``sphinx.ext.autodoc.get_documenters()``
+* ``sphinx.ext.autosummary.process_autosummary_toc()``
 * ``sphinx.parsers.Parser.app``
 * ``sphinx.testing.path.Path.text()``
 * ``sphinx.testing.path.Path.bytes()``
@@ -112,6 +134,9 @@ Features added
 * #6895: py domain: Do not emit nitpicky warnings for built-in types
 * py domain: Support lambda functions in function signature
 * #6417: py domain: Allow to make a style for arguments of functions and methods
+* #7238, #7239: py domain: Emit a warning on describing a python object if the
+  entry is already added as the same name
+* #7341: py domain: type annotations in singature are converted to cross refs
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`
 * #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
@@ -143,6 +168,8 @@ Features added
 
 * Added ``SphinxDirective.get_source_info()``
   and ``SphinxRole.get_source_info()``.
+* #7324: sphinx-build: Emit a warning if multiple files having different file
+  extensions for same document found
 
 Bugs fixed
 ----------
@@ -157,9 +184,11 @@ Bugs fixed
 * #7267: autodoc: error message for invalid directive options has wrong location
 * #7329: autodoc: info-field-list is wrongly generated from type hints into the
   class description even if ``autoclass_content='class'`` set
+* #7331: autodoc: a cython-function is not recognized as a function
 * #5637: inheritance_diagram: Incorrect handling of nested class names
 * #7139: ``code-block:: guess`` does not work
 * #7325: html: source_suffix containing dot leads to wrong source link
+* #7357: html: Resizing SVG image fails with ValueError
 * #7278: html search: Fix use of ``html_file_suffix`` instead of
   ``html_link_suffix`` in search results
 * #7297: html theme: ``bizstyle`` does not support ``sidebarwidth``
@@ -170,9 +199,7 @@ Bugs fixed
 * #2377: C, parse function pointers even in complex types.
 * #7345: sphinx-build: Sphinx crashes if output directory exists as a file
 * #7290: sphinx-build: Ignore bdb.BdbQuit when handling exceptions
-
-Testing
---------
+* #6240: napoleon: Attributes and Methods sections ignore :noindex: option
 
 Release 2.4.5 (in development)
 ==============================
@@ -191,6 +218,8 @@ Features added
 
 Bugs fixed
 ----------
+
+* #7343: Sphinx builds has been slower since 2.4.0 on debug mode
 
 Testing
 --------

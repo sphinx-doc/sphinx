@@ -1020,6 +1020,34 @@ Sooper Warning:
             actual = str(GoogleDocstring(docstring, testConfig))
             self.assertEqual(expected, actual)
 
+    def test_noindex(self):
+        docstring = """
+Attributes:
+    arg
+        description
+
+Methods:
+    func(i, j)
+        description
+"""
+
+        expected = """
+.. attribute:: arg
+   :noindex:
+
+   description
+
+.. method:: func(i, j)
+   :noindex:
+
+   
+   description
+"""
+        config = Config()
+        actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
+                                     options={'noindex': True}))
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(

@@ -269,7 +269,10 @@ class Documenter:
 
     def add_line(self, line: str, source: str, *lineno: int) -> None:
         """Append one line of generated reST to the output."""
-        self.directive.result.append(self.indent + line, source, *lineno)
+        if line.strip():  # not a blank line
+            self.directive.result.append(self.indent + line, source, *lineno)
+        else:
+            self.directive.result.append('', source, *lineno)
 
     def resolve_name(self, modname: str, parents: Any, path: str, base: Any
                      ) -> Tuple[str, List[str]]:
@@ -1007,7 +1010,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
-        if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
+        if ((inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object)) and
+                not inspect.is_cython_function_or_method(self.object)):
             # cannot introspect arguments of a C function or method
             return None
         try:
@@ -1426,7 +1430,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if self.env.config.autodoc_typehints == 'none':
             kwargs.setdefault('show_annotation', False)
 
-        if inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
+        if ((inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object)) and
+                not inspect.is_cython_function_or_method(self.object)):
             # can never get arguments of a C function or method
             return None
         if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):

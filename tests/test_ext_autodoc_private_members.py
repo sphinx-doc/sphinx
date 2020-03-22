@@ -40,7 +40,7 @@ def test_private_field_and_private_members(app):
         '   :module: target.private',
         '',
         '   private_function is a docstring().',
-        '   ',
+        '',
         '   :meta private:',
-        '   '
+        '',
     ]

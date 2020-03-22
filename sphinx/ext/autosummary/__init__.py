@@ -72,7 +72,7 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import Documenter
@@ -106,6 +106,8 @@ def process_autosummary_toc(app: Sphinx, doctree: nodes.document) -> None:
     """Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
     """
+    warnings.warn('process_autosummary_toc() is deprecated',
+                  RemovedInSphinx50Warning, stacklevel=2)
     env = app.builder.env
     crawled = {}
 
@@ -762,7 +764,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                  texinfo=(autosummary_noop, autosummary_noop))
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', AutoLink())
-    app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_generate', [], True, [bool])
     app.add_config_value('autosummary_generate_overwrite', True, False)
