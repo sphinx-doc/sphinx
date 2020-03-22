@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7343: Sphinx builds has been slower since 2.4.0 on debug mode
+
 Testing
 --------
 
