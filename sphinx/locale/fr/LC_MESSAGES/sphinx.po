@@ -2678,7 +2678,7 @@ msgstr "signature invalide pour auto%s (%r)"
 #: sphinx/ext/autodoc/__init__.py:400
 #, python-format
 msgid "error while formatting arguments for %s: %s"
-msgstr "erreur pendant la mise en forme de l 'argument %s:%s"
+msgstr "erreur pendant la mise en forme de l'argument %s:%s"
 
 #: sphinx/ext/autodoc/__init__.py:512
 #, python-format
