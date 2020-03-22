@@ -18,11 +18,11 @@ from sphinx import addnodes
 from sphinx.addnodes import (
     desc, desc_addname, desc_annotation, desc_content, desc_name, desc_optional,
     desc_parameter, desc_parameterlist, desc_returns, desc_signature,
-    desc_sig_name, desc_sig_operator, desc_sig_punctuation,
+    desc_sig_name, desc_sig_operator, desc_sig_punctuation, pending_xref,
 )
 from sphinx.domains import IndexEntry
 from sphinx.domains.python import (
-    py_sig_re, _pseudo_parse_arglist, PythonDomain, PythonModuleIndex
+    py_sig_re, _parse_annotation, _pseudo_parse_arglist, PythonDomain, PythonModuleIndex
 )
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -78,7 +78,7 @@ def test_domain_py_xrefs(app, status, warning):
         assert_node(node, **attributes)
 
     doctree = app.env.get_doctree('roles')
-    refnodes = list(doctree.traverse(addnodes.pending_xref))
+    refnodes = list(doctree.traverse(pending_xref))
     assert_refnode(refnodes[0], None, None, 'TopLevel', 'class')
     assert_refnode(refnodes[1], None, None, 'top_level', 'meth')
     assert_refnode(refnodes[2], None, 'NestedParentA', 'child_1', 'meth')
@@ -96,7 +96,7 @@ def test_domain_py_xrefs(app, status, warning):
     assert len(refnodes) == 13
 
     doctree = app.env.get_doctree('module')
-    refnodes = list(doctree.traverse(addnodes.pending_xref))
+    refnodes = list(doctree.traverse(pending_xref))
     assert_refnode(refnodes[0], 'module_a.submodule', None,
                    'ModTopLevel', 'class')
     assert_refnode(refnodes[1], 'module_a.submodule', 'ModTopLevel',
@@ -125,7 +125,7 @@ def test_domain_py_xrefs(app, status, warning):
     assert len(refnodes) == 16
 
     doctree = app.env.get_doctree('module_option')
-    refnodes = list(doctree.traverse(addnodes.pending_xref))
+    refnodes = list(doctree.traverse(pending_xref))
     print(refnodes)
     print(refnodes[0])
     print(refnodes[1])
@@ -236,13 +236,44 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
+def test_parse_annotation():
+    doctree = _parse_annotation("int")
+    assert_node(doctree, ([pending_xref, "int"],))
+
+    doctree = _parse_annotation("List[int]")
+    assert_node(doctree, ([pending_xref, "List"],
+                          [desc_sig_punctuation, "["],
+                          [pending_xref, "int"],
+                          [desc_sig_punctuation, "]"]))
+
+    doctree = _parse_annotation("Tuple[int, int]")
+    assert_node(doctree, ([pending_xref, "Tuple"],
+                          [desc_sig_punctuation, "["],
+                          [pending_xref, "int"],
+                          [desc_sig_punctuation, ", "],
+                          [pending_xref, "int"],
+                          [desc_sig_punctuation, "]"]))
+
+    doctree = _parse_annotation("Callable[[int, int], int]")
+    assert_node(doctree, ([pending_xref, "Callable"],
+                          [desc_sig_punctuation, "["],
+                          [desc_sig_punctuation, "["],
+                          [pending_xref, "int"],
+                          [desc_sig_punctuation, ", "],
+                          [pending_xref, "int"],
+                          [desc_sig_punctuation, "]"],
+                          [desc_sig_punctuation, ", "],
+                          [pending_xref, "int"],
+                          [desc_sig_punctuation, "]"]))
+
+
 def test_pyfunction_signature(app):
     text = ".. py:function:: hello(name: str) -> str"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "hello"],
                                                     desc_parameterlist,
-                                                    [desc_returns, "str"])],
+                                                    [desc_returns, pending_xref, "str"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
@@ -250,7 +281,7 @@ def test_pyfunction_signature(app):
                 [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"],
                                                       [desc_sig_punctuation, ":"],
                                                       " ",
-                                                      [nodes.inline, "str"])])
+                                                      [nodes.inline, pending_xref, "str"])])
 
 
 def test_pyfunction_signature_full(app):
@@ -260,7 +291,7 @@ def test_pyfunction_signature_full(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "hello"],
                                                     desc_parameterlist,
-                                                    [desc_returns, "str"])],
+                                                    [desc_returns, pending_xref, "str"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
@@ -268,7 +299,7 @@ def test_pyfunction_signature_full(app):
                 [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "a"],
                                                         [desc_sig_punctuation, ":"],
                                                         " ",
-                                                        [desc_sig_name, "str"])],
+                                                        [desc_sig_name, pending_xref, "str"])],
                                       [desc_parameter, ([desc_sig_name, "b"],
                                                         [desc_sig_operator, "="],
                                                         [nodes.inline, "1"])],
@@ -276,11 +307,11 @@ def test_pyfunction_signature_full(app):
                                                         [desc_sig_name, "args"],
                                                         [desc_sig_punctuation, ":"],
                                                         " ",
-                                                        [desc_sig_name, "str"])],
+                                                        [desc_sig_name, pending_xref, "str"])],
                                       [desc_parameter, ([desc_sig_name, "c"],
                                                         [desc_sig_punctuation, ":"],
                                                         " ",
-                                                        [desc_sig_name, "bool"],
+                                                        [desc_sig_name, pending_xref, "bool"],
                                                         " ",
                                                         [desc_sig_operator, "="],
                                                         " ",
@@ -289,7 +320,7 @@ def test_pyfunction_signature_full(app):
                                                         [desc_sig_name, "kwargs"],
                                                         [desc_sig_punctuation, ":"],
                                                         " ",
-                                                        [desc_sig_name, "str"])])])
+                                                        [desc_sig_name, pending_xref, "str"])])])
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
@@ -340,7 +371,7 @@ def test_optional_pyfunction_signature(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "compile"],
                                                     desc_parameterlist,
-                                                    [desc_returns, "ast object"])],
+                                                    [desc_returns, pending_xref, "ast object"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
