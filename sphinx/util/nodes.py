@@ -445,6 +445,7 @@ def _make_id(string: str) -> str:
 
     Changes:
 
+    * Allow to use capital alphabet characters
     * Allow to use dots (".") and underscores ("_") for an identifier
       without a leading character.
 
@@ -452,8 +453,7 @@ def _make_id(string: str) -> str:
     # Maintainer: docutils-develop@lists.sourceforge.net
     # Copyright: This module has been placed in the public domain.
     """
-    id = string.lower()
-    id = id.translate(_non_id_translate_digraphs)
+    id = string.translate(_non_id_translate_digraphs)
     id = id.translate(_non_id_translate)
     # get rid of non-ascii characters.
     # 'ascii' lowercase to prevent problems with turkish locale.
@@ -464,7 +464,7 @@ def _make_id(string: str) -> str:
     return str(id)
 
 
-_non_id_chars = re.compile('[^a-z0-9._]+')
+_non_id_chars = re.compile('[^a-zA-Z0-9._]+')
 _non_id_at_ends = re.compile('^[-0-9._]+|-+$')
 _non_id_translate = {
     0x00f8: u'o',       # o with stroke

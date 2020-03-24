@@ -188,13 +188,13 @@ def test_clean_astext():
     [
         ('', '', 'id0'),
         ('term', '', 'term-0'),
-        ('term', 'Sphinx', 'term-sphinx'),
-        ('', 'io.StringIO', 'io.stringio'),   # contains a dot
+        ('term', 'Sphinx', 'term-Sphinx'),
+        ('', 'io.StringIO', 'io.StringIO'),   # contains a dot
         ('', 'sphinx.setup_command', 'sphinx.setup_command'),  # contains a dot & underscore
-        ('', '_io.StringIO', 'io.stringio'),  # starts with underscore
+        ('', '_io.StringIO', 'io.StringIO'),  # starts with underscore
         ('', 'ｓｐｈｉｎｘ', 'sphinx'),  # alphabets in unicode fullwidth characters
         ('', '悠好', 'id0'),  # multibytes text (in Chinese)
-        ('', 'Hello=悠好=こんにちは', 'hello'),  # alphabets and multibytes text
+        ('', 'Hello=悠好=こんにちは', 'Hello'),  # alphabets and multibytes text
         ('', 'fünf', 'funf'),  # latin1 (umlaut)
         ('', '0sphinx', 'sphinx'),  # starts with number
         ('', 'sphinx-', 'sphinx'),  # ends with hyphen
@@ -206,7 +206,7 @@ def test_make_id(app, prefix, term, expected):
 
 def test_make_id_already_registered(app):
     document = create_new_document()
-    document.ids['term-sphinx'] = True  # register "term-sphinx" manually
+    document.ids['term-Sphinx'] = True  # register "term-Sphinx" manually
     assert make_id(app.env, document, 'term', 'Sphinx') == 'term-0'
 
 
