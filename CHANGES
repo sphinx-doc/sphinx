@@ -16,6 +16,7 @@ Features added
 Bugs fixed
 ----------
 
+* #7364: autosummary: crashed when :confval:`autosummary_generate` is False
 * #7370: autosummary: raises UnboundLocalError when unknown module given
 
 Testing
