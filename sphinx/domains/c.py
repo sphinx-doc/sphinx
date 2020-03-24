@@ -53,21 +53,21 @@ _keywords = [
 
 # these are ordered by preceedence
 _expression_bin_ops = [
-    ['||'],
-    ['&&'],
-    ['|'],
-    ['^'],
-    ['&'],
-    ['==', '!='],
+    ['||', 'or'],
+    ['&&', 'and'],
+    ['|', 'bitor'],
+    ['^', 'xor'],
+    ['&', 'bitand'],
+    ['==', '!=', 'not_eq'],
     ['<=', '>=', '<', '>'],
     ['<<', '>>'],
     ['+', '-'],
     ['*', '/', '%'],
     ['.*', '->*']
 ]
-_expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "~"]
+_expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl"]
 _expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
-                              ">>=", "<<=", "&=", "^=", "|="]
+                              ">>=", "<<=", "&=", "and_eq", "^=", "xor_eq", "|=", "or_eq"]
 
 _max_id = 1
 _id_prefix = [None, 'c.', 'Cv2.']
@@ -423,11 +423,16 @@ class ASTUnaryOpExpr(ASTExpression):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return transform(self.op) + transform(self.expr)
+        if self.op[0] in 'cn':
+            return transform(self.op) + " " + transform(self.expr)
+        else:
+            return transform(self.op) + transform(self.expr)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text(self.op))
+        if self.op[0] in 'cn':
+            signode.append(nodes.Text(" "))
         self.expr.describe_signature(signode, mode, env, symbol)
 
 
@@ -2241,7 +2246,11 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         for op in _expression_unary_ops:
             # TODO: hmm, should we be able to backtrack here?
-            if self.skip_string(op):
+            if op[0] in 'cn':
+                res = self.skip_word(op)
+            else:
+                res = self.skip_string(op)
+            if res:
                 expr = self._parse_cast_expression()
                 return ASTUnaryOpExpr(op, expr)
         if self.skip_word_and_ws('sizeof'):
@@ -2313,8 +2322,12 @@ class DefinitionParser(BaseParser):
                 pos = self.pos
                 oneMore = False
                 for op in _expression_bin_ops[opId]:
-                    if not self.skip_string(op):
-                        continue
+                    if op[0] in 'abcnox':
+                        if not self.skip_word(op):
+                            continue
+                    else:
+                        if not self.skip_string(op):
+                            continue
                     if op == '&' and self.current_char == '&':
                         # don't split the && 'token'
                         self.pos -= 1
@@ -2353,8 +2366,12 @@ class DefinitionParser(BaseParser):
             oneMore = False
             self.skip_ws()
             for op in _expression_assignment_ops:
-                if not self.skip_string(op):
-                    continue
+                if op[0] in 'abcnox':
+                    if not self.skip_word(op):
+                        continue
+                else:
+                    if not self.skip_string(op):
+                        continue
                 expr = self._parse_logical_or_expression()
                 exprs.append(expr)
                 ops.append(op)
