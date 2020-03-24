@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #7370: autosummary: raises UnboundLocalError when unknown module given
+* #7367: C++, alternate operator spellings are now supported.
 
 Testing
 --------
