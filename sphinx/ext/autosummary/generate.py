@@ -279,7 +279,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         try:
             name, obj, parent, mod_name = import_by_name(entry.name)
         except ImportError as e:
-            _warn(__('[autosummary] failed to import %r: %s') % (name, e))
+            _warn(__('[autosummary] failed to import %r: %s') % (entry.name, e))
             continue
 
         content = generate_autosummary_content(name, obj, parent, template, entry.template,

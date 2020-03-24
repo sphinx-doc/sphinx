@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7370: autosummary: raises UnboundLocalError when unknown module given
+
 Testing
 --------
 
