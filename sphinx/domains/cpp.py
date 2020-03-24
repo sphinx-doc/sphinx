@@ -306,6 +306,7 @@ _operator_re = re.compile(r'''(?x)
     |   ->\*? | \,
     |   (<<|>>)=? | && | \|\|
     |   [!<>=/*%+|&^~-]=?
+    |   (\b(and|and_eq|bitand|bitor|compl|not|not_eq|or|or_eq|xor|xor_eq)\b)
 ''')
 _fold_operator_re = re.compile(r'''(?x)
         ->\*    |    \.\*    |    \,
@@ -464,37 +465,37 @@ _id_operator_v2 = {
     # '-(unary)' : 'ng',
     # '&(unary)' : 'ad',
     # '*(unary)' : 'de',
-    '~': 'co',
+    '~': 'co', 'compl': 'co',
     '+': 'pl',
     '-': 'mi',
     '*': 'ml',
     '/': 'dv',
     '%': 'rm',
-    '&': 'an',
-    '|': 'or',
-    '^': 'eo',
+    '&': 'an', 'bitand': 'an',
+    '|': 'or', 'bitor': 'or',
+    '^': 'eo', 'xor': 'eo',
     '=': 'aS',
     '+=': 'pL',
     '-=': 'mI',
     '*=': 'mL',
     '/=': 'dV',
     '%=': 'rM',
-    '&=': 'aN',
-    '|=': 'oR',
-    '^=': 'eO',
+    '&=': 'aN', 'and_eq': 'aN',
+    '|=': 'oR', 'or_eq': 'oR',
+    '^=': 'eO', 'xor_eq': 'eO',
     '<<': 'ls',
     '>>': 'rs',
     '<<=': 'lS',
     '>>=': 'rS',
     '==': 'eq',
-    '!=': 'ne',
+    '!=': 'ne', 'not_eq': 'ne',
     '<': 'lt',
     '>': 'gt',
     '<=': 'le',
     '>=': 'ge',
-    '!': 'nt',
-    '&&': 'aa',
-    '||': 'oo',
+    '!': 'nt', 'not': 'nt',
+    '&&': 'aa', 'and': 'aa',
+    '||': 'oo', 'or': 'oo',
     '++': 'pp',
     '--': 'mm',
     ',': 'cm',
@@ -511,8 +512,8 @@ _id_operator_unary_v2 = {
     '&': 'ad',
     '+': 'ps',
     '-': 'ng',
-    '!': 'nt',
-    '~': 'co'
+    '!': 'nt', 'not': 'nt',
+    '~': 'co', 'compl': 'co'
 }
 _id_char_from_prefix = {
     None: 'c', 'u8': 'c',
@@ -520,21 +521,21 @@ _id_char_from_prefix = {
 }  # type: Dict[Any, str]
 # these are ordered by preceedence
 _expression_bin_ops = [
-    ['||'],
-    ['&&'],
-    ['|'],
-    ['^'],
-    ['&'],
-    ['==', '!='],
+    ['||', 'or'],
+    ['&&', 'and'],
+    ['|', 'bitor'],
+    ['^', 'xor'],
+    ['&', 'bitand'],
+    ['==', '!=', 'not_eq'],
     ['<=', '>=', '<', '>'],
     ['<<', '>>'],
     ['+', '-'],
     ['*', '/', '%'],
     ['.*', '->*']
 ]
-_expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "~"]
+_expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl"]
 _expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
-                              ">>=", "<<=", "&=", "^=", "|="]
+                              ">>=", "<<=", "&=", "and_eq", "^=", "|=", "xor_eq", "or_eq"]
 _id_explicit_cast = {
     'dynamic_cast': 'dc',
     'static_cast': 'sc',
@@ -1260,7 +1261,10 @@ class ASTUnaryOpExpr(ASTExpression):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return transform(self.op) + transform(self.expr)
+        if self.op[0] in 'cn':
+            return transform(self.op) + " " + transform(self.expr)
+        else:
+            return transform(self.op) + transform(self.expr)
 
     def get_id(self, version: int) -> str:
         return _id_operator_unary_v2[self.op] + self.expr.get_id(version)
@@ -1268,6 +1272,8 @@ class ASTUnaryOpExpr(ASTExpression):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text(self.op))
+        if self.op[0] in 'cn':
+            signode.append(nodes.Text(' '))
         self.expr.describe_signature(signode, mode, env, symbol)
 
 
@@ -1584,6 +1590,8 @@ class ASTOperatorBuildIn(ASTOperator):
     def get_id(self, version: int) -> str:
         if version == 1:
             ids = _id_operator_v1
+            if self.op not in ids:
+                raise NoOldIdError()
         else:
             ids = _id_operator_v2
         if self.op not in ids:
@@ -1592,7 +1600,7 @@ class ASTOperatorBuildIn(ASTOperator):
         return ids[self.op]
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        if self.op in ('new', 'new[]', 'delete', 'delete[]'):
+        if self.op in ('new', 'new[]', 'delete', 'delete[]') or self.op[0] in "abcnox":
             return 'operator ' + self.op
         else:
             return 'operator' + self.op
@@ -5016,7 +5024,11 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         for op in _expression_unary_ops:
             # TODO: hmm, should we be able to backtrack here?
-            if self.skip_string(op):
+            if op[0] in 'cn':
+                res = self.skip_word(op)
+            else:
+                res = self.skip_string(op)
+            if res:
                 expr = self._parse_cast_expression()
                 return ASTUnaryOpExpr(op, expr)
         if self.skip_word_and_ws('sizeof'):
@@ -5144,8 +5156,12 @@ class DefinitionParser(BaseParser):
                 pos = self.pos
                 oneMore = False
                 for op in _expression_bin_ops[opId]:
-                    if not self.skip_string(op):
-                        continue
+                    if op[0] in 'abcnox':
+                        if not self.skip_word(op):
+                            continue
+                    else:
+                        if not self.skip_string(op):
+                            continue
                     if op == '&' and self.current_char == '&':
                         # don't split the && 'token'
                         self.pos -= 1
@@ -5187,8 +5203,12 @@ class DefinitionParser(BaseParser):
             oneMore = False
             self.skip_ws()
             for op in _expression_assignment_ops:
-                if not self.skip_string(op):
-                    continue
+                if op[0] in 'anox':
+                    if not self.skip_word(op):
+                        continue
+                else:
+                    if not self.skip_string(op):
+                        continue
                 expr = self._parse_logical_or_expression(False)
                 exprs.append(expr)
                 ops.append(op)
