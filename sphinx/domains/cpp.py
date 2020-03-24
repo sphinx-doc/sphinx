@@ -5334,13 +5334,7 @@ class DefinitionParser(BaseParser):
                 prevErrors.append((e, "If type argument"))
                 self.pos = pos
                 try:
-                    # actually here we shouldn't use the fallback parser (hence allow=False),
-                    # because if actually took the < in an expression, then we _will_ fail,
-                    # which is handled elsewhere. E.g., :cpp:expr:`A <= 0`.
-                    def parser():
-                        return self._parse_constant_expression(inTemplate=True)
-                    value = self._parse_expression_fallback(
-                        [',', '>'], parser, allow=False)
+                    value = self._parse_constant_expression(inTemplate=True)
                     self.skip_ws()
                     if self.skip_string('>'):
                         parsedEnd = True
@@ -5460,7 +5454,6 @@ class DefinitionParser(BaseParser):
             if self.skip_word_and_ws(k):
                 prefix = k
                 break
-
         nestedName = self._parse_nested_name()
         return ASTTrailingTypeSpecName(prefix, nestedName)
 
@@ -5754,32 +5747,6 @@ class DefinitionParser(BaseParser):
         if typed and self.skip_string("..."):
             next = self._parse_declarator(named, paramMode, False)
             return ASTDeclaratorParamPack(next=next)
-        if typed:  # pointer to member
-            pos = self.pos
-            try:
-                name = self._parse_nested_name(memberPointer=True)
-                self.skip_ws()
-                if not self.skip_string('*'):
-                    self.fail("Expected '*' in pointer to member declarator.")
-                self.skip_ws()
-            except DefinitionError as e:
-                self.pos = pos
-                prevErrors.append((e, "If pointer to member declarator"))
-            else:
-                volatile = False
-                const = False
-                while 1:
-                    if not volatile:
-                        volatile = self.skip_word_and_ws('volatile')
-                        if volatile:
-                            continue
-                    if not const:
-                        const = self.skip_word_and_ws('const')
-                        if const:
-                            continue
-                    break
-                next = self._parse_declarator(named, paramMode, typed)
-                return ASTDeclaratorMemPtr(name, const, volatile, next=next)
         if typed and self.current_char == '(':  # note: peeking, not skipping
             if paramMode == "operatorCast":
                 # TODO: we should be able to parse cast operators which return
@@ -5815,9 +5782,40 @@ class DefinitionParser(BaseParser):
                     prevErrors.append((exNoPtrParen, "If parenthesis in noptr-declarator"))
                     header = "Error in declarator"
                     raise self._make_multi_error(prevErrors, header)
+        if typed:  # pointer to member
+            pos = self.pos
+            try:
+                name = self._parse_nested_name(memberPointer=True)
+                self.skip_ws()
+                if not self.skip_string('*'):
+                    self.fail("Expected '*' in pointer to member declarator.")
+                self.skip_ws()
+            except DefinitionError as e:
+                self.pos = pos
+                prevErrors.append((e, "If pointer to member declarator"))
+            else:
+                volatile = False
+                const = False
+                while 1:
+                    if not volatile:
+                        volatile = self.skip_word_and_ws('volatile')
+                        if volatile:
+                            continue
+                    if not const:
+                        const = self.skip_word_and_ws('const')
+                        if const:
+                            continue
+                    break
+                next = self._parse_declarator(named, paramMode, typed)
+                return ASTDeclaratorMemPtr(name, const, volatile, next=next)
         pos = self.pos
         try:
-            return self._parse_declarator_name_suffix(named, paramMode, typed)
+            res = self._parse_declarator_name_suffix(named, paramMode, typed)
+            # this is a heuristic for error messages, for when there is a < after a
+            # nested name, but it was not a successful template argument list
+            if self.current_char == '<':
+                self.otherErrors.append(self._make_multi_error(prevErrors, ""))
+            return res
         except DefinitionError as e:
             self.pos = pos
             prevErrors.append((e, "If declarator-id"))
@@ -5886,7 +5884,6 @@ class DefinitionParser(BaseParser):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
             if outer != 'operatorCast':
                 assert named
-
         if outer in ('type', 'function'):
             # We allow type objects to just be a name.
             # Some functions don't have normal return types: constructors,
@@ -6080,8 +6077,8 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         if not self.skip_string("<"):
             self.fail("Expected '<' after 'template'")
+        prevErrors = []
         while 1:
-            prevErrors = []
             self.skip_ws()
             if self.skip_word('template'):
                 # declare a tenplate template parameter
@@ -6134,6 +6131,7 @@ class DefinitionParser(BaseParser):
             if self.skip_string('>'):
                 return ASTTemplateParams(templateParams)
             elif self.skip_string(','):
+                prevErrors = []
                 continue
             else:
                 header = "Error in template parameter list."
