@@ -33,7 +33,7 @@ import sphinx.locale
 from sphinx import __display_version__
 from sphinx import package_dir
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
@@ -332,6 +332,10 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
 
     See `find_autosummary_in_lines`.
     """
+    if module:
+        warnings.warn('module argument for find_autosummary_in_docstring() is deprecated.',
+                      RemovedInSphinx50Warning)
+
     try:
         real_name, obj, parent, modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()

@@ -26,6 +26,12 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - The ``module`` argument of
+       ``sphinx.ext.autosummary.generate.find_autosummary_in_docstring()``
+     - 3.0
+     - 5.0
+     - N/A
+
    * - ``desc_signature['first']``
      -
      - 3.0
