@@ -4576,6 +4576,10 @@ class DefinitionParser(BaseParser):
         super().__init__(definition, location=location)
         self.config = config
 
+    @property
+    def language(self) -> str:
+        return 'C++'
+
     def _parse_string(self) -> str:
         if self.current_char != '"':
             return None
@@ -5470,7 +5474,7 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         if not self.skip_string('('):
             if paramMode == 'function':
-                self.fail('Expecting "(" in parameters_and_qualifiers.')
+                self.fail('Expecting "(" in parameters-and-qualifiers.')
             else:
                 return None
         args = []
@@ -5483,7 +5487,7 @@ class DefinitionParser(BaseParser):
                     self.skip_ws()
                     if not self.skip_string(')'):
                         self.fail('Expected ")" after "..." in '
-                                  'parameters_and_qualifiers.')
+                                  'parameters-and-qualifiers.')
                     break
                 # note: it seems that function arguments can always be named,
                 # even in function pointers and similar.
@@ -5498,7 +5502,7 @@ class DefinitionParser(BaseParser):
                     break
                 else:
                     self.fail(
-                        'Expecting "," or ")" in parameters_and_qualifiers, '
+                        'Expecting "," or ")" in parameters-and-qualifiers, '
                         'got "%s".' % self.current_char)
 
         # TODO: why did we have this bail-out?
@@ -5529,7 +5533,7 @@ class DefinitionParser(BaseParser):
             exceptionSpec = 'noexcept'
             self.skip_ws()
             if self.skip_string('('):
-                self.fail('Parameterised "noexcept" not implemented.')
+                self.fail('Parameterised "noexcept" not yet implemented.')
 
         self.skip_ws()
         override = self.skip_word_and_ws('override')
@@ -5795,14 +5799,15 @@ class DefinitionParser(BaseParser):
                                                          typed)
                 return res
             except DefinitionError as exParamQual:
-                prevErrors.append((exParamQual, "If declId, parameters, and qualifiers"))
+                prevErrors.append((exParamQual,
+                                   "If declarator-id with parameters-and-qualifiers"))
                 self.pos = pos
                 try:
                     assert self.current_char == '('
                     self.skip_string('(')
                     # TODO: hmm, if there is a name, it must be in inner, right?
-                    # TODO: hmm, if there must be parameters, they must b
-                    # inside, right?
+                    # TODO: hmm, if there must be parameters, they must be
+                    #       inside, right?
                     inner = self._parse_declarator(named, paramMode, typed)
                     if not self.skip_string(')'):
                         self.fail("Expected ')' in \"( ptr-declarator )\"")
@@ -5821,7 +5826,7 @@ class DefinitionParser(BaseParser):
         except DefinitionError as e:
             self.pos = pos
             prevErrors.append((e, "If declarator-id"))
-            header = "Error in declarator or parameters and qualifiers"
+            header = "Error in declarator or parameters-and-qualifiers"
             raise self._make_multi_error(prevErrors, header)
 
     def _parse_initializer(self, outer: str = None, allowFallback: bool = True
@@ -5994,10 +5999,10 @@ class DefinitionParser(BaseParser):
             if eExpr is None:
                 raise eType
             errs = []
-            errs.append((eExpr, "If default is an expression"))
-            errs.append((eType, "If default is a type"))
+            errs.append((eExpr, "If default template argument is an expression"))
+            errs.append((eType, "If default template argument is a type"))
             msg = "Error in non-type template parameter"
-            msg += " or constrianted template paramter."
+            msg += " or constrained template parameter."
             raise self._make_multi_error(errs, msg)
 
     def _parse_type_using(self) -> ASTTypeUsing:

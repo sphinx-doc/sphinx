@@ -1986,6 +1986,10 @@ class DefinitionParser(BaseParser):
 
     _prefix_keys = ('struct', 'enum', 'union')
 
+    @property
+    def language(self) -> str:
+        return 'C'
+
     def _parse_string(self) -> str:
         if self.current_char != '"':
             return None
@@ -2697,7 +2701,7 @@ class DefinitionParser(BaseParser):
                                     restrict=restrict, volatile=volatile, const=const,
                                     attrs=attrs)
         if typed and self.current_char == '(':  # note: peeking, not skipping
-            # maybe this is the beginning of params,try that first,
+            # maybe this is the beginning of params, try that first,
             # otherwise assume it's noptr->declarator > ( ptr-declarator )
             pos = self.pos
             try:
@@ -2706,7 +2710,10 @@ class DefinitionParser(BaseParser):
                                                          typed)
                 return res
             except DefinitionError as exParamQual:
-                prevErrors.append((exParamQual, "If declId and parameters"))
+                msg = "If declarator-id with parameters"
+                if paramMode == 'function':
+                    msg += " (e.g., 'void f(int arg)')"
+                prevErrors.append((exParamQual, msg))
                 self.pos = pos
                 try:
                     assert self.current_char == '('
@@ -2723,7 +2730,10 @@ class DefinitionParser(BaseParser):
                     return ASTDeclaratorParen(inner=inner, next=next)
                 except DefinitionError as exNoPtrParen:
                     self.pos = pos
-                    prevErrors.append((exNoPtrParen, "If parenthesis in noptr-declarator"))
+                    msg = "If parenthesis in noptr-declarator"
+                    if paramMode == 'function':
+                        msg += " (e.g., 'void (*f(int arg))(double)')"
+                    prevErrors.append((exNoPtrParen, msg))
                     header = "Error in declarator"
                     raise self._make_multi_error(prevErrors, header)
         pos = self.pos
