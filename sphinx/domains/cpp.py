@@ -1505,8 +1505,38 @@ class ASTBinOpExpr(ASTExpression):
             self.exprs[i].describe_signature(signode, mode, env, symbol)
 
 
+class ASTBracedInitList(ASTBase):
+    def __init__(self, exprs: List[Union[ASTExpression, "ASTBracedInitList"]],
+                 trailingComma: bool) -> None:
+        self.exprs = exprs
+        self.trailingComma = trailingComma
+
+    def get_id(self, version: int) -> str:
+        return "il%sE" % ''.join(e.get_id(version) for e in self.exprs)
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        exprs = [transform(e) for e in self.exprs]
+        trailingComma = ',' if self.trailingComma else ''
+        return '{%s%s}' % (', '.join(exprs), trailingComma)
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        verify_description_mode(mode)
+        signode.append(nodes.Text('{'))
+        first = True
+        for e in self.exprs:
+            if not first:
+                signode.append(nodes.Text(', '))
+            else:
+                first = False
+            e.describe_signature(signode, mode, env, symbol)
+        if self.trailingComma:
+            signode.append(nodes.Text(','))
+        signode.append(nodes.Text('}'))
+
+
 class ASTAssignmentExpr(ASTExpression):
-    def __init__(self, exprs: List[ASTExpression], ops: List[str]):
+    def __init__(self, exprs: List[Union[ASTExpression, ASTBracedInitList]], ops: List[str]):
         assert len(exprs) > 0
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
@@ -1537,6 +1567,31 @@ class ASTAssignmentExpr(ASTExpression):
             signode.append(nodes.Text(' '))
             signode.append(nodes.Text(self.ops[i - 1]))
             signode.append(nodes.Text(' '))
+            self.exprs[i].describe_signature(signode, mode, env, symbol)
+
+
+class ASTCommaExpr(ASTExpression):
+    def __init__(self, exprs: List[ASTExpression]):
+        assert len(exprs) > 0
+        self.exprs = exprs
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return ', '.join(transform(e) for e in self.exprs)
+
+    def get_id(self, version: int) -> str:
+        id_ = _id_operator_v2[',']
+        res = []
+        for i in range(len(self.exprs) - 1):
+            res.append(id_)
+            res.append(self.exprs[i].get_id(version))
+        res.append(self.exprs[-1].get_id(version))
+        return ''.join(res)
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        self.exprs[0].describe_signature(signode, mode, env, symbol)
+        for i in range(1, len(self.exprs)):
+            signode.append(nodes.Text(', '))
             self.exprs[i].describe_signature(signode, mode, env, symbol)
 
 
@@ -2641,7 +2696,7 @@ class ASTDeclaratorParen(ASTDeclarator):
 ##############################################################################################
 
 class ASTPackExpansionExpr(ASTExpression):
-    def __init__(self, expr: ASTExpression):
+    def __init__(self, expr: Union[ASTExpression, ASTBracedInitList]):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -2658,7 +2713,7 @@ class ASTPackExpansionExpr(ASTExpression):
 
 
 class ASTParenExprList(ASTBase):
-    def __init__(self, exprs: List[ASTExpression]) -> None:
+    def __init__(self, exprs: List[Union[ASTExpression, ASTBracedInitList]]) -> None:
         self.exprs = exprs
 
     def get_id(self, version: int) -> str:
@@ -2680,35 +2735,6 @@ class ASTParenExprList(ASTBase):
                 first = False
             e.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')'))
-
-
-class ASTBracedInitList(ASTBase):
-    def __init__(self, exprs: List[ASTExpression], trailingComma: bool) -> None:
-        self.exprs = exprs
-        self.trailingComma = trailingComma
-
-    def get_id(self, version: int) -> str:
-        return "il%sE" % ''.join(e.get_id(version) for e in self.exprs)
-
-    def _stringify(self, transform: StringifyTransform) -> str:
-        exprs = [transform(e) for e in self.exprs]
-        trailingComma = ',' if self.trailingComma else ''
-        return '{%s%s}' % (', '.join(exprs), trailingComma)
-
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        verify_description_mode(mode)
-        signode.append(nodes.Text('{'))
-        first = True
-        for e in self.exprs:
-            if not first:
-                signode.append(nodes.Text(', '))
-            else:
-                first = False
-            e.describe_signature(signode, mode, env, symbol)
-        if self.trailingComma:
-            signode.append(nodes.Text(','))
-        signode.append(nodes.Text('}'))
 
 
 class ASTInitializer(ASTBase):
@@ -4751,7 +4777,7 @@ class DefinitionParser(BaseParser):
             self.pos = pos
             # fall back to a paren expression
             try:
-                res = self._parse_expression(inTemplate=False)
+                res = self._parse_expression()
                 self.skip_ws()
                 if not self.skip_string(')'):
                     self.fail("Expected ')' in end of parenthesized expression.")
@@ -4799,7 +4825,9 @@ class DefinitionParser(BaseParser):
         return None
 
     def _parse_initializer_list(self, name: str, open: str, close: str
-                                ) -> Tuple[List[ASTExpression], bool]:
+                                ) -> Tuple[List[Union[ASTExpression,
+                                                      ASTBracedInitList]],
+                                           bool]:
         # Parse open and close with the actual initializer-list inbetween
         # -> initializer-clause '...'[opt]
         #  | initializer-list ',' initializer-clause '...'[opt]
@@ -4809,11 +4837,11 @@ class DefinitionParser(BaseParser):
         if self.skip_string(close):
             return [], False
 
-        exprs = []  # type: List[ASTExpression]
+        exprs = []  # type: List[Union[ASTExpression, ASTBracedInitList]]
         trailingComma = False
         while True:
             self.skip_ws()
-            expr = self._parse_expression(inTemplate=False)
+            expr = self._parse_initializer_clause()
             self.skip_ws()
             if self.skip_string('...'):
                 exprs.append(ASTPackExpansionExpr(expr))
@@ -4842,6 +4870,12 @@ class DefinitionParser(BaseParser):
         if exprs is None:
             return None
         return ASTParenExprList(exprs)
+
+    def _parse_initializer_clause(self) -> Union[ASTExpression, ASTBracedInitList]:
+        bracedInitList = self._parse_braced_init_list()
+        if bracedInitList is not None:
+            return bracedInitList
+        return self._parse_assignment_expression(inTemplate=False)
 
     def _parse_braced_init_list(self) -> ASTBracedInitList:
         # -> '{' initializer-list ','[opt] '}'
@@ -4902,7 +4936,7 @@ class DefinitionParser(BaseParser):
                 self.fail("Expected '(' in '%s'." % cast)
 
             def parser():
-                return self._parse_expression(inTemplate=False)
+                return self._parse_expression()
             expr = self._parse_expression_fallback([')'], parser)
             self.skip_ws()
             if not self.skip_string(")"):
@@ -4923,7 +4957,7 @@ class DefinitionParser(BaseParser):
                 try:
 
                     def parser():
-                        return self._parse_expression(inTemplate=False)
+                        return self._parse_expression()
                     expr = self._parse_expression_fallback([')'], parser)
                     prefix = ASTTypeId(expr, isType=False)
                     if not self.skip_string(')'):
@@ -4970,7 +5004,7 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
             if prefixType in ['expr', 'cast', 'typeid']:
                 if self.skip_string_and_ws('['):
-                    expr = self._parse_expression(inTemplate=False)
+                    expr = self._parse_expression()
                     self.skip_ws()
                     if not self.skip_string(']'):
                         self.fail("Expected ']' in end of postfix expression.")
@@ -5061,7 +5095,7 @@ class DefinitionParser(BaseParser):
         if self.skip_word_and_ws('noexcept'):
             if not self.skip_string_and_ws('('):
                 self.fail("Expecting '(' after 'noexcept'.")
-            expr = self._parse_expression(inTemplate=False)
+            expr = self._parse_expression()
             self.skip_ws()
             if not self.skip_string(')'):
                 self.fail("Expecting ')' to end 'noexcept'.")
@@ -5194,7 +5228,7 @@ class DefinitionParser(BaseParser):
         #     logical-or-expression
         #   | logical-or-expression "?" expression ":" assignment-expression
         #   | logical-or-expression assignment-operator initializer-clause
-        exprs = []
+        exprs = []  # type: List[Union[ASTExpression, ASTBracedInitList]]
         ops = []
         orExpr = self._parse_logical_or_expression(inTemplate=inTemplate)
         exprs.append(orExpr)
@@ -5209,7 +5243,7 @@ class DefinitionParser(BaseParser):
                 else:
                     if not self.skip_string(op):
                         continue
-                expr = self._parse_logical_or_expression(False)
+                expr = self._parse_initializer_clause()
                 exprs.append(expr)
                 ops.append(op)
                 oneMore = True
@@ -5226,11 +5260,19 @@ class DefinitionParser(BaseParser):
         # TODO: use _parse_conditional_expression_tail
         return orExpr
 
-    def _parse_expression(self, inTemplate: bool) -> ASTExpression:
+    def _parse_expression(self) -> ASTExpression:
         # -> assignment-expression
         #  | expression "," assignment-expresion
-        # TODO: actually parse the second production
-        return self._parse_assignment_expression(inTemplate=inTemplate)
+        exprs = [self._parse_assignment_expression(inTemplate=False)]
+        while True:
+            self.skip_ws()
+            if not self.skip_string(','):
+                break
+            exprs.append(self._parse_assignment_expression(inTemplate=False))
+        if len(exprs) == 1:
+            return exprs[0]
+        else:
+            return ASTCommaExpr(exprs)
 
     def _parse_expression_fallback(self, end: List[str],
                                    parser: Callable[[], ASTExpression],
@@ -5441,7 +5483,7 @@ class DefinitionParser(BaseParser):
                 if not self.skip_string(')'):
                     self.fail("Expected ')' after 'decltype(auto'.")
                 return ASTTrailingTypeSpecDecltypeAuto()
-            expr = self._parse_expression(inTemplate=False)
+            expr = self._parse_expression()
             self.skip_ws()
             if not self.skip_string(')'):
                 self.fail("Expected ')' after 'decltype(<expr>'.")
@@ -5685,7 +5727,7 @@ class DefinitionParser(BaseParser):
                     continue
 
                 def parser():
-                    return self._parse_expression(inTemplate=False)
+                    return self._parse_expression()
                 value = self._parse_expression_fallback([']'], parser)
                 if not self.skip_string(']'):
                     self.fail("Expected ']' in end of array operator.")
@@ -6351,7 +6393,7 @@ class DefinitionParser(BaseParser):
     def parse_expression(self) -> Union[ASTExpression, ASTType]:
         pos = self.pos
         try:
-            expr = self._parse_expression(False)
+            expr = self._parse_expression()
             self.skip_ws()
             self.assert_end()
             return expr

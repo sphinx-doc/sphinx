@@ -274,6 +274,9 @@ def test_expressions():
     exprCheck('a xor_eq 5', 'eO1aL5E')
     exprCheck('a |= 5', 'oR1aL5E')
     exprCheck('a or_eq 5', 'oR1aL5E')
+    exprCheck('a = {1, 2, 3}', 'aS1ailL1EL2EL3EE')
+    # comma operator
+    exprCheck('a, 5', 'cm1aL5E')
 
     # Additional tests
     # a < expression that starts with something that could be a template
