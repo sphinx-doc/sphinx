@@ -179,7 +179,7 @@ Please choose one for your purpose.
    When using docker images, please use ``docker run`` command to invoke sphinx commands.  For example,
    you can use following command to create a Sphinx project::
 
-      $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
+      $ docker run -it --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
 
    And you can following command this to build HTML document::
 
