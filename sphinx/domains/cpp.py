@@ -1713,9 +1713,11 @@ class ASTTemplateArgConstant(ASTBase):
 
 
 class ASTTemplateArgs(ASTBase):
-    def __init__(self, args: List[Union["ASTType", ASTTemplateArgConstant]]) -> None:
+    def __init__(self, args: List[Union["ASTType", ASTTemplateArgConstant]],
+                 packExpansion: bool) -> None:
         assert args is not None
         self.args = args
+        self.packExpansion = packExpansion
 
     def get_id(self, version: int) -> str:
         if version == 1:
@@ -1727,13 +1729,21 @@ class ASTTemplateArgs(ASTBase):
 
         res = []
         res.append('I')
-        for a in self.args:
-            res.append(a.get_id(version))
+        if len(self.args) > 0:
+            for a in self.args[:-1]:
+                res.append(a.get_id(version))
+            if self.packExpansion:
+                res.append('J')
+            res.append(self.args[-1].get_id(version))
+            if self.packExpansion:
+                res.append('E')
         res.append('E')
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ', '.join(transform(a) for a in self.args)
+        if self.packExpansion:
+            res += '...'
         return '<' + res + '>'
 
     def describe_signature(self, signode: TextElement, mode: str,
@@ -1746,6 +1756,8 @@ class ASTTemplateArgs(ASTBase):
                 signode += nodes.Text(', ')
             first = False
             a.describe_signature(signode, 'markType', env, symbol=symbol)
+        if self.packExpansion:
+            signode += nodes.Text('...')
         signode += nodes.Text('>')
 
 
@@ -5351,13 +5363,21 @@ class DefinitionParser(BaseParser):
         return ASTOperatorType(type)
 
     def _parse_template_argument_list(self) -> ASTTemplateArgs:
+        # template-argument-list: (but we include the < and > here
+        #    template-argument ...[opt]
+        #    template-argument-list, template-argument ...[opt]
+        # template-argument:
+        #    constant-expression
+        #    type-id
+        #    id-expression
         self.skip_ws()
         if not self.skip_string_and_ws('<'):
             return None
         if self.skip_string('>'):
-            return ASTTemplateArgs([])
+            return ASTTemplateArgs([], False)
         prevErrors = []
         templateArgs = []  # type: List[Union[ASTType, ASTTemplateArgConstant]]
+        packExpansion = False
         while 1:
             pos = self.pos
             parsedComma = False
@@ -5365,12 +5385,17 @@ class DefinitionParser(BaseParser):
             try:
                 type = self._parse_type(named=False)
                 self.skip_ws()
-                if self.skip_string('>'):
+                if self.skip_string_and_ws('...'):
+                    packExpansion = True
+                    parsedEnd = True
+                    if not self.skip_string('>'):
+                        self.fail('Expected ">" after "..." in template argument list.')
+                elif self.skip_string('>'):
                     parsedEnd = True
                 elif self.skip_string(','):
                     parsedComma = True
                 else:
-                    self.fail('Expected ">" or "," in template argument list.')
+                    self.fail('Expected "...>", ">" or "," in template argument list.')
                 templateArgs.append(type)
             except DefinitionError as e:
                 prevErrors.append((e, "If type argument"))
@@ -5378,12 +5403,17 @@ class DefinitionParser(BaseParser):
                 try:
                     value = self._parse_constant_expression(inTemplate=True)
                     self.skip_ws()
-                    if self.skip_string('>'):
+                    if self.skip_string_and_ws('...'):
+                        packExpansion = True
+                        parsedEnd = True
+                        if not self.skip_string('>'):
+                            self.fail('Expected ">" after "..." in template argument list.')
+                    elif self.skip_string('>'):
                         parsedEnd = True
                     elif self.skip_string(','):
                         parsedComma = True
                     else:
-                        self.fail('Expected ">" or "," in template argument list.')
+                        self.fail('Expected "...>", ">" or "," in template argument list.')
                     templateArgs.append(ASTTemplateArgConstant(value))
                 except DefinitionError as e:
                     self.pos = pos
@@ -5393,7 +5423,9 @@ class DefinitionParser(BaseParser):
             if parsedEnd:
                 assert not parsedComma
                 break
-        return ASTTemplateArgs(templateArgs)
+            else:
+                assert not packExpansion
+        return ASTTemplateArgs(templateArgs, packExpansion)
 
     def _parse_nested_name(self, memberPointer: bool = False) -> ASTNestedName:
         names = []  # type: List[ASTNestedNameElement]

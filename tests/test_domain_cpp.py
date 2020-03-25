@@ -629,6 +629,12 @@ def test_class_definitions():
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
 
 
+    check('class', 'template<typename ...Ts> T<int (*)(Ts)...>',
+          {2: 'IDpE1TIJPFi2TsEEE'})
+    check('class', 'template<int... Is> T<(Is)...>',
+          {2: 'I_DpiE1TIJX(Is)EEE', 3: 'I_DpiE1TIJX2IsEEE'})
+
+
 def test_union_definitions():
     check('union', 'A', {2: "1A"})
 
