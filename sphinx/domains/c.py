@@ -1675,7 +1675,7 @@ class Symbol:
                                            onMissingQualifiedSymbol,
                                            ancestorLookupType=None,
                                            matchSelf=False,
-                                           recurseInAnon=True,
+                                           recurseInAnon=False,
                                            searchInSiblings=False)
         assert lookupResult is not None  # we create symbols all the way, so that can't happen
         symbols = list(lookupResult.symbols)

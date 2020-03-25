@@ -474,6 +474,15 @@ def test_build_domain_c(app, status, warning):
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_domain_c_anon_dup_decl(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "anon-dup-decl")
+    assert len(ws) == 2
+    assert "WARNING: c:identifier reference target not found: @a" in ws[0]
+    assert "WARNING: c:identifier reference target not found: @b" in ws[1]
+
+
 def test_cfunction(app):
     text = (".. c:function:: PyObject* "
             "PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)")

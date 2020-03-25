@@ -913,6 +913,15 @@ def test_build_domain_cpp_backslash_ok(app, status, warning):
     assert "WARNING: Parsing of expression failed. Using fallback parser." in ws[0]
 
 
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_anon_dup_decl(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "anon-dup-decl")
+    assert len(ws) == 2
+    assert "WARNING: cpp:identifier reference target not found: @a" in ws[0]
+    assert "WARNING: cpp:identifier reference target not found: @b" in ws[1]
+
+
 @pytest.mark.sphinx(testroot='domain-cpp')
 def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     app.builder.build_all()
