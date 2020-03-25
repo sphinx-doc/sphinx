@@ -4159,7 +4159,7 @@ class Symbol:
                                            ancestorLookupType=None,
                                            templateShorthand=False,
                                            matchSelf=False,
-                                           recurseInAnon=True,
+                                           recurseInAnon=False,
                                            correctPrimaryTemplateArgs=True,
                                            searchInSiblings=False)
         assert lookupResult is not None  # we create symbols all the way, so that can't happen
