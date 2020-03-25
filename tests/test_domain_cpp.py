@@ -274,6 +274,9 @@ def test_expressions():
     exprCheck('a xor_eq 5', 'eO1aL5E')
     exprCheck('a |= 5', 'oR1aL5E')
     exprCheck('a or_eq 5', 'oR1aL5E')
+    exprCheck('a = {1, 2, 3}', 'aS1ailL1EL2EL3EE')
+    # comma operator
+    exprCheck('a, 5', 'cm1aL5E')
 
     # Additional tests
     # a < expression that starts with something that could be a template
@@ -624,6 +627,12 @@ def test_class_definitions():
     check('class', 'template<class, class = std::void_t<>> has_var', {2: 'I00E7has_var'})
     check('class', 'template<class T> has_var<T, std::void_t<decltype(&T::var)>>',
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
+
+
+    check('class', 'template<typename ...Ts> T<int (*)(Ts)...>',
+          {2: 'IDpE1TIJPFi2TsEEE'})
+    check('class', 'template<int... Is> T<(Is)...>',
+          {2: 'I_DpiE1TIJX(Is)EEE', 3: 'I_DpiE1TIJX2IsEEE'})
 
 
 def test_union_definitions():
