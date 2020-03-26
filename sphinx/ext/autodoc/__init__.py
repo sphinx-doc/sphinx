@@ -1205,6 +1205,14 @@ class DecoratorDocumenter(FunctionDocumenter):
             return None
 
 
+# Types which have confusing metaclass signatures it would be best not to show.
+# These are listed by name, rather than storing the objects themselves, to avoid
+# needing to import the modules.
+_METACLASS_CALL_BLACKLIST = [
+    'enum.EnumMeta.__call__',
+]
+
+
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for classes.
@@ -1243,22 +1251,72 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
-        # for classes, the relevant signature is the __init__ method's
-        initmeth = self.get_attr(self.object, '__init__', None)
-        # classes without __init__ method, default __init__ or
-        # __init__ written in C?
-        if initmeth is None or \
-                inspect.is_builtin_class_method(self.object, '__init__') or \
-                not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
-            return None
-        try:
-            self.env.app.emit('autodoc-before-process-signature', initmeth, True)
-            sig = inspect.signature(initmeth, bound_method=True)
+        def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
+            """ Get the `attr` function or method from `obj`, if it is user-defined. """
+            if inspect.is_builtin_class_method(obj, attr):
+                return None
+            attr = self.get_attr(obj, attr, None)
+            if not (inspect.ismethod(attr) or inspect.isfunction(attr)):
+                return None
+            return attr
+
+        sig = None
+
+        # this sequence is copied from inspect._signature_from_callable
+
+        # First, let's see if it has an overloaded __call__ defined
+        # in its metaclass
+        if sig is None:
+            call = get_user_defined_function_or_method(type(self.object), '__call__')
+
+            if call is not None:
+                if "{0.__module__}.{0.__qualname__}".format(call) in _METACLASS_CALL_BLACKLIST:
+                    call = None
+
+            if call is not None:
+                self.env.app.emit('autodoc-before-process-signature', call, True)
+                try:
+                    sig = inspect.signature(call, bound_method=True)
+                except ValueError:
+                    pass
+
+        # Now we check if the 'obj' class has a '__new__' method
+        if sig is None:
+            new = get_user_defined_function_or_method(self.object, '__new__')
+            if new is not None:
+                self.env.app.emit('autodoc-before-process-signature', new, True)
+                try:
+                    sig = inspect.signature(new, bound_method=True)
+                except ValueError:
+                    pass
+
+        # Finally, we should have at least __init__ implemented
+        if sig is None:
+            init = get_user_defined_function_or_method(self.object, '__init__')
+            if init is not None:
+                self.env.app.emit('autodoc-before-process-signature', init, True)
+                try:
+                    sig = inspect.signature(init, bound_method=True)
+                except ValueError:
+                    pass
+
+        # None of the attributes are user-defined, so fall back to let inspect
+        # handle it.
+        if sig is None:
+            # We don't know the exact method that inspect.signature will read
+            # the signature from, so just pass the object itself to our hook.
+            self.env.app.emit('autodoc-before-process-signature', self.object, False)
+            try:
+                sig = inspect.signature(self.object, bound_method=False)
+            except ValueError:
+                pass
+
+        if sig is not None:
             return stringify_signature(sig, show_return_annotation=False, **kwargs)
-        except TypeError:
-            # still not possible: happens e.g. for old-style classes
-            # with __init__ in C
-            return None
+
+        # Still no signature: happens e.g. for old-style classes
+        # with __init__ in C and no `__text_signature__`.
+        return None
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.doc_as_attr:
