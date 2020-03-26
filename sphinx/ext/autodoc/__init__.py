@@ -1627,6 +1627,26 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
     def document_members(self, all_members: bool = False) -> None:
         pass
 
+    def format_args(self, **kwargs):
+        if self.env.config.autodoc_typehints in ('none', 'description'):
+            kwargs.setdefault('show_annotation', False)
+
+        show_annotation = kwargs.pop('show_annotation', True)
+        annotation = inspect.Parameter.empty
+
+        getter = self.object.fget
+        if getter is not None:
+            self.env.app.emit('autodoc-before-process-signature',
+                              getter, False)
+            sig = inspect.signature(getter)
+            if sig is not None:
+                annotation = sig.return_annotation
+
+        if show_annotation and annotation is not inspect.Parameter.empty:
+            return ' : {}'.format(stringify_typehint(annotation))
+        else:
+            return ''
+
     def get_real_modname(self) -> str:
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname

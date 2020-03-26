@@ -29,6 +29,10 @@ class Math:
         # type: (...) -> None
         return
 
+    @property
+    def prop(self) -> int:
+        return 42
+
 
 def complex_func(arg1, arg2, arg3=None, *args, **kwargs):
     # type: (str, List[int], Tuple[int, Union[str, Unknown]], *str, **str) -> None

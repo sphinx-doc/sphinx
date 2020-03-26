@@ -32,7 +32,7 @@ def parse(sig):
     m = py_sig_re.match(sig)
     if m is None:
         raise ValueError
-    name_prefix, name, arglist, retann = m.groups()
+    name_prefix, name, arglist, retann, dataann = m.groups()
     signode = addnodes.desc_signature(sig, '')
     _pseudo_parse_arglist(signode, arglist)
     return signode.astext()

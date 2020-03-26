@@ -53,6 +53,8 @@ py_sig_re = re.compile(
           (\w+)  \s*             # thing name
           (?: \(\s*(.*)\s*\)     # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
+          |
+           : \s* (.*)            # data annotation
           )? $                   # and nothing more
           ''', re.VERBOSE)
 
@@ -345,7 +347,7 @@ class PyObject(ObjectDescription):
         m = py_sig_re.match(sig)
         if m is None:
             raise ValueError
-        prefix, name, arglist, retann = m.groups()
+        prefix, name, arglist, retann, dataann = m.groups()
 
         # determine module and class name (if applicable), as well as full name
         modname = self.options.get('module', self.env.ref_context.get('py:module'))
@@ -410,6 +412,9 @@ class PyObject(ObjectDescription):
         if retann:
             children = _parse_annotation(retann)
             signode += addnodes.desc_returns(retann, '', *children)
+        elif dataann:
+            children = _parse_annotation(dataann)
+            signode += addnodes.desc_returns(dataann, '', *children)
 
         anno = self.options.get('annotation')
         if anno:
