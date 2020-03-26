@@ -10,7 +10,7 @@
 
 import re
 from typing import (
-    Any, Callable, Dict, Iterator, List, Tuple, Type, TypeVar, Union
+    Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar, Union
 )
 
 from docutils import nodes
@@ -3717,7 +3717,7 @@ class Symbol:
             if self.declaration:
                 assert self.docname
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
             assert False
         else:
@@ -3829,7 +3829,7 @@ class Symbol:
                 yield s
 
     @property
-    def children_recurse_anon(self):
+    def children_recurse_anon(self) -> Generator["Symbol", None, None]:
         for c in self._children:
             yield c
             if not c.identOrOp.is_anon():
@@ -3936,7 +3936,7 @@ class Symbol:
                 if not isSpecialization():
                     templateArgs = None
 
-        def matches(s):
+        def matches(s: "Symbol") -> bool:
             if s.identOrOp != identOrOp:
                 return False
             if (s.templateParams is None) != (templateParams is None):
@@ -3958,7 +3958,7 @@ class Symbol:
                     return False
             return True
 
-        def candidates():
+        def candidates() -> Generator[Symbol, None, None]:
             s = self
             if Symbol.debug_lookup:
                 Symbol.debug_print("searching in self:")
@@ -4220,7 +4220,7 @@ class Symbol:
         # First check if one of those with a declaration matches.
         # If it's a function, we need to compare IDs,
         # otherwise there should be only one symbol with a declaration.
-        def makeCandSymbol():
+        def makeCandSymbol() -> "Symbol":
             if Symbol.debug_lookup:
                 Symbol.debug_print("begin: creating candidate symbol")
             symbol = Symbol(parent=lookupResult.parentSymbol,
@@ -4237,7 +4237,7 @@ class Symbol:
         else:
             candSymbol = makeCandSymbol()
 
-            def handleDuplicateDeclaration(symbol, candSymbol):
+            def handleDuplicateDeclaration(symbol: "Symbol", candSymbol: "Symbol") -> None:
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
                     Symbol.debug_print("redeclaration")
@@ -4951,7 +4951,7 @@ class DefinitionParser(BaseParser):
             if not self.skip_string("("):
                 self.fail("Expected '(' in '%s'." % cast)
 
-            def parser():
+            def parser() -> ASTExpression:
                 return self._parse_expression()
             expr = self._parse_expression_fallback([')'], parser)
             self.skip_ws()
@@ -4972,7 +4972,7 @@ class DefinitionParser(BaseParser):
                 self.pos = pos
                 try:
 
-                    def parser():
+                    def parser() -> ASTExpression:
                         return self._parse_expression()
                     expr = self._parse_expression_fallback([')'], parser)
                     prefix = ASTTypeId(expr, isType=False)
@@ -5230,7 +5230,7 @@ class DefinitionParser(BaseParser):
             return ASTBinOpExpr(exprs, ops)
         return _parse_bin_op_expr(self, 0, inTemplate=inTemplate)
 
-    def _parse_conditional_expression_tail(self, orExprHead):
+    def _parse_conditional_expression_tail(self, orExprHead: Any) -> None:
         # -> "?" expression ":" assignment-expression
         return None
 
@@ -5762,7 +5762,7 @@ class DefinitionParser(BaseParser):
                     arrayOps.append(ASTArray(None))
                     continue
 
-                def parser():
+                def parser() -> ASTExpression:
                     return self._parse_expression()
                 value = self._parse_expression_fallback([']'], parser)
                 if not self.skip_string(']'):
@@ -5945,7 +5945,7 @@ class DefinitionParser(BaseParser):
 
         inTemplate = outer == 'templateParam'
 
-        def parser():
+        def parser() -> ASTExpression:
             return self._parse_assignment_expression(inTemplate=inTemplate)
         value = self._parse_expression_fallback(fallbackEnd, parser, allow=allowFallback)
         return ASTInitializer(value)
@@ -6141,7 +6141,7 @@ class DefinitionParser(BaseParser):
         if self.skip_string('='):
             self.skip_ws()
 
-            def parser():
+            def parser() -> ASTExpression:
                 return self._parse_constant_expression(inTemplate=False)
             initVal = self._parse_expression_fallback([], parser)
             init = ASTInitializer(initVal)
