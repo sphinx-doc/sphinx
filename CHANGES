@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* Added ``ObjectDescription.transform_content()``.
+
 Bugs fixed
 ----------
 
