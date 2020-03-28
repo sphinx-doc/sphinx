@@ -551,12 +551,23 @@ class PyFunction(PyObject):
     def needs_arglist(self) -> bool:
         return True
 
-    def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
+    def add_target_and_index(self, name_cls: Tuple[str, str], sig: str,
+                             signode: desc_signature) -> None:
+        super().add_target_and_index(name_cls, sig, signode)
+        modname = self.options.get('module', self.env.ref_context.get('py:module'))
+        node_id = signode['ids'][0]
+
         name, cls = name_cls
         if modname:
-            return _('%s() (in module %s)') % (name, modname)
+            text = _('%s() (in module %s)') % (name, modname)
+            self.indexnode['entries'].append(('single', text, node_id, '', None))
         else:
-            return _('%s() (built-in function)') % name
+            text = '%s; %s()' % (pairindextypes['builtin'], name)
+            self.indexnode['entries'].append(('pair', text, node_id, '', None))
+
+    def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
+        # add index in own add_target_and_index() instead.
+        return None
 
 
 class PyDecoratorFunction(PyFunction):
