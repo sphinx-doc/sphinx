@@ -31,7 +31,7 @@ clean-backupfiles:
 clean-generated:
 	find . -name '.DS_Store' -exec rm -f {} +
 	rm -rf Sphinx.egg-info/
-	rm -rf dists/
+	rm -rf dist/
 	rm -rf doc/_build/
 	rm -f sphinx/pycode/*.pickle
 	rm -f utils/*3.py*
@@ -50,7 +50,7 @@ clean-buildfiles:
 
 .PHONY: clean-mypyfiles
 clean-mypyfiles:
-	rm -rf .mypy_cache/
+	rm -rf **/.mypy_cache/
 
 .PHONY: style-check
 style-check:
