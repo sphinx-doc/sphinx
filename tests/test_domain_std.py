@@ -19,7 +19,8 @@ from html5lib import HTMLParser
 
 from sphinx import addnodes
 from sphinx.addnodes import (
-    desc, desc_addname, desc_content, desc_name, desc_signature, glossary, index
+    desc, desc_addname, desc_content, desc_name, desc_signature, glossary, index,
+    pending_xref
 )
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
@@ -373,3 +374,12 @@ def test_productionlist(app, status, warning):
 
     text = (app.outdir / 'LineContinuation.html').read_text()
     assert "A</strong> ::=  B C D    E F G" in text
+
+
+def test_disabled_docref(app):
+    text = (":doc:`index`\n"
+            ":doc:`!index`\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, ([nodes.paragraph, ([pending_xref, nodes.inline, "index"],
+                                             "\n",
+                                             [nodes.inline, "index"])],))

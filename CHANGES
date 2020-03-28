@@ -23,6 +23,7 @@ Bugs fixed
 * #7368: C++, comma operator in expressions, pack expansion in template
   argument lists, and more comprehensive error messages in some cases.
 * C, C++, fix crash and wrong duplicate warnings related to anon symbols.
+* #6477: Escape first "!" in a cross reference linking no longer possible
 
 Testing
 --------

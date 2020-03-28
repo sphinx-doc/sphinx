@@ -409,6 +409,7 @@ class ReferenceRole(SphinxRole):
     ``self.title`` and ``self.target``.
     """
     has_explicit_title = None   #: A boolean indicates the role has explicit title or not.
+    disabled = False            #: A boolean indicates the reference is disabled.
     title = None                #: The link title for the interpreted text.
     target = None               #: The link target for the interpreted text.
 
@@ -418,6 +419,9 @@ class ReferenceRole(SphinxRole):
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
                  inliner: Inliner, options: Dict = {}, content: List[str] = []
                  ) -> Tuple[List[Node], List[system_message]]:
+        # if the first character is a bang, don't cross-reference at all
+        self.disabled = text.startswith('!')
+
         matched = self.explicit_title_re.match(text)
         if matched:
             self.has_explicit_title = True
