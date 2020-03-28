@@ -154,18 +154,22 @@ class BaseParser:
         result = [header, '\n']
         for e in errors:
             if len(e[1]) > 0:
-                ident = '  '
+                indent = '  '
                 result.append(e[1])
                 result.append(':\n')
                 for line in str(e[0]).split('\n'):
                     if len(line) == 0:
                         continue
-                    result.append(ident)
+                    result.append(indent)
                     result.append(line)
                     result.append('\n')
             else:
                 result.append(str(e[0]))
         return DefinitionError(''.join(result))
+
+    @property
+    def language(self) -> str:
+        raise NotImplementedError
 
     def status(self, msg: str) -> None:
         # for debugging
@@ -176,8 +180,8 @@ class BaseParser:
         errors = []
         indicator = '-' * self.pos + '^'
         exMain = DefinitionError(
-            'Invalid definition: %s [error at %d]\n  %s\n  %s' %
-            (msg, self.pos, self.definition, indicator))
+            'Invalid %s declaration: %s [error at %d]\n  %s\n  %s' %
+            (self.language, msg, self.pos, self.definition, indicator))
         errors.append((exMain, "Main error"))
         for err in self.otherErrors:
             errors.append((err, "Potential other error"))

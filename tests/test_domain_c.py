@@ -172,7 +172,9 @@ def test_expressions():
     exprCheck('+5')
     exprCheck('-5')
     exprCheck('!5')
+    exprCheck('not 5')
     exprCheck('~5')
+    exprCheck('compl 5')
     exprCheck('sizeof(T)')
     exprCheck('sizeof -42')
     exprCheck('alignof(T)')
@@ -180,13 +182,19 @@ def test_expressions():
     exprCheck('(int)2')
     # binary op
     exprCheck('5 || 42')
+    exprCheck('5 or 42')
     exprCheck('5 && 42')
+    exprCheck('5 and 42')
     exprCheck('5 | 42')
+    exprCheck('5 bitor 42')
     exprCheck('5 ^ 42')
+    exprCheck('5 xor 42')
     exprCheck('5 & 42')
+    exprCheck('5 bitand 42')
     # ['==', '!=']
     exprCheck('5 == 42')
     exprCheck('5 != 42')
+    exprCheck('5 not_eq 42')
     # ['<=', '>=', '<', '>']
     exprCheck('5 <= 42')
     exprCheck('5 >= 42')
@@ -215,8 +223,11 @@ def test_expressions():
     exprCheck('a >>= 5')
     exprCheck('a <<= 5')
     exprCheck('a &= 5')
+    exprCheck('a and_eq 5')
     exprCheck('a ^= 5')
+    exprCheck('a xor_eq 5')
     exprCheck('a |= 5')
+    exprCheck('a or_eq 5')
 
 
 def test_type_definitions():
@@ -461,6 +472,15 @@ def test_build_domain_c(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_domain_c_anon_dup_decl(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "anon-dup-decl")
+    assert len(ws) == 2
+    assert "WARNING: c:identifier reference target not found: @a" in ws[0]
+    assert "WARNING: c:identifier reference target not found: @b" in ws[1]
 
 
 def test_cfunction(app):
