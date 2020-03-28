@@ -196,7 +196,9 @@ def test_expressions():
     exprCheck('+5', 'psL5E')
     exprCheck('-5', 'ngL5E')
     exprCheck('!5', 'ntL5E')
+    exprCheck('not 5', 'ntL5E')
     exprCheck('~5', 'coL5E')
+    exprCheck('compl 5', 'coL5E')
     exprCheck('sizeof...(a)', 'sZ1a')
     exprCheck('sizeof(T)', 'st1T')
     exprCheck('sizeof -42', 'szngL42E')
@@ -220,13 +222,19 @@ def test_expressions():
     exprCheck('(int)2', 'cviL2E')
     # binary op
     exprCheck('5 || 42', 'ooL5EL42E')
+    exprCheck('5 or 42', 'ooL5EL42E')
     exprCheck('5 && 42', 'aaL5EL42E')
+    exprCheck('5 and 42', 'aaL5EL42E')
     exprCheck('5 | 42', 'orL5EL42E')
+    exprCheck('5 bitor 42', 'orL5EL42E')
     exprCheck('5 ^ 42', 'eoL5EL42E')
+    exprCheck('5 xor 42', 'eoL5EL42E')
     exprCheck('5 & 42', 'anL5EL42E')
+    exprCheck('5 bitand 42', 'anL5EL42E')
     # ['==', '!=']
     exprCheck('5 == 42', 'eqL5EL42E')
     exprCheck('5 != 42', 'neL5EL42E')
+    exprCheck('5 not_eq 42', 'neL5EL42E')
     # ['<=', '>=', '<', '>']
     exprCheck('5 <= 42', 'leL5EL42E')
     exprCheck('A <= 42', 'le1AL42E')
@@ -260,8 +268,14 @@ def test_expressions():
     exprCheck('a >>= 5', 'rS1aL5E')
     exprCheck('a <<= 5', 'lS1aL5E')
     exprCheck('a &= 5', 'aN1aL5E')
+    exprCheck('a and_eq 5', 'aN1aL5E')
     exprCheck('a ^= 5', 'eO1aL5E')
+    exprCheck('a xor_eq 5', 'eO1aL5E')
     exprCheck('a |= 5', 'oR1aL5E')
+    exprCheck('a or_eq 5', 'oR1aL5E')
+    exprCheck('a = {1, 2, 3}', 'aS1ailL1EL2EL3EE')
+    # comma operator
+    exprCheck('a, 5', 'cm1aL5E')
 
     # Additional tests
     # a < expression that starts with something that could be a template
@@ -530,30 +544,62 @@ def test_function_definitions():
 
 
 def test_operators():
-    check('function', 'void operator new [  ] ()',
-          {1: "new-array-operator", 2: "nav"}, output='void operator new[]()')
-    check('function', 'void operator delete ()',
-          {1: "delete-operator", 2: "dlv"}, output='void operator delete()')
-    check('function', 'operator bool() const',
-          {1: "castto-b-operatorC", 2: "NKcvbEv"}, output='operator bool() const')
+    check('function', 'void operator new()', {1: "new-operator", 2: "nwv"})
+    check('function', 'void operator new[]()', {1: "new-array-operator", 2: "nav"})
+    check('function', 'void operator delete()', {1: "delete-operator", 2: "dlv"})
+    check('function', 'void operator delete[]()', {1: "delete-array-operator", 2: "dav"})
+    check('function', 'operator bool() const', {1: "castto-b-operatorC", 2: "NKcvbEv"})
+    check('function', 'void operator""_udl()', {2: 'li4_udlv'})
 
-    check('function', 'void operator * ()',
-          {1: "mul-operator", 2: "mlv"}, output='void operator*()')
-    check('function', 'void operator - ()',
-          {1: "sub-operator", 2: "miv"}, output='void operator-()')
-    check('function', 'void operator + ()',
-          {1: "add-operator", 2: "plv"}, output='void operator+()')
-    check('function', 'void operator = ()',
-          {1: "assign-operator", 2: "aSv"}, output='void operator=()')
-    check('function', 'void operator / ()',
-          {1: "div-operator", 2: "dvv"}, output='void operator/()')
-    check('function', 'void operator % ()',
-          {1: "mod-operator", 2: "rmv"}, output='void operator%()')
-    check('function', 'void operator ! ()',
-          {1: "not-operator", 2: "ntv"}, output='void operator!()')
-
-    check('function', 'void operator "" _udl()',
-          {2: 'li4_udlv'}, output='void operator""_udl()')
+    check('function', 'void operator~()', {1: "inv-operator", 2: "cov"})
+    check('function', 'void operator compl()', {2: "cov"})
+    check('function', 'void operator+()', {1: "add-operator", 2: "plv"})
+    check('function', 'void operator-()', {1: "sub-operator", 2: "miv"})
+    check('function', 'void operator*()', {1: "mul-operator", 2: "mlv"})
+    check('function', 'void operator/()', {1: "div-operator", 2: "dvv"})
+    check('function', 'void operator%()', {1: "mod-operator", 2: "rmv"})
+    check('function', 'void operator&()', {1: "and-operator", 2: "anv"})
+    check('function', 'void operator bitand()', {2: "anv"})
+    check('function', 'void operator|()', {1: "or-operator", 2: "orv"})
+    check('function', 'void operator bitor()', {2: "orv"})
+    check('function', 'void operator^()', {1: "xor-operator", 2: "eov"})
+    check('function', 'void operator xor()', {2: "eov"})
+    check('function', 'void operator=()', {1: "assign-operator", 2: "aSv"})
+    check('function', 'void operator+=()', {1: "add-assign-operator", 2: "pLv"})
+    check('function', 'void operator-=()', {1: "sub-assign-operator", 2: "mIv"})
+    check('function', 'void operator*=()', {1: "mul-assign-operator", 2: "mLv"})
+    check('function', 'void operator/=()', {1: "div-assign-operator", 2: "dVv"})
+    check('function', 'void operator%=()', {1: "mod-assign-operator", 2: "rMv"})
+    check('function', 'void operator&=()', {1: "and-assign-operator", 2: "aNv"})
+    check('function', 'void operator and_eq()', {2: "aNv"})
+    check('function', 'void operator|=()', {1: "or-assign-operator", 2: "oRv"})
+    check('function', 'void operator or_eq()', {2: "oRv"})
+    check('function', 'void operator^=()', {1: "xor-assign-operator", 2: "eOv"})
+    check('function', 'void operator xor_eq()', {2: "eOv"})
+    check('function', 'void operator<<()', {1: "lshift-operator", 2: "lsv"})
+    check('function', 'void operator>>()', {1: "rshift-operator", 2: "rsv"})
+    check('function', 'void operator<<=()', {1: "lshift-assign-operator", 2: "lSv"})
+    check('function', 'void operator>>=()', {1: "rshift-assign-operator", 2: "rSv"})
+    check('function', 'void operator==()', {1: "eq-operator", 2: "eqv"})
+    check('function', 'void operator!=()', {1: "neq-operator", 2: "nev"})
+    check('function', 'void operator not_eq()', {2: "nev"})
+    check('function', 'void operator<()', {1: "lt-operator", 2: "ltv"})
+    check('function', 'void operator>()', {1: "gt-operator", 2: "gtv"})
+    check('function', 'void operator<=()', {1: "lte-operator", 2: "lev"})
+    check('function', 'void operator>=()', {1: "gte-operator", 2: "gev"})
+    check('function', 'void operator!()', {1: "not-operator", 2: "ntv"})
+    check('function', 'void operator not()', {2: "ntv"})
+    check('function', 'void operator&&()', {1: "sand-operator", 2: "aav"})
+    check('function', 'void operator and()', {2: "aav"})
+    check('function', 'void operator||()', {1: "sor-operator", 2: "oov"})
+    check('function', 'void operator or()', {2: "oov"})
+    check('function', 'void operator++()', {1: "inc-operator", 2: "ppv"})
+    check('function', 'void operator--()', {1: "dec-operator", 2: "mmv"})
+    check('function', 'void operator,()', {1: "comma-operator", 2: "cmv"})
+    check('function', 'void operator->*()', {1: "pointer-by-pointer-operator", 2: "pmv"})
+    check('function', 'void operator->()', {1: "pointer-operator", 2: "ptv"})
+    check('function', 'void operator()()', {1: "call-operator", 2: "clv"})
+    check('function', 'void operator[]()', {1: "subscript-operator", 2: "ixv"})
 
 
 def test_class_definitions():
@@ -580,6 +626,12 @@ def test_class_definitions():
     check('class', 'template<class, class = std::void_t<>> has_var', {2: 'I00E7has_var'})
     check('class', 'template<class T> has_var<T, std::void_t<decltype(&T::var)>>',
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
+
+
+    check('class', 'template<typename ...Ts> T<int (*)(Ts)...>',
+          {2: 'IDpE1TIJPFi2TsEEE'})
+    check('class', 'template<int... Is> T<(Is)...>',
+          {2: 'I_DpiE1TIJX(Is)EEE', 3: 'I_DpiE1TIJX2IsEEE'})
 
 
 def test_union_definitions():
@@ -858,6 +910,15 @@ def test_build_domain_cpp_backslash_ok(app, status, warning):
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 1
     assert "WARNING: Parsing of expression failed. Using fallback parser." in ws[0]
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_anon_dup_decl(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "anon-dup-decl")
+    assert len(ws) == 2
+    assert "WARNING: cpp:identifier reference target not found: @a" in ws[0]
+    assert "WARNING: cpp:identifier reference target not found: @b" in ws[1]
 
 
 @pytest.mark.sphinx(testroot='domain-cpp')

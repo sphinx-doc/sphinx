@@ -53,21 +53,21 @@ _keywords = [
 
 # these are ordered by preceedence
 _expression_bin_ops = [
-    ['||'],
-    ['&&'],
-    ['|'],
-    ['^'],
-    ['&'],
-    ['==', '!='],
+    ['||', 'or'],
+    ['&&', 'and'],
+    ['|', 'bitor'],
+    ['^', 'xor'],
+    ['&', 'bitand'],
+    ['==', '!=', 'not_eq'],
     ['<=', '>=', '<', '>'],
     ['<<', '>>'],
     ['+', '-'],
     ['*', '/', '%'],
     ['.*', '->*']
 ]
-_expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "~"]
+_expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl"]
 _expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
-                              ">>=", "<<=", "&=", "^=", "|="]
+                              ">>=", "<<=", "&=", "and_eq", "^=", "xor_eq", "|=", "or_eq"]
 
 _max_id = 1
 _id_prefix = [None, 'c.', 'Cv2.']
@@ -423,11 +423,16 @@ class ASTUnaryOpExpr(ASTExpression):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return transform(self.op) + transform(self.expr)
+        if self.op[0] in 'cn':
+            return transform(self.op) + " " + transform(self.expr)
+        else:
+            return transform(self.op) + transform(self.expr)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text(self.op))
+        if self.op[0] in 'cn':
+            signode.append(nodes.Text(" "))
         self.expr.describe_signature(signode, mode, env, symbol)
 
 
@@ -1670,7 +1675,7 @@ class Symbol:
                                            onMissingQualifiedSymbol,
                                            ancestorLookupType=None,
                                            matchSelf=False,
-                                           recurseInAnon=True,
+                                           recurseInAnon=False,
                                            searchInSiblings=False)
         assert lookupResult is not None  # we create symbols all the way, so that can't happen
         symbols = list(lookupResult.symbols)
@@ -1981,6 +1986,10 @@ class DefinitionParser(BaseParser):
 
     _prefix_keys = ('struct', 'enum', 'union')
 
+    @property
+    def language(self) -> str:
+        return 'C'
+
     def _parse_string(self) -> str:
         if self.current_char != '"':
             return None
@@ -2241,7 +2250,11 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         for op in _expression_unary_ops:
             # TODO: hmm, should we be able to backtrack here?
-            if self.skip_string(op):
+            if op[0] in 'cn':
+                res = self.skip_word(op)
+            else:
+                res = self.skip_string(op)
+            if res:
                 expr = self._parse_cast_expression()
                 return ASTUnaryOpExpr(op, expr)
         if self.skip_word_and_ws('sizeof'):
@@ -2313,8 +2326,12 @@ class DefinitionParser(BaseParser):
                 pos = self.pos
                 oneMore = False
                 for op in _expression_bin_ops[opId]:
-                    if not self.skip_string(op):
-                        continue
+                    if op[0] in 'abcnox':
+                        if not self.skip_word(op):
+                            continue
+                    else:
+                        if not self.skip_string(op):
+                            continue
                     if op == '&' and self.current_char == '&':
                         # don't split the && 'token'
                         self.pos -= 1
@@ -2353,8 +2370,12 @@ class DefinitionParser(BaseParser):
             oneMore = False
             self.skip_ws()
             for op in _expression_assignment_ops:
-                if not self.skip_string(op):
-                    continue
+                if op[0] in 'abcnox':
+                    if not self.skip_word(op):
+                        continue
+                else:
+                    if not self.skip_string(op):
+                        continue
                 expr = self._parse_logical_or_expression()
                 exprs.append(expr)
                 ops.append(op)
@@ -2680,7 +2701,7 @@ class DefinitionParser(BaseParser):
                                     restrict=restrict, volatile=volatile, const=const,
                                     attrs=attrs)
         if typed and self.current_char == '(':  # note: peeking, not skipping
-            # maybe this is the beginning of params,try that first,
+            # maybe this is the beginning of params, try that first,
             # otherwise assume it's noptr->declarator > ( ptr-declarator )
             pos = self.pos
             try:
@@ -2689,7 +2710,10 @@ class DefinitionParser(BaseParser):
                                                          typed)
                 return res
             except DefinitionError as exParamQual:
-                prevErrors.append((exParamQual, "If declId and parameters"))
+                msg = "If declarator-id with parameters"
+                if paramMode == 'function':
+                    msg += " (e.g., 'void f(int arg)')"
+                prevErrors.append((exParamQual, msg))
                 self.pos = pos
                 try:
                     assert self.current_char == '('
@@ -2706,7 +2730,10 @@ class DefinitionParser(BaseParser):
                     return ASTDeclaratorParen(inner=inner, next=next)
                 except DefinitionError as exNoPtrParen:
                     self.pos = pos
-                    prevErrors.append((exNoPtrParen, "If parenthesis in noptr-declarator"))
+                    msg = "If parenthesis in noptr-declarator"
+                    if paramMode == 'function':
+                        msg += " (e.g., 'void (*f(int arg))(double)')"
+                    prevErrors.append((exNoPtrParen, msg))
                     header = "Error in declarator"
                     raise self._make_multi_error(prevErrors, header)
         pos = self.pos

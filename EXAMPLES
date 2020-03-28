@@ -248,6 +248,7 @@ Documentation using sphinx_rtd_theme
 * `PyPy <http://doc.pypy.org/>`__
 * `python-sqlparse <https://sqlparse.readthedocs.io/>`__
 * `PyVISA <https://pyvisa.readthedocs.io/>`__
+* `pyvista <https://docs.pyvista.org/>`__
 * `Read The Docs <https://docs.readthedocs.io/>`__
 * `ROCm Platform <https://rocm-documentation.readthedocs.io/>`__
 * `Free your information from their silos (French) <http://redaction-technique.org/>`__ (customized)
