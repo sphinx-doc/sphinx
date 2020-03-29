@@ -326,7 +326,7 @@ def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
     return documented
 
 
-def find_autosummary_in_docstring(name: str, module: Any = None, filename: str = None
+def find_autosummary_in_docstring(name: str, module: str = None, filename: str = None
                                   ) -> List[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
@@ -346,7 +346,7 @@ def find_autosummary_in_docstring(name: str, module: Any = None, filename: str =
     return []
 
 
-def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: str = None
+def find_autosummary_in_lines(lines: List[str], module: str = None, filename: str = None
                               ) -> List[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
