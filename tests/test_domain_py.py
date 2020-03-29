@@ -481,7 +481,7 @@ def test_pyfunction(app):
     assert_node(doctree[0], addnodes.index,
                 entries=[('pair', 'built-in function; func1()', 'func1', '', None)])
     assert_node(doctree[3], addnodes.index,
-                entries=[('single', 'example (module)', 'module-example', '', None)])
+                entries=[('pair', 'module; example', 'module-example', '', None)])
     assert_node(doctree[4], addnodes.index,
                 entries=[('single', 'func2() (in module example)', 'example.func2', '', None)])
 

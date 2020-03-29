@@ -926,8 +926,8 @@ class PyModule(SphinxDirective):
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
             ret.append(target)
-            indextext = _('%s (module)') % modname
-            inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
+            indextext = '%s; %s' % (pairindextypes['module'], modname)
+            inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
             ret.append(inode)
         return ret
 
