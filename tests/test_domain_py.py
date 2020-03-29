@@ -461,6 +461,7 @@ def test_pydata(app):
 
 def test_pyfunction(app):
     text = (".. py:function:: func1\n"
+            ".. py:module:: example\n"
             ".. py:function:: func2\n"
             "   :async:\n")
     domain = app.env.get_domain('py')
@@ -469,15 +470,25 @@ def test_pyfunction(app):
                           [desc, ([desc_signature, ([desc_name, "func1"],
                                                     [desc_parameterlist, ()])],
                                   [desc_content, ()])],
+                          nodes.target,
+                          addnodes.index,
                           addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "async "],
+                                                    [desc_addname, "example."],
                                                     [desc_name, "func2"],
                                                     [desc_parameterlist, ()])],
                                   [desc_content, ()])]))
+    assert_node(doctree[0], addnodes.index,
+                entries=[('pair', 'built-in function; func1()', 'func1', '', None)])
+    assert_node(doctree[3], addnodes.index,
+                entries=[('pair', 'module; example', 'module-example', '', None)])
+    assert_node(doctree[4], addnodes.index,
+                entries=[('single', 'func2() (in module example)', 'example.func2', '', None)])
+
     assert 'func1' in domain.objects
     assert domain.objects['func1'] == ('index', 'func1', 'function')
-    assert 'func2' in domain.objects
-    assert domain.objects['func2'] == ('index', 'func2', 'function')
+    assert 'example.func2' in domain.objects
+    assert domain.objects['example.func2'] == ('index', 'example.func2', 'function')
 
 
 def test_pymethod_options(app):
