@@ -81,7 +81,7 @@ from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.util import import_object, rst, logging
+from sphinx.util import rst, logging
 from sphinx.util.docutils import (
     NullReporter, SphinxDirective, SphinxRole, new_document, switch_source_input
 )
@@ -703,8 +703,6 @@ def get_rst_suffix(app: Sphinx) -> str:
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)
-        if isinstance(parser_class, str):
-            parser_class = import_object(parser_class, 'source parser')
         return parser_class.supported
 
     suffix = None  # type: str
