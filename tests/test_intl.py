@@ -946,14 +946,14 @@ def test_xml_role_xref(app):
         ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
          'SOME NEW TERM', '.'],
         ['i18n-role-xref', 'index',
-         'glossary_terms#term-some-term'])
+         'glossary_terms#term-Some-term'])
 
     para2 = sec2.findall('paragraph')
     assert_elem(
         para2[0],
         ['LINK TO', 'SOME OTHER NEW TERM', 'AND', 'SOME NEW TERM', '.'],
-        ['glossary_terms#term-some-other-term',
-         'glossary_terms#term-some-term'])
+        ['glossary_terms#term-Some-other-term',
+         'glossary_terms#term-Some-term'])
     assert_elem(
         para2[1],
         ['LINK TO', 'SAME TYPE LINKS', 'AND',
