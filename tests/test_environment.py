@@ -84,7 +84,7 @@ def test_object_inventory(app):
     refs = app.env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs
-    assert refs['func_without_module'] == ('objects', 'func_without_module', 'function')
+    assert refs['func_without_module'] == ('objects', 'func_without_module', 'function', False)
     assert 'func_without_module2' in refs
     assert 'mod.func_in_module' in refs
     assert 'mod.Cls' in refs
