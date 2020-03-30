@@ -734,11 +734,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         self._table_row_index = 0
 
+        atts = {}
         classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
         classes.insert(0, "docutils")  # compat
         if 'align' in node:
             classes.append('align-%s' % node['align'])
-        tag = self.starttag(node, 'table', CLASS=' '.join(classes))
+        if 'width' in node:
+            atts['style'] = 'width: %s' % node['width']
+        tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
         self.body.append(tag)
 
     def visit_row(self, node: Element) -> None:
