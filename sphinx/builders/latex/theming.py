@@ -35,32 +35,24 @@ class BuiltInTheme(Theme):
     """A built-in LaTeX theme."""
 
     def __init__(self, name: str, config: Config) -> None:
-        # Note: Don't call supermethod here.
-        self.name = name
-        self.latex_docclass = config.latex_docclass  # type: Dict[str, str]
+        super().__init__(name)
 
-    @property
-    def docclass(self) -> str:  # type: ignore
-        if self.name == 'howto':
-            return self.latex_docclass.get('howto', 'article')
+        if name == 'howto':
+            self.docclass = config.latex_docclass.get('howto', 'article')
         else:
-            return self.latex_docclass.get('manual', 'report')
+            self.docclass = config.latex_docclass.get('manual', 'report')
 
-    @property
-    def wrapperclass(self) -> str:  # type: ignore
-        if self.name in ('manual', 'howto'):
-            return 'sphinx' + self.name
+        if name in ('manual', 'howto'):
+            self.wrapperclass = 'sphinx' + name
         else:
-            return self.name
+            self.wrapperclass = name
 
-    @property
-    def toplevel_sectioning(self) -> str:  # type: ignore
         # we assume LaTeX class provides \chapter command except in case
         # of non-Japanese 'howto' case
-        if self.name == 'howto' and not self.docclass.startswith('j'):
-            return 'section'
+        if name == 'howto' and not self.docclass.startswith('j'):
+            self.toplevel_sectioning = 'section'
         else:
-            return 'chapter'
+            self.toplevel_sectioning = 'chapter'
 
 
 class UserTheme(Theme):
