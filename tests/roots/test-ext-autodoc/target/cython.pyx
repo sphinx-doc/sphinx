@@ -1,6 +1,6 @@
 # cython: binding=True
 
-def foo(*args, **kwargs):
+def foo(x: int, *args, y: str, **kwargs):
     """Docstring."""
 
 

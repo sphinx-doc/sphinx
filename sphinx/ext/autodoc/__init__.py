@@ -1019,6 +1019,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             if (not inspect.isfunction(self.object) and
                     not inspect.ismethod(self.object) and
                     not inspect.isbuiltin(self.object) and
+                    not inspect.is_cython_function_or_method(self.object) and
                     not inspect.isclass(self.object) and
                     hasattr(self.object, '__call__')):
                 self.env.app.emit('autodoc-before-process-signature',
