@@ -25,6 +25,7 @@ class Theme:
     """A set of LaTeX configurations."""
 
     LATEX_ELEMENTS_KEYS = ['papersize', 'pointsize']
+    UPDATABLE_KEYS = ['papersize', 'pointsize']
 
     def __init__(self, name: str) -> None:
         self.name = name
@@ -39,6 +40,11 @@ class Theme:
         for key in self.LATEX_ELEMENTS_KEYS:
             if config.latex_elements.get(key):
                 value = config.latex_elements[key]
+                setattr(self, key, value)
+
+        for key in self.UPDATABLE_KEYS:
+            if key in config.latex_theme_options:
+                value = config.latex_theme_options[key]
                 setattr(self, key, value)
 
 

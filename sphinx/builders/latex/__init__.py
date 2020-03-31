@@ -493,6 +493,14 @@ def validate_config_values(app: Sphinx, config: Config) -> None:
             config.latex_elements.pop(key)
 
 
+def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
+    for key in list(config.latex_theme_options):
+        if key not in Theme.UPDATABLE_KEYS:
+            msg = __("Unknown theme option: latex_theme_options[%r], ignored.")
+            logger.warning(msg % (key,))
+            config.latex_theme_options.pop(key)
+
+
 def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
@@ -539,6 +547,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_builder(LaTeXBuilder)
     app.connect('config-inited', validate_config_values, priority=800)
+    app.connect('config-inited', validate_latex_theme_options, priority=800)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
@@ -555,6 +564,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_elements', {}, None)
     app.add_config_value('latex_additional_files', [], None)
     app.add_config_value('latex_theme', 'manual', None, [str])
+    app.add_config_value('latex_theme_options', {}, None)
     app.add_config_value('latex_theme_path', [], None, [list])
 
     app.add_config_value('latex_docclass', default_latex_docclass, None)
