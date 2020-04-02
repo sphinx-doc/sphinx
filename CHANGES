@@ -31,6 +31,7 @@ Bugs fixed
 * #7301: capital characters are not allowed for node_id
 * #7301: epub: duplicated node_ids are generated
 * #6564: html: a width of table was ignored on HTML builder
+* #7401: Incorrect argument is passed for :event:`env-get-outdated` handlers
 * #7355: autodoc: a signature of cython-function is not recognized well
 
 Testing
