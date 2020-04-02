@@ -1641,7 +1641,7 @@ def test_cython():
         '      Docstring.',
         '',
         '',
-        '.. py:function:: foo(*args, **kwargs)',
+        '.. py:function:: foo(x: int, *args, y: str, **kwargs)',
         '   :module: target.cython',
         '',
         '   Docstring.',
