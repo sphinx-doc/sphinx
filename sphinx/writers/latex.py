@@ -168,16 +168,17 @@ class Table:
         elif self.colwidths and 'colwidths-given' in self.classes:
             total = sum(self.colwidths)
             colspecs = ['\\X{%d}{%d}' % (width, total) for width in self.colwidths]
-            return '{|%s|}\n' % '|'.join(colspecs)
         elif self.has_problematic:
-            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
+            colspecs = [r'\X{1}{%d}' % self.colcount] * self.colcount
         elif self.get_table_type() == 'tabulary':
             # sphinx.sty sets T to be J by default.
-            return '{|' + ('T|' * self.colcount) + '}\n'
+            colspecs = ['T'] * self.colcount
         elif self.has_oldproblematic:
-            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
+            colspecs = [r'\X{1}{%d}' % self.colcount] * self.colcount
         else:
-            return '{|' + ('l|' * self.colcount) + '}\n'
+            colspecs = ['l'] * self.colcount
+
+        return '{|%s|}\n' % '|'.join(colspecs)
 
     def add_cell(self, height: int, width: int) -> None:
         """Adds a new cell to a table.
