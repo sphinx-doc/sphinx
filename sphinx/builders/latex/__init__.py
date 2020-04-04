@@ -54,13 +54,13 @@ XINDY_LANG_OPTIONS = {
     'hr': '-L croatian -C utf8 ',
     'cs': '-L czech -C utf8 ',
     'da': '-L danish -C utf8 ',
-    'nl': '-L dutch -C ij-as-ij-utf8 ',
+    'nl': '-L dutch-ij-as-ij -C utf8 ',
     'en': '-L english -C utf8 ',
     'eo': '-L esperanto -C utf8 ',
     'et': '-L estonian -C utf8 ',
     'fi': '-L finnish -C utf8 ',
     'fr': '-L french -C utf8 ',
-    'de': '-L german -C din5007-utf8 ',
+    'de': '-L german-din5007 -C utf8 ',
     'is': '-L icelandic -C utf8 ',
     'it': '-L italian -C utf8 ',
     'la': '-L latin -C utf8 ',
@@ -73,9 +73,9 @@ XINDY_LANG_OPTIONS = {
     'pl': '-L polish -C utf8 ',
     'pt': '-L portuguese -C utf8 ',
     'ro': '-L romanian -C utf8 ',
-    'sk': '-L slovak -C small-utf8 ',    # there is also slovak-large
+    'sk': '-L slovak-small -C utf8 ',    # there is also slovak-large
     'sl': '-L slovenian -C utf8 ',
-    'es': '-L spanish -C modern-utf8 ',  # there is also spanish-traditional
+    'es': '-L spanish-modern -C utf8 ',  # there is also spanish-traditional
     'sv': '-L swedish -C utf8 ',
     'tr': '-L turkish -C utf8 ',
     'hsb': '-L upper-sorbian -C utf8 ',
@@ -86,7 +86,7 @@ XINDY_LANG_OPTIONS = {
     'be': '-L belarusian -C utf8 ',
     'bg': '-L bulgarian -C utf8 ',
     'mk': '-L macedonian -C utf8 ',
-    'mn': '-L mongolian -C cyrillic-utf8 ',
+    'mn': '-L mongolian-cyrillic -C utf8 ',
     'ru': '-L russian -C utf8 ',
     'sr': '-L serbian -C utf8 ',
     'sh-cyrl': '-L serbian -C utf8 ',
@@ -96,7 +96,7 @@ XINDY_LANG_OPTIONS = {
     # can work only with xelatex/lualatex, not supported by texindy+pdflatex
     'el': '-L greek -C utf8 ',
     # FIXME, not compatible with [:2] slice but does Sphinx support Greek ?
-    'el-polyton': '-L greek -C polytonic-utf8 ',
+    'el-polyton': '-L greek-polytonic -C utf8 ',
 }
 
 XINDY_CYRILLIC_SCRIPTS = [
