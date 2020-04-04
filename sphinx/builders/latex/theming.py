@@ -66,19 +66,29 @@ class BuiltInTheme(Theme):
 class UserTheme(Theme):
     """A user defined LaTeX theme."""
 
+    REQUIRED_CONFIG_KEYS = ['docclass', 'wrapperclass']
+    OPTIONAL_CONFIG_KEYS = ['toplevel_sectioning']
+
     def __init__(self, name: str, filename: str) -> None:
-        self.name = name
+        super().__init__(name)
         self.config = configparser.RawConfigParser()
         self.config.read(path.join(filename))
 
-        try:
-            self.docclass = self.config.get('theme', 'docclass')
-            self.wrapperclass = self.config.get('theme', 'wrapperclass')
-            self.toplevel_sectioning = self.config.get('theme', 'toplevel_sectioning')
-        except configparser.NoSectionError:
-            raise ThemeError(__('%r doesn\'t have "theme" setting') % filename)
-        except configparser.NoOptionError as exc:
-            raise ThemeError(__('%r doesn\'t have "%s" setting') % (filename, exc.args[0]))
+        for key in self.REQUIRED_CONFIG_KEYS:
+            try:
+                value = self.config.get('theme', key)
+                setattr(self, key, value)
+            except configparser.NoSectionError:
+                raise ThemeError(__('%r doesn\'t have "theme" setting') % filename)
+            except configparser.NoOptionError as exc:
+                raise ThemeError(__('%r doesn\'t have "%s" setting') % (filename, exc.args[0]))
+
+        for key in self.OPTIONAL_CONFIG_KEYS:
+            try:
+                value = self.config.get('theme', key)
+                setattr(self, key, value)
+            except configparser.NoOptionError:
+                pass
 
 
 class ThemeFactory:
