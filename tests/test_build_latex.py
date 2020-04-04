@@ -221,7 +221,18 @@ def test_latex_theme(app, status, warning):
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     print(result)
     assert r'\def\sphinxdocclass{book}' in result
-    assert r'\documentclass[letterpaper,10pt,english]{sphinxbook}' in result
+    assert r'\documentclass[a4paper,12pt,english]{sphinxbook}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-theme',
+                    confoverrides={'latex_elements': {'papersize': 'b5paper',
+                                                      'pointsize': '9pt'}})
+def test_latex_theme_papersize(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{book}' in result
+    assert r'\documentclass[b5paper,9pt,english]{sphinxbook}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language': 'zh'})

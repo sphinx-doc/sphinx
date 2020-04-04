@@ -24,11 +24,22 @@ logger = logging.getLogger(__name__)
 class Theme:
     """A set of LaTeX configurations."""
 
+    LATEX_ELEMENTS_KEYS = ['papersize', 'pointsize']
+
     def __init__(self, name: str) -> None:
         self.name = name
         self.docclass = name
         self.wrapperclass = name
+        self.papersize = 'letterpaper'
+        self.pointsize = '10pt'
         self.toplevel_sectioning = 'chapter'
+
+    def update(self, config: Config) -> None:
+        """Override theme settings by user's configuration."""
+        for key in self.LATEX_ELEMENTS_KEYS:
+            if config.latex_elements.get(key):
+                value = config.latex_elements[key]
+                setattr(self, key, value)
 
 
 class BuiltInTheme(Theme):
@@ -59,7 +70,7 @@ class UserTheme(Theme):
     """A user defined LaTeX theme."""
 
     REQUIRED_CONFIG_KEYS = ['docclass', 'wrapperclass']
-    OPTIONAL_CONFIG_KEYS = ['toplevel_sectioning']
+    OPTIONAL_CONFIG_KEYS = ['papersize', 'pointsize', 'toplevel_sectioning']
 
     def __init__(self, name: str, filename: str) -> None:
         super().__init__(name)
@@ -89,6 +100,7 @@ class ThemeFactory:
     def __init__(self, app: Sphinx) -> None:
         self.themes = {}  # type: Dict[str, Theme]
         self.theme_paths = [path.join(app.srcdir, p) for p in app.config.latex_theme_path]
+        self.config = app.config
         self.load_builtin_themes(app.config)
 
     def load_builtin_themes(self, config: Config) -> None:
@@ -99,13 +111,14 @@ class ThemeFactory:
     def get(self, name: str) -> Theme:
         """Get a theme for given *name*."""
         if name in self.themes:
-            return self.themes[name]
+            theme = self.themes[name]
         else:
             theme = self.find_user_theme(name)
-            if theme:
-                return theme
-            else:
-                return Theme(name)
+            if not theme:
+                theme = Theme(name)
+
+        theme.update(self.config)
+        return theme
 
     def find_user_theme(self, name: str) -> Theme:
         """Find a theme named as *name* from latex_theme_path."""
