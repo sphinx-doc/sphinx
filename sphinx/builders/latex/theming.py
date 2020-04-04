@@ -10,7 +10,7 @@
 
 import configparser
 from os import path
-from typing import Dict
+from typing import Any, Dict
 
 from sphinx.application import Sphinx
 from sphinx.config import Config
@@ -25,7 +25,7 @@ class Theme:
     """A set of LaTeX configurations."""
 
     LATEX_ELEMENTS_KEYS = ['papersize', 'pointsize']
-    UPDATABLE_KEYS = ['papersize', 'pointsize']
+    UPDATABLE_KEYS = ['papersize', 'pointsize', 'show_table_column_rules']
 
     def __init__(self, name: str) -> None:
         self.name = name
@@ -33,6 +33,7 @@ class Theme:
         self.wrapperclass = name
         self.papersize = 'letterpaper'
         self.pointsize = '10pt'
+        self.show_table_column_rules = True
         self.toplevel_sectioning = 'chapter'
 
     def update(self, config: Config) -> None:
@@ -76,7 +77,12 @@ class UserTheme(Theme):
     """A user defined LaTeX theme."""
 
     REQUIRED_CONFIG_KEYS = ['docclass', 'wrapperclass']
-    OPTIONAL_CONFIG_KEYS = ['papersize', 'pointsize', 'toplevel_sectioning']
+    OPTIONAL_CONFIG_KEYS = {
+        'papersize': str,
+        'pointsize': str,
+        'toplevel_sectioning': str,
+        'show_table_column_rules': bool,
+    }
 
     def __init__(self, name: str, filename: str) -> None:
         super().__init__(name)
@@ -85,16 +91,19 @@ class UserTheme(Theme):
 
         for key in self.REQUIRED_CONFIG_KEYS:
             try:
-                value = self.config.get('theme', key)
+                value = self.config.get('theme', key)  # type: Any
                 setattr(self, key, value)
             except configparser.NoSectionError:
                 raise ThemeError(__('%r doesn\'t have "theme" setting') % filename)
             except configparser.NoOptionError as exc:
                 raise ThemeError(__('%r doesn\'t have "%s" setting') % (filename, exc.args[0]))
 
-        for key in self.OPTIONAL_CONFIG_KEYS:
+        for key, typ in self.OPTIONAL_CONFIG_KEYS.items():
             try:
-                value = self.config.get('theme', key)
+                if typ is bool:
+                    value = self.config.getboolean('theme', key)
+                else:  # str
+                    value = self.config.get('theme', key)
                 setattr(self, key, value)
             except configparser.NoOptionError:
                 pass

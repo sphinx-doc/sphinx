@@ -108,7 +108,7 @@ class LaTeXWriter(writers.Writer):
 class Table:
     """A table data"""
 
-    def __init__(self, node: Element) -> None:
+    def __init__(self, node: Element, **options: Any) -> None:
         self.header = []                        # type: List[str]
         self.body = []                          # type: List[str]
         self.align = node.get('align')
@@ -131,6 +131,7 @@ class Table:
                                                 # it maps table location to cell_id
                                                 # (cell = rectangular area)
         self.cell_id = 0                        # last assigned cell_id
+        self.options = options
 
     def is_longtable(self) -> bool:
         """True if and only if table uses longtable environment."""
@@ -178,7 +179,10 @@ class Table:
         else:
             colspecs = ['l'] * self.colcount
 
-        return '{|%s|}\n' % '|'.join(colspecs)
+        if self.options.get('column_rules', True):
+            return '{|%s|}\n' % '|'.join(colspecs)
+        else:
+            return '{%s}\n' % ''.join(colspecs)
 
     def add_cell(self, height: int, width: int) -> None:
         """Adds a new cell to a table.
@@ -873,7 +877,10 @@ class LaTeXTranslator(SphinxTranslator):
                 '%s:%s: deeply nested tables are not implemented.' %
                 (self.curfilestack[-1], node.line or ''))
 
-        self.tables.append(Table(node))
+        table_options = {
+            'column_rules': self.theme.show_table_column_rules,
+        }
+        self.tables.append(Table(node, **table_options))
         if self.next_table_colspec:
             self.table.colspec = '{%s}\n' % self.next_table_colspec
             if 'colwidths-given' in node.get('classes', []):
@@ -938,9 +945,14 @@ class LaTeXTranslator(SphinxTranslator):
                     # insert suitable strut for equalizing row heights in given multirow
                     self.body.append('\\sphinxtablestrut{%d}' % cell.cell_id)
                 else:  # use \multicolumn for wide multirow cell
-                    self.body.append('\\multicolumn{%d}{|l|}'
+                    if self.theme.show_table_column_rules:
+                        colspec = '|l|'
+                    else:
+                        colspec = 'l'
+
+                    self.body.append('\\multicolumn{%d}{%s}'
                                      '{\\sphinxtablestrut{%d}}' %
-                                     (cell.width, cell.cell_id))
+                                     (cell.width, colspec, cell.cell_id))
 
     def depart_row(self, node: Element) -> None:
         self.body.append('\\\\\n')
@@ -968,9 +980,15 @@ class LaTeXTranslator(SphinxTranslator):
         if cell.width > 1:
             if self.builder.config.latex_use_latex_multicolumn:
                 if self.table.col == 0:
-                    self.body.append('\\multicolumn{%d}{|l|}{%%\n' % cell.width)
+                    if self.theme.show_table_column_rules:
+                        self.body.append('\\multicolumn{%d}{|l|}{%%\n' % cell.width)
+                    else:
+                        self.body.append('\\multicolumn{%d}{l}{%%\n' % cell.width)
                 else:
-                    self.body.append('\\multicolumn{%d}{l|}{%%\n' % cell.width)
+                    if self.theme.show_table_column_rules:
+                        self.body.append('\\multicolumn{%d}{l|}{%%\n' % cell.width)
+                    else:
+                        self.body.append('\\multicolumn{%d}{l}{%%\n' % cell.width)
                 context = '}%\n'
             else:
                 self.body.append('\\sphinxstartmulticolumn{%d}%%\n' % cell.width)
@@ -1025,9 +1043,14 @@ class LaTeXTranslator(SphinxTranslator):
                     self.body.append('\\sphinxtablestrut{%d}' % nextcell.cell_id)
                 else:
                     # use \multicolumn for wide multirow cell
-                    self.body.append('\\multicolumn{%d}{l|}'
+                    if self.theme.show_table_column_rules:
+                        colspec = 'l|'
+                    else:
+                        colspec = 'l'
+
+                    self.body.append('\\multicolumn{%d}{%s}'
                                      '{\\sphinxtablestrut{%d}}' %
-                                     (nextcell.width, nextcell.cell_id))
+                                     (nextcell.width, colspec, nextcell.cell_id))
 
     def visit_acks(self, node: Element) -> None:
         # this is a list in the source, but should be rendered as a

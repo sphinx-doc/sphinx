@@ -1282,6 +1282,38 @@ def test_latex_table_complex_tables(app, status, warning):
     assert actual == expected
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'latex_theme_options': {'show_table_column_rules': False}})
+@pytest.mark.test_params(shared_result='latex-table-nocolumn-rules')
+def test_latex_table_no_column_rules(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text()
+    tables = {}
+    for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
+        sectname, content = chap.split('}', 1)
+        tables[sectname] = content.strip()
+
+    def get_expected(name):
+        return (app.srcdir / 'expects' / (name + '.tex')).read_text().strip()
+
+    # simple table
+    actual = tables['simple table']
+    expected = get_expected('simple_table_with_no_column_rules')
+    assert actual == expected
+
+    # longtable
+    actual = tables['longtable']
+    expected = get_expected('longtable_with_no_column_rules')
+    assert actual == expected
+
+    # grid table
+    actual = tables['grid table']
+    expected = get_expected('gridtable_with_no_column_rules')
+    assert actual == expected
+
+
 @pytest.mark.sphinx('latex', testroot='latex-table',
                     confoverrides={'templates_path': ['_mytemplates/latex']})
 def test_latex_table_custom_template_caseA(app, status, warning):
