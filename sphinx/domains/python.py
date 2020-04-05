@@ -14,7 +14,7 @@ import re
 import typing
 import warnings
 from inspect import Parameter
-from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Tuple, Type
 from typing import cast
 
 from docutils import nodes
@@ -227,7 +227,7 @@ def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
 # when it comes to handling "." and "~" prefixes.
 class PyXrefMixin:
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: "Type[TextlikeNode]" = nodes.emphasis,
+                  innernode: Type[TextlikeNode] = nodes.emphasis,
                   contnode: Node = None, env: BuildEnvironment = None) -> Node:
         result = super().make_xref(rolename, domain, target,  # type: ignore
                                    innernode, contnode, env)
@@ -244,7 +244,7 @@ class PyXrefMixin:
         return result
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
-                   innernode: "Type[TextlikeNode]" = nodes.emphasis,
+                   innernode: Type[TextlikeNode] = nodes.emphasis,
                    contnode: Node = None, env: BuildEnvironment = None) -> List[Node]:
         delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+)'
         delims_re = re.compile(delims)
@@ -268,7 +268,7 @@ class PyXrefMixin:
 
 class PyField(PyXrefMixin, Field):
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: "Type[TextlikeNode]" = nodes.emphasis,
+                  innernode: Type[TextlikeNode] = nodes.emphasis,
                   contnode: Node = None, env: BuildEnvironment = None) -> Node:
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
@@ -283,7 +283,7 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 
 class PyTypedField(PyXrefMixin, TypedField):
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: "Type[TextlikeNode]" = nodes.emphasis,
+                  innernode: Type[TextlikeNode] = nodes.emphasis,
                   contnode: Node = None, env: BuildEnvironment = None) -> Node:
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
