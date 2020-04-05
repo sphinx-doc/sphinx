@@ -125,8 +125,7 @@ class XRefRole(ReferenceRole):
             self.refdomain, self.reftype = self.name.split(':', 1)
             self.classes = ['xref', self.refdomain, '%s-%s' % (self.refdomain, self.reftype)]
 
-        if self.text.startswith('!'):
-            # if the first character is a bang, don't cross-reference at all
+        if self.disabled:
             return self.create_non_xref_node()
         else:
             return self.create_xref_node()

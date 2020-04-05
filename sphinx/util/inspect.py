@@ -17,7 +17,7 @@ import typing
 import warnings
 from functools import partial, partialmethod
 from inspect import (  # NOQA
-    Parameter, isclass, ismethod, ismethoddescriptor, isroutine
+    Parameter, isclass, ismethod, ismethoddescriptor, unwrap
 )
 from io import StringIO
 from typing import Any, Callable, Mapping, List, Tuple
@@ -116,11 +116,16 @@ def getargspec(func: Callable) -> Any:
                                kwonlyargs, kwdefaults, annotations)
 
 
-def unwrap(obj: Any) -> Any:
-    """Get an original object from wrapped object."""
+def unwrap_all(obj: Any) -> Any:
+    """
+    Get an original object from wrapped object (unwrapping partials, wrapped
+    functions, and other decorators).
+    """
     while True:
         if ispartial(obj):
-            obj = unpartial(obj)
+            obj = obj.func
+        elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
+            obj = obj.__wrapped__
         elif isclassmethod(obj):
             obj = obj.__func__
         elif isstaticmethod(obj):
@@ -207,26 +212,27 @@ def is_cython_function_or_method(obj: Any) -> bool:
 
 def isattributedescriptor(obj: Any) -> bool:
     """Check if the object is an attribute like descriptor."""
-    if inspect.isdatadescriptor(object):
+    if inspect.isdatadescriptor(obj):
         # data descriptor is kind of attribute
         return True
     elif isdescriptor(obj):
         # non data descriptor
-        if isfunction(obj) or isbuiltin(obj) or inspect.ismethod(obj):
+        unwrapped = inspect.unwrap(obj)
+        if isfunction(unwrapped) or isbuiltin(unwrapped) or inspect.ismethod(unwrapped):
             # attribute must not be either function, builtin and method
             return False
-        elif is_cython_function_or_method(obj):
+        elif is_cython_function_or_method(unwrapped):
             # attribute must not be either function and method (for cython)
             return False
-        elif inspect.isclass(obj):
+        elif inspect.isclass(unwrapped):
             # attribute must not be a class
             return False
-        elif isinstance(obj, (ClassMethodDescriptorType,
-                              MethodDescriptorType,
-                              WrapperDescriptorType)):
+        elif isinstance(unwrapped, (ClassMethodDescriptorType,
+                                    MethodDescriptorType,
+                                    WrapperDescriptorType)):
             # attribute must not be a method descriptor
             return False
-        elif type(obj).__name__ == "instancemethod":
+        elif type(unwrapped).__name__ == "instancemethod":
             # attribute must not be an instancemethod (C-API)
             return False
         else:
@@ -257,17 +263,22 @@ def is_singledispatch_method(obj: Any) -> bool:
 
 def isfunction(obj: Any) -> bool:
     """Check if the object is function."""
-    return inspect.isfunction(unwrap(obj))
+    return inspect.isfunction(unwrap_all(obj))
 
 
 def isbuiltin(obj: Any) -> bool:
     """Check if the object is builtin."""
-    return inspect.isbuiltin(unwrap(obj))
+    return inspect.isbuiltin(unwrap_all(obj))
+
+
+def isroutine(obj: Any) -> bool:
+    """Check is any kind of function or method."""
+    return inspect.isroutine(unwrap_all(obj))
 
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
-    obj = unwrap(obj)
+    obj = unwrap_all(obj)
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)

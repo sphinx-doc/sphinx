@@ -175,7 +175,7 @@ def test_html4_output(app, status, warning):
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dl[@class='py class']/dt[@id='autodoc_target.class']", ''),
+        (".//dl[@class='py class']/dt[@id='autodoc_target.Class']", ''),
         (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'\*\*'),
         (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'kwds'),
         (".//dd/p", r'Return spam\.'),
@@ -218,7 +218,7 @@ def test_html4_output(app, status, warning):
          "[@class='rfc reference external']/strong", 'RFC 1'),
         (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
          "[@class='rfc reference external']/strong", 'Request for Comments #1'),
-        (".//a[@href='objects.html#envvar-home']"
+        (".//a[@href='objects.html#envvar-HOME']"
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
@@ -274,18 +274,18 @@ def test_html4_output(app, status, warning):
         (".//p", 'Il dit : « C’est “super” ! »'),
     ],
     'objects.html': [
-        (".//dt[@id='mod.cls.meth1']", ''),
-        (".//dt[@id='errmod.error']", ''),
+        (".//dt[@id='mod.Cls.meth1']", ''),
+        (".//dt[@id='errmod.Error']", ''),
         (".//dt/code", r'long\(parameter,\s* list\)'),
         (".//dt/code", 'another one'),
-        (".//a[@href='#mod.cls'][@class='reference internal']", ''),
+        (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
         (".//dl[@class='std userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
         (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # docfields
-        (".//a[@class='reference internal'][@href='#timeint']/em", 'TimeInt'),
-        (".//a[@class='reference internal'][@href='#time']", 'Time'),
-        (".//a[@class='reference internal'][@href='#errmod.error']/strong", 'Error'),
+        (".//a[@class='reference internal'][@href='#TimeInt']/em", 'TimeInt'),
+        (".//a[@class='reference internal'][@href='#Time']", 'Time'),
+        (".//a[@class='reference internal'][@href='#errmod.Error']/strong", 'Error'),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#c.Sphinx_DoSomething']", ''),
@@ -322,7 +322,7 @@ def test_html4_output(app, status, warning):
          'perl'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
          '\\+p'),
-        (".//a[@class='reference internal'][@href='#cmdoption-perl-objc']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-ObjC']/code/span",
          '--ObjC\\+\\+'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin.option']/code/span",
          '--plugin.option'),

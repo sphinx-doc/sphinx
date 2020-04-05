@@ -210,7 +210,7 @@ class SigElementFallbackTransform(SphinxPostTransform):
         else:
             self.fallback()
 
-    def fallback(self):
+    def fallback(self) -> None:
         for node in self.document.traverse(addnodes.desc_sig_element):
             newnode = nodes.inline()
             newnode.update_all_atts(node)

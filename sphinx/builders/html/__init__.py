@@ -1227,12 +1227,12 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html4_writer', False, 'html')
 
     # event handlers
-    app.connect('config-inited', convert_html_css_files)
-    app.connect('config-inited', convert_html_js_files)
-    app.connect('config-inited', validate_html_extra_path)
-    app.connect('config-inited', validate_html_static_path)
-    app.connect('config-inited', validate_html_logo)
-    app.connect('config-inited', validate_html_favicon)
+    app.connect('config-inited', convert_html_css_files, priority=800)
+    app.connect('config-inited', convert_html_js_files, priority=800)
+    app.connect('config-inited', validate_html_extra_path, priority=800)
+    app.connect('config-inited', validate_html_static_path, priority=800)
+    app.connect('config-inited', validate_html_logo, priority=800)
+    app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
 

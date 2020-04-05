@@ -378,7 +378,7 @@ class Builder:
         added, changed, removed = self.env.get_outdated_files(updated)
 
         # allow user intervention as well
-        for docs in self.events.emit('env-get-outdated', self, added, changed, removed):
+        for docs in self.events.emit('env-get-outdated', self.env, added, changed, removed):
             changed.update(set(docs) & self.env.found_docs)
 
         # if files were added or removed, all documents with globbed toctrees

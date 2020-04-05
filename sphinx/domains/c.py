@@ -10,7 +10,7 @@
 
 import re
 from typing import (
-    Any, Callable, Dict, Iterator, List, Type, Tuple, Union
+    Any, Callable, Dict, Generator, Iterator, List, Type, Tuple, Union
 )
 from typing import cast
 
@@ -339,7 +339,7 @@ class ASTPostfixCallExpr(ASTPostfixOp):
 
 
 class ASTPostfixArray(ASTPostfixOp):
-    def __init__(self, expr):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1353,7 +1353,7 @@ class LookupKey:
     def __init__(self, data: List[Tuple[ASTIdentifier, str]]) -> None:
         self.data = data
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '[{}]'.format(', '.join("({}, {})".format(
             ident, id_) for ident, id_ in self.data))
 
@@ -1378,7 +1378,7 @@ class Symbol:
             if self.declaration:
                 assert self.docname
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
             assert False
         else:
@@ -1540,7 +1540,7 @@ class Symbol:
             Symbol.debug_print("recurseInAnon:    ", recurseInAnon)
             Symbol.debug_print("searchInSiblings: ", searchInSiblings)
 
-        def candidates():
+        def candidates() -> Generator["Symbol", None, None]:
             s = self
             if Symbol.debug_lookup:
                 Symbol.debug_print("searching in self:")
@@ -1732,7 +1732,7 @@ class Symbol:
         # First check if one of those with a declaration matches.
         # If it's a function, we need to compare IDs,
         # otherwise there should be only one symbol with a declaration.
-        def makeCandSymbol():
+        def makeCandSymbol() -> "Symbol":
             if Symbol.debug_lookup:
                 Symbol.debug_print("begin: creating candidate symbol")
             symbol = Symbol(parent=lookupResult.parentSymbol,
@@ -1748,7 +1748,7 @@ class Symbol:
         else:
             candSymbol = makeCandSymbol()
 
-            def handleDuplicateDeclaration(symbol, candSymbol):
+            def handleDuplicateDeclaration(symbol: "Symbol", candSymbol: "Symbol") -> None:
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
                     Symbol.debug_print("redeclaration")
@@ -2350,7 +2350,7 @@ class DefinitionParser(BaseParser):
             return ASTBinOpExpr(exprs, ops)
         return _parse_bin_op_expr(self, 0)
 
-    def _parse_conditional_expression_tail(self, orExprHead):
+    def _parse_conditional_expression_tail(self, orExprHead: Any) -> ASTExpression:
         # -> "?" expression ":" assignment-expression
         return None
 
@@ -2643,7 +2643,7 @@ class DefinitionParser(BaseParser):
                     arrayOps.append(ASTArray(None))
                     continue
 
-                def parser():
+                def parser() -> ASTExpression:
                     return self._parse_expression()
 
                 value = self._parse_expression_fallback([']'], parser)
@@ -2892,7 +2892,7 @@ class DefinitionParser(BaseParser):
         if self.skip_string('='):
             self.skip_ws()
 
-            def parser():
+            def parser() -> ASTExpression:
                 return self._parse_constant_expression()
 
             initVal = self._parse_expression_fallback([], parser)

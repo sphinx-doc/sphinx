@@ -125,6 +125,15 @@ class ObjectDescription(SphinxDirective):
         """
         pass
 
+    def transform_content(self, contentnode: addnodes.desc_content) -> None:
+        """
+        Called after creating the content through nested parsing,
+        but before the ``object-description-transform`` event is emitted,
+        and before the info-fields are transformed.
+        Can be used to manipulate the content.
+        """
+        pass
+
     def after_content(self) -> None:
         """
         Called after parsing content. Used to reset information about the
@@ -197,6 +206,7 @@ class ObjectDescription(SphinxDirective):
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
+        self.transform_content(contentnode)
         self.env.app.emit('object-description-transform',
                           self.domain, self.objtype, contentnode)
         DocFieldTransformer(self).transform_all(contentnode)

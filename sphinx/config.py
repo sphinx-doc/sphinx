@@ -481,11 +481,11 @@ def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', convert_source_suffix)
-    app.connect('config-inited', init_numfig_format)
-    app.connect('config-inited', correct_copyright_year)
-    app.connect('config-inited', check_confval_types)
-    app.connect('config-inited', check_primary_domain)
+    app.connect('config-inited', convert_source_suffix, priority=800)
+    app.connect('config-inited', init_numfig_format, priority=800)
+    app.connect('config-inited', correct_copyright_year, priority=800)
+    app.connect('config-inited', check_confval_types, priority=800)
+    app.connect('config-inited', check_primary_domain, priority=800)
     app.connect('env-get-outdated', check_master_doc)
 
     return {
