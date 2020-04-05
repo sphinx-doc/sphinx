@@ -1011,41 +1011,42 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
-        if ((inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object)) and
-                not inspect.is_cython_function_or_method(self.object)):
+        unwrapped = inspect.unwrap(self.object)
+        if ((inspect.isbuiltin(unwrapped) or inspect.ismethoddescriptor(unwrapped)) and
+                not inspect.is_cython_function_or_method(unwrapped)):
             # cannot introspect arguments of a C function or method
             return None
         try:
-            if (not inspect.isfunction(self.object) and
-                    not inspect.ismethod(self.object) and
-                    not inspect.isbuiltin(self.object) and
-                    not inspect.is_cython_function_or_method(self.object) and
-                    not inspect.isclass(self.object) and
-                    hasattr(self.object, '__call__')):
+            if (not inspect.isfunction(unwrapped) and
+                    not inspect.ismethod(unwrapped) and
+                    not inspect.isbuiltin(unwrapped) and
+                    not inspect.is_cython_function_or_method(unwrapped) and
+                    not inspect.isclass(unwrapped) and
+                    hasattr(unwrapped, '__call__')):
                 self.env.app.emit('autodoc-before-process-signature',
-                                  self.object.__call__, False)
-                sig = inspect.signature(self.object.__call__)
+                                  unwrapped.__call__, False)
+                sig = inspect.signature(unwrapped.__call__)
             else:
-                self.env.app.emit('autodoc-before-process-signature', self.object, False)
-                sig = inspect.signature(self.object)
+                self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
+                sig = inspect.signature(unwrapped)
             args = stringify_signature(sig, **kwargs)
         except TypeError:
-            if (inspect.is_builtin_class_method(self.object, '__new__') and
-               inspect.is_builtin_class_method(self.object, '__init__')):
-                raise TypeError('%r is a builtin class' % self.object)
+            if (inspect.is_builtin_class_method(unwrapped, '__new__') and
+               inspect.is_builtin_class_method(unwrapped, '__init__')):
+                raise TypeError('%r is a builtin class' % unwrapped)
 
             # if a class should be documented as function (yay duck
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
             try:
                 self.env.app.emit('autodoc-before-process-signature',
-                                  self.object.__new__, True)
-                sig = inspect.signature(self.object.__new__, bound_method=True)
+                                  unwrapped.__new__, True)
+                sig = inspect.signature(unwrapped.__new__, bound_method=True)
                 args = stringify_signature(sig, show_return_annotation=False, **kwargs)
             except TypeError:
                 self.env.app.emit('autodoc-before-process-signature',
-                                  self.object.__init__, True)
-                sig = inspect.signature(self.object.__init__, bound_method=True)
+                                  unwrapped.__init__, True)
+                sig = inspect.signature(unwrapped.__init__, bound_method=True)
                 args = stringify_signature(sig, show_return_annotation=False, **kwargs)
 
         if self.env.config.strip_signature_backslash:
@@ -1432,16 +1433,17 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if self.env.config.autodoc_typehints == 'none':
             kwargs.setdefault('show_annotation', False)
 
-        if ((inspect.isbuiltin(self.object) or inspect.ismethoddescriptor(self.object)) and
-                not inspect.is_cython_function_or_method(self.object)):
+        unwrapped = inspect.unwrap(self.object)
+        if ((inspect.isbuiltin(unwrapped) or inspect.ismethoddescriptor(unwrapped)) and
+                not inspect.is_cython_function_or_method(unwrapped)):
             # can never get arguments of a C function or method
             return None
-        if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
-            self.env.app.emit('autodoc-before-process-signature', self.object, False)
-            sig = inspect.signature(self.object, bound_method=False)
+        if inspect.isstaticmethod(unwrapped, cls=self.parent, name=self.object_name):
+            self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
+            sig = inspect.signature(unwrapped, bound_method=False)
         else:
-            self.env.app.emit('autodoc-before-process-signature', self.object, True)
-            sig = inspect.signature(self.object, bound_method=True)
+            self.env.app.emit('autodoc-before-process-signature', unwrapped, True)
+            sig = inspect.signature(unwrapped, bound_method=True)
         args = stringify_signature(sig, **kwargs)
 
         if self.env.config.strip_signature_backslash:
