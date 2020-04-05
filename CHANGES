@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #7222: ``sphinx.util.inspect.unwrap()`` is renamed to ``unwrap_all()``
+
 Deprecated
 ----------
 
@@ -33,8 +35,10 @@ Bugs fixed
 * #6564: html: a width of table was ignored on HTML builder
 * #7401: Incorrect argument is passed for :event:`env-get-outdated` handlers
 * #7355: autodoc: a signature of cython-function is not recognized well
+* #7222: autodoc: ``__wrapped__`` functions are not documented correctly
 * #7409: intersphinx: ValueError is raised when an extension sets up
   :confval:`intersphinx_mapping` on :event:`config-inited` event
+* #7343: Sphinx builds has been slower since 2.4.0 on debug mode
 
 Testing
 --------
@@ -189,32 +193,6 @@ Bugs fixed
 * #7345: sphinx-build: Sphinx crashes if output directory exists as a file
 * #7290: sphinx-build: Ignore bdb.BdbQuit when handling exceptions
 * #6240: napoleon: Attributes and Methods sections ignore :noindex: option
-
-Release 2.4.5 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-* #7222: ``sphinx.util.inspect.unwrap()`` is renamed to ``unwrap_all()``
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-* #7343: Sphinx builds has been slower since 2.4.0 on debug mode
-* #7222: autodoc: ``__wrapped__`` functions are not documented correctly
-
-Testing
---------
 
 Release 2.4.4 (released Mar 05, 2020)
 =====================================
