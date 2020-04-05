@@ -17,7 +17,7 @@ import typing
 import warnings
 from functools import partial, partialmethod
 from inspect import (  # NOQA
-    Parameter, isclass, ismethod, ismethoddescriptor, isroutine, unwrap
+    Parameter, isclass, ismethod, ismethoddescriptor, unwrap
 )
 from io import StringIO
 from typing import Any, Callable, Mapping, List, Tuple
