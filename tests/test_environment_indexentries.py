@@ -161,5 +161,5 @@ def test_create_index_by_key(app):
     index = IndexEntries(app.env).create_index(app.builder)
     assert len(index) == 3
     assert index[0] == ('D', [('docutils', [[('main', '#term-docutils')], [], None])])
-    assert index[1] == ('P', [('Python', [[('main', '#term-python')], [], None])])
+    assert index[1] == ('P', [('Python', [[('main', '#term-Python')], [], None])])
     assert index[2] == ('ス', [('スフィンクス', [[('main', '#term-0')], [], 'ス'])])

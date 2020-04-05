@@ -1414,6 +1414,19 @@ def test_partialmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_wrappedfunction(app):
+    actual = do_autodoc(app, 'function', 'target.wrappedfunction.slow_function')
+    assert list(actual) == [
+        '',
+        '.. py:function:: slow_function(message, timeout)',
+        '   :module: target.wrappedfunction',
+        '',
+        '   This function is slow.',
+        '   ',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_partialmethod_undoc_members(app):
     expected = [
         '',
@@ -1641,7 +1654,7 @@ def test_cython():
         '      Docstring.',
         '',
         '',
-        '.. py:function:: foo(*args, **kwargs)',
+        '.. py:function:: foo(x: int, *args, y: str, **kwargs)',
         '   :module: target.cython',
         '',
         '   Docstring.',

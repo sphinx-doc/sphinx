@@ -19,7 +19,8 @@ from html5lib import HTMLParser
 
 from sphinx import addnodes
 from sphinx.addnodes import (
-    desc, desc_addname, desc_content, desc_name, desc_signature, glossary, index
+    desc, desc_addname, desc_content, desc_name, desc_signature, glossary, index,
+    pending_xref
 )
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
@@ -352,24 +353,33 @@ def test_productionlist(app, status, warning):
         linkText = span.text.strip()
         cases.append((text, link, linkText))
     assert cases == [
-        ('A', 'Bare.html#grammar-token-a', 'A'),
-        ('B', 'Bare.html#grammar-token-b', 'B'),
-        ('P1:A', 'P1.html#grammar-token-p1-a', 'P1:A'),
-        ('P1:B', 'P1.html#grammar-token-p1-b', 'P1:B'),
-        ('P2:A', 'P1.html#grammar-token-p1-a', 'P1:A'),
-        ('P2:B', 'P2.html#grammar-token-p2-b', 'P2:B'),
-        ('Explicit title A, plain', 'Bare.html#grammar-token-a', 'MyTitle'),
-        ('Explicit title A, colon', 'Bare.html#grammar-token-a', 'My:Title'),
-        ('Explicit title P1:A, plain', 'P1.html#grammar-token-p1-a', 'MyTitle'),
-        ('Explicit title P1:A, colon', 'P1.html#grammar-token-p1-a', 'My:Title'),
-        ('Tilde A', 'Bare.html#grammar-token-a', 'A'),
-        ('Tilde P1:A', 'P1.html#grammar-token-p1-a', 'A'),
-        ('Tilde explicit title P1:A', 'P1.html#grammar-token-p1-a', '~MyTitle'),
-        ('Tilde, explicit title P1:A', 'P1.html#grammar-token-p1-a', 'MyTitle'),
-        ('Dup', 'Dup2.html#grammar-token-dup', 'Dup'),
-        ('FirstLine', 'firstLineRule.html#grammar-token-firstline', 'FirstLine'),
-        ('SecondLine', 'firstLineRule.html#grammar-token-secondline', 'SecondLine'),
+        ('A', 'Bare.html#grammar-token-A', 'A'),
+        ('B', 'Bare.html#grammar-token-B', 'B'),
+        ('P1:A', 'P1.html#grammar-token-P1-A', 'P1:A'),
+        ('P1:B', 'P1.html#grammar-token-P1-B', 'P1:B'),
+        ('P2:A', 'P1.html#grammar-token-P1-A', 'P1:A'),
+        ('P2:B', 'P2.html#grammar-token-P2-B', 'P2:B'),
+        ('Explicit title A, plain', 'Bare.html#grammar-token-A', 'MyTitle'),
+        ('Explicit title A, colon', 'Bare.html#grammar-token-A', 'My:Title'),
+        ('Explicit title P1:A, plain', 'P1.html#grammar-token-P1-A', 'MyTitle'),
+        ('Explicit title P1:A, colon', 'P1.html#grammar-token-P1-A', 'My:Title'),
+        ('Tilde A', 'Bare.html#grammar-token-A', 'A'),
+        ('Tilde P1:A', 'P1.html#grammar-token-P1-A', 'A'),
+        ('Tilde explicit title P1:A', 'P1.html#grammar-token-P1-A', '~MyTitle'),
+        ('Tilde, explicit title P1:A', 'P1.html#grammar-token-P1-A', 'MyTitle'),
+        ('Dup', 'Dup2.html#grammar-token-Dup', 'Dup'),
+        ('FirstLine', 'firstLineRule.html#grammar-token-FirstLine', 'FirstLine'),
+        ('SecondLine', 'firstLineRule.html#grammar-token-SecondLine', 'SecondLine'),
     ]
 
     text = (app.outdir / 'LineContinuation.html').read_text()
     assert "A</strong> ::=  B C D    E F G" in text
+
+
+def test_disabled_docref(app):
+    text = (":doc:`index`\n"
+            ":doc:`!index`\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, ([nodes.paragraph, ([pending_xref, nodes.inline, "index"],
+                                             "\n",
+                                             [nodes.inline, "index"])],))
