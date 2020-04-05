@@ -33,6 +33,8 @@ Bugs fixed
 * #6564: html: a width of table was ignored on HTML builder
 * #7401: Incorrect argument is passed for :event:`env-get-outdated` handlers
 * #7355: autodoc: a signature of cython-function is not recognized well
+* #7409: intersphinx: ValueError is raised when an extension sets up
+  :confval:`intersphinx_mapping` on :event:`config-inited` event
 
 Testing
 --------

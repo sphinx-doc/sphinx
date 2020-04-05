@@ -536,7 +536,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.setup_extension('sphinx.builders.latex.transforms')
 
     app.add_builder(LaTeXBuilder)
-    app.connect('config-inited', validate_config_values)
+    app.connect('config-inited', validate_config_values, priority=800)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
