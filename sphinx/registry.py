@@ -453,7 +453,7 @@ def merge_source_suffix(app: "Sphinx", config: Config) -> None:
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', merge_source_suffix)
+    app.connect('config-inited', merge_source_suffix, priority=800)
 
     return {
         'version': 'builtin',
