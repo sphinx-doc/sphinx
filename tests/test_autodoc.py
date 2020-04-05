@@ -1422,7 +1422,7 @@ def test_wrappedfunction(app):
         '   :module: target.wrappedfunction',
         '',
         '   This function is slow.',
-        '   ',
+        '',
     ]
 
 
