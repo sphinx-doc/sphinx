@@ -7,7 +7,7 @@
        template="{{ use_opensearch }}/{{ pathto('search') }}?q={searchTerms}"/>
   <LongName>{{ docstitle|e }}</LongName>
 {%- if favicon %}
-  <Image height="16" width="16" type="image/x-icon">{{ use_opensearch }}/{{ pathto('_static/' + favicon, 1) }}</Image>
+  <Image height="16" width="16" type="image/x-icon">{{ use_opensearch }}/{{ pathto('_static/' + favicon, 1)|e }}</Image>
 {%- endif %}
 {% block extra %} {# Put e.g. an <Image> element here. #} {% endblock %}
 </OpenSearchDescription>
