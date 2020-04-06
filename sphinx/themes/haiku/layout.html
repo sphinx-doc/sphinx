@@ -21,7 +21,7 @@
         «&#160;&#160;<a href="{{ prev.link|e }}">{{ prev.title }}</a>
         &#160;&#160;::&#160;&#160;
         {%- endif %}
-        <a class="uplink" href="{{ pathto(master_doc) }}">{{ _('Contents') }}</a>
+        <a class="uplink" href="{{ pathto(master_doc)|e }}">{{ _('Contents') }}</a>
         {%- if next %}
         &#160;&#160;::&#160;&#160;
         <a href="{{ next.link|e }}">{{ next.title }}</a>&#160;&#160;»

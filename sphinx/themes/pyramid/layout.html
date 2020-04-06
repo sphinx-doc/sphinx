@@ -12,7 +12,7 @@
 {%- if logo %}
 <div class="header" role="banner">
   <div class="logo">
-    <a href="{{ pathto(master_doc) }}">
+    <a href="{{ pathto(master_doc)|e }}">
       <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
     </a>
   </div>
