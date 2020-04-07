@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7422: autodoc: fails with ValueError when using autodoc_mock_imports
+
 Testing
 --------
 
