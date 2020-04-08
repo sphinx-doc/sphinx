@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7423: crashed when giving a non-string object to logger
+
 Testing
 --------
 
