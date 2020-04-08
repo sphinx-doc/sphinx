@@ -4300,18 +4300,73 @@ class Symbol:
             Symbol.debug_indent += 1
             Symbol.debug_print("merge_with:")
         assert other is not None
+
+        def unconditionalAdd(self, otherChild):
+            # TODO: hmm, should we prune by docnames?
+            self._children.append(otherChild)
+            otherChild.parent = self
+            otherChild._assert_invariants()
+
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
         for otherChild in other._children:
-            ourChild = self._find_first_named_symbol(
+            if Symbol.debug_lookup:
+                Symbol.debug_print("otherChild:\n", otherChild.to_string(Symbol.debug_indent))
+                Symbol.debug_indent += 1
+            if otherChild.isRedeclaration:
+                unconditionalAdd(self, otherChild)
+                if Symbol.debug_lookup:
+                    Symbol.debug_print("isRedeclaration")
+                    Symbol.debug_indent -= 1
+                continue
+            candiateIter = self._find_named_symbols(
                 identOrOp=otherChild.identOrOp,
                 templateParams=otherChild.templateParams,
                 templateArgs=otherChild.templateArgs,
                 templateShorthand=False, matchSelf=False,
-                recurseInAnon=False, correctPrimaryTemplateArgs=False)
+                recurseInAnon=False, correctPrimaryTemplateArgs=False,
+                searchInSiblings=False)
+            candidates = list(candiateIter)
+
+            if Symbol.debug_lookup:
+                Symbol.debug_print("raw candidate symbols:", len(candidates))
+            symbols = [s for s in candidates if not s.isRedeclaration]
+            if Symbol.debug_lookup:
+                Symbol.debug_print("non-duplicate candidate symbols:", len(symbols))
+
+            if len(symbols) == 0:
+                unconditionalAdd(self, otherChild)
+                if Symbol.debug_lookup:
+                    Symbol.debug_indent -= 1
+                continue
+
+            ourChild = None
+            if otherChild.declaration is None:
+                if Symbol.debug_lookup:
+                    Symbol.debug_print("no declaration in other child")
+                ourChild = symbols[0]
+            else:
+                queryId = otherChild.declaration.get_newest_id()
+                if Symbol.debug_lookup:
+                    Symbol.debug_print("queryId:  ", queryId)
+                for symbol in symbols:
+                    if symbol.declaration is None:
+                        if Symbol.debug_lookup:
+                            Symbol.debug_print("empty candidate")
+                        # if in the end we have non matching, but have an empty one,
+                        # then just continue with that
+                        ourChild = symbol
+                        continue
+                    candId = symbol.declaration.get_newest_id()
+                    if Symbol.debug_lookup:
+                        Symbol.debug_print("candidate:", candId)
+                    if candId == queryId:
+                        ourChild = symbol
+                        break
+            if Symbol.debug_lookup:
+                Symbol.debug_indent -= 1
             if ourChild is None:
-                # TODO: hmm, should we prune by docnames?
-                self._children.append(otherChild)
-                otherChild.parent = self
-                otherChild._assert_invariants()
+                unconditionalAdd(self, otherChild)
                 continue
             if otherChild.declaration and otherChild.docname in docnames:
                 if not ourChild.declaration:
@@ -4326,10 +4381,14 @@ class Symbol:
                     # Both have declarations, and in the same docname.
                     # This can apparently happen, it should be safe to
                     # just ignore it, right?
-                    pass
+                    # Hmm, only on duplicate declarations, right?
+                    msg = "Internal C++ domain error during symbol merging.\n"
+                    msg += "ourChild:\n" + ourChild.to_string(1)
+                    msg += "\notherChild:\n" + otherChild.to_string(1)
+                    logger.warning(msg, location=otherChild.docname)
             ourChild.merge_with(otherChild, docnames, env)
         if Symbol.debug_lookup:
-            Symbol.debug_indent -= 1
+            Symbol.debug_indent -= 2
 
     def add_name(self, nestedName: ASTNestedName,
                  templatePrefix: ASTTemplateDeclarationPrefix = None) -> "Symbol":
@@ -7116,7 +7175,6 @@ class CPPDomain(Domain):
             print("\tother:")
             print(otherdata['root_symbol'].dump(1))
             print("\tother end")
-            print("merge_domaindata end")
 
         self.data['root_symbol'].merge_with(otherdata['root_symbol'],
                                             docnames, self.env)
@@ -7130,6 +7188,11 @@ class CPPDomain(Domain):
                     logger.warning(msg, location=docname)
                 else:
                     ourNames[name] = docname
+        if Symbol.debug_show_tree:
+            print("\tresult:")
+            print(self.data['root_symbol'].dump(1))
+            print("\tresult end")
+            print("merge_domaindata end")
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
