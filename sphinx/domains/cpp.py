@@ -6633,7 +6633,7 @@ class CPPObject(ObjectDescription):
             ast = self.parse_definition(parser)
             parser.assert_end()
         except DefinitionError as e:
-            logger.warning(e, location=signode)
+            logger.warning(str(e), location=signode)
             # It is easier to assume some phony name than handling the error in
             # the possibly inner declarations.
             name = _make_phony_error_name()
@@ -6743,7 +6743,7 @@ class CPPNamespaceObject(SphinxDirective):
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
             except DefinitionError as e:
-                logger.warning(e, location=self.get_source_info())
+                logger.warning(str(e), location=self.get_source_info())
                 name = _make_phony_error_name()
                 ast = ASTNamespace(name, None)
             symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
@@ -6771,7 +6771,7 @@ class CPPNamespacePushObject(SphinxDirective):
             ast = parser.parse_namespace_object()
             parser.assert_end()
         except DefinitionError as e:
-            logger.warning(e, location=self.get_source_info())
+            logger.warning(str(e), location=self.get_source_info())
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
         oldParent = self.env.temp_data.get('cpp:parent_symbol', None)
@@ -6842,7 +6842,7 @@ class AliasTransform(SphinxTransform):
                 ast, isShorthand = parser.parse_xref_object()
                 parser.assert_end()
             except DefinitionError as e:
-                logger.warning(e, location=node)
+                logger.warning(str(e), location=node)
                 ast, isShorthand = None, None
 
             if ast is None:

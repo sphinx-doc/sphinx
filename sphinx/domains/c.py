@@ -3086,7 +3086,7 @@ class CObject(ObjectDescription):
             ast = self.parse_definition(parser)
             parser.assert_end()
         except DefinitionError as e:
-            logger.warning(e, location=signode)
+            logger.warning(str(e), location=signode)
             # It is easier to assume some phony name than handling the error in
             # the possibly inner declarations.
             name = _make_phony_error_name()

@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7423: C/C++, properly stringify error messages.
+
 Testing
 --------
 
