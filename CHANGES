@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7428: py domain: a reference to class ``None`` emits a nitpicky warning
+
 Testing
 --------
 
