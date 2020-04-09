@@ -22,6 +22,7 @@ Bugs fixed
 * #7418: std domain: duplication warning for glossary terms is case insensitive
 * #7438: C++, fix merging overloaded functions in parallel builds.
 * #7422: autodoc: fails with ValueError when using autodoc_mock_imports
+* #7423: crashed when giving a non-string object to logger
 
 Testing
 --------
