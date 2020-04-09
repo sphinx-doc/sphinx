@@ -108,7 +108,7 @@
 {%- if html_tag %}
 {{ html_tag }}
 {%- else %}
-<html xmlns="http://www.w3.org/1999/xhtml"{% if language is not none %} lang="{{ language }}"{% endif %}>
+<html{% if not html5_doctype %} xmlns="http://www.w3.org/1999/xhtml"{% endif %}{% if language is not none %} lang="{{ language }}"{% endif %}>
 {%- endif %}
   <head>
     {%- if not html5_doctype and not skip_ua_compatible %}
