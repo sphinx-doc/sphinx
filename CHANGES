@@ -24,6 +24,7 @@ Bugs fixed
 * #7422: autodoc: fails with ValueError when using autodoc_mock_imports
 * #7423: crashed when giving a non-string object to logger
 * #7479: html theme: Do not include xmlns attribute with HTML 5 doctype
+* #7426: html theme: Escape some links in HTML templates
 
 Testing
 --------
