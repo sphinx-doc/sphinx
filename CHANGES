@@ -22,6 +22,8 @@ Bugs fixed
 * #7418: std domain: duplication warning for glossary terms is case insensitive
 * #7438: C++, fix merging overloaded functions in parallel builds.
 * #7422: autodoc: fails with ValueError when using autodoc_mock_imports
+* #7435: autodoc: ``autodoc_typehints='description'`` doesn't suppress typehints
+  in signature for classes/methods
 * #7423: crashed when giving a non-string object to logger
 * #7479: html theme: Do not include xmlns attribute with HTML 5 doctype
 * #7426: html theme: Escape some links in HTML templates
