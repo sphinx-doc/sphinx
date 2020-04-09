@@ -557,6 +557,9 @@ class Documenter:
                 isattr = False
 
             doc = getdoc(member, self.get_attr, self.env.config.autodoc_inherit_docstrings)
+            if not isinstance(doc, str):
+                # Ignore non-string __doc__
+                doc = None
 
             # if the member __doc__ is the same as self's __doc__, it's just
             # inherited and therefore not the member's doc
