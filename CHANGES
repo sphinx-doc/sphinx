@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #7418: std domain: :rst:dir:`term` role becomes case sensitive
+
 Deprecated
 ----------
 
@@ -17,8 +19,12 @@ Bugs fixed
 ----------
 
 * #7428: py domain: a reference to class ``None`` emits a nitpicky warning
+* #7418: std domain: duplication warning for glossary terms is case insensitive
+* #7438: C++, fix merging overloaded functions in parallel builds.
+* #7422: autodoc: fails with ValueError when using autodoc_mock_imports
 * #7435: autodoc: ``autodoc_typehints='description'`` doesn't suppress typehints
   in signature for classes/methods
+* #7423: crashed when giving a non-string object to logger
 
 Testing
 --------

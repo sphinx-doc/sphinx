@@ -48,6 +48,14 @@ def test_info_and_warning(app, status, warning):
     assert 'message5' in warning.getvalue()
 
 
+def test_Exception(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.info(Exception)
+    assert "<class 'Exception'>" in status.getvalue()
+
+
 def test_verbosity_filter(app, status, warning):
     # verbosity = 0: INFO
     app.verbosity = 0
