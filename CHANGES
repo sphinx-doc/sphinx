@@ -1,19 +1,10 @@
-Release 3.0.1 (in development)
-==============================
-
-Dependencies
-------------
+Release 3.0.1 (released Apr 11, 2020)
+=====================================
 
 Incompatible changes
 --------------------
 
 * #7418: std domain: :rst:dir:`term` role becomes case sensitive
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -31,9 +22,6 @@ Bugs fixed
 * #7423: crashed when giving a non-string object to logger
 * #7479: html theme: Do not include xmlns attribute with HTML 5 doctype
 * #7426: html theme: Escape some links in HTML templates
-
-Testing
---------
 
 Release 3.0.0 (released Apr 06, 2020)
 =====================================
