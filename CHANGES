@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #7410: Allow to suppress "circular toctree references detected" warnings using
+  :confval:`suppress_warnings`
+
 Bugs fixed
 ----------
 

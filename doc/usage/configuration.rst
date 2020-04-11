@@ -313,6 +313,7 @@ General configuration
    * ``ref.doc``
    * ``ref.python``
    * ``misc.highlighting_failure``
+   * ``toc.circular``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
    * ``autosectionlabel.*``
