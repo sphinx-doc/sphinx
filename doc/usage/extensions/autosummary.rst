@@ -260,8 +260,8 @@ The following variables available in the templates:
 
 .. data:: attributes
 
-   List containing names of "public" attributes in the class.  Only available
-   for classes.
+   List containing names of "public" attributes in the class/module.  Only
+   available for classes and modules.
 
 
 Additionally, the following filters are available
