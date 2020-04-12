@@ -2,6 +2,17 @@
 
 .. automodule:: {{ fullname }}
 
+   {% block attributes %}
+   {% if attributes %}
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   {% for item in attributes %}
+      {{item}}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
+
    {% block functions %}
    {% if functions %}
    .. rubric:: Functions

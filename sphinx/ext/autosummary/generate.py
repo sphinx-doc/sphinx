@@ -197,6 +197,21 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             get_members(obj, {'class'}, imported=imported_members)
         ns['exceptions'], ns['all_exceptions'] = \
             get_members(obj, {'exception'}, imported=imported_members)
+
+        # Find module attributes with docstrings
+        attrs, public = [], []
+        from sphinx.pycode import ModuleAnalyzer, PycodeError
+        try:
+            analyzer = ModuleAnalyzer.for_module(name)
+            attr_docs = analyzer.find_attr_docs()
+            for _, attr_name in attr_docs:
+                if attr_name in ns['members']:
+                    attrs.append(attr_name)
+                    if not attr_name.startswith('_'):
+                        public.append(attr_name)
+        except PycodeError as err:
+            pass
+        ns['attributes'], ns['all_attributes'] = attrs, public
     elif doc.objtype == 'class':
         ns['members'] = dir(obj)
         ns['inherited_members'] = \
