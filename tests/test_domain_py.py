@@ -255,6 +255,13 @@ def test_parse_annotation():
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"]))
 
+    doctree = _parse_annotation("Tuple[()]")
+    assert_node(doctree, ([pending_xref, "Tuple"],
+                          [desc_sig_punctuation, "["],
+                          [desc_sig_punctuation, "("],
+                          [desc_sig_punctuation, ")"],
+                          [desc_sig_punctuation, "]"]))
+
     doctree = _parse_annotation("Callable[[int, int], int]")
     assert_node(doctree, ([pending_xref, "Callable"],
                           [desc_sig_punctuation, "["],

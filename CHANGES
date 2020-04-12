@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7461: py domain: fails with IndexError for empty tuple in type annotation
+
 Testing
 --------
 
