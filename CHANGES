@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* LaTeX: Make the ``toplevel_sectioning`` setting optional in LaTeX theme
+
 Bugs fixed
 ----------
 
