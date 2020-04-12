@@ -153,7 +153,7 @@ class TocTree:
                             logger.warning(__('circular toctree references '
                                               'detected, ignoring: %s <- %s'),
                                            ref, ' <- '.join(parents),
-                                           location=ref)
+                                           location=ref, type='toc', subtype='circular')
                             continue
                         refdoc = ref
                         toc = self.env.tocs[ref].deepcopy()
