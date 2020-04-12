@@ -124,6 +124,11 @@ class AutosummaryRenderer:
         self.env.filters['e'] = rst.escape
         self.env.filters['underline'] = _underline
 
+        if builder:
+            if builder.app.translator:
+                self.env.add_extension("jinja2.ext.i18n")
+                self.env.install_gettext_translations(builder.app.translator)  # type: ignore
+
     def exists(self, template_name: str) -> bool:
         """Check if template file exists."""
         try:

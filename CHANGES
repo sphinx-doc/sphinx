@@ -16,6 +16,7 @@ Features added
 * LaTeX: Make the ``toplevel_sectioning`` setting optional in LaTeX theme
 * #7410: Allow to suppress "circular toctree references detected" warnings using
   :confval:`suppress_warnings`
+* #7466: autosummary: headings in generated documents are not translated
 
 Bugs fixed
 ----------
