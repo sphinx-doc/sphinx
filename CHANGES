@@ -12,6 +12,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* The first argument for sphinx.ext.autosummary.generate.AutosummaryRenderer has
+  been changed to Sphinx object
 * The ``template_dir`` argument of ``sphinx.ext.autosummary.generate.
   AutosummaryRenderer``
 * The ``module`` argument of ``sphinx.ext.autosummary.generate.
