@@ -3149,7 +3149,8 @@ class CNamespaceObject(SphinxDirective):
             stack = []  # type: List[Symbol]
         else:
             parser = DefinitionParser(self.arguments[0],
-                                      location=self.get_source_info())
+                                      location=self.get_source_info(),
+                                      config=self.env.config)
             try:
                 name = parser.parse_namespace_object()
                 parser.assert_end()
@@ -3175,7 +3176,8 @@ class CNamespacePushObject(SphinxDirective):
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
         parser = DefinitionParser(self.arguments[0],
-                                  location=self.get_source_info())
+                                  location=self.get_source_info(),
+                                  config=self.env.config)
         try:
             name = parser.parse_namespace_object()
             parser.assert_end()
