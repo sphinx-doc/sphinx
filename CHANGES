@@ -10,12 +10,17 @@ Incompatible changes
 Deprecated
 ----------
 
+* The ``module`` argument of ``sphinx.ext.autosummary.generate.
+  find_autosummary_in_docstring()``
+
 Features added
 --------------
 
 * LaTeX: Make the ``toplevel_sectioning`` setting optional in LaTeX theme
 * #7410: Allow to suppress "circular toctree references detected" warnings using
   :confval:`suppress_warnings`
+* C, added scope control directives, :rst:dir:`c:namespace`,
+  :rst:dir:`c:namespace-push`, and :rst:dir:`c:namespace-pop`.
 * #7466: autosummary: headings in generated documents are not translated
 
 Bugs fixed

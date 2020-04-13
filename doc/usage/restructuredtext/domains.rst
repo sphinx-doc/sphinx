@@ -706,6 +706,72 @@ Inline Expressions and Types
    .. versionadded:: 3.0
 
 
+Namespacing
+~~~~~~~~~~~
+
+.. versionadded:: 3.1
+
+The C language it self does not support namespacing, but it can sometimes be
+useful to emulate it in documentation, e.g., to show alternate declarations.
+The feature may also be used to document members of structs/unions/enums
+separate from their parent declaration.
+
+The current scope can be changed using three namespace directives.  They manage
+a stack declarations where ``c:namespace`` resets the stack and changes a given
+scope.
+
+The ``c:namespace-push`` directive changes the scope to a given inner scope
+of the current one.
+
+The ``c:namespace-pop`` directive undoes the most recent
+``c:namespace-push`` directive.
+
+.. rst:directive:: .. c:namespace:: scope specification
+
+   Changes the current scope for the subsequent objects to the given scope, and
+   resets the namespace directive stack. Note that nested scopes can be
+   specified by separating with a dot, e.g.::
+
+      .. c:namespace:: Namespace1.Namespace2.SomeStruct.AnInnerStruct
+
+   All subsequent objects will be defined as if their name were declared with
+   the scope prepended. The subsequent cross-references will be searched for
+   starting in the current scope.
+
+   Using ``NULL`` or ``0`` as the scope will change to global scope.
+
+.. rst:directive:: .. c:namespace-push:: scope specification
+
+   Change the scope relatively to the current scope. For example, after::
+
+      .. c:namespace:: A.B
+
+      .. c:namespace-push:: C.D
+
+   the current scope will be ``A.B.C.D``.
+
+.. rst:directive:: .. c:namespace-pop::
+
+   Undo the previous ``c:namespace-push`` directive (*not* just pop a scope).
+   For example, after::
+
+      .. c:namespace:: A.B
+
+      .. c:namespace-push:: C.D
+
+      .. c:namespace-pop::
+
+   the current scope will be ``A.B`` (*not* ``A.B.C``).
+
+   If no previous ``c:namespace-push`` directive has been used, but only a
+   ``c:namespace`` directive, then the current scope will be reset to global
+   scope.  That is, ``.. c:namespace:: A.B`` is equivalent to::
+
+      .. c:namespace:: NULL
+
+      .. c:namespace-push:: A.B
+
+
 .. _cpp-domain:
 
 The C++ Domain
