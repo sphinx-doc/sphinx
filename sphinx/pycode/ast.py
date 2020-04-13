@@ -114,7 +114,10 @@ def unparse(node: ast.AST) -> str:
     elif isinstance(node, ast.UnaryOp):
         return "%s %s" % (unparse(node.op), unparse(node.operand))
     elif isinstance(node, ast.Tuple):
-        return ", ".join(unparse(e) for e in node.elts)
+        if node.elts:
+            return ", ".join(unparse(e) for e in node.elts)
+        else:
+            return "()"
     elif sys.version_info > (3, 6) and isinstance(node, ast.Constant):
         # this branch should be placed at last
         return repr(node.value)
