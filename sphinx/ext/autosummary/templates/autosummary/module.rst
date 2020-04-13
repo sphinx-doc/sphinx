@@ -4,7 +4,7 @@
 
    {% block functions %}
    {% if functions %}
-   .. rubric:: Functions
+   .. rubric:: {{ _('Functions') }}
 
    .. autosummary::
    {% for item in functions %}
@@ -15,7 +15,7 @@
 
    {% block classes %}
    {% if classes %}
-   .. rubric:: Classes
+   .. rubric:: {{ _('Classes') }}
 
    .. autosummary::
    {% for item in classes %}
@@ -26,7 +26,7 @@
 
    {% block exceptions %}
    {% if exceptions %}
-   .. rubric:: Exceptions
+   .. rubric:: {{ _('Exceptions') }}
 
    .. autosummary::
    {% for item in exceptions %}

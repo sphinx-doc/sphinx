@@ -21,6 +21,7 @@ Features added
   :confval:`suppress_warnings`
 * C, added scope control directives, :rst:dir:`c:namespace`,
   :rst:dir:`c:namespace-push`, and :rst:dir:`c:namespace-pop`.
+* #7466: autosummary: headings in generated documents are not translated
 
 Bugs fixed
 ----------
