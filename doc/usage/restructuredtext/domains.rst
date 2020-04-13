@@ -706,6 +706,12 @@ Inline Expressions and Types
    .. versionadded:: 3.0
 
 
+Configuration Variables
+~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`c-config`.
+
+
 .. _cpp-domain:
 
 The C++ Domain
