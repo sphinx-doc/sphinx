@@ -771,6 +771,11 @@ The ``c:namespace-pop`` directive undoes the most recent
 
       .. c:namespace-push:: A.B
 
+Configuration Variables
+~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`c-config`.
+
 
 .. _cpp-domain:
 

@@ -16,7 +16,9 @@ from typing import (
 )
 
 from docutils import nodes
+from docutils.nodes import TextElement
 
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.util import logging
 
@@ -112,6 +114,92 @@ class ASTBaseBase:
         return '<%s>' % self.__class__.__name__
 
 
+################################################################################
+# Attributes
+################################################################################
+
+class ASTAttribute(ASTBaseBase):
+    def describe_signature(self, signode: TextElement) -> None:
+        raise NotImplementedError(repr(self))
+
+
+class ASTCPPAttribute(ASTAttribute):
+    def __init__(self, arg: str) -> None:
+        self.arg = arg
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return "[[" + self.arg + "]]"
+
+    def describe_signature(self, signode: TextElement) -> None:
+        txt = str(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTGnuAttribute(ASTBaseBase):
+    def __init__(self, name: str, args: Any) -> None:
+        self.name = name
+        self.args = args
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = [self.name]
+        if self.args:
+            res.append('(')
+            res.append(transform(self.args))
+            res.append(')')
+        return ''.join(res)
+
+
+class ASTGnuAttributeList(ASTAttribute):
+    def __init__(self, attrs: List[ASTGnuAttribute]) -> None:
+        self.attrs = attrs
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = ['__attribute__((']
+        first = True
+        for attr in self.attrs:
+            if not first:
+                res.append(', ')
+            first = False
+            res.append(transform(attr))
+        res.append('))')
+        return ''.join(res)
+
+    def describe_signature(self, signode: TextElement) -> None:
+        txt = str(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTIdAttribute(ASTAttribute):
+    """For simple attributes defined by the user."""
+
+    def __init__(self, id: str) -> None:
+        self.id = id
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return self.id
+
+    def describe_signature(self, signode: TextElement) -> None:
+        signode.append(nodes.Text(self.id, self.id))
+
+
+class ASTParenAttribute(ASTAttribute):
+    """For paren attributes defined by the user."""
+
+    def __init__(self, id: str, arg: str) -> None:
+        self.id = id
+        self.arg = arg
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return self.id + '(' + self.arg + ')'
+
+    def describe_signature(self, signode: TextElement) -> None:
+        txt = str(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+################################################################################
+
+
 class UnsupportedMultiCharacterCharLiteral(Exception):
     @property
     def decoded(self) -> str:
@@ -132,9 +220,11 @@ class DefinitionError(Exception):
 
 class BaseParser:
     def __init__(self, definition: str, *,
-                 location: Union[nodes.Node, Tuple[str, int]]) -> None:
+                 location: Union[nodes.Node, Tuple[str, int]],
+                 config: "Config") -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
+        self.config = config
 
         self.pos = 0
         self.end = len(self.definition)
@@ -252,3 +342,92 @@ class BaseParser:
         self.skip_ws()
         if not self.eof:
             self.fail('Expected end of definition.')
+
+    ################################################################################
+
+    @property
+    def id_attributes(self):
+        raise NotImplementedError
+
+    @property
+    def paren_attributes(self):
+        raise NotImplementedError
+
+    def _parse_balanced_token_seq(self, end: List[str]) -> str:
+        # TODO: add handling of string literals and similar
+        brackets = {'(': ')', '[': ']', '{': '}'}
+        startPos = self.pos
+        symbols = []  # type: List[str]
+        while not self.eof:
+            if len(symbols) == 0 and self.current_char in end:
+                break
+            if self.current_char in brackets.keys():
+                symbols.append(brackets[self.current_char])
+            elif len(symbols) > 0 and self.current_char == symbols[-1]:
+                symbols.pop()
+            elif self.current_char in ")]}":
+                self.fail("Unexpected '%s' in balanced-token-seq." % self.current_char)
+            self.pos += 1
+        if self.eof:
+            self.fail("Could not find end of balanced-token-seq starting at %d."
+                      % startPos)
+        return self.definition[startPos:self.pos]
+
+    def _parse_attribute(self) -> ASTAttribute:
+        self.skip_ws()
+        # try C++11 style
+        startPos = self.pos
+        if self.skip_string_and_ws('['):
+            if not self.skip_string('['):
+                self.pos = startPos
+            else:
+                # TODO: actually implement the correct grammar
+                arg = self._parse_balanced_token_seq(end=[']'])
+                if not self.skip_string_and_ws(']'):
+                    self.fail("Expected ']' in end of attribute.")
+                if not self.skip_string_and_ws(']'):
+                    self.fail("Expected ']' in end of attribute after [[...]")
+                return ASTCPPAttribute(arg)
+
+        # try GNU style
+        if self.skip_word_and_ws('__attribute__'):
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after '__attribute__'.")
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after '__attribute__('.")
+            attrs = []
+            while 1:
+                if self.match(identifier_re):
+                    name = self.matched_text
+                    self.skip_ws()
+                    if self.skip_string_and_ws('('):
+                        self.fail('Parameterized GNU style attribute not yet supported.')
+                    attrs.append(ASTGnuAttribute(name, None))
+                    # TODO: parse arguments for the attribute
+                if self.skip_string_and_ws(','):
+                    continue
+                elif self.skip_string_and_ws(')'):
+                    break
+                else:
+                    self.fail("Expected identifier, ')', or ',' in __attribute__.")
+            if not self.skip_string_and_ws(')'):
+                self.fail("Expected ')' after '__attribute__((...)'")
+            return ASTGnuAttributeList(attrs)
+
+        # try the simple id attributes defined by the user
+        for id in self.id_attributes:
+            if self.skip_word_and_ws(id):
+                return ASTIdAttribute(id)
+
+        # try the paren attributes defined by the user
+        for id in self.paren_attributes:
+            if not self.skip_string_and_ws(id):
+                continue
+            if not self.skip_string('('):
+                self.fail("Expected '(' after user-defined paren-attribute.")
+            arg = self._parse_balanced_token_seq(end=[')'])
+            if not self.skip_string(')'):
+                self.fail("Expected ')' to end user-defined paren-attribute.")
+            return ASTParenAttribute(id, arg)
+
+        return None

@@ -50,7 +50,7 @@ clean-buildfiles:
 
 .PHONY: clean-mypyfiles
 clean-mypyfiles:
-	rm -rf **/.mypy_cache/
+	find . -name '.mypy_cache' -exec rm -rf {} +
 
 .PHONY: style-check
 style-check:

@@ -23,8 +23,7 @@ def parse(name, string):
     class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
-    parser = DefinitionParser(string, location=None,
-                              config=Config())
+    parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()

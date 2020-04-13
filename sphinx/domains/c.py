@@ -1991,6 +1991,14 @@ class DefinitionParser(BaseParser):
     def language(self) -> str:
         return 'C'
 
+    @property
+    def id_attributes(self):
+        return self.config.c_id_attributes
+
+    @property
+    def paren_attributes(self):
+        return self.config.c_paren_attributes
+
     def _parse_string(self) -> str:
         if self.current_char != '"':
             return None
@@ -2009,66 +2017,6 @@ class DefinitionParser(BaseParser):
                 escape = False
             self.pos += 1
         return self.definition[startPos:self.pos]
-
-    def _parse_attribute(self) -> Any:
-        return None
-        # self.skip_ws()
-        # # try C++11 style
-        # startPos = self.pos
-        # if self.skip_string_and_ws('['):
-        #     if not self.skip_string('['):
-        #         self.pos = startPos
-        #     else:
-        #         # TODO: actually implement the correct grammar
-        #         arg = self._parse_balanced_token_seq(end=[']'])
-        #         if not self.skip_string_and_ws(']'):
-        #             self.fail("Expected ']' in end of attribute.")
-        #         if not self.skip_string_and_ws(']'):
-        #             self.fail("Expected ']' in end of attribute after [[...]")
-        #         return ASTCPPAttribute(arg)
-        #
-        # # try GNU style
-        # if self.skip_word_and_ws('__attribute__'):
-        #     if not self.skip_string_and_ws('('):
-        #         self.fail("Expected '(' after '__attribute__'.")
-        #     if not self.skip_string_and_ws('('):
-        #         self.fail("Expected '(' after '__attribute__('.")
-        #     attrs = []
-        #     while 1:
-        #         if self.match(identifier_re):
-        #             name = self.matched_text
-        #             self.skip_ws()
-        #             if self.skip_string_and_ws('('):
-        #                 self.fail('Parameterized GNU style attribute not yet supported.')
-        #             attrs.append(ASTGnuAttribute(name, None))
-        #             # TODO: parse arguments for the attribute
-        #         if self.skip_string_and_ws(','):
-        #             continue
-        #         elif self.skip_string_and_ws(')'):
-        #             break
-        #         else:
-        #             self.fail("Expected identifier, ')', or ',' in __attribute__.")
-        #     if not self.skip_string_and_ws(')'):
-        #         self.fail("Expected ')' after '__attribute__((...)'")
-        #     return ASTGnuAttributeList(attrs)
-        #
-        # # try the simple id attributes defined by the user
-        # for id in self.config.cpp_id_attributes:
-        #     if self.skip_word_and_ws(id):
-        #         return ASTIdAttribute(id)
-        #
-        # # try the paren attributes defined by the user
-        # for id in self.config.cpp_paren_attributes:
-        #     if not self.skip_string_and_ws(id):
-        #         continue
-        #     if not self.skip_string('('):
-        #         self.fail("Expected '(' after user-defined paren-attribute.")
-        #     arg = self._parse_balanced_token_seq(end=[')'])
-        #     if not self.skip_string(')'):
-        #         self.fail("Expected ')' to end user-defined paren-attribute.")
-        #     return ASTParenAttribute(id, arg)
-
-        return None
 
     def _parse_literal(self) -> ASTLiteral:
         # -> integer-literal
@@ -3085,7 +3033,7 @@ class CObject(ObjectDescription):
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol = self.env.temp_data['c:parent_symbol']  # type: Symbol
 
-        parser = DefinitionParser(sig, location=signode)
+        parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -3307,7 +3255,8 @@ class CExprRole(SphinxRole):
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
         text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text, location=self.get_source_info())
+        parser = DefinitionParser(text, location=self.get_source_info(),
+                                  config=self.env.config)
         # attempt to mimic XRefRole classes, except that...
         classes = ['xref', 'c', self.class_type]
         try:
@@ -3441,7 +3390,7 @@ class CDomain(Domain):
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
                             contnode: Element) -> Tuple[Element, str]:
-        parser = DefinitionParser(target, location=node)
+        parser = DefinitionParser(target, location=node, config=env.config)
         try:
             name = parser.parse_xref_object()
         except DefinitionError as e:
@@ -3498,6 +3447,8 @@ class CDomain(Domain):
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(CDomain)
+    app.add_config_value("c_id_attributes", [], 'env')
+    app.add_config_value("c_paren_attributes", [], 'env')
 
     return {
         'version': 'builtin',

@@ -44,6 +44,9 @@ Deprecated
 Features added
 --------------
 
+* C, parse attributes and add :confval:`c_id_attributes`
+  and :confval:`c_paren_attributes` to support user-defined attributes.
+
 Bugs fixed
 ----------
 
