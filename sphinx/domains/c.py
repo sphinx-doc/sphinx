@@ -35,6 +35,7 @@ from sphinx.util.cfamily import (
     char_literal_re
 )
 from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)
@@ -1990,6 +1991,14 @@ class DefinitionParser(BaseParser):
     def language(self) -> str:
         return 'C'
 
+    @property
+    def id_attributes(self):
+        return self.config.c_id_attributes
+
+    @property
+    def paren_attributes(self):
+        return self.config.c_paren_attributes
+
     def _parse_string(self) -> str:
         if self.current_char != '"':
             return None
@@ -2008,66 +2017,6 @@ class DefinitionParser(BaseParser):
                 escape = False
             self.pos += 1
         return self.definition[startPos:self.pos]
-
-    def _parse_attribute(self) -> Any:
-        return None
-        # self.skip_ws()
-        # # try C++11 style
-        # startPos = self.pos
-        # if self.skip_string_and_ws('['):
-        #     if not self.skip_string('['):
-        #         self.pos = startPos
-        #     else:
-        #         # TODO: actually implement the correct grammar
-        #         arg = self._parse_balanced_token_seq(end=[']'])
-        #         if not self.skip_string_and_ws(']'):
-        #             self.fail("Expected ']' in end of attribute.")
-        #         if not self.skip_string_and_ws(']'):
-        #             self.fail("Expected ']' in end of attribute after [[...]")
-        #         return ASTCPPAttribute(arg)
-        #
-        # # try GNU style
-        # if self.skip_word_and_ws('__attribute__'):
-        #     if not self.skip_string_and_ws('('):
-        #         self.fail("Expected '(' after '__attribute__'.")
-        #     if not self.skip_string_and_ws('('):
-        #         self.fail("Expected '(' after '__attribute__('.")
-        #     attrs = []
-        #     while 1:
-        #         if self.match(identifier_re):
-        #             name = self.matched_text
-        #             self.skip_ws()
-        #             if self.skip_string_and_ws('('):
-        #                 self.fail('Parameterized GNU style attribute not yet supported.')
-        #             attrs.append(ASTGnuAttribute(name, None))
-        #             # TODO: parse arguments for the attribute
-        #         if self.skip_string_and_ws(','):
-        #             continue
-        #         elif self.skip_string_and_ws(')'):
-        #             break
-        #         else:
-        #             self.fail("Expected identifier, ')', or ',' in __attribute__.")
-        #     if not self.skip_string_and_ws(')'):
-        #         self.fail("Expected ')' after '__attribute__((...)'")
-        #     return ASTGnuAttributeList(attrs)
-        #
-        # # try the simple id attributes defined by the user
-        # for id in self.config.cpp_id_attributes:
-        #     if self.skip_word_and_ws(id):
-        #         return ASTIdAttribute(id)
-        #
-        # # try the paren attributes defined by the user
-        # for id in self.config.cpp_paren_attributes:
-        #     if not self.skip_string_and_ws(id):
-        #         continue
-        #     if not self.skip_string('('):
-        #         self.fail("Expected '(' after user-defined paren-attribute.")
-        #     arg = self._parse_balanced_token_seq(end=[')'])
-        #     if not self.skip_string(')'):
-        #         self.fail("Expected ')' to end user-defined paren-attribute.")
-        #     return ASTParenAttribute(id, arg)
-
-        return None
 
     def _parse_literal(self) -> ASTLiteral:
         # -> integer-literal
@@ -2928,6 +2877,9 @@ class DefinitionParser(BaseParser):
             assert False
         return ASTDeclaration(objectType, directiveType, declaration)
 
+    def parse_namespace_object(self) -> ASTNestedName:
+        return self._parse_nested_name()
+
     def parse_xref_object(self) -> ASTNestedName:
         name = self._parse_nested_name()
         # if there are '()' left, just skip them
@@ -3081,7 +3033,7 @@ class CObject(ObjectDescription):
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol = self.env.temp_data['c:parent_symbol']  # type: Symbol
 
-        parser = DefinitionParser(sig, location=signode)
+        parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -3178,6 +3130,95 @@ class CTypeObject(CObject):
     object_type = 'type'
 
 
+class CNamespaceObject(SphinxDirective):
+    """
+    This directive is just to tell Sphinx that we're documenting stuff in
+    namespace foo.
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        rootSymbol = self.env.domaindata['c']['root_symbol']
+        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+            symbol = rootSymbol
+            stack = []  # type: List[Symbol]
+        else:
+            parser = DefinitionParser(self.arguments[0],
+                                      location=self.get_source_info())
+            try:
+                name = parser.parse_namespace_object()
+                parser.assert_end()
+            except DefinitionError as e:
+                logger.warning(e, location=self.get_source_info())
+                name = _make_phony_error_name()
+            symbol = rootSymbol.add_name(name)
+            stack = [symbol]
+        self.env.temp_data['c:parent_symbol'] = symbol
+        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
+        return []
+
+
+class CNamespacePushObject(SphinxDirective):
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+            return []
+        parser = DefinitionParser(self.arguments[0],
+                                  location=self.get_source_info())
+        try:
+            name = parser.parse_namespace_object()
+            parser.assert_end()
+        except DefinitionError as e:
+            logger.warning(e, location=self.get_source_info())
+            name = _make_phony_error_name()
+        oldParent = self.env.temp_data.get('c:parent_symbol', None)
+        if not oldParent:
+            oldParent = self.env.domaindata['c']['root_symbol']
+        symbol = oldParent.add_name(name)
+        stack = self.env.temp_data.get('c:namespace_stack', [])
+        stack.append(symbol)
+        self.env.temp_data['c:parent_symbol'] = symbol
+        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
+        return []
+
+
+class CNamespacePopObject(SphinxDirective):
+    has_content = False
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        stack = self.env.temp_data.get('c:namespace_stack', None)
+        if not stack or len(stack) == 0:
+            logger.warning("C namespace pop on empty stack. Defaulting to gobal scope.",
+                           location=self.get_source_info())
+            stack = []
+        else:
+            stack.pop()
+        if len(stack) > 0:
+            symbol = stack[-1]
+        else:
+            symbol = self.env.domaindata['c']['root_symbol']
+        self.env.temp_data['c:parent_symbol'] = symbol
+        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.ref_context['cp:parent_key'] = symbol.get_lookup_key()
+        return []
+
+
 class CXRefRole(XRefRole):
     def process_link(self, env: BuildEnvironment, refnode: Element,
                      has_explicit_title: bool, title: str, target: str) -> Tuple[str, str]:
@@ -3214,7 +3255,8 @@ class CExprRole(SphinxRole):
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
         text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text, location=self.get_source_info())
+        parser = DefinitionParser(text, location=self.get_source_info(),
+                                  config=self.env.config)
         # attempt to mimic XRefRole classes, except that...
         classes = ['xref', 'c', self.class_type]
         try:
@@ -3256,6 +3298,10 @@ class CDomain(Domain):
         'enum': CEnumObject,
         'enumerator': CEnumeratorObject,
         'type': CTypeObject,
+        # scope control
+        'namespace': CNamespaceObject,
+        'namespace-push': CNamespacePushObject,
+        'namespace-pop': CNamespacePopObject,
     }
     roles = {
         'member': CXRefRole(),
@@ -3344,7 +3390,7 @@ class CDomain(Domain):
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
                             contnode: Element) -> Tuple[Element, str]:
-        parser = DefinitionParser(target, location=node)
+        parser = DefinitionParser(target, location=node, config=env.config)
         try:
             name = parser.parse_xref_object()
         except DefinitionError as e:
@@ -3401,6 +3447,8 @@ class CDomain(Domain):
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(CDomain)
+    app.add_config_value("c_id_attributes", [], 'env')
+    app.add_config_value("c_paren_attributes", [], 'env')
 
     return {
         'version': 'builtin',

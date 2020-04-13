@@ -313,6 +313,7 @@ General configuration
    * ``ref.doc``
    * ``ref.python``
    * ``misc.highlighting_failure``
+   * ``toc.circular``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
    * ``autosectionlabel.*``
@@ -672,6 +673,7 @@ documentation on :ref:`intl` for details.
    Currently supported languages by Sphinx are:
 
    * ``ar`` -- Arabic
+   * ``bg`` -- Bulgarian
    * ``bn`` -- Bengali
    * ``ca`` -- Catalan
    * ``cak`` -- Kaqchikel
@@ -690,6 +692,7 @@ documentation on :ref:`intl` for details.
    * ``fr`` -- French
    * ``he`` -- Hebrew
    * ``hi`` -- Hindi
+   * ``hi_IN`` -- Hindi (India)
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
    * ``id`` -- Indonesian
@@ -711,9 +714,13 @@ documentation on :ref:`intl` for details.
    * ``si`` -- Sinhala
    * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
+   * ``sq`` -- Albanian
    * ``sr`` -- Serbian
+   * ``sr@latin`` -- Serbian (Latin)
+   * ``sr_RS`` -- Serbian (Cyrillic)
    * ``sv`` -- Swedish
    * ``ta`` -- Tamil
+   * ``te`` -- Telugu
    * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
    * ``ur`` -- Urdu
@@ -2468,6 +2475,30 @@ Options for the XML builder
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
        these all don't match slashes.  A double star ``**`` can be used to
        match any sequence of characters *including* slashes.
+
+
+.. _c-config:
+
+Options for the C domain
+------------------------
+
+.. confval:: c_id_attributes
+
+   A list of strings that the parser additionally should accept as attributes.
+   This can for example be used when attributes have been ``#define`` d for
+   portability.
+
+   .. versionadded:: 3.0
+
+.. confval:: c_paren_attributes
+
+   A list of strings that the parser additionally should accept as attributes
+   with one argument.  That is, if ``my_align_as`` is in the list, then
+   ``my_align_as(X)`` is parsed as an attribute for all strings ``X`` that have
+   balanced braces (``()``, ``[]``, and ``{}``).  This can for example be used
+   when attributes have been ``#define`` d for portability.
+
+   .. versionadded:: 3.0
 
 
 .. _cpp-config:

@@ -556,6 +556,9 @@ class Documenter:
                 isattr = False
 
             doc = getdoc(member, self.get_attr, self.env.config.autodoc_inherit_docstrings)
+            if not isinstance(doc, str):
+                # Ignore non-string __doc__
+                doc = None
 
             # if the member __doc__ is the same as self's __doc__, it's just
             # inherited and therefore not the member's doc
@@ -1173,7 +1176,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         return ret
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.env.config.autodoc_typehints == 'none':
+        if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
         # for classes, the relevant signature is the __init__ method's
@@ -1429,7 +1432,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         return ret
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.env.config.autodoc_typehints == 'none':
+        if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
         unwrapped = inspect.unwrap(self.object)

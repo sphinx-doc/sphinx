@@ -411,7 +411,7 @@ class WarningIsErrorFilter(logging.Filter):
                 message = record.msg  # use record.msg itself
 
             if location:
-                raise SphinxWarning(location + ":" + message)
+                raise SphinxWarning(location + ":" + str(message))
             else:
                 raise SphinxWarning(message)
         else:

@@ -98,7 +98,7 @@ def test_glossary(app):
     text = (".. glossary::\n"
             "\n"
             "   term1\n"
-            "   term2\n"
+            "   TERM2\n"
             "       description\n"
             "\n"
             "   term3 : classifier\n"
@@ -113,7 +113,7 @@ def test_glossary(app):
     assert_node(doctree, (
         [glossary, definition_list, ([definition_list_item, ([term, ("term1",
                                                                      index)],
-                                                             [term, ("term2",
+                                                             [term, ("TERM2",
                                                                      index)],
                                                              definition)],
                                      [definition_list_item, ([term, ("term3",
@@ -126,7 +126,7 @@ def test_glossary(app):
     assert_node(doctree[0][0][0][0][1],
                 entries=[("single", "term1", "term-term1", "main", None)])
     assert_node(doctree[0][0][0][1][1],
-                entries=[("single", "term2", "term-term2", "main", None)])
+                entries=[("single", "TERM2", "term-TERM2", "main", None)])
     assert_node(doctree[0][0][0][2],
                 [definition, nodes.paragraph, "description"])
     assert_node(doctree[0][0][1][0][1],
@@ -142,7 +142,7 @@ def test_glossary(app):
     # index
     objects = list(app.env.get_domain("std").get_objects())
     assert ("term1", "term1", "term", "index", "term-term1", -1) in objects
-    assert ("term2", "term2", "term", "index", "term-term2", -1) in objects
+    assert ("TERM2", "TERM2", "term", "index", "term-TERM2", -1) in objects
     assert ("term3", "term3", "term", "index", "term-term3", -1) in objects
     assert ("term4", "term4", "term", "index", "term-term4", -1) in objects
 

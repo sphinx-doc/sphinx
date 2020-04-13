@@ -56,6 +56,12 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.utils.smartyquotes``
 
+   * - The ``module`` argument of
+       ``sphinx.ext.autosummary.generate.find_autosummary_in_docstring()``
+     - 3.0
+     - 5.0
+     - N/A
+
    * - ``desc_signature['first']``
      -
      - 3.0

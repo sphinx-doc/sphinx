@@ -7,28 +7,20 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-import re
-
 import pytest
 
-from docutils import nodes
-import sphinx.domains.c as cDomain
 from sphinx import addnodes
-from sphinx.addnodes import (
-    desc, desc_addname, desc_annotation, desc_content, desc_name, desc_optional,
-    desc_parameter, desc_parameterlist, desc_returns, desc_signature, desc_type,
-    pending_xref
-)
 from sphinx.domains.c import DefinitionParser, DefinitionError
 from sphinx.domains.c import _max_id, _id_prefix, Symbol
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
-from sphinx.util import docutils
 
 
 def parse(name, string):
-    parser = DefinitionParser(string, location=None)
+    class Config:
+        c_id_attributes = ["id_attr", 'LIGHTGBM_C_EXPORT']
+        c_paren_attributes = ["paren_attr"]
+    parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
@@ -87,7 +79,10 @@ def check(name, input, idDict, output=None):
 
 def test_expressions():
     def exprCheck(expr, output=None):
-        parser = DefinitionParser(expr, location=None)
+        class Config:
+            c_id_attributes = ["id_attr"]
+            c_paren_attributes = ["paren_attr"]
+        parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         parser.assert_end()
@@ -404,24 +399,23 @@ def test_initializers():
 
 
 def test_attributes():
-    return  # TODO
     # style: C++
-    check('member', '[[]] int f', {1: 'f__i', 2: '1f'})
-    check('member', '[ [ ] ] int f', {1: 'f__i', 2: '1f'},
+    check('member', '[[]] int f', {1: 'f'})
+    check('member', '[ [ ] ] int f', {1: 'f'},
           # this will fail when the proper grammar is implemented
           output='[[ ]] int f')
-    check('member', '[[a]] int f', {1: 'f__i', 2: '1f'})
+    check('member', '[[a]] int f', {1: 'f'})
     # style: GNU
-    check('member', '__attribute__(()) int f', {1: 'f__i', 2: '1f'})
-    check('member', '__attribute__((a)) int f', {1: 'f__i', 2: '1f'})
-    check('member', '__attribute__((a, b)) int f', {1: 'f__i', 2: '1f'})
+    check('member', '__attribute__(()) int f', {1: 'f'})
+    check('member', '__attribute__((a)) int f', {1: 'f'})
+    check('member', '__attribute__((a, b)) int f', {1: 'f'})
     # style: user-defined id
-    check('member', 'id_attr int f', {1: 'f__i', 2: '1f'})
+    check('member', 'id_attr int f', {1: 'f'})
     # style: user-defined paren
-    check('member', 'paren_attr() int f', {1: 'f__i', 2: '1f'})
-    check('member', 'paren_attr(a) int f', {1: 'f__i', 2: '1f'})
-    check('member', 'paren_attr("") int f', {1: 'f__i', 2: '1f'})
-    check('member', 'paren_attr(()[{}][]{}) int f', {1: 'f__i', 2: '1f'})
+    check('member', 'paren_attr() int f', {1: 'f'})
+    check('member', 'paren_attr(a) int f', {1: 'f'})
+    check('member', 'paren_attr("") int f',{1: 'f'})
+    check('member', 'paren_attr(()[{}][]{}) int f', {1: 'f'})
     with pytest.raises(DefinitionError):
         parse('member', 'paren_attr(() int f')
     with pytest.raises(DefinitionError):
@@ -437,18 +431,20 @@ def test_attributes():
 
     # position: decl specs
     check('function', 'static inline __attribute__(()) void f()',
-          {1: 'f', 2: '1fv'},
+          {1: 'f'},
           output='__attribute__(()) static inline void f()')
     check('function', '[[attr1]] [[attr2]] void f()',
-          {1: 'f', 2: '1fv'},
+          {1: 'f'},
           output='[[attr1]] [[attr2]] void f()')
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i__iP', 2: '1i'})
-    check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
+    check('member', 'int *[[attr]] i', {1: 'i'})
+    check('member', 'int *const [[attr]] volatile i', {1: 'i'},
           output='int *[[attr]] volatile const i')
-    check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
-    check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
+    check('member', 'int *[[attr]] *i', {1: 'i'})
 
+    # issue michaeljones/breathe#500
+    check('function', 'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
+          {1: 'LGBM_BoosterFree'})
 
 # def test_print():
 #     # used for getting all the ids out for checking
@@ -473,6 +469,14 @@ def test_build_domain_c(app, status, warning):
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_domain_c(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "namespace")
+    assert len(ws) == 0
+    t = (app.outdir / "namespace.html").read_text()
+    for id_ in ('NS.NSVar', 'NULLVar', 'ZeroVar', 'NS2.NS3.NS2NS3Var', 'PopVar'):
+        assert 'id="c.{}"'.format(id_) in t
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_build_domain_c_anon_dup_decl(app, status, warning):

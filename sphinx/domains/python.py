@@ -76,8 +76,13 @@ ModuleEntry = NamedTuple('ModuleEntry', [('docname', str),
 def _parse_annotation(annotation: str) -> List[Node]:
     """Parse type annotation."""
     def make_xref(text: str) -> addnodes.pending_xref:
+        if text == 'None':
+            reftype = 'obj'
+        else:
+            reftype = 'class'
+
         return pending_xref('', nodes.Text(text),
-                            refdomain='py', reftype='class', reftarget=text)
+                            refdomain='py', reftype=reftype, reftarget=text)
 
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
@@ -105,11 +110,16 @@ def _parse_annotation(annotation: str) -> List[Node]:
             result.append(addnodes.desc_sig_punctuation('', ']'))
             return result
         elif isinstance(node, ast.Tuple):
-            result = []
-            for elem in node.elts:
-                result.extend(unparse(elem))
-                result.append(addnodes.desc_sig_punctuation('', ', '))
-            result.pop()
+            if node.elts:
+                result = []
+                for elem in node.elts:
+                    result.extend(unparse(elem))
+                    result.append(addnodes.desc_sig_punctuation('', ', '))
+                result.pop()
+            else:
+                result = [addnodes.desc_sig_punctuation('', '('),
+                          addnodes.desc_sig_punctuation('', ')')]
+
             return result
         else:
             raise SyntaxError  # unsupported syntax
@@ -1318,7 +1328,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
 
     if node.get('refdomain') != 'py':
         return None
-    elif node.get('reftype') == 'obj' and node.get('reftarget') == 'None':
+    elif node.get('reftype') in ('class', 'obj') and node.get('reftarget') == 'None':
         return contnode
     elif node.get('reftype') in ('class', 'exc'):
         reftarget = node.get('reftarget')

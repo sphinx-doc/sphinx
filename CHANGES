@@ -41,8 +41,18 @@ Incompatible changes
 Deprecated
 ----------
 
+* The ``module`` argument of ``sphinx.ext.autosummary.generate.
+  find_autosummary_in_docstring()``
+
 Features added
 --------------
+
+* LaTeX: Make the ``toplevel_sectioning`` setting optional in LaTeX theme
+* #7410: Allow to suppress "circular toctree references detected" warnings using
+  :confval:`suppress_warnings`
+* C, added scope control directives, :rst:dir:`c:namespace`,
+  :rst:dir:`c:namespace-push`, and :rst:dir:`c:namespace-pop`.
+* #7466: autosummary: headings in generated documents are not translated
 
 Bugs fixed
 ----------
@@ -50,7 +60,7 @@ Bugs fixed
 Testing
 --------
 
-Release 3.0.1 (in development)
+Release 3.0.2 (in development)
 ==============================
 
 Dependencies
@@ -65,11 +75,42 @@ Deprecated
 Features added
 --------------
 
+* C, parse attributes and add :confval:`c_id_attributes`
+  and :confval:`c_paren_attributes` to support user-defined attributes.
+
 Bugs fixed
 ----------
 
+* #7461: py domain: fails with IndexError for empty tuple in type annotation
+* #7461: autodoc: empty tuple in type annotation is not shown correctly
+
 Testing
 --------
+
+Release 3.0.1 (released Apr 11, 2020)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #7418: std domain: :rst:dir:`term` role becomes case sensitive
+
+Bugs fixed
+----------
+
+* #7428: py domain: a reference to class ``None`` emits a nitpicky warning
+* #7445: py domain: a return annotation ``None`` in the function signature is
+  not converted to a hyperlink when using intersphinx
+* #7418: std domain: duplication warning for glossary terms is case insensitive
+* #7438: C++, fix merging overloaded functions in parallel builds.
+* #7422: autodoc: fails with ValueError when using autodoc_mock_imports
+* #7435: autodoc: ``autodoc_typehints='description'`` doesn't suppress typehints
+  in signature for classes/methods
+* #7451: autodoc: fails with AttributeError when an object returns non-string
+  object as a ``__doc__`` member
+* #7423: crashed when giving a non-string object to logger
+* #7479: html theme: Do not include xmlns attribute with HTML 5 doctype
+* #7426: html theme: Escape some links in HTML templates
 
 Release 3.0.0 (released Apr 06, 2020)
 =====================================

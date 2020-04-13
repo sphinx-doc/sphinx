@@ -17,7 +17,7 @@ import typing
 import warnings
 from functools import partial, partialmethod
 from inspect import (  # NOQA
-    Parameter, isclass, ismethod, ismethoddescriptor, unwrap
+    Parameter, isclass, ismethod, ismethoddescriptor
 )
 from io import StringIO
 from typing import Any, Callable, Mapping, List, Tuple
@@ -114,6 +114,15 @@ def getargspec(func: Callable) -> Any:
 
     return inspect.FullArgSpec(args, varargs, varkw, defaults,
                                kwonlyargs, kwdefaults, annotations)
+
+
+def unwrap(obj: Any) -> Any:
+    """Get an original object from wrapped object (wrapped functions)."""
+    try:
+        return inspect.unwrap(obj)
+    except ValueError:
+        # might be a mock object
+        return obj
 
 
 def unwrap_all(obj: Any) -> Any:
@@ -217,7 +226,7 @@ def isattributedescriptor(obj: Any) -> bool:
         return True
     elif isdescriptor(obj):
         # non data descriptor
-        unwrapped = inspect.unwrap(obj)
+        unwrapped = unwrap(obj)
         if isfunction(unwrapped) or isbuiltin(unwrapped) or inspect.ismethod(unwrapped):
             # attribute must not be either function, builtin and method
             return False
