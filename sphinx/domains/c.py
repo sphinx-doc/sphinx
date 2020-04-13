@@ -35,6 +35,7 @@ from sphinx.util.cfamily import (
     char_literal_re
 )
 from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)
@@ -2928,6 +2929,9 @@ class DefinitionParser(BaseParser):
             assert False
         return ASTDeclaration(objectType, directiveType, declaration)
 
+    def parse_namespace_object(self) -> ASTNestedName:
+        return self._parse_nested_name()
+
     def parse_xref_object(self) -> ASTNestedName:
         name = self._parse_nested_name()
         # if there are '()' left, just skip them
@@ -3178,6 +3182,95 @@ class CTypeObject(CObject):
     object_type = 'type'
 
 
+class CNamespaceObject(SphinxDirective):
+    """
+    This directive is just to tell Sphinx that we're documenting stuff in
+    namespace foo.
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        rootSymbol = self.env.domaindata['c']['root_symbol']
+        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+            symbol = rootSymbol
+            stack = []  # type: List[Symbol]
+        else:
+            parser = DefinitionParser(self.arguments[0],
+                                      location=self.get_source_info())
+            try:
+                name = parser.parse_namespace_object()
+                parser.assert_end()
+            except DefinitionError as e:
+                logger.warning(e, location=self.get_source_info())
+                name = _make_phony_error_name()
+            symbol = rootSymbol.add_name(name)
+            stack = [symbol]
+        self.env.temp_data['c:parent_symbol'] = symbol
+        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
+        return []
+
+
+class CNamespacePushObject(SphinxDirective):
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+            return []
+        parser = DefinitionParser(self.arguments[0],
+                                  location=self.get_source_info())
+        try:
+            name = parser.parse_namespace_object()
+            parser.assert_end()
+        except DefinitionError as e:
+            logger.warning(e, location=self.get_source_info())
+            name = _make_phony_error_name()
+        oldParent = self.env.temp_data.get('c:parent_symbol', None)
+        if not oldParent:
+            oldParent = self.env.domaindata['c']['root_symbol']
+        symbol = oldParent.add_name(name)
+        stack = self.env.temp_data.get('c:namespace_stack', [])
+        stack.append(symbol)
+        self.env.temp_data['c:parent_symbol'] = symbol
+        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
+        return []
+
+
+class CNamespacePopObject(SphinxDirective):
+    has_content = False
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        stack = self.env.temp_data.get('c:namespace_stack', None)
+        if not stack or len(stack) == 0:
+            logger.warning("C namespace pop on empty stack. Defaulting to gobal scope.",
+                           location=self.get_source_info())
+            stack = []
+        else:
+            stack.pop()
+        if len(stack) > 0:
+            symbol = stack[-1]
+        else:
+            symbol = self.env.domaindata['c']['root_symbol']
+        self.env.temp_data['c:parent_symbol'] = symbol
+        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.ref_context['cp:parent_key'] = symbol.get_lookup_key()
+        return []
+
+
 class CXRefRole(XRefRole):
     def process_link(self, env: BuildEnvironment, refnode: Element,
                      has_explicit_title: bool, title: str, target: str) -> Tuple[str, str]:
@@ -3256,6 +3349,10 @@ class CDomain(Domain):
         'enum': CEnumObject,
         'enumerator': CEnumeratorObject,
         'type': CTypeObject,
+        # scope control
+        'namespace': CNamespaceObject,
+        'namespace-push': CNamespacePushObject,
+        'namespace-pop': CNamespacePopObject,
     }
     roles = {
         'member': CXRefRole(),

@@ -473,6 +473,14 @@ def test_build_domain_c(app, status, warning):
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_domain_c(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "namespace")
+    assert len(ws) == 0
+    t = (app.outdir / "namespace.html").read_text()
+    for id_ in ('NS.NSVar', 'NULLVar', 'ZeroVar', 'NS2.NS3.NS2NS3Var', 'PopVar'):
+        assert 'id="c.{}"'.format(id_) in t
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_build_domain_c_anon_dup_decl(app, status, warning):
