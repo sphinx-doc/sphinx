@@ -320,13 +320,14 @@ div.sidebar {
     background-color: #ffe;
     width: 40%;
     float: right;
+    clear: right
 }
 
 p.sidebar-title {
     font-weight: bold;
 }
 
-div.admonition, div.topic, div.sidebar, pre {
+div.admonition, div.topic, pre {
     clear: both;
 }
 
