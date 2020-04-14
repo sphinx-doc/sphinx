@@ -673,7 +673,12 @@ table.highlighttable td.linenos {
 }
 
 table.highlighttable td.code {
+    flex: 1;
     overflow: hidden;
+}
+
+.highlight .hll {
+    display: block;
 }
 
 table.highlighttable pre {
