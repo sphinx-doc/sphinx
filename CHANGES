@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #7477: imgconverter: Invoke "magick convert" command by default on Windows
+
 Deprecated
 ----------
 
