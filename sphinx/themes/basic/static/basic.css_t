@@ -506,6 +506,7 @@ li > p:last-child {
 dl.footnote > dt,
 dl.citation > dt {
     float: left;
+    margin-right: 0.5em;
 }
 
 dl.footnote > dd,
