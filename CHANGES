@@ -22,6 +22,7 @@ Features added
 * C, added scope control directives, :rst:dir:`c:namespace`,
   :rst:dir:`c:namespace-push`, and :rst:dir:`c:namespace-pop`.
 * #7466: autosummary: headings in generated documents are not translated
+* #7481: html theme: Add right margin to footnote/citation labels
 
 Bugs fixed
 ----------
