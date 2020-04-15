@@ -646,21 +646,52 @@ span.pre {
 }
 
 td.linenos pre {
-    padding: 5px 0px;
     border: 0;
     background-color: transparent;
     color: #aaa;
 }
 
 table.highlighttable {
-    margin-left: 0.5em;
+    display: block;
+    margin: 1em 0;
+}
+
+table.highlighttable tbody {
+    display: block;
+}
+
+table.highlighttable tr {
+    display: flex;
 }
 
 table.highlighttable td {
-    padding: 0 0.5em 0 0.5em;
+    margin: 0;
+    padding: 0;
+}
+
+table.highlighttable td.linenos {
+    padding: 0 0.5em;
+}
+
+table.highlighttable td.code {
+    flex: 1;
+    overflow: hidden;
+}
+
+.highlight .hll {
+    display: block;
+}
+
+table.highlighttable pre {
+    margin: 0;
+}
+
+div.code-block-caption + div > table.highlighttable {
+    margin-top: 0;
 }
 
 div.code-block-caption {
+    margin-top: 1em;
     padding: 2px 5px;
     font-size: small;
 }
@@ -673,6 +704,7 @@ div.code-block-caption + div > div.highlight > pre {
     margin-top: 0;
 }
 
+table.highlighttable td.linenos,
 div.doctest > div.highlight span.gp {  /* gp: Generic.Prompt */
     user-select: none;
 }
@@ -686,11 +718,7 @@ div.code-block-caption span.caption-text {
 }
 
 div.literal-block-wrapper {
-    padding: 1em 1em 0;
-}
-
-div.literal-block-wrapper div.highlight {
-    margin: 0;
+    margin: 1em 0;
 }
 
 code.descname {
