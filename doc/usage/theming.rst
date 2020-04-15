@@ -155,20 +155,20 @@ These themes are:
     previous/next page using the keyboard's left and right arrows.  Defaults to
     ``False``.
 
-  .. versionadded:: 3.1
-
-    The following options:
-
   - **globaltoc_collapse** (true or false): Only expand subsections
     of the current document in ``globaltoc.html``
     (see :confval:`html_sidebars`).
     Defaults to ``True``.
+
+    .. versionadded:: 3.1
 
   - **globaltoc_includehidden** (true or false): Show even those
     subsections in ``globaltoc.html`` (see :confval:`html_sidebars`)
     which have been included with the ``:hidden:`` flag of the
     :rst:dir:`toctree` directive.
     Defaults to ``False``.
+
+    .. versionadded:: 3.1
 
 **alabaster**
   `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
