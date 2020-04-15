@@ -2062,13 +2062,16 @@ class ASTDeclSpecs(ASTBase):
         if self.trailingTypeSpec:
             if addSpace:
                 signode += nodes.Text(' ')
+            numChildren = len(signode)
             self.trailingTypeSpec.describe_signature(signode, mode, env,
                                                      symbol=symbol)
-            numChildren = len(signode)
-            self.rightSpecs.describe_signature(signode)
-            if len(signode) != numChildren:
-                signode += nodes.Text(' ')
+            addSpace = len(signode) != numChildren
 
+            if len(str(self.rightSpecs)) > 0:
+                if addSpace:
+                    signode += nodes.Text(' ')
+                self.rightSpecs.describe_signature(signode)
+ 
 
 # Declarator
 ################################################################################
