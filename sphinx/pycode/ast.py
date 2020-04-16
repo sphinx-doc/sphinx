@@ -9,7 +9,7 @@
 """
 
 import sys
-from typing import Dict, List, Type
+from typing import Dict, List, Type, Optional
 
 if sys.version_info > (3, 8):
     import ast
@@ -125,6 +125,17 @@ def unparse(node: ast.AST) -> str:
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)
 
 
+def _unparse_arg(arg: ast.arg, default: Optional[ast.AST]) -> str:
+    """Unparse a single argument to a string."""
+    name = unparse(arg)
+    if default:
+        if arg.annotation:
+            name += " = %s" % unparse(default)
+        else:
+            name += "=%s" % unparse(default)
+    return name
+
+
 def unparse_arguments(node: ast.arguments) -> str:
     """Unparse an arguments to string."""
     defaults = list(node.defaults)
@@ -143,25 +154,13 @@ def unparse_arguments(node: ast.arguments) -> str:
     args = []  # type: List[str]
     if hasattr(node, "posonlyargs"):  # for py38+
         for i, arg in enumerate(node.posonlyargs):  # type: ignore
-            name = unparse(arg)
-            if defaults[i]:
-                if arg.annotation:
-                    name += " = %s" % unparse(defaults[i])
-                else:
-                    name += "=%s" % unparse(defaults[i])
-            args.append(name)
+            args.append(_unparse_arg(arg, defaults[i]))
 
         if node.posonlyargs:  # type: ignore
             args.append('/')
 
     for i, arg in enumerate(node.args):
-        name = unparse(arg)
-        if defaults[i + posonlyargs]:
-            if arg.annotation:
-                name += " = %s" % unparse(defaults[i + posonlyargs])
-            else:
-                name += "=%s" % unparse(defaults[i + posonlyargs])
-        args.append(name)
+        args.append(_unparse_arg(arg, defaults[i + posonlyargs]))
 
     if node.vararg:
         args.append("*" + unparse(node.vararg))
@@ -169,13 +168,7 @@ def unparse_arguments(node: ast.arguments) -> str:
     if node.kwonlyargs and not node.vararg:
         args.append('*')
     for i, arg in enumerate(node.kwonlyargs):
-        name = unparse(arg)
-        if kw_defaults[i]:
-            if arg.annotation:
-                name += " = %s" % unparse(kw_defaults[i])
-            else:
-                name += "=%s" % unparse(kw_defaults[i])
-        args.append(name)
+        args.append(_unparse_arg(arg, kw_defaults[i]))
 
     if node.kwarg:
         args.append("**" + unparse(node.kwarg))
