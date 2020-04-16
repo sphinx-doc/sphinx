@@ -26,6 +26,9 @@ Features added
 * #7466: autosummary: headings in generated documents are not translated
 * #7481: html theme: Add right margin to footnote/citation labels
 * #7482: html theme: CSS spacing for code blocks with captions and line numbers
+* #7443: Add new options ``globaltoc_collapse`` and ``globaltoc_includehidden``
+  to control the behavior of globaltoc in sidebar
+
 
 Bugs fixed
 ----------
