@@ -320,7 +320,7 @@ div.sidebar {
     background-color: #ffe;
     width: 40%;
     float: right;
-    clear: right
+    clear: right;
 }
 
 p.sidebar-title {
