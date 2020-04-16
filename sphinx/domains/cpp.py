@@ -2071,7 +2071,7 @@ class ASTDeclSpecs(ASTBase):
                 if addSpace:
                     signode += nodes.Text(' ')
                 self.rightSpecs.describe_signature(signode)
- 
+
 
 # Declarator
 ################################################################################
