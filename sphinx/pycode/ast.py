@@ -91,9 +91,6 @@ class _UnparseVisitor(ast.NodeVisitor):
         op = " %s " % self.visit(node.op)
         return op.join(self.visit(e) for e in node.values)
 
-    def visit_Bytes(self, node: ast.Bytes) -> str:
-        return repr(node.s)
-
     def visit_Call(self, node: ast.Call) -> str:
         args = ([self.visit(e) for e in node.args] +
                 ["%s=%s" % (k.arg, self.visit(k.value)) for k in node.keywords])
@@ -104,9 +101,6 @@ class _UnparseVisitor(ast.NodeVisitor):
         values = (self.visit(v) for v in node.values)
         items = (k + ": " + v for k, v in zip(keys, values))
         return "{" + ", ".join(items) + "}"
-
-    def visit_Ellipsis(self, node: ast.Ellipsis) -> str:
-        return "..."
 
     def visit_Index(self, node: ast.Index) -> str:
         return self.visit(node.value)
@@ -120,17 +114,25 @@ class _UnparseVisitor(ast.NodeVisitor):
     def visit_Name(self, node: ast.Name) -> str:
         return node.id
 
-    def visit_NameConstant(self, node: ast.NameConstant) -> str:
-        return repr(node.value)
+    if sys.version_info < (3, 8):
+        # these ast nodes were deprecated in python 3.8
+        def visit_Num(self, node: ast.Num) -> str:
+            return repr(node.n)
 
-    def visit_Num(self, node: ast.Num) -> str:
-        return repr(node.n)
+        def visit_Str(self, node: ast.Str) -> str:
+            return repr(node.s)
+
+        def visit_Bytes(self, node: ast.Bytes) -> str:
+            return repr(node.s)
+
+        def visit_NameConstant(self, node: ast.NameConstant) -> str:
+            return repr(node.value)
+
+        def visit_Ellipsis(self, node: ast.Ellipsis) -> str:
+            return "..."
 
     def visit_Set(self, node: ast.Set) -> str:
         return "{" + ", ".join(self.visit(e) for e in node.elts) + "}"
-
-    def visit_Str(self, node: ast.Str) -> str:
-        return repr(node.s)
 
     def visit_Subscript(self, node: ast.Subscript) -> str:
         return "%s[%s]" % (self.visit(node.value), self.visit(node.slice))
