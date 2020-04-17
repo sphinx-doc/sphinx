@@ -42,6 +42,7 @@
         {%- for parent in parents %}
           <li class="nav-item nav-item-{{ loop.index }}"><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a>{{ reldelim1 }}</li>
         {%- endfor %}
+        <li class="nav-item nav-item-this"><a href="{{ link|e }}">{{ title }}</a></li>
         {%- block relbaritems %} {% endblock %}
       </ul>
     </div>
