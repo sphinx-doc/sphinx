@@ -30,7 +30,7 @@ Features added
   :confval:`globaltoc_includehidden` to control the behavior of globaltoc in
   sidebar
 * #7484: html theme: Avoid clashes between sidebar and other blocks
-
+* #7476: html theme: Relbar breadcrumb should contain current page
 
 Bugs fixed
 ----------
