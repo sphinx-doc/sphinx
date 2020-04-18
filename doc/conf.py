@@ -27,6 +27,7 @@ html_static_path = ['_static']
 html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 html_additional_pages = {'index': 'index.html'}
 html_use_opensearch = 'http://sphinx-doc.org'
+html_baseurl = 'https://www.sphinx-doc.org/en/master/'
 
 htmlhelp_basename = 'Sphinxdoc'
 

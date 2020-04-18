@@ -38,6 +38,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #7477: imgconverter: Invoke "magick convert" command by default on Windows
+
 Deprecated
 ----------
 
@@ -53,6 +55,13 @@ Features added
 * C, added scope control directives, :rst:dir:`c:namespace`,
   :rst:dir:`c:namespace-push`, and :rst:dir:`c:namespace-pop`.
 * #7466: autosummary: headings in generated documents are not translated
+* #7481: html theme: Add right margin to footnote/citation labels
+* #7482: html theme: CSS spacing for code blocks with captions and line numbers
+* #7443: html theme: Add new options :confval:`globaltoc_collapse` and
+  :confval:`globaltoc_includehidden` to control the behavior of globaltoc in
+  sidebar
+* #7484: html theme: Avoid clashes between sidebar and other blocks
+* #7476: html theme: Relbar breadcrumb should contain current page
 
 Bugs fixed
 ----------
@@ -83,6 +92,7 @@ Bugs fixed
 
 * #7461: py domain: fails with IndexError for empty tuple in type annotation
 * #7461: autodoc: empty tuple in type annotation is not shown correctly
+* C++, fix spacing issue in east-const declarations.
 
 Testing
 --------

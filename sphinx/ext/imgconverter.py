@@ -9,6 +9,7 @@
 """
 
 import subprocess
+import sys
 from subprocess import CalledProcessError, PIPE
 from typing import Any, Dict
 
@@ -74,8 +75,17 @@ class ImagemagickConverter(ImageConverter):
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(ImagemagickConverter)
-    app.add_config_value('image_converter', 'convert', 'env')
-    app.add_config_value('image_converter_args', [], 'env')
+    if sys.platform == 'win32':
+        # On Windows, we use Imagemagik v7 by default to avoid the trouble for
+        # convert.exe bundled with Windows.
+        app.add_config_value('image_converter', 'magick', 'env')
+        app.add_config_value('image_converter_args', ['convert'], 'env')
+    else:
+        # On other platform, we use Imagemagick v6 by default.  Especially,
+        # Debian/Ubuntu are still based of v6.  So we can't use "magick" command
+        # for these platforms.
+        app.add_config_value('image_converter', 'convert', 'env')
+        app.add_config_value('image_converter_args', [], 'env')
 
     return {
         'version': 'builtin',
