@@ -61,6 +61,7 @@ Bugs fixed
 
 * #7461: py domain: fails with IndexError for empty tuple in type annotation
 * #7461: autodoc: empty tuple in type annotation is not shown correctly
+* C++, fix spacing issue in east-const declarations.
 
 Testing
 --------
