@@ -132,7 +132,7 @@
     {{- script() }}
     {%- endblock %}
     {%- if pageurl %}
-    <link rel="canonical" href="{{ pageurl }}" />
+    <link rel="canonical" href="{{ pageurl|e }}" />
     {%- endif %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"
