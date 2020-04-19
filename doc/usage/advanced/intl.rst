@@ -90,9 +90,9 @@ section describe an easy way to translate with *sphinx-intl*.
       locale_dirs = ['locale/']   # path is example but recommended.
       gettext_compact = False     # optional.
 
-   This case-study assumes that :confval:`locale_dirs` is set to ``locale/`` and
-   :confval:`gettext_compact` is set to ``False`` (the Sphinx document is
-   already configured as such).
+   This case-study assumes that BUILDDIR is set to ``_build``,
+   :confval:`locale_dirs` is set to ``locale/`` and :confval:`gettext_compact`
+   is set to ``False`` (the Sphinx document is already configured as such).
 
 #. Extract translatable messages into pot files.
 
