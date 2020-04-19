@@ -1600,8 +1600,11 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
                                       sourcename)
 
                 try:
-                    objrepr = object_description(self.object)
-                    self.add_line('   :value: ' + objrepr, sourcename)
+                    if self.object is INSTANCEATTR:
+                        pass
+                    else:
+                        objrepr = object_description(self.object)
+                        self.add_line('   :value: ' + objrepr, sourcename)
                 except ValueError:
                     pass
         elif self.options.annotation is SUPPRESS:
@@ -1672,6 +1675,7 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
+        self.object = INSTANCEATTR
         self._datadescriptor = False
         return True
 
