@@ -66,6 +66,7 @@ def identity(x: Any) -> Any:
 
 
 ALL = object()
+UNINITIALIZED_ATTR = object()
 INSTANCEATTR = object()
 SLOTSATTR = object()
 
@@ -1348,8 +1349,11 @@ class DataDocumenter(ModuleLevelDocumenter):
                                   sourcename)
 
             try:
-                objrepr = object_description(self.object)
-                self.add_line('   :value: ' + objrepr, sourcename)
+                if self.object is UNINITIALIZED_ATTR:
+                    pass
+                else:
+                    objrepr = object_description(self.object)
+                    self.add_line('   :value: ' + objrepr, sourcename)
             except ValueError:
                 pass
         elif self.options.annotation is SUPPRESS:
@@ -1390,6 +1394,7 @@ class DataDeclarationDocumenter(DataDocumenter):
         """Never import anything."""
         # disguise as a data
         self.objtype = 'data'
+        self.object = UNINITIALIZED_ATTR
         try:
             # import module to obtain type annotation
             self.parent = importlib.import_module(self.modname)

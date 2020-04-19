@@ -1522,7 +1522,6 @@ def test_autodoc_typed_instance_variables(app):
         '.. py:data:: attr2',
         '   :module: target.typed_vars',
         '   :type: str',
-        '   :value: None',
         '',
         '   attr2',
         '',
