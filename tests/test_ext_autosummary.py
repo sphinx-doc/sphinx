@@ -197,7 +197,7 @@ def test_autosummary_generate(app, status, warning):
                           nodes.paragraph,
                           addnodes.tabular_col_spec,
                           autosummary_table,
-                          autosummary_toc))
+                          [autosummary_toc, addnodes.toctree]))
     assert_node(doctree[3],
                 [autosummary_table, nodes.table, nodes.tgroup, (nodes.colspec,
                                                                 nodes.colspec,
@@ -205,6 +205,8 @@ def test_autosummary_generate(app, status, warning):
                                                                                nodes.row,
                                                                                nodes.row,
                                                                                nodes.row)])])
+    assert_node(doctree[4][0], addnodes.toctree, caption="An autosummary")
+
     assert doctree[3][0][0][2][0].astext() == 'autosummary_dummy_module\n\n'
     assert doctree[3][0][0][2][1].astext() == 'autosummary_dummy_module.Foo()\n\n'
     assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'

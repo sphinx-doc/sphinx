@@ -228,6 +228,7 @@ class Autosummary(SphinxDirective):
     final_argument_whitespace = False
     has_content = True
     option_spec = {
+        'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
         'template': directives.unchanged,
@@ -270,8 +271,13 @@ class Autosummary(SphinxDirective):
                 tocnode['entries'] = [(None, docn) for docn in docnames]
                 tocnode['maxdepth'] = -1
                 tocnode['glob'] = None
+                tocnode['caption'] = self.options.get('caption')
 
                 nodes.append(autosummary_toc('', '', tocnode))
+
+        if 'toctree' not in self.options and 'caption' in self.options:
+            logger.warning(__('A captioned autosummary requires :toctree: option. ignored.'),
+                           location=nodes[-1])
 
         return nodes
 

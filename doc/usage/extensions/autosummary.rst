@@ -76,6 +76,12 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
      directory. If no argument is given, output is placed in the same directory
      as the file that contains the directive.
 
+     You can also use ``caption`` option to give a caption to the toctree.
+
+     .. versionadded:: 3.1
+
+        caption option added.
+
    * If you don't want the :rst:dir:`autosummary` to show function signatures in
      the listing, include the ``nosignatures`` option::
 

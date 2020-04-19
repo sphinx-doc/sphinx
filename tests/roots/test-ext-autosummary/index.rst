@@ -5,6 +5,7 @@
 
 .. autosummary::
    :toctree: generated
+   :caption: An autosummary
 
    autosummary_dummy_module
    autosummary_dummy_module.Foo
