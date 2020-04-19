@@ -787,6 +787,8 @@ class StandardDomain(Domain):
                           RemovedInSphinx40Warning)
             domain = env.get_domain('citation')
             return domain.resolve_xref(env, fromdocname, builder, typ, target, node, contnode)
+        elif typ == 'term':
+            resolver = self._resolve_term_xref
         else:
             resolver = self._resolve_obj_xref
 
@@ -920,6 +922,28 @@ class StandardDomain(Domain):
 
         return make_refnode(builder, fromdocname, docname,
                             labelid, contnode)
+
+    def _resolve_term_xref(self, env: "BuildEnvironment", fromdocname: str,
+                           builder: "Builder", typ: str, target: str,
+                           node: pending_xref, contnode: Element) -> Element:
+        result = self._resolve_obj_xref(env, fromdocname, builder, typ,
+                                        target, node, contnode)
+        if result:
+            return result
+        else:
+            for objtype, term in self.objects:
+                if objtype == 'term' and term.lower() == target.lower():
+                    docname, labelid = self.objects[objtype, term]
+                    logger.warning(__('term %s not found in case sensitive match.'
+                                      'made a reference to %s instead.'),
+                                   target, term, location=node, type='ref', subtype='term')
+                    break
+            else:
+                docname, labelid = '', ''
+            if not docname:
+                return None
+            return make_refnode(builder, fromdocname, docname,
+                                labelid, contnode)
 
     def _resolve_obj_xref(self, env: "BuildEnvironment", fromdocname: str,
                           builder: "Builder", typ: str, target: str,

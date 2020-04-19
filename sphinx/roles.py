@@ -76,7 +76,7 @@ class XRefRole(ReferenceRole):
     innernodeclass = nodes.literal      # type: Type[TextElement]
 
     def __init__(self, fix_parens: bool = False, lowercase: bool = False,
-                 nodeclass: Type[Element] = None, innernodeclass: Type[TextElement] = None,
+                 nodeclass: "Type[Element]" = None, innernodeclass: "Type[TextElement]" = None,
                  warn_dangling: bool = False) -> None:
         self.fix_parens = fix_parens
         self.lowercase = lowercase

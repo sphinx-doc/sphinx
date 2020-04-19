@@ -317,6 +317,15 @@ def test_signature_from_str_complex_annotations():
     assert sig.return_annotation == 'Callable[[int, int], int]'
 
 
+def test_signature_from_str_kwonly_args():
+    sig = inspect.signature_from_str('(a, *, b)')
+    assert list(sig.parameters.keys()) == ['a', 'b']
+    assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['a'].default == Parameter.empty
+    assert sig.parameters['b'].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters['b'].default == Parameter.empty
+
+
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='python-3.8 or above is required')
 def test_signature_from_str_positionaly_only_args():

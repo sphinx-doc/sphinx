@@ -577,7 +577,10 @@ class Documenter:
                 isprivate = membername.startswith('_')
 
             keep = False
-            if want_all and membername.startswith('__') and \
+            if getattr(member, '__sphinx_mock__', False):
+                # mocked module or object
+                keep = False
+            elif want_all and membername.startswith('__') and \
                     membername.endswith('__') and len(membername) > 4:
                 # special __methods__
                 if self.options.special_members is ALL:

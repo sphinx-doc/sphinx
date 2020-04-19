@@ -527,7 +527,7 @@ def signature_from_str(signature: str) -> inspect.Signature:
                                 annotation=annotation))
 
     for i, arg in enumerate(args.kwonlyargs):
-        default = ast_unparse(args.kw_defaults[i])
+        default = ast_unparse(args.kw_defaults[i]) or Parameter.empty
         annotation = ast_unparse(arg.annotation) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))

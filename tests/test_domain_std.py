@@ -140,11 +140,22 @@ def test_glossary(app):
                 [nodes.definition, nodes.paragraph, "description"])
 
     # index
-    objects = list(app.env.get_domain("std").get_objects())
+    domain = app.env.get_domain("std")
+    objects = list(domain.get_objects())
     assert ("term1", "term1", "term", "index", "term-term1", -1) in objects
     assert ("TERM2", "TERM2", "term", "index", "term-TERM2", -1) in objects
     assert ("term3", "term3", "term", "index", "term-term3", -1) in objects
     assert ("term4", "term4", "term", "index", "term-term4", -1) in objects
+
+    # term reference (case sensitive)
+    refnode = domain.resolve_xref(app.env, 'index', app.builder, 'term', 'term1',
+                                  pending_xref(), nodes.paragraph())
+    assert_node(refnode, nodes.reference, refid="term-term1")
+
+    # term reference (case insensitive)
+    refnode = domain.resolve_xref(app.env, 'index', app.builder, 'term', 'term2',
+                                  pending_xref(), nodes.paragraph())
+    assert_node(refnode, nodes.reference, refid="term-TERM2")
 
 
 def test_glossary_warning(app, status, warning):
