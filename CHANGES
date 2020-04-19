@@ -31,6 +31,7 @@ Features added
   sidebar
 * #7484: html theme: Avoid clashes between sidebar and other blocks
 * #7476: html theme: Relbar breadcrumb should contain current page
+* #7506: html theme: A canonical URL is not escaped
 
 Bugs fixed
 ----------
