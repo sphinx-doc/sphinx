@@ -8,9 +8,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+import enum
 import re
 from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar, Union
+    Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar, Union,
+    Optional,
 )
 
 from docutils import nodes
@@ -541,6 +543,18 @@ _id_explicit_cast = {
     'const_cast': 'cc',
     'reinterpret_cast': 'rc'
 }
+
+
+class _Placement(enum.Enum):
+    Left = 'left'
+    Right = 'right'
+
+
+def _check_placement_arg(val: str) -> _Placement:
+    if val not in ('left', 'right'):
+        raise RuntimeError('Invalid C++ placement parmeter value '
+                           '"{}", should be either "left" or "right"'.format(val))
+    return _Placement(val)
 
 
 class _DuplicateSymbolError(Exception):
@@ -2121,7 +2135,7 @@ class ASTDeclarator(ASTBase):
     def function_params(self) -> List[ASTFunctionParameter]:
         raise NotImplementedError(repr(self))
 
-    def require_space_after_declSpecs(self) -> bool:
+    def require_space_after_declSpecs(self, env: Optional[BuildEnvironment]) -> bool:
         raise NotImplementedError(repr(self))
 
     def get_modifiers_id(self, version: int) -> str:
@@ -2197,7 +2211,7 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
 
     # ------------------------------------------------------------------------
 
-    def require_space_after_declSpecs(self) -> bool:
+    def require_space_after_declSpecs(self, env: Optional[BuildEnvironment]) -> bool:
         return self.declId is not None
 
     def is_function_type(self) -> bool:
@@ -2241,7 +2255,7 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
 
     # ------------------------------------------------------------------------
 
-    def require_space_after_declSpecs(self) -> bool:
+    def require_space_after_declSpecs(self, env: Optional[BuildEnvironment]) -> bool:
         return self.declId is not None
 
     def is_function_type(self) -> bool:
@@ -2281,8 +2295,16 @@ class ASTDeclaratorPtr(ASTDeclarator):
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
 
-    def require_space_after_declSpecs(self) -> bool:
-        return self.next.require_space_after_declSpecs()
+    def space_before_ptr(self, env: BuildEnvironment) -> bool:
+        val = _check_placement_arg(env.config.cpp_ptr_placement)
+        if val is _Placement.Left:
+            # If using "left" placement, never put a space before the `*`
+            return False
+        return self.next.require_space_after_declSpecs(env)
+
+    def require_space_after_declSpecs(self, env: Optional[BuildEnvironment]) -> bool:
+        return self.space_before_ptr(env) \
+            if env else self.next.require_space_after_declSpecs(None)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['*']
@@ -2297,7 +2319,7 @@ class ASTDeclaratorPtr(ASTDeclarator):
                 res.append(' ')
             res.append('const')
         if self.const or self.volatile or len(self.attrs) > 0:
-            if self.next.require_space_after_declSpecs():
+            if self.next.require_space_after_declSpecs(None):
                 res.append(' ')
         res.append(transform(self.next))
         return ''.join(res)
@@ -2356,9 +2378,15 @@ class ASTDeclaratorPtr(ASTDeclarator):
             if self.volatile:
                 signode += nodes.Text(' ')
             _add_anno(signode, 'const')
-        if self.const or self.volatile or len(self.attrs) > 0:
-            if self.next.require_space_after_declSpecs():
-                signode += nodes.Text(' ')
+        # Conditions in which we may want a space after the '*'
+        allow_space_after = (
+            (env and not self.space_before_ptr(env)) or
+            self.const or
+            self.volatile or
+            len(self.attrs) > 0
+        )
+        if allow_space_after and self.next.require_space_after_declSpecs(env):
+            signode += nodes.Text(' ')
         self.next.describe_signature(signode, mode, env, symbol)
 
 
@@ -2380,14 +2408,22 @@ class ASTDeclaratorRef(ASTDeclarator):
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
 
-    def require_space_after_declSpecs(self) -> bool:
-        return self.next.require_space_after_declSpecs()
+    def space_before_ref(self, env: BuildEnvironment) -> bool:
+        val = _check_placement_arg(env.config.cpp_ref_placement)
+        if val is _Placement.Left:
+            # If using "left" placement, never put a space before the `&`
+            return False
+        return self.next.require_space_after_declSpecs(env)
+
+    def require_space_after_declSpecs(self, env: Optional[BuildEnvironment]) -> bool:
+        return self.space_before_ref(env) \
+            if env else self.next.require_space_after_declSpecs(env)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['&']
         for a in self.attrs:
             res.append(transform(a))
-        if len(self.attrs) > 0 and self.next.require_space_after_declSpecs():
+        if len(self.attrs) > 0 and self.next.require_space_after_declSpecs(None):
             res.append(' ')
         res.append(transform(self.next))
         return ''.join(res)
@@ -2418,7 +2454,11 @@ class ASTDeclaratorRef(ASTDeclarator):
         signode += nodes.Text("&")
         for a in self.attrs:
             a.describe_signature(signode)
-        if len(self.attrs) > 0 and self.next.require_space_after_declSpecs():
+        allow_space_before = (
+            (env and not self.space_before_ref(env)) or
+            len(self.attrs) > 0
+        )
+        if allow_space_before and self.next.require_space_after_declSpecs(env):
             signode += nodes.Text(' ')
         self.next.describe_signature(signode, mode, env, symbol)
 
@@ -2436,7 +2476,7 @@ class ASTDeclaratorParamPack(ASTDeclarator):
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
 
-    def require_space_after_declSpecs(self) -> bool:
+    def require_space_after_declSpecs(self, env: Optional[BuildEnvironment]) -> bool:
         return False
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -2492,7 +2532,7 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
 
-    def require_space_after_declSpecs(self) -> bool:
+    def require_space_after_declSpecs(self, env: Optional[BuildEnvironment]) -> bool:
         return True
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -2505,7 +2545,7 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
             if self.volatile:
                 res.append(' ')
             res.append('const')
-        if self.next.require_space_after_declSpecs():
+        if self.next.require_space_after_declSpecs(None):
             res.append(' ')
         res.append(transform(self.next))
         return ''.join(res)
@@ -2559,7 +2599,7 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
             if self.volatile:
                 signode += nodes.Text(' ')
             _add_anno(signode, 'const')
-        if self.next.require_space_after_declSpecs():
+        if self.next.require_space_after_declSpecs(env):
             signode += nodes.Text(' ')
         self.next.describe_signature(signode, mode, env, symbol)
 
@@ -2580,7 +2620,7 @@ class ASTDeclaratorParen(ASTDeclarator):
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.inner.function_params
 
-    def require_space_after_declSpecs(self) -> bool:
+    def require_space_after_declSpecs(self, env: Optional[BuildEnvironment]) -> bool:
         return True
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -2765,7 +2805,7 @@ class ASTType(ASTBase):
         res = []
         declSpecs = transform(self.declSpecs)
         res.append(declSpecs)
-        if self.decl.require_space_after_declSpecs() and len(declSpecs) > 0:
+        if self.decl.require_space_after_declSpecs(None) and len(declSpecs) > 0:
             res.append(' ')
         res.append(transform(self.decl))
         return ''.join(res)
@@ -2780,7 +2820,7 @@ class ASTType(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         self.declSpecs.describe_signature(signode, 'markType', env, symbol)
-        if (self.decl.require_space_after_declSpecs() and
+        if (self.decl.require_space_after_declSpecs(env) and
                 len(str(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
         # for parameters that don't really declare new names we get 'markType',
@@ -7247,6 +7287,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')
     app.add_config_value("cpp_paren_attributes", [], 'env')
+    app.add_config_value("cpp_ptr_placement", 'right', 'env')
+    app.add_config_value("cpp_ref_placement", 'right', 'env')
     app.add_post_transform(AliasTransform)
 
     return {
