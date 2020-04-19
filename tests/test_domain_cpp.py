@@ -50,7 +50,7 @@ def check(name, input, idDict, output=None):
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
-    ast.describe_signature(signode, 'lastIsName', symbol, options={})
+    ast.describe_signature(signode, 'lastIsName', None, options={})
 
     idExpected = [None]
     for i in range(1, _max_id + 1):
