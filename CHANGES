@@ -20,6 +20,7 @@ Features added
 
 * LaTeX: Make the ``toplevel_sectioning`` setting optional in LaTeX theme
 * LaTeX: Allow to override papersize and pointsize from LaTeX themes
+* LaTeX: Add :confval:`latex_theme_options` to override theme options
 * #7410: Allow to suppress "circular toctree references detected" warnings using
   :confval:`suppress_warnings`
 * C, added scope control directives, :rst:dir:`c:namespace`,

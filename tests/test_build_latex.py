@@ -235,6 +235,17 @@ def test_latex_theme_papersize(app, status, warning):
     assert r'\documentclass[b5paper,9pt,english]{sphinxbook}' in result
 
 
+@pytest.mark.sphinx('latex', testroot='latex-theme',
+                    confoverrides={'latex_theme_options': {'papersize': 'b5paper',
+                                                           'pointsize': '9pt'}})
+def test_latex_theme_options(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    print(result)
+    assert r'\def\sphinxdocclass{book}' in result
+    assert r'\documentclass[b5paper,9pt,english]{sphinxbook}' in result
+
+
 @pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language': 'zh'})
 def test_latex_additional_settings_for_language_code(app, status, warning):
     app.builder.build_all()
