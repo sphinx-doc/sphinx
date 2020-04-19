@@ -12,7 +12,7 @@ import gettext
 import locale
 from collections import UserString, defaultdict
 from gettext import NullTranslations
-from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
 class _TranslationProxy(UserString):
@@ -173,7 +173,7 @@ def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]
     """
     try:
         # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)
+        language, _ = locale.getlocale(locale.LC_MESSAGES)  # type: Tuple[Optional[str], Any]
     except AttributeError:
         # LC_MESSAGES is not always defined. Fallback to the default language
         # in case it is not.
