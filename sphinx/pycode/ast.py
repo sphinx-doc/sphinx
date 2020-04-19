@@ -58,7 +58,7 @@ def parse(code: str, mode: str = 'exec') -> "ast.AST":
         return ast.parse(code, mode=mode)
 
 
-def unparse(node: ast.AST) -> str:
+def unparse(node: Optional[ast.AST]) -> Optional[str]:
     """Unparse an AST to string."""
     if node is None:
         return None
@@ -138,7 +138,7 @@ def _unparse_arg(arg: ast.arg, default: Optional[ast.AST]) -> str:
 
 def unparse_arguments(node: ast.arguments) -> str:
     """Unparse an arguments to string."""
-    defaults = list(node.defaults)
+    defaults = list(node.defaults)  # type: List[Optional[ast.AST]]
     positionals = len(node.args)
     posonlyargs = 0
     if hasattr(node, "posonlyargs"):  # for py38+
@@ -147,7 +147,7 @@ def unparse_arguments(node: ast.arguments) -> str:
     for _ in range(len(defaults), positionals):
         defaults.insert(0, None)
 
-    kw_defaults = list(node.kw_defaults)
+    kw_defaults = list(node.kw_defaults)  # type: List[Optional[ast.AST]]
     for _ in range(len(kw_defaults), len(node.kwonlyargs)):
         kw_defaults.insert(0, None)
 

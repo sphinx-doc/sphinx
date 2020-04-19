@@ -76,6 +76,6 @@ class DeprecatedDict(dict):
         warnings.warn(self.message, self.warning, stacklevel=2)
         return super().get(key, default)
 
-    def update(self, other: Dict = None) -> None:  # type: ignore
+    def update(self, other: Dict) -> None:  # type: ignore
         warnings.warn(self.message, self.warning, stacklevel=2)
         super().update(other)
