@@ -344,9 +344,7 @@ def test_pyfunction_signature_full_py38(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, nodes.inline, "*"],
-                                      [desc_parameter, ([desc_sig_name, "a"],
-                                                        [desc_sig_operator, "="],
-                                                        [nodes.inline, "None"])])])
+                                      [desc_parameter, desc_sig_name, "a"])])
 
     # case: separator in the middle
     text = ".. py:function:: hello(a, /, b, *, c)"
@@ -356,9 +354,7 @@ def test_pyfunction_signature_full_py38(app):
                                       [desc_parameter, desc_sig_operator, "/"],
                                       [desc_parameter, desc_sig_name, "b"],
                                       [desc_parameter, desc_sig_operator, "*"],
-                                      [desc_parameter, ([desc_sig_name, "c"],
-                                                        [desc_sig_operator, "="],
-                                                        [nodes.inline, "None"])])])
+                                      [desc_parameter, desc_sig_name, "c"])])
 
     # case: separator in the middle (2)
     text = ".. py:function:: hello(a, /, *, b)"
@@ -367,9 +363,7 @@ def test_pyfunction_signature_full_py38(app):
                 [desc_parameterlist, ([desc_parameter, desc_sig_name, "a"],
                                       [desc_parameter, desc_sig_operator, "/"],
                                       [desc_parameter, desc_sig_operator, "*"],
-                                      [desc_parameter, ([desc_sig_name, "b"],
-                                                        [desc_sig_operator, "="],
-                                                        [nodes.inline, "None"])])])
+                                      [desc_parameter, desc_sig_name, "b"])])
 
     # case: separator at tail
     text = ".. py:function:: hello(a, /)"
