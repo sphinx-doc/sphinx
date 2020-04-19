@@ -69,8 +69,8 @@ LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
 
 DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
-    'papersize':       'letterpaper',
-    'pointsize':       '10pt',
+    'papersize':       '',
+    'pointsize':       '',
     'pxunit':          '.75bp',
     'classoptions':    '',
     'extraclassoptions': '',

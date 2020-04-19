@@ -314,6 +314,8 @@ class LaTeXBuilder(Builder):
         self.context['title'] = title
         self.context['author'] = author
         self.context['docclass'] = theme.docclass
+        self.context['papersize'] = theme.papersize
+        self.context['pointsize'] = theme.pointsize
         self.context['wrapperclass'] = theme.wrapperclass
 
     def assemble_doctree(self, indexfile: str, toctree_only: bool, appendices: List[str]) -> nodes.document:  # NOQA
