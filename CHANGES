@@ -25,6 +25,7 @@ Bugs fixed
 * #7479: autodoc: Sphinx builds has been slower since 3.0.0 on mocking
 * C++, fix spacing issue in east-const declarations.
 * #7414: LaTeX: Xindy language options were incorrect
+* sphinx crashes with ImportError on python3.5.1
 
 Testing
 --------
