@@ -62,6 +62,7 @@ Bugs fixed
 
 * #7461: py domain: fails with IndexError for empty tuple in type annotation
 * #7461: autodoc: empty tuple in type annotation is not shown correctly
+* #7479: autodoc: Sphinx builds has been slower since 3.0.0 on mocking
 * C++, fix spacing issue in east-const declarations.
 
 Testing
