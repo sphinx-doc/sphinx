@@ -1,14 +1,5 @@
-Release 3.0.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 3.0.2 (released Apr 19, 2020)
+=====================================
 
 Features added
 --------------
@@ -28,9 +19,6 @@ Bugs fixed
 * C++, fix spacing issue in east-const declarations.
 * #7414: LaTeX: Xindy language options were incorrect
 * sphinx crashes with ImportError on python3.5.1
-
-Testing
---------
 
 Release 3.0.1 (released Apr 11, 2020)
 =====================================
