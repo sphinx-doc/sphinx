@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #7516: autodoc: crashes if target object raises an error on accessing
+  its attributes
+
 Testing
 --------
 
