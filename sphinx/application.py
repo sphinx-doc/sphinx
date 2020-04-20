@@ -155,7 +155,9 @@ class Sphinx:
         self.confdir = confdir
         if self.confdir:  # confdir is optional
             self.confdir = abspath(self.confdir)
-            if not path.isfile(path.join(self.confdir, 'conf.py')):
+            if path.isfile(path.join(self.confdir, 'conf.py')):
+                os.chdir(self.confdir)
+            else:
                 raise ApplicationError(__("config directory doesn't contain a "
                                           "conf.py file (%s)") % confdir)
 
