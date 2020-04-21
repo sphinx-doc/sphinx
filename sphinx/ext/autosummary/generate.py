@@ -195,14 +195,12 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                             public.append(name)
         return public, items
 
-    def get_modules(obj: Any, include_public: List[str] = []) -> Tuple[List[str], List[str]]:
+    def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
             items.append(fullname)
-        public = [x for x in items
-                  if x in include_public or
-                  not x.split('.')[-1].startswith('_')]
+        public = [x for x in items if not x.split('.')[-1].startswith('_')]
         return public, items
 
     ns = {}  # type: Dict[str, Any]
