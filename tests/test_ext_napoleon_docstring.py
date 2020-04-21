@@ -5,7 +5,7 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -479,6 +479,8 @@ Raises:
         If the dimensions couldn't be parsed.
     `InvalidArgumentsError`
         If the arguments are invalid.
+    :exc:`~ValueError`
+        If the arguments are wrong.
 
 """, """
 Example Function
@@ -488,6 +490,7 @@ Example Function
 :raises AttributeError: errors for missing attributes.
 :raises ~InvalidDimensionsError: If the dimensions couldn't be parsed.
 :raises InvalidArgumentsError: If the arguments are invalid.
+:raises ~ValueError: If the arguments are wrong.
 """),
                       ################################
                       ("""
@@ -1016,6 +1019,34 @@ Sooper Warning:
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring, testConfig))
             self.assertEqual(expected, actual)
+
+    def test_noindex(self):
+        docstring = """
+Attributes:
+    arg
+        description
+
+Methods:
+    func(i, j)
+        description
+"""
+
+        expected = """
+.. attribute:: arg
+   :noindex:
+
+   description
+
+.. method:: func(i, j)
+   :noindex:
+
+   
+   description
+"""
+        config = Config()
+        actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
+                                     options={'noindex': True}))
+        self.assertEqual(expected, actual)
 
 
 class NumpyDocstringTest(BaseDocstringTest):

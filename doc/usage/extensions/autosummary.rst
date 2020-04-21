@@ -81,6 +81,12 @@ The :mod:`sphinx.ext.autosummary` extension does this in three parts:
      directory. If no argument is given, output is placed in the same directory
      as the file that contains the directive.
 
+     You can also use ``caption`` option to give a caption to the toctree.
+
+     .. versionadded:: 3.1
+
+        caption option added.
+
    * If you don't want the :rst:dir:`autosummary` to show function signatures in
      the listing, include the ``nosignatures`` option::
 
@@ -161,6 +167,11 @@ also use these config values:
 
    The new files will be placed in the directories specified in the
    ``:toctree:`` options of the directives.
+
+   .. versionchanged:: 2.3
+
+      Emits :event:`autodoc-skip-member` event as :mod:`~sphinx.ext.autodoc`
+      does.
 
 .. confval:: autosummary_generate_overwrite
 
@@ -300,6 +311,7 @@ Additionally, the following filters are available
    replaces the builtin Jinja `escape filter`_ that does html-escaping.
 
 .. function:: underline(s, line='=')
+   :noindex:
 
    Add a title underline to a piece of text.
 

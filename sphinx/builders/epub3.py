@@ -282,7 +282,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                          ENUM('horizontal', 'vertical'))
 
     # event handlers
-    app.connect('config-inited', convert_epub_css_files)
+    app.connect('config-inited', convert_epub_css_files, priority=800)
     app.connect('builder-inited', validate_config_values)
 
     return {

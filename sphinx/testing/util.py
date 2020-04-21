@@ -4,17 +4,19 @@
 
     Sphinx test suite utilities
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import re
 import sys
 import warnings
+from io import StringIO
 from typing import Any, Dict, Generator, IO, List, Pattern
 from xml.etree import ElementTree
 
 from docutils import nodes
+from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
@@ -47,7 +49,7 @@ def assert_startswith(thing: str, prefix: str) -> None:
         assert False, '%r does not start with %r' % (thing, prefix)
 
 
-def assert_node(node: nodes.Node, cls: Any = None, xpath: str = "", **kwargs) -> None:
+def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
     if cls:
         if isinstance(cls, list):
             assert_node(node, cls[0], xpath=xpath, **kwargs)
@@ -61,7 +63,7 @@ def assert_node(node: nodes.Node, cls: Any = None, xpath: str = "", **kwargs) ->
                         'The node%s has %d child nodes, not one' % (xpath, len(node))
                     assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
         elif isinstance(cls, tuple):
-            assert isinstance(node, nodes.Element), \
+            assert isinstance(node, (list, nodes.Element)), \
                 'The node%s does not have any items' % xpath
             assert len(node) == len(cls), \
                 'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
@@ -92,8 +94,8 @@ def etree_parse(path: str) -> Any:
 
 
 class Struct:
-    def __init__(self, **kwds) -> None:
-        self.__dict__.update(kwds)
+    def __init__(self, **kwargs: Any) -> None:
+        self.__dict__.update(kwargs)
 
 
 class SphinxTestApp(application.Sphinx):
@@ -101,6 +103,8 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
+    _status = None  # type: StringIO
+    _warning = None  # type: StringIO
 
     def __init__(self, buildername: str = 'html', srcdir: path = None, freshenv: bool = False,
                  confoverrides: Dict = None, status: IO = None, warning: IO = None,
@@ -165,10 +169,10 @@ class SphinxTestAppWrapperForSkipBuilding:
     def __getattr__(self, name: str) -> Any:
         return getattr(self.app, name)
 
-    def build(self, *args, **kw) -> None:
+    def build(self, *args: Any, **kwargs: Any) -> None:
         if not self.app.outdir.listdir():  # type: ignore
             # if listdir is empty, do build.
-            self.app.build(*args, **kw)
+            self.app.build(*args, **kwargs)
             # otherwise, we can use built cache
 
 

@@ -4,7 +4,7 @@
 
     Render math in HTML via dvipng or dvisvgm.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -91,8 +91,7 @@ depthsvg_re = re.compile(br'.*, depth=(.*)pt')
 depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
-def read_svg_depth(filename):
-    # type: (str) -> int
+def read_svg_depth(filename: str) -> int:
     """Read the depth from comment at last line of SVG file
     """
     with open(filename, 'r') as f:
@@ -105,16 +104,15 @@ def read_svg_depth(filename):
         return None
 
 
-def write_svg_depth(filename, depth):
-    # type: (str, int) -> None
+def write_svg_depth(filename: str, depth: int) -> None:
     """Write the depth to SVG file as a comment at end of file
     """
     with open(filename, 'a') as f:
         f.write('\n<!-- DEPTH=%s -->' % depth)
 
 
-def generate_latex_macro(image_format: str, math: str,
-                         config: Config, confdir: str = '') -> str:
+def generate_latex_macro(image_format: str,
+                         math: str, config: Config, confdir: str = '') -> str:
     """Generate LaTeX macro."""
     variables = {
         'fontsize': config.imgmath_font_size,

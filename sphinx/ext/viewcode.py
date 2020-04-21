@@ -4,7 +4,7 @@
 
     Add links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -54,20 +54,20 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
     if app.builder.name.startswith("epub") and not env.config.viewcode_enable_epub:
         return
 
-    def has_tag(modname, fullname, docname, refname):
+    def has_tag(modname: str, fullname: str, docname: str, refname: str) -> bool:
         entry = env._viewcode_modules.get(modname, None)  # type: ignore
         if entry is False:
-            return
+            return False
 
         code_tags = app.emit_firstresult('viewcode-find-source', modname)
         if code_tags is None:
             try:
                 analyzer = ModuleAnalyzer.for_module(modname)
+                analyzer.find_tags()
             except Exception:
                 env._viewcode_modules[modname] = False  # type: ignore
-                return
+                return False
 
-            analyzer.find_tags()
             code = analyzer.code
             tags = analyzer.tags
         else:
@@ -80,6 +80,8 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         if fullname in tags:
             used[fullname] = docname
             return True
+
+        return False
 
     for objnode in doctree.traverse(addnodes.desc):
         if objnode.get('domain') != 'py':

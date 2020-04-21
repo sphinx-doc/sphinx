@@ -4,7 +4,7 @@
 
     mock for autodoc
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,8 +25,9 @@ class _MockObject:
     """Used by autodoc_mock_imports."""
 
     __display_name__ = '_MockObject'
+    __sphinx_mock__ = True
 
-    def __new__(cls, *args, **kwargs) -> Any:
+    def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
             superclass = args[1][-1].__class__
             if superclass is cls:
@@ -36,7 +37,7 @@ class _MockObject:
 
         return super().__new__(cls)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.__qualname__ = ''
 
     def __len__(self) -> int:
@@ -57,8 +58,8 @@ class _MockObject:
     def __getattr__(self, key: str) -> "_MockObject":
         return _make_subclass(key, self.__display_name__, self.__class__)()
 
-    def __call__(self, *args, **kw) -> Any:
-        if args and type(args[0]) in [FunctionType, MethodType]:
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        if args and type(args[0]) in [type, FunctionType, MethodType]:
             # Appears to be a decorator, pass through unchanged
             return args[0]
         return self
@@ -78,6 +79,7 @@ def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
     __file__ = os.devnull
+    __sphinx_mock__ = True
 
     def __init__(self, name: str) -> None:
         super().__init__(name)

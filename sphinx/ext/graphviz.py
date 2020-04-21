@@ -5,7 +5,7 @@
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -121,6 +121,7 @@ class Graphviz(SphinxDirective):
         'layout': directives.unchanged,
         'graphviz_dot': directives.unchanged,  # an old alias of `layout` option
         'name': directives.unchanged,
+        'class': directives.class_option,
     }
 
     def run(self) -> List[Node]:
@@ -158,6 +159,8 @@ class Graphviz(SphinxDirective):
             node['alt'] = self.options['alt']
         if 'align' in self.options:
             node['align'] = self.options['align']
+        if 'class' in self.options:
+            node['classes'] = self.options['class']
 
         if 'caption' not in self.options:
             self.add_name(node)
@@ -182,6 +185,7 @@ class GraphvizSimple(SphinxDirective):
         'caption': directives.unchanged,
         'graphviz_dot': directives.unchanged,
         'name': directives.unchanged,
+        'class': directives.class_option,
     }
 
     def run(self) -> List[Node]:
@@ -195,6 +199,8 @@ class GraphvizSimple(SphinxDirective):
             node['alt'] = self.options['alt']
         if 'align' in self.options:
             node['align'] = self.options['align']
+        if 'class' in self.options:
+            node['classes'] = self.options['class']
 
         if 'caption' not in self.options:
             self.add_name(node)
@@ -267,10 +273,8 @@ def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Di
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode
 
-    if imgcls:
-        imgcls += " graphviz"
-    else:
-        imgcls = "graphviz"
+    classes = [imgcls, 'graphviz'] + node.get('classes', [])
+    imgcls = ' '.join(filter(None, classes))
 
     if fname is None:
         self.body.append(self.encode(code))

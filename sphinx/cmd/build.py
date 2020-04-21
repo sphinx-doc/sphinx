@@ -4,14 +4,16 @@
 
     Build documentation from a provided source.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import argparse
+import bdb
 import locale
 import multiprocessing
 import os
+import pdb
 import sys
 import traceback
 from typing import Any, IO, List
@@ -29,8 +31,10 @@ from sphinx.util.docutils import docutils_namespace, patch_docutils
 
 
 def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
+    if isinstance(exception, bdb.BdbQuit):
+        return
+
     if args.pdb:
-        import pdb
         print(red(__('Exception occurred while building, starting debugger:')),
               file=stderr)
         traceback.print_exc()
@@ -47,7 +51,7 @@ def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: I
             print(terminal_safe(exception.args[0]), file=stderr)
         elif isinstance(exception, SphinxError):
             print(red('%s:' % exception.category), file=stderr)
-            print(terminal_safe(str(exception)), file=stderr)
+            print(str(exception), file=stderr)
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)
             print(terminal_safe(str(exception)), file=stderr)
@@ -180,7 +184,7 @@ files can be built by specifying individual filenames.
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       help=__("With -W, keep going when getting warnings"))
+                       help=__("with -W, keep going when getting warnings"))
     group.add_argument('-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('-P', action='store_true', dest='pdb',

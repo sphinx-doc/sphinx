@@ -4,12 +4,13 @@
 
     Chinese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
+from typing import Dict, List
 
 from sphinx.search import SearchLanguage
 from sphinx.util.stemmer import get_stemmer
@@ -19,10 +20,6 @@ try:
     JIEBA = True
 except ImportError:
     JIEBA = False
-
-if False:
-    # For type annotation
-    from typing import Dict, List  # NOQA
 
 english_stopwords = set("""
 a  and  are  as  at
@@ -235,8 +232,7 @@ class SearchChinese(SearchLanguage):
     latin1_letters = re.compile(r'[a-zA-Z0-9_]+')
     latin_terms = []  # type: List[str]
 
-    def init(self, options):
-        # type: (Dict) -> None
+    def init(self, options: Dict) -> None:
         if JIEBA:
             dict_path = options.get('dict')
             if dict_path and os.path.isfile(dict_path):
@@ -244,8 +240,7 @@ class SearchChinese(SearchLanguage):
 
         self.stemmer = get_stemmer()
 
-    def split(self, input):
-        # type: (str) -> List[str]
+    def split(self, input: str) -> List[str]:
         chinese = []  # type: List[str]
         if JIEBA:
             chinese = list(jieba.cut_for_search(input))
@@ -255,13 +250,10 @@ class SearchChinese(SearchLanguage):
         self.latin_terms.extend(latin1)
         return chinese + latin1
 
-    def word_filter(self, stemmed_word):
-        # type: (str) -> bool
+    def word_filter(self, stemmed_word: str) -> bool:
         return len(stemmed_word) > 1
 
-    def stem(self, word):
-        # type: (str) -> str
-
+    def stem(self, word: str) -> str:
         # Don't stem Latin words that are long enough to be relevant for search
         # if not stemmed, but would be too short after being stemmed
         # avoids some issues with acronyms

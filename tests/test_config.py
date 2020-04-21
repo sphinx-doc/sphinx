@@ -5,7 +5,7 @@
     Test the sphinx.config.Config class and its handling in the
     Application class.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -117,6 +117,20 @@ def test_overrides():
     assert config.value6 == {'default': 6, 'attr1': 999}
     assert config.value7 == 'abc,def,ghi'
     assert config.value8 == ['abc', 'def', 'ghi']
+
+
+def test_overrides_boolean():
+    config = Config({}, {'value1': '1',
+                         'value2': '0',
+                         'value3': '0'})
+    config.add('value1', None, 'env', [bool])
+    config.add('value2', None, 'env', [bool])
+    config.add('value3', True, 'env', ())
+    config.init_values()
+
+    assert config.value1 is True
+    assert config.value2 is False
+    assert config.value3 is False
 
 
 @mock.patch("sphinx.config.logger")

@@ -4,23 +4,23 @@
 
     The MessageCatalogBuilder class.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from codecs import open
 from collections import defaultdict, OrderedDict
 from datetime import datetime, tzinfo, timedelta
-from io import StringIO
 from os import path, walk, getenv
 from time import time
-from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple, Union
+from typing import Any, Dict, Iterable, Generator, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes
 from docutils.nodes import Element
 
 from sphinx import addnodes
+from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
@@ -30,9 +30,13 @@ from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import relpath, ensuredir, canon_path
+from sphinx.util.osutil import ensuredir, canon_path, relpath
 from sphinx.util.tags import Tags
+from sphinx.util.template import SphinxRenderer
 
+if False:
+    # For type annotation
+    from typing import DefaultDict  # for python3.5.1
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +59,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-"""[1:]
+"""[1:]  # RemovedInSphinx40Warning
+
+
+class Message:
+    """An entry of translatable message."""
+    def __init__(self, text: str, locations: List[Tuple[str, int]], uuids: List[str]):
+        self.text = text
+        self.locations = locations
+        self.uuids = uuids
 
 
 class Catalog:
@@ -77,6 +89,12 @@ class Catalog:
             self.metadata[msg] = []
         self.metadata[msg].append((origin.source, origin.line, origin.uid))  # type: ignore
 
+    def __iter__(self) -> Generator[Message, None, None]:
+        for message in self.messages:
+            positions = [(source, line) for source, line, uuid in self.metadata[message]]
+            uuids = [uuid for source, line, uuid in self.metadata[message]]
+            yield Message(message, positions, uuids)
+
 
 class MsgOrigin:
     """
@@ -87,6 +105,30 @@ class MsgOrigin:
         self.source = source
         self.line = line
         self.uid = uuid4().hex
+
+
+class GettextRenderer(SphinxRenderer):
+    def __init__(self, template_path: str = None, outdir: str = None) -> None:
+        self.outdir = outdir
+        if template_path is None:
+            template_path = path.join(package_dir, 'templates', 'gettext')
+        super().__init__(template_path)
+
+        def escape(s: str) -> str:
+            s = s.replace('\\', r'\\')
+            s = s.replace('"', r'\"')
+            return s.replace('\n', '\\n"\n"')
+
+        # use texescape as escape filter
+        self.env.filters['e'] = escape
+        self.env.filters['escape'] = escape
+
+    def render(self, filename: str, context: Dict) -> str:
+        def _relpath(s: str) -> str:
+            return canon_path(relpath(s, self.outdir))
+
+        context['relpath'] = _relpath
+        return super().render(filename, context)
 
 
 class I18nTags(Tags):
@@ -164,8 +206,8 @@ if source_date_epoch is not None:
 
 
 class LocalTimeZone(tzinfo):
-    def __init__(self, *args, **kw) -> None:
-        super().__init__(*args, **kw)  # type: ignore
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)  # type: ignore
         self.tzdelta = tzdelta
 
     def utcoffset(self, dt: datetime) -> timedelta:
@@ -178,7 +220,7 @@ class LocalTimeZone(tzinfo):
 ltz = LocalTimeZone()
 
 
-def should_write(filepath: str, new_content: str):
+def should_write(filepath: str, new_content: str) -> bool:
     if not path.exists(filepath):
         return True
     try:
@@ -244,12 +286,15 @@ class MessageCatalogBuilder(I18nBuilder):
 
     def finish(self) -> None:
         super().finish()
-        data = {
+        context = {
             'version': self.config.version,
             'copyright': self.config.copyright,
             'project': self.config.project,
-            'ctime': datetime.fromtimestamp(
-                timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
+            'last_translator': self.config.gettext_last_translator,
+            'language_team': self.config.gettext_language_team,
+            'ctime': datetime.fromtimestamp(timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
+            'display_location': self.config.gettext_location,
+            'display_uuid': self.config.gettext_uuid,
         }
         for textdomain, catalog in status_iterator(self.catalogs.items(),
                                                    __("writing message catalogs... "),
@@ -259,30 +304,10 @@ class MessageCatalogBuilder(I18nBuilder):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
+            context['messages'] = list(catalog)
+            content = GettextRenderer(outdir=self.outdir).render('message.pot_t', context)
+
             pofn = path.join(self.outdir, textdomain + '.pot')
-            output = StringIO()
-            output.write(POHEADER % data)
-
-            for message in catalog.messages:
-                positions = catalog.metadata[message]
-
-                if self.config.gettext_location:
-                    # generate "#: file1:line1\n#: file2:line2 ..."
-                    output.write("#: %s\n" % "\n#: ".join(
-                        "%s:%s" % (canon_path(relpath(source, self.outdir)), line)
-                        for source, line, _ in positions))
-                if self.config.gettext_uuid:
-                    # generate "# uuid1\n# uuid2\n ..."
-                    output.write("# %s\n" % "\n# ".join(uid for _, _, uid in positions))
-
-                # message contains *one* line of text ready for translation
-                message = message.replace('\\', r'\\'). \
-                    replace('"', r'\"'). \
-                    replace('\n', '\\n"\n"')
-                output.write('msgid "%s"\nmsgstr ""\n\n' % message)
-
-            content = output.getvalue()
-
             if should_write(pofn, content):
                 with open(pofn, 'w', encoding='utf-8') as pofile:
                     pofile.write(content)
@@ -296,6 +321,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
     app.add_config_value('gettext_additional_targets', [], 'env')
+    app.add_config_value('gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext')
+    app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
 
     return {
         'version': 'builtin',

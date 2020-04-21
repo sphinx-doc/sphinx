@@ -5,22 +5,23 @@
     Implements the low-level algorithms Sphinx uses for the versioning of
     doctrees.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
+from typing import Any, Dict, Iterator
 from uuid import uuid4
+
+from docutils.nodes import Node
 
 from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterator  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from sphinx.application import Sphinx
 
 try:
     import Levenshtein
@@ -32,8 +33,7 @@ except ImportError:
 VERSIONING_RATIO = 65
 
 
-def add_uids(doctree, condition):
-    # type: (nodes.Node, Any) -> Iterator[nodes.Node]
+def add_uids(doctree: Node, condition: Any) -> Iterator[Node]:
     """Add a unique id to every node in the `doctree` which matches the
     condition and yield the nodes.
 
@@ -48,8 +48,7 @@ def add_uids(doctree, condition):
         yield node
 
 
-def merge_doctrees(old, new, condition):
-    # type: (nodes.Node, nodes.Node, Any) -> Iterator[nodes.Node]
+def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
     """Merge the `old` doctree with the `new` one while looking at nodes
     matching the `condition`.
 
@@ -116,8 +115,7 @@ def merge_doctrees(old, new, condition):
         yield new_node
 
 
-def get_ratio(old, new):
-    # type: (str, str) -> float
+def get_ratio(old: str, new: str) -> float:
     """Return a "similiarity ratio" (in percent) representing the similarity
     between the two strings where 0 is equal and anything above less than equal.
     """
@@ -130,8 +128,7 @@ def get_ratio(old, new):
         return levenshtein_distance(old, new) / (len(old) / 100.0)
 
 
-def levenshtein_distance(a, b):
-    # type: (str, str) -> int
+def levenshtein_distance(a: str, b: str) -> int:
     """Return the Levenshtein edit distance between two strings *a* and *b*."""
     if a == b:
         return 0
@@ -155,8 +152,7 @@ class UIDTransform(SphinxTransform):
     """Add UIDs to doctree for versioning."""
     default_priority = 880
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         env = self.env
         old_doctree = None
         if not env.versioning_condition:
@@ -178,8 +174,7 @@ class UIDTransform(SphinxTransform):
             list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(UIDTransform)
 
     return {

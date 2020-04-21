@@ -4,7 +4,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,10 +18,19 @@ import sys
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Tuple, Type
+from typing import Any, Generator, Iterator, List, Optional, Tuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.testing.path import path as Path
+
+try:
+    # for ALT Linux (#6712)
+    from sphinx.testing.path import path as Path
+except ImportError:
+    Path = None  # type: ignore
+
+if False:
+    # For type annotation
+    from typing import Type  # for python3.5.1
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
@@ -50,8 +59,8 @@ def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split(SEP)
-    t2 = to.split(SEP)
+    b2 = base.split('#')[0].split(SEP)
+    t2 = to.split('#')[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:
@@ -152,7 +161,7 @@ fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
 def abspath(pathdir: str) -> str:
-    if isinstance(pathdir, Path):
+    if Path is not None and isinstance(pathdir, Path):
         return pathdir.abspath()
     else:
         pathdir = path.abspath(pathdir)
@@ -197,7 +206,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: StringIO
+        self._io = None  # type: Optional[StringIO]
 
     def write(self, data: str) -> None:
         if not self._io:
@@ -226,7 +235,7 @@ class FileAvoidWrite:
     def __enter__(self) -> "FileAvoidWrite":
         return self
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
         self.close()
         return True
 

@@ -4,24 +4,28 @@
 
     A Base class for additional parsers.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+from typing import Any, Dict, List, Union
+
 import docutils.parsers
 import docutils.parsers.rst
+from docutils import nodes
 from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Type, Union  # NOQA
-    from docutils import nodes  # NOQA
     from docutils.transforms import Transform  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from typing import Type  # NOQA # for python3.5.1
+    from sphinx.application import Sphinx
 
 
 class Parser(docutils.parsers.Parser):
@@ -45,24 +49,29 @@ class Parser(docutils.parsers.Parser):
 
     .. deprecated:: 1.6
        ``warn()`` and ``info()`` is deprecated.  Use :mod:`sphinx.util.logging` instead.
+    .. deprecated:: 3.0
+       parser.app is deprecated.
     """
 
-    def set_application(self, app):
-        # type: (Sphinx) -> None
+    def set_application(self, app: "Sphinx") -> None:
         """set_application will be called from Sphinx to set app and other instance variables
 
         :param sphinx.application.Sphinx app: Sphinx application object
         """
-        self.app = app
+        self._app = app
         self.config = app.config
         self.env = app.env
+
+    @property
+    def app(self) -> "Sphinx":
+        warnings.warn('parser.app is deprecated.', RemovedInSphinx50Warning)
+        return self._app
 
 
 class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
-    def get_transforms(self):
-        # type: () -> List[Type[Transform]]
+    def get_transforms(self) -> List["Type[Transform]"]:
         """Sphinx's reST parser replaces a transform class for smart-quotes by own's
 
         refs: sphinx.io.SphinxStandaloneReader
@@ -71,8 +80,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         transforms.remove(SmartQuotes)
         return transforms
 
-    def parse(self, inputstring, document):
-        # type: (Union[str, StringList], nodes.document) -> None
+    def parse(self, inputstring: Union[str, StringList], document: nodes.document) -> None:
         """Parse text and generate a document tree."""
         self.setup_parse(inputstring, document)  # type: ignore
         self.statemachine = states.RSTStateMachine(
@@ -94,15 +102,13 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         self.statemachine.run(inputlines, document, inliner=self.inliner)
         self.finish_parse()
 
-    def decorate(self, content):
-        # type: (StringList) -> None
+    def decorate(self, content: StringList) -> None:
         """Preprocess reST content before parsing."""
         prepend_prolog(content, self.config.rst_prolog)
         append_epilog(content, self.config.rst_epilog)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_source_parser(RSTParser)
 
     return {

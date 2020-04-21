@@ -4,20 +4,21 @@
 
     Additional docutils nodes.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
+from typing import Any, Dict, List, Sequence
 
 from docutils import nodes
+from docutils.nodes import Element, Node
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Sequence  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from sphinx.application import Sphinx
 
 
 class translatable(nodes.Node):
@@ -34,18 +35,15 @@ class translatable(nodes.Node):
     Because they are used at final step; extraction.
     """
 
-    def preserve_original_messages(self):
-        # type: () -> None
+    def preserve_original_messages(self) -> None:
         """Preserve original translatable messages."""
         raise NotImplementedError
 
-    def apply_translated_message(self, original_message, translated_message):
-        # type: (str, str) -> None
+    def apply_translated_message(self, original_message: str, translated_message: str) -> None:
         """Apply translated message."""
         raise NotImplementedError
 
-    def extract_original_messages(self):
-        # type: () -> Sequence[str]
+    def extract_original_messages(self) -> Sequence[str]:
         """Extract translation messages.
 
         :returns: list of extracted messages or messages generator
@@ -61,22 +59,37 @@ class not_smartquotable:
 class toctree(nodes.General, nodes.Element, translatable):
     """Node for inserting a "TOC tree"."""
 
-    def preserve_original_messages(self):
-        # type: () -> None
+    def preserve_original_messages(self) -> None:
+        # toctree entries
+        rawentries = self.setdefault('rawentries', [])
+        for title, docname in self['entries']:
+            if title:
+                rawentries.append(title)
+
+        # :caption: option
         if self.get('caption'):
             self['rawcaption'] = self['caption']
 
-    def apply_translated_message(self, original_message, translated_message):
-        # type: (str, str) -> None
+    def apply_translated_message(self, original_message: str, translated_message: str) -> None:
+        # toctree entries
+        for i, (title, docname) in enumerate(self['entries']):
+            if title == original_message:
+                self['entries'][i] = (translated_message, docname)
+
+        # :caption: option
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
-    def extract_original_messages(self):
-        # type: () -> List[str]
+    def extract_original_messages(self) -> List[str]:
+        messages = []  # type: List[str]
+
+        # toctree entries
+        messages.extend(self.get('rawentries', []))
+
+        # :caption: option
         if 'rawcaption' in self:
-            return [self['rawcaption']]
-        else:
-            return []
+            messages.append(self['rawcaption'])
+        return messages
 
 
 # domain-specific object descriptions (class, function etc.)
@@ -106,7 +119,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     It should only be used in a ``desc_signature`` with ``is_multiline`` set.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
-    sphinx_cpp_tagname = ''
+    sphinx_line_type = ''
 
 
 # nodes to use within a desc_signature or desc_signature_line
@@ -125,8 +138,7 @@ class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
-    def astext(self):
-        # type: () -> str
+    def astext(self) -> str:
         return ' -> ' + super().astext()
 
 
@@ -147,8 +159,7 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for marking optional parts of the parameter list."""
     child_text_separator = ', '
 
-    def astext(self):
-        # type: () -> str
+    def astext(self) -> str:
         return '[' + super().astext() + ']'
 
 
@@ -161,6 +172,31 @@ class desc_content(nodes.General, nodes.Element):
 
     This is the "definition" part of the custom Sphinx definition list.
     """
+
+
+class desc_sig_element(nodes.inline):
+    """Common parent class of nodes for inline text of a signature."""
+    classes = []  # type: List[str]
+
+    def __init__(self, rawsource: str = '', text: str = '',
+                 *children: Element, **attributes: Any) -> None:
+        super().__init__(rawsource, text, *children, **attributes)
+        self['classes'].extend(self.classes)
+
+
+class desc_sig_name(desc_sig_element):
+    """Node for a name in a signature."""
+    classes = ["n"]
+
+
+class desc_sig_operator(desc_sig_element):
+    """Node for an operator in a signature."""
+    classes = ["o"]
+
+
+class desc_sig_punctuation(desc_sig_element):
+    """Node for a punctuation in a signature."""
+    classes = ["p"]
 
 
 # new admonition-like constructs
@@ -295,8 +331,8 @@ class abbreviation(nodes.abbreviation):
     .. deprecated:: 2.0
     """
 
-    def __init__(self, rawsource='', text='', *children, **attributes):
-        # type: (str, str, *nodes.Node, **Any) -> None
+    def __init__(self, rawsource: str = '', text: str = '',
+                 *children: Node, **attributes: Any) -> None:
         warnings.warn("abbrevition node for Sphinx was replaced by docutils'.",
                       RemovedInSphinx40Warning, stacklevel=2)
 
@@ -307,8 +343,7 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(toctree)
     app.add_node(desc)
     app.add_node(desc_signature)
@@ -322,6 +357,9 @@ def setup(app):
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
     app.add_node(desc_content)
+    app.add_node(desc_sig_name)
+    app.add_node(desc_sig_operator)
+    app.add_node(desc_sig_punctuation)
     app.add_node(versionmodified)
     app.add_node(seealso)
     app.add_node(productionlist)

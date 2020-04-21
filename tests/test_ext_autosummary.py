@@ -4,7 +4,7 @@
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -36,6 +36,11 @@ default_kw = {
         'source_suffix': '.rst'
     }
 }
+
+
+@pytest.fixture(scope='function', autouse=True)
+def unload_target_module():
+    sys.modules.pop('target', None)
 
 
 def test_mangle_signature():
@@ -193,7 +198,7 @@ def test_autosummary_generate(app, status, warning):
                           nodes.paragraph,
                           addnodes.tabular_col_spec,
                           autosummary_table,
-                          autosummary_toc))
+                          [autosummary_toc, addnodes.toctree]))
     assert_node(doctree[3],
                 [autosummary_table, nodes.table, nodes.tgroup, (nodes.colspec,
                                                                 nodes.colspec,
@@ -201,18 +206,20 @@ def test_autosummary_generate(app, status, warning):
                                                                                nodes.row,
                                                                                nodes.row,
                                                                                nodes.row)])])
+    assert_node(doctree[4][0], addnodes.toctree, caption="An autosummary")
+
     assert doctree[3][0][0][2][0].astext() == 'autosummary_dummy_module\n\n'
     assert doctree[3][0][0][2][1].astext() == 'autosummary_dummy_module.Foo()\n\n'
     assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
     assert doctree[3][0][0][2][3].astext() == 'autosummary_importfail\n\n'
 
-    module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
+    module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
     assert ('   .. autosummary::\n'
             '   \n'
             '      Foo\n'
             '   \n' in module)
 
-    Foo = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').text()
+    Foo = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').read_text()
     assert '.. automethod:: __init__' in Foo
     assert ('   .. autosummary::\n'
             '   \n'
@@ -235,7 +242,7 @@ def test_autosummary_generate_overwrite1(app_params, make_app):
     (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
 
     app = make_app(*args, **kwargs)
-    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
+    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
     assert content == ''
     assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
 
@@ -250,7 +257,7 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
     (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
 
     app = make_app(*args, **kwargs)
-    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
+    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
     assert content != ''
     assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
 
@@ -321,7 +328,7 @@ def test_autosummary_recursive_disabled(app, status, warning):
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'python.tex').text(encoding='utf8')
+    result = (app.outdir / 'python.tex').read_text()
     print(status.getvalue())
     print(warning.getvalue())
     assert r'\begin{longtable}[c]{\X{1}{2}\X{1}{2}}' in result
@@ -371,7 +378,7 @@ def test_autosummary_imported_members(app, status, warning):
         # generated/foo is generated successfully
         assert app.env.get_doctree('generated/autosummary_dummy_package')
 
-        module = (app.srcdir / 'generated' / 'autosummary_dummy_package.rst').text()
+        module = (app.srcdir / 'generated' / 'autosummary_dummy_package.rst').read_text()
         assert ('   .. autosummary::\n'
                 '   \n'
                 '      Bar\n'
@@ -390,13 +397,22 @@ def test_generate_autosummary_docs_property(app):
         mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', None, False)]
         generate_autosummary_docs([], output_dir=app.srcdir, builder=app.builder, app=app)
 
-    content = (app.srcdir / 'target.methods.Base.prop.rst').text()
+    content = (app.srcdir / 'target.methods.Base.prop.rst').read_text()
     assert content == ("target.methods.Base.prop\n"
                        "========================\n"
                        "\n"
                        ".. currentmodule:: target.methods\n"
                        "\n"
                        ".. autoproperty:: Base.prop")
+
+
+@pytest.mark.sphinx(testroot='ext-autosummary-skip-member')
+def test_autosummary_skip_member(app):
+    app.build()
+
+    content = (app.srcdir / 'generate' / 'target.Foo.rst').read_text()
+    assert 'Foo.skipmeth' not in content
+    assert 'Foo._privatemeth' in content
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',

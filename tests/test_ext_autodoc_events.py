@@ -4,7 +4,7 @@
 
     Test the autodoc extension.  This tests mainly for autodoc events
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -44,7 +44,7 @@ def test_cut_lines(app):
         '   :module: target.process_docstring',
         '',
         '   second line',
-        '   '
+        '',
     ]
 
 
@@ -60,7 +60,7 @@ def test_between(app):
         '   :module: target.process_docstring',
         '',
         '   second line',
-        '   '
+        '',
     ]
 
 
@@ -77,5 +77,5 @@ def test_between_exclude(app):
         '',
         '   first line',
         '   third line',
-        '   '
+        '',
     ]

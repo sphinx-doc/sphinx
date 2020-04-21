@@ -2,7 +2,7 @@
     sphinx.directives.code
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -348,7 +348,7 @@ class LiteralIncludeReader:
                         return lines[:lineno + 1]
                     else:
                         if lineno == 0:
-                            return []
+                            pass  # end-before ignores first line
                         else:
                             return lines[:lineno]
             if inclusive is True:

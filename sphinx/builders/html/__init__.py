@@ -4,7 +4,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,7 +15,7 @@ import sys
 import warnings
 from hashlib import md5
 from os import path
-from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Type, Tuple
+from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -47,6 +47,11 @@ from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, movefile, copyfile
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
+
+if False:
+    # For type annotation
+    from typing import Type  # for python3.5.1
+
 
 # HTML5 Writer is available or not
 if is_html5_writer_available():
@@ -85,7 +90,7 @@ class Stylesheet(str):
     attributes = None   # type: Dict[str, str]
     filename = None     # type: str
 
-    def __new__(cls, filename: str, *args: str, **attributes: str) -> None:
+    def __new__(cls, filename: str, *args: str, **attributes: str) -> "Stylesheet":
         self = str.__new__(cls, filename)  # type: ignore
         self.filename = filename
         self.attributes = attributes
@@ -108,11 +113,10 @@ class JavaScript(str):
     attributes = None   # type: Dict[str, str]
     filename = None     # type: str
 
-    def __new__(cls, filename: str, **attributes: str) -> None:
+    def __new__(cls, filename: str, **attributes: str) -> "JavaScript":
         self = str.__new__(cls, filename)  # type: ignore
         self.filename = filename
         self.attributes = attributes
-        self.attributes.setdefault('type', 'text/javascript')
 
         return self
 
@@ -267,6 +271,19 @@ class StandaloneHTMLBuilder(Builder):
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
+        if self.theme:
+            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
+        else:
+            dark_style = None
+
+        if dark_style is not None:
+            self.dark_highlighter = PygmentsBridge('html', dark_style)
+            self.add_css_file('pygments_dark.css',
+                              media='(prefers-color-scheme: dark)',
+                              id='pygments_dark_css')
+        else:
+            self.dark_highlighter = None
+
     def init_css_files(self) -> None:
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
@@ -302,7 +319,7 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files.append(JavaScript(filename, **kwargs))
 
     @property
-    def default_translator_class(self) -> Type[nodes.NodeVisitor]:  # type: ignore
+    def default_translator_class(self) -> "Type[nodes.NodeVisitor]":  # type: ignore
         if not html5_ready or self.config.html4_writer:
             return HTMLTranslator
         else:
@@ -428,11 +445,8 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.last_updated = None
 
-        logo = self.config.html_logo and \
-            path.basename(self.config.html_logo) or ''
-
-        favicon = self.config.html_favicon and \
-            path.basename(self.config.html_favicon) or ''
+        logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
+        favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
 
         if not isinstance(self.config.html_use_opensearch, str):
             logger.warning(__('html_use_opensearch config value must now be a string'))
@@ -472,6 +486,7 @@ class StandaloneHTMLBuilder(Builder):
             'show_source': self.config.html_show_sourcelink,
             'sourcelink_suffix': self.config.html_sourcelink_suffix,
             'file_suffix': self.out_suffix,
+            'link_suffix': self.link_suffix,
             'script_files': self.script_files,
             'language': self.config.language,
             'css_files': self.css_files,
@@ -482,7 +497,7 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
-            'html5_doctype': html5_ready and not self.config.html4_writer
+            'html5_doctype': html5_ready and not self.config.html4_writer,
         }
         if self.theme:
             self.globalcontext.update(
@@ -534,10 +549,10 @@ class StandaloneHTMLBuilder(Builder):
 
         # title rendered as HTML
         title_node = self.env.longtitles.get(docname)
-        title = title_node and self.render_partial(title_node)['title'] or ''
+        title = self.render_partial(title_node)['title'] if title_node else ''
 
         # Suffix for the document
-        source_suffix = path.splitext(self.env.doc2path(docname))[1]
+        source_suffix = self.env.doc2path(docname, False)[len(docname):]
 
         # the name for the copied source
         if self.config.html_copy_source:
@@ -591,7 +606,7 @@ class StandaloneHTMLBuilder(Builder):
         self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
         title_node = self.env.longtitles.get(docname)
-        title = title_node and self.render_partial(title_node)['title'] or ''
+        title = self.render_partial(title_node)['title'] if title_node else ''
         self.index_page(docname, doctree, title)
 
     def finish(self) -> None:
@@ -717,6 +732,10 @@ class StandaloneHTMLBuilder(Builder):
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
             f.write(self.highlighter.get_stylesheet())
 
+        if self.dark_highlighter:
+            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
+                f.write(self.dark_highlighter.get_stylesheet())
+
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
         if self.config.language is not None:
@@ -806,13 +825,17 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
             for node in doctree.traverse(nodes.image):
-                scale_keys = ('scale', 'width', 'height')
-                if not any((key in node) for key in scale_keys) or \
-                   isinstance(node.parent, nodes.reference):
-                    # docutils does unfortunately not preserve the
-                    # ``target`` attribute on images, so we need to check
-                    # the parent node here.
+                if not any((key in node) for key in ['scale', 'width', 'height']):
+                    # resizing options are not given. scaled image link is available
+                    # only for resized images.
                     continue
+                elif isinstance(node.parent, nodes.reference):
+                    # A image having hyperlink target
+                    continue
+                elif 'no-scaled-link' in node['classes']:
+                    # scaled image link is disabled for this node
+                    continue
+
                 uri = node['uri']
                 reference = nodes.reference('', '', internal=True)
                 if uri in self.images:
@@ -846,7 +869,11 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
             try:
-                self.indexer.feed(pagename, filename, title, doctree)
+                metadata = self.env.metadata.get(pagename, {})
+                if 'nosearch' in metadata:
+                    self.indexer.feed(pagename, filename, '', new_document(''))
+                else:
+                    self.indexer.feed(pagename, filename, title, doctree)
             except TypeError:
                 # fallback for old search-adapters
                 self.indexer.feed(pagename, title, doctree)  # type: ignore
@@ -857,11 +884,11 @@ class StandaloneHTMLBuilder(Builder):
                         indexer_name, indexer_name),
                     RemovedInSphinx40Warning)
 
-    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwds) -> str:
-        if 'includehidden' not in kwds:
-            kwds['includehidden'] = False
+    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
+        if 'includehidden' not in kwargs:
+            kwargs['includehidden'] = False
         return self.render_partial(TocTree(self.env).get_toctree_for(
-            docname, self, collapse, **kwds))['fragment']
+            docname, self, collapse, **kwargs))['fragment']
 
     def get_outfilename(self, pagename: str) -> str:
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
@@ -970,7 +997,7 @@ class StandaloneHTMLBuilder(Builder):
             return False
         ctx['hasdoc'] = hasdoc
 
-        ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
+        ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
@@ -1093,7 +1120,6 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatexname: str,
                 attrs.append('src="%s"' % pathto(js.filename, resource=True))
         else:
             # str value (old styled)
-            attrs.append('type="text/javascript"')
             attrs.append('src="%s"' % pathto(js, resource=True))
         return '<script %s>%s</script>' % (' '.join(attrs), body)
 
@@ -1119,7 +1145,8 @@ def validate_html_extra_path(app: Sphinx, config: Config) -> None:
         if not path.exists(extra_path):
             logger.warning(__('html_extra_path entry %r does not exist'), entry)
             config.html_extra_path.remove(entry)
-        elif path.commonpath([app.outdir, extra_path]) == app.outdir:
+        elif (path.splitdrive(app.outdir)[0] == path.splitdrive(extra_path)[0] and
+              path.commonpath([app.outdir, extra_path]) == app.outdir):
             logger.warning(__('html_extra_path entry %r is placed inside outdir'), entry)
             config.html_extra_path.remove(entry)
 
@@ -1131,7 +1158,8 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
         if not path.exists(static_path):
             logger.warning(__('html_static_path entry %r does not exist'), entry)
             config.html_static_path.remove(entry)
-        elif path.commonpath([app.outdir, static_path]) == app.outdir:
+        elif (path.splitdrive(app.outdir)[0] == path.splitdrive(static_path)[0] and
+              path.commonpath([app.outdir, static_path]) == app.outdir):
             logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
             config.html_static_path.remove(entry)
 
@@ -1203,12 +1231,12 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html4_writer', False, 'html')
 
     # event handlers
-    app.connect('config-inited', convert_html_css_files)
-    app.connect('config-inited', convert_html_js_files)
-    app.connect('config-inited', validate_html_extra_path)
-    app.connect('config-inited', validate_html_static_path)
-    app.connect('config-inited', validate_html_logo)
-    app.connect('config-inited', validate_html_favicon)
+    app.connect('config-inited', convert_html_css_files, priority=800)
+    app.connect('config-inited', convert_html_js_files, priority=800)
+    app.connect('config-inited', validate_html_extra_path, priority=800)
+    app.connect('config-inited', validate_html_static_path, priority=800)
+    app.connect('config-inited', validate_html_logo, priority=800)
+    app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
 

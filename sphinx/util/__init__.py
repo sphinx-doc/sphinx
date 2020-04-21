@@ -4,7 +4,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,15 +22,16 @@ from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
 from hashlib import md5
+from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import (
-    Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Type
-)
+from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
+from sphinx.errors import (
+    PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError
+)
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
@@ -50,6 +51,7 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 
@@ -115,6 +117,15 @@ def get_matching_docs(dirname: str, suffixes: List[str],
             if fnmatch.fnmatch(filename, suffixpattern):
                 yield filename[:-len(suffixpattern) + 1]
                 break
+
+
+def get_filetype(source_suffix: Dict[str, str], filename: str) -> str:
+    for suffix, filetype in source_suffix.items():
+        if filename.endswith(suffix):
+            # If default filetype (None), considered as restructuredtext.
+            return filetype or 'restructuredtext'
+    else:
+        raise FiletypeNotFoundError
 
 
 class FilenameUniqDict(dict):
@@ -239,12 +250,12 @@ def get_module_source(modname: str) -> Tuple[str, str]:
     Can return ('file', 'filename') in which case the source is in the given
     file, or ('string', 'source') which which case the source is the string.
     """
-    if modname not in sys.modules:
-        try:
-            __import__(modname)
-        except Exception as err:
-            raise PycodeError('error importing %r' % modname, err)
-    mod = sys.modules[modname]
+    warnings.warn('get_module_source() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
+    try:
+        mod = import_module(modname)
+    except Exception as err:
+        raise PycodeError('error importing %r' % modname, err)
     filename = getattr(mod, '__file__', None)
     loader = getattr(mod, '__loader__', None)
     if loader and getattr(loader, 'get_filename', None):
@@ -285,8 +296,7 @@ def get_full_modname(modname: str, attribute: str) -> str:
         # Prevents a TypeError: if the last getattr() call will return None
         # then it's better to return it directly
         return None
-    __import__(modname)
-    module = sys.modules[modname]
+    module = import_module(modname)
 
     # Allow an attribute to have multiple parts and incidentially allow
     # repeated .s in the attribute.
@@ -304,6 +314,8 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 def detect_encoding(readline: Callable[[], bytes]) -> str:
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
+    warnings.warn('sphinx.util.detect_encoding() is deprecated',
+                  RemovedInSphinx40Warning)
 
     def read_or_stop() -> bytes:
         try:
@@ -438,7 +450,7 @@ def force_decode(string: str, encoding: str) -> str:
 
 
 class attrdict(dict):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         warnings.warn('The attrdict class is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
@@ -541,14 +553,13 @@ def import_object(objname: str, source: str = None) -> Any:
     try:
         objpath = objname.split('.')
         modname = objpath.pop(0)
-        obj = __import__(modname)
+        obj = import_module(modname)
         for name in objpath:
             modname += '.' + name
             try:
                 obj = getattr(obj, name)
             except AttributeError:
-                __import__(modname)
-                obj = getattr(obj, name)
+                obj = import_module(modname)
 
         return obj
     except (AttributeError, ImportError) as exc:
@@ -623,7 +634,7 @@ class progress_message:
     def __enter__(self) -> None:
         logger.info(bold(self.message + '... '), nonl=True)
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
         if isinstance(exc_value, SkipProgressMessage):
             logger.info(__('skipped'))
             if exc_value.args:
@@ -638,7 +649,7 @@ class progress_message:
 
     def __call__(self, f: Callable) -> Callable:
         @functools.wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             with self:
                 return f(*args, **kwargs)
 

@@ -4,30 +4,33 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import warnings
+from typing import Any, Dict, List, Tuple
 
 from docutils import nodes, utils
+from docutils.nodes import Element, Node, TextElement, system_message
+from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import _
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
-from sphinx.util.nodes import split_explicit_title, process_index_entry, \
-    set_role_source_info
+from sphinx.util.nodes import (
+    split_explicit_title, process_index_entry, set_role_source_info
+)
+from sphinx.util.typing import RoleFunction
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Type  # NOQA
-    from docutils.parsers.rst.states import Inliner  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from typing import Type  # for python3.5.1
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 generic_docroles = {
@@ -70,12 +73,12 @@ class XRefRole(ReferenceRole):
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass = addnodes.pending_xref   # type: Type[nodes.Element]
-    innernodeclass = nodes.literal      # type: Type[nodes.TextElement]
+    nodeclass = addnodes.pending_xref   # type: Type[Element]
+    innernodeclass = nodes.literal      # type: Type[TextElement]
 
-    def __init__(self, fix_parens=False, lowercase=False,
-                 nodeclass=None, innernodeclass=None, warn_dangling=False):
-        # type: (bool, bool, Type[nodes.Element], Type[nodes.TextElement], bool) -> None
+    def __init__(self, fix_parens: bool = False, lowercase: bool = False,
+                 nodeclass: "Type[Element]" = None, innernodeclass: "Type[TextElement]" = None,
+                 warn_dangling: bool = False) -> None:
         self.fix_parens = fix_parens
         self.lowercase = lowercase
         self.warn_dangling = warn_dangling
@@ -86,8 +89,8 @@ class XRefRole(ReferenceRole):
 
         super().__init__()
 
-    def _fix_parens(self, env, has_explicit_title, title, target):
-        # type: (BuildEnvironment, bool, str, str) -> Tuple[str, str]
+    def _fix_parens(self, env: "BuildEnvironment", has_explicit_title: bool, title: str,
+                    target: str) -> Tuple[str, str]:
         warnings.warn('XRefRole._fix_parens() is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
         if not has_explicit_title:
@@ -102,8 +105,7 @@ class XRefRole(ReferenceRole):
             target = target[:-2]
         return title, target
 
-    def update_title_and_target(self, title, target):
-        # type: (str, str) -> Tuple[str, str]
+    def update_title_and_target(self, title: str, target: str) -> Tuple[str, str]:
         if not self.has_explicit_title:
             if title.endswith('()'):
                 # remove parentheses
@@ -116,8 +118,7 @@ class XRefRole(ReferenceRole):
             target = target[:-2]
         return title, target
 
-    def run(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+    def run(self) -> Tuple[List[Node], List[system_message]]:
         if ':' not in self.name:
             self.refdomain, self.reftype = '', self.name
             self.classes = ['xref', self.reftype]
@@ -125,14 +126,12 @@ class XRefRole(ReferenceRole):
             self.refdomain, self.reftype = self.name.split(':', 1)
             self.classes = ['xref', self.refdomain, '%s-%s' % (self.refdomain, self.reftype)]
 
-        if self.text.startswith('!'):
-            # if the first character is a bang, don't cross-reference at all
+        if self.disabled:
             return self.create_non_xref_node()
         else:
             return self.create_xref_node()
 
-    def create_non_xref_node(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+    def create_non_xref_node(self) -> Tuple[List[Node], List[system_message]]:
         text = utils.unescape(self.text[1:])
         if self.fix_parens:
             self.has_explicit_title = False  # treat as implicit
@@ -141,8 +140,7 @@ class XRefRole(ReferenceRole):
         node = self.innernodeclass(self.rawtext, text, classes=self.classes)
         return self.result_nodes(self.inliner.document, self.env, node, is_ref=False)
 
-    def create_xref_node(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+    def create_xref_node(self) -> Tuple[List[Node], List[system_message]]:
         target = self.target
         title = self.title
         if self.lowercase:
@@ -169,8 +167,8 @@ class XRefRole(ReferenceRole):
 
     # methods that can be overwritten
 
-    def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
+    def process_link(self, env: "BuildEnvironment", refnode: Element, has_explicit_title: bool,
+                     title: str, target: str) -> Tuple[str, str]:
         """Called after parsing title and target text, and creating the
         reference node (given in *refnode*).  This method can alter the
         reference node and must return a new (or the same) ``(title, target)``
@@ -178,8 +176,8 @@ class XRefRole(ReferenceRole):
         """
         return title, ws_re.sub(' ', target)
 
-    def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    def result_nodes(self, document: nodes.document, env: "BuildEnvironment", node: Element,
+                     is_ref: bool) -> Tuple[List[Node], List[system_message]]:
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``
@@ -189,16 +187,17 @@ class XRefRole(ReferenceRole):
 
 
 class AnyXRefRole(XRefRole):
-    def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
+    def process_link(self, env: "BuildEnvironment", refnode: Element, has_explicit_title: bool,
+                     title: str, target: str) -> Tuple[str, str]:
         result = super().process_link(env, refnode, has_explicit_title, title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
         refnode.attributes.update(env.ref_context)
         return result
 
 
-def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+def indexmarkup_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
+                     options: Dict = {}, content: List[str] = []
+                     ) -> Tuple[List[Node], List[system_message]]:
     """Role for PEP/RFC references that generate an index entry."""
     warnings.warn('indexmarkup_role() is deprecated.  Please use PEP or RFC class instead.',
                   RemovedInSphinx40Warning, stacklevel=2)
@@ -266,8 +265,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
 
 
 class PEP(ReferenceRole):
-    def run(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+    def run(self) -> Tuple[List[Node], List[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
         entries = [('single', _('Python Enhancement Proposals; PEP %s') % self.target,
                     target_id, '', None)]
@@ -292,8 +290,7 @@ class PEP(ReferenceRole):
 
         return [index, target, reference], []
 
-    def build_uri(self):
-        # type: () -> str
+    def build_uri(self) -> str:
         base_url = self.inliner.document.settings.pep_base_url
         ret = self.target.split('#', 1)
         if len(ret) == 2:
@@ -303,8 +300,7 @@ class PEP(ReferenceRole):
 
 
 class RFC(ReferenceRole):
-    def run(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    def run(self) -> Tuple[List[Node], List[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
         entries = [('single', 'RFC; RFC %s' % self.target, target_id, '', None)]
 
@@ -328,8 +324,7 @@ class RFC(ReferenceRole):
 
         return [index, target, reference], []
 
-    def build_uri(self):
-        # type: () -> str
+    def build_uri(self) -> str:
         base_url = self.inliner.document.settings.rfc_base_url
         ret = self.target.split('#', 1)
         if len(ret) == 2:
@@ -341,8 +336,9 @@ class RFC(ReferenceRole):
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 
-def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+def menusel_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
+                 options: Dict = {}, content: List[str] = []
+                 ) -> Tuple[List[Node], List[system_message]]:
     warnings.warn('menusel_role() is deprecated. '
                   'Please use MenuSelection or GUILabel class instead.',
                   RemovedInSphinx40Warning, stacklevel=2)
@@ -381,8 +377,7 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 class GUILabel(SphinxRole):
     amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
-    def run(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+    def run(self) -> Tuple[List[Node], List[system_message]]:
         node = nodes.inline(rawtext=self.rawtext, classes=[self.name])
         spans = self.amp_re.split(self.text)
         node += nodes.Text(spans.pop(0))
@@ -398,9 +393,10 @@ class GUILabel(SphinxRole):
 
 
 class MenuSelection(GUILabel):
-    def run(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
-        self.text = self.text.replace('-->', '\N{TRIANGULAR BULLET}')  # type: ignore
+    BULLET_CHARACTER = '\N{TRIANGULAR BULLET}'
+
+    def run(self) -> Tuple[List[Node], List[system_message]]:
+        self.text = self.text.replace('-->', self.BULLET_CHARACTER)
         return super().run()
 
 
@@ -408,9 +404,9 @@ _litvar_re = re.compile('{([^}]+)}')
 parens_re = re.compile(r'(\\*{|\\*})')
 
 
-def emph_literal_role(typ, rawtext, text, lineno, inliner,
-                      options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+def emph_literal_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
+                      options: Dict = {}, content: List[str] = []
+                      ) -> Tuple[List[Node], List[system_message]]:
     warnings.warn('emph_literal_role() is deprecated. '
                   'Please use EmphasizedLiteral class instead.',
                   RemovedInSphinx40Warning, stacklevel=2)
@@ -464,17 +460,15 @@ def emph_literal_role(typ, rawtext, text, lineno, inliner,
 class EmphasizedLiteral(SphinxRole):
     parens_re = re.compile(r'(\\\\|\\{|\\}|{|})')
 
-    def run(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+    def run(self) -> Tuple[List[Node], List[system_message]]:
         children = self.parse(self.text)
         node = nodes.literal(self.rawtext, '', *children,
                              role=self.name.lower(), classes=[self.name])
 
         return [node], []
 
-    def parse(self, text):
-        # type: (str) -> List[nodes.Node]
-        result = []  # type: List[nodes.Node]
+    def parse(self, text: str) -> List[Node]:
+        result = []  # type: List[Node]
 
         stack = ['']
         for part in self.parens_re.split(text):
@@ -516,8 +510,9 @@ class EmphasizedLiteral(SphinxRole):
 _abbr_re = re.compile(r'\((.*)\)$', re.S)
 
 
-def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+def abbr_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
+              options: Dict = {}, content: List[str] = []
+              ) -> Tuple[List[Node], List[system_message]]:
     warnings.warn('abbr_role() is deprecated.  Please use Abbrevation class instead.',
                   RemovedInSphinx40Warning, stacklevel=2)
     text = utils.unescape(text)
@@ -534,8 +529,7 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 class Abbreviation(SphinxRole):
     abbr_re = re.compile(r'\((.*)\)$', re.S)
 
-    def run(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+    def run(self) -> Tuple[List[Node], List[system_message]]:
         matched = self.abbr_re.search(self.text)
         if matched:
             text = self.text[:matched.start()].strip()
@@ -546,8 +540,9 @@ class Abbreviation(SphinxRole):
         return [nodes.abbreviation(self.rawtext, text, **self.options)], []
 
 
-def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+def index_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
+               options: Dict = {}, content: List[str] = []
+               ) -> Tuple[List[Node], List[system_message]]:
     warnings.warn('index_role() is deprecated.  Please use Index class instead.',
                   RemovedInSphinx40Warning, stacklevel=2)
     # create new reference target
@@ -578,8 +573,8 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 class Index(ReferenceRole):
-    def run(self):
-        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+    def run(self) -> Tuple[List[Node], List[system_message]]:
+        warnings.warn('Index role is deprecated.', RemovedInSphinx40Warning)
         target_id = 'index-%s' % self.env.new_serialno('index')
         if self.has_explicit_title:
             # if an explicit target is given, process it as a full entry
@@ -614,12 +609,10 @@ specific_docroles = {
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
     'abbr': Abbreviation(),
-    'index': Index(),
 }  # type: Dict[str, RoleFunction]
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     from docutils.parsers.rst import roles
 
     for rolename, nodeclass in generic_docroles.items():

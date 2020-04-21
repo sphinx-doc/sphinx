@@ -4,7 +4,7 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -359,7 +359,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
 
     ensuredir(d['path'])
 
-    srcdir = d['sep'] and path.join(d['path'], 'source') or d['path']
+    srcdir = path.join(d['path'], 'source') if d['sep'] else d['path']
 
     ensuredir(srcdir)
     if d['sep']:
@@ -405,15 +405,15 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
         batchfile_template = 'quickstart/make.bat_t'
 
     if d['makefile'] is True:
-        d['rsrcdir'] = d['sep'] and 'source' or '.'
-        d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
+        d['rsrcdir'] = 'source' if d['sep'] else '.'
+        d['rbuilddir'] = 'build' if d['sep'] else d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
         write_file(path.join(d['path'], 'Makefile'),
                    template.render(makefile_template, d), '\n')
 
     if d['batchfile'] is True:
-        d['rsrcdir'] = d['sep'] and 'source' or '.'
-        d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
+        d['rsrcdir'] = 'source' if d['sep'] else '.'
+        d['rbuilddir'] = 'build' if d['sep'] else d['dot'] + 'build'
         write_file(path.join(d['path'], 'make.bat'),
                    template.render(batchfile_template, d), '\r\n')
 

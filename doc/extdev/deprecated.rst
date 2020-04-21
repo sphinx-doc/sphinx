@@ -26,6 +26,228 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - The ``module`` argument of
+       ``sphinx.ext.autosummary.generate.find_autosummary_in_docstring()``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - ``desc_signature['first']``
+     -
+     - 3.0
+     - N/A
+
+   * - ``sphinx.directives.DescDirective``
+     - 3.0
+     - 5.0
+     - ``sphinx.directives.ObjectDescription``
+
+   * - ``sphinx.domains.std.StandardDomain.add_object()``
+     - 3.0
+     - 5.0
+     - ``sphinx.domains.std.StandardDomain.note_object()``
+
+   * - ``sphinx.domains.python.PyDecoratorMixin``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.get_documenters()``
+     - 3.0
+     - 5.0
+     - ``sphinx.registry.documenters``
+
+   * - ``sphinx.ext.autosummary.process_autosummary_toc()``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - ``sphinx.parsers.Parser.app``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - ``sphinx.testing.path.Path.text()``
+     - 3.0
+     - 5.0
+     - ``sphinx.testing.path.Path.read_text()``
+
+   * - ``sphinx.testing.path.Path.bytes()``
+     - 3.0
+     - 5.0
+     - ``sphinx.testing.path.Path.read_bytes()``
+
+   * - ``sphinx.util.inspect.getargspec()``
+     - 3.0
+     - 5.0
+     - ``inspect.getargspec()``
+
+   * - ``sphinx.writers.latex.LaTeXWriter.format_docclass()``
+     - 3.0
+     - 5.0
+     - LaTeX Themes
+
+   * - ``decode`` argument of ``sphinx.pycode.ModuleAnalyzer()``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.directives.other.Index``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDirective``
+
+   * - ``sphinx.environment.temp_data['gloss_entries']``
+     - 2.4
+     - 4.0
+     - ``documents.nameids``
+
+   * - ``sphinx.environment.BuildEnvironment.indexentries``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDomain``
+
+   * - ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDomain``
+
+   * - ``sphinx.io.FiletypeNotFoundError``
+     - 2.4
+     - 4.0
+     - ``sphinx.errors.FiletypeNotFoundError``
+
+   * - ``sphinx.ext.apidoc.INITPY``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.apidoc.shall_skip()``
+     - 2.4
+     - 4.0
+     - ``sphinx.ext.apidoc.is_skipped_package``
+
+   * - ``sphinx.io.get_filetype()``
+     - 2.4
+     - 4.0
+     - ``sphinx.util.get_filetype()``
+
+   * - ``sphinx.pycode.ModuleAnalyzer.encoding``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.roles.Index``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexRole``
+
+   * - ``sphinx.util.detect_encoding()``
+     - 2.4
+     - 4.0
+     - ``tokenize.detect_encoding()``
+
+   * - ``sphinx.util.get_module_source()``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.inspect.Signature``
+     - 2.4
+     - 4.0
+     - ``sphinx.util.inspect.signature`` and
+       ``sphinx.util.inspect.stringify_signature()``
+
+   * - ``sphinx.util.inspect.safe_getmembers()``
+     - 2.4
+     - 4.0
+     - ``inspect.getmembers()``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.author``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.contentsname``
+     - 2.4
+     - 4.0
+     - ``document['contentsname']``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.docclass``
+     - 2.4
+     - 4.0
+     - ``document['docclass']``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.docname``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.title``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.latex.ADDITIONAL_SETTINGS``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.ADDITIONAL_SETTINGS``
+
+   * - ``sphinx.writers.latex.DEFAULT_SETTINGS``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.DEFAULT_SETTINGS``
+
+   * - ``sphinx.writers.latex.LUALATEX_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.LUALATEX_DEFAULT_FONTPKG``
+
+   * - ``sphinx.writers.latex.PDFLATEX_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.PDFLATEX_DEFAULT_FONTPKG``
+
+   * - ``sphinx.writers.latex.XELATEX_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.XELATEX_DEFAULT_FONTPKG``
+
+   * - ``sphinx.writers.latex.XELATEX_GREEK_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.XELATEX_GREEK_DEFAULT_FONTPKG``
+
+   * - ``sphinx.builders.gettext.POHEADER``
+     - 2.3
+     - 4.0
+     - ``sphinx/templates/gettext/message.pot_t`` (template file)
+
+   * - ``sphinx.io.SphinxStandaloneReader.app``
+     - 2.3
+     - 4.0
+     - ``sphinx.io.SphinxStandaloneReader.setup()``
+
+   * - ``sphinx.io.SphinxStandaloneReader.env``
+     - 2.3
+     - 4.0
+     - ``sphinx.io.SphinxStandaloneReader.setup()``
+
+   * - ``sphinx.util.texescape.tex_escape_map``
+     - 2.3
+     - 4.0
+     - ``sphinx.util.texescape.escape()``
+
+   * - ``sphinx.util.texescape.tex_hl_escape_map_new``
+     - 2.3
+     - 4.0
+     - ``sphinx.util.texescape.hlescape()``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.no_contractions``
+     - 2.3
+     - 4.0
+     - N/A
+
    * - ``sphinx.domains.math.MathDomain.add_equation()``
      - 2.2
      - 4.0

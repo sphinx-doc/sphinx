@@ -313,6 +313,7 @@ General configuration
    * ``ref.doc``
    * ``ref.python``
    * ``misc.highlighting_failure``
+   * ``toc.circular``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
    * ``autosectionlabel.*``
@@ -510,6 +511,14 @@ General configuration
 
    .. versionadded:: 1.6.6
 
+.. confval:: user_agent
+
+   A User-Agent of Sphinx.  It is used for a header on HTTP access (ex.
+   linkcheck, intersphinx and so on).  Default is ``"Sphinx/X.Y.Z
+   requests/X.Y.Z python/X.Y.Z"``.
+
+   .. versionadded:: 2.3
+
 .. confval:: tls_verify
 
    If true, Sphinx verifies server certifications.  Default is ``True``.
@@ -530,7 +539,7 @@ General configuration
             directory pointed ``REQUESTS_CA_BUNDLE`` environment
             variable if ``tls_cacerts`` not set.
 
-            .. _requests: http://docs.python-requests.org/en/master/
+            .. _requests: https://requests.readthedocs.io/en/master/
 
 .. confval:: today
              today_fmt
@@ -566,7 +575,7 @@ General configuration
    A dictionary of options that modify how the lexer specified by
    :confval:`highlight_language` generates highlighted source code. These are
    lexer-specific; for the options understood by each, see the
-   `Pygments documentation <http://pygments.org/docs/lexers/>`_.
+   `Pygments documentation <https://pygments.org/docs/lexers.html>`_.
 
    .. versionadded:: 1.3
 
@@ -626,6 +635,16 @@ General configuration
    .. versionchanged:: 1.1
       Now also removes ``<BLANKLINE>``.
 
+.. confval:: strip_signature_backslash
+
+   Default is ``False``.
+   When backslash stripping is enabled then every occurrence of ``\\`` in a
+   domain directive will be changed to ``\``, even within string literals.
+   This was the behaviour before version 3.0, and setting this variable to
+   ``True`` will reinstate that behaviour.
+
+    .. versionadded:: 3.0
+
 
 .. _intl-options:
 
@@ -654,12 +673,18 @@ documentation on :ref:`intl` for details.
 
    Currently supported languages by Sphinx are:
 
+   * ``ar`` -- Arabic
+   * ``bg`` -- Bulgarian
    * ``bn`` -- Bengali
    * ``ca`` -- Catalan
+   * ``cak`` -- Kaqchikel
    * ``cs`` -- Czech
+   * ``cy`` -- Welsh
    * ``da`` -- Danish
    * ``de`` -- German
+   * ``el`` -- Greek
    * ``en`` -- English
+   * ``eo`` -- Esperanto
    * ``es`` -- Spanish
    * ``et`` -- Estonian
    * ``eu`` -- Basque
@@ -667,6 +692,8 @@ documentation on :ref:`intl` for details.
    * ``fi`` -- Finnish
    * ``fr`` -- French
    * ``he`` -- Hebrew
+   * ``hi`` -- Hindi
+   * ``hi_IN`` -- Hindi (India)
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
    * ``id`` -- Indonesian
@@ -680,15 +707,24 @@ documentation on :ref:`intl` for details.
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
+   * ``pt`` -- Portuguese
    * ``pt_BR`` -- Brazilian Portuguese
    * ``pt_PT`` -- European Portuguese
+   * ``ro`` -- Romanian
    * ``ru`` -- Russian
    * ``si`` -- Sinhala
    * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
+   * ``sq`` -- Albanian
+   * ``sr`` -- Serbian
+   * ``sr@latin`` -- Serbian (Latin)
+   * ``sr_RS`` -- Serbian (Cyrillic)
    * ``sv`` -- Swedish
+   * ``ta`` -- Tamil
+   * ``te`` -- Telugu
    * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
+   * ``ur`` -- Urdu
    * ``vi`` -- Vietnamese
    * ``zh_CN`` -- Simplified Chinese
    * ``zh_TW`` -- Traditional Chinese
@@ -762,7 +798,7 @@ documentation on :ref:`intl` for details.
    i18n additionally. You can specify below names:
 
    :index: index terms
-   :literal-block: literal blocks: ``::`` and ``code-block``.
+   :literal-block: literal blocks (``::`` annotation and ``code-block`` directive)
    :doctest-block: doctest block
    :raw: raw content
    :image: image/figure uri and alt
@@ -930,7 +966,7 @@ that use Sphinx's HTMLWriter class.
 
    Example::
 
-       html_css_files = ['custom.css'
+       html_css_files = ['custom.css',
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
 
@@ -1338,7 +1374,20 @@ that use Sphinx's HTMLWriter class.
    'target' option or scale related options: 'scale', 'width', 'height'.
    The default is ``True``.
 
+   Document authors can this feature manually with giving ``no-scaled-link``
+   class to the image:
+
+   .. code-block:: rst
+
+      .. image:: sphinx.png
+         :scale: 50%
+         :class: no-scaled-link
+
    .. versionadded:: 1.3
+
+   .. versionchanged:: 2.4
+
+      It is disabled for images having ``no-scaled-link`` class
 
 .. confval:: html_math_renderer
 
@@ -1828,6 +1877,7 @@ These options influence LaTeX output.
    * ``'xelatex'`` -- XeLaTeX
    * ``'lualatex'`` -- LuaLaTeX
    * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
+   * ``'uplatex'`` -- upLaTeX (experimental)
 
    ``'pdflatex'``\ 's support for Unicode characters is limited.
 
@@ -1841,7 +1891,21 @@ These options influence LaTeX output.
    ``'xelatex'`` or ``'lualatex'`` and making sure to use an OpenType font
    with wide-enough glyph coverage is often easier than trying to make
    ``'pdflatex'`` work with the extra Unicode characters.  Since Sphinx 2.0
-   the default is the GNU FreeFont which covers well Latin, Cyrillic and Greek.
+   the default is the GNU FreeFont which covers well Latin, Cyrillic and
+   Greek.
+
+   .. versionchanged:: 2.1.0
+
+      Use ``xelatex`` (and LaTeX package ``xeCJK``) by default for Chinese
+      documents.
+
+   .. versionchanged:: 2.2.1
+
+      Use ``xelatex`` by default for Greek documents.
+
+   .. versionchanged:: 2.3
+
+      Add ``uplatex`` support.
 
    Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
    LaTeX requires some extra configuration to support Unicode literals in
@@ -1857,7 +1921,7 @@ These options influence LaTeX output.
 
    This value determines how to group the document tree into LaTeX source files.
    It must be a list of tuples ``(startdocname, targetname, title, author,
-   documentclass, toctree_only)``, where the items are:
+   theme, toctree_only)``, where the items are:
 
    *startdocname*
      String that specifies the :term:`document name` of the LaTeX file's master
@@ -1879,13 +1943,8 @@ These options influence LaTeX output.
      applies.  Use ``\\and`` to separate multiple authors, as in:
      ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
 
-   *documentclass*
-     Normally, one of ``'manual'`` or ``'howto'`` (provided by Sphinx and based
-     on ``'report'``, resp. ``'article'``; Japanese documents use ``'jsbook'``,
-     resp. ``'jreport'``.) "howto" (non-Japanese) documents will not get
-     appendices. Also they have a simpler title page.  Other document classes
-     can be given. Independently of the document class, the "sphinx" package is
-     always loaded in order to define Sphinx's custom LaTeX commands.
+   *theme*
+     LaTeX theme.  See :confval:`latex_theme`.
 
    *toctree_only*
      Must be ``True`` or ``False``.  If true, the *startdoc* document itself is
@@ -2039,6 +2098,40 @@ These options influence LaTeX output.
    .. versionchanged:: 1.2
       This overrides the files which is provided from Sphinx such as
       ``sphinx.sty``.
+
+.. confval:: latex_theme
+
+   The "theme" that the LaTeX output should use.  It is a collection of settings
+   for LaTeX output (ex. document class, top level sectioning unit and so on).
+
+   As a built-in LaTeX themes, ``manual`` and ``howto`` are bundled.
+
+   ``manual``
+     A LaTeX theme for writing a manual.  It imports the ``report`` document
+     class (Japanese documents use ``jsbook``).
+
+   ``howto``
+     A LaTeX theme for writing an article.  It imports the ``article`` document
+     class (Japanese documents use ``jreport`` rather).  :confval:`latex_appendices`
+     is available only for this theme.
+
+   It defaults to ``'manual'``.
+
+   .. versionadded:: 3.0
+
+.. confval:: latex_theme_options
+
+   A dictionary of options that influence the look and feel of the selected
+   theme.
+
+   .. versionadded:: 3.1
+
+.. confval:: latex_theme_path
+
+   A list of paths that contain custom LaTeX themes as subdirectories.  Relative
+   paths are taken as relative to the configuration directory.
+
+   .. versionadded:: 3.0
 
 
 .. _text-options:
@@ -2346,6 +2439,34 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.5
 
+.. confval:: linkcheck_auth
+
+   Pass authentication information when doing a ``linkcheck`` build.
+
+   A list of ``(regex_pattern, auth_info)`` tuples where the items are:
+
+   *regex_pattern*
+     A regular expression that matches a URI.
+   *auth_info*
+     Authentication information to use for that URI. The value can be anything
+     that is understood by the ``requests`` library (see `requests
+     Authentication <requests-auth>`_ for details).
+
+     .. _requests-auth: https://requests.readthedocs.io/en/master/user/authentication/
+
+   The ``linkcheck`` builder will use the first matching ``auth_info`` value
+   it can find in the :confval:`linkcheck_auth` list, so values earlier in the
+   list have higher priority.
+
+   Example::
+
+      linkcheck_auth = [
+        ('https://foo\.yourcompany\.com/.+', ('johndoe', 'secret')),
+        ('https://.+\.yourcompany\.com/.+', HTTPDigestAuth(...)),
+      ]
+
+   .. versionadded:: 2.3
+
 
 Options for the XML builder
 ---------------------------
@@ -2363,6 +2484,30 @@ Options for the XML builder
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
        these all don't match slashes.  A double star ``**`` can be used to
        match any sequence of characters *including* slashes.
+
+
+.. _c-config:
+
+Options for the C domain
+------------------------
+
+.. confval:: c_id_attributes
+
+   A list of strings that the parser additionally should accept as attributes.
+   This can for example be used when attributes have been ``#define`` d for
+   portability.
+
+   .. versionadded:: 3.0
+
+.. confval:: c_paren_attributes
+
+   A list of strings that the parser additionally should accept as attributes
+   with one argument.  That is, if ``my_align_as`` is in the list, then
+   ``my_align_as(X)`` is parsed as an attribute for all strings ``X`` that have
+   balanced braces (``()``, ``[]``, and ``{}``).  This can for example be used
+   when attributes have been ``#define`` d for portability.
+
+   .. versionadded:: 3.0
 
 
 .. _cpp-config:

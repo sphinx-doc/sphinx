@@ -4,7 +4,7 @@
 
     Utility functions for docutils.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,7 +15,7 @@ from copy import copy
 from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
-from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple, Type
+from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple
 from typing import cast
 
 import docutils
@@ -36,6 +36,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
@@ -67,7 +68,7 @@ def is_directive_registered(name: str) -> bool:
     return name in directives._directives  # type: ignore
 
 
-def register_directive(name: str, directive: Type[Directive]) -> None:
+def register_directive(name: str, directive: "Type[Directive]") -> None:
     """Register a directive to docutils.
 
     This modifies global state of docutils.  So it is better to use this
@@ -95,12 +96,12 @@ def unregister_role(name: str) -> None:
     roles._roles.pop(name, None)  # type: ignore
 
 
-def is_node_registered(node: Type[Element]) -> bool:
+def is_node_registered(node: "Type[Element]") -> bool:
     """Check the *node* is already registered."""
     return hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__)
 
 
-def register_node(node: Type[Element]) -> None:
+def register_node(node: "Type[Element]") -> None:
     """Register a node to docutils.
 
     This modifies global state of some visitors.  So it is better to use this
@@ -111,7 +112,7 @@ def register_node(node: Type[Element]) -> None:
         additional_nodes.add(node)
 
 
-def unregister_node(node: Type[Element]) -> None:
+def unregister_node(node: "Type[Element]") -> None:
     """Unregister a node from docutils.
 
     This is inverse of ``nodes._add_nodes_class_names()``.
@@ -182,9 +183,8 @@ class sphinx_domains:
     def __enter__(self) -> None:
         self.enable()
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> None:  # NOQA
         self.disable()
-        return False
 
     def enable(self) -> None:
         self.directive_func = directives.directive
@@ -225,7 +225,7 @@ class sphinx_domains:
 
         raise ElementLookupError
 
-    def lookup_directive(self, directive_name: str, language_module: ModuleType, document: nodes.document) -> Tuple[Optional[Type[Directive]], List[system_message]]:  # NOQA
+    def lookup_directive(self, directive_name: str, language_module: ModuleType, document: nodes.document) -> Tuple[Optional["Type[Directive]"], List[system_message]]:  # NOQA
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
@@ -296,7 +296,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
 class SphinxFileOutput(FileOutput):
     """Better FileOutput class for Sphinx."""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
         super().__init__(**kwargs)
 
@@ -330,9 +330,13 @@ class SphinxDirective(Directive):
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
+    def get_source_info(self) -> Tuple[str, int]:
+        """Get source and line number."""
+        return self.state_machine.get_source_and_line(self.lineno)
+
     def set_source_info(self, node: Node) -> None:
         """Set source and line number to the node."""
-        node.source, node.line = self.state_machine.get_source_and_line(self.lineno)
+        node.source, node.line = self.get_source_info()
 
 
 class SphinxRole:
@@ -388,12 +392,13 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def set_source_info(self, node: Node, lineno: int = None) -> None:
+    def get_source_info(self, lineno: int = None) -> Tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
+        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
-        source_info = self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
-        node.source, node.line = source_info
+    def set_source_info(self, node: Node, lineno: int = None) -> None:
+        node.source, node.line = self.get_source_info(lineno)
 
 
 class ReferenceRole(SphinxRole):
@@ -404,6 +409,7 @@ class ReferenceRole(SphinxRole):
     ``self.title`` and ``self.target``.
     """
     has_explicit_title = None   #: A boolean indicates the role has explicit title or not.
+    disabled = False            #: A boolean indicates the reference is disabled.
     title = None                #: The link title for the interpreted text.
     target = None               #: The link target for the interpreted text.
 
@@ -413,6 +419,9 @@ class ReferenceRole(SphinxRole):
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
                  inliner: Inliner, options: Dict = {}, content: List[str] = []
                  ) -> Tuple[List[Node], List[system_message]]:
+        # if the first character is a bang, don't cross-reference at all
+        self.disabled = text.startswith('!')
+
         matched = self.explicit_title_re.match(text)
         if matched:
             self.has_explicit_title = True
@@ -429,7 +438,10 @@ class ReferenceRole(SphinxRole):
 class SphinxTranslator(nodes.NodeVisitor):
     """A base class for Sphinx translators.
 
-    This class provides helper methods for Sphinx translators.
+    This class adds a support for visitor/departure method for super node class
+    if visitor/departure method for node class is not found.
+
+    It also provides helper methods for Sphinx translators.
 
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
@@ -440,6 +452,40 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
+
+    def dispatch_visit(self, node: Node) -> None:
+        """
+        Dispatch node to appropriate visitor method.
+        The priority of visitor method is:
+
+        1. ``self.visit_{node_class}()``
+        2. ``self.visit_{supre_node_class}()``
+        3. ``self.unknown_visit()``
+        """
+        for node_class in node.__class__.__mro__:
+            method = getattr(self, 'visit_%s' % (node_class.__name__), None)
+            if method:
+                method(node)
+                break
+        else:
+            super().dispatch_visit(node)
+
+    def dispatch_departure(self, node: Node) -> None:
+        """
+        Dispatch node to appropriate departure method.
+        The priority of departure method is:
+
+        1. ``self.depart_{node_class}()``
+        2. ``self.depart_{super_node_class}()``
+        3. ``self.unknown_departure()``
+        """
+        for node_class in node.__class__.__mro__:
+            method = getattr(self, 'depart_%s' % (node_class.__name__), None)
+            if method:
+                method(node)
+                break
+        else:
+            super().dispatch_departure(node)
 
 
 # cache a vanilla instance of nodes.document

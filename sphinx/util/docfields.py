@@ -5,12 +5,12 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, Dict, List, Tuple, Union
 from typing import cast
 
 from docutils import nodes
@@ -22,6 +22,7 @@ from sphinx.util.typing import TextlikeNode
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.environment import BuildEnvironment
     from sphinx.directive import ObjectDescription
 
@@ -65,7 +66,7 @@ class Field:
         self.bodyrolename = bodyrolename
 
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
+                  innernode: "Type[TextlikeNode]" = addnodes.literal_emphasis,
                   contnode: Node = None, env: "BuildEnvironment" = None) -> Node:
         if not rolename:
             return contnode or innernode(target, target)
@@ -77,7 +78,7 @@ class Field:
         return refnode
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
-                   innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
+                   innernode: "Type[TextlikeNode]" = addnodes.literal_emphasis,
                    contnode: Node = None, env: "BuildEnvironment" = None) -> List[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode, env)]
 
@@ -217,7 +218,14 @@ class DocFieldTransformer:
 
     def __init__(self, directive: "ObjectDescription") -> None:
         self.directive = directive
-        self.typemap = directive.get_field_type_map()
+
+        try:
+            self.typemap = directive.get_field_type_map()
+        except Exception:
+            # for 3rd party extensions directly calls this transformer.
+            warnings.warn('DocFieldTransformer expects given directive object is a subclass '
+                          'of ObjectDescription.', RemovedInSphinx40Warning)
+            self.typemap = self.preprocess_fieldtypes(directive.__class__.doc_field_types)
 
     def preprocess_fieldtypes(self, types: List[Field]) -> Dict[str, Tuple[Field, bool]]:
         warnings.warn('DocFieldTransformer.preprocess_fieldtypes() is deprecated.',

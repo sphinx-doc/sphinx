@@ -31,15 +31,15 @@ r"""
     The graph is inserted as a PNG+image map into HTML and a PDF in
     LaTeX.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import builtins
 import inspect
 import re
-import sys
 from hashlib import md5
+from importlib import import_module
 from typing import Any, Dict, Iterable, List, Tuple
 from typing import cast
 
@@ -74,8 +74,10 @@ def try_import(objname: str) -> Any:
     Returns imported object or module.  If failed, returns None value.
     """
     try:
-        __import__(objname)
-        return sys.modules.get(objname)
+        return import_module(objname)
+    except TypeError:
+        # Relative import
+        return None
     except ImportError:
         matched = module_sig_re.match(objname)
 
@@ -87,8 +89,8 @@ def try_import(objname: str) -> Any:
         if modname is None:
             return None
         try:
-            __import__(modname)
-            return getattr(sys.modules.get(modname), attrname, None)
+            module = import_module(modname)
+            return getattr(module, attrname, None)
         except ImportError:
             return None
 
@@ -227,7 +229,7 @@ class InheritanceGraph:
         if module in ('__builtin__', 'builtins'):
             fullname = cls.__name__
         else:
-            fullname = '%s.%s' % (module, cls.__name__)
+            fullname = '%s.%s' % (module, cls.__qualname__)
         if parts == 0:
             result = fullname
         else:
@@ -245,6 +247,7 @@ class InheritanceGraph:
     default_graph_attrs = {
         'rankdir': 'LR',
         'size': '"8.0, 12.0"',
+        'bgcolor': 'transparent',
     }
     default_node_attrs = {
         'shape': 'box',
@@ -252,7 +255,8 @@ class InheritanceGraph:
         'height': 0.25,
         'fontname': '"Vera Sans, DejaVu Sans, Liberation Sans, '
                     'Arial, Helvetica, sans"',
-        'style': '"setlinewidth(0.5)"',
+        'style': '"setlinewidth(0.5),filled"',
+        'fillcolor': 'white',
     }
     default_edge_attrs = {
         'arrowsize': 0.5,
@@ -366,7 +370,7 @@ class InheritanceDiagram(SphinxDirective):
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
             refnodes, x = class_role(  # type: ignore
-                'class', ':class:`%s`' % name, name, 0, self.state)
+                'class', ':class:`%s`' % name, name, 0, self.state)  # type: ignore
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
         # dot file later

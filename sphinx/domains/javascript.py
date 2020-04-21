@@ -4,7 +4,7 @@
 
     The JavaScript domain.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,7 +28,7 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import make_refnode
+from sphinx.util.nodes import make_id, make_refnode
 
 
 logger = logging.getLogger(__name__)
@@ -105,22 +105,24 @@ class JSObject(ObjectDescription):
     def add_target_and_index(self, name_obj: Tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         mod_name = self.env.ref_context.get('js:module')
-        fullname = (mod_name and mod_name + '.' or '') + name_obj[0]
-        if fullname not in self.state.document.ids:
-            signode['names'].append(fullname)
-            signode['ids'].append(fullname.replace('$', '_S_'))
-            signode['first'] = not self.names
-            self.state.document.note_explicit_target(signode)
+        fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
+        node_id = make_id(self.env, self.state.document, '', fullname)
+        signode['ids'].append(node_id)
 
-            domain = cast(JavaScriptDomain, self.env.get_domain('js'))
-            domain.note_object(fullname, self.objtype,
-                               location=(self.env.docname, self.lineno))
+        # Assign old styled node_id not to break old hyperlinks (if possible)
+        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+        old_node_id = self.make_old_id(fullname)
+        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
+            signode['ids'].append(old_node_id)
+
+        self.state.document.note_explicit_target(signode)
+
+        domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+        domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         indextext = self.get_index_text(mod_name, name_obj)
         if indextext:
-            self.indexnode['entries'].append(('single', indextext,
-                                              fullname.replace('$', '_S_'),
-                                              '', None))
+            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def get_index_text(self, objectname: str, name_obj: Tuple[str, str]) -> str:
         name, obj = name_obj
@@ -191,6 +193,14 @@ class JSObject(ObjectDescription):
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
 
+    def make_old_id(self, fullname: str) -> str:
+        """Generate old styled node_id for JS objects.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return fullname.replace('$', '_S_')
+
 
 class JSCallable(JSObject):
     """Description of a JavaScript function, method or constructor."""
@@ -251,20 +261,35 @@ class JSModule(SphinxDirective):
         if not noindex:
             domain = cast(JavaScriptDomain, self.env.get_domain('js'))
 
-            domain.note_module(mod_name)
+            node_id = make_id(self.env, self.state.document, 'module', mod_name)
+            domain.note_module(mod_name, node_id)
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
-            domain.note_object(mod_name, 'module', location=(self.env.docname, self.lineno))
+            domain.note_object(mod_name, 'module', node_id,
+                               location=(self.env.docname, self.lineno))
 
-            targetnode = nodes.target('', '', ids=['module-' + mod_name],
-                                      ismod=True)
-            self.state.document.note_explicit_target(targetnode)
-            ret.append(targetnode)
+            target = nodes.target('', '', ids=[node_id], ismod=True)
+
+            # Assign old styled node_id not to break old hyperlinks (if possible)
+            # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+            old_node_id = self.make_old_id(mod_name)
+            if old_node_id not in self.state.document.ids and old_node_id not in target['ids']:
+                target['ids'].append(old_node_id)
+
+            self.state.document.note_explicit_target(target)
+            ret.append(target)
             indextext = _('%s (module)') % mod_name
-            inode = addnodes.index(entries=[('single', indextext,
-                                             'module-' + mod_name, '', None)])
+            inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
         return ret
+
+    def make_old_id(self, modname: str) -> str:
+        """Generate old styled node_id for JS modules.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return 'module-' + modname
 
 
 class JSXRefRole(XRefRole):
@@ -317,47 +342,48 @@ class JavaScriptDomain(Domain):
         'mod':   JSXRefRole(),
     }
     initial_data = {
-        'objects': {},  # fullname -> docname, objtype
-        'modules': {},  # modname  -> docname
+        'objects': {},  # fullname -> docname, node_id, objtype
+        'modules': {},  # modname  -> docname, node_id
     }  # type: Dict[str, Dict[str, Tuple[str, str]]]
 
     @property
-    def objects(self) -> Dict[str, Tuple[str, str]]:
-        return self.data.setdefault('objects', {})  # fullname -> docname, objtype
+    def objects(self) -> Dict[str, Tuple[str, str, str]]:
+        return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
 
-    def note_object(self, fullname: str, objtype: str, location: Any = None) -> None:
+    def note_object(self, fullname: str, objtype: str, node_id: str,
+                    location: Any = None) -> None:
         if fullname in self.objects:
             docname = self.objects[fullname][0]
-            logger.warning(__('duplicate object description of %s, other instance in %s'),
-                           fullname, docname, location=location)
-        self.objects[fullname] = (self.env.docname, objtype)
+            logger.warning(__('duplicate %s description of %s, other %s in %s'),
+                           objtype, fullname, objtype, docname, location=location)
+        self.objects[fullname] = (self.env.docname, node_id, objtype)
 
     @property
-    def modules(self) -> Dict[str, str]:
-        return self.data.setdefault('modules', {})  # modname -> docname
+    def modules(self) -> Dict[str, Tuple[str, str]]:
+        return self.data.setdefault('modules', {})  # modname -> docname, node_id
 
-    def note_module(self, modname: str) -> None:
-        self.modules[modname] = self.env.docname
+    def note_module(self, modname: str, node_id: str) -> None:
+        self.modules[modname] = (self.env.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
-        for fullname, (pkg_docname, _l) in list(self.objects.items()):
+        for fullname, (pkg_docname, node_id, _l) in list(self.objects.items()):
             if pkg_docname == docname:
                 del self.objects[fullname]
-        for modname, pkg_docname in list(self.modules.items()):
+        for modname, (pkg_docname, node_id) in list(self.modules.items()):
             if pkg_docname == docname:
                 del self.modules[modname]
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
-        for fullname, (fn, objtype) in otherdata['objects'].items():
+        for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                self.objects[fullname] = (fn, objtype)
-        for mod_name, pkg_docname in otherdata['modules'].items():
+                self.objects[fullname] = (fn, node_id, objtype)
+        for mod_name, (pkg_docname, node_id) in otherdata['modules'].items():
             if pkg_docname in docnames:
-                self.modules[mod_name] = pkg_docname
+                self.modules[mod_name] = (pkg_docname, node_id)
 
     def find_obj(self, env: BuildEnvironment, mod_name: str, prefix: str, name: str,
-                 typ: str, searchorder: int = 0) -> Tuple[str, Tuple[str, str]]:
+                 typ: str, searchorder: int = 0) -> Tuple[str, Tuple[str, str, str]]:
         if name[-2:] == '()':
             name = name[:-2]
 
@@ -385,12 +411,11 @@ class JavaScriptDomain(Domain):
                      ) -> Element:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
-        searchorder = node.hasattr('refspecific') and 1 or 0
+        searchorder = 1 if node.hasattr('refspecific') else 0
         name, obj = self.find_obj(env, mod_name, prefix, target, typ, searchorder)
         if not obj:
             return None
-        return make_refnode(builder, fromdocname, obj[0],
-                            name.replace('$', '_S_'), contnode, name)
+        return make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
@@ -400,13 +425,12 @@ class JavaScriptDomain(Domain):
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
         if not obj:
             return []
-        return [('js:' + self.role_for_objtype(obj[1]),
-                 make_refnode(builder, fromdocname, obj[0],
-                              name.replace('$', '_S_'), contnode, name))]
+        return [('js:' + self.role_for_objtype(obj[2]),
+                 make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name))]
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
-        for refname, (docname, type) in list(self.objects.items()):
-            yield refname, refname, type, docname, refname.replace('$', '_S_'), 1
+        for refname, (docname, node_id, typ) in list(self.objects.items()):
+            yield refname, refname, typ, docname, node_id, 1
 
     def get_full_qualified_name(self, node: Element) -> str:
         modname = node.get('js:module')
@@ -423,7 +447,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

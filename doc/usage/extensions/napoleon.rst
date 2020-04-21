@@ -56,7 +56,7 @@ source code files.
 .. _Google:
    https://google.github.io/styleguide/pyguide.html#Comments
 .. _NumPy:
-   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+   https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 .. _Khan Academy:
    https://github.com/Khan/style-guides/blob/master/style/python.md#docstrings
 

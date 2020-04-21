@@ -4,7 +4,7 @@
 
     Logging utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, IO, List, Tuple, Type, Union
+from typing import Any, Dict, Generator, IO, List, Tuple, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -23,6 +23,7 @@ from sphinx.util.console import colorize
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 
@@ -117,29 +118,23 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
+    KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
-    def log(self, level: Union[int, str], msg: str, *args, **kwargs) -> None:
+    def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
         else:
             levelno = LEVEL_NAMES[level]
             super().log(levelno, msg, *args, **kwargs)
 
-    def verbose(self, msg: str, *args, **kwargs) -> None:
+    def verbose(self, msg: str, *args: Any, **kwargs: Any) -> None:
         self.log(VERBOSE, msg, *args, **kwargs)
 
     def process(self, msg: str, kwargs: Dict) -> Tuple[str, Dict]:  # type: ignore
         extra = kwargs.setdefault('extra', {})
-        if 'type' in kwargs:
-            extra['type'] = kwargs.pop('type')
-        if 'subtype' in kwargs:
-            extra['subtype'] = kwargs.pop('subtype')
-        if 'location' in kwargs:
-            extra['location'] = kwargs.pop('location')
-        if 'nonl' in kwargs:
-            extra['nonl'] = kwargs.pop('nonl')
-        if 'color' in kwargs:
-            extra['color'] = kwargs.pop('color')
+        for keyword in self.KEYWORDS:
+            if keyword in kwargs:
+                extra[keyword] = kwargs.pop(keyword)
 
         return msg, kwargs
 
@@ -219,16 +214,15 @@ def pending_warnings() -> Generator[logging.Handler, None, None]:
 
 
 @contextmanager
-def pending_logging() -> Generator[MemoryHandler, None, None]:
-    """Contextmanager to pend logging all logs temporary.
+def suppress_logging() -> Generator[MemoryHandler, None, None]:
+    """Contextmanager to suppress logging all logs temporary.
 
     For example::
 
-        >>> with pending_logging():
-        >>>     logger.warning('Warning message!')  # not flushed yet
+        >>> with suppress_logging():
+        >>>     logger.warning('Warning message!')  # suppressed
         >>>     some_long_process()
         >>>
-        Warning message!  # the warning is flushed here
     """
     logger = logging.getLogger(NAMESPACE)
     memhandler = MemoryHandler()
@@ -247,6 +241,24 @@ def pending_logging() -> Generator[MemoryHandler, None, None]:
         for handler in handlers:
             logger.addHandler(handler)
 
+
+@contextmanager
+def pending_logging() -> Generator[MemoryHandler, None, None]:
+    """Contextmanager to pend logging all logs temporary.
+
+    For example::
+
+        >>> with pending_logging():
+        >>>     logger.warning('Warning message!')  # not flushed yet
+        >>>     some_long_process()
+        >>>
+        Warning message!  # the warning is flushed here
+    """
+    logger = logging.getLogger(NAMESPACE)
+    try:
+        with suppress_logging() as memhandler:
+            yield memhandler
+    finally:
         memhandler.flushTo(logger)
 
 
@@ -400,7 +412,7 @@ class WarningIsErrorFilter(logging.Filter):
                 message = record.msg  # use record.msg itself
 
             if location:
-                raise SphinxWarning(location + ":" + message)
+                raise SphinxWarning(location + ":" + str(message))
             else:
                 raise SphinxWarning(message)
         else:
@@ -426,6 +438,26 @@ class MessagePrefixFilter(logging.Filter):
         if self.prefix:
             record.msg = self.prefix + ' ' + record.msg
         return True
+
+
+class OnceFilter(logging.Filter):
+    """Show the message only once."""
+
+    def __init__(self, name: str = '') -> None:
+        super().__init__(name)
+        self.messages = {}  # type: Dict[str, List]
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        once = getattr(record, 'once', '')
+        if not once:
+            return True
+        else:
+            params = self.messages.setdefault(record.msg, [])
+            if record.args in params:
+                return False
+
+            params.append(record.args)
+            return True
 
 
 class SphinxLogRecordTranslator(logging.Filter):
@@ -545,6 +577,7 @@ def setup(app: "Sphinx", status: IO, warning: IO) -> None:
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
     warning_handler.addFilter(WarningIsErrorFilter(app))
+    warning_handler.addFilter(OnceFilter())
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(ColorizeFormatter())
 

@@ -4,7 +4,7 @@
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -213,7 +213,7 @@ def get_verifier(verify, verify_re):
         ':menuselection:`&Foo -&&- &Bar`',
         ('<p><span class="menuselection"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
-        r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+        r'\sphinxmenuselection{\sphinxaccelerator{F}oo \sphinxhyphen{}\&\sphinxhyphen{} \sphinxaccelerator{B}ar}',
     ),
     (
         # interpolation of ampersands in guilabel
@@ -221,7 +221,7 @@ def get_verifier(verify, verify_re):
         ':guilabel:`&Foo -&&- &Bar`',
         ('<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
-        r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+        r'\sphinxguilabel{\sphinxaccelerator{F}oo \sphinxhyphen{}\&\sphinxhyphen{} \sphinxaccelerator{B}ar}',
     ),
     (
         # no ampersands in guilabel
@@ -231,12 +231,19 @@ def get_verifier(verify, verify_re):
         r'\sphinxguilabel{Foo}',
     ),
     (
+        # kbd role
+        'verify',
+        ':kbd:`space`',
+        '<p><kbd class="kbd docutils literal notranslate">space</kbd></p>',
+        '\\sphinxkeyboard{\\sphinxupquote{space}}',
+    ),
+    (
         # non-interpolation of dashes in option role
         'verify_re',
         ':option:`--with-option`',
         ('<p><code( class="xref std std-option docutils literal notranslate")?>'
          '<span class="pre">--with-option</span></code></p>$'),
-        r'\\sphinxcode{\\sphinxupquote{-{-}with-option}}$',
+        r'\\sphinxcode{\\sphinxupquote{\\sphinxhyphen{}\\sphinxhyphen{}with\\sphinxhyphen{}option}}$',
     ),
     (
         # verify smarty-pants quotes
@@ -308,6 +315,24 @@ def get_verifier(verify, verify_re):
     ),
 ])
 def test_inline(get_verifier, type, rst, html_expected, latex_expected):
+    verifier = get_verifier(type)
+    verifier(rst, html_expected, latex_expected)
+
+
+@pytest.mark.sphinx(confoverrides={'latex_engine': 'xelatex'})
+@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+    (
+        # in verbatim code fragments
+        'verify',
+        '::\n\n @Γ\\∞${}',
+        None,
+        ('\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+         '@Γ\\PYGZbs{}∞\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
+         '\\end{sphinxVerbatim}'),
+    ),
+])
+def test_inline_for_unicode_latex_engine(get_verifier, type, rst,
+                                         html_expected, latex_expected):
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
 

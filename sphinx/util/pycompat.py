@@ -4,7 +4,7 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -52,10 +52,10 @@ class UnicodeMixin:
 
     .. deprecated:: 2.0
     """
-    def __str__(self):
+    def __str__(self) -> str:
         warnings.warn('UnicodeMixin is deprecated',
                       RemovedInSphinx40Warning, stacklevel=2)
-        return self.__unicode__()
+        return self.__unicode__()  # type: ignore
 
 
 def execfile_(filepath: str, _globals: Any, open: Callable = open) -> None:

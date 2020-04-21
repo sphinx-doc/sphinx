@@ -99,12 +99,19 @@ def test_annotated_assignment_py36():
     source = ('a: str = "Sphinx"  #: comment\n'
               'b: int = 1\n'
               '"""string on next line"""\n'
-              'c: int  #: comment')
+              'c: int  #: comment\n'
+              'd = 1  # type: int\n'
+              '"""string on next line"""\n')
     parser = Parser(source)
     parser.parse()
     assert parser.comments == {('', 'a'): 'comment',
                                ('', 'b'): 'string on next line',
-                               ('', 'c'): 'comment'}
+                               ('', 'c'): 'comment',
+                               ('', 'd'): 'string on next line'}
+    assert parser.annotations == {('', 'a'): 'str',
+                                  ('', 'b'): 'int',
+                                  ('', 'c'): 'int',
+                                  ('', 'd'): 'int'}
     assert parser.definitions == {}
 
 
@@ -342,6 +349,22 @@ def test_async_function_and_method():
     assert parser.definitions == {'some_function': ('def', 1, 3),
                                   'Foo': ('class', 5, 7),
                                   'Foo.method': ('def', 6, 7)}
+
+
+def test_imports():
+    source = ('import sys\n'
+              'from os import environment, path\n'
+              '\n'
+              'import sphinx as Sphinx\n'
+              'from sphinx.application import Sphinx as App\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.definitions == {}
+    assert parser.deforders == {'sys': 0,
+                                'environment': 1,
+                                'path': 2,
+                                'Sphinx': 3,
+                                'App': 4}
 
 
 def test_formfeed_char():

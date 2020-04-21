@@ -4,10 +4,9 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import ast
 import inspect
 import itertools
 import re
@@ -16,6 +15,9 @@ import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 from typing import Any, Dict, List, Tuple
+
+from sphinx.pycode.ast import ast  # for py37 or older
+from sphinx.pycode.ast import parse, unparse
 
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
@@ -117,7 +119,7 @@ class Token:
         else:
             raise ValueError('Unknown value: %r' % other)
 
-    def match(self, *conditions) -> bool:
+    def match(self, *conditions: Any) -> bool:
         return any(self == candidate for candidate in conditions)
 
     def __repr__(self) -> str:
@@ -140,7 +142,7 @@ class TokenProcessor:
     def fetch_token(self) -> Token:
         """Fetch a next token from source code.
 
-        Returns ``False`` if sequence finished.
+        Returns ``None`` if sequence finished.
         """
         try:
             self.previous = self.current
@@ -226,6 +228,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.current_classes = []       # type: List[str]
         self.current_function = None    # type: ast.FunctionDef
         self.comments = {}              # type: Dict[Tuple[str, str], str]
+        self.annotations = {}           # type: Dict[Tuple[str, str], str]
         self.previous = None            # type: ast.AST
         self.deforders = {}             # type: Dict[str, int]
         super().__init__()
@@ -254,6 +257,18 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         self.comments[(context, name)] = comment
 
+    def add_variable_annotation(self, name: str, annotation: ast.AST) -> None:
+        if self.current_function:
+            if self.current_classes and self.context[-1] == "__init__":
+                # store variable comments inside __init__ method of classes
+                context = ".".join(self.context[:-1])
+            else:
+                return
+        else:
+            context = ".".join(self.context)
+
+        self.annotations[(context, name)] = unparse(annotation)
+
     def get_self(self) -> ast.arg:
         """Returns the name of first argument if in function."""
         if self.current_function and self.current_function.args.args:
@@ -270,14 +285,38 @@ class VariableCommentPicker(ast.NodeVisitor):
         super().visit(node)
         self.previous = node
 
+    def visit_Import(self, node: ast.Import) -> None:
+        """Handles Import node and record it to definition orders."""
+        for name in node.names:
+            if name.asname:
+                self.add_entry(name.asname)
+            else:
+                self.add_entry(name.name)
+
+    def visit_ImportFrom(self, node: ast.Import) -> None:
+        """Handles Import node and record it to definition orders."""
+        for name in node.names:
+            if name.asname:
+                self.add_entry(name.asname)
+            else:
+                self.add_entry(name.name)
+
     def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
-            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])
+            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])  # type: List[str]  # NOQA
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
+
+        # record annotation
+        if hasattr(node, 'annotation') and node.annotation:  # type: ignore
+            for varname in varnames:
+                self.add_variable_annotation(varname, node.annotation)  # type: ignore
+        elif hasattr(node, 'type_comment') and node.type_comment:
+            for varname in varnames:
+                self.add_variable_annotation(varname, node.type_comment)  # type: ignore
 
         # check comments after assignment
         parser = AfterCommentParser([current_line[node.col_offset:]] +
@@ -452,6 +491,7 @@ class Parser:
     def __init__(self, code: str, encoding: str = 'utf-8') -> None:
         self.code = filter_whitespace(code)
         self.encoding = encoding
+        self.annotations = {}       # type: Dict[Tuple[str, str], str]
         self.comments = {}          # type: Dict[Tuple[str, str], str]
         self.deforders = {}         # type: Dict[str, int]
         self.definitions = {}       # type: Dict[str, Tuple[str, int, int]]
@@ -463,9 +503,10 @@ class Parser:
 
     def parse_comments(self) -> None:
         """Parse the code and pick up comments."""
-        tree = ast.parse(self.code.encode())
+        tree = parse(self.code)
         picker = VariableCommentPicker(self.code.splitlines(True), self.encoding)
         picker.visit(tree)
+        self.annotations = picker.annotations
         self.comments = picker.comments
         self.deforders = picker.deforders
 

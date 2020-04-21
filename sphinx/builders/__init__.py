@@ -4,14 +4,14 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pickle
 import time
 from os import path
-from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union
+from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -44,6 +44,7 @@ except ImportError:
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 
@@ -117,11 +118,11 @@ class Builder:
         self.env.set_versioning_method(self.versioning_method,
                                        self.versioning_compare)
 
-    def get_translator_class(self, *args) -> Type[nodes.NodeVisitor]:
+    def get_translator_class(self, *args: Any) -> "Type[nodes.NodeVisitor]":
         """Return a class of translator."""
         return self.app.registry.get_translator_class(self)
 
-    def create_translator(self, *args) -> nodes.NodeVisitor:
+    def create_translator(self, *args: Any) -> nodes.NodeVisitor:
         """Return an instance of translator.
 
         This method returns an instance of ``default_translator_class`` by default.
@@ -303,7 +304,7 @@ class Builder:
         First updates the environment, and then calls :meth:`write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]') % self.name) + ': ' + summary)
+            logger.info(bold(__('building [%s]: ') % self.name) + summary)
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
@@ -378,7 +379,7 @@ class Builder:
         added, changed, removed = self.env.get_outdated_files(updated)
 
         # allow user intervention as well
-        for docs in self.events.emit('env-get-outdated', self, added, changed, removed):
+        for docs in self.events.emit('env-get-outdated', self.env, added, changed, removed):
             changed.update(set(docs) & self.env.found_docs)
 
         # if files were added or removed, all documents with globbed toctrees
@@ -387,9 +388,11 @@ class Builder:
             # ... but not those that already were removed
             changed.update(self.env.glob_toctrees & self.env.found_docs)
 
-        if changed:
-            reason = CONFIG_CHANGED_REASON.get(self.env.config_status, '')
+        if updated:  # explain the change iff build config status was not ok
+            reason = (CONFIG_CHANGED_REASON.get(self.env.config_status, '') +
+                      (self.env.config_status_extra or ''))
             logger.info('[%s] ', reason, nonl=True)
+
         logger.info(__('%s added, %s changed, %s removed'),
                     len(added), len(changed), len(removed))
 

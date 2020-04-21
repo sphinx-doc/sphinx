@@ -4,7 +4,7 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,7 +18,9 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.deprecation import (
+    RemovedInSphinx40Warning, RemovedInSphinx50Warning, deprecated_alias
+)
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
@@ -34,7 +36,7 @@ nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
 
 
-def optional_int(argument):
+def optional_int(argument: str) -> int:
     """
     Check for an integer argument or None value; raise ``ValueError`` if not.
     """
@@ -89,12 +91,13 @@ class ObjectDescription(SphinxDirective):
         """
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
-
-        Backslash-escaping of newlines is supported.
         """
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
-        # remove backslashes to support (dummy) escapes; helps Vim highlighting
-        return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
+        if self.config.strip_signature_backslash:
+            # remove backslashes to support (dummy) escapes; helps Vim highlighting
+            return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
+        else:
+            return [line.strip() for line in lines]
 
     def handle_signature(self, sig: str, signode: desc_signature) -> Any:
         """
@@ -120,6 +123,15 @@ class ObjectDescription(SphinxDirective):
         """
         Called before parsing content. Used to set information about the current
         directive context on the build environment.
+        """
+        pass
+
+    def transform_content(self, contentnode: addnodes.desc_content) -> None:
+        """
+        Called after creating the content through nested parsing,
+        but before the ``object-description-transform`` event is emitted,
+        and before the info-fields are transformed.
+        Can be used to manipulate the content.
         """
         pass
 
@@ -160,6 +172,8 @@ class ObjectDescription(SphinxDirective):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
+        if self.domain:
+            node['classes'].append(self.domain)
 
         self.names = []  # type: List[Any]
         signatures = self.get_signatures()
@@ -167,7 +181,7 @@ class ObjectDescription(SphinxDirective):
             # add a signature node for each signature in the current unit
             # and add a reference target for it
             signode = addnodes.desc_signature(sig, '')
-            signode['first'] = False
+            self.set_source_info(signode)
             node.append(signode)
             try:
                 # name can also be a tuple, e.g. (classname, objname);
@@ -193,6 +207,9 @@ class ObjectDescription(SphinxDirective):
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
+        self.transform_content(contentnode)
+        self.env.app.emit('object-description-transform',
+                          self.domain, self.objtype, contentnode)
         DocFieldTransformer(self).transform_all(contentnode)
         self.env.temp_data['object'] = None
         self.after_content()
@@ -253,12 +270,13 @@ from sphinx.directives.code import (  # noqa
     Highlight, CodeBlock, LiteralInclude
 )
 from sphinx.directives.other import (  # noqa
-    TocTree, Author, Index, VersionChange, SeeAlso,
+    TocTree, Author, VersionChange, SeeAlso,
     TabularColumns, Centered, Acks, HList, Only, Include, Class
 )
 from sphinx.directives.patches import (  # noqa
     Figure, Meta
 )
+from sphinx.domains.index import IndexDirective  # noqa
 
 deprecated_alias('sphinx.directives',
                  {
@@ -267,7 +285,7 @@ deprecated_alias('sphinx.directives',
                      'LiteralInclude': LiteralInclude,
                      'TocTree': TocTree,
                      'Author': Author,
-                     'Index': Index,
+                     'Index': IndexDirective,
                      'VersionChange': VersionChange,
                      'SeeAlso': SeeAlso,
                      'TabularColumns': TabularColumns,
@@ -282,17 +300,22 @@ deprecated_alias('sphinx.directives',
                  },
                  RemovedInSphinx40Warning)
 
-
-# backwards compatible old name (will be marked deprecated in 3.0)
-DescDirective = ObjectDescription
+deprecated_alias('sphinx.directives',
+                 {
+                     'DescDirective': ObjectDescription,
+                 },
+                 RemovedInSphinx50Warning)
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
+    app.add_config_value("strip_signature_backslash", False, 'env')
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)
     # new, more consistent, name
     directives.register_directive('object', ObjectDescription)
+
+    app.add_event('object-description-transform')
 
     return {
         'version': 'builtin',

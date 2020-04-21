@@ -183,6 +183,7 @@ Documentation using sphinx_rtd_theme
 * `Databricks <https://docs.databricks.com/>`__ (customized)
 * `Dataiku DSS <https://doc.dataiku.com/>`__
 * `DNF <https://dnf.readthedocs.io/>`__
+* `Django-cas-ng <https://djangocas.dev/docs/>`__
 * `edX <https://docs.edx.org/>`__
 * `Electrum <http://docs.electrum.org/>`__
 * `Elemental <http://libelemental.org/documentation/dev/>`__
@@ -212,6 +213,7 @@ Documentation using sphinx_rtd_theme
 * `Lasagne <https://lasagne.readthedocs.io/>`__
 * `latexindent.pl <https://latexindentpl.readthedocs.io/>`__
 * `Learning Apache Spark with Python <https://runawayhorse001.github.io/LearningApacheSpark>`__
+* `LibCEED <https://libceed.readthedocs.io/>`__
 * `Linguistica <https://linguistica-uchicago.github.io/lxa5/>`__
 * `Linux kernel <https://www.kernel.org/doc/html/latest/index.html>`__
 * `Mailman <http://docs.list.org/>`__
@@ -242,6 +244,7 @@ Documentation using sphinx_rtd_theme
 * `PyPy <http://doc.pypy.org/>`__
 * `python-sqlparse <https://sqlparse.readthedocs.io/>`__
 * `PyVISA <https://pyvisa.readthedocs.io/>`__
+* `pyvista <https://docs.pyvista.org/>`__
 * `Read The Docs <https://docs.readthedocs.io/>`__
 * `Free your information from their silos (French) <http://redaction-technique.org/>`__ (customized)
 * `Releases Sphinx extension <https://releases.readthedocs.io/>`__
@@ -404,6 +407,7 @@ Books produced using Sphinx
 * `"Python Professional Programming" (in Japanese) <http://www.amazon.co.jp/dp/4798032948/>`__
 * `"Python Professional Programming 2nd Edition" (in Japanese) <https://www.amazon.co.jp/dp/479804315X/>`__
 * `"Python Professional Programming 3rd Edition" (in Japanese) <https://www.amazon.co.jp/dp/4798053821/>`__
+* `Python Course by Yuri Petrov (Russian) <https://www.yuripetrov.ru/edu/python>`__
 * `"Real World HTTP -- Learning The Internet and Web Technology via its history and code (Japanese)" <https://www.oreilly.co.jp/books/9784873118048/>`__
 * `"Redmine Primer 5th Edition (in Japanese)" <https://www.shuwasystem.co.jp/products/7980html/4825.html>`__
 * `"The repoze.bfg Web Application Framework" <https://www.amazon.com/repoze-bfg-Web-Application-Framework-Version/dp/0615345379>`__

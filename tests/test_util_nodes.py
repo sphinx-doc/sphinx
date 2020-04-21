@@ -4,7 +4,7 @@
 
     Tests uti.nodes functions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from textwrap import dedent
@@ -17,7 +17,9 @@ from docutils.parsers import rst
 from docutils.utils import new_document
 
 from sphinx.transforms import ApplySourceWorkaround
-from sphinx.util.nodes import NodeMatcher, extract_messages, clean_astext, split_explicit_title
+from sphinx.util.nodes import (
+    NodeMatcher, extract_messages, clean_astext, make_id, split_explicit_title
+)
 
 
 def _transform(doctree):
@@ -27,6 +29,7 @@ def _transform(doctree):
 def create_new_document():
     settings = frontend.OptionParser(
         components=(rst.Parser,)).get_default_values()
+    settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document
 
@@ -178,6 +181,39 @@ def test_clean_astext():
     node = nodes.paragraph(text='hello world')
     node += nodes.raw('', 'raw text', format='html')
     assert 'hello world' == clean_astext(node)
+
+
+@pytest.mark.parametrize(
+    'prefix, term, expected',
+    [
+        ('', '', 'id0'),
+        ('term', '', 'term-0'),
+        ('term', 'Sphinx', 'term-Sphinx'),
+        ('', 'io.StringIO', 'io.StringIO'),   # contains a dot
+        ('', 'sphinx.setup_command', 'sphinx.setup_command'),  # contains a dot & underscore
+        ('', '_io.StringIO', 'io.StringIO'),  # starts with underscore
+        ('', 'ｓｐｈｉｎｘ', 'sphinx'),  # alphabets in unicode fullwidth characters
+        ('', '悠好', 'id0'),  # multibytes text (in Chinese)
+        ('', 'Hello=悠好=こんにちは', 'Hello'),  # alphabets and multibytes text
+        ('', 'fünf', 'funf'),  # latin1 (umlaut)
+        ('', '0sphinx', 'sphinx'),  # starts with number
+        ('', 'sphinx-', 'sphinx'),  # ends with hyphen
+    ])
+def test_make_id(app, prefix, term, expected):
+    document = create_new_document()
+    assert make_id(app.env, document, prefix, term) == expected
+
+
+def test_make_id_already_registered(app):
+    document = create_new_document()
+    document.ids['term-Sphinx'] = True  # register "term-Sphinx" manually
+    assert make_id(app.env, document, 'term', 'Sphinx') == 'term-0'
+
+
+def test_make_id_sequential(app):
+    document = create_new_document()
+    document.ids['term-0'] = True
+    assert make_id(app.env, document, 'term') == 'term-1'
 
 
 @pytest.mark.parametrize(

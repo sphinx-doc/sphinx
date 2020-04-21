@@ -1,4 +1,4 @@
-:tocdepth: 2
+:tocdepth: 1
 
 .. default-role:: any
 

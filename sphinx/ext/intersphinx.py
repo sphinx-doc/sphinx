@@ -19,10 +19,11 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import concurrent.futures
 import functools
 import posixpath
 import sys
@@ -175,7 +176,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
                     uri = path.dirname(newinv)
         with f:
             try:
-                join = localuri and path.join or posixpath.join
+                join = path.join if localuri else posixpath.join
                 invdata = InventoryFile.load(f, uri, join)
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
@@ -187,21 +188,18 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
         return invdata
 
 
-def load_mappings(app: Sphinx) -> None:
-    """Load all intersphinx mappings into the environment."""
-    now = int(time.time())
+def fetch_inventory_group(
+    name: str, uri: str, invs: Any, cache: Any, app: Any, now: float
+) -> bool:
     cache_time = now - app.config.intersphinx_cache_limit * 86400
-    inventories = InventoryAdapter(app.builder.env)
-    update = False
-    for key, (name, (uri, invs)) in app.config.intersphinx_mapping.items():
-        failures = []
+    failures = []
+    try:
         for inv in invs:
             if not inv:
                 inv = posixpath.join(uri, INVENTORY_FILENAME)
             # decide whether the inventory must be read: always read local
             # files; remote ones only if the cache time is expired
-            if '://' not in inv or uri not in inventories.cache \
-                    or inventories.cache[uri][1] < cache_time:
+            if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)
                 logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
                 try:
@@ -209,12 +207,11 @@ def load_mappings(app: Sphinx) -> None:
                 except Exception as err:
                     failures.append(err.args)
                     continue
-
                 if invdata:
-                    inventories.cache[uri] = (name, now, invdata)
-                    update = True
-                    break
-
+                    cache[uri] = (name, now, invdata)
+                    return True
+        return False
+    finally:
         if failures == []:
             pass
         elif len(failures) < len(invs):
@@ -227,7 +224,21 @@ def load_mappings(app: Sphinx) -> None:
             logger.warning(__("failed to reach any of the inventories "
                               "with the following issues:") + "\n" + issues)
 
-    if update:
+
+def load_mappings(app: Sphinx) -> None:
+    """Load all intersphinx mappings into the environment."""
+    now = int(time.time())
+    inventories = InventoryAdapter(app.builder.env)
+
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        futures = []
+        for name, (uri, invs) in app.config.intersphinx_mapping.values():
+            futures.append(pool.submit(
+                fetch_inventory_group, name, uri, invs, inventories.cache, app, now
+            ))
+        updated = [f.result() for f in concurrent.futures.as_completed(futures)]
+
+    if any(updated):
         inventories.clear()
 
         # Duplicate values in different inventories will shadow each
@@ -271,6 +282,9 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnod
     if 'std:cmdoption' in objtypes:
         # until Sphinx-1.6, cmdoptions are stored as std:option
         objtypes.append('std:option')
+    if 'py:attribute' in objtypes:
+        # Since Sphinx-2.1, properties are stored as py:method
+        objtypes.append('py:method')
     to_try = [(inventories.main_inventory, target)]
     if domain:
         full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
@@ -345,7 +359,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             else:
                 config.intersphinx_mapping[key] = (name, (uri, inv))
         except Exception as exc:
-            logger.warning(__('Fail to read intersphinx_mapping[%s], Ignored: %r'), key, exc)
+            logger.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), key, exc)
             config.intersphinx_mapping.pop(key)
 
 
@@ -353,7 +367,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
-    app.connect('config-inited', normalize_intersphinx_mapping)
+    app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('missing-reference', missing_reference)
     return {
@@ -374,6 +388,7 @@ def inspect_main(argv: List[str]) -> None:
     class MockConfig:
         intersphinx_timeout = None  # type: int
         tls_verify = False
+        user_agent = None
 
     class MockApp:
         srcdir = ''
@@ -389,7 +404,7 @@ def inspect_main(argv: List[str]) -> None:
             print(key)
             for entry, einfo in sorted(invdata[key].items()):
                 print('\t%-40s %s%s' % (entry,
-                                        einfo[3] != '-' and '%-40s: ' % einfo[3] or '',
+                                        '%-40s: ' % einfo[3] if einfo[3] != '-' else '',
                                         einfo[2]))
     except ValueError as exc:
         print(exc.args[0] % exc.args[1:])
@@ -398,7 +413,7 @@ def inspect_main(argv: List[str]) -> None:
 
 
 if __name__ == '__main__':
-    import logging  # type: ignore
-    logging.basicConfig()  # type: ignore
+    import logging as _logging
+    _logging.basicConfig()
 
     inspect_main(argv=sys.argv[1:])

@@ -4,7 +4,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,6 +15,7 @@ from collections import defaultdict
 from copy import copy
 from os import path
 from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
+from typing import cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -93,14 +94,15 @@ class BuildEnvironment:
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
     def __init__(self, app: "Sphinx" = None):
-        self.app = None             # type: Sphinx
-        self.doctreedir = None      # type: str
-        self.srcdir = None          # type: str
-        self.config = None          # type: Config
-        self.config_status = None   # type: int
-        self.events = None          # type: EventManager
-        self.project = None         # type: Project
-        self.version = None         # type: Dict[str, str]
+        self.app = None                  # type: Sphinx
+        self.doctreedir = None           # type: str
+        self.srcdir = None               # type: str
+        self.config = None               # type: Config
+        self.config_status = None        # type: int
+        self.config_status_extra = None  # type: str
+        self.events = None               # type: EventManager
+        self.project = None              # type: Project
+        self.version = None              # type: Dict[str, str]
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None  # type: Union[bool, Callable]
@@ -166,11 +168,6 @@ class BuildEnvironment:
         self.domaindata = {}        # type: Dict[str, Dict]
                                     # domainname -> domain-specific dict
 
-        # Other inventories
-        self.indexentries = {}      # type: Dict[str, List[Tuple[str, str, str, str, str]]]
-                                    # docname -> list of
-                                    # (type, str, target, aliasname)
-
         # these map absolute path -> (docnames, unique filename)
         self.images = FilenameUniqDict()    # type: FilenameUniqDict
         self.dlfiles = DownloadFiles()      # type: DownloadFiles
@@ -221,6 +218,10 @@ class BuildEnvironment:
         for domain in app.registry.create_domains(self):
             self.domains[domain.name] = domain
 
+        # setup domains (must do after all initialization)
+        for domain in self.domains.values():
+            domain.setup()
+
         # initialize config
         self._update_config(app.config)
 
@@ -230,16 +231,25 @@ class BuildEnvironment:
     def _update_config(self, config: Config) -> None:
         """Update configurations by new one."""
         self.config_status = CONFIG_OK
+        self.config_status_extra = ''
         if self.config is None:
             self.config_status = CONFIG_NEW
         elif self.config.extensions != config.extensions:
             self.config_status = CONFIG_EXTENSIONS_CHANGED
+            extensions = sorted(
+                set(self.config.extensions) ^ set(config.extensions))
+            if len(extensions) == 1:
+                extension = extensions[0]
+            else:
+                extension = '%d' % (len(extensions),)
+            self.config_status_extra = ' (%r)' % (extension,)
         else:
             # check if a config value was changed that affects how
             # doctrees are read
             for item in config.filter('env'):
                 if self.config[item.name] != item.value:
                     self.config_status = CONFIG_CHANGED
+                    self.config_status_extra = ' (%r)' % (item.name,)
                     break
 
         self.config = config
@@ -322,7 +332,7 @@ class BuildEnvironment:
         if suffix:
             warnings.warn('The suffix argument for doc2path() is deprecated.',
                           RemovedInSphinx40Warning)
-        if base not in (True, None):
+        if base not in (True, False, None):
             warnings.warn('The string style base argument for doc2path() is deprecated.',
                           RemovedInSphinx40Warning)
 
@@ -630,3 +640,19 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.check_consistency()
         self.events.emit('env-check-consistency', self)
+
+    @property
+    def indexentries(self) -> Dict[str, List[Tuple[str, str, str, str, str]]]:
+        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        from sphinx.domains.index import IndexDomain
+        domain = cast(IndexDomain, self.get_domain('index'))
+        return domain.entries
+
+    @indexentries.setter
+    def indexentries(self, entries: Dict[str, List[Tuple[str, str, str, str, str]]]) -> None:
+        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        from sphinx.domains.index import IndexDomain
+        domain = cast(IndexDomain, self.get_domain('index'))
+        domain.data['entries'] = entries

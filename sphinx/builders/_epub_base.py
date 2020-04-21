@@ -4,7 +4,7 @@
 
     Base class of epub2/epub3 builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -259,6 +259,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Some readers crash because they interpret the part as a
         transport protocol specification.
         """
+        def update_node_id(node: Element) -> None:
+            """Update IDs of given *node*."""
+            new_ids = []
+            for node_id in node['ids']:
+                new_id = self.fix_fragment('', node_id)
+                if new_id not in new_ids:
+                    new_ids.append(new_id)
+            node['ids'] = new_ids
+
         for reference in tree.traverse(nodes.reference):
             if 'refuri' in reference:
                 m = self.refuri_re.match(reference['refuri'])
@@ -268,22 +277,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 reference['refid'] = self.fix_fragment('', reference['refid'])
 
         for target in tree.traverse(nodes.target):
-            for i, node_id in enumerate(target['ids']):
-                if ':' in node_id:
-                    target['ids'][i] = self.fix_fragment('', node_id)
+            update_node_id(target)
 
-            next_node = target.next_node(siblings=True)  # type: Node
+            next_node = target.next_node(ascend=True)  # type: Node
             if isinstance(next_node, nodes.Element):
-                for i, node_id in enumerate(next_node['ids']):
-                    if ':' in node_id:
-                        next_node['ids'][i] = self.fix_fragment('', node_id)
+                update_node_id(next_node)
 
         for desc_signature in tree.traverse(addnodes.desc_signature):
-            ids = desc_signature.attributes['ids']
-            newids = []
-            for id in ids:
-                newids.append(self.fix_fragment('', id))
-            desc_signature.attributes['ids'] = newids
+            update_node_id(desc_signature)
 
     def add_visible_links(self, tree: nodes.document, show_urls: str = 'inline') -> None:
         """Add visible link targets for external links"""
