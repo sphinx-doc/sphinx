@@ -273,29 +273,19 @@ def test_autosummary_recursive(app, status, warning):
     content = (generated / 'package.rst').read_text()
     assert 'package.module' in content
     assert 'package.package' in content
+    assert 'package.module_importfail' in content
 
     # Recursively generate modules of top-level package
     generated /= toctree
     assert (generated / 'package.module.rst').exists()
+    assert (generated / 'package.module_importfail.rst').exists() is False
     assert (generated / 'package.package.rst').exists()
     content = (generated / 'package.package.rst').read_text()
     assert 'package.package.module' in content
-    assert 'package.package.package' in content
 
     # Recursively generate modules of sub-package
     generated /= toctree
     assert (generated / 'package.package.module.rst').exists()
-    assert (generated / 'package.package.package.rst').exists()
-    content = (generated / 'package.package.package.rst').read_text()
-    assert 'package.package.package.module' in content
-    assert 'package.package.package.package' not in content
-
-    # Last sub-package has no sub-packages
-    generated /= toctree
-    assert (generated / 'package.package.package.module.rst').exists()
-    assert not (generated / 'package.package.package.package.rst').exists()
-    if toctree:
-        assert not (generated / toctree).exists()
 
     # autosummary without :recursive: option
     generated = app.srcdir / 'generated'
