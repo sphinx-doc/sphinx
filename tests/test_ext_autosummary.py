@@ -265,32 +265,26 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
 def test_autosummary_recursive(app, status, warning):
     app.build()
-    toctree = 'modules'  # see module.rst template
 
-    # Top-level package
-    generated = app.srcdir / 'generated'
-    assert (generated / 'package.rst').exists()
-    content = (generated / 'package.rst').read_text()
+    # autosummary having :recursive: option
+    assert (app.srcdir / 'generated' / 'package.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.module.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.module_importfail.rst').exists() is False
+    assert (app.srcdir / 'generated' / 'package.package.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.package.module.rst').exists()
+
+    # autosummary not having :recursive: option
+    assert (app.srcdir / 'generated' / 'package2.rst').exists()
+    assert (app.srcdir / 'generated' / 'package2.module.rst').exists() is False
+
+    # Check content of recursively generated stub-files
+    content = (app.srcdir / 'generated' / 'package.rst').read_text()
     assert 'package.module' in content
     assert 'package.package' in content
     assert 'package.module_importfail' in content
 
-    # Recursively generate modules of top-level package
-    generated /= toctree
-    assert (generated / 'package.module.rst').exists()
-    assert (generated / 'package.module_importfail.rst').exists() is False
-    assert (generated / 'package.package.rst').exists()
-    content = (generated / 'package.package.rst').read_text()
+    content = (app.srcdir / 'generated' / 'package.package.rst').read_text()
     assert 'package.package.module' in content
-
-    # Recursively generate modules of sub-package
-    generated /= toctree
-    assert (generated / 'package.package.module.rst').exists()
-
-    # autosummary without :recursive: option
-    generated = app.srcdir / 'generated'
-    assert (generated / 'package2.rst').exists()
-    assert not (generated / 'package2.module.rst').exists()
 
 
 @pytest.mark.sphinx('latex', **default_kw)

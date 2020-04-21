@@ -40,7 +40,7 @@
 .. rubric:: Modules
 
 .. autosummary::
-   :toctree: modules
+   :toctree:
    :recursive:
 {% for item in modules %}
    {{ item }}
