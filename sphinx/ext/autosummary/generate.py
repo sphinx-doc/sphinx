@@ -252,7 +252,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                               info: Callable = None, base_path: str = None,
                               builder: Builder = None, template_dir: str = None,
                               imported_members: bool = False, app: Any = None,
-                              overwrite: bool = True, recursive: bool = True) -> None:
+                              overwrite: bool = True) -> None:
     if info:
         warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx40Warning)
@@ -303,13 +303,8 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
             _warn(__('[autosummary] failed to import %r: %s') % (entry.name, e))
             continue
 
-        if entry.recursive and not recursive:
-            _warn('[autosummary] :resursive: option found. But ignored. '
-                  'Please read document for autosummary_recursive option')
-
         content = generate_autosummary_content(name, obj, parent, template, entry.template,
-                                               imported_members, app,
-                                               recursive and entry.recursive)
+                                               imported_members, app, entry.recursive)
 
         filename = os.path.join(path, name + suffix)
         if os.path.isfile(filename):
@@ -334,7 +329,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                                   base_path=base_path, builder=builder,
                                   template_dir=template_dir,
                                   imported_members=imported_members, app=app,
-                                  overwrite=overwrite, recursive=recursive)
+                                  overwrite=overwrite)
 
 
 # -- Finding documented entries in files ---------------------------------------
@@ -525,7 +520,6 @@ def main(argv: List[str] = sys.argv[1:]) -> None:
                               '.' + args.suffix,
                               template_dir=args.templates,
                               imported_members=args.imported_members,
-                              recursive=args.recursive,
                               app=app)
 
 

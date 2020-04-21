@@ -13,7 +13,7 @@ those output e.g. by Epydoc and other API doc generation tools.  This is
 especially useful when your docstrings are long and detailed, and putting each
 one of them on a separate page makes them easier to read.
 
-The :mod:`sphinx.ext.autosummary` extension does this in three parts:
+The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
 1. There is an :rst:dir:`autosummary` directive for generating summary listings
    that contain links to the documented items, and short summary blurbs
@@ -24,10 +24,6 @@ The :mod:`sphinx.ext.autosummary` extension does this in three parts:
    "stub" files for the entries listed in the :rst:dir:`autosummary` directives.
    These files by default contain only the corresponding
    :mod:`sphinx.ext.autodoc` directive, but can be customized with templates.
-
-3. Optionally, the :confval:`autosummary_recursive` config value can be
-   used to generate "stub" files of modules and sub-packages for packages
-   under the :rst:dir:`autosummary` directive.
 
 .. rst:directive:: autosummary
 
@@ -119,9 +115,6 @@ The :mod:`sphinx.ext.autosummary` extension does this in three parts:
 
             sphinx.environment.BuildEnvironment
 
-     It is needed to enable :confval:`autosummary_recursive` also to
-     use this option.
-
      .. versionadded:: 3.1
 
 
@@ -177,13 +170,6 @@ also use these config values:
 
    If true, autosummary already overwrites stub files by generated contents.
    Defaults to true (enabled).
-
-   .. versionadded:: 3.0
-
-.. confval:: autosummary_recursive
-
-   Boolean that determines whether to add modules and sub-packages
-   recursively. It is disabled by default.
 
    .. versionadded:: 3.0
 

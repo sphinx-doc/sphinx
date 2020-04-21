@@ -262,10 +262,8 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
     assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
 
 
-@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
-                    srcdir='ext-autosummary-recursive-enabled',
-                    confoverrides={'autosummary_recursive': True})
-def test_autosummary_recursive_enabled(app, status, warning):
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
+def test_autosummary_recursive(app, status, warning):
     app.build()
     toctree = 'modules'  # see module.rst template
 
@@ -303,26 +301,6 @@ def test_autosummary_recursive_enabled(app, status, warning):
     generated = app.srcdir / 'generated'
     assert (generated / 'package2.rst').exists()
     assert not (generated / 'package2.module.rst').exists()
-
-
-@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
-                    srcdir='ext-autosummary-recursive-disabled',
-                    confoverrides={'autosummary_recursive': False})
-def test_autosummary_recursive_disabled(app, status, warning):
-    app.build()
-    toctree = 'modules'  # see module.rst template
-
-    # Modules should not be generated
-    generated = app.srcdir / 'generated'
-    assert (generated / 'package.rst').exists()
-    content = (generated / 'package.rst').text()
-    assert 'package.module' not in content
-    assert 'package.package' not in content
-
-    # Recursively generate modules of top-level package (should be missing)
-    generated /= toctree
-    assert not (generated / 'package.module.rst').exists()
-    assert not (generated / 'package.package.rst').exists()
 
 
 @pytest.mark.sphinx('latex', **default_kw)
