@@ -270,7 +270,7 @@ def test_autosummary_recursive(app, status, warning):
     # Top-level package
     generated = app.srcdir / 'generated'
     assert (generated / 'package.rst').exists()
-    content = (generated / 'package.rst').text()
+    content = (generated / 'package.rst').read_text()
     assert 'package.module' in content
     assert 'package.package' in content
 
@@ -278,7 +278,7 @@ def test_autosummary_recursive(app, status, warning):
     generated /= toctree
     assert (generated / 'package.module.rst').exists()
     assert (generated / 'package.package.rst').exists()
-    content = (generated / 'package.package.rst').text()
+    content = (generated / 'package.package.rst').read_text()
     assert 'package.package.module' in content
     assert 'package.package.package' in content
 
@@ -286,7 +286,7 @@ def test_autosummary_recursive(app, status, warning):
     generated /= toctree
     assert (generated / 'package.package.module.rst').exists()
     assert (generated / 'package.package.package.rst').exists()
-    content = (generated / 'package.package.package.rst').text()
+    content = (generated / 'package.package.package.rst').read_text()
     assert 'package.package.package.module' in content
     assert 'package.package.package.package' not in content
 
