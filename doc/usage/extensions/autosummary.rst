@@ -286,7 +286,7 @@ The following variables available in the templates:
    List containing names of "public" modules in the package.  Only available for
    modules that are packages.
 
-   .. versionadded:: 2.2
+   .. versionadded:: 3.1
 
 Additionally, the following filters are available
 
