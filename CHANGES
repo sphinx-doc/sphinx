@@ -38,6 +38,7 @@ Features added
 * #7484: html theme: Avoid clashes between sidebar and other blocks
 * #7476: html theme: Relbar breadcrumb should contain current page
 * #7506: html theme: A canonical URL is not escaped
+* #7533: html theme: Avoid whitespace at the beginning of genindex.html
 
 Bugs fixed
 ----------
