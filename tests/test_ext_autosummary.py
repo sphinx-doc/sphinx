@@ -261,6 +261,31 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
     assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
 
 
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
+def test_autosummary_recursive(app, status, warning):
+    app.build()
+
+    # autosummary having :recursive: option
+    assert (app.srcdir / 'generated' / 'package.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.module.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.module_importfail.rst').exists() is False
+    assert (app.srcdir / 'generated' / 'package.package.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.package.module.rst').exists()
+
+    # autosummary not having :recursive: option
+    assert (app.srcdir / 'generated' / 'package2.rst').exists()
+    assert (app.srcdir / 'generated' / 'package2.module.rst').exists() is False
+
+    # Check content of recursively generated stub-files
+    content = (app.srcdir / 'generated' / 'package.rst').read_text()
+    assert 'package.module' in content
+    assert 'package.package' in content
+    assert 'package.module_importfail' in content
+
+    content = (app.srcdir / 'generated' / 'package.package.rst').read_text()
+    assert 'package.package.module' in content
+
+
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.builder.build_all()
@@ -330,7 +355,7 @@ def test_autosummary_imported_members(app, status, warning):
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_generate_autosummary_docs_property(app):
     with patch('sphinx.ext.autosummary.generate.find_autosummary_in_files') as mock:
-        mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', None)]
+        mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', None, False)]
         generate_autosummary_docs([], output_dir=app.srcdir, builder=app.builder, app=app)
 
     content = (app.srcdir / 'target.methods.Base.prop.rst').read_text()

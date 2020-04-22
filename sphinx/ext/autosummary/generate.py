@@ -20,6 +20,7 @@
 import argparse
 import locale
 import os
+import pkgutil
 import pydoc
 import re
 import sys
@@ -68,7 +69,8 @@ class DummyApplication:
 
 AutosummaryEntry = NamedTuple('AutosummaryEntry', [('name', str),
                                                    ('path', str),
-                                                   ('template', str)])
+                                                   ('template', str),
+                                                   ('recursive', bool)])
 
 
 def setup_documenters(app: Any) -> None:
@@ -147,7 +149,8 @@ class AutosummaryRenderer:
 
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
-                                 imported_members: bool, app: Any) -> str:
+                                 imported_members: bool, app: Any,
+                                 recursive: bool) -> str:
     doc = get_documenter(app, obj, parent)
 
     if template_name is None:
@@ -192,6 +195,14 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                             public.append(name)
         return public, items
 
+    def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
+        items = []  # type: List[str]
+        for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
+            fullname = name + '.' + modname
+            items.append(fullname)
+        public = [x for x in items if not x.split('.')[-1].startswith('_')]
+        return public, items
+
     ns = {}  # type: Dict[str, Any]
 
     if doc.objtype == 'module':
@@ -202,6 +213,9 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             get_members(obj, {'class'}, imported=imported_members)
         ns['exceptions'], ns['all_exceptions'] = \
             get_members(obj, {'exception'}, imported=imported_members)
+        ispackage = hasattr(obj, '__path__')
+        if ispackage and recursive:
+            ns['modules'], ns['all_modules'] = get_modules(obj)
     elif doc.objtype == 'class':
         ns['members'] = dir(obj)
         ns['inherited_members'] = \
@@ -288,7 +302,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
             continue
 
         content = generate_autosummary_content(name, obj, parent, template, entry.template,
-                                               imported_members, app)
+                                               imported_members, app, entry.recursive)
 
         filename = os.path.join(path, name + suffix)
         if os.path.isfile(filename):
@@ -373,11 +387,13 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
     module_re = re.compile(
         r'^\s*\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$')
     autosummary_item_re = re.compile(r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
+    recursive_arg_re = re.compile(r'^\s+:recursive:\s*$')
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
     documented = []  # type: List[AutosummaryEntry]
 
+    recursive = False
     toctree = None  # type: str
     template = None
     current_module = module
@@ -386,6 +402,11 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
 
     for line in lines:
         if in_autosummary:
+            m = recursive_arg_re.match(line)
+            if m:
+                recursive = True
+                continue
+
             m = toctree_arg_re.match(line)
             if m:
                 toctree = m.group(1)
@@ -410,7 +431,7 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
                 if current_module and \
                    not name.startswith(current_module + '.'):
                     name = "%s.%s" % (current_module, name)
-                documented.append(AutosummaryEntry(name, toctree, template))
+                documented.append(AutosummaryEntry(name, toctree, template, recursive))
                 continue
 
             if not line.strip() or line.startswith(base_indent + " "):
@@ -422,6 +443,7 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
         if m:
             in_autosummary = True
             base_indent = m.group(1)
+            recursive = False
             toctree = None
             template = None
             continue

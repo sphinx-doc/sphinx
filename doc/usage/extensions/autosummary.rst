@@ -32,7 +32,8 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
    The :rst:dir:`autosummary` directive can also optionally serve as a
    :rst:dir:`toctree` entry for the included items. Optionally, stub
-   ``.rst`` files for these items can also be automatically generated.
+   ``.rst`` files for these items can also be automatically generated
+   when :confval:`autosummary_generate` is `True`.
 
    For example, ::
 
@@ -105,6 +106,17 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
      .. versionadded:: 1.0
 
+   * You can specify the ``recursive`` option to generate documents for
+     modules and sub-packages recursively.  It defaults to disabled.
+     For example, ::
+
+         .. autosummary::
+            :recursive:
+
+            sphinx.environment.BuildEnvironment
+
+     .. versionadded:: 3.1
+
 
 :program:`sphinx-autogen` -- generate autodoc stub pages
 --------------------------------------------------------
@@ -142,7 +154,7 @@ also use these config values:
 .. confval:: autosummary_generate
 
    Boolean indicating whether to scan all found documents for autosummary
-   directives, and to generate stub pages for each.
+   directives, and to generate stub pages for each. It is disabled by default.
 
    Can also be a list of documents for which stub pages should be generated.
 
@@ -269,6 +281,12 @@ The following variables available in the templates:
    List containing names of "public" attributes in the class.  Only available
    for classes.
 
+.. data:: modules
+
+   List containing names of "public" modules in the package.  Only available for
+   modules that are packages.
+
+   .. versionadded:: 3.1
 
 Additionally, the following filters are available
 
