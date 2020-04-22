@@ -127,6 +127,7 @@ div.sphinxsidebar {
     float: right;
     font-size: 1em;
     text-align: left;
+    max-height: 0px;
 }
 
 div.sphinxsidebar .logo {
