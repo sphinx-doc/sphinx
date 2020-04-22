@@ -574,6 +574,9 @@ class Documenter:
             if 'private' in metadata:
                 # consider a member private if docstring has "private" metadata
                 isprivate = True
+            elif 'public' in metadata:
+                # consider a member public if docstring has "public" metadata
+                isprivate = False
             else:
                 isprivate = membername.startswith('_')
 
