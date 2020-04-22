@@ -30,6 +30,7 @@ Features added
   caption to the toctree
 * #248, #6040: autosummary: Add ``:recursive:`` option to autosummary directive
   to generate stub files recursively
+* #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7481: html theme: Add right margin to footnote/citation labels
 * #7482: html theme: CSS spacing for code blocks with captions and line numbers
 * #7443: html theme: Add new options :confval:`globaltoc_collapse` and
