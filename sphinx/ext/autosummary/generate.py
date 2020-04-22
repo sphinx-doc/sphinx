@@ -127,7 +127,11 @@ def _underline(title: str, line: str = '=') -> str:
 class AutosummaryRenderer:
     """A helper class for rendering."""
 
-    def __init__(self, builder: Builder, template_dir: str) -> None:
+    def __init__(self, builder: Builder, template_dir: str = None) -> None:
+        if template_dir:
+            warnings.warn('template_dir argument for AutosummaryRenderer is deprecated.',
+                          RemovedInSphinx50Warning)
+
         system_templates_path = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
         loader = SphinxTemplateLoader(builder.srcdir,
                                       builder.config.templates_path,
@@ -277,6 +281,10 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     else:
         _warn = logger.warning
 
+    if template_dir:
+        warnings.warn('template_dir argument for generate_autosummary_docs() is deprecated.',
+                      RemovedInSphinx50Warning)
+
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
@@ -289,7 +297,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
 
-    template = AutosummaryRenderer(builder, template_dir)
+    template = AutosummaryRenderer(builder)
 
     # read
     items = find_autosummary_in_files(sources)
@@ -337,7 +345,6 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir,
                                   imported_members=imported_members, app=app,
                                   overwrite=overwrite)
 

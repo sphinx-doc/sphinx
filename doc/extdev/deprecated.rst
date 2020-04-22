@@ -26,9 +26,21 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - The ``template_dir`` argument of
+       ``sphinx.ext.autosummary.generate.AutosummaryRenderer``
+     - 3.1
+     - 5.0
+     - N/A
+
    * - The ``module`` argument of
        ``sphinx.ext.autosummary.generate.find_autosummary_in_docstring()``
      - 3.0
+     - 5.0
+     - N/A
+
+   * - The ``template_dir`` argument of
+       ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 3.1
      - 5.0
      - N/A
 
