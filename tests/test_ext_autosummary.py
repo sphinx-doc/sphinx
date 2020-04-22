@@ -19,9 +19,10 @@ from sphinx import addnodes
 from sphinx.ext.autosummary import (
     autosummary_table, autosummary_toc, mangle_signature, import_by_name, extract_summary
 )
-from sphinx.ext.autosummary.generate import AutosummaryEntry, generate_autosummary_docs
+from sphinx.ext.autosummary.generate import AutosummaryEntry, generate_autosummary_docs, main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
+from sphinx.util.osutil import cd
 
 html_warnfile = StringIO()
 
@@ -388,3 +389,10 @@ def test_empty_autosummary_generate(app, status, warning):
                     confoverrides={'autosummary_generate': ['unknown']})
 def test_invalid_autosummary_generate(app, status, warning):
     assert 'WARNING: autosummary_generate: file not found: unknown.rst' in warning.getvalue()
+
+
+def test_autogen(rootdir, tempdir):
+    with cd(rootdir / 'test-templating'):
+        args = ['-o', tempdir, '-t', '.', 'autosummary_templating.txt']
+        autogen_main(args)
+        assert (tempdir / 'sphinx.application.TemplateBridge.rst').exists()
