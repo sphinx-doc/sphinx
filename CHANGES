@@ -30,6 +30,8 @@ Features added
 * C, added scope control directives, :rst:dir:`c:namespace`,
   :rst:dir:`c:namespace-push`, and :rst:dir:`c:namespace-pop`.
 * #2044: autodoc: Suppress default value for instance attributes
+* #7473: autodoc: consider a member public if docstring contains
+  ``:meta public:`` in info-field-list
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree
@@ -46,8 +48,6 @@ Features added
 * #7476: html theme: Relbar breadcrumb should contain current page
 * #7506: html theme: A canonical URL is not escaped
 * #7533: html theme: Avoid whitespace at the beginning of genindex.html
-* #7473: autodoc: consider a member public if docstring contains
-  ``:meta public:`` in info-field-list
 
 Bugs fixed
 ----------
