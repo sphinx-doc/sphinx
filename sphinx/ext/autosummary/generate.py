@@ -25,6 +25,7 @@ import pydoc
 import re
 import sys
 import warnings
+from gettext import NullTranslations
 from os import path
 from typing import Any, Callable, Dict, List, NamedTuple, Set, Tuple
 
@@ -58,10 +59,10 @@ logger = logging.getLogger(__name__)
 class DummyApplication:
     """Dummy Application class for sphinx-autogen command."""
 
-    def __init__(self) -> None:
+    def __init__(self, translator: NullTranslations) -> None:
         self.registry = SphinxComponentRegistry()
         self.messagelog = []  # type: List[str]
-        self.translator = None
+        self.translator = translator
         self.verbosity = 0
         self._warncount = 0
         self.warningiserror = False
@@ -528,8 +529,9 @@ The format of the autosummary directive is documented in the
 def main(argv: List[str] = sys.argv[1:]) -> None:
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    translator, _ = sphinx.locale.init([], None)
 
-    app = DummyApplication()
+    app = DummyApplication(translator)
     logging.setup(app, sys.stdout, sys.stderr)  # type: ignore
     setup_documenters(app)
     args = get_parser().parse_args(argv)
