@@ -25,25 +25,27 @@ import pydoc
 import re
 import sys
 import warnings
+from os import path
 from typing import Any, Callable, Dict, List, NamedTuple, Set, Tuple
 
-from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
+from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx import package_dir
 from sphinx.builders import Builder
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autosummary import import_by_name, get_documenter
-from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging
 from sphinx.util import rst
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
+from sphinx.util.template import SphinxTemplateLoader
 
 if False:
     # For type annotation
@@ -59,12 +61,28 @@ class DummyApplication:
     def __init__(self) -> None:
         self.registry = SphinxComponentRegistry()
         self.messagelog = []  # type: List[str]
+        self.translator = None
         self.verbosity = 0
         self._warncount = 0
         self.warningiserror = False
 
     def emit_firstresult(self, *args: Any) -> None:
         pass
+
+
+class DummyBuilder:
+    """Dummy builder class for sphinx-autogen command."""
+
+    def __init__(self, app: DummyApplication, template_path: str) -> None:
+        if template_path:
+            templates_path = [path.abspath(template_path)]
+        else:
+            templates_path = []
+
+        self.app = app
+        self.srcdir = "/"
+        self.config = Config(overrides={'templates_path': templates_path})
+        self.config.init_values()
 
 
 AutosummaryEntry = NamedTuple('AutosummaryEntry', [('name', str),
@@ -109,17 +127,15 @@ def _underline(title: str, line: str = '=') -> str:
 class AutosummaryRenderer:
     """A helper class for rendering."""
 
-    def __init__(self, builder: Builder, template_dir: str) -> None:
-        loader = None  # type: BaseLoader
-        template_dirs = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
-        if builder is None:
-            if template_dir:
-                template_dirs.insert(0, template_dir)
-            loader = FileSystemLoader(template_dirs)
-        else:
-            # allow the user to override the templates
-            loader = BuiltinTemplateLoader()
-            loader.init(builder, dirs=template_dirs)
+    def __init__(self, builder: Builder, template_dir: str = None) -> None:
+        if template_dir:
+            warnings.warn('template_dir argument for AutosummaryRenderer is deprecated.',
+                          RemovedInSphinx50Warning)
+
+        system_templates_path = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
+        loader = SphinxTemplateLoader(builder.srcdir,
+                                      builder.config.templates_path,
+                                      system_templates_path)
 
         self.env = SandboxedEnvironment(loader=loader)
         self.env.filters['escape'] = rst.escape
@@ -265,6 +281,10 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     else:
         _warn = logger.warning
 
+    if template_dir:
+        warnings.warn('template_dir argument for generate_autosummary_docs() is deprecated.',
+                      RemovedInSphinx50Warning)
+
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
@@ -277,7 +297,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
 
-    template = AutosummaryRenderer(builder, template_dir)
+    template = AutosummaryRenderer(builder)
 
     # read
     items = find_autosummary_in_files(sources)
@@ -325,7 +345,6 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir,
                                   imported_members=imported_members, app=app,
                                   overwrite=overwrite)
 
@@ -514,9 +533,9 @@ def main(argv: List[str] = sys.argv[1:]) -> None:
     logging.setup(app, sys.stdout, sys.stderr)  # type: ignore
     setup_documenters(app)
     args = get_parser().parse_args(argv)
+    builder = DummyBuilder(app, args.templates)
     generate_autosummary_docs(args.source_file, args.output_dir,
-                              '.' + args.suffix,
-                              template_dir=args.templates,
+                              '.' + args.suffix, builder=builder,  # type: ignore
                               imported_members=args.imported_members,
                               app=app)
 
