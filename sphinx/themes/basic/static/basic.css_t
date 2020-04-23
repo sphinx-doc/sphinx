@@ -327,7 +327,7 @@ p.sidebar-title {
     font-weight: bold;
 }
 
-div.admonition, div.topic, pre {
+div.admonition, div.topic, pre, div[class|="highlight"] {
     clear: both;
 }
 
