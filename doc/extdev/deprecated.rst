@@ -45,6 +45,12 @@ The following is a list of deprecated interfaces.
      - 5.0
      - N/A
 
+   * - The ``builder`` argument of
+       ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 3.1
+     - 5.0
+     - N/A
+
    * - The ``template_dir`` argument of
        ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
      - 3.1

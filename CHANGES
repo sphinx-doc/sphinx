@@ -18,6 +18,8 @@ Deprecated
   AutosummaryRenderer``
 * The ``module`` argument of ``sphinx.ext.autosummary.generate.
   find_autosummary_in_docstring()``
+* The ``builder`` argument of ``sphinx.ext.autosummary.generate.
+  generate_autosummary_docs()``
 * The ``template_dir`` argument of ``sphinx.ext.autosummary.generate.
   generate_autosummary_docs()``
 

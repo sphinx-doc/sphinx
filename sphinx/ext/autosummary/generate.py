@@ -279,6 +279,10 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     else:
         _warn = logger.warning
 
+    if builder:
+        warnings.warn('builder argument for generate_autosummary_docs() is deprecated.',
+                      RemovedInSphinx50Warning)
+
     if template_dir:
         warnings.warn('template_dir argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx50Warning)
@@ -342,7 +346,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     if new_files:
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
-                                  base_path=base_path, builder=builder,
+                                  base_path=base_path,
                                   imported_members=imported_members, app=app,
                                   overwrite=overwrite)
 
