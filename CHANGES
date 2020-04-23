@@ -48,6 +48,8 @@ Features added
 * #7476: html theme: Relbar breadcrumb should contain current page
 * #7506: html theme: A canonical URL is not escaped
 * #7533: html theme: Avoid whitespace at the beginning of genindex.html
+* #7541: html theme: Add a "clearer" at the end of the "body"
+* #7542: html theme: Make admonition/topic/sidebar scrollable
 
 Bugs fixed
 ----------
