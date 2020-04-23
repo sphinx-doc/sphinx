@@ -14,7 +14,7 @@ import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import FunctionType, MethodType, ModuleType
-from typing import Any, Generator, Iterator, List, Sequence, Tuple, Union
+from typing import Any, Generator, Iterator, List, Optional, Sequence, Tuple, Union
 
 from sphinx.util import logging
 
@@ -117,8 +117,8 @@ class MockFinder(MetaPathFinder):
         self.loader = MockLoader(self)
         self.mocked_modules = []  # type: List[str]
 
-    def find_spec(self, fullname: str, path: Sequence[Union[bytes, str]],
-                  target: ModuleType = None) -> ModuleSpec:
+    def find_spec(self, fullname: str, path: Optional[Sequence[Union[bytes, str]]],
+                  target: ModuleType = None) -> Optional[ModuleSpec]:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
             if modname == fullname or fullname.startswith(modname + '.'):

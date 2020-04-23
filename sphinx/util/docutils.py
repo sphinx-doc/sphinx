@@ -143,7 +143,7 @@ def patched_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: str) -> Generator[None, None, None]:
+def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
@@ -159,7 +159,7 @@ def using_user_docutils_conf(confdir: str) -> Generator[None, None, None]:
 
 
 @contextmanager
-def patch_docutils(confdir: str = None) -> Generator[None, None, None]:
+def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
     with patched_get_language(), using_user_docutils_conf(confdir):
         yield
@@ -345,15 +345,15 @@ class SphinxRole:
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
-    name = None     #: The role name actually used in the document.
-    rawtext = None  #: A string containing the entire interpreted text input.
-    text = None     #: The interpreted text content.
-    lineno = None   #: The line number where the interpreted text begins.
-    inliner = None  #: The ``docutils.parsers.rst.states.Inliner`` object.
-    options = None  #: A dictionary of directive options for customization
-                    #: (from the "role" directive).
-    content = None  #: A list of strings, the directive content for customization
-                    #: (from the "role" directive).
+    name: str           #: The role name actually used in the document.
+    rawtext: str        #: A string containing the entire interpreted text input.
+    text: str           #: The interpreted text content.
+    lineno: int         #: The line number where the interpreted text begins.
+    inliner: Inliner    #: The ``docutils.parsers.rst.states.Inliner`` object.
+    options: Dict       #: A dictionary of directive options for customization
+                        #: (from the "role" directive).
+    content: List[str]  #: A list of strings, the directive content for customization
+                        #: (from the "role" directive).
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
                  inliner: Inliner, options: Dict = {}, content: List[str] = []
@@ -406,10 +406,10 @@ class ReferenceRole(SphinxRole):
     the role.  The parsed result; link title and target will be stored to
     ``self.title`` and ``self.target``.
     """
-    has_explicit_title = None   #: A boolean indicates the role has explicit title or not.
-    disabled = False            #: A boolean indicates the reference is disabled.
-    title = None                #: The link title for the interpreted text.
-    target = None               #: The link target for the interpreted text.
+    has_explicit_title: bool    #: A boolean indicates the role has explicit title or not.
+    disabled: bool              #: A boolean indicates the reference is disabled.
+    title: str                  #: The link title for the interpreted text.
+    target: str                 #: The link target for the interpreted text.
 
     # \x00 means the "<" was backslash-escaped
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)

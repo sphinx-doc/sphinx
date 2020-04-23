@@ -93,7 +93,10 @@ def dedent_docstring(s: str) -> str:
 
     dummy.__doc__ = s
     docstring = inspect.getdoc(dummy)
-    return docstring.lstrip("\r\n").rstrip("\r\n")
+    if docstring:
+        return docstring.lstrip("\r\n").rstrip("\r\n")
+    else:
+        return ""
 
 
 class Token:
