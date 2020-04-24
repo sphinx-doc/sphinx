@@ -1272,10 +1272,12 @@ class ASTEnumerator(ASTBase):
 
 
 class ASTDeclaration(ASTBaseBase):
-    def __init__(self, objectType: str, directiveType: str, declaration: Any) -> None:
+    def __init__(self, objectType: str, directiveType: str, declaration: Any,
+                 semicolon: bool = False) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
         self.declaration = declaration
+        self.semicolon = semicolon
 
         self.symbol = None  # type: Symbol
         # set by CObject._add_enumerator_to_parent
@@ -1304,7 +1306,10 @@ class ASTDeclaration(ASTBaseBase):
         return self.get_id(_max_id, True)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return transform(self.declaration)
+        res = transform(self.declaration)
+        if self.semicolon:
+            res += ';'
+        return res
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", options: Dict) -> None:
@@ -1340,6 +1345,8 @@ class ASTDeclaration(ASTBaseBase):
         else:
             assert False
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
+        if self.semicolon:
+            mainDeclNode += nodes.Text(';')
 
 
 class SymbolLookupResult:
@@ -2742,7 +2749,7 @@ class DefinitionParser(BaseParser):
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
                 decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
-                self.assert_end()
+                self.assert_end(allowSemicolon=True)
             except DefinitionError as exUntyped:
                 desc = "If just a name"
                 prevErrors.append((exUntyped, desc))
@@ -2875,7 +2882,12 @@ class DefinitionParser(BaseParser):
             declaration = self._parse_type(named=True, outer='type')
         else:
             assert False
-        return ASTDeclaration(objectType, directiveType, declaration)
+        if objectType != 'macro':
+            self.skip_ws()
+            semicolon = self.skip_string(';')
+        else:
+            semicolon = False
+        return ASTDeclaration(objectType, directiveType, declaration, semicolon)
 
     def parse_namespace_object(self) -> ASTNestedName:
         return self._parse_nested_name()

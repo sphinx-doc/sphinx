@@ -109,7 +109,8 @@ T = TypeVar('T')
         simple-declaration ->
             attribute-specifier-seq[opt] decl-specifier-seq[opt]
                 init-declarator-list[opt] ;
-        # Drop the semi-colon. For now: drop the attributes (TODO).
+        # Make the semicolon optional.
+        # For now: drop the attributes (TODO).
         # Use at most 1 init-declarator.
         -> decl-specifier-seq init-declarator
         -> decl-specifier-seq declarator initializer
@@ -3465,12 +3466,14 @@ class ASTTemplateDeclarationPrefix(ASTBase):
 
 class ASTDeclaration(ASTBase):
     def __init__(self, objectType: str, directiveType: str, visibility: str,
-                 templatePrefix: ASTTemplateDeclarationPrefix, declaration: Any) -> None:
+                 templatePrefix: ASTTemplateDeclarationPrefix, declaration: Any,
+                 semicolon: bool = False) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
         self.visibility = visibility
         self.templatePrefix = templatePrefix
         self.declaration = declaration
+        self.semicolon = semicolon
 
         self.symbol = None  # type: Symbol
         # set by CPPObject._add_enumerator_to_parent
@@ -3483,7 +3486,7 @@ class ASTDeclaration(ASTBase):
             templatePrefixClone = None
         return ASTDeclaration(self.objectType, self.directiveType,
                               self.visibility, templatePrefixClone,
-                              self.declaration.clone())
+                              self.declaration.clone(), self.semicolon)
 
     @property
     def name(self) -> ASTNestedName:
@@ -3525,6 +3528,8 @@ class ASTDeclaration(ASTBase):
         if self.templatePrefix:
             res.append(transform(self.templatePrefix))
         res.append(transform(self.declaration))
+        if self.semicolon:
+            res.append(';')
         return ''.join(res)
 
     def describe_signature(self, signode: desc_signature, mode: str,
@@ -3578,6 +3583,8 @@ class ASTDeclaration(ASTBase):
         else:
             assert False
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
+        if self.semicolon:
+            mainDeclNode += nodes.Text(';')
 
 
 class ASTNamespace(ASTBase):
@@ -5875,7 +5882,7 @@ class DefinitionParser(BaseParser):
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
                 decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
-                self.assert_end()
+                self.assert_end(allowSemicolon=True)
             except DefinitionError as exUntyped:
                 if outer == 'type':
                     desc = "If just a name"
@@ -6286,8 +6293,10 @@ class DefinitionParser(BaseParser):
                                                           templatePrefix,
                                                           fullSpecShorthand=False,
                                                           isMember=objectType == 'member')
+        self.skip_ws()
+        semicolon = self.skip_string(';')
         return ASTDeclaration(objectType, directiveType, visibility,
-                              templatePrefix, declaration)
+                              templatePrefix, declaration, semicolon)
 
     def parse_namespace_object(self) -> ASTNamespace:
         templatePrefix = self._parse_template_declaration_prefix(objectType="namespace")

@@ -338,10 +338,14 @@ class BaseParser:
         self.pos = self.end
         return rv
 
-    def assert_end(self) -> None:
+    def assert_end(self, *, allowSemicolon: bool = False) -> None:
         self.skip_ws()
-        if not self.eof:
-            self.fail('Expected end of definition.')
+        if allowSemicolon:
+            if not self.eof and self.definition[self.pos:] != ';':
+                self.fail('Expected end of definition or ;.')
+        else:
+            if not self.eof:
+                self.fail('Expected end of definition.')
 
     ################################################################################
 

@@ -33,10 +33,8 @@ def parse(name, string):
     return ast
 
 
-def check(name, input, idDict, output=None):
+def _check(name, input, idDict, output):
     # first a simple check of the AST
-    if output is None:
-        output = input
     ast = parse(name, input)
     res = str(ast)
     if res != output:
@@ -81,6 +79,15 @@ def check(name, input, idDict, output=None):
             print("expected: %s" % idExpected[i])
         print(rootSymbol.dump(0))
         raise DefinitionError("")
+
+
+def check(name, input, idDict, output=None):
+    if output is None:
+        output = input
+    # First, check without semicolon
+    _check(name, input, idDict, output)
+    # Second, check with semicolon
+    _check(name, input + ' ;', idDict, output + ';')
 
 
 def test_fundamental_types():
@@ -900,6 +907,13 @@ def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warnin
 def test_build_domain_cpp_backslash_ok(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_semicolon(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "semicolon")
     assert len(ws) == 0
 
 
