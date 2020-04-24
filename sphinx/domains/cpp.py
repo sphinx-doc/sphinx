@@ -109,6 +109,7 @@ T = TypeVar('T')
         simple-declaration ->
             attribute-specifier-seq[opt] decl-specifier-seq[opt]
                 init-declarator-list[opt] ;
+        # Make the semicolon optional.
         # For now: drop the attributes (TODO).
         # Use at most 1 init-declarator.
         -> decl-specifier-seq init-declarator
@@ -2690,13 +2691,11 @@ class ASTInitializer(ASTBase):
 
 
 class ASTType(ASTBase):
-    def __init__(self, declSpecs: ASTDeclSpecs, decl: ASTDeclarator,
-                 semicolon: bool = False) -> None:
+    def __init__(self, declSpecs: ASTDeclSpecs, decl: ASTDeclarator) -> None:
         assert declSpecs
         assert decl
         self.declSpecs = declSpecs
         self.decl = decl
-        self.semicolon = semicolon
 
     @property
     def name(self) -> ASTNestedName:
@@ -2770,8 +2769,6 @@ class ASTType(ASTBase):
         if self.decl.require_space_after_declSpecs() and len(declSpecs) > 0:
             res.append(' ')
         res.append(transform(self.decl))
-        if self.semicolon:
-            res.append(';')
         return ''.join(res)
 
     def get_type_declaration_prefix(self) -> str:
@@ -2792,8 +2789,6 @@ class ASTType(ASTBase):
         if mode == 'markType':
             mode = 'noneIsName'
         self.decl.describe_signature(signode, mode, env, symbol)
-        if self.semicolon:
-            signode += nodes.Text(';')
 
 
 class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
@@ -5876,7 +5871,6 @@ class DefinitionParser(BaseParser):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
             if outer != 'operatorCast':
                 assert named
-        semicolon = False
         if outer in ('type', 'function'):
             # We allow type objects to just be a name.
             # Some functions don't have normal return types: constructors,
@@ -5888,8 +5882,7 @@ class DefinitionParser(BaseParser):
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
                 decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
-                semicolon = self.skip_string_and_ws(';')
-                self.assert_end()
+                self.assert_end(allowSemicolon=True)
             except DefinitionError as exUntyped:
                 if outer == 'type':
                     desc = "If just a name"
@@ -5944,7 +5937,7 @@ class DefinitionParser(BaseParser):
                 named = 'single'
             declSpecs = self._parse_decl_specs(outer=outer)
             decl = self._parse_declarator(named=named, paramMode=paramMode)
-        return ASTType(declSpecs, decl, semicolon)
+        return ASTType(declSpecs, decl)
 
     def _parse_type_with_init(
             self, named: Union[bool, str],
@@ -6300,7 +6293,8 @@ class DefinitionParser(BaseParser):
                                                           templatePrefix,
                                                           fullSpecShorthand=False,
                                                           isMember=objectType == 'member')
-        semicolon = self.skip_string_and_ws(';')
+        self.skip_ws()
+        semicolon = self.skip_string(';')
         return ASTDeclaration(objectType, directiveType, visibility,
                               templatePrefix, declaration, semicolon)
 
