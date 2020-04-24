@@ -33,6 +33,12 @@ The following is a list of deprecated interfaces.
      - 5.0
      - N/A
 
+   * - ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` takes an object
+       type as an argument
+     - 3.1
+     - 5.0
+     - N/A
+
    * - The ``template_dir`` argument of
        ``sphinx.ext.autosummary.generate.AutosummaryRenderer``
      - 3.1
@@ -53,6 +59,11 @@ The following is a list of deprecated interfaces.
 
    * - The ``template_dir`` argument of
        ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.generate.AutosummaryRenderer.exists()``
      - 3.1
      - 5.0
      - N/A

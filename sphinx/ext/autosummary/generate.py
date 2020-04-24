@@ -147,15 +147,30 @@ class AutosummaryRenderer:
 
     def exists(self, template_name: str) -> bool:
         """Check if template file exists."""
+        warnings.warn('AutosummaryRenderer.exists() is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
         try:
             self.env.get_template(template_name)
             return True
         except TemplateNotFound:
             return False
 
-    def render(self, template_name: str, context: Dict) -> str:
+    def render(self, objtype: str, context: Dict) -> str:
         """Render a template file."""
-        return self.env.get_template(template_name).render(context)
+        if objtype.endswith('.rst'):
+            # old styled: template_name is given
+            warnings.warn('AutosummaryRenderer.render() takes an object type as an argument.',
+                          RemovedInSphinx50Warning, stacklevel=2)
+            return self.env.get_template(objtype).render(context)
+        else:
+            # objtype is given
+            try:
+                template = self.env.get_template('autosummary/%s.rst' % objtype)
+            except TemplateNotFound:
+                # fallback to base.rst
+                template = self.env.get_template('autosummary/base.rst')
+
+            return template.render(context)
 
 
 # -- Generating output ---------------------------------------------------------
@@ -166,11 +181,6 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  imported_members: bool, app: Any,
                                  recursive: bool) -> str:
     doc = get_documenter(app, obj, parent)
-
-    if template_name is None:
-        template_name = 'autosummary/%s.rst' % doc.objtype
-        if not template.exists(template_name):
-            template_name = 'autosummary/base.rst'
 
     def skip_member(obj: Any, name: str, objtype: str) -> bool:
         try:
@@ -256,7 +266,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     ns['objtype'] = doc.objtype
     ns['underline'] = len(name) * '='
 
-    return template.render(template_name, ns)
+    return template.render(doc.objtype, ns)
 
 
 def generate_autosummary_docs(sources: List[str], output_dir: str = None,
