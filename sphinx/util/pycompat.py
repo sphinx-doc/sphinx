@@ -15,7 +15,9 @@ import textwrap
 import warnings
 from typing import Any, Callable
 
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.deprecation import (
+    RemovedInSphinx40Warning, RemovedInSphinx60Warning, deprecated_alias
+)
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import terminal_safe
@@ -31,6 +33,9 @@ logger = logging.getLogger(__name__)
 # convert_with_2to3():
 # support for running 2to3 over config files
 def convert_with_2to3(filepath: str) -> str:
+    warnings.warn('convert_with_2to3() is deprecated',
+                  RemovedInSphinx60Warning, stacklevel=2)
+
     from lib2to3.refactor import RefactoringTool, get_fixers_from_package
     from lib2to3.pgen2.parse import ParseError
     fixers = get_fixers_from_package('lib2to3.fixes')
@@ -52,13 +57,15 @@ class UnicodeMixin:
 
     .. deprecated:: 2.0
     """
-    def __str__(self):
+    def __str__(self) -> str:
         warnings.warn('UnicodeMixin is deprecated',
                       RemovedInSphinx40Warning, stacklevel=2)
         return self.__unicode__()  # type: ignore
 
 
 def execfile_(filepath: str, _globals: Any, open: Callable = open) -> None:
+    warnings.warn('execfile_() is deprecated',
+                  RemovedInSphinx60Warning, stacklevel=2)
     from sphinx.util.osutil import fs_encoding
     with open(filepath, 'rb') as f:
         source = f.read()

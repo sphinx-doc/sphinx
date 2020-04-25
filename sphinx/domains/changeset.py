@@ -8,9 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-from collections import namedtuple
-from typing import Any, Dict, List
-from typing import cast
+from typing import Any, Dict, List, NamedTuple
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -21,8 +20,7 @@ from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
 
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -40,9 +38,13 @@ versionlabel_classes = {
 }
 
 
-# TODO: move to typing.NamedTuple after dropping py35 support (see #5958)
-ChangeSet = namedtuple('ChangeSet',
-                       ['type', 'docname', 'lineno', 'module', 'descname', 'content'])
+class ChangeSet(NamedTuple):
+    type: str
+    docname: str
+    lineno: int
+    module: str
+    descname: str
+    content: str
 
 
 class VersionChange(SphinxDirective):

@@ -13,16 +13,12 @@
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
@@ -561,7 +557,7 @@ class GoogleDocstring:
                     lines = self._consume_to_next_section()
             self._parsed_lines.extend(lines)
 
-    def _parse_admonition(self, admonition, section):
+    def _parse_admonition(self, admonition: str, section: str) -> List[str]:
         # type (str, str) -> List[str]
         lines = self._consume_to_next_section()
         return self._format_admonition(admonition, lines)
@@ -583,7 +579,11 @@ class GoogleDocstring:
                 if _type:
                     lines.append(':vartype %s: %s' % (_name, _type))
             else:
-                lines.extend(['.. attribute:: ' + _name, ''])
+                lines.append('.. attribute:: ' + _name)
+                if self._opt and 'noindex' in self._opt:
+                    lines.append('   :noindex:')
+                lines.append('')
+
                 fields = self._format_field('', '', _desc)
                 lines.extend(self._indent(fields, 3))
                 if _type:
@@ -603,7 +603,7 @@ class GoogleDocstring:
         label = labels.get(section.lower(), section)
         return self._parse_generic_section(label, use_admonition)
 
-    def _parse_custom_generic_section(self, section):
+    def _parse_custom_generic_section(self, section: str) -> List[str]:
         # for now, no admonition for simple custom sections
         return self._parse_generic_section(section, False)
 
@@ -641,6 +641,8 @@ class GoogleDocstring:
         lines = []  # type: List[str]
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
+            if self._opt and 'noindex' in self._opt:
+                lines.append('   :noindex:')
             if _desc:
                 lines.extend([''] + self._indent(_desc, 3))
             lines.append('')

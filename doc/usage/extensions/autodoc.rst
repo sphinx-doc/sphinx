@@ -180,7 +180,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      This can be combined with ``undoc-members`` to document *all* available
      members of the class or module.
 
-     It can take an anchestor class not to document inherited members from it.
+     It can take an ancestor class not to document inherited members from it.
      By default, members of ``object`` class are not documented.  To show them
      all, give ``None`` to the option.
 
@@ -340,9 +340,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       a decorator replaces the decorated function with another, it must copy the
       original ``__doc__`` to the new function.
 
-      From Python 2.5, :func:`functools.wraps` can be used to create
-      well-behaved decorating functions.
-
 
 Configuration
 -------------
@@ -469,9 +466,13 @@ There are also config values that you can set:
    following values:
 
    * ``'signature'`` -- Show typehints as its signature (default)
+   * ``'description'`` -- Show typehints as content of function or method
    * ``'none'`` -- Do not show typehints
 
    .. versionadded:: 2.1
+   .. versionadded:: 3.0
+
+      New option ``'description'`` is added.
 
 .. confval:: autodoc_warningiserror
 
@@ -525,6 +526,17 @@ autodoc provides the following additional events:
       ``noindex`` that are true if the flag option of same name was given to the
       auto directive
    :param lines: the lines of the docstring, see above
+
+.. event:: autodoc-before-process-signature (app, obj, bound_method)
+
+   .. versionadded:: 2.4
+
+   Emitted before autodoc formats a signature for an object. The event handler
+   can modify an object to change its signature.
+
+   :param app: the Sphinx application object
+   :param obj: the object itself
+   :param bound_method: a boolean indicates an object is bound method or not
 
 .. event:: autodoc-process-signature (app, what, name, obj, options, signature, return_annotation)
 

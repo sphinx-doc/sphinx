@@ -282,6 +282,9 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnod
     if 'std:cmdoption' in objtypes:
         # until Sphinx-1.6, cmdoptions are stored as std:option
         objtypes.append('std:option')
+    if 'py:attribute' in objtypes:
+        # Since Sphinx-2.1, properties are stored as py:method
+        objtypes.append('py:method')
     to_try = [(inventories.main_inventory, target)]
     if domain:
         full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
@@ -356,7 +359,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             else:
                 config.intersphinx_mapping[key] = (name, (uri, inv))
         except Exception as exc:
-            logger.warning(__('Fail to read intersphinx_mapping[%s], Ignored: %r'), key, exc)
+            logger.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), key, exc)
             config.intersphinx_mapping.pop(key)
 
 
@@ -364,7 +367,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
-    app.connect('config-inited', normalize_intersphinx_mapping)
+    app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('missing-reference', missing_reference)
     return {

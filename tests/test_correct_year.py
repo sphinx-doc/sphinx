@@ -32,5 +32,5 @@ def expect_date(request, monkeypatch):
 @pytest.mark.sphinx('html', testroot='correct-year')
 def test_correct_year(expect_date, app):
     app.build()
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert expect_date in content

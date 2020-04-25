@@ -9,14 +9,14 @@
 """
 
 from typing import Any, Dict
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.transforms.references import DanglingReferences, Substitutions
 
 from sphinx.transforms import SphinxTransform
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

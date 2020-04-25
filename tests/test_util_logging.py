@@ -48,6 +48,14 @@ def test_info_and_warning(app, status, warning):
     assert 'message5' in warning.getvalue()
 
 
+def test_Exception(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.info(Exception)
+    assert "<class 'Exception'>" in status.getvalue()
+
+
 def test_verbosity_filter(app, status, warning):
     # verbosity = 0: INFO
     app.verbosity = 0
@@ -101,6 +109,17 @@ def test_nonl_info_log(app, status, warning):
     logger.info('message3')
 
     assert 'message1message2\nmessage3' in status.getvalue()
+
+
+def test_once_warning_log(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.warning('message: %d', 1, once=True)
+    logger.warning('message: %d', 1, once=True)
+    logger.warning('message: %d', 2, once=True)
+
+    assert 'WARNING: message: 1\nWARNING: message: 2\n' in strip_escseq(warning.getvalue())
 
 
 def test_is_suppressed_warning():
@@ -231,6 +250,20 @@ def test_warning_location(app, status, warning):
     node.source, node.line = (None, None)
     logger.warning('message7', location=node)
     assert colorize('red', 'WARNING: message7') in warning.getvalue()
+
+
+def test_suppress_logging(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.warning('message1')
+    with logging.suppress_logging():
+        logger.warning('message2')
+        assert 'WARNING: message1' in warning.getvalue()
+        assert 'WARNING: message2' not in warning.getvalue()
+
+    assert 'WARNING: message1' in warning.getvalue()
+    assert 'WARNING: message2' not in warning.getvalue()
 
 
 def test_pending_warnings(app, status, warning):

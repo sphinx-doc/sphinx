@@ -12,9 +12,8 @@ import html
 import os
 import re
 import warnings
-from collections import namedtuple
 from os import path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, NamedTuple, Set, Tuple
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
@@ -85,10 +84,30 @@ VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
 REFURI_RE = re.compile("([^#:]*#)(.*)")
 
 
-ManifestItem = namedtuple('ManifestItem', ['href', 'id', 'media_type'])
-Spine = namedtuple('Spine', ['idref', 'linear'])
-Guide = namedtuple('Guide', ['type', 'title', 'uri'])
-NavPoint = namedtuple('NavPoint', ['navpoint', 'playorder', 'text', 'refuri', 'children'])
+class ManifestItem(NamedTuple):
+    href: str
+    id: str
+    media_type: str
+
+
+class Spine(NamedTuple):
+    idref: str
+    linear: bool
+
+
+class Guide(NamedTuple):
+    type: str
+    title: str
+    uri: str
+
+
+class NavPoint(NamedTuple):
+    navpoint: str
+    playorder: int
+    text: str
+    refuri: str
+    children: List[Any]     # mypy does not support recursive types
+                            # https://github.com/python/mypy/issues/7069
 
 
 def sphinx_smarty_pants(t: str, language: str = 'en') -> str:
@@ -259,6 +278,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Some readers crash because they interpret the part as a
         transport protocol specification.
         """
+        def update_node_id(node: Element) -> None:
+            """Update IDs of given *node*."""
+            new_ids = []
+            for node_id in node['ids']:
+                new_id = self.fix_fragment('', node_id)
+                if new_id not in new_ids:
+                    new_ids.append(new_id)
+            node['ids'] = new_ids
+
         for reference in tree.traverse(nodes.reference):
             if 'refuri' in reference:
                 m = self.refuri_re.match(reference['refuri'])
@@ -268,22 +296,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 reference['refid'] = self.fix_fragment('', reference['refid'])
 
         for target in tree.traverse(nodes.target):
-            for i, node_id in enumerate(target['ids']):
-                if ':' in node_id:
-                    target['ids'][i] = self.fix_fragment('', node_id)
+            update_node_id(target)
 
             next_node = target.next_node(ascend=True)  # type: Node
             if isinstance(next_node, nodes.Element):
-                for i, node_id in enumerate(next_node['ids']):
-                    if ':' in node_id:
-                        next_node['ids'][i] = self.fix_fragment('', node_id)
+                update_node_id(next_node)
 
         for desc_signature in tree.traverse(addnodes.desc_signature):
-            ids = desc_signature.attributes['ids']
-            newids = []
-            for id in ids:
-                newids.append(self.fix_fragment('', id))
-            desc_signature.attributes['ids'] = newids
+            update_node_id(desc_signature)
 
     def add_visible_links(self, tree: nodes.document, show_urls: str = 'inline') -> None:
         """Add visible link targets for external links"""
@@ -635,7 +655,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         the parent node is reinserted in the subnav.
         """
         navstack = []  # type: List[NavPoint]
-        navstack.append(NavPoint('dummy', '', '', '', []))
+        navstack.append(NavPoint('dummy', 0, '', '', []))
         level = 0
         lastnode = None
         for node in nodes:

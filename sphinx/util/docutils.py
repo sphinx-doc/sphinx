@@ -15,8 +15,8 @@ from copy import copy
 from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
-from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple
-from typing import cast
+from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, cast
 
 import docutils
 from docutils import nodes
@@ -34,9 +34,7 @@ from sphinx.util.typing import RoleFunction
 logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
@@ -330,9 +328,13 @@ class SphinxDirective(Directive):
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
+    def get_source_info(self) -> Tuple[str, int]:
+        """Get source and line number."""
+        return self.state_machine.get_source_and_line(self.lineno)
+
     def set_source_info(self, node: Node) -> None:
         """Set source and line number to the node."""
-        node.source, node.line = self.state_machine.get_source_and_line(self.lineno)
+        node.source, node.line = self.get_source_info()
 
 
 class SphinxRole:
@@ -388,12 +390,13 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def set_source_info(self, node: Node, lineno: int = None) -> None:
+    def get_source_info(self, lineno: int = None) -> Tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
+        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
-        source_info = self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
-        node.source, node.line = source_info
+    def set_source_info(self, node: Node, lineno: int = None) -> None:
+        node.source, node.line = self.get_source_info(lineno)
 
 
 class ReferenceRole(SphinxRole):
@@ -404,6 +407,7 @@ class ReferenceRole(SphinxRole):
     ``self.title`` and ``self.target``.
     """
     has_explicit_title = None   #: A boolean indicates the role has explicit title or not.
+    disabled = False            #: A boolean indicates the reference is disabled.
     title = None                #: The link title for the interpreted text.
     target = None               #: The link target for the interpreted text.
 
@@ -413,6 +417,9 @@ class ReferenceRole(SphinxRole):
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
                  inliner: Inliner, options: Dict = {}, content: List[str] = []
                  ) -> Tuple[List[Node], List[system_message]]:
+        # if the first character is a bang, don't cross-reference at all
+        self.disabled = text.startswith('!')
+
         matched = self.explicit_title_re.match(text)
         if matched:
             self.has_explicit_title = True
@@ -429,7 +436,10 @@ class ReferenceRole(SphinxRole):
 class SphinxTranslator(nodes.NodeVisitor):
     """A base class for Sphinx translators.
 
-    This class provides helper methods for Sphinx translators.
+    This class adds a support for visitor/departure method for super node class
+    if visitor/departure method for node class is not found.
+
+    It also provides helper methods for Sphinx translators.
 
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
@@ -440,6 +450,40 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
+
+    def dispatch_visit(self, node: Node) -> None:
+        """
+        Dispatch node to appropriate visitor method.
+        The priority of visitor method is:
+
+        1. ``self.visit_{node_class}()``
+        2. ``self.visit_{supre_node_class}()``
+        3. ``self.unknown_visit()``
+        """
+        for node_class in node.__class__.__mro__:
+            method = getattr(self, 'visit_%s' % (node_class.__name__), None)
+            if method:
+                method(node)
+                break
+        else:
+            super().dispatch_visit(node)
+
+    def dispatch_departure(self, node: Node) -> None:
+        """
+        Dispatch node to appropriate departure method.
+        The priority of departure method is:
+
+        1. ``self.depart_{node_class}()``
+        2. ``self.depart_{super_node_class}()``
+        3. ``self.unknown_departure()``
+        """
+        for node_class in node.__class__.__mro__:
+            method = getattr(self, 'depart_%s' % (node_class.__name__), None)
+            if method:
+                method(node)
+                break
+        else:
+            super().dispatch_departure(node)
 
 
 # cache a vanilla instance of nodes.document

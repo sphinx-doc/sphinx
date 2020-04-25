@@ -45,7 +45,6 @@ package.
 
 .. automethod:: Sphinx.add_enumerable_node(node, figtype, title_getter=None, \*\*kwds)
 
-.. method:: Sphinx.add_directive(name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive(name, directiveclass)
 
 .. automethod:: Sphinx.add_role(name, role)
@@ -54,7 +53,6 @@ package.
 
 .. automethod:: Sphinx.add_domain(domain)
 
-.. method:: Sphinx.add_directive_to_domain(domain, name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive_to_domain(domain, name, directiveclass)
 
 .. automethod:: Sphinx.add_role_to_domain(domain, name, role)
@@ -107,6 +105,7 @@ Emitting events
 ---------------
 
 .. class:: Sphinx
+   :noindex:
 
    .. automethod:: emit(event, \*arguments)
 
@@ -222,7 +221,7 @@ connect handlers to the events.  Example:
    *objtype* arguments are strings indicating object description of the object.
    And *contentnode* is a content for the object.  It can be modified in-place.
 
-   .. versionadded:: 3.0
+   .. versionadded:: 2.4
 
 .. event:: doctree-read (app, doctree)
 
@@ -267,11 +266,6 @@ connect handlers to the events.  Example:
    *other* is the environment object from the subprocess, *env* is the
    environment from the main process.  *docnames* is a set of document names
    that have been read in the subprocess.
-
-   For a sample of how to deal with this event, look at the standard
-   ``sphinx.ext.todo`` extension.  The implementation is often similar to that
-   of :event:`env-purge-doc`, only that information is not removed, but added to
-   the main environment from the other environment.
 
    .. versionadded:: 1.3
 

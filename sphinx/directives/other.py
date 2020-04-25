@@ -8,7 +8,7 @@
 
 import re
 from typing import Any, Dict, List
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -26,8 +26,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -85,14 +84,14 @@ class TocTree(SphinxDirective):
         ret.append(wrappernode)
         return ret
 
-    def parse_content(self, toctree):
+    def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
         suffixes = self.config.source_suffix
 
         # glob target documents
         all_docnames = self.env.found_docs.copy()
         all_docnames.remove(self.env.docname)  # remove current document
 
-        ret = []
+        ret = []  # type: List[Node]
         excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
@@ -145,6 +144,7 @@ class TocTree(SphinxDirective):
         # entries contains all entries (self references, external links etc.)
         if 'reversed' in self.options:
             toctree['entries'] = list(reversed(toctree['entries']))
+            toctree['includefiles'] = list(reversed(toctree['includefiles']))
 
         return ret
 

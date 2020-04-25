@@ -22,6 +22,13 @@ from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
+try:
+    # Enable pyximport to test cython module
+    import pyximport
+    pyximport.install()
+except ImportError:
+    pyximport = None
+
 app = None
 
 
@@ -193,7 +200,7 @@ def test_format_signature():
     assert formatsig('function', 'f', f, None, None) == '(a, b, c=1, **d)'
     assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
     assert formatsig('function', 'f', f, None, 'None') == '(a, b, c=1, **d) -> None'
-    assert formatsig('function', 'g', g, None, None) == r"(a='\\n')"
+    assert formatsig('function', 'g', g, None, None) == r"(a='\n')"
 
     # test for classes
     class D:
@@ -247,12 +254,12 @@ def test_format_signature():
     assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
     assert formatsig('method', 'H.foo', H.foo1, 'a', None) == '(a)'
     assert formatsig('method', 'H.foo', H.foo2, None, None) == '(*c)'
-    assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\\n')"
+    assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\n')"
 
     # test bound methods interpreted as functions
     assert formatsig('function', 'foo', H().foo1, None, None) == '(b, *c)'
     assert formatsig('function', 'foo', H().foo2, None, None) == '(*c)'
-    assert formatsig('function', 'foo', H().foo3, None, None) == r"(d='\\n')"
+    assert formatsig('function', 'foo', H().foo3, None, None) == r"(d='\n')"
 
     # test exception handling (exception is caught and args is '')
     directive.env.config.autodoc_docstring_signature = False
@@ -361,7 +368,7 @@ def test_new_documenter(app):
         '   :module: target',
         '',
         '   documentation for the integer',
-        '   '
+        '',
     ]
 
 
@@ -420,7 +427,7 @@ def test_py_module(app, warning):
         '   :module: target',
         '',
         '   Function.',
-        '   '
+        '',
     ]
     assert ("don't know which module to import for autodocumenting 'Class.meth'"
             not in warning.getvalue())
@@ -435,7 +442,7 @@ def test_autodoc_decorator(app):
         '   :module: target.decorator',
         '',
         '   docstring for deco1',
-        '   '
+        '',
     ]
 
     actual = do_autodoc(app, 'decorator', 'target.decorator.deco2')
@@ -445,7 +452,7 @@ def test_autodoc_decorator(app):
         '   :module: target.decorator',
         '',
         '   docstring for deco2',
-        '   '
+        '',
     ]
 
 
@@ -458,7 +465,7 @@ def test_autodoc_exception(app):
         '   :module: target',
         '',
         '   My custom exception.',
-        '   '
+        '',
     ]
 
 
@@ -685,6 +692,7 @@ def test_autodoc_ignore_module_all(app):
     assert list(filter(lambda l: 'class::' in l, actual)) == [
         '.. py:class:: Class(arg)',
         '.. py:class:: CustomDict',
+        '.. py:class:: InnerChild',
         '.. py:class:: InstAttCls()',
         '.. py:class:: Outer',
         '   .. py:class:: Outer.Inner',
@@ -725,7 +733,7 @@ def test_autodoc_subclass_of_builtin_class(app):
         '   :module: target',
         '',
         '   Docstring.',
-        '   '
+        '',
     ]
 
 
@@ -739,23 +747,23 @@ def test_autodoc_inner_class(app):
         '   :module: target',
         '',
         '   Foo',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:class:: Outer.Inner',
         '      :module: target',
-        '   ',
+        '',
         '      Foo',
-        '      ',
-        '      ',
+        '',
+        '',
         '      .. py:method:: Outer.Inner.meth()',
         '         :module: target',
-        '      ',
+        '',
         '         Foo',
-        '         ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
-        '   ',
+        '',
         '      alias of :class:`builtins.dict`'
     ]
 
@@ -766,13 +774,25 @@ def test_autodoc_inner_class(app):
         '   :module: target.Outer',
         '',
         '   Foo',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: Inner.meth()',
         '      :module: target.Outer',
-        '   ',
+        '',
         '      Foo',
-        '      ',
+        '',
+    ]
+
+    options['show-inheritance'] = True
+    actual = do_autodoc(app, 'class', 'target.InnerChild', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: InnerChild',
+        '   :module: target', '',
+        '   Bases: :class:`target.Outer.Inner`',
+        '',
+        '   InnerChild docstring',
+        '',
     ]
 
 
@@ -786,7 +806,7 @@ def test_autodoc_classmethod(app):
         '   :classmethod:',
         '',
         '   Inherited class method.',
-        '   '
+        '',
     ]
 
 
@@ -800,7 +820,7 @@ def test_autodoc_staticmethod(app):
         '   :staticmethod:',
         '',
         '   Inherited static method.',
-        '   '
+        '',
     ]
 
 
@@ -814,19 +834,19 @@ def test_autodoc_descriptor(app):
         '.. py:class:: Class',
         '   :module: target.descriptor',
         '',
-        '   ',
+        '',
         '   .. py:attribute:: Class.descr',
         '      :module: target.descriptor',
-        '   ',
+        '',
         '      Descriptor instance docstring.',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: Class.prop',
         '      :module: target.descriptor',
         '      :property:',
-        '   ',
+        '',
         '      Property.',
-        '      '
+        ''
     ]
 
 
@@ -841,7 +861,7 @@ def test_autodoc_c_module(app):
         "   Convert a time tuple to a string, e.g. 'Sat Jun 06 16:26:11 1998'.",
         '   When the time tuple is not present, current time as returned by localtime()',
         '   is used.',
-        '   '
+        '',
     ]
 
 
@@ -930,10 +950,10 @@ def test_autodoc_module_scope(app):
         '',
         '.. py:attribute:: Class.mdocattr',
         '   :module: target',
-        '   :annotation: = <_io.StringIO object>',
+        '   :value: <_io.StringIO object>',
         '',
         '   should be documented as well - süß',
-        '   '
+        '',
     ]
 
 
@@ -946,10 +966,10 @@ def test_autodoc_class_scope(app):
         '',
         '.. py:attribute:: Class.mdocattr',
         '   :module: target',
-        '   :annotation: = <_io.StringIO object>',
+        '   :value: <_io.StringIO object>',
         '',
         '   should be documented as well - süß',
-        '   '
+        '',
     ]
 
 
@@ -963,16 +983,16 @@ def test_class_attributes(app):
         '.. py:class:: AttCls',
         '   :module: target',
         '',
-        '   ',
+        '',
         '   .. py:attribute:: AttCls.a1',
         '      :module: target',
-        '      :annotation: = hello world',
-        '   ',
-        '   ',
+        '      :value: hello world',
+        '',
+        '',
         '   .. py:attribute:: AttCls.a2',
         '      :module: target',
-        '      :annotation: = None',
-        '   '
+        '      :value: None',
+        ''
     ]
 
 
@@ -986,43 +1006,43 @@ def test_instance_attributes(app):
         '   :module: target',
         '',
         '   Class with documented class and instance attributes.',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: InstAttCls.ca1',
         '      :module: target',
-        "      :annotation: = 'a'",
-        '   ',
+        "      :value: 'a'",
+        '',
         '      Doc comment for class attribute InstAttCls.ca1.',
         '      It can have multiple lines.',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: InstAttCls.ca2',
         '      :module: target',
-        "      :annotation: = 'b'",
-        '   ',
+        "      :value: 'b'",
+        '',
         '      Doc comment for InstAttCls.ca2. One line only.',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: InstAttCls.ca3',
         '      :module: target',
-        "      :annotation: = 'c'",
-        '   ',
+        "      :value: 'c'",
+        '',
         '      Docstring for class attribute InstAttCls.ca3.',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: InstAttCls.ia1',
         '      :module: target',
-        '      :annotation: = None',
-        '   ',
+        '      :value: None',
+        '',
         '      Doc comment for instance attribute InstAttCls.ia1',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: InstAttCls.ia2',
         '      :module: target',
-        '      :annotation: = None',
-        '   ',
+        '      :value: None',
+        '',
         '      Docstring for instance attribute InstAttCls.ia2.',
-        '      '
+        ''
     ]
 
     # pick up arbitrary attributes
@@ -1034,22 +1054,22 @@ def test_instance_attributes(app):
         '   :module: target',
         '',
         '   Class with documented class and instance attributes.',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: InstAttCls.ca1',
         '      :module: target',
-        "      :annotation: = 'a'",
-        '   ',
+        "      :value: 'a'",
+        '',
         '      Doc comment for class attribute InstAttCls.ca1.',
         '      It can have multiple lines.',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: InstAttCls.ia1',
         '      :module: target',
-        '      :annotation: = None',
-        '   ',
+        '      :value: None',
+        '',
         '      Doc comment for instance attribute InstAttCls.ia1',
-        '      '
+        ''
     ]
 
 
@@ -1066,30 +1086,30 @@ def test_slots(app):
         '.. py:class:: Bar()',
         '   :module: target.slots',
         '',
-        '   ',
+        '',
         '   .. py:attribute:: Bar.attr1',
         '      :module: target.slots',
-        '   ',
+        '',
         '      docstring of attr1',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: Bar.attr2',
         '      :module: target.slots',
-        '   ',
+        '',
         '      docstring of instance attr2',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: Bar.attr3',
         '      :module: target.slots',
-        '   ',
+        '',
         '',
         '.. py:class:: Foo',
         '   :module: target.slots',
         '',
-        '   ',
+        '',
         '   .. py:attribute:: Foo.attr',
         '      :module: target.slots',
-        '   ',
+        '',
     ]
 
 
@@ -1104,39 +1124,39 @@ def test_enum_class(app):
         '   :module: target.enum',
         '',
         '   this is enum class',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: EnumCls.say_hello()',
         '      :module: target.enum',
-        '   ',
+        '',
         '      a method says hello to you.',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: EnumCls.val1',
         '      :module: target.enum',
-        '      :annotation: = 12',
-        '   ',
+        '      :value: 12',
+        '',
         '      doc for val1',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: EnumCls.val2',
         '      :module: target.enum',
-        '      :annotation: = 23',
-        '   ',
+        '      :value: 23',
+        '',
         '      doc for val2',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: EnumCls.val3',
         '      :module: target.enum',
-        '      :annotation: = 34',
-        '   ',
+        '      :value: 34',
+        '',
         '      doc for val3',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:attribute:: EnumCls.val4',
         '      :module: target.enum',
-        '      :annotation: = 34',
-        '   '
+        '      :value: 34',
+        ''
     ]
 
     # checks for an attribute of EnumClass
@@ -1145,10 +1165,10 @@ def test_enum_class(app):
         '',
         '.. py:attribute:: EnumCls.val1',
         '   :module: target.enum',
-        '   :annotation: = 12',
+        '   :value: 12',
         '',
         '   doc for val1',
-        '   '
+        ''
     ]
 
 
@@ -1165,19 +1185,19 @@ def test_descriptor_class(app):
         '   :module: target.descriptor',
         '',
         '   Descriptor class docstring.',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: CustomDataDescriptor.meth()',
         '      :module: target.descriptor',
-        '   ',
+        '',
         '      Function.',
-        '      ',
+        '',
         '',
         '.. py:class:: CustomDataDescriptor2(doc)',
         '   :module: target.descriptor',
         '',
         '   Descriptor class with custom metaclass docstring.',
-        '   '
+        '',
     ]
 
 
@@ -1190,7 +1210,7 @@ def test_autofunction_for_callable(app):
         '   :module: target.callable',
         '',
         '   A callable object that behaves like a function.',
-        '   '
+        '',
     ]
 
 
@@ -1203,7 +1223,7 @@ def test_autofunction_for_method(app):
         '   :module: target.callable',
         '',
         '   docstring of Callable.method().',
-        '   '
+        '',
     ]
 
 
@@ -1220,39 +1240,39 @@ def test_abstractmethods():
         '.. py:class:: Base',
         '   :module: target.abstractmethods',
         '',
-        '   ',
+        '',
         '   .. py:method:: Base.abstractmeth()',
         '      :module: target.abstractmethods',
         '      :abstractmethod:',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: Base.classmeth()',
         '      :module: target.abstractmethods',
         '      :abstractmethod:',
         '      :classmethod:',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: Base.coroutinemeth()',
         '      :module: target.abstractmethods',
         '      :abstractmethod:',
         '      :async:',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: Base.meth()',
         '      :module: target.abstractmethods',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: Base.prop',
         '      :module: target.abstractmethods',
         '      :abstractmethod:',
         '      :property:',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: Base.staticmeth()',
         '      :module: target.abstractmethods',
         '      :abstractmethod:',
         '      :staticmethod:',
-        '   '
+        '',
     ]
 
 
@@ -1265,23 +1285,40 @@ def test_partialfunction():
         '.. py:module:: target.partialfunction',
         '',
         '',
-        '.. py:function:: func1()',
+        '.. py:function:: func1(a, b, c)',
         '   :module: target.partialfunction',
         '',
         '   docstring of func1',
-        '   ',
         '',
-        '.. py:function:: func2()',
+        '',
+        '.. py:function:: func2(b, c)',
         '   :module: target.partialfunction',
         '',
         '   docstring of func1',
-        '   ',
         '',
-        '.. py:function:: func3()',
+        '',
+        '.. py:function:: func3(c)',
         '   :module: target.partialfunction',
         '',
         '   docstring of func3',
-        '   '
+        '',
+        '',
+        '.. py:function:: func4()',
+        '   :module: target.partialfunction',
+        '',
+        '   docstring of func3',
+        '',
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_imported_partialfunction_should_not_shown_without_imported_members():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.imported_members', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.imported_members',
+        ''
     ]
 
 
@@ -1298,7 +1335,7 @@ def test_bound_method():
         '   :module: target.bound_method',
         '',
         '   Method docstring',
-        '   ',
+        '',
     ]
 
 
@@ -1320,13 +1357,29 @@ def test_coroutine():
         '.. py:class:: AsyncClass',
         '   :module: target.coroutine',
         '',
-        '   ',
+        '',
         '   .. py:method:: AsyncClass.do_coroutine()',
         '      :module: target.coroutine',
         '      :async:',
-        '   ',
+        '',
         '      A documented coroutine function',
-        '      '
+        '',
+        '',
+        '   .. py:method:: AsyncClass.do_coroutine2()',
+        '      :module: target.coroutine',
+        '      :async:',
+        '      :classmethod:',
+        '',
+        '      A documented coroutine classmethod',
+        '',
+        '',
+        '   .. py:method:: AsyncClass.do_coroutine3()',
+        '      :module: target.coroutine',
+        '      :async:',
+        '      :staticmethod:',
+        '',
+        '      A documented coroutine staticmethod',
+        '',
     ]
 
 
@@ -1338,32 +1391,175 @@ def test_partialmethod(app):
         '   :module: target.partialmethod',
         '',
         '   An example for partialmethod.',
-        '   ',
+        '',
         '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
-        '   ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: Cell.set_alive()',
         '      :module: target.partialmethod',
-        '   ',
+        '',
         '      Make a cell alive.',
-        '      ',
-        '   ',
-        '   .. py:method:: Cell.set_dead()',
-        '      :module: target.partialmethod',
-        '   ',
-        '      Make a cell dead.',
-        '      ',
-        '   ',
+        '',
+        '',
         '   .. py:method:: Cell.set_state(state)',
         '      :module: target.partialmethod',
-        '   ',
+        '',
         '      Update state of cell to *state*.',
-        '      ',
+        '',
     ]
 
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
     assert list(actual) == expected
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_wrappedfunction(app):
+    actual = do_autodoc(app, 'function', 'target.wrappedfunction.slow_function')
+    assert list(actual) == [
+        '',
+        '.. py:function:: slow_function(message, timeout)',
+        '   :module: target.wrappedfunction',
+        '',
+        '   This function is slow.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_partialmethod_undoc_members(app):
+    expected = [
+        '',
+        '.. py:class:: Cell',
+        '   :module: target.partialmethod',
+        '',
+        '   An example for partialmethod.',
+        '',
+        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '',
+        '',
+        '   .. py:method:: Cell.set_alive()',
+        '      :module: target.partialmethod',
+        '',
+        '      Make a cell alive.',
+        '',
+        '',
+        '   .. py:method:: Cell.set_dead()',
+        '      :module: target.partialmethod',
+        '',
+        '',
+        '   .. py:method:: Cell.set_state(state)',
+        '      :module: target.partialmethod',
+        '',
+        '      Update state of cell to *state*.',
+        '',
+    ]
+
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
+    assert list(actual) == expected
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typed_instance_variables(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.typed_vars', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typed_vars',
+        '',
+        '',
+        '.. py:class:: Class()',
+        '   :module: target.typed_vars',
+        '',
+        '',
+        '   .. py:attribute:: Class.attr1',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '      :value: 0',
+        '',
+        '',
+        '   .. py:attribute:: Class.attr2',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '      :value: None',
+        '',
+        '',
+        '   .. py:attribute:: Class.attr3',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '      :value: 0',
+        '',
+        '',
+        '   .. py:attribute:: Class.attr4',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '      :value: None',
+        '',
+        '      attr4',
+        '',
+        '',
+        '   .. py:attribute:: Class.attr5',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '      :value: None',
+        '',
+        '      attr5',
+        '',
+        '',
+        '   .. py:attribute:: Class.attr6',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '      :value: None',
+        '',
+        '      attr6',
+        '',
+        '',
+        '.. py:data:: attr1',
+        '   :module: target.typed_vars',
+        '   :type: str',
+        "   :value: ''",
+        '',
+        '   attr1',
+        '',
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars',
+        '   :type: str',
+        '   :value: None',
+        '',
+        '   attr2',
+        '',
+        '',
+        '.. py:data:: attr3',
+        '   :module: target.typed_vars',
+        '   :type: str',
+        "   :value: ''",
+        '',
+        '   attr3',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 9), reason='py39+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_Annotated(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.annotated', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.annotated',
+        '',
+        '',
+        '.. py:function:: hello(name: str) -> None',
+        '   :module: target.annotated',
+        '',
+        '   docstring',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='pycode-egg')
@@ -1378,12 +1574,89 @@ def test_autodoc_for_egged_code(app):
         '',
         '.. py:data:: CONSTANT',
         '   :module: sample',
-        '   :annotation: = 1',
+        '   :value: 1',
         '',
         '   constant on sample.py',
-        '   ',
+        '',
         '',
         '.. py:function:: hello(s)',
         '   :module: sample',
         ''
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatch():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatch', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatch',
+        '',
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '   func(arg: int, kwarg=None)',
+        '   func(arg: str, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='singledispatchmethod is available since python3.8')
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatchmethod():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatchmethod', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatchmethod',
+        '',
+        '',
+        '.. py:class:: Foo',
+        '   :module: target.singledispatchmethod',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Foo.meth(arg, kwarg=None)',
+        '      Foo.meth(arg: int, kwarg=None)',
+        '      Foo.meth(arg: str, kwarg=None)',
+        '      :module: target.singledispatchmethod',
+        '',
+        '      A method for general use.',
+        '',
+    ]
+
+
+@pytest.mark.usefixtures('setup_test')
+@pytest.mark.skipif(pyximport is None, reason='cython is not installed')
+def test_cython():
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.cython', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.cython',
+        '',
+        '',
+        '.. py:class:: Class',
+        '   :module: target.cython',
+        '',
+        '   Docstring.',
+        '',
+        '',
+        '   .. py:method:: Class.meth(name: str, age: int = 0) -> None',
+        '      :module: target.cython',
+        '',
+        '      Docstring.',
+        '',
+        '',
+        '.. py:function:: foo(x: int, *args, y: str, **kwargs)',
+        '   :module: target.cython',
+        '',
+        '   Docstring.',
+        '',
     ]

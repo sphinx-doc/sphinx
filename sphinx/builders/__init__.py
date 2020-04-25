@@ -11,7 +11,8 @@
 import pickle
 import time
 from os import path
-from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -42,9 +43,7 @@ try:
 except ImportError:
     multiprocessing = None
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -379,7 +378,7 @@ class Builder:
         added, changed, removed = self.env.get_outdated_files(updated)
 
         # allow user intervention as well
-        for docs in self.events.emit('env-get-outdated', self, added, changed, removed):
+        for docs in self.events.emit('env-get-outdated', self.env, added, changed, removed):
             changed.update(set(docs) & self.env.found_docs)
 
         # if files were added or removed, all documents with globbed toctrees

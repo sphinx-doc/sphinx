@@ -14,6 +14,7 @@ import shutil
 import tempfile
 from os import path
 from typing import Any, Dict, List
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 import pkg_resources
@@ -24,8 +25,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

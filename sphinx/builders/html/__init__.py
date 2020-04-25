@@ -15,7 +15,7 @@ import sys
 import warnings
 from hashlib import md5
 from os import path
-from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
+from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple, Type
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -47,10 +47,6 @@ from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.util.osutil import os_path, relative_uri, ensuredir, movefile, copyfile
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 # HTML5 Writer is available or not
@@ -271,6 +267,19 @@ class StandaloneHTMLBuilder(Builder):
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
+        if self.theme:
+            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
+        else:
+            dark_style = None
+
+        if dark_style is not None:
+            self.dark_highlighter = PygmentsBridge('html', dark_style)
+            self.add_css_file('pygments_dark.css',
+                              media='(prefers-color-scheme: dark)',
+                              id='pygments_dark_css')
+        else:
+            self.dark_highlighter = None
+
     def init_css_files(self) -> None:
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
@@ -473,6 +482,7 @@ class StandaloneHTMLBuilder(Builder):
             'show_source': self.config.html_show_sourcelink,
             'sourcelink_suffix': self.config.html_sourcelink_suffix,
             'file_suffix': self.out_suffix,
+            'link_suffix': self.link_suffix,
             'script_files': self.script_files,
             'language': self.config.language,
             'css_files': self.css_files,
@@ -483,7 +493,7 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
-            'html5_doctype': html5_ready and not self.config.html4_writer
+            'html5_doctype': html5_ready and not self.config.html4_writer,
         }
         if self.theme:
             self.globalcontext.update(
@@ -538,7 +548,7 @@ class StandaloneHTMLBuilder(Builder):
         title = self.render_partial(title_node)['title'] if title_node else ''
 
         # Suffix for the document
-        source_suffix = path.splitext(self.env.doc2path(docname))[1]
+        source_suffix = self.env.doc2path(docname, False)[len(docname):]
 
         # the name for the copied source
         if self.config.html_copy_source:
@@ -718,6 +728,10 @@ class StandaloneHTMLBuilder(Builder):
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
             f.write(self.highlighter.get_stylesheet())
 
+        if self.dark_highlighter:
+            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
+                f.write(self.dark_highlighter.get_stylesheet())
+
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
         if self.config.language is not None:
@@ -807,13 +821,17 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
             for node in doctree.traverse(nodes.image):
-                scale_keys = ('scale', 'width', 'height')
-                if not any((key in node) for key in scale_keys) or \
-                   isinstance(node.parent, nodes.reference):
-                    # docutils does unfortunately not preserve the
-                    # ``target`` attribute on images, so we need to check
-                    # the parent node here.
+                if not any((key in node) for key in ['scale', 'width', 'height']):
+                    # resizing options are not given. scaled image link is available
+                    # only for resized images.
                     continue
+                elif isinstance(node.parent, nodes.reference):
+                    # A image having hyperlink target
+                    continue
+                elif 'no-scaled-link' in node['classes']:
+                    # scaled image link is disabled for this node
+                    continue
+
                 uri = node['uri']
                 reference = nodes.reference('', '', internal=True)
                 if uri in self.images:
@@ -847,7 +865,11 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
             try:
-                self.indexer.feed(pagename, filename, title, doctree)
+                metadata = self.env.metadata.get(pagename, {})
+                if 'nosearch' in metadata:
+                    self.indexer.feed(pagename, filename, '', new_document(''))
+                else:
+                    self.indexer.feed(pagename, filename, title, doctree)
             except TypeError:
                 # fallback for old search-adapters
                 self.indexer.feed(pagename, title, doctree)  # type: ignore
@@ -1205,12 +1227,12 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html4_writer', False, 'html')
 
     # event handlers
-    app.connect('config-inited', convert_html_css_files)
-    app.connect('config-inited', convert_html_js_files)
-    app.connect('config-inited', validate_html_extra_path)
-    app.connect('config-inited', validate_html_static_path)
-    app.connect('config-inited', validate_html_logo)
-    app.connect('config-inited', validate_html_favicon)
+    app.connect('config-inited', convert_html_css_files, priority=800)
+    app.connect('config-inited', convert_html_js_files, priority=800)
+    app.connect('config-inited', validate_html_extra_path, priority=800)
+    app.connect('config-inited', validate_html_static_path, priority=800)
+    app.connect('config-inited', validate_html_logo, priority=800)
+    app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
 

@@ -11,6 +11,7 @@
 from os import path
 from pprint import pformat
 from typing import Any, Callable, Dict, Iterator, List, Tuple, Union
+from typing import TYPE_CHECKING
 
 from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, contextfunction
 from jinja2.environment import Environment
@@ -22,8 +23,7 @@ from sphinx.theming import Theme
 from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 

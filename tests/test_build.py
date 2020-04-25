@@ -45,7 +45,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
             """))
 
         master_doc = srcdir / 'index.txt'
-        master_doc.write_text(master_doc.text() + dedent("""
+        master_doc.write_text(master_doc.read_text() + dedent("""
                               .. toctree::
 
                                  %(test_name)s/%(test_name)s

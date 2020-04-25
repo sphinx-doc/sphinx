@@ -17,19 +17,18 @@ from os import path, getenv
 from typing import (
     Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple, Union
 )
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import cd
-from sphinx.util.pycompat import execfile_
+from sphinx.util.osutil import cd, fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -39,9 +38,11 @@ CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
-ConfigValue = NamedTuple('ConfigValue', [('name', str),
-                                         ('value', Any),
-                                         ('rebuild', Union[bool, str])])
+
+class ConfigValue(NamedTuple):
+    name: str
+    value: Any
+    rebuild: Union[bool, str]
 
 
 def is_serializable(obj: Any) -> bool:
@@ -316,7 +317,9 @@ def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
     with cd(path.dirname(filename)):
         # during executing config file, current dir is changed to ``confdir``.
         try:
-            execfile_(filename, namespace)
+            with open(filename, 'rb') as f:
+                code = compile(f.read(), filename.encode(fs_encoding), 'exec')
+                exec(code, namespace)
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err)
@@ -324,6 +327,9 @@ def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
             msg = __("The configuration file (or one of the modules it imports) "
                      "called sys.exit()")
             raise ConfigError(msg)
+        except ConfigError:
+            # pass through ConfigError from conf.py as is.  It will be shown in console.
+            raise
         except Exception:
             msg = __("There is a programmable error in your configuration file:\n\n%s")
             raise ConfigError(msg % traceback.format_exc())
@@ -475,11 +481,11 @@ def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', convert_source_suffix)
-    app.connect('config-inited', init_numfig_format)
-    app.connect('config-inited', correct_copyright_year)
-    app.connect('config-inited', check_confval_types)
-    app.connect('config-inited', check_primary_domain)
+    app.connect('config-inited', convert_source_suffix, priority=800)
+    app.connect('config-inited', init_numfig_format, priority=800)
+    app.connect('config-inited', correct_copyright_year, priority=800)
+    app.connect('config-inited', check_confval_types, priority=800)
+    app.connect('config-inited', check_primary_domain, priority=800)
     app.connect('env-get-outdated', check_master_doc)
 
     return {

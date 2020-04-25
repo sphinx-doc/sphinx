@@ -9,14 +9,14 @@
 """
 
 from typing import Any, Dict
+from typing import TYPE_CHECKING
 
 from sphinx.config import Config
 from sphinx.errors import VersionRequirementError
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', verify_needs_extensions)
+    app.connect('config-inited', verify_needs_extensions, priority=800)
 
     return {
         'version': 'builtin',

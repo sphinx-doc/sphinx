@@ -10,7 +10,8 @@
 
 from os import path
 from textwrap import indent
-from typing import Any, Dict, List, Tuple, TypeVar
+from typing import Any, Dict, List, Tuple, Type, TypeVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -29,9 +30,7 @@ from sphinx.util.nodes import (
     extract_messages, is_pending_meta, traverse_translatable_index,
 )
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

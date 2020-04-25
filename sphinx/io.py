@@ -9,8 +9,8 @@
 """
 import codecs
 import warnings
-from typing import Any, List
-from typing import Type  # for python3.5.1
+from typing import Any, List, Type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.core import Publisher
@@ -38,8 +38,7 @@ from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -80,7 +79,7 @@ class SphinxBaseReader(standalone.Reader):
         self._app = app      # hold application object only for compatibility
         self._env = app.env
 
-    def get_transforms(self) -> List[Type[Transform]]:
+    def get_transforms(self) -> List["Type[Transform]"]:
         transforms = super().get_transforms() + self.transforms
 
         # remove transforms which is not needed for Sphinx

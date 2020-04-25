@@ -11,7 +11,8 @@
 import traceback
 from importlib import import_module
 from types import MethodType
-from typing import Any, Callable, Dict, Iterator, List, Tuple, Union
+from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.io import Input
@@ -35,9 +36,7 @@ from sphinx.util import logging
 from sphinx.util.logging import prefixed_warnings
 from sphinx.util.typing import RoleFunction, TitleGetter
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
 
@@ -296,7 +295,7 @@ class SphinxComponentRegistry:
 
     def add_translator(self, name: str, translator: "Type[nodes.NodeVisitor]",
                        override: bool = False) -> None:
-        logger.debug('[app] Change of translator for the %s builder.' % name)
+        logger.debug('[app] Change of translator for the %s builder.', name)
         if name in self.translators and not override:
             raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
@@ -356,7 +355,7 @@ class SphinxComponentRegistry:
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
         self.autodoc_attrgettrs[typ] = attrgetter
 
-    def add_css_files(self, filename, **attributes):
+    def add_css_files(self, filename: str, **attributes: str) -> None:
         self.css_files.append((filename, attributes))
 
     def add_js_file(self, filename: str, **attributes: str) -> None:
@@ -453,7 +452,7 @@ def merge_source_suffix(app: "Sphinx", config: Config) -> None:
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', merge_source_suffix)
+    app.connect('config-inited', merge_source_suffix, priority=800)
 
     return {
         'version': 'builtin',

@@ -12,7 +12,7 @@ import re
 import textwrap
 from os import path
 from typing import Any, Dict, Iterable, Iterator, List, Pattern, Set, Tuple, Union
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -27,8 +27,7 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.texinfo import TexinfoBuilder
 
 

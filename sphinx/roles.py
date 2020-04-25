@@ -10,8 +10,8 @@
 
 import re
 import warnings
-from typing import Any, Dict, List, Tuple
-from typing import Type  # for python3.5.1
+from typing import Any, Dict, List, Tuple, Type
+from typing import TYPE_CHECKING
 
 from docutils import nodes, utils
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -27,8 +27,7 @@ from sphinx.util.nodes import (
 )
 from sphinx.util.typing import RoleFunction
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -77,7 +76,7 @@ class XRefRole(ReferenceRole):
     innernodeclass = nodes.literal      # type: Type[TextElement]
 
     def __init__(self, fix_parens: bool = False, lowercase: bool = False,
-                 nodeclass: Type[Element] = None, innernodeclass: Type[TextElement] = None,
+                 nodeclass: "Type[Element]" = None, innernodeclass: "Type[TextElement]" = None,
                  warn_dangling: bool = False) -> None:
         self.fix_parens = fix_parens
         self.lowercase = lowercase
@@ -126,8 +125,7 @@ class XRefRole(ReferenceRole):
             self.refdomain, self.reftype = self.name.split(':', 1)
             self.classes = ['xref', self.refdomain, '%s-%s' % (self.refdomain, self.reftype)]
 
-        if self.text.startswith('!'):
-            # if the first character is a bang, don't cross-reference at all
+        if self.disabled:
             return self.create_non_xref_node()
         else:
             return self.create_xref_node()
@@ -394,8 +392,10 @@ class GUILabel(SphinxRole):
 
 
 class MenuSelection(GUILabel):
+    BULLET_CHARACTER = '\N{TRIANGULAR BULLET}'
+
     def run(self) -> Tuple[List[Node], List[system_message]]:
-        self.text = self.text.replace('-->', '\N{TRIANGULAR BULLET}')
+        self.text = self.text.replace('-->', self.BULLET_CHARACTER)
         return super().run()
 
 

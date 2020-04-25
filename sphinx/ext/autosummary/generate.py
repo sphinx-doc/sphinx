@@ -24,7 +24,7 @@ import pydoc
 import re
 import sys
 import warnings
-from typing import Any, Callable, Dict, List, Set, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple, Set, Tuple, Type
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -33,7 +33,7 @@ import sphinx.locale
 from sphinx import __display_version__
 from sphinx import package_dir
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
@@ -43,10 +43,6 @@ from sphinx.util import logging
 from sphinx.util import rst
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 logger = logging.getLogger(__name__)
@@ -66,18 +62,25 @@ class DummyApplication:
         pass
 
 
+AutosummaryEntry = NamedTuple('AutosummaryEntry', [('name', str),
+                                                   ('path', str),
+                                                   ('template', str)])
+
+
 def setup_documenters(app: Any) -> None:
     from sphinx.ext.autodoc import (
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter,
+        SingledispatchFunctionDocumenter,
     )
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter,
+        SingledispatchFunctionDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
@@ -117,6 +120,11 @@ class AutosummaryRenderer:
         self.env.filters['e'] = rst.escape
         self.env.filters['underline'] = _underline
 
+        if builder:
+            if builder.app.translator:
+                self.env.add_extension("jinja2.ext.i18n")
+                self.env.install_gettext_translations(builder.app.translator)  # type: ignore
+
     def exists(self, template_name: str) -> bool:
         """Check if template file exists."""
         try:
@@ -148,7 +156,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             return app.emit_firstresult('autodoc-skip-member', objtype, name,
                                         obj, False, {})
         except Exception as exc:
-            logger.warning(__('autosummary: failed to determine %r to be documented.'
+            logger.warning(__('autosummary: failed to determine %r to be documented, '
                               'the following exception was raised:\n%s'),
                            name, exc, type='autosummary')
             return False
@@ -260,22 +268,22 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     new_files = []
 
     # write
-    for name, path, template_name in sorted(set(items), key=str):
-        if path is None:
+    for entry in sorted(set(items), key=str):
+        if entry.path is None:
             # The corresponding autosummary:: directive did not have
             # a :toctree: option
             continue
 
-        path = output_dir or os.path.abspath(path)
+        path = output_dir or os.path.abspath(entry.path)
         ensuredir(path)
 
         try:
-            name, obj, parent, mod_name = import_by_name(name)
+            name, obj, parent, mod_name = import_by_name(entry.name)
         except ImportError as e:
-            _warn('[autosummary] failed to import %r: %s' % (name, e))
+            _warn(__('[autosummary] failed to import %r: %s') % (entry.name, e))
             continue
 
-        content = generate_autosummary_content(name, obj, parent, template, template_name,
+        content = generate_autosummary_content(name, obj, parent, template, entry.template,
                                                imported_members, app)
 
         filename = os.path.join(path, name + suffix)
@@ -299,18 +307,19 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir, app=app,
+                                  template_dir=template_dir,
+                                  imported_members=imported_members, app=app,
                                   overwrite=overwrite)
 
 
 # -- Finding documented entries in files ---------------------------------------
 
-def find_autosummary_in_files(filenames: List[str]) -> List[Tuple[str, str, str]]:
+def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
     """Find out what items are documented in source/*.rst.
 
     See `find_autosummary_in_lines`.
     """
-    documented = []  # type: List[Tuple[str, str, str]]
+    documented = []  # type: List[AutosummaryEntry]
     for filename in filenames:
         with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
@@ -318,12 +327,16 @@ def find_autosummary_in_files(filenames: List[str]) -> List[Tuple[str, str, str]
     return documented
 
 
-def find_autosummary_in_docstring(name: str, module: Any = None, filename: str = None
-                                  ) -> List[Tuple[str, str, str]]:
+def find_autosummary_in_docstring(name: str, module: str = None, filename: str = None
+                                  ) -> List[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
     See `find_autosummary_in_lines`.
     """
+    if module:
+        warnings.warn('module argument for find_autosummary_in_docstring() is deprecated.',
+                      RemovedInSphinx50Warning)
+
     try:
         real_name, obj, parent, modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
@@ -338,8 +351,8 @@ def find_autosummary_in_docstring(name: str, module: Any = None, filename: str =
     return []
 
 
-def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: str = None
-                              ) -> List[Tuple[str, str, str]]:
+def find_autosummary_in_lines(lines: List[str], module: str = None, filename: str = None
+                              ) -> List[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
 
@@ -359,7 +372,7 @@ def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: st
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
-    documented = []  # type: List[Tuple[str, str, str]]
+    documented = []  # type: List[AutosummaryEntry]
 
     toctree = None  # type: str
     template = None
@@ -393,7 +406,7 @@ def find_autosummary_in_lines(lines: List[str], module: Any = None, filename: st
                 if current_module and \
                    not name.startswith(current_module + '.'):
                     name = "%s.%s" % (current_module, name)
-                documented.append((name, toctree, template))
+                documented.append(AutosummaryEntry(name, toctree, template))
                 continue
 
             if not line.strip() or line.startswith(base_indent + " "):

@@ -16,14 +16,13 @@ import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
-from sphinx.util import docutils
 
 
 def parse(name, string):
     class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
-    parser = DefinitionParser(string, None, Config())
+    parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
@@ -110,6 +109,21 @@ def test_expressions():
         if id4 is not None:
             idDict[4] = ids % id4
         check('class', 'template<> C<a[%s]>' % expr, idDict)
+
+        class Config:
+            cpp_id_attributes = ["id_attr"]
+            cpp_paren_attributes = ["paren_attr"]
+
+        parser = DefinitionParser(expr, location=None,
+                                  config=Config())
+        parser.allowFallbackExpressionParsing = False
+        ast = parser.parse_expression()
+        res = str(ast)
+        if res != expr:
+            print("")
+            print("Input:    ", expr)
+            print("Result:   ", res)
+            raise DefinitionError("")
     # primary
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
@@ -181,7 +195,9 @@ def test_expressions():
     exprCheck('+5', 'psL5E')
     exprCheck('-5', 'ngL5E')
     exprCheck('!5', 'ntL5E')
+    exprCheck('not 5', 'ntL5E')
     exprCheck('~5', 'coL5E')
+    exprCheck('compl 5', 'coL5E')
     exprCheck('sizeof...(a)', 'sZ1a')
     exprCheck('sizeof(T)', 'st1T')
     exprCheck('sizeof -42', 'szngL42E')
@@ -205,20 +221,29 @@ def test_expressions():
     exprCheck('(int)2', 'cviL2E')
     # binary op
     exprCheck('5 || 42', 'ooL5EL42E')
+    exprCheck('5 or 42', 'ooL5EL42E')
     exprCheck('5 && 42', 'aaL5EL42E')
+    exprCheck('5 and 42', 'aaL5EL42E')
     exprCheck('5 | 42', 'orL5EL42E')
+    exprCheck('5 bitor 42', 'orL5EL42E')
     exprCheck('5 ^ 42', 'eoL5EL42E')
+    exprCheck('5 xor 42', 'eoL5EL42E')
     exprCheck('5 & 42', 'anL5EL42E')
+    exprCheck('5 bitand 42', 'anL5EL42E')
     # ['==', '!=']
     exprCheck('5 == 42', 'eqL5EL42E')
     exprCheck('5 != 42', 'neL5EL42E')
+    exprCheck('5 not_eq 42', 'neL5EL42E')
     # ['<=', '>=', '<', '>']
     exprCheck('5 <= 42', 'leL5EL42E')
+    exprCheck('A <= 42', 'le1AL42E')
     exprCheck('5 >= 42', 'geL5EL42E')
     exprCheck('5 < 42', 'ltL5EL42E')
+    exprCheck('A < 42', 'lt1AL42E')
     exprCheck('5 > 42', 'gtL5EL42E')
     # ['<<', '>>']
     exprCheck('5 << 42', 'lsL5EL42E')
+    exprCheck('A << 42', 'ls1AL42E')
     exprCheck('5 >> 42', 'rsL5EL42E')
     # ['+', '-']
     exprCheck('5 + 42', 'plL5EL42E')
@@ -242,8 +267,14 @@ def test_expressions():
     exprCheck('a >>= 5', 'rS1aL5E')
     exprCheck('a <<= 5', 'lS1aL5E')
     exprCheck('a &= 5', 'aN1aL5E')
+    exprCheck('a and_eq 5', 'aN1aL5E')
     exprCheck('a ^= 5', 'eO1aL5E')
+    exprCheck('a xor_eq 5', 'eO1aL5E')
     exprCheck('a |= 5', 'oR1aL5E')
+    exprCheck('a or_eq 5', 'oR1aL5E')
+    exprCheck('a = {1, 2, 3}', 'aS1ailL1EL2EL3EE')
+    # comma operator
+    exprCheck('a, 5', 'cm1aL5E')
 
     # Additional tests
     # a < expression that starts with something that could be a template
@@ -442,6 +473,13 @@ def test_function_definitions():
     with pytest.raises(DefinitionError):
         parse('function', 'int foo(D d=x(a')
     check('function', 'int foo(const A&... a)', {1: "foo__ACRDp", 2: "3fooDpRK1A"})
+    check('function', 'int foo(const A&...)', {1: "foo__ACRDp", 2: "3fooDpRK1A"})
+    check('function', 'int foo(const A*... a)', {1: "foo__ACPDp", 2: "3fooDpPK1A"})
+    check('function', 'int foo(const A*...)', {1: "foo__ACPDp", 2: "3fooDpPK1A"})
+    check('function', 'int foo(const int A::*... a)', {2: "3fooDpM1AKi"})
+    check('function', 'int foo(const int A::*...)', {2: "3fooDpM1AKi"})
+    #check('function', 'int foo(int (*a)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
+    #check('function', 'int foo(int (*)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
     check('function', 'virtual void f()', {1: "f", 2: "1fv"})
     # test for ::nestedName, from issue 1738
     check("function", "result(int val, ::std::error_category const &cat)",
@@ -483,18 +521,21 @@ def test_function_definitions():
     check('function', 'void f(int C::*)', {2: '1fM1Ci'})
     check('function', 'void f(int C::* p)', {2: '1fM1Ci'})
     check('function', 'void f(int ::C::* p)', {2: '1fM1Ci'})
-    check('function', 'void f(int C::* const)', {2: '1fKM1Ci'})
-    check('function', 'void f(int C::* const&)', {2: '1fRKM1Ci'})
-    check('function', 'void f(int C::* volatile)', {2: '1fVM1Ci'})
-    check('function', 'void f(int C::* const volatile)', {2: '1fVKM1Ci'},
-          output='void f(int C::* volatile const)')
-    check('function', 'void f(int C::* volatile const)', {2: '1fVKM1Ci'})
+    check('function', 'void f(int C::*const)', {2: '1fKM1Ci'})
+    check('function', 'void f(int C::*const&)', {2: '1fRKM1Ci'})
+    check('function', 'void f(int C::*volatile)', {2: '1fVM1Ci'})
+    check('function', 'void f(int C::*const volatile)', {2: '1fVKM1Ci'},
+          output='void f(int C::*volatile const)')
+    check('function', 'void f(int C::*volatile const)', {2: '1fVKM1Ci'})
     check('function', 'void f(int (C::*)(float, double))', {2: '1fM1CFifdE'})
     check('function', 'void f(int (C::* p)(float, double))', {2: '1fM1CFifdE'})
     check('function', 'void f(int (::C::* p)(float, double))', {2: '1fM1CFifdE'})
     check('function', 'void f(void (C::*)() const &)', {2: '1fM1CKRFvvE'})
     check('function', 'int C::* f(int, double)', {2: '1fid'})
-    check('function', 'void f(int C::* *)', {2: '1fPM1Ci'})
+    check('function', 'void f(int C::* *p)', {2: '1fPM1Ci'})
+    check('function', 'void f(int C::**)', {2: '1fPM1Ci'})
+    check('function', 'void f(int C::*const *p)', {2: '1fPKM1Ci'})
+    check('function', 'void f(int C::*const*)', {2: '1fPKM1Ci'})
 
     # exceptions from return type mangling
     check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
@@ -502,30 +543,62 @@ def test_function_definitions():
 
 
 def test_operators():
-    check('function', 'void operator new [  ] ()',
-          {1: "new-array-operator", 2: "nav"}, output='void operator new[]()')
-    check('function', 'void operator delete ()',
-          {1: "delete-operator", 2: "dlv"}, output='void operator delete()')
-    check('function', 'operator bool() const',
-          {1: "castto-b-operatorC", 2: "NKcvbEv"}, output='operator bool() const')
+    check('function', 'void operator new()', {1: "new-operator", 2: "nwv"})
+    check('function', 'void operator new[]()', {1: "new-array-operator", 2: "nav"})
+    check('function', 'void operator delete()', {1: "delete-operator", 2: "dlv"})
+    check('function', 'void operator delete[]()', {1: "delete-array-operator", 2: "dav"})
+    check('function', 'operator bool() const', {1: "castto-b-operatorC", 2: "NKcvbEv"})
+    check('function', 'void operator""_udl()', {2: 'li4_udlv'})
 
-    check('function', 'void operator * ()',
-          {1: "mul-operator", 2: "mlv"}, output='void operator*()')
-    check('function', 'void operator - ()',
-          {1: "sub-operator", 2: "miv"}, output='void operator-()')
-    check('function', 'void operator + ()',
-          {1: "add-operator", 2: "plv"}, output='void operator+()')
-    check('function', 'void operator = ()',
-          {1: "assign-operator", 2: "aSv"}, output='void operator=()')
-    check('function', 'void operator / ()',
-          {1: "div-operator", 2: "dvv"}, output='void operator/()')
-    check('function', 'void operator % ()',
-          {1: "mod-operator", 2: "rmv"}, output='void operator%()')
-    check('function', 'void operator ! ()',
-          {1: "not-operator", 2: "ntv"}, output='void operator!()')
-
-    check('function', 'void operator "" _udl()',
-          {2: 'li4_udlv'}, output='void operator""_udl()')
+    check('function', 'void operator~()', {1: "inv-operator", 2: "cov"})
+    check('function', 'void operator compl()', {2: "cov"})
+    check('function', 'void operator+()', {1: "add-operator", 2: "plv"})
+    check('function', 'void operator-()', {1: "sub-operator", 2: "miv"})
+    check('function', 'void operator*()', {1: "mul-operator", 2: "mlv"})
+    check('function', 'void operator/()', {1: "div-operator", 2: "dvv"})
+    check('function', 'void operator%()', {1: "mod-operator", 2: "rmv"})
+    check('function', 'void operator&()', {1: "and-operator", 2: "anv"})
+    check('function', 'void operator bitand()', {2: "anv"})
+    check('function', 'void operator|()', {1: "or-operator", 2: "orv"})
+    check('function', 'void operator bitor()', {2: "orv"})
+    check('function', 'void operator^()', {1: "xor-operator", 2: "eov"})
+    check('function', 'void operator xor()', {2: "eov"})
+    check('function', 'void operator=()', {1: "assign-operator", 2: "aSv"})
+    check('function', 'void operator+=()', {1: "add-assign-operator", 2: "pLv"})
+    check('function', 'void operator-=()', {1: "sub-assign-operator", 2: "mIv"})
+    check('function', 'void operator*=()', {1: "mul-assign-operator", 2: "mLv"})
+    check('function', 'void operator/=()', {1: "div-assign-operator", 2: "dVv"})
+    check('function', 'void operator%=()', {1: "mod-assign-operator", 2: "rMv"})
+    check('function', 'void operator&=()', {1: "and-assign-operator", 2: "aNv"})
+    check('function', 'void operator and_eq()', {2: "aNv"})
+    check('function', 'void operator|=()', {1: "or-assign-operator", 2: "oRv"})
+    check('function', 'void operator or_eq()', {2: "oRv"})
+    check('function', 'void operator^=()', {1: "xor-assign-operator", 2: "eOv"})
+    check('function', 'void operator xor_eq()', {2: "eOv"})
+    check('function', 'void operator<<()', {1: "lshift-operator", 2: "lsv"})
+    check('function', 'void operator>>()', {1: "rshift-operator", 2: "rsv"})
+    check('function', 'void operator<<=()', {1: "lshift-assign-operator", 2: "lSv"})
+    check('function', 'void operator>>=()', {1: "rshift-assign-operator", 2: "rSv"})
+    check('function', 'void operator==()', {1: "eq-operator", 2: "eqv"})
+    check('function', 'void operator!=()', {1: "neq-operator", 2: "nev"})
+    check('function', 'void operator not_eq()', {2: "nev"})
+    check('function', 'void operator<()', {1: "lt-operator", 2: "ltv"})
+    check('function', 'void operator>()', {1: "gt-operator", 2: "gtv"})
+    check('function', 'void operator<=()', {1: "lte-operator", 2: "lev"})
+    check('function', 'void operator>=()', {1: "gte-operator", 2: "gev"})
+    check('function', 'void operator!()', {1: "not-operator", 2: "ntv"})
+    check('function', 'void operator not()', {2: "ntv"})
+    check('function', 'void operator&&()', {1: "sand-operator", 2: "aav"})
+    check('function', 'void operator and()', {2: "aav"})
+    check('function', 'void operator||()', {1: "sor-operator", 2: "oov"})
+    check('function', 'void operator or()', {2: "oov"})
+    check('function', 'void operator++()', {1: "inc-operator", 2: "ppv"})
+    check('function', 'void operator--()', {1: "dec-operator", 2: "mmv"})
+    check('function', 'void operator,()', {1: "comma-operator", 2: "cmv"})
+    check('function', 'void operator->*()', {1: "pointer-by-pointer-operator", 2: "pmv"})
+    check('function', 'void operator->()', {1: "pointer-operator", 2: "ptv"})
+    check('function', 'void operator()()', {1: "call-operator", 2: "clv"})
+    check('function', 'void operator[]()', {1: "subscript-operator", 2: "ixv"})
 
 
 def test_class_definitions():
@@ -552,6 +625,12 @@ def test_class_definitions():
     check('class', 'template<class, class = std::void_t<>> has_var', {2: 'I00E7has_var'})
     check('class', 'template<class T> has_var<T, std::void_t<decltype(&T::var)>>',
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
+
+
+    check('class', 'template<typename ...Ts> T<int (*)(Ts)...>',
+          {2: 'IDpE1TIJPFi2TsEEE'})
+    check('class', 'template<int... Is> T<(Is)...>',
+          {2: 'I_DpiE1TIJX(Is)EEE', 3: 'I_DpiE1TIJX2IsEEE'})
 
 
 def test_union_definitions():
@@ -770,7 +849,8 @@ def test_xref_parsing():
         class Config:
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
-        parser = DefinitionParser(target, None, Config())
+        parser = DefinitionParser(target, location=None,
+                                  config=Config())
         ast, isShorthand = parser.parse_xref_object()
         parser.assert_end()
     check('f')
@@ -786,15 +866,105 @@ def test_xref_parsing():
 #     raise DefinitionError("")
 
 
+def filter_warnings(warning, file):
+    lines = warning.getvalue().split("\n");
+    res = [l for l in lines if "domain-cpp" in l and "{}.rst".format(file) in l and
+           "WARNING: document isn't included in any toctree" not in l]
+    print("Filtered warnings for file '{}':".format(file))
+    for w in res:
+        print(w)
+    return res
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_multi_decl_lookup(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "lookup-key-overload")
+    assert len(ws) == 0
+
+    ws = filter_warnings(warning, "multi-decl-lookup")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "warn-template-param-qualified-name")
+    assert len(ws) == 2
+    assert "WARNING: cpp:type reference target not found: T::typeWarn" in ws[0]
+    assert "WARNING: cpp:type reference target not found: T::U::typeWarn" in ws[1]
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_backslash_ok(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "backslash")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp',
+                    confoverrides={'nitpicky': True, 'strip_signature_backslash': True})
+def test_build_domain_cpp_backslash_ok(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "backslash")
+    assert len(ws) == 1
+    assert "WARNING: Parsing of expression failed. Using fallback parser." in ws[0]
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_anon_dup_decl(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "anon-dup-decl")
+    assert len(ws) == 2
+    assert "WARNING: cpp:identifier reference target not found: @a" in ws[0]
+    assert "WARNING: cpp:identifier reference target not found: @b" in ws[1]
+
+
 @pytest.mark.sphinx(testroot='domain-cpp')
 def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     app.builder.build_all()
+    ws = filter_warnings(warning, "roles-targets-ok")
+    assert len(ws) == 0
 
-    # TODO: properly check for the warnings we expect
+    ws = filter_warnings(warning, "roles-targets-warn")
+    # the roles that should be able to generate warnings:
+    allRoles = ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator']
+    ok = [  # targetType, okRoles
+        ('class', ['class', 'struct', 'type']),
+        ('union', ['union', 'type']),
+        ('func', ['func', 'type']),
+        ('member', ['member', 'var']),
+        ('type', ['type']),
+        ('concept', ['concept']),
+        ('enum', ['type', 'enum']),
+        ('enumerator', ['enumerator']),
+        ('tParam', ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator', 'functionParam']),
+        ('functionParam', ['member', 'var']),
+    ]
+    warn = []
+    for targetType, roles in ok:
+        txtTargetType = "function" if targetType == "func" else targetType
+        for r in allRoles:
+            if r not in roles:
+                warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+    warn = list(sorted(warn))
+    for w in ws:
+        assert "targets a" in w
+    ws = [w[w.index("WARNING:"):] for w in ws]
+    ws = list(sorted(ws))
+    print("Expected warnings:")
+    for w in warn:
+        print(w)
+    print("Actual warnings:")
+    for w in ws:
+        print(w)
+
+    for i in range(min(len(warn), len(ws))):
+        assert ws[i].startswith(warn[i])
+
+    assert len(ws) == len(warn)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
@@ -824,20 +994,18 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in parenPatterns:
         check(s, t, f)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
 def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()
@@ -867,14 +1035,14 @@ def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, wa
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).text()
+    t = (app.outdir / f).read_text()
     for s in parenPatterns:
         check(s, t, f)
 
@@ -884,7 +1052,7 @@ def test_xref_consistency(app, status, warning):
     app.builder.build_all()
 
     test = 'xref_consistency.html'
-    output = (app.outdir / test).text()
+    output = (app.outdir / test).read_text()
 
     def classes(role, tag):
         pattern = (r'{role}-role:.*?'

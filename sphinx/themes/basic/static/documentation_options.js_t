@@ -5,6 +5,7 @@ var DOCUMENTATION_OPTIONS = {
     COLLAPSE_INDEX: false,
     BUILDER: '{{ builder }}',
     FILE_SUFFIX: '{{ file_suffix }}',
+    LINK_SUFFIX: '{{ link_suffix }}',
     HAS_SOURCE: {{ has_source|lower }},
     SOURCELINK_SUFFIX: '{{ sourcelink_suffix }}',
     NAVIGATION_WITH_KEYS: {{ 'true' if theme_navigation_with_keys|tobool else 'false'}}

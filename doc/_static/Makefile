@@ -1,4 +1,4 @@
-translation.png: translation.puml
-	plantuml $<
+translation.svg: translation.puml
+	plantuml -tsvg $<
 clean:
-	rm translation.png
+	rm translation.svg

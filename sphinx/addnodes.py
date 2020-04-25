@@ -10,14 +10,14 @@
 
 import warnings
 from typing import Any, Dict, List, Sequence
+from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Node
+from docutils.nodes import Element, Node
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -119,7 +119,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     It should only be used in a ``desc_signature`` with ``is_multiline`` set.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
-    sphinx_cpp_tagname = ''
+    sphinx_line_type = ''
 
 
 # nodes to use within a desc_signature or desc_signature_line
@@ -172,6 +172,31 @@ class desc_content(nodes.General, nodes.Element):
 
     This is the "definition" part of the custom Sphinx definition list.
     """
+
+
+class desc_sig_element(nodes.inline):
+    """Common parent class of nodes for inline text of a signature."""
+    classes = []  # type: List[str]
+
+    def __init__(self, rawsource: str = '', text: str = '',
+                 *children: Element, **attributes: Any) -> None:
+        super().__init__(rawsource, text, *children, **attributes)
+        self['classes'].extend(self.classes)
+
+
+class desc_sig_name(desc_sig_element):
+    """Node for a name in a signature."""
+    classes = ["n"]
+
+
+class desc_sig_operator(desc_sig_element):
+    """Node for an operator in a signature."""
+    classes = ["o"]
+
+
+class desc_sig_punctuation(desc_sig_element):
+    """Node for a punctuation in a signature."""
+    classes = ["p"]
 
 
 # new admonition-like constructs
@@ -332,6 +357,9 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
     app.add_node(desc_content)
+    app.add_node(desc_sig_name)
+    app.add_node(desc_sig_operator)
+    app.add_node(desc_sig_punctuation)
     app.add_node(versionmodified)
     app.add_node(seealso)
     app.add_node(productionlist)

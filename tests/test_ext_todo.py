@@ -12,11 +12,7 @@ import re
 
 import pytest
 
-from sphinx.util import docutils
 
-
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
                     confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
 def test_todo(app, status, warning):
@@ -29,7 +25,7 @@ def test_todo(app, status, warning):
     app.builder.build_all()
 
     # check todolist
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert ('<p class="admonition-title">Todo</p>\n'
             '<p>todo in foo</p>') in content
 
@@ -37,7 +33,7 @@ def test_todo(app, status, warning):
             '<p>todo in bar</p>') in content
 
     # check todo
-    content = (app.outdir / 'foo.html').text()
+    content = (app.outdir / 'foo.html').read_text()
     assert ('<p class="admonition-title">Todo</p>\n'
             '<p>todo in foo</p>') in content
 
@@ -67,7 +63,7 @@ def test_todo_not_included(app, status, warning):
     app.builder.build_all()
 
     # check todolist
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert ('<p class="admonition-title">Todo</p>\n'
             '<p>todo in foo</p>') not in content
 
@@ -75,7 +71,7 @@ def test_todo_not_included(app, status, warning):
             '<p>todo in bar</p>') not in content
 
     # check todo
-    content = (app.outdir / 'foo.html').text()
+    content = (app.outdir / 'foo.html').read_text()
     assert ('<p class="admonition-title">Todo</p>\n'
             '<p>todo in foo</p>') not in content
 
@@ -102,7 +98,7 @@ def test_todo_valid_link(app, status, warning):
     # Ensure the LaTeX output is built.
     app.builder.build_all()
 
-    content = (app.outdir / 'python.tex').text()
+    content = (app.outdir / 'python.tex').read_text()
 
     # Look for the link to foo. Note that there are two of them because the
     # source document uses todolist twice. We could equally well look for links

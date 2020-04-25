@@ -12,8 +12,8 @@ import os
 import re
 import textwrap
 from itertools import groupby, chain
-from typing import Any, Dict, List, Iterable, Optional, Set, Tuple, Union
-from typing import cast
+from typing import Any, Dict, Generator, List, Iterable, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -23,8 +23,7 @@ from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.docutils import SphinxTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.text import TextBuilder
 
 
@@ -32,23 +31,23 @@ class Cell:
     """Represents a cell in a table.
     It can span on multiple columns or on multiple lines.
     """
-    def __init__(self, text="", rowspan=1, colspan=1):
+    def __init__(self, text: str = "", rowspan: int = 1, colspan: int = 1) -> None:
         self.text = text
         self.wrapped = []  # type: List[str]
         self.rowspan = rowspan
         self.colspan = colspan
-        self.col = None
-        self.row = None
+        self.col = None  # type: Optional[int]
+        self.row = None  # type: Optional[int]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Cell {!r} {}v{}/{}>{}>".format(
             self.text, self.row, self.rowspan, self.col, self.colspan
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.col, self.row))
 
-    def wrap(self, width):
+    def wrap(self, width: int) -> None:
         self.wrapped = my_wrap(self.text, width)
 
 
@@ -98,7 +97,7 @@ class Table:
        +--------+--------+
 
     """
-    def __init__(self, colwidth=None):
+    def __init__(self, colwidth: List[int] = None) -> None:
         self.lines = []  # type: List[List[Cell]]
         self.separator = 0
         self.colwidth = (colwidth if colwidth is not None
@@ -106,19 +105,19 @@ class Table:
         self.current_line = 0
         self.current_col = 0
 
-    def add_row(self):
+    def add_row(self) -> None:
         """Add a row to the table, to use with ``add_cell()``.  It is not needed
         to call ``add_row()`` before the first ``add_cell()``.
         """
         self.current_line += 1
         self.current_col = 0
 
-    def set_separator(self):
+    def set_separator(self) -> None:
         """Sets the separator below the current line.
         """
         self.separator = len(self.lines)
 
-    def add_cell(self, cell):
+    def add_cell(self, cell: Cell) -> None:
         """Add a cell to the current line, to use with ``add_row()``.  To add
         a cell spanning on multiple lines or rows, simply set the
         ``cell.colspan`` or ``cell.rowspan`` BEFORE inserting it to
@@ -129,13 +128,13 @@ class Table:
         self[self.current_line, self.current_col] = cell
         self.current_col += cell.colspan
 
-    def __getitem__(self, pos):
+    def __getitem__(self, pos: Tuple[int, int]) -> Cell:
         line, col = pos
         self._ensure_has_line(line + 1)
         self._ensure_has_column(col + 1)
         return self.lines[line][col]
 
-    def __setitem__(self, pos, cell):
+    def __setitem__(self, pos: Tuple[int, int], cell: Cell) -> None:
         line, col = pos
         self._ensure_has_line(line + cell.rowspan)
         self._ensure_has_column(col + cell.colspan)
@@ -145,19 +144,19 @@ class Table:
                 cell.row = line
                 cell.col = col
 
-    def _ensure_has_line(self, line):
+    def _ensure_has_line(self, line: int) -> None:
         while len(self.lines) < line:
             self.lines.append([])
 
-    def _ensure_has_column(self, col):
+    def _ensure_has_column(self, col: int) -> None:
         for line in self.lines:
             while len(line) < col:
                 line.append(None)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "\n".join(repr(line) for line in self.lines)
 
-    def cell_width(self, cell, source):
+    def cell_width(self, cell: Cell, source: List[int]) -> int:
         """Give the cell width, according to the given source (either
         ``self.colwidth`` or ``self.measured_widths``).
         This take into account cells spanning on multiple columns.
@@ -168,7 +167,7 @@ class Table:
         return width + (cell.colspan - 1) * 3
 
     @property
-    def cells(self):
+    def cells(self) -> Generator[Cell, None, None]:
         seen = set()  # type: Set[Cell]
         for lineno, line in enumerate(self.lines):
             for colno, cell in enumerate(line):
@@ -176,7 +175,7 @@ class Table:
                     yield cell
                     seen.add(cell)
 
-    def rewrap(self):
+    def rewrap(self) -> None:
         """Call ``cell.wrap()`` on all cells, and measure each column width
         after wrapping (result written in ``self.measured_widths``).
         """
@@ -189,7 +188,7 @@ class Table:
             for col in range(cell.col, cell.col + cell.colspan):
                 self.measured_widths[col] = max(self.measured_widths[col], width)
 
-    def physical_lines_for_line(self, line):
+    def physical_lines_for_line(self, line: List[Cell]) -> int:
         """From a given line, compute the number of physical lines it spans
         due to text wrapping.
         """
@@ -198,7 +197,7 @@ class Table:
             physical_lines = max(physical_lines, len(cell.wrapped))
         return physical_lines
 
-    def __str__(self):
+    def __str__(self) -> str:
         out = []
         self.rewrap()
 
@@ -916,7 +915,6 @@ class TextTranslator(SphinxTranslator):
     def _depart_admonition(self, node: Element) -> None:
         label = admonitionlabels[node.tagname]
         indent = sum(self.stateindent) + len(label)
-        print(self.states[-1])
         if (len(self.states[-1]) == 1 and
                 self.states[-1][0][0] == 0 and
                 MAXWIDTH - indent >= sum(len(s) for s in self.states[-1][0][1])):

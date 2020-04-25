@@ -86,8 +86,8 @@ DOC_BODY_PREVIEW = r'''
 \end{document}
 '''
 
-depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
-depthsvg_re = re.compile(br'.*, depth=(.*)pt')
+depth_re = re.compile(r'\[\d+ depth=(-?\d+)\]')
+depthsvg_re = re.compile(r'.*, depth=(.*)pt')
 depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
@@ -175,10 +175,10 @@ def compile_math(latex: str, builder: Builder) -> str:
         raise MathExtError('latex exited with error', exc.stderr, exc.stdout)
 
 
-def convert_dvi_to_image(command: List[str], name: str) -> Tuple[bytes, bytes]:
+def convert_dvi_to_image(command: List[str], name: str) -> Tuple[str, str]:
     """Convert DVI file to specific image format."""
     try:
-        ret = subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True)
+        ret = subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True, encoding='ascii')
         return ret.stdout, ret.stderr
     except OSError:
         logger.warning(__('%s command %r cannot be run (needed for math '

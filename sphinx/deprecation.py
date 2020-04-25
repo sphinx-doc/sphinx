@@ -11,8 +11,7 @@
 import sys
 import warnings
 from importlib import import_module
-from typing import Any, Dict
-from typing import Type  # for python3.5.1
+from typing import Any, Dict, Type
 
 
 class RemovedInSphinx40Warning(DeprecationWarning):
@@ -23,16 +22,20 @@ class RemovedInSphinx50Warning(PendingDeprecationWarning):
     pass
 
 
+class RemovedInSphinx60Warning(PendingDeprecationWarning):
+    pass
+
+
 RemovedInNextVersionWarning = RemovedInSphinx40Warning
 
 
-def deprecated_alias(modname: str, objects: Dict, warning: Type[Warning]) -> None:
+def deprecated_alias(modname: str, objects: Dict, warning: "Type[Warning]") -> None:
     module = import_module(modname)
     sys.modules[modname] = _ModuleWrapper(module, modname, objects, warning)  # type: ignore
 
 
 class _ModuleWrapper:
-    def __init__(self, module: Any, modname: str, objects: Dict, warning: Type[Warning]
+    def __init__(self, module: Any, modname: str, objects: Dict, warning: "Type[Warning]"
                  ) -> None:
         self._module = module
         self._modname = modname
@@ -52,7 +55,7 @@ class _ModuleWrapper:
 class DeprecatedDict(dict):
     """A deprecated dict which warns on each access."""
 
-    def __init__(self, data: Dict, message: str, warning: Type[Warning]) -> None:
+    def __init__(self, data: Dict, message: str, warning: "Type[Warning]") -> None:
         self.message = message
         self.warning = warning
         super().__init__(data)

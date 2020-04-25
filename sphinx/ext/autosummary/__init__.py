@@ -60,7 +60,7 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Type
 from typing import cast
 
 from docutils import nodes
@@ -72,25 +72,21 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.ext.autodoc import Documenter, get_documenters
+from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.util import import_object, rst, logging
+from sphinx.util import rst, logging
 from sphinx.util.docutils import (
     NullReporter, SphinxDirective, SphinxRole, new_document, switch_source_input
 )
 from sphinx.util.matching import Matcher
 from sphinx.writers.html import HTMLTranslator
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 logger = logging.getLogger(__name__)
@@ -110,6 +106,8 @@ def process_autosummary_toc(app: Sphinx, doctree: nodes.document) -> None:
     """Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
     """
+    warnings.warn('process_autosummary_toc() is deprecated',
+                  RemovedInSphinx50Warning, stacklevel=2)
     env = app.builder.env
     crawled = {}
 
@@ -203,7 +201,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
         parent_doc = parent_doc_cls(FakeDirective(), "")
 
     # Get the corrent documenter class for *obj*
-    classes = [cls for cls in get_documenters(app).values()
+    classes = [cls for cls in app.registry.documenters.values()
                if cls.can_document_member(obj, '', False, parent_doc)]
     if classes:
         classes.sort(key=lambda cls: cls.priority)
@@ -701,8 +699,6 @@ def get_rst_suffix(app: Sphinx) -> str:
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)
-        if isinstance(parser_class, str):
-            parser_class = import_object(parser_class, 'source parser')
         return parser_class.supported
 
     suffix = None  # type: str
@@ -720,6 +716,8 @@ def process_generate_options(app: Sphinx) -> None:
         env = app.builder.env
         genfiles = [env.doc2path(x, base=None) for x in env.found_docs
                     if os.path.isfile(env.doc2path(x))]
+    elif genfiles is False:
+        pass
     else:
         ext = list(app.config.source_suffix)
         genfiles = [genfile + (ext[0] if not genfile.endswith(tuple(ext)) else '')
@@ -766,7 +764,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                  texinfo=(autosummary_noop, autosummary_noop))
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', AutoLink())
-    app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_generate', [], True, [bool])
     app.add_config_value('autosummary_generate_overwrite', True, False)

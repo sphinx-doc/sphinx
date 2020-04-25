@@ -11,6 +11,7 @@
 import sys
 import warnings
 from typing import Any, Dict
+from typing import TYPE_CHECKING
 
 from docutils.utils import get_source_line
 
@@ -18,8 +19,7 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.transforms import SphinxTransform
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

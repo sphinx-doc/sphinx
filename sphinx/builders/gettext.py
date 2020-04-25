@@ -13,7 +13,7 @@ from collections import defaultdict, OrderedDict
 from datetime import datetime, tzinfo, timedelta
 from os import path, walk, getenv
 from time import time
-from typing import Any, Dict, Iterable, Generator, List, Set, Tuple, Union
+from typing import Any, DefaultDict, Dict, Iterable, Generator, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes
@@ -30,13 +30,9 @@ from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import ensuredir, canon_path
+from sphinx.util.osutil import ensuredir, canon_path, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
-
-if False:
-    # For type annotation
-    from typing import DefaultDict  # for python3.5.1
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +104,8 @@ class MsgOrigin:
 
 
 class GettextRenderer(SphinxRenderer):
-    def __init__(self, template_path: str = None) -> None:
+    def __init__(self, template_path: str = None, outdir: str = None) -> None:
+        self.outdir = outdir
         if template_path is None:
             template_path = path.join(package_dir, 'templates', 'gettext')
         super().__init__(template_path)
@@ -121,6 +118,13 @@ class GettextRenderer(SphinxRenderer):
         # use texescape as escape filter
         self.env.filters['e'] = escape
         self.env.filters['escape'] = escape
+
+    def render(self, filename: str, context: Dict) -> str:
+        def _relpath(s: str) -> str:
+            return canon_path(relpath(s, self.outdir))
+
+        context['relpath'] = _relpath
+        return super().render(filename, context)
 
 
 class I18nTags(Tags):
@@ -297,7 +301,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            content = GettextRenderer().render('message.pot_t', context)
+            content = GettextRenderer(outdir=self.outdir).render('message.pot_t', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):

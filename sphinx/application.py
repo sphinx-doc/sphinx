@@ -18,7 +18,8 @@ import warnings
 from collections import deque
 from io import StringIO
 from os import path
-from typing import Any, Callable, Dict, IO, List, Tuple, Union
+from typing import Any, Callable, Dict, IO, List, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element, TextElement
@@ -53,10 +54,7 @@ from sphinx.util.osutil import abspath, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
-if False:
-    # For type annotation
-    from docutils.nodes import Node  # NOQA
-    from typing import Type  # for python3.5.1
+if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
@@ -161,6 +159,10 @@ class Sphinx:
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
+                                   self.srcdir)
+
+        if path.exists(self.outdir) and not path.isdir(self.outdir):
+            raise ApplicationError(__('Output directory (%s) is not a directory') %
                                    self.srcdir)
 
         if self.srcdir == self.outdir:
@@ -350,13 +352,15 @@ class Sphinx:
                       else __('finished with problems'))
             if self._warncount:
                 if self.warningiserror:
-                    msg = __('build %s, %s warning (with warnings treated as errors).',
-                             'build %s, %s warnings (with warnings treated as errors).',
-                             self._warncount)
+                    if self._warncount == 1:
+                        msg = __('build %s, %s warning (with warnings treated as errors).')
+                    else:
+                        msg = __('build %s, %s warnings (with warnings treated as errors).')
                 else:
-                    msg = __('build %s, %s warning.',
-                             'build %s, %s warnings.',
-                             self._warncount)
+                    if self._warncount == 1:
+                        msg = __('build %s, %s warning.')
+                    else:
+                        msg = __('build %s, %s warnings.')
 
                 logger.info(bold(msg % (status, self._warncount)))
             else:
@@ -404,17 +408,25 @@ class Sphinx:
             raise VersionRequirementError(version)
 
     # event interface
-    def connect(self, event: str, callback: Callable) -> int:
+    def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
         """Register *callback* to be called when *event* is emitted.
 
         For details on available core events and the arguments of callback
         functions, please see :ref:`events`.
 
+        Registered callbacks will be invoked on event in the order of *priority* and
+        registration.  The priority is ascending order.
+
         The method returns a "listener ID" that can be used as an argument to
         :meth:`disconnect`.
+
+        .. versionchanged:: 3.0
+
+           Support *priority*
         """
-        listener_id = self.events.connect(event, callback)
-        logger.debug('[app] connecting event %r: %r [id=%s]', event, callback, listener_id)
+        listener_id = self.events.connect(event, callback, priority)
+        logger.debug('[app] connecting event %r (%d): %r [id=%s]',
+                     event, priority, callback, listener_id)
         return listener_id
 
     def disconnect(self, listener_id: int) -> None:
@@ -481,7 +493,7 @@ class Sphinx:
            other values.
         """
         logger.debug('[app] adding config value: %r',
-                     (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
+                     (name, default, rebuild) + ((types,) if types else ()))
         if rebuild in (False, True):
             rebuild = 'env' if rebuild else ''
         self.config.add(name, default, rebuild, types)

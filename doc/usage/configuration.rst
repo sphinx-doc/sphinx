@@ -313,6 +313,7 @@ General configuration
    * ``ref.doc``
    * ``ref.python``
    * ``misc.highlighting_failure``
+   * ``toc.circular``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
    * ``autosectionlabel.*``
@@ -467,11 +468,10 @@ General configuration
 
 .. confval:: smartquotes_action
 
-   This string, for use with Docutils ``0.14`` or later, customizes the Smart
-   Quotes transform.  See the file :file:`smartquotes.py` at the `Docutils
-   repository`__ for details.  The default ``'qDe'`` educates normal **q**\
-   uote characters ``"``, ``'``, em- and en-**D**\ ashes ``---``, ``--``, and
-   **e**\ llipses ``...``.
+   This string customizes the Smart Quotes transform.  See the file
+   :file:`smartquotes.py` at the `Docutils repository`__ for details.  The
+   default ``'qDe'`` educates normal **q**\ uote characters ``"``, ``'``,
+   em- and en-**D**\ ashes ``---``, ``--``, and **e**\ llipses ``...``.
 
    .. versionadded:: 1.6.6
 
@@ -634,6 +634,16 @@ General configuration
    .. versionchanged:: 1.1
       Now also removes ``<BLANKLINE>``.
 
+.. confval:: strip_signature_backslash
+
+   Default is ``False``.
+   When backslash stripping is enabled then every occurrence of ``\\`` in a
+   domain directive will be changed to ``\``, even within string literals.
+   This was the behaviour before version 3.0, and setting this variable to
+   ``True`` will reinstate that behaviour.
+
+    .. versionadded:: 3.0
+
 
 .. _intl-options:
 
@@ -663,6 +673,7 @@ documentation on :ref:`intl` for details.
    Currently supported languages by Sphinx are:
 
    * ``ar`` -- Arabic
+   * ``bg`` -- Bulgarian
    * ``bn`` -- Bengali
    * ``ca`` -- Catalan
    * ``cak`` -- Kaqchikel
@@ -681,6 +692,7 @@ documentation on :ref:`intl` for details.
    * ``fr`` -- French
    * ``he`` -- Hebrew
    * ``hi`` -- Hindi
+   * ``hi_IN`` -- Hindi (India)
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
    * ``id`` -- Indonesian
@@ -702,9 +714,13 @@ documentation on :ref:`intl` for details.
    * ``si`` -- Sinhala
    * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
+   * ``sq`` -- Albanian
    * ``sr`` -- Serbian
+   * ``sr@latin`` -- Serbian (Latin)
+   * ``sr_RS`` -- Serbian (Cyrillic)
    * ``sv`` -- Swedish
    * ``ta`` -- Tamil
+   * ``te`` -- Telugu
    * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
    * ``ur`` -- Urdu
@@ -781,7 +797,7 @@ documentation on :ref:`intl` for details.
    i18n additionally. You can specify below names:
 
    :index: index terms
-   :literal-block: literal blocks: ``::`` and ``code-block``.
+   :literal-block: literal blocks (``::`` annotation and ``code-block`` directive)
    :doctest-block: doctest block
    :raw: raw content
    :image: image/figure uri and alt
@@ -1357,7 +1373,20 @@ that use Sphinx's HTMLWriter class.
    'target' option or scale related options: 'scale', 'width', 'height'.
    The default is ``True``.
 
+   Document authors can this feature manually with giving ``no-scaled-link``
+   class to the image:
+
+   .. code-block:: rst
+
+      .. image:: sphinx.png
+         :scale: 50%
+         :class: no-scaled-link
+
    .. versionadded:: 1.3
+
+   .. versionchanged:: 2.4
+
+      It is disabled for images having ``no-scaled-link`` class
 
 .. confval:: html_math_renderer
 
@@ -1368,8 +1397,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_experimental_html5_writer
 
-   Output is processed with HTML5 writer.  This feature needs docutils 0.13 or
-   newer.  Default is ``False``.
+   Output is processed with HTML5 writer.  Default is ``False``.
 
    .. versionadded:: 1.6
 
@@ -1891,7 +1919,7 @@ These options influence LaTeX output.
 
    This value determines how to group the document tree into LaTeX source files.
    It must be a list of tuples ``(startdocname, targetname, title, author,
-   documentclass, toctree_only)``, where the items are:
+   theme, toctree_only)``, where the items are:
 
    *startdocname*
      String that specifies the :term:`document name` of the LaTeX file's master
@@ -1913,13 +1941,8 @@ These options influence LaTeX output.
      applies.  Use ``\\and`` to separate multiple authors, as in:
      ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
 
-   *documentclass*
-     Normally, one of ``'manual'`` or ``'howto'`` (provided by Sphinx and based
-     on ``'report'``, resp. ``'article'``; Japanese documents use ``'jsbook'``,
-     resp. ``'jreport'``.) "howto" (non-Japanese) documents will not get
-     appendices. Also they have a simpler title page.  Other document classes
-     can be given. Independently of the document class, the "sphinx" package is
-     always loaded in order to define Sphinx's custom LaTeX commands.
+   *theme*
+     LaTeX theme.  See :confval:`latex_theme`.
 
    *toctree_only*
      Must be ``True`` or ``False``.  If true, the *startdoc* document itself is
@@ -2073,6 +2096,33 @@ These options influence LaTeX output.
    .. versionchanged:: 1.2
       This overrides the files which is provided from Sphinx such as
       ``sphinx.sty``.
+
+.. confval:: latex_theme
+
+   The "theme" that the LaTeX output should use.  It is a collection of settings
+   for LaTeX output (ex. document class, top level sectioning unit and so on).
+
+   As a built-in LaTeX themes, ``manual`` and ``howto`` are bundled.
+
+   ``manual``
+     A LaTeX theme for writing a manual.  It imports the ``report`` document
+     class (Japanese documents use ``jsbook``).
+
+   ``howto``
+     A LaTeX theme for writing an article.  It imports the ``article`` document
+     class (Japanese documents use ``jreport`` rather).  :confval:`latex_appendices`
+     is available only for this theme.
+
+   It defaults to ``'manual'``.
+
+   .. versionadded:: 3.0
+
+.. confval:: latex_theme_path
+
+   A list of paths that contain custom LaTeX themes as subdirectories.  Relative
+   paths are taken as relative to the configuration directory.
+
+   .. versionadded:: 3.0
 
 
 .. _text-options:
@@ -2425,6 +2475,30 @@ Options for the XML builder
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
        these all don't match slashes.  A double star ``**`` can be used to
        match any sequence of characters *including* slashes.
+
+
+.. _c-config:
+
+Options for the C domain
+------------------------
+
+.. confval:: c_id_attributes
+
+   A list of strings that the parser additionally should accept as attributes.
+   This can for example be used when attributes have been ``#define`` d for
+   portability.
+
+   .. versionadded:: 3.0
+
+.. confval:: c_paren_attributes
+
+   A list of strings that the parser additionally should accept as attributes
+   with one argument.  That is, if ``my_align_as`` is in the list, then
+   ``my_align_as(X)`` is parsed as an attribute for all strings ``X`` that have
+   balanced braces (``()``, ``[]``, and ``{}``).  This can for example be used
+   when attributes have been ``#define`` d for portability.
+
+   .. versionadded:: 3.0
 
 
 .. _cpp-config:

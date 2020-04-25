@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Set, Tuple, TypeVar
+from typing import Any, Dict, List, Set, Tuple, Type, TypeVar
 from typing import cast
 
 from docutils import nodes
@@ -22,10 +22,6 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import url_re, logging
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 N = TypeVar('N')

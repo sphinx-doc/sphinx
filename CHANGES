@@ -1,15 +1,160 @@
-Release 3.0.0 (in development)
+Release 4.0.0 (in development)
 ==============================
 
 Dependencies
 ------------
 
-* LaTeX: drop dependency on :program:`extractbb` for image inclusion in
-  Japanese documents as ``.xbb`` files are unneeded by :program:`dvipdfmx`
-  since TeXLive2015 (refs: #6189)
+* Drop python 3.5 support
+* Drop docutils 0.12 and 0.13 support
 
 Incompatible changes
 --------------------
+
+Deprecated
+----------
+
+* ``sphinx.directives.patches.CSVTable``
+* ``sphinx.directives.patches.ListTable``
+* ``sphinx.directives.patches.RSTTable``
+* ``sphinx.util.pycompat.convert_with_2to3()``
+* ``sphinx.util.pycompat.execfile_()``
+* ``sphinx.util.smartypants``
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 3.1.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+* #7477: imgconverter: Invoke "magick convert" command by default on Windows
+
+Deprecated
+----------
+
+* The ``module`` argument of ``sphinx.ext.autosummary.generate.
+  find_autosummary_in_docstring()``
+
+Features added
+--------------
+
+* LaTeX: Make the ``toplevel_sectioning`` setting optional in LaTeX theme
+* #7410: Allow to suppress "circular toctree references detected" warnings using
+  :confval:`suppress_warnings`
+* C, added scope control directives, :rst:dir:`c:namespace`,
+  :rst:dir:`c:namespace-push`, and :rst:dir:`c:namespace-pop`.
+* #7466: autosummary: headings in generated documents are not translated
+* #7481: html theme: Add right margin to footnote/citation labels
+* #7482: html theme: CSS spacing for code blocks with captions and line numbers
+* #7443: html theme: Add new options :confval:`globaltoc_collapse` and
+  :confval:`globaltoc_includehidden` to control the behavior of globaltoc in
+  sidebar
+* #7484: html theme: Avoid clashes between sidebar and other blocks
+* #7476: html theme: Relbar breadcrumb should contain current page
+* #7506: html theme: A canonical URL is not escaped
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 3.0.3 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 3.0.2 (released Apr 19, 2020)
+=====================================
+
+Features added
+--------------
+
+* C, parse attributes and add :confval:`c_id_attributes`
+  and :confval:`c_paren_attributes` to support user-defined attributes.
+
+Bugs fixed
+----------
+
+* #7461: py domain: fails with IndexError for empty tuple in type annotation
+* #7510: py domain: keyword-only arguments are documented as having a default of
+  None
+* #7418: std domain: :rst:role:`term` role could not match case-insensitively
+* #7461: autodoc: empty tuple in type annotation is not shown correctly
+* #7479: autodoc: Sphinx builds has been slower since 3.0.0 on mocking
+* C++, fix spacing issue in east-const declarations.
+* #7414: LaTeX: Xindy language options were incorrect
+* sphinx crashes with ImportError on python3.5.1
+
+Release 3.0.1 (released Apr 11, 2020)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #7418: std domain: :rst:dir:`term` role becomes case sensitive
+
+Bugs fixed
+----------
+
+* #7428: py domain: a reference to class ``None`` emits a nitpicky warning
+* #7445: py domain: a return annotation ``None`` in the function signature is
+  not converted to a hyperlink when using intersphinx
+* #7418: std domain: duplication warning for glossary terms is case insensitive
+* #7438: C++, fix merging overloaded functions in parallel builds.
+* #7422: autodoc: fails with ValueError when using autodoc_mock_imports
+* #7435: autodoc: ``autodoc_typehints='description'`` doesn't suppress typehints
+  in signature for classes/methods
+* #7451: autodoc: fails with AttributeError when an object returns non-string
+  object as a ``__doc__`` member
+* #7423: crashed when giving a non-string object to logger
+* #7479: html theme: Do not include xmlns attribute with HTML 5 doctype
+* #7426: html theme: Escape some links in HTML templates
+
+Release 3.0.0 (released Apr 06, 2020)
+=====================================
+
+Dependencies
+------------
+
+3.0.0b1
+
+* LaTeX: drop dependency on :program:`extractbb` for image inclusion in
+  Japanese documents as ``.xbb`` files are unneeded by :program:`dvipdfmx`
+  since TeXLive2015 (refs: #6189)
+* babel-2.0 or above is available (Unpinned)
+
+Incompatible changes
+--------------------
+
+3.0.0b1
 
 * Drop features and APIs deprecated in 1.8.x
 * #247: autosummary: stub files are overwritten automatically by default.  see
@@ -18,14 +163,58 @@ Incompatible changes
   when ``:inherited-members:`` and ``:special-members:`` are given.
 * #6830: py domain: ``meta`` fields in info-field-list becomes reserved.  They
   are not displayed on output document now
+* #6417: py domain: doctree of desc_parameterlist has been changed.  The
+  argument names, annotations and default values are wrapped with inline node
+* The structure of ``sphinx.events.EventManager.listeners`` has changed
+* Due to the scoping changes for :rst:dir:`productionlist` some uses of
+  :rst:role:`token` must be modified to include the scope which was previously
+  ignored.
+* #6903: Internal data structure of Python, reST and standard domains have
+  changed.  The node_id is added to the index of objects and modules.  Now they
+  contains a pair of docname and node_id for cross reference.
+* #7276: C++ domain: Non intended behavior is removed such as ``say_hello_``
+  links to ``.. cpp:function:: say_hello()``
+* #7210: js domain: Non intended behavior is removed such as ``parseInt_`` links
+  to ``.. js:function:: parseInt``
+* #7229: rst domain: Non intended behavior is removed such as ``numref_`` links
+  to ``.. rst:role:: numref``
+* #6903: py domain: Non intended behavior is removed such as ``say_hello_``
+  links to ``.. py:function:: say_hello()``
+* #7246: py domain: Drop special cross reference helper for exceptions,
+  functions and methods
+* The C domain has been rewritten, with additional directives and roles.
+  The existing ones are now more strict, resulting in new warnings.
+* The attribute ``sphinx_cpp_tagname`` in the ``desc_signature_line`` node
+  has been renamed to ``sphinx_line_type``.
+* #6462: double backslashes in domain directives are no longer replaced by
+  single backslashes as default. A new configuration value
+  :confval:`strip_signature_backslash` can be used by users to reenable it.
+
+3.0.0 final
+
+* #7222: ``sphinx.util.inspect.unwrap()`` is renamed to ``unwrap_all()``
 
 Deprecated
 ----------
 
+3.0.0b1
+
+* ``desc_signature['first']``
+* ``sphinx.directives.DescDirective``
 * ``sphinx.domains.std.StandardDomain.add_object()``
+* ``sphinx.domains.python.PyDecoratorMixin``
+* ``sphinx.ext.autodoc.get_documenters()``
+* ``sphinx.ext.autosummary.process_autosummary_toc()``
+* ``sphinx.parsers.Parser.app``
+* ``sphinx.testing.path.Path.text()``
+* ``sphinx.testing.path.Path.bytes()``
+* ``sphinx.util.inspect.getargspec()``
+* ``sphinx.writers.latex.LaTeXWriter.format_docclass()``
 
 Features added
 --------------
+
+3.0.0b1
 
 * #247: autosummary: Add :confval:`autosummary_generate_overwrite` to overwrite
   old stub file
@@ -33,24 +222,162 @@ Features added
   not to document inherited members of the class and uppers
 * #6830: autodoc: consider a member private if docstring contains
   ``:meta private:`` in info-field-list
+* #7165: autodoc: Support Annotated type (PEP-593)
+* #2815: autodoc: Support singledispatch functions and methods
+* #7079: autodoc: :confval:`autodoc_typehints` accepts ``"description"``
+  configuration.  It shows typehints as object description
+* #7314: apidoc: Propagate ``--maxdepth`` option through package documents
 * #6558: glossary: emit a warning for duplicated glossary entry
+* #3106: domain: Register hyperlink target for index page automatically
 * #6558: std domain: emit a warning for duplicated generic objects
 * #6830: py domain: Add new event: :event:`object-description-transform`
+* #6895: py domain: Do not emit nitpicky warnings for built-in types
+* py domain: Support lambda functions in function signature
+* #6417: py domain: Allow to make a style for arguments of functions and methods
+* #7238, #7239: py domain: Emit a warning on describing a python object if the
+  entry is already added as the same name
+* #7341: py domain: type annotations in singature are converted to cross refs
+* Support priority of event handlers. For more detail, see
+  :py:meth:`.Sphinx.connect()`
+* #3077: Implement the scoping for :rst:dir:`productionlist` as indicated
+  in the documentation.
+* #1027: Support backslash line continuation in :rst:dir:`productionlist`.
+* #7108: config: Allow to show an error message from conf.py via ``ConfigError``
+* #7032: html: :confval:`html_scaled_image_link` will be disabled for images having
+  ``no-scaled-link`` class
+* #7144: Add CSS class indicating its domain for each desc node
+* #7211: latex: Use babel for Chinese document when using XeLaTeX
+* #6672: LaTeX: Support LaTeX Theming (experimental)
+* #7005: LaTeX: Add LaTeX styling macro for :rst:role:`kbd` role
+* #7220: genindex: Show "main" index entries at first
+* #7103: linkcheck: writes all links to ``output.json``
+* #7025: html search: full text search can be disabled for individual document
+  using ``:nosearch:`` file-wide metadata
+* #7293: html search: Allow to override JavaScript splitter via
+  ``SearchLanguage.js_splitter_code``
+* #7142: html theme: Add a theme option: ``pygments_dark_style`` to switch the
+  style of code-blocks in dark mode
+* The C domain has been rewritten adding for example:
+
+  - Cross-referencing respecting the current scope.
+  - Possible to document anonymous entities.
+  - More specific directives and roles for each type of entitiy,
+    e.g., handling scoping of enumerators.
+  - New role :rst:role:`c:expr` for rendering expressions and types
+    in text.
+
+* Added ``SphinxDirective.get_source_info()``
+  and ``SphinxRole.get_source_info()``.
+* #7324: sphinx-build: Emit a warning if multiple files having different file
+  extensions for same document found
+
+3.0.0 final
+
+* Added ``ObjectDescription.transform_content()``.
 
 Bugs fixed
 ----------
 
-Testing
---------
+3.0.0b1
 
-Release 2.4.0 (in development)
-==============================
+* C++, fix cross reference lookup in certain cases involving
+  function overloads.
+* #5078: C++, fix cross reference lookup when a directive contains multiple
+  declarations.
+* C++, suppress warnings for directly dependent typenames in cross references
+  generated automatically in signatures.
+* #5637: autodoc: Incorrect handling of nested class names on show-inheritance
+* #7267: autodoc: error message for invalid directive options has wrong location
+* #7329: autodoc: info-field-list is wrongly generated from type hints into the
+  class description even if ``autoclass_content='class'`` set
+* #7331: autodoc: a cython-function is not recognized as a function
+* #5637: inheritance_diagram: Incorrect handling of nested class names
+* #7139: ``code-block:: guess`` does not work
+* #7325: html: source_suffix containing dot leads to wrong source link
+* #7357: html: Resizing SVG image fails with ValueError
+* #7278: html search: Fix use of ``html_file_suffix`` instead of
+  ``html_link_suffix`` in search results
+* #7297: html theme: ``bizstyle`` does not support ``sidebarwidth``
+* #3842: singlehtml: Path to images broken when master doc is not in source root
+* #7179: std domain: Fix whitespaces are suppressed on referring GenericObject
+* #7289: console: use bright colors instead of bold
+* #1539: C, parse array types.
+* #2377: C, parse function pointers even in complex types.
+* #7345: sphinx-build: Sphinx crashes if output directory exists as a file
+* #7290: sphinx-build: Ignore bdb.BdbQuit when handling exceptions
+* #6240: napoleon: Attributes and Methods sections ignore :noindex: option
 
-Dependencies
-------------
+3.0.0 final
 
-Incompatible changes
---------------------
+* #7364: autosummary: crashed when :confval:`autosummary_generate` is False
+* #7370: autosummary: raises UnboundLocalError when unknown module given
+* #7367: C++, alternate operator spellings are now supported.
+* C, alternate operator spellings are now supported.
+* #7368: C++, comma operator in expressions, pack expansion in template
+  argument lists, and more comprehensive error messages in some cases.
+* C, C++, fix crash and wrong duplicate warnings related to anon symbols.
+* #6477: Escape first "!" in a cross reference linking no longer possible
+* #7219: py domain: The index entry generated by ``py:function`` directive is
+  different with one from ``index`` directive with "builtin" type
+* #7301: capital characters are not allowed for node_id
+* #7301: epub: duplicated node_ids are generated
+* #6564: html: a width of table was ignored on HTML builder
+* #7401: Incorrect argument is passed for :event:`env-get-outdated` handlers
+* #7355: autodoc: a signature of cython-function is not recognized well
+* #7222: autodoc: ``__wrapped__`` functions are not documented correctly
+* #7409: intersphinx: ValueError is raised when an extension sets up
+  :confval:`intersphinx_mapping` on :event:`config-inited` event
+* #7343: Sphinx builds has been slower since 2.4.0 on debug mode
+
+Release 2.4.4 (released Mar 05, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7197: LaTeX: platex cause error to build image directive with target url
+* #7223: Sphinx builds has been slower since 2.4.0
+
+Release 2.4.3 (released Feb 22, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7184: autodoc: ``*args`` and ``**kwarg`` in type comments are not handled
+  properly
+* #7189: autodoc: classmethod coroutines are not detected
+* #7183: intersphinx: ``:attr:`` reference to property is broken
+* #6244, #6387: html search: Search breaks/hangs when built with dirhtml builder
+* #7195: todo: emit doctree-resolved event with non-document node incorrectly
+
+Release 2.4.2 (released Feb 19, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7138: autodoc: ``autodoc.typehints`` crashed when variable has unbound object
+  as a value
+* #7156: autodoc: separator for keyword only arguments is not shown
+* #7146: autodoc: IndexError is raised on suppressed type_comment found
+* #7161: autodoc: typehints extension does not support parallel build
+* #7178: autodoc: TypeError is raised on fetching type annotations
+* #7151: crashed when extension assigns a value to ``env.indexentries``
+* #7170: text: Remove debug print
+* #7137: viewcode: Avoid to crash when non-python code given
+
+Release 2.4.1 (released Feb 11, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7120: html: crashed when on scaling SVG images which have float dimentions
+* #7126: autodoc: TypeError: 'getset_descriptor' object is not iterable
+
+Release 2.4.0 (released Feb 09, 2020)
+=====================================
 
 Deprecated
 ----------
@@ -60,6 +387,8 @@ Deprecated
 * ``sphinx.environment.temp_data['gloss_entries']``
 * ``sphinx.environment.BuildEnvironment.indexentries``
 * ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
+* ``sphinx.ext.apidoc.INITPY``
+* ``sphinx.ext.apidoc.shall_skip()``
 * ``sphinx.io.FiletypeNotFoundError``
 * ``sphinx.io.get_filetype()``
 * ``sphinx.pycode.ModuleAnalyzer.encoding``
@@ -67,6 +396,18 @@ Deprecated
 * ``sphinx.util.detect_encoding()``
 * ``sphinx.util.get_module_source()``
 * ``sphinx.util.inspect.Signature``
+* ``sphinx.util.inspect.safe_getmembers()``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.author``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.contentsname``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.docclass``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.docname``
+* ``sphinx.writers.latex.LaTeXTranslator.settings.title``
+* ``sphinx.writers.latex.ADDITIONAL_SETTINGS``
+* ``sphinx.writers.latex.DEFAULT_SETTINGS``
+* ``sphinx.writers.latex.LUALATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.PDFLATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.XELATEX_DEFAULT_FONTPKG``
+* ``sphinx.writers.latex.XELATEX_GREEK_DEFAULT_FONTPKG``
 
 Features added
 --------------
@@ -75,44 +416,70 @@ Features added
 * #6446: duration: Add ``sphinx.ext.durations`` to inspect which documents slow
   down the build
 * #6837: LaTeX: Support a nested table
+* #7115: LaTeX: Allow to override LATEXOPTS and LATEXMKOPTS via environment
+  variable
 * #6966: graphviz: Support ``:class:`` option
 * #6696: html: ``:scale:`` option of image/figure directive not working for SVG
   images (imagesize-1.2.0 or above is required)
 * #6994: imgconverter: Support illustrator file (.ai) to .png conversion
+* autodoc: Support Positional-Only Argument separator (PEP-570 compliant)
+* autodoc: Support type annotations for variables
+* #2755: autodoc: Add new event: :event:`autodoc-before-process-signature`
+* #2755: autodoc: Support type_comment style (ex. ``# type: (str) -> str``)
+  annotation (python3.8+ or `typed_ast <https://github.com/python/typed_ast>`_
+  is required)
+* #7051: autodoc: Support instance variables without defaults (PEP-526)
+* #6418: autodoc: Add a new extension ``sphinx.ext.autodoc.typehints``. It shows
+  typehints as object description if ``autodoc_typehints = "description"`` set.
+  This is an experimental extension and it will be integrated into autodoc core
+  in Sphinx-3.0
+* SphinxTranslator now calls visitor/departure method for super node class if
+  visitor/departure method for original node class not found
+* #6418: Add new event: :event:`object-description-transform`
+* py domain: :rst:dir:`py:data` and :rst:dir:`py:attribute` take new options
+  named ``:type:`` and ``:value:`` to describe its type and initial value
+* #6785: py domain: ``:py:attr:`` is able to refer properties again
+* #6772: apidoc: Add ``-q`` option for quiet mode
 
 Bugs fixed
 ----------
 
 * #6925: html: Remove redundant type="text/javascript" from <script> elements
+* #7112: html: SVG image is not layouted as float even if aligned
 * #6906, #6907: autodoc: failed to read the source codes encoeded in cp1251
 * #6961: latex: warning for babel shown twice
+* #7059: latex: LaTeX compilation falls into infinite loop (wrapfig issue)
+* #6581: latex: ``:reversed:`` option for toctree does not effect to LaTeX build
 * #6559: Wrong node-ids are generated in glossary directive
 * #6986: apidoc: misdetects module name for .so file inside module
+* #6899: apidoc: private members are not shown even if ``--private`` given
+* #6327: apidoc: Support a python package consisted of __init__.so file
 * #6999: napoleon: fails to parse tilde in :exc: role
+* #7019: gettext: Absolute path used in message catalogs
+* #7023: autodoc: nested partial functions are not listed
+* #7023: autodoc: partial functions imported from other modules are listed as
+  module members without :impoprted-members: option
+* #6889: autodoc: Trailing comma in ``:members::`` option causes cryptic warning
+* #6568: autosummary: ``autosummary_imported_members`` is ignored on generating
+  a stub file for submodule
+* #7055: linkcheck: redirect is treated as an error
+* #7088: HTML template: If ``navigation_with_keys`` option is activated,
+  modifier keys are ignored, which means the feature can interfere with browser
+  features
+* #7090: std domain: Can't assign numfig-numbers for custom container nodes
+* #7106: std domain: enumerated nodes are marked as duplicated when extensions
+  call ``note_explicit_target()``
+* #7095: dirhtml: Cross references are broken via intersphinx and ``:doc:`` role
+* C++:
 
-Testing
---------
-
-Release 2.3.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
+  - Don't crash when using the ``struct`` role in some cases.
+  - Don't warn when using the ``var``/``member`` role for function
+    parameters.
+  - Render call and braced-init expressions correctly.
+* #7097: Filenames of images generated by
+  ``sphinx.transforms.post_transforms.images.ImageConverter``
+  or its subclasses (used for latex build) are now sanitized,
+  to prevent broken paths
 
 Release 2.3.1 (released Dec 22, 2019)
 =====================================

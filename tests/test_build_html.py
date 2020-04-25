@@ -19,7 +19,6 @@ from html5lib import HTMLParser
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import docutils
 from sphinx.util.inventory import InventoryFile
 
 
@@ -176,8 +175,9 @@ def test_html4_output(app, status, warning):
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dt[@id='autodoc_target.Class']", ''),
-        (".//dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
+        (".//dl[@class='py class']/dt[@id='autodoc_target.Class']", ''),
+        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'\*\*'),
+        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
@@ -222,7 +222,7 @@ def test_html4_output(app, status, warning):
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
-        (".//a[@href='#grammar-token-try-stmt']"
+        (".//a[@href='#grammar-token-try_stmt']"
          "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
@@ -254,7 +254,7 @@ def test_html4_output(app, status, warning):
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-try1-stmt']/code/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
@@ -279,7 +279,7 @@ def test_html4_output(app, status, warning):
         (".//dt/code", r'long\(parameter,\s* list\)'),
         (".//dt/code", 'another one'),
         (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
-        (".//dl[@class='userdesc']", ''),
+        (".//dl[@class='std userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
         (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # docfields
@@ -322,9 +322,9 @@ def test_html4_output(app, status, warning):
          'perl'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
          '\\+p'),
-        (".//a[@class='reference internal'][@href='#cmdoption-perl-objc']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-ObjC']/code/span",
          '--ObjC\\+\\+'),
-        (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin-option']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin.option']/code/span",
          '--plugin.option'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-create-auth-token']"
          "/code/span",
@@ -407,8 +407,6 @@ def test_html4_output(app, status, warning):
         (".//a[@href='_sources/otherext.foo.txt']", ''),
     ]
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
 @pytest.mark.test_params(shared_result='test_build_html_output')
@@ -418,15 +416,13 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_build_html_output')
 def test_html_download(app):
     app.build()
 
     # subdir/includes.html
-    result = (app.outdir / 'subdir' / 'includes.html').text()
+    result = (app.outdir / 'subdir' / 'includes.html').read_text()
     pattern = ('<a class="reference download internal" download="" '
                'href="../(_downloads/.*/img.png)">')
     matched = re.search(pattern, result)
@@ -435,7 +431,7 @@ def test_html_download(app):
     filename = matched.group(1)
 
     # includes.html
-    result = (app.outdir / 'includes.html').text()
+    result = (app.outdir / 'includes.html').read_text()
     pattern = ('<a class="reference download internal" download="" '
                'href="(_downloads/.*/img.png)">')
     matched = re.search(pattern, result)
@@ -444,8 +440,6 @@ def test_html_download(app):
     assert matched.group(1) == filename
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
@@ -454,7 +448,7 @@ def test_html_download_role(app, status, warning):
     digest_another = md5(b'another/dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert (('<li><p><a class="reference download internal" download="" '
              'href="_downloads/%s/dummy.dat">'
              '<code class="xref download docutils literal notranslate">'
@@ -524,8 +518,6 @@ def test_html_translator(app):
         (".//h1//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
 def test_tocdepth(app, cached_etree_parse, fname, expect):
@@ -571,8 +563,6 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
         (".//h4//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('singlehtml', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
 def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
@@ -630,8 +620,6 @@ def test_numfig_disabled_warn(app, warning):
          "span[@class='caption-number']", None, True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig')
 @pytest.mark.test_params(shared_result='test_build_html_numfig')
 def test_numfig_disabled(app, cached_etree_parse, fname, expect):
@@ -646,7 +634,7 @@ def test_numfig_disabled(app, cached_etree_parse, fname, expect):
 def test_numfig_without_numbered_toctree_warn(app, warning):
     app.build()
     # remove :numbered: option
-    index = (app.srcdir / 'index.rst').text()
+    index = (app.srcdir / 'index.rst').read_text()
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index)
     app.builder.build_all()
@@ -738,15 +726,13 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 6 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(
     'html', testroot='numfig',
     srcdir='test_numfig_without_numbered_toctree',
     confoverrides={'numfig': True})
 def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
     # remove :numbered: option
-    index = (app.srcdir / 'index.rst').text()
+    index = (app.srcdir / 'index.rst').read_text()
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index)
 
@@ -846,8 +832,6 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 2.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, expect):
@@ -951,8 +935,6 @@ def test_numfig_with_prefix_warn(app, warning):
          "span[@class='caption-number']", '^Code-2.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig',
                     confoverrides={'numfig': True,
                                    'numfig_format': {'figure': 'Figure:%s',
@@ -1057,8 +1039,6 @@ def test_numfig_with_secnum_depth_warn(app, warning):
          "span[@class='caption-number']", '^Listing 2.1.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig',
                     confoverrides={'numfig': True,
                                    'numfig_secnum_depth': 2})
@@ -1142,8 +1122,6 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
          "span[@class='caption-number']", '^Listing 2.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('singlehtml', testroot='numfig', confoverrides={'numfig': True})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
@@ -1168,8 +1146,6 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
         (".//li/p/a/span", 'No.2', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='add_enumerable_node',
                     srcdir='test_enumerable_node')
 def test_enumerable_node(app, cached_etree_parse, fname, expect):
@@ -1189,7 +1165,7 @@ def test_html_assets(app):
     assert not (app.outdir / '_static' / '.htaccess').exists()
     assert not (app.outdir / '_static' / '.htpasswd').exists()
     assert (app.outdir / '_static' / 'API.html').exists()
-    assert (app.outdir / '_static' / 'API.html').text() == 'Sphinx-1.4.4'
+    assert (app.outdir / '_static' / 'API.html').read_text() == 'Sphinx-1.4.4'
     assert (app.outdir / '_static' / 'css' / 'style.css').exists()
     assert (app.outdir / '_static' / 'js' / 'custom.js').exists()
     assert (app.outdir / '_static' / 'rimg.png').exists()
@@ -1210,7 +1186,7 @@ def test_html_assets(app):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
     # html_css_files
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert '<link rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
             'href="https://example.com/custom.css" />' in content)
@@ -1249,7 +1225,7 @@ def test_html_sourcelink_suffix_empty(app):
 def test_html_entity(app):
     app.builder.build_all()
     valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     for entity in re.findall(r'&([a-z]+);', content, re.M):
         assert entity not in valid_entities
 
@@ -1261,11 +1237,18 @@ def test_html_inventory(app):
     with open(app.outdir / 'objects.inv', 'rb') as f:
         invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
-    assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
+    assert set(invdata['std:label'].keys()) == {'modindex',
+                                                'py-modindex',
+                                                'genindex',
+                                                'search'}
     assert invdata['std:label']['modindex'] == ('Python',
                                                 '',
                                                 'https://www.google.com/py-modindex.html',
                                                 'Module Index')
+    assert invdata['std:label']['py-modindex'] == ('Python',
+                                                   '',
+                                                   'https://www.google.com/py-modindex.html',
+                                                   'Python Module Index')
     assert invdata['std:label']['genindex'] == ('Python',
                                                 '',
                                                 'https://www.google.com/genindex.html',
@@ -1284,7 +1267,7 @@ def test_html_inventory(app):
 @pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_anchor_for_figure(app):
     app.builder.build_all()
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
     assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
             '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
             in content)
@@ -1293,7 +1276,7 @@ def test_html_anchor_for_figure(app):
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
 
     # standard case
     assert 'standalone raw directive (HTML)' in result
@@ -1337,7 +1320,7 @@ def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
 @pytest.mark.sphinx('html', testroot='html_style')
 def test_html_style(app, status, warning):
     app.build()
-    result = (app.outdir / 'index.html').text()
+    result = (app.outdir / 'index.html').read_text()
     assert '<link rel="stylesheet" href="_static/default.css" type="text/css" />' in result
     assert ('<link rel="stylesheet" href="_static/alabaster.css" type="text/css" />'
             not in result)
@@ -1347,7 +1330,7 @@ def test_html_style(app, status, warning):
 def test_html_remote_images(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
             'src="https://www.python.org/static/img/python-logo.png" />' in result)
     assert not (app.outdir / 'python-logo.png').exists()
@@ -1359,7 +1342,7 @@ def test_html_sidebar(app, status, warning):
 
     # default for alabaster
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
@@ -1374,7 +1357,7 @@ def test_html_sidebar(app, status, warning):
     # only relations.html
     app.config.html_sidebars = {'**': ['relations.html']}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
@@ -1388,7 +1371,7 @@ def test_html_sidebar(app, status, warning):
     # no sidebars
     app.config.html_sidebars = {'**': []}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' not in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
@@ -1419,10 +1402,10 @@ def test_html_manpage(app, cached_etree_parse, fname, expect):
 def test_html_baseurl(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text()
     assert '<link rel="canonical" href="https://example.com/index.html" />' in result
 
-    result = (app.outdir / 'qux' / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'qux' / 'index.html').read_text()
     assert '<link rel="canonical" href="https://example.com/qux/index.html" />' in result
 
 
@@ -1432,10 +1415,10 @@ def test_html_baseurl(app, status, warning):
 def test_html_baseurl_and_html_file_suffix(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.htm').text(encoding='utf8')
+    result = (app.outdir / 'index.htm').read_text()
     assert '<link rel="canonical" href="https://example.com/subdir/index.htm" />' in result
 
-    result = (app.outdir / 'qux' / 'index.htm').text(encoding='utf8')
+    result = (app.outdir / 'qux' / 'index.htm').read_text()
     assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result
 
 
@@ -1518,6 +1501,11 @@ def test_html_pygments_for_classic_theme(app):
     assert style.__name__ == 'SphinxStyle'
 
 
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_dark_pygments_style_default(app):
+    assert app.builder.dark_highlighter is None
+
+
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
 def test_validate_html_extra_path(app):
     (app.confdir / '_static').makedirs()
@@ -1542,3 +1530,22 @@ def test_validate_html_static_path(app):
     ]
     validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
+
+
+@pytest.mark.sphinx(testroot='html_scaled_image_link')
+def test_html_scaled_image_link(app):
+    app.build()
+    context = (app.outdir / 'index.html').read_text()
+
+    # no scaled parameters
+    assert re.search('\n<img alt="_images/img.png" src="_images/img.png" />', context)
+
+    # scaled_image_link
+    assert re.search('\n<a class="reference internal image-reference" href="_images/img.png">'
+                     '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" /></a>',
+                     context)
+
+    # no-scaled-link class disables the feature
+    assert re.search('\n<img alt="_images/img.png" class="no-scaled-link"'
+                     ' src="_images/img.png" style="[^"]+" />',
+                     context)

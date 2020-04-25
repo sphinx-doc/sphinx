@@ -13,7 +13,7 @@ import re
 import warnings
 from importlib import import_module
 from os import path
-from typing import Any, Dict, IO, Iterable, List, Tuple, Set
+from typing import Any, Dict, IO, Iterable, List, Tuple, Set, Type
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -24,10 +24,6 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.search.jssplitter import splitter_code
 from sphinx.util import jsdump, rpartition
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 class SearchLanguage:
@@ -43,6 +39,14 @@ class SearchLanguage:
        This is a set of stop words of the target language.  Default `stopwords`
        is empty.  This word is used for building index and embedded in JS.
 
+    .. attribute:: js_splitter_code
+
+       Return splitter funcion of JavaScript version.  The function should be
+       named as ``splitQuery``.  And it should take a string and return list of
+       strings.
+
+       .. versionadded:: 3.0
+
     .. attribute:: js_stemmer_code
 
        Return stemmer class of JavaScript version.  This class' name should be
@@ -55,6 +59,7 @@ class SearchLanguage:
     lang = None                 # type: str
     language_name = None        # type: str
     stopwords = set()           # type: Set[str]
+    js_splitter_code = None     # type: str
     js_stemmer_rawcode = None   # type: str
     js_stemmer_code = """
 /**
@@ -425,11 +430,16 @@ class IndexBuilder:
                 self._mapping.setdefault(stemmed_word, set()).add(docname)
 
     def context_for_searchtool(self) -> Dict[str, Any]:
+        if self.lang.js_splitter_code:
+            js_splitter_code = self.lang.js_splitter_code
+        else:
+            js_splitter_code = self.js_splitter_code
+
         return {
             'search_language_stemming_code': self.lang.js_stemmer_code,
             'search_language_stop_words': jsdump.dumps(sorted(self.lang.stopwords)),
             'search_scorer_tool': self.js_scorer_code,
-            'search_word_splitter_code': self.js_splitter_code,
+            'search_word_splitter_code': js_splitter_code,
         }
 
     def get_js_stemmer_rawcode(self) -> str:

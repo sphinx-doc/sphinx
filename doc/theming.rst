@@ -63,6 +63,11 @@ Python :mod:`ConfigParser` module) and has the following structure:
   highlighting.  This can be overridden by the user in the
   :confval:`pygments_style` config value.
 
+* The **pygments_dark_style** setting gives the name of a Pygments style to use
+  for highlighting when the CSS media query ``(prefers-color-scheme: dark)``
+  evaluates to true. It is injected into the page using
+  :meth:`~Sphinx.add_css_file()`.
+
 * The **sidebars** setting gives the comma separated list of sidebar templates
   for constructing sidebars.  This can be overridden by the user in the
   :confval:`html_sidebars` config value.

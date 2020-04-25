@@ -18,7 +18,7 @@ import sys
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Tuple
+from typing import Any, Generator, Iterator, List, Tuple, Type
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 
@@ -27,10 +27,6 @@ try:
     from sphinx.testing.path import path as Path
 except ImportError:
     Path = None  # type: ignore
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
@@ -59,8 +55,8 @@ def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split(SEP)
-    t2 = to.split(SEP)
+    b2 = base.split('#')[0].split(SEP)
+    t2 = to.split('#')[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:

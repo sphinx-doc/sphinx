@@ -110,6 +110,10 @@ class Outer(object):
     factory = dict
 
 
+class InnerChild(Outer.Inner):
+    """InnerChild docstring"""
+
+
 class DocstringSig(object):
     def meth(self):
         """meth(FOO, BAR=1) -> BAZ
@@ -141,6 +145,8 @@ First line of docstring
 
 
 class StrRepr(str):
+    """docstring"""
+
     def __repr__(self):
         return self
 

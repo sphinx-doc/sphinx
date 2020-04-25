@@ -12,6 +12,8 @@ import sys
 from numbers import Integral
 from typing import Any, Dict, List, TypeVar, Union, Callable, Tuple, Optional
 
+import pytest
+
 from sphinx.util.typing import stringify
 
 
@@ -40,6 +42,12 @@ def test_stringify_type_hints_containers():
     assert stringify(Tuple[str, str, str]) == "Tuple[str, str, str]"
     assert stringify(Tuple[str, ...]) == "Tuple[str, ...]"
     assert stringify(List[Dict[str, Tuple]]) == "List[Dict[str, Tuple]]"
+
+
+@pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
+def test_stringify_Annotated():
+    from typing import Annotated
+    assert stringify(Annotated[str, "foo", "bar"]) == "str"
 
 
 def test_stringify_type_hints_string():

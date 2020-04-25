@@ -36,7 +36,7 @@ def test_LiteralIncludeReader(literal_inc_path):
     options = {'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == literal_inc_path.text()
+    assert content == literal_inc_path.read_text()
     assert lines == 13
     assert reader.lineno_start == 1
 
@@ -46,7 +46,7 @@ def test_LiteralIncludeReader_lineno_start(literal_inc_path):
     options = {'lineno-start': 4}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == literal_inc_path.text()
+    assert content == literal_inc_path.read_text()
     assert lines == 13
     assert reader.lineno_start == 4
 
@@ -324,7 +324,7 @@ def test_force_option(app, status, warning):
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
-    html = (app.outdir / 'caption.html').text()
+    html = (app.outdir / 'caption.html').read_text()
     caption = ('<div class="code-block-caption">'
                '<span class="caption-number">Listing 1 </span>'
                '<span class="caption-text">caption <em>test</em> rb'
@@ -336,7 +336,7 @@ def test_code_block_caption_html(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'python.tex').text()
+    latex = (app.outdir / 'python.tex').read_text()
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id1}}}'
     link = '\\hyperref[\\detokenize{caption:name-test-rb}]' \
@@ -349,7 +349,7 @@ def test_code_block_caption_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_namedlink_latex(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'python.tex').text()
+    latex = (app.outdir / 'python.tex').read_text()
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-rb}}}'
     link1 = '\\hyperref[\\detokenize{caption:name-test-rb}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Ruby}}'
@@ -366,7 +366,7 @@ def test_code_block_namedlink_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_emphasize_latex(app, status, warning):
     app.builder.build(['emphasize'])
-    latex = (app.outdir / 'python.tex').text().replace('\r\n', '\n')
+    latex = (app.outdir / 'python.tex').read_text().replace('\r\n', '\n')
     includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
     assert includes in latex
     includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
@@ -379,7 +379,7 @@ def test_literal_include(app, status, warning):
     et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
     literal_include = secs[1].findall('literal_block')
-    literal_src = (app.srcdir / 'literal.inc').text()
+    literal_src = (app.srcdir / 'literal.inc').read_text()
     assert len(literal_include) > 0
     actual = literal_include[0].text
     assert actual == literal_src
@@ -412,7 +412,7 @@ def test_literal_include_block_start_with_comment_or_brank(app, status, warning)
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_linenos(app, status, warning):
     app.builder.build(['linenos'])
-    html = (app.outdir / 'linenos.html').text()
+    html = (app.outdir / 'linenos.html').read_text()
 
     # :linenos:
     assert ('<td class="linenos"><div class="linenodiv"><pre>'
@@ -458,7 +458,7 @@ def test_literal_include_linenos(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'python.tex').text().replace('\r\n', '\n')
+    latex = (app.outdir / 'python.tex').read_text().replace('\r\n', '\n')
     includes = (
         '\\begin{sphinxVerbatim}'
         '[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
@@ -472,7 +472,7 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literalinclude_caption_html(app, status, warning):
     app.builder.build('index')
-    html = (app.outdir / 'caption.html').text()
+    html = (app.outdir / 'caption.html').read_text()
     caption = ('<div class="code-block-caption">'
                '<span class="caption-number">Listing 2 </span>'
                '<span class="caption-text">caption <strong>test</strong> py'
@@ -484,7 +484,7 @@ def test_literalinclude_caption_html(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
-    latex = (app.outdir / 'python.tex').text()
+    latex = (app.outdir / 'python.tex').read_text()
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id2}}}'
     link = '\\hyperref[\\detokenize{caption:name-test-py}]' \
@@ -497,7 +497,7 @@ def test_literalinclude_caption_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_namedlink_latex(app, status, warning):
     app.builder.build('index')
-    latex = (app.outdir / 'python.tex').text()
+    latex = (app.outdir / 'python.tex').read_text()
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-py}}}'
     link1 = '\\hyperref[\\detokenize{caption:name-test-py}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Python}}'
@@ -584,7 +584,7 @@ def test_code_block_highlighted(app, status, warning):
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_linenothreshold(app, status, warning):
     app.builder.build(['linenothreshold'])
-    html = (app.outdir / 'linenothreshold.html').text()
+    html = (app.outdir / 'linenothreshold.html').read_text()
 
     lineos_head = '<td class="linenos"><div class="linenodiv"><pre>'
     lineos_tail = '</pre></div></td>'

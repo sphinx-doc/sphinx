@@ -8,7 +8,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Union
+import warnings
+from typing import Any, Dict, List, Type, Union
+from typing import TYPE_CHECKING
 
 import docutils.parsers
 import docutils.parsers.rst
@@ -17,12 +19,11 @@ from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.util.rst import append_epilog, prepend_prolog
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from docutils.transforms import Transform  # NOQA
-    from typing import Type  # NOQA # for python3.5.1
     from sphinx.application import Sphinx
 
 
@@ -47,6 +48,8 @@ class Parser(docutils.parsers.Parser):
 
     .. deprecated:: 1.6
        ``warn()`` and ``info()`` is deprecated.  Use :mod:`sphinx.util.logging` instead.
+    .. deprecated:: 3.0
+       parser.app is deprecated.
     """
 
     def set_application(self, app: "Sphinx") -> None:
@@ -54,15 +57,20 @@ class Parser(docutils.parsers.Parser):
 
         :param sphinx.application.Sphinx app: Sphinx application object
         """
-        self.app = app
+        self._app = app
         self.config = app.config
         self.env = app.env
+
+    @property
+    def app(self) -> "Sphinx":
+        warnings.warn('parser.app is deprecated.', RemovedInSphinx50Warning)
+        return self._app
 
 
 class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
-    def get_transforms(self) -> List["Type[Transform]"]:
+    def get_transforms(self) -> List[Type["Transform"]]:
         """Sphinx's reST parser replaces a transform class for smart-quotes by own's
 
         refs: sphinx.io.SphinxStandaloneReader

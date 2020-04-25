@@ -15,7 +15,7 @@ from collections import defaultdict
 from copy import copy
 from os import path
 from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -36,8 +36,7 @@ from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
 
@@ -218,6 +217,10 @@ class BuildEnvironment:
         for domain in app.registry.create_domains(self):
             self.domains[domain.name] = domain
 
+        # setup domains (must do after all initialization)
+        for domain in self.domains.values():
+            domain.setup()
+
         # initialize config
         self._update_config(app.config)
 
@@ -328,7 +331,7 @@ class BuildEnvironment:
         if suffix:
             warnings.warn('The suffix argument for doc2path() is deprecated.',
                           RemovedInSphinx40Warning)
-        if base not in (True, None):
+        if base not in (True, False, None):
             warnings.warn('The string style base argument for doc2path() is deprecated.',
                           RemovedInSphinx40Warning)
 
@@ -644,3 +647,11 @@ class BuildEnvironment:
         from sphinx.domains.index import IndexDomain
         domain = cast(IndexDomain, self.get_domain('index'))
         return domain.entries
+
+    @indexentries.setter
+    def indexentries(self, entries: Dict[str, List[Tuple[str, str, str, str, str]]]) -> None:
+        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        from sphinx.domains.index import IndexDomain
+        domain = cast(IndexDomain, self.get_domain('index'))
+        domain.data['entries'] = entries

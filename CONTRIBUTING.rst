@@ -61,7 +61,7 @@ of the core developers before it is merged into the main repository.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
    free to email the *sphinx-dev* mailing list.
 #. Fork `the repository`_ on GitHub to start making your changes to the
-   ``master`` branch for next MAJOR version, or ``X.Y`` branch for next
+   ``master`` branch for next MAJOR version, or ``A.x`` branch for next
    MINOR version (see `Branch Model`_).
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
@@ -94,10 +94,10 @@ These are the basic steps needed to start developing on Sphinx.
    Sphinx adopts Semantic Versioning 2.0.0 (refs: https://semver.org/ ).
 
    For changes that preserves backwards-compatibility of API and features,
-   they should be included in the next MINOR release, use the ``X.Y`` branch.
+   they should be included in the next MINOR release, use the ``A.x`` branch.
    ::
 
-       git checkout X.Y
+       git checkout A.x
 
    For incompatible or other substantial changes that should wait until the
    next MAJOR release, use the ``master`` branch.
@@ -199,9 +199,17 @@ These are the basic steps needed to start developing on Sphinx.
        git push origin feature-xyz
 
 #. Submit a pull request from your branch to the respective branch (``master``
-   or ``X.Y``).
+   or ``A.x``).
 
 #. Wait for a core developer to review your changes.
+
+
+Translations
+~~~~~~~~~~~~
+
+The Sphinx core messages and documentations are translated on `Transifex
+<https://www.transifex.com/>`_.  Please join `Sphinx project on Transifex
+<https://www.transifex.com/sphinx-doc/>`_ and translate them.
 
 
 Core Developers
@@ -226,39 +234,6 @@ The following are some general guidelines for core developers:
 
 * When committing code written by someone else, please attribute the original
   author in the commit message and any relevant :file:`CHANGES` entry.
-
-
-Locale updates
-~~~~~~~~~~~~~~
-
-The parts of messages in Sphinx that go into builds are translated into several
-locales.  The translations are kept as gettext ``.po`` files translated from the
-master template ``sphinx/locale/sphinx.pot``.
-
-Sphinx uses `Babel <http://babel.pocoo.org/en/latest/>`_ to extract messages
-and maintain the catalog files.  It is integrated in ``setup.py``:
-
-* Use ``python setup.py extract_messages`` to update the ``.pot`` template.
-* Use ``python setup.py update_catalog`` to update all existing language
-  catalogs in ``sphinx/locale/*/LC_MESSAGES`` with the current messages in the
-  template file.
-* Use ``python setup.py compile_catalog`` to compile the ``.po`` files to binary
-  ``.mo`` files and ``.js`` files.
-
-When an updated ``.po`` file is submitted, run compile_catalog to commit both
-the source and the compiled catalogs.
-
-When a new locale is submitted, add a new directory with the ISO 639-1 language
-identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
-values for :confval:`language` in ``doc/usage/configuration.rst``.
-
-The Sphinx core messages can also be translated on `Transifex
-<https://www.transifex.com/>`_.  There exists a client tool named ``tx`` in the
-Python package "transifex_client", which can be used to pull translations in
-``.po`` format from Transifex.  To do this, go to ``sphinx/locale`` and then run
-``tx pull -f -l LANG`` where LANG is an existing language identifier.  It is
-good practice to run ``python setup.py update_catalog`` afterwards to make sure
-the ``.po`` file has the canonical Babel formatting.
 
 
 Coding Guide
@@ -325,8 +300,8 @@ Versioning 2.0.0 (refs: https://semver.org/ ).
     All changes including incompatible behaviors and public API updates are
     allowed.
 
-``X.Y``
-    Where ``X.Y`` is the ``MAJOR.MINOR`` release.  Used to maintain current
+``A.x`` (ex. ``2.x``)
+    Where ``A.x`` is the ``MAJOR.MINOR`` release.  Used to maintain current
     MINOR release. All changes are allowed if the change preserves
     backwards-compatibility of API and features.
 
@@ -334,8 +309,8 @@ Versioning 2.0.0 (refs: https://semver.org/ ).
     new MAJOR version is released, the old ``MAJOR.MINOR`` branch will be
     deleted and replaced by an equivalent tag.
 
-``X.Y.Z``
-    Where ``X.Y.Z`` is the ``MAJOR.MINOR.PATCH`` release.  Only
+``A.B.x`` (ex. ``2.4.x``)
+    Where ``A.B.x`` is the ``MAJOR.MINOR.PATCH`` release.  Only
     backwards-compatible bug fixes are allowed. In Sphinx project, PATCH
     version is used for urgent bug fix.
 
@@ -387,17 +362,30 @@ Sphinx 2.x:
 
 * Sphinx 2.x will contain a backwards-compatible replica of the function
   which will raise a ``RemovedInSphinx40Warning``.
+  This is a subclass of :exc:`python:PendingDeprecationWarning`, i.e. it
+  will not get displayed by default.
 
-* Sphinx 3.x will still contain the backwards-compatible replica.
+* Sphinx 3.x will still contain the backwards-compatible replica, but
+  ``RemovedInSphinx40Warning`` will be a subclass of
+  :exc:`python:DeprecationWarning` then, and gets displayed by default.
 
 * Sphinx 4.0 will remove the feature outright.
 
-The warnings are displayed by default. You can turn off display of these
-warnings with:
+Deprecation warnings
+~~~~~~~~~~~~~~~~~~~~
+
+Sphinx will enable its ``RemovedInNextVersionWarning`` warnings by default,
+if :envvar:`python:PYTHONWARNINGS` is not set.
+Therefore you can disable them using:
 
 * ``PYTHONWARNINGS= make html`` (Linux/Mac)
 * ``export PYTHONWARNINGS=`` and do ``make html`` (Linux/Mac)
 * ``set PYTHONWARNINGS=`` and do ``make html`` (Windows)
+
+But you can also explicitly enable the pending ones using e.g.
+``PYTHONWARNINGS=default`` (see the
+:ref:`Python docs on configuring warnings <python:describing-warning-filters>`)
+for more details.
 
 Unit Testing
 ------------
@@ -426,3 +414,42 @@ and other ``test_*.py`` files under ``tests`` directory.
 
 .. versionadded:: 1.8
    Sphinx also runs JavaScript tests.
+
+
+Release procedures
+------------------
+
+The release procedures are listed on ``utils/release-checklist``.
+
+
+Locale Updates
+~~~~~~~~~~~~~~
+
+The parts of messages in Sphinx that go into builds are translated into several
+locales.  The translations are kept as gettext ``.po`` files translated from the
+master template :file:`sphinx/locale/sphinx.pot`.
+
+Sphinx uses `Babel <http://babel.pocoo.org/en/latest/>`_ to extract messages
+and maintain the catalog files.  It is integrated in ``setup.py``:
+
+* Use ``python setup.py extract_messages`` to update the ``.pot`` template.
+* Use ``python setup.py update_catalog`` to update all existing language
+  catalogs in ``sphinx/locale/*/LC_MESSAGES`` with the current messages in the
+  template file.
+* Use ``python setup.py compile_catalog`` to compile the ``.po`` files to binary
+  ``.mo`` files and ``.js`` files.
+
+When an updated ``.po`` file is submitted, run compile_catalog to commit both
+the source and the compiled catalogs.
+
+When a new locale is submitted, add a new directory with the ISO 639-1 language
+identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
+values for :confval:`language` in ``doc/usage/configuration.rst``.
+
+The Sphinx core messages can also be translated on `Transifex
+<https://www.transifex.com/>`_.  There exists a client tool named ``tx`` in the
+Python package "transifex_client", which can be used to pull translations in
+``.po`` format from Transifex.  To do this, go to ``sphinx/locale`` and then run
+``tx pull -f -l LANG`` where LANG is an existing language identifier.  It is
+good practice to run ``python setup.py update_catalog`` afterwards to make sure
+the ``.po`` file has the canonical Babel formatting.
