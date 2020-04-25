@@ -79,6 +79,7 @@ latex_show_urls = 'footnote'
 latex_use_xindy = True
 
 autodoc_member_order = 'groupwise'
+autosummary_generate = False
 todo_include_todos = True
 extlinks = {'duref': ('http://docutils.sourceforge.net/docs/ref/rst/'
                       'restructuredtext.html#%s', ''),
