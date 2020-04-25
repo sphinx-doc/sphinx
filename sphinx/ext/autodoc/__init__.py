@@ -732,7 +732,8 @@ class Documenter:
         # where the attribute documentation would actually be found in.
         # This is used for situations where you have a module that collects the
         # functions and classes of internal submodules.
-        self.real_modname = real_modname or self.get_real_modname()  # type: str
+        guess_modname = self.get_real_modname()
+        self.real_modname = real_modname or guess_modname
 
         # try to also get a source code analyzer for attribute docs
         try:
@@ -749,6 +750,14 @@ class Documenter:
                 self.directive.filename_set.add(self.module.__file__)
         else:
             self.directive.filename_set.add(self.analyzer.srcname)
+
+        if self.real_modname != guess_modname:
+            # Add module to dependency list if target object is defined in other module.
+            try:
+                analyzer = ModuleAnalyzer.for_module(guess_modname)
+                self.directive.filename_set.add(analyzer.srcname)
+            except PycodeError:
+                pass
 
         # check __module__ of object (for members not given explicitly)
         if check_module:

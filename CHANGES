@@ -62,6 +62,8 @@ Features added
 Bugs fixed
 ----------
 
+* #6703: autodoc: incremental build does not work for imported objects
+
 Testing
 --------
 
