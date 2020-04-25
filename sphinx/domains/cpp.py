@@ -10,7 +10,7 @@
 
 import re
 from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar, Union
+    Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar, Union, Optional
 )
 
 from docutils import nodes
@@ -1267,7 +1267,7 @@ class ASTNoexceptExpr(ASTExpression):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return "noexcept(" + transform(self.expr) + ")"
+        return 'noexcept(' + transform(self.expr) + ')'
 
     def get_id(self, version: int) -> str:
         return 'nx' + self.expr.get_id(version)
@@ -1813,10 +1813,28 @@ class ASTFunctionParameter(ASTBase):
             self.arg.describe_signature(signode, mode, env, symbol=symbol)
 
 
+class ASTNoexceptSpec(ASTBase):
+    def __init__(self, expr: Optional[ASTExpression]):
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        if self.expr:
+            return 'noexcept(' + transform(self.expr) + ')'
+        return 'noexcept'
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode += addnodes.desc_annotation('noexcept', 'noexcept')
+        if self.expr:
+            signode.append(nodes.Text('('))
+            self.expr.describe_signature(signode, mode, env, symbol)
+            signode.append(nodes.Text(')'))
+
+
 class ASTParametersQualifiers(ASTBase):
-    def __init__(self, args: List[ASTFunctionParameter],
-                 volatile: bool, const: bool, refQual: str,
-                 exceptionSpec: str, override: bool, final: bool, initializer: str) -> None:
+    def __init__(self, args: List[ASTFunctionParameter], volatile: bool, const: bool,
+                 refQual: str, exceptionSpec: ASTNoexceptSpec, override: bool, final: bool,
+                 initializer: str) -> None:
         self.args = args
         self.volatile = volatile
         self.const = const
@@ -1875,7 +1893,7 @@ class ASTParametersQualifiers(ASTBase):
             res.append(self.refQual)
         if self.exceptionSpec:
             res.append(' ')
-            res.append(str(self.exceptionSpec))
+            res.append(transform(self.exceptionSpec))
         if self.final:
             res.append(' final')
         if self.override:
@@ -1912,7 +1930,8 @@ class ASTParametersQualifiers(ASTBase):
         if self.refQual:
             _add_text(signode, self.refQual)
         if self.exceptionSpec:
-            _add_anno(signode, str(self.exceptionSpec))
+            signode += nodes.Text(' ')
+            self.exceptionSpec.describe_signature(signode, mode, env, symbol)
         if self.final:
             _add_anno(signode, 'final')
         if self.override:
@@ -5505,11 +5524,14 @@ class DefinitionParser(BaseParser):
         initializer = None
         self.skip_ws()
         if self.skip_string('noexcept'):
-            exceptionSpec = 'noexcept'
-            self.skip_ws()
-            if self.skip_string('('):
-                self.fail('Parameterised "noexcept" not yet implemented.')
-
+            if self.skip_string_and_ws('('):
+                expr = self._parse_constant_expression(False)
+                self.skip_ws()
+                if not self.skip_string(')'):
+                    self.fail("Expecting ')' to end 'noexcept'.")
+                exceptionSpec = ASTNoexceptSpec(expr)
+            else:
+                exceptionSpec = ASTNoexceptSpec(None)
         self.skip_ws()
         override = self.skip_word_and_ws('override')
         final = self.skip_word_and_ws('final')

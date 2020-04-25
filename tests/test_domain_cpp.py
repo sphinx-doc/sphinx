@@ -400,7 +400,7 @@ def test_function_definitions():
     x = 'std::vector<std::pair<std::string, int>> &module::test(register int ' \
         'foo, bar, std::string baz = "foobar, blah, bleh") const = 0'
     check('function', x, {1: "module::test__i.bar.ssC",
-          2: "NK6module4testEi3barNSt6stringE"})
+                          2: "NK6module4testEi3barNSt6stringE"})
     check('function', 'void f(std::pair<A, B>)',
           {1: "f__std::pair:A.B:", 2: "1fNSt4pairI1A1BEE"})
     check('function', 'explicit module::myclass::foo::foo()',
@@ -433,6 +433,10 @@ def test_function_definitions():
     check('function', 'static constexpr int get_value()',
           {1: "get_valueCE", 2: "9get_valuev"})
     check('function', 'int get_value() const noexcept',
+          {1: "get_valueC", 2: "NK9get_valueEv"})
+    check('function', 'int get_value() const noexcept(std::is_nothrow_move_constructible<T>::value)',
+          {1: "get_valueC", 2: "NK9get_valueEv"})
+    check('function', 'int get_value() const noexcept("see below")',
           {1: "get_valueC", 2: "NK9get_valueEv"})
     check('function', 'int get_value() const noexcept = delete',
           {1: "get_valueC", 2: "NK9get_valueEv"})
@@ -875,7 +879,7 @@ def test_xref_parsing():
 
 
 def filter_warnings(warning, file):
-    lines = warning.getvalue().split("\n");
+    lines = warning.getvalue().split("\n")
     res = [l for l in lines if "domain-cpp" in l and "{}.rst".format(file) in l and
            "WARNING: document isn't included in any toctree" not in l]
     print("Filtered warnings for file '{}':".format(file))
