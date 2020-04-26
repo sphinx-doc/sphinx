@@ -732,7 +732,7 @@ class Documenter:
         # This is used for situations where you have a module that collects the
         # functions and classes of internal submodules.
         guess_modname = self.get_real_modname()
-        self.real_modname = real_modname or guess_modname
+        self.real_modname = real_modname or guess_modname  # type: str
 
         # try to also get a source code analyzer for attribute docs
         try:
