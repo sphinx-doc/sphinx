@@ -151,6 +151,13 @@ Generating stub pages automatically
 If you do not want to create stub pages with :program:`sphinx-autogen`, you can
 also use these config values:
 
+.. confval:: autosummary_context
+
+   A dictionary of values to pass into the template engine's context for
+   autosummary stubs files.
+
+   .. versionadded:: 3.1
+
 .. confval:: autosummary_generate
 
    Boolean indicating whether to scan all found documents for autosummary

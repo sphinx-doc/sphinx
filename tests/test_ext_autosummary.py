@@ -353,7 +353,8 @@ def test_autosummary_imported_members(app, status, warning):
         sys.modules.pop('autosummary_dummy_package', None)
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot='ext-autodoc',
+                    confoverrides={'extensions': ['sphinx.ext.autosummary']})
 def test_generate_autosummary_docs_property(app):
     with patch('sphinx.ext.autosummary.generate.find_autosummary_in_files') as mock:
         mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', None, False)]

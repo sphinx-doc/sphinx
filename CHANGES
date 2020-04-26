@@ -44,6 +44,8 @@ Features added
   caption to the toctree
 * #248, #6040: autosummary: Add ``:recursive:`` option to autosummary directive
   to generate stub files recursively
+* #4030: autosummary: Add :confval:`autosummary_context` to add template
+  variables for custom templates
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
 * #7481: html theme: Add right margin to footnote/citation labels
