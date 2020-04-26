@@ -1,14 +1,5 @@
-Release 3.0.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 3.0.3 (released Apr 26, 2020)
+=====================================
 
 Features added
 --------------
@@ -20,9 +11,6 @@ Bugs fixed
 
 * #7516: autodoc: crashes if target object raises an error on accessing
   its attributes
-
-Testing
---------
 
 Release 3.0.2 (released Apr 19, 2020)
 =====================================
