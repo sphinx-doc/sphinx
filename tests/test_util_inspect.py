@@ -564,3 +564,18 @@ def test_unpartial():
 
     assert inspect.unpartial(func2) is func1
     assert inspect.unpartial(func3) is func1
+
+
+def test_getdoc_inherited_decorated_method():
+    class Foo:
+        def meth(self):
+            """docstring."""
+
+    class Bar(Foo):
+        @functools.lru_cache()
+        def meth(self):
+            # inherited and decorated method
+            pass
+
+    assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == "docstring."

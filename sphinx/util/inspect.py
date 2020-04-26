@@ -691,18 +691,29 @@ class Signature:
 
 
 def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
-           allow_inherited: bool = False) -> str:
+           allow_inherited: bool = False, cls: Any = None, name: str = None) -> str:
     """Get the docstring for the object.
 
     This tries to obtain the docstring for some kind of objects additionally:
 
     * partial functions
     * inherited docstring
+    * inherited decorated methods
     """
     doc = attrgetter(obj, '__doc__', None)
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)
     elif doc is None and allow_inherited:
         doc = inspect.getdoc(obj)
+
+        if doc is None and cls:
+            # inspect.getdoc() does not support some kind of inherited and decorated methods.
+            # This tries to obtain the docstring from super classes.
+            for basecls in getattr(cls, '__mro__', []):
+                meth = safe_getattr(basecls, name, None)
+                if meth:
+                    doc = inspect.getdoc(meth)
+                    if doc:
+                        break
 
     return doc
