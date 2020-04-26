@@ -1213,9 +1213,14 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         return super().format_signature(**kwargs)
 
     def add_directive_header(self, sig: str) -> None:
+        sourcename = self.get_sourcename()
+
         if self.doc_as_attr:
             self.directivetype = 'attribute'
         super().add_directive_header(sig)
+
+        if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
+            self.add_line('   :final:', sourcename)
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
@@ -1484,6 +1489,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             self.add_line('   :classmethod:', sourcename)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
             self.add_line('   :staticmethod:', sourcename)
+        if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
+            self.add_line('   :final:', sourcename)
 
     def document_members(self, all_members: bool = False) -> None:
         pass
