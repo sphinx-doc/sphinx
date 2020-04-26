@@ -1,0 +1,6 @@
+- id: sphinx
+  name: sphinx
+  description: Python Documentation Generator
+  entry: sphinx-build
+  language: python
+  language_version: python3
