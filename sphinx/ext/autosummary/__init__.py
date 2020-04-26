@@ -224,8 +224,10 @@ class Autosummary(SphinxDirective):
     final_argument_whitespace = False
     has_content = True
     option_spec = {
+        'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
+        'recursive': directives.flag,
         'template': directives.unchanged,
     }
 
@@ -266,8 +268,13 @@ class Autosummary(SphinxDirective):
                 tocnode['entries'] = [(None, docn) for docn in docnames]
                 tocnode['maxdepth'] = -1
                 tocnode['glob'] = None
+                tocnode['caption'] = self.options.get('caption')
 
                 nodes.append(autosummary_toc('', '', tocnode))
+
+        if 'toctree' not in self.options and 'caption' in self.options:
+            logger.warning(__('A captioned autosummary requires :toctree: option. ignored.'),
+                           location=nodes[-1])
 
         return nodes
 
@@ -741,8 +748,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     imported_members = app.config.autosummary_imported_members
     with mock(app.config.autosummary_mock_imports):
-        generate_autosummary_docs(genfiles, builder=app.builder,
-                                  suffix=suffix, base_path=app.srcdir,
+        generate_autosummary_docs(genfiles, suffix=suffix, base_path=app.srcdir,
                                   app=app, imported_members=imported_members,
                                   overwrite=app.config.autosummary_generate_overwrite)
 

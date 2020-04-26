@@ -20,7 +20,7 @@ from inspect import (  # NOQA
     Parameter, isclass, ismethod, ismethoddescriptor
 )
 from io import StringIO
-from typing import Any, Callable, Mapping, List, Tuple
+from typing import Any, Callable, Mapping, List, Optional, Tuple
 from typing import cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
@@ -565,7 +565,7 @@ class Signature:
         self.partialmethod_with_noargs = False
 
         try:
-            self.signature = inspect.signature(subject)
+            self.signature = inspect.signature(subject)  # type: Optional[inspect.Signature]
         except IndexError:
             # Until python 3.6.4, cpython has been crashed on inspection for
             # partialmethods not having any arguments.

@@ -43,18 +43,40 @@ Incompatible changes
 Deprecated
 ----------
 
+* The first argument for sphinx.ext.autosummary.generate.AutosummaryRenderer has
+  been changed to Sphinx object
+* ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` takes an object type
+  as an argument
+* The ``template_dir`` argument of ``sphinx.ext.autosummary.generate.
+  AutosummaryRenderer``
 * The ``module`` argument of ``sphinx.ext.autosummary.generate.
   find_autosummary_in_docstring()``
+* The ``builder`` argument of ``sphinx.ext.autosummary.generate.
+  generate_autosummary_docs()``
+* The ``template_dir`` argument of ``sphinx.ext.autosummary.generate.
+  generate_autosummary_docs()``
+* ``sphinx.ext.autosummary.generate.AutosummaryRenderer.exists()``
 
 Features added
 --------------
 
 * LaTeX: Make the ``toplevel_sectioning`` setting optional in LaTeX theme
+* LaTeX: Allow to override papersize and pointsize from LaTeX themes
+* LaTeX: Add :confval:`latex_theme_options` to override theme options
 * #7410: Allow to suppress "circular toctree references detected" warnings using
   :confval:`suppress_warnings`
 * C, added scope control directives, :rst:dir:`c:namespace`,
   :rst:dir:`c:namespace-push`, and :rst:dir:`c:namespace-pop`.
+* #2044: autodoc: Suppress default value for instance attributes
+* #7473: autodoc: consider a member public if docstring contains
+  ``:meta public:`` in info-field-list
 * #7466: autosummary: headings in generated documents are not translated
+* #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
+  caption to the toctree
+* #248, #6040: autosummary: Add ``:recursive:`` option to autosummary directive
+  to generate stub files recursively
+* #7535: sphinx-autogen: crashes when custom template uses inheritance
+* #7536: sphinx-autogen: crashes when template uses i18n feature
 * #7481: html theme: Add right margin to footnote/citation labels
 * #7482: html theme: CSS spacing for code blocks with captions and line numbers
 * #7443: html theme: Add new options :confval:`globaltoc_collapse` and
@@ -63,9 +85,16 @@ Features added
 * #7484: html theme: Avoid clashes between sidebar and other blocks
 * #7476: html theme: Relbar breadcrumb should contain current page
 * #7506: html theme: A canonical URL is not escaped
+* #7533: html theme: Avoid whitespace at the beginning of genindex.html
+* #7541: html theme: Add a "clearer" at the end of the "body"
+* #7542: html theme: Make admonition/topic/sidebar scrollable
+* C and C++: allow semicolon in the end of declarations.
+* C++, parse parameterized noexcept specifiers.
 
 Bugs fixed
 ----------
+
+* #6703: autodoc: incremental build does not work for imported objects
 
 Testing
 --------

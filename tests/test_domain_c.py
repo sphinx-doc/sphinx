@@ -27,10 +27,8 @@ def parse(name, string):
     return ast
 
 
-def check(name, input, idDict, output=None):
+def _check(name, input, idDict, output):
     # first a simple check of the AST
-    if output is None:
-        output = input
     ast = parse(name, input)
     res = str(ast)
     if res != output:
@@ -75,6 +73,16 @@ def check(name, input, idDict, output=None):
             print("expected: %s" % idExpected[i])
         #print(rootSymbol.dump(0))
         raise DefinitionError("")
+
+
+def check(name, input, idDict, output=None):
+    if output is None:
+        output = input
+    # First, check without semicolon
+    _check(name, input, idDict, output)
+    if name != 'macro':
+        # Second, check with semicolon
+        _check(name, input + ' ;', idDict, output + ';')
 
 
 def test_expressions():
@@ -469,14 +477,16 @@ def test_build_domain_c(app, status, warning):
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
+
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c(app, status, warning):
+def test_build_domain_c_namespace(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "namespace")
     assert len(ws) == 0
     t = (app.outdir / "namespace.html").read_text()
     for id_ in ('NS.NSVar', 'NULLVar', 'ZeroVar', 'NS2.NS3.NS2NS3Var', 'PopVar'):
         assert 'id="c.{}"'.format(id_) in t
+
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_build_domain_c_anon_dup_decl(app, status, warning):
@@ -485,6 +495,13 @@ def test_build_domain_c_anon_dup_decl(app, status, warning):
     assert len(ws) == 2
     assert "WARNING: c:identifier reference target not found: @a" in ws[0]
     assert "WARNING: c:identifier reference target not found: @b" in ws[1]
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_domain_c_semicolon(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "semicolon")
+    assert len(ws) == 0
 
 
 def test_cfunction(app):

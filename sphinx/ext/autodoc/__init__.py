@@ -65,6 +65,7 @@ def identity(x: Any) -> Any:
 
 
 ALL = object()
+UNINITIALIZED_ATTR = object()
 INSTANCEATTR = object()
 SLOTSATTR = object()
 
@@ -573,6 +574,9 @@ class Documenter:
             if 'private' in metadata:
                 # consider a member private if docstring has "private" metadata
                 isprivate = True
+            elif 'public' in metadata:
+                # consider a member public if docstring has "public" metadata
+                isprivate = False
             else:
                 isprivate = membername.startswith('_')
 
@@ -727,7 +731,8 @@ class Documenter:
         # where the attribute documentation would actually be found in.
         # This is used for situations where you have a module that collects the
         # functions and classes of internal submodules.
-        self.real_modname = real_modname or self.get_real_modname()  # type: str
+        guess_modname = self.get_real_modname()
+        self.real_modname = real_modname or guess_modname
 
         # try to also get a source code analyzer for attribute docs
         try:
@@ -744,6 +749,14 @@ class Documenter:
                 self.directive.filename_set.add(self.module.__file__)
         else:
             self.directive.filename_set.add(self.analyzer.srcname)
+
+        if self.real_modname != guess_modname:
+            # Add module to dependency list if target object is defined in other module.
+            try:
+                analyzer = ModuleAnalyzer.for_module(guess_modname)
+                self.directive.filename_set.add(analyzer.srcname)
+            except PycodeError:
+                pass
 
         # check __module__ of object (for members not given explicitly)
         if check_module:
@@ -1347,8 +1360,11 @@ class DataDocumenter(ModuleLevelDocumenter):
                                   sourcename)
 
             try:
-                objrepr = object_description(self.object)
-                self.add_line('   :value: ' + objrepr, sourcename)
+                if self.object is UNINITIALIZED_ATTR:
+                    pass
+                else:
+                    objrepr = object_description(self.object)
+                    self.add_line('   :value: ' + objrepr, sourcename)
             except ValueError:
                 pass
         elif self.options.annotation is SUPPRESS:
@@ -1389,6 +1405,7 @@ class DataDeclarationDocumenter(DataDocumenter):
         """Never import anything."""
         # disguise as a data
         self.objtype = 'data'
+        self.object = UNINITIALIZED_ATTR
         try:
             # import module to obtain type annotation
             self.parent = importlib.import_module(self.modname)
@@ -1599,8 +1616,11 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
                                       sourcename)
 
                 try:
-                    objrepr = object_description(self.object)
-                    self.add_line('   :value: ' + objrepr, sourcename)
+                    if self.object is INSTANCEATTR:
+                        pass
+                    else:
+                        objrepr = object_description(self.object)
+                        self.add_line('   :value: ' + objrepr, sourcename)
                 except ValueError:
                     pass
         elif self.options.annotation is SUPPRESS:
@@ -1671,6 +1691,7 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
+        self.object = INSTANCEATTR
         self._datadescriptor = False
         return True
 

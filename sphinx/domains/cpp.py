@@ -10,7 +10,7 @@
 
 import re
 from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar, Union
+    Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar, Union, Optional
 )
 
 from docutils import nodes
@@ -109,7 +109,8 @@ T = TypeVar('T')
         simple-declaration ->
             attribute-specifier-seq[opt] decl-specifier-seq[opt]
                 init-declarator-list[opt] ;
-        # Drop the semi-colon. For now: drop the attributes (TODO).
+        # Make the semicolon optional.
+        # For now: drop the attributes (TODO).
         # Use at most 1 init-declarator.
         -> decl-specifier-seq init-declarator
         -> decl-specifier-seq declarator initializer
@@ -1266,7 +1267,7 @@ class ASTNoexceptExpr(ASTExpression):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return "noexcept(" + transform(self.expr) + ")"
+        return 'noexcept(' + transform(self.expr) + ')'
 
     def get_id(self, version: int) -> str:
         return 'nx' + self.expr.get_id(version)
@@ -1812,10 +1813,28 @@ class ASTFunctionParameter(ASTBase):
             self.arg.describe_signature(signode, mode, env, symbol=symbol)
 
 
+class ASTNoexceptSpec(ASTBase):
+    def __init__(self, expr: Optional[ASTExpression]):
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        if self.expr:
+            return 'noexcept(' + transform(self.expr) + ')'
+        return 'noexcept'
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode += addnodes.desc_annotation('noexcept', 'noexcept')
+        if self.expr:
+            signode.append(nodes.Text('('))
+            self.expr.describe_signature(signode, mode, env, symbol)
+            signode.append(nodes.Text(')'))
+
+
 class ASTParametersQualifiers(ASTBase):
-    def __init__(self, args: List[ASTFunctionParameter],
-                 volatile: bool, const: bool, refQual: str,
-                 exceptionSpec: str, override: bool, final: bool, initializer: str) -> None:
+    def __init__(self, args: List[ASTFunctionParameter], volatile: bool, const: bool,
+                 refQual: str, exceptionSpec: ASTNoexceptSpec, override: bool, final: bool,
+                 initializer: str) -> None:
         self.args = args
         self.volatile = volatile
         self.const = const
@@ -1874,7 +1893,7 @@ class ASTParametersQualifiers(ASTBase):
             res.append(self.refQual)
         if self.exceptionSpec:
             res.append(' ')
-            res.append(str(self.exceptionSpec))
+            res.append(transform(self.exceptionSpec))
         if self.final:
             res.append(' final')
         if self.override:
@@ -1911,7 +1930,8 @@ class ASTParametersQualifiers(ASTBase):
         if self.refQual:
             _add_text(signode, self.refQual)
         if self.exceptionSpec:
-            _add_anno(signode, str(self.exceptionSpec))
+            signode += nodes.Text(' ')
+            self.exceptionSpec.describe_signature(signode, mode, env, symbol)
         if self.final:
             _add_anno(signode, 'final')
         if self.override:
@@ -3465,12 +3485,14 @@ class ASTTemplateDeclarationPrefix(ASTBase):
 
 class ASTDeclaration(ASTBase):
     def __init__(self, objectType: str, directiveType: str, visibility: str,
-                 templatePrefix: ASTTemplateDeclarationPrefix, declaration: Any) -> None:
+                 templatePrefix: ASTTemplateDeclarationPrefix, declaration: Any,
+                 semicolon: bool = False) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
         self.visibility = visibility
         self.templatePrefix = templatePrefix
         self.declaration = declaration
+        self.semicolon = semicolon
 
         self.symbol = None  # type: Symbol
         # set by CPPObject._add_enumerator_to_parent
@@ -3483,7 +3505,7 @@ class ASTDeclaration(ASTBase):
             templatePrefixClone = None
         return ASTDeclaration(self.objectType, self.directiveType,
                               self.visibility, templatePrefixClone,
-                              self.declaration.clone())
+                              self.declaration.clone(), self.semicolon)
 
     @property
     def name(self) -> ASTNestedName:
@@ -3525,6 +3547,8 @@ class ASTDeclaration(ASTBase):
         if self.templatePrefix:
             res.append(transform(self.templatePrefix))
         res.append(transform(self.declaration))
+        if self.semicolon:
+            res.append(';')
         return ''.join(res)
 
     def describe_signature(self, signode: desc_signature, mode: str,
@@ -3578,6 +3602,8 @@ class ASTDeclaration(ASTBase):
         else:
             assert False
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
+        if self.semicolon:
+            mainDeclNode += nodes.Text(';')
 
 
 class ASTNamespace(ASTBase):
@@ -5498,11 +5524,14 @@ class DefinitionParser(BaseParser):
         initializer = None
         self.skip_ws()
         if self.skip_string('noexcept'):
-            exceptionSpec = 'noexcept'
-            self.skip_ws()
-            if self.skip_string('('):
-                self.fail('Parameterised "noexcept" not yet implemented.')
-
+            if self.skip_string_and_ws('('):
+                expr = self._parse_constant_expression(False)
+                self.skip_ws()
+                if not self.skip_string(')'):
+                    self.fail("Expecting ')' to end 'noexcept'.")
+                exceptionSpec = ASTNoexceptSpec(expr)
+            else:
+                exceptionSpec = ASTNoexceptSpec(None)
         self.skip_ws()
         override = self.skip_word_and_ws('override')
         final = self.skip_word_and_ws('final')
@@ -5875,7 +5904,7 @@ class DefinitionParser(BaseParser):
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
                 decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
-                self.assert_end()
+                self.assert_end(allowSemicolon=True)
             except DefinitionError as exUntyped:
                 if outer == 'type':
                     desc = "If just a name"
@@ -6286,8 +6315,10 @@ class DefinitionParser(BaseParser):
                                                           templatePrefix,
                                                           fullSpecShorthand=False,
                                                           isMember=objectType == 'member')
+        self.skip_ws()
+        semicolon = self.skip_string(';')
         return ASTDeclaration(objectType, directiveType, visibility,
-                              templatePrefix, declaration)
+                              templatePrefix, declaration, semicolon)
 
     def parse_namespace_object(self) -> ASTNamespace:
         templatePrefix = self._parse_template_declaration_prefix(objectType="namespace")

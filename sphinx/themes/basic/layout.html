@@ -181,6 +181,7 @@
       {%- endif %}
           <div class="body" role="main">
             {% block body %} {% endblock %}
+            <div class="clearer"></div>
           </div>
       {%- if render_sidebar %}
         </div>
@@ -208,7 +209,7 @@
       {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
     {%- endif %}
     {%- if show_sphinx %}
-      {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+      {% trans sphinx_version=sphinx_version|e %}Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
     {%- endif %}
     </div>
 {%- endblock %}

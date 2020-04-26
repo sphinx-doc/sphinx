@@ -22,6 +22,14 @@ def test_private_field(app):
         '',
         '.. py:module:: target.private',
         '',
+        '',
+        '.. py:function:: _public_function(name)',
+        '   :module: target.private',
+        '',
+        '   public_function is a docstring().',
+        '',
+        '   :meta public:',
+        '',
     ]
 
 
@@ -34,6 +42,14 @@ def test_private_field_and_private_members(app):
     assert list(actual) == [
         '',
         '.. py:module:: target.private',
+        '',
+        '',
+        '.. py:function:: _public_function(name)',
+        '   :module: target.private',
+        '',
+        '   public_function is a docstring().',
+        '',
+        '   :meta public:',
         '',
         '',
         '.. py:function:: private_function(name)',

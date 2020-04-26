@@ -321,13 +321,14 @@ div.sidebar {
     width: 40%;
     float: right;
     clear: right;
+    overflow-x: auto;
 }
 
 p.sidebar-title {
     font-weight: bold;
 }
 
-div.admonition, div.topic, pre {
+div.admonition, div.topic, pre, div[class|="highlight"] {
     clear: both;
 }
 
@@ -337,6 +338,7 @@ div.topic {
     border: 1px solid #ccc;
     padding: 7px 7px 0 7px;
     margin: 10px 0 10px 0;
+    overflow-x: auto;
 }
 
 p.topic-title {
@@ -351,6 +353,7 @@ div.admonition {
     margin-top: 10px;
     margin-bottom: 10px;
     padding: 7px;
+    overflow-x: auto;
 }
 
 div.admonition dt {

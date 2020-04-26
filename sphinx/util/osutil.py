@@ -18,7 +18,7 @@ import sys
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Tuple, Type
+from typing import Any, Generator, Iterator, List, Optional, Tuple, Type
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 
@@ -202,7 +202,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: StringIO
+        self._io = None  # type: Optional[StringIO]
 
     def write(self, data: str) -> None:
         if not self._io:

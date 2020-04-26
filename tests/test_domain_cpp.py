@@ -32,10 +32,8 @@ def parse(name, string):
     return ast
 
 
-def check(name, input, idDict, output=None):
+def _check(name, input, idDict, output):
     # first a simple check of the AST
-    if output is None:
-        output = input
     ast = parse(name, input)
     res = str(ast)
     if res != output:
@@ -80,6 +78,15 @@ def check(name, input, idDict, output=None):
             print("expected: %s" % idExpected[i])
         print(rootSymbol.dump(0))
         raise DefinitionError("")
+
+
+def check(name, input, idDict, output=None):
+    if output is None:
+        output = input
+    # First, check without semicolon
+    _check(name, input, idDict, output)
+    # Second, check with semicolon
+    _check(name, input + ' ;', idDict, output + ';')
 
 
 def test_fundamental_types():
@@ -392,7 +399,7 @@ def test_function_definitions():
     x = 'std::vector<std::pair<std::string, int>> &module::test(register int ' \
         'foo, bar, std::string baz = "foobar, blah, bleh") const = 0'
     check('function', x, {1: "module::test__i.bar.ssC",
-          2: "NK6module4testEi3barNSt6stringE"})
+                          2: "NK6module4testEi3barNSt6stringE"})
     check('function', 'void f(std::pair<A, B>)',
           {1: "f__std::pair:A.B:", 2: "1fNSt4pairI1A1BEE"})
     check('function', 'explicit module::myclass::foo::foo()',
@@ -425,6 +432,10 @@ def test_function_definitions():
     check('function', 'static constexpr int get_value()',
           {1: "get_valueCE", 2: "9get_valuev"})
     check('function', 'int get_value() const noexcept',
+          {1: "get_valueC", 2: "NK9get_valueEv"})
+    check('function', 'int get_value() const noexcept(std::is_nothrow_move_constructible<T>::value)',
+          {1: "get_valueC", 2: "NK9get_valueEv"})
+    check('function', 'int get_value() const noexcept("see below")',
           {1: "get_valueC", 2: "NK9get_valueEv"})
     check('function', 'int get_value() const noexcept = delete',
           {1: "get_valueC", 2: "NK9get_valueEv"})
@@ -867,7 +878,7 @@ def test_xref_parsing():
 
 
 def filter_warnings(warning, file):
-    lines = warning.getvalue().split("\n");
+    lines = warning.getvalue().split("\n")
     res = [l for l in lines if "domain-cpp" in l and "{}.rst".format(file) in l and
            "WARNING: document isn't included in any toctree" not in l]
     print("Filtered warnings for file '{}':".format(file))
@@ -899,6 +910,13 @@ def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warnin
 def test_build_domain_cpp_backslash_ok(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_semicolon(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "semicolon")
     assert len(ws) == 0
 
 
