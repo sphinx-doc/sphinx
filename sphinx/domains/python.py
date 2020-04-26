@@ -641,10 +641,18 @@ class PyClasslike(PyObject):
     Description of a class-like object (classes, interfaces, exceptions).
     """
 
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'final': directives.flag,
+    })
+
     allow_nesting = True
 
     def get_signature_prefix(self, sig: str) -> str:
-        return self.objtype + ' '
+        if 'final' in self.options:
+            return 'final %s ' % self.objtype
+        else:
+            return '%s ' % self.objtype
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         if self.objtype == 'class':
@@ -749,6 +757,7 @@ class PyMethod(PyObject):
         'abstractmethod': directives.flag,
         'async': directives.flag,
         'classmethod': directives.flag,
+        'final': directives.flag,
         'property': directives.flag,
         'staticmethod': directives.flag,
     })
@@ -761,6 +770,8 @@ class PyMethod(PyObject):
 
     def get_signature_prefix(self, sig: str) -> str:
         prefix = []
+        if 'final' in self.options:
+            prefix.append('final')
         if 'abstractmethod' in self.options:
             prefix.append('abstract')
         if 'async' in self.options:
