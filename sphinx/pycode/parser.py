@@ -285,7 +285,7 @@ class VariableCommentPicker(ast.NodeVisitor):
             else:
                 self.add_entry(name.name)
 
-    def visit_ImportFrom(self, node: ast.Import) -> None:
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         """Handles Import node and record it to definition orders."""
         for name in node.names:
             if name.asname:
