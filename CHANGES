@@ -39,6 +39,8 @@ Features added
 * #2044: autodoc: Suppress default value for instance attributes
 * #7473: autodoc: consider a member public if docstring contains
   ``:meta public:`` in info-field-list
+* #7487: autodoc: Allow to generate docs for singledispatch functions by
+  py:autofunction
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree
