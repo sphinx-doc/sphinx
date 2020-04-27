@@ -66,6 +66,7 @@ Bugs fixed
 ----------
 
 * #6703: autodoc: incremental build does not work for imported objects
+* #7564: autodoc: annotations not to be shown for descriptors
 
 Testing
 --------
