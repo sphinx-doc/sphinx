@@ -61,6 +61,7 @@ Features added
 * #7533: html theme: Avoid whitespace at the beginning of genindex.html
 * #7541: html theme: Add a "clearer" at the end of the "body"
 * #7542: html theme: Make admonition/topic/sidebar scrollable
+* #7543: html theme: Add top and bottom margins to tables
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
 
