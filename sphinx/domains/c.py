@@ -792,20 +792,60 @@ class ASTDeclSpecs(ASTBase):
 ################################################################################
 
 class ASTArray(ASTBase):
-    def __init__(self, size: ASTExpression):
+    def __init__(self, static: bool, const: bool, volatile: bool, restrict: bool,
+                 vla: bool, size: ASTExpression):
+        self.static = static
+        self.const = const
+        self.volatile = volatile
+        self.restrict = restrict
+        self.vla = vla
         self.size = size
+        if vla:
+            assert size is None
+        if size is not None:
+            assert not vla
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        if self.size:
-            return '[' + transform(self.size) + ']'
-        else:
-            return '[]'
+        el = []
+        if self.static:
+            el.append('static')
+        if self.restrict:
+            el.append('restrict')
+        if self.volatile:
+            el.append('volatile')
+        if self.const:
+            el.append('const')
+        if self.vla:
+            return '[' + ' '.join(el) + '*]'
+        elif self.size:
+            el.append(transform(self.size))
+        return '[' + ' '.join(el) + ']'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         signode.append(nodes.Text("["))
-        if self.size:
+        addSpace = False
+
+        def _add(signode: TextElement, text: str) -> bool:
+            if addSpace:
+                signode += nodes.Text(' ')
+            signode += addnodes.desc_annotation(text, text)
+            return True
+
+        if self.static:
+            addSpace = _add(signode, 'static')
+        if self.restrict:
+            addSpace = _add(signode, 'restrict')
+        if self.volatile:
+            addSpace = _add(signode, 'volatile')
+        if self.const:
+            addSpace = _add(signode, 'const')
+        if self.vla:
+            signode.append(nodes.Text('*'))
+        elif self.size:
+            if addSpace:
+                signode += nodes.Text(' ')
             self.size.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text("]"))
 
@@ -2595,18 +2635,45 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
             if typed and self.skip_string('['):
                 self.skip_ws()
-                if self.skip_string(']'):
-                    arrayOps.append(ASTArray(None))
-                    continue
+                static = False
+                const = False
+                volatile = False
+                restrict = False
+                while True:
+                    if not static:
+                        if self.skip_word_and_ws('static'):
+                            static = True
+                            continue
+                    if not const:
+                        if self.skip_word_and_ws('const'):
+                            const = True
+                            continue
+                    if not volatile:
+                        if self.skip_word_and_ws('volatile'):
+                            volatile = True
+                            continue
+                    if not restrict:
+                        if self.skip_word_and_ws('restrict'):
+                            restrict = True
+                            continue
+                    break
+                vla = False if static else self.skip_string_and_ws('*')
+                if vla:
+                    if not self.skip_string(']'):
+                        self.fail("Expected ']' in end of array operator.")
+                    size = None
+                else:
+                    if self.skip_string(']'):
+                        size = None
+                    else:
 
-                def parser() -> ASTExpression:
-                    return self._parse_expression()
-
-                value = self._parse_expression_fallback([']'], parser)
-                if not self.skip_string(']'):
-                    self.fail("Expected ']' in end of array operator.")
-                arrayOps.append(ASTArray(value))
-                continue
+                        def parser():
+                            return self._parse_expression()
+                        size = self._parse_expression_fallback([']'], parser)
+                        self.skip_ws()
+                        if not self.skip_string(']'):
+                            self.fail("Expected ']' in end of array operator.")
+                arrayOps.append(ASTArray(static, const, volatile, restrict, vla, size))
             else:
                 break
         param = self._parse_parameters(paramMode)

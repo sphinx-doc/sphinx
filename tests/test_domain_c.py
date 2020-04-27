@@ -362,6 +362,21 @@ def test_function_definitions():
     check('function', 'void f(enum E e)', {1: 'f'})
     check('function', 'void f(union E e)', {1: 'f'})
 
+    # array declarators
+    check('function', 'void f(int arr[])', {1: 'f'})
+    check('function', 'void f(int arr[*])', {1: 'f'})
+    cvrs = ['', 'const', 'volatile', 'restrict', 'restrict volatile const']
+    for cvr in cvrs:
+        space = ' ' if len(cvr) != 0 else ''
+        check('function', 'void f(int arr[{}*])'.format(cvr), {1: 'f'})
+        check('function', 'void f(int arr[{}])'.format(cvr), {1: 'f'})
+        check('function', 'void f(int arr[{}{}42])'.format(cvr, space), {1: 'f'})
+        check('function', 'void f(int arr[static{}{} 42])'.format(space, cvr), {1: 'f'})
+        check('function', 'void f(int arr[{}{}static 42])'.format(cvr, space), {1: 'f'},
+              output='void f(int arr[static{}{} 42])'.format(space, cvr))
+    check('function', 'void f(int arr[const static volatile 42])', {1: 'f'},
+          output='void f(int arr[static volatile const 42])')
+
 
 def test_union_definitions():
     check('struct', 'A', {1: 'A'})

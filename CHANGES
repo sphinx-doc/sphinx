@@ -81,8 +81,13 @@ Deprecated
 Features added
 --------------
 
+* C, parse array declarators with static, qualifiers, and VLA specification.
+
 Bugs fixed
 ----------
+
+* #7516: autodoc: crashes if target object raises an error on accessing
+  its attributes
 
 Testing
 --------
