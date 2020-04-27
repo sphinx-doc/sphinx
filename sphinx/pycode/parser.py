@@ -14,7 +14,7 @@ import sys
 import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from sphinx.pycode.ast import ast  # for py37 or older
 from sphinx.pycode.ast import parse, unparse
@@ -233,41 +233,33 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.deforders = {}             # type: Dict[str, int]
         super().__init__()
 
-    def add_entry(self, name: str) -> None:
+    def get_qualname_for(self, name: str) -> Optional[List[str]]:
+        """Get qualified name for given object as a list of string."""
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
                 # store variable comments inside __init__ method of classes
-                definition = self.context[:-1] + [name]
+                return self.context[:-1] + [name]
             else:
-                return
+                return None
         else:
-            definition = self.context + [name]
+            return self.context + [name]
 
-        self.deforders[".".join(definition)] = next(self.counter)
+    def add_entry(self, name: str) -> None:
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            self.deforders[".".join(qualname)] = next(self.counter)
 
     def add_variable_comment(self, name: str, comment: str) -> None:
-        if self.current_function:
-            if self.current_classes and self.context[-1] == "__init__":
-                # store variable comments inside __init__ method of classes
-                context = ".".join(self.context[:-1])
-            else:
-                return
-        else:
-            context = ".".join(self.context)
-
-        self.comments[(context, name)] = comment
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            basename = ".".join(qualname[:-1])
+            self.comments[(basename, name)] = comment
 
     def add_variable_annotation(self, name: str, annotation: ast.AST) -> None:
-        if self.current_function:
-            if self.current_classes and self.context[-1] == "__init__":
-                # store variable comments inside __init__ method of classes
-                context = ".".join(self.context[:-1])
-            else:
-                return
-        else:
-            context = ".".join(self.context)
-
-        self.annotations[(context, name)] = unparse(annotation)
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            basename = ".".join(qualname[:-1])
+            self.annotations[(basename, name)] = unparse(annotation)
 
     def get_self(self) -> ast.arg:
         """Returns the name of first argument if in function."""
@@ -288,18 +280,12 @@ class VariableCommentPicker(ast.NodeVisitor):
     def visit_Import(self, node: ast.Import) -> None:
         """Handles Import node and record it to definition orders."""
         for name in node.names:
-            if name.asname:
-                self.add_entry(name.asname)
-            else:
-                self.add_entry(name.name)
+            self.add_entry(name.asname or name.name)
 
-    def visit_ImportFrom(self, node: ast.Import) -> None:
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         """Handles Import node and record it to definition orders."""
         for name in node.names:
-            if name.asname:
-                self.add_entry(name.asname)
-            else:
-                self.add_entry(name.name)
+            self.add_entry(name.asname or name.name)
 
     def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
