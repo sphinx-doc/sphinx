@@ -10,7 +10,7 @@
 
 import sys
 from numbers import Integral
-from typing import Any, Dict, List, TypeVar, Union, Callable, Tuple, Optional
+from typing import Any, Dict, Generic, List, TypeVar, Union, Callable, Tuple, Optional
 
 import pytest
 
@@ -92,6 +92,16 @@ def test_stringify_type_hints_typevars():
     assert stringify(T_co) == "T_co"
     assert stringify(T_contra) == "T_contra"
     assert stringify(List[T]) == "List[T]"
+
+
+def test_stringify_type_hints_Generic():
+    T = TypeVar('T')
+
+    class Foo(Generic[T]):
+        pass
+
+    expected = "test_util_typing.test_stringify_type_hints_Generic.<locals>.Foo[int]"
+    assert stringify(Foo[int]) == expected
 
 
 def test_stringify_type_hints_custom_class():

@@ -10,7 +10,7 @@
 
 import sys
 import typing
-from typing import Any, Callable, Dict, List, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, List, Tuple, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -92,6 +92,9 @@ def _stringify_py37(annotation: Any) -> str:
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify(annotation.__args__[0])
         elif annotation._special:
+            return qualname
+        elif issubclass(annotation.__origin__, Generic):  # type: ignore
+            # subclasses of Generic already contains the types for elements in its name
             return qualname
         else:
             args = ', '.join(stringify(a) for a in annotation.__args__)
