@@ -48,8 +48,6 @@ Features added
   to generate stub files recursively
 * #4030: autosummary: Add :confval:`autosummary_context` to add template
   variables for custom templates
-* #7535: sphinx-autogen: crashes when custom template uses inheritance
-* #7536: sphinx-autogen: crashes when template uses i18n feature
 * #7481: html theme: Add right margin to footnote/citation labels
 * #7482: html theme: CSS spacing for code blocks with captions and line numbers
 * #7443: html theme: Add new options :confval:`globaltoc_collapse` and
@@ -70,6 +68,8 @@ Bugs fixed
 
 * #6703: autodoc: incremental build does not work for imported objects
 * #7564: autodoc: annotations not to be shown for descriptors
+* #7535: sphinx-autogen: crashes when custom template uses inheritance
+* #7536: sphinx-autogen: crashes when template uses i18n feature
 
 Testing
 --------
