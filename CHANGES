@@ -70,7 +70,6 @@ Bugs fixed
 
 * #6703: autodoc: incremental build does not work for imported objects
 * #7564: autodoc: annotations not to be shown for descriptors
-* #7567: autodoc: parametrized types are shown twice for generic types
 
 Testing
 --------
