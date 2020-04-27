@@ -1112,22 +1112,10 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
 class SingledispatchFunctionDocumenter(FunctionDocumenter):
     """
-    Specialized Documenter subclass for singledispatch'ed functions.
+    Used to be a specialized Documenter subclass for singledispatch'ed functions.
 
-    Retained for backwards compatibility, does the same as the FunctionDocumenter
+    Retained for backwards compatibility, now does the same as the FunctionDocumenter
     """
-    objtype = 'singledispatch_function'
-    directivetype = 'function'
-    member_order = 30
-
-    # before FunctionDocumenter
-    priority = FunctionDocumenter.priority + 1
-
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        return (super().can_document_member(member, membername, isattr, parent) and
-                inspect.is_singledispatch_function(member))
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -1523,25 +1511,10 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
 class SingledispatchMethodDocumenter(MethodDocumenter):
     """
-    Specialized Documenter subclass for singledispatch'ed methods.
+    Used to be a specialized Documenter subclass for singledispatch'ed methods.
 
-    Retained for backwards compatibility, does the same as the MethodDocumenter
+    Retained for backwards compatibility, now does the same as the MethodDocumenter
     """
-    objtype = 'singledispatch_method'
-    directivetype = 'method'
-    member_order = 50
-
-    # before MethodDocumenter
-    priority = MethodDocumenter.priority + 1
-
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        if super().can_document_member(member, membername, isattr, parent) and parent.object:
-            meth = parent.object.__dict__.get(membername)
-            return inspect.is_singledispatch_method(meth)
-        else:
-            return False
 
 
 class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
