@@ -75,7 +75,7 @@ Bugs fixed
 Testing
 --------
 
-Release 3.0.3 (in development)
+Release 3.0.4 (in development)
 ==============================
 
 Dependencies
@@ -90,6 +90,20 @@ Deprecated
 Features added
 --------------
 
+Bugs fixed
+----------
+
+* #7567: autodoc: parametrized types are shown twice for generic types
+
+Testing
+--------
+
+Release 3.0.3 (released Apr 26, 2020)
+=====================================
+
+Features added
+--------------
+
 * C, parse array declarators with static, qualifiers, and VLA specification.
 
 Bugs fixed
@@ -97,9 +111,6 @@ Bugs fixed
 
 * #7516: autodoc: crashes if target object raises an error on accessing
   its attributes
-
-Testing
---------
 
 Release 3.0.2 (released Apr 19, 2020)
 =====================================
