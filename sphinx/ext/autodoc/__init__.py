@@ -582,9 +582,9 @@ class Documenter:
                 isprivate = membername.startswith('_')
 
             keep = False
-            if getattr(member, '__sphinx_mock__', False):
+            if safe_getattr(member, '__sphinx_mock__', False):
                 # mocked module or object
-                keep = False
+                pass
             elif want_all and membername.startswith('__') and \
                     membername.endswith('__') and len(membername) > 4:
                 # special __methods__
