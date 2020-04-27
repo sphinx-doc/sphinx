@@ -70,11 +70,15 @@ Features added
 * #2044: autodoc: Suppress default value for instance attributes
 * #7473: autodoc: consider a member public if docstring contains
   ``:meta public:`` in info-field-list
+* #7487: autodoc: Allow to generate docs for singledispatch functions by
+  py:autofunction
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree
 * #248, #6040: autosummary: Add ``:recursive:`` option to autosummary directive
   to generate stub files recursively
+* #4030: autosummary: Add :confval:`autosummary_context` to add template
+  variables for custom templates
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
 * #7481: html theme: Add right margin to footnote/citation labels
@@ -88,6 +92,7 @@ Features added
 * #7533: html theme: Avoid whitespace at the beginning of genindex.html
 * #7541: html theme: Add a "clearer" at the end of the "body"
 * #7542: html theme: Make admonition/topic/sidebar scrollable
+* #7543: html theme: Add top and bottom margins to tables
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
 
@@ -95,11 +100,12 @@ Bugs fixed
 ----------
 
 * #6703: autodoc: incremental build does not work for imported objects
+* #7564: autodoc: annotations not to be shown for descriptors
 
 Testing
 --------
 
-Release 3.0.3 (in development)
+Release 3.0.4 (in development)
 ==============================
 
 Dependencies
@@ -117,8 +123,24 @@ Features added
 Bugs fixed
 ----------
 
+* #7567: autodoc: parametrized types are shown twice for generic types
+
 Testing
 --------
+
+Release 3.0.3 (released Apr 26, 2020)
+=====================================
+
+Features added
+--------------
+
+* C, parse array declarators with static, qualifiers, and VLA specification.
+
+Bugs fixed
+----------
+
+* #7516: autodoc: crashes if target object raises an error on accessing
+  its attributes
 
 Release 3.0.2 (released Apr 19, 2020)
 =====================================

@@ -377,6 +377,8 @@ div.body p.centered {
 /* -- tables ---------------------------------------------------------------- */
 
 table.docutils {
+    margin-top: 10px;
+    margin-bottom: 10px;
     border: 0;
     border-collapse: collapse;
 }

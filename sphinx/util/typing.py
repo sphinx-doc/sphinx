@@ -75,8 +75,13 @@ def _stringify_py37(annotation: Any) -> str:
             qualname = stringify(annotation.__origin__)  # ex. Union
     elif hasattr(annotation, '__qualname__'):
         qualname = '%s.%s' % (module, annotation.__qualname__)
+    elif hasattr(annotation, '__origin__'):
+        # instantiated generic provided by a user
+        qualname = stringify(annotation.__origin__)
     else:
-        qualname = repr(annotation)
+        # we weren't able to extract the base type, appending arguments would
+        # only make them appear twice
+        return repr(annotation)
 
     if getattr(annotation, '__args__', None):
         if qualname == 'Union':
@@ -91,7 +96,7 @@ def _stringify_py37(annotation: Any) -> str:
             return '%s[[%s], %s]' % (qualname, args, returns)
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify(annotation.__args__[0])
-        elif annotation._special:
+        elif getattr(annotation, '_special', False):
             return qualname
         else:
             args = ', '.join(stringify(a) for a in annotation.__args__)

@@ -66,6 +66,7 @@ class DummyApplication:
         self._warncount = 0
         self.warningiserror = False
 
+        self.config.add('autosummary_context', {}, True, None)
         self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
@@ -175,7 +176,7 @@ class AutosummaryRenderer:
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
                                  imported_members: bool, app: Any,
-                                 recursive: bool) -> str:
+                                 recursive: bool, context: Dict) -> str:
     doc = get_documenter(app, obj, parent)
 
     def skip_member(obj: Any, name: str, objtype: str) -> bool:
@@ -224,6 +225,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return public, items
 
     ns = {}  # type: Dict[str, Any]
+    ns.update(context)
 
     if doc.objtype == 'module':
         ns['members'] = dir(obj)
@@ -329,8 +331,12 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
             _warn(__('[autosummary] failed to import %r: %s') % (entry.name, e))
             continue
 
+        context = {}
+        if app:
+            context.update(app.config.autosummary_context)
+
         content = generate_autosummary_content(name, obj, parent, template, entry.template,
-                                               imported_members, app, entry.recursive)
+                                               imported_members, app, entry.recursive, context)
 
         filename = os.path.join(path, name + suffix)
         if os.path.isfile(filename):

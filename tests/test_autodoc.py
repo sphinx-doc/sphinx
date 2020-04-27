@@ -1511,6 +1511,13 @@ def test_autodoc_typed_instance_variables(app):
         '      attr6',
         '',
         '',
+        '   .. py:attribute:: Class.descr4',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '      This is descr4',
+        '',
+        '',
         '.. py:data:: attr1',
         '   :module: target.typed_vars',
         '   :type: str',
@@ -1596,6 +1603,21 @@ def test_singledispatch():
     ]
 
 
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatch_autofunction():
+    options = {}
+    actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
+    assert list(actual) == [
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '   func(arg: int, kwarg=None)',
+        '   func(arg: str, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '',
+    ]
+
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='singledispatchmethod is available since python3.8')
 @pytest.mark.usefixtures('setup_test')
@@ -1622,6 +1644,23 @@ def test_singledispatchmethod():
         '',
     ]
 
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='singledispatchmethod is available since python3.8')
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatchmethod_automethod():
+    options = {}
+    actual = do_autodoc(app, 'method', 'target.singledispatchmethod.Foo.meth', options)
+    assert list(actual) == [
+        '',
+        '.. py:method:: Foo.meth(arg, kwarg=None)',
+        '   Foo.meth(arg: int, kwarg=None)',
+        '   Foo.meth(arg: str, kwarg=None)',
+        '   :module: target.singledispatchmethod',
+        '',
+        '   A method for general use.',
+        '',
+    ]
 
 @pytest.mark.usefixtures('setup_test')
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')

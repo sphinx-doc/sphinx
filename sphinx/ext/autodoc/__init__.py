@@ -581,9 +581,9 @@ class Documenter:
                 isprivate = membername.startswith('_')
 
             keep = False
-            if getattr(member, '__sphinx_mock__', False):
+            if safe_getattr(member, '__sphinx_mock__', False):
                 # mocked module or object
-                keep = False
+                pass
             elif want_all and membername.startswith('__') and \
                     membername.endswith('__') and len(membername) > 4:
                 # special __methods__
@@ -1077,30 +1077,15 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
-        super().add_directive_header(sig)
+        if inspect.is_singledispatch_function(self.object):
+            self.add_singledispatch_directive_header(sig)
+        else:
+            super().add_directive_header(sig)
 
         if inspect.iscoroutinefunction(self.object):
             self.add_line('   :async:', sourcename)
 
-
-class SingledispatchFunctionDocumenter(FunctionDocumenter):
-    """
-    Specialized Documenter subclass for singledispatch'ed functions.
-    """
-    objtype = 'singledispatch_function'
-    directivetype = 'function'
-    member_order = 30
-
-    # before FunctionDocumenter
-    priority = FunctionDocumenter.priority + 1
-
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        return (super().can_document_member(member, membername, isattr, parent) and
-                inspect.is_singledispatch_function(member))
-
-    def add_directive_header(self, sig: str) -> None:
+    def add_singledispatch_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
 
         # intercept generated directive headers
@@ -1138,6 +1123,14 @@ class SingledispatchFunctionDocumenter(FunctionDocumenter):
         if params[0].annotation is Parameter.empty:
             params[0] = params[0].replace(annotation=typ)
             func.__signature__ = sig.replace(parameters=params)  # type: ignore
+
+
+class SingledispatchFunctionDocumenter(FunctionDocumenter):
+    """
+    Used to be a specialized Documenter subclass for singledispatch'ed functions.
+
+    Retained for backwards compatibility, now does the same as the FunctionDocumenter
+    """
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -1474,7 +1467,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         return args
 
     def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
+        meth = self.parent.__dict__.get(self.objpath[-1])
+        if inspect.is_singledispatch_method(meth):
+            self.add_singledispatch_directive_header(sig)
+        else:
+            super().add_directive_header(sig)
 
         sourcename = self.get_sourcename()
         obj = self.parent.__dict__.get(self.object_name, self.object)
@@ -1490,28 +1487,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def document_members(self, all_members: bool = False) -> None:
         pass
 
-
-class SingledispatchMethodDocumenter(MethodDocumenter):
-    """
-    Specialized Documenter subclass for singledispatch'ed methods.
-    """
-    objtype = 'singledispatch_method'
-    directivetype = 'method'
-    member_order = 50
-
-    # before MethodDocumenter
-    priority = MethodDocumenter.priority + 1
-
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        if super().can_document_member(member, membername, isattr, parent) and parent.object:
-            meth = parent.object.__dict__.get(membername)
-            return inspect.is_singledispatch_method(meth)
-        else:
-            return False
-
-    def add_directive_header(self, sig: str) -> None:
+    def add_singledispatch_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
 
         # intercept generated directive headers
@@ -1550,6 +1526,14 @@ class SingledispatchMethodDocumenter(MethodDocumenter):
         if params[1].annotation is Parameter.empty:
             params[1] = params[1].replace(annotation=typ)
             func.__signature__ = sig.replace(parameters=params)  # type: ignore
+
+
+class SingledispatchMethodDocumenter(MethodDocumenter):
+    """
+    Used to be a specialized Documenter subclass for singledispatch'ed methods.
+
+    Retained for backwards compatibility, now does the same as the MethodDocumenter
+    """
 
 
 class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
@@ -1603,18 +1587,19 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
         if not self.options.annotation:
-            if not self._datadescriptor:
-                # obtain annotation for this attribute
-                annotations = getattr(self.parent, '__annotations__', {})
-                if annotations and self.objpath[-1] in annotations:
-                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                    self.add_line('   :type: ' + objrepr, sourcename)
-                else:
-                    key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
-                    if self.analyzer and key in self.analyzer.annotations:
-                        self.add_line('   :type: ' + self.analyzer.annotations[key],
-                                      sourcename)
+            # obtain type annotation for this attribute
+            annotations = getattr(self.parent, '__annotations__', {})
+            if annotations and self.objpath[-1] in annotations:
+                objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                self.add_line('   :type: ' + objrepr, sourcename)
+            else:
+                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                if self.analyzer and key in self.analyzer.annotations:
+                    self.add_line('   :type: ' + self.analyzer.annotations[key],
+                                  sourcename)
 
+            # data descriptors do not have useful values
+            if not self._datadescriptor:
                 try:
                     if self.object is INSTANCEATTR:
                         pass
@@ -1769,10 +1754,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(DataDeclarationDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
-    app.add_autodocumenter(SingledispatchFunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
-    app.add_autodocumenter(SingledispatchMethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)
