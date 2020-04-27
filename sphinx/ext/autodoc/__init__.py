@@ -1604,18 +1604,19 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
         if not self.options.annotation:
-            if not self._datadescriptor:
-                # obtain annotation for this attribute
-                annotations = getattr(self.parent, '__annotations__', {})
-                if annotations and self.objpath[-1] in annotations:
-                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                    self.add_line('   :type: ' + objrepr, sourcename)
-                else:
-                    key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
-                    if self.analyzer and key in self.analyzer.annotations:
-                        self.add_line('   :type: ' + self.analyzer.annotations[key],
-                                      sourcename)
+            # obtain type annotation for this attribute
+            annotations = getattr(self.parent, '__annotations__', {})
+            if annotations and self.objpath[-1] in annotations:
+                objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                self.add_line('   :type: ' + objrepr, sourcename)
+            else:
+                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                if self.analyzer and key in self.analyzer.annotations:
+                    self.add_line('   :type: ' + self.analyzer.annotations[key],
+                                  sourcename)
 
+            # data descriptors do not have useful values
+            if not self._datadescriptor:
                 try:
                     if self.object is INSTANCEATTR:
                         pass
