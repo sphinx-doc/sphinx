@@ -779,8 +779,7 @@ span.eqno {
 }
 
 span.eqno a.headerlink {
-    position: relative;
-    left: 0px;
+    position: absolute;
     z-index: 1;
 }
 
