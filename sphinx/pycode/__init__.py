@@ -144,6 +144,7 @@ class ModuleAnalyzer:
         # will be filled by parse()
         self.annotations = None  # type: Dict[Tuple[str, str], str]
         self.attr_docs = None    # type: Dict[Tuple[str, str], List[str]]
+        self.finals = None       # type: List[str]
         self.tagorder = None     # type: Dict[str, int]
         self.tags = None         # type: Dict[str, Tuple[str, int, int]]
 
@@ -161,6 +162,7 @@ class ModuleAnalyzer:
                     self.attr_docs[scope] = ['']
 
             self.annotations = parser.annotations
+            self.finals = parser.finals
             self.tags = parser.definitions
             self.tagorder = parser.deforders
         except Exception as exc:

@@ -41,6 +41,7 @@ Features added
   ``:meta public:`` in info-field-list
 * #7487: autodoc: Allow to generate docs for singledispatch functions by
   py:autofunction
+* #7143: autodoc: Support final classes and methods
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree
@@ -62,6 +63,8 @@ Features added
 * #7543: html theme: Add top and bottom margins to tables
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
+* #7143: py domain: Add ``:final:`` option to :rst:dir:`py:class:`,
+  :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
 
 Bugs fixed
 ----------
