@@ -436,7 +436,8 @@ class Documenter:
                           % self.__class__.__name__,
                           RemovedInSphinx40Warning)
         docstring = getdoc(self.object, self.get_attr,
-                           self.env.config.autodoc_inherit_docstrings)
+                           self.env.config.autodoc_inherit_docstrings,
+                           self.parent, self.object_name)
         if docstring:
             tab_width = self.directive.state.document.settings.tab_width
             return [prepare_docstring(docstring, ignore, tab_width)]
@@ -557,7 +558,8 @@ class Documenter:
             else:
                 isattr = False
 
-            doc = getdoc(member, self.get_attr, self.env.config.autodoc_inherit_docstrings)
+            doc = getdoc(member, self.get_attr, self.env.config.autodoc_inherit_docstrings,
+                         self.parent, self.object_name)
             if not isinstance(doc, str):
                 # Ignore non-string __doc__
                 doc = None
@@ -1250,7 +1252,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if content in ('both', 'init'):
             __init__ = self.get_attr(self.object, '__init__', None)
             initdocstring = getdoc(__init__, self.get_attr,
-                                   self.env.config.autodoc_inherit_docstrings)
+                                   self.env.config.autodoc_inherit_docstrings,
+                                   self.parent, self.object_name)
             # for new-style classes, no __init__ means default __init__
             if (initdocstring is not None and
                 (initdocstring == object.__init__.__doc__ or  # for pypy
@@ -1260,7 +1263,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 # try __new__
                 __new__ = self.get_attr(self.object, '__new__', None)
                 initdocstring = getdoc(__new__, self.get_attr,
-                                       self.env.config.autodoc_inherit_docstrings)
+                                       self.env.config.autodoc_inherit_docstrings,
+                                       self.parent, self.object_name)
                 # for new-style classes, no __new__ means default __new__
                 if (initdocstring is not None and
                     (initdocstring == object.__new__.__doc__ or  # for pypy

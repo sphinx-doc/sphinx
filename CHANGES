@@ -68,6 +68,7 @@ Bugs fixed
 
 * #6703: autodoc: incremental build does not work for imported objects
 * #7564: autodoc: annotations not to be shown for descriptors
+* #6588: autodoc: Decorated inherited method has no documentation
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
 
