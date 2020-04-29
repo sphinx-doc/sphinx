@@ -53,22 +53,19 @@ class NamedtupleSubclassTest(BaseDocstringTest):
 Sample namedtuple subclass
 
 .. attribute:: attr1
+   :type: Arbitrary type
 
    Quick description of attr1
 
-   :type: Arbitrary type
-
 .. attribute:: attr2
+   :type: Another arbitrary type
 
    Quick description of attr2
 
-   :type: Another arbitrary type
-
 .. attribute:: attr3
+   :type: Type
 
    Adds a newline after the type
-
-   :type: Type
 """
 
         self.assertEqual(expected, actual)
@@ -390,10 +387,9 @@ Attributes:
         actual = str(GoogleDocstring(docstring))
         expected = """\
 .. attribute:: in_attr
+   :type: :class:`numpy.ndarray`
 
    super-dooper attribute
-
-   :type: :class:`numpy.ndarray`
 """
         self.assertEqual(expected, actual)
 
@@ -405,10 +401,9 @@ Attributes:
         actual = str(GoogleDocstring(docstring))
         expected = """\
 .. attribute:: in_attr
+   :type: numpy.ndarray
 
    super-dooper attribute
-
-   :type: numpy.ndarray
 """
         self.assertEqual(expected, actual)
 
