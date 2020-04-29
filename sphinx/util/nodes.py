@@ -10,7 +10,6 @@
 
 import re
 import unicodedata
-import warnings
 from typing import Any, Callable, Iterable, List, Set, Tuple, Type
 from typing import TYPE_CHECKING, cast
 
@@ -21,7 +20,6 @@ from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 
@@ -274,12 +272,6 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
             yield node, msg
-
-
-def find_source_node(node: Element) -> str:
-    warnings.warn('find_source_node() is deprecated.',
-                  RemovedInSphinx40Warning)
-    return get_node_source(node)
 
 
 def get_node_source(node: Element) -> str:

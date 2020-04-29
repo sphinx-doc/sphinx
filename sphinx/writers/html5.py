@@ -12,7 +12,7 @@ import os
 import posixpath
 import re
 import warnings
-from typing import Any, Iterable, Tuple
+from typing import Iterable, Tuple
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -21,7 +21,7 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -57,14 +57,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     builder = None  # type: StandaloneHTMLBuilder
 
-    def __init__(self, *args: Any) -> None:
-        if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
-            document, builder = args
-        else:
-            warnings.warn('The order of arguments for HTML5Translator has been changed. '
-                          'Please give "document" as 1st and "builder" as 2nd.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            builder, document = args
+    def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
 
         self.highlighter = self.builder.highlighter

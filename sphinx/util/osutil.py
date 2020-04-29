@@ -9,18 +9,14 @@
 """
 
 import contextlib
-import errno
 import filecmp
 import os
 import re
 import shutil
 import sys
-import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Optional, Tuple, Type
-
-from sphinx.deprecation import RemovedInSphinx40Warning
+from typing import Any, Generator, Iterator, List, Optional, Type
 
 try:
     # for ALT Linux (#6712)
@@ -28,11 +24,6 @@ try:
 except ImportError:
     Path = None  # type: ignore
 
-# Errnos that we need.
-EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
-ENOENT = getattr(errno, 'ENOENT', 0)  # RemovedInSphinx40Warning
-EPIPE = getattr(errno, 'EPIPE', 0)    # RemovedInSphinx40Warning
-EINVAL = getattr(errno, 'EINVAL', 0)  # RemovedInSphinx40Warning
 
 # SEP separates path elements in the canonical file names
 #
@@ -77,13 +68,6 @@ def relative_uri(base: str, to: str) -> str:
 def ensuredir(path: str) -> None:
     """Ensure that a path exists."""
     os.makedirs(path, exist_ok=True)
-
-
-def walk(top: str, topdown: bool = True, followlinks: bool = False) -> Iterator[Tuple[str, List[str], List[str]]]:  # NOQA
-    warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
-                  'Please use os.walk() instead.',
-                  RemovedInSphinx40Warning)
-    return os.walk(top, topdown=topdown, followlinks=followlinks)
 
 
 def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
@@ -169,13 +153,6 @@ def abspath(pathdir: str) -> str:
                                          'this filesystem encoding '
                                          '(%r)' % fs_encoding)
         return pathdir
-
-
-def getcwd() -> str:
-    warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
-                  'Please use os.getcwd() instead.',
-                  RemovedInSphinx40Warning)
-    return os.getcwd()
 
 
 @contextlib.contextmanager

@@ -36,27 +36,6 @@ from sphinx.util.template import SphinxRenderer
 
 logger = logging.getLogger(__name__)
 
-POHEADER = r"""
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) %(copyright)s
-# This file is distributed under the same license as the %(project)s package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: %(project)s %(version)s\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: %(ctime)s\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-
-"""[1:]  # RemovedInSphinx40Warning
-
 
 class Message:
     """An entry of translatable message."""

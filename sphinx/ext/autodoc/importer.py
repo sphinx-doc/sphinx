@@ -13,7 +13,6 @@ import traceback
 import warnings
 from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Tuple
 
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
 from sphinx.util.inspect import isclass, isenumclass, safe_getattr
 
@@ -179,18 +178,3 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                 members[name] = Attribute(name, True, INSTANCEATTR)
 
     return members
-
-
-from sphinx.ext.autodoc.mock import (  # NOQA
-    _MockModule, _MockObject, MockFinder, MockLoader, mock
-)
-
-deprecated_alias('sphinx.ext.autodoc.importer',
-                 {
-                     '_MockModule': _MockModule,
-                     '_MockObject': _MockObject,
-                     'MockFinder': MockFinder,
-                     'MockLoader': MockLoader,
-                     'mock': mock,
-                 },
-                 RemovedInSphinx40Warning)

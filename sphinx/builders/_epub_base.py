@@ -11,7 +11,6 @@
 import html
 import os
 import re
-import warnings
 from os import path
 from typing import Any, Dict, List, NamedTuple, Set, Tuple
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
@@ -22,7 +21,6 @@ from docutils.utils import smartquotes
 
 from sphinx import addnodes
 from sphinx.builders.html import BuildInfo, StandaloneHTMLBuilder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import status_iterator
@@ -187,18 +185,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
             id = 'epub-%d' % self.env.new_serialno('epub')
             self.id_cache[name] = id
         return id
-
-    def esc(self, name: str) -> str:
-        """Replace all characters not allowed in text an attribute values."""
-        warnings.warn(
-            '%s.esc() is deprecated. Use html.escape() instead.' % self.__class__.__name__,
-            RemovedInSphinx40Warning)
-        name = name.replace('&', '&amp;')
-        name = name.replace('<', '&lt;')
-        name = name.replace('>', '&gt;')
-        name = name.replace('"', '&quot;')
-        name = name.replace('\'', '&#39;')
-        return name
 
     def get_refnodes(self, doctree: Node, result: List[Dict[str, Any]]) -> List[Dict[str, Any]]:  # NOQA
         """Collect section titles, their depth in the toc and the refuri."""
@@ -476,30 +462,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
         addctx['doctype'] = self.doctype
         super().handle_page(pagename, addctx, templatename, outfilename, event_arg)
 
-    def build_mimetype(self, outdir: str = None, outname: str = 'mimetype') -> None:
+    def build_mimetype(self) -> None:
         """Write the metainfo file mimetype."""
-        if outdir:
-            warnings.warn('The arguments of EpubBuilder.build_mimetype() is deprecated.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-        else:
-            outdir = self.outdir
+        logger.info(__('writing mimetype file...'))
+        copy_asset_file(path.join(self.template_dir, 'mimetype'), self.outdir)
 
-        logger.info(__('writing %s file...'), outname)
-        copy_asset_file(path.join(self.template_dir, 'mimetype'),
-                        path.join(outdir, outname))
-
-    def build_container(self, outdir: str = None, outname: str = 'META-INF/container.xml') -> None:  # NOQA
+    def build_container(self, outname: str = 'META-INF/container.xml') -> None:  # NOQA
         """Write the metainfo file META-INF/container.xml."""
-        if outdir:
-            warnings.warn('The arguments of EpubBuilder.build_container() is deprecated.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-        else:
-            outdir = self.outdir
-
-        logger.info(__('writing %s file...'), outname)
-        filename = path.join(outdir, outname)
-        ensuredir(path.dirname(filename))
-        copy_asset_file(path.join(self.template_dir, 'container.xml'), filename)
+        logger.info(__('writing META-INF/container.xml file...'))
+        outdir = path.join(self.outdir, 'META-INF')
+        ensuredir(outdir)
+        copy_asset_file(path.join(self.template_dir, 'container.xml'), outdir)
 
     def content_metadata(self) -> Dict[str, Any]:
         """Create a dictionary with all metadata for the content.opf
@@ -520,23 +493,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['guides'] = []
         return metadata
 
-    def build_content(self, outdir: str = None, outname: str = 'content.opf') -> None:
+    def build_content(self) -> None:
         """Write the metainfo file content.opf It contains bibliographic data,
         a file list and the spine (the reading order).
         """
-        if outdir:
-            warnings.warn('The arguments of EpubBuilder.build_content() is deprecated.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-        else:
-            outdir = self.outdir
-
-        logger.info(__('writing %s file...'), outname)
+        logger.info(__('writing content.opf file...'))
         metadata = self.content_metadata()
 
         # files
-        if not outdir.endswith(os.sep):
-            outdir += os.sep
-        olen = len(outdir)
+        if not self.outdir.endswith(os.sep):
+            self.outdir += os.sep
+        olen = len(self.outdir)
         self.files = []  # type: List[str]
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
@@ -545,7 +512,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             self.config.epub_exclude_files
         if not self.use_index:
             self.ignored_files.append('genindex' + self.out_suffix)
-        for root, dirs, files in os.walk(outdir):
+        for root, dirs, files in os.walk(self.outdir):
             dirs.sort()
             for fn in sorted(files):
                 filename = path.join(root, fn)[olen:]
@@ -635,9 +602,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                             html.escape(self.refnodes[0]['refuri'])))
 
         # write the project file
-        copy_asset_file(path.join(self.template_dir, 'content.opf_t'),
-                        path.join(outdir, outname),
-                        metadata)
+        copy_asset_file(path.join(self.template_dir, 'content.opf_t'), self.outdir, metadata)
 
     def new_navpoint(self, node: Dict[str, Any], level: int, incr: bool = True) -> NavPoint:
         """Create a new entry in the toc from the node at given level."""
@@ -703,15 +668,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['navpoints'] = navpoints
         return metadata
 
-    def build_toc(self, outdir: str = None, outname: str = 'toc.ncx') -> None:
+    def build_toc(self) -> None:
         """Write the metainfo file toc.ncx."""
-        if outdir:
-            warnings.warn('The arguments of EpubBuilder.build_toc() is deprecated.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-        else:
-            outdir = self.outdir
-
-        logger.info(__('writing %s file...'), outname)
+        logger.info(__('writing toc.ncx file...'))
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
@@ -726,28 +685,21 @@ class EpubBuilder(StandaloneHTMLBuilder):
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
-        copy_asset_file(path.join(self.template_dir, 'toc.ncx_t'),
-                        path.join(outdir, outname),
+        copy_asset_file(path.join(self.template_dir, 'toc.ncx_t'), self.outdir,
                         self.toc_metadata(level, navpoints))
 
-    def build_epub(self, outdir: str = None, outname: str = None) -> None:
+    def build_epub(self) -> None:
         """Write the epub file.
 
         It is a zip file with the mimetype file stored uncompressed as the first
         entry.
         """
-        if outdir:
-            warnings.warn('The arguments of EpubBuilder.build_epub() is deprecated.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-        else:
-            outdir = self.outdir
-            outname = self.config.epub_basename + '.epub'
-
+        outname = self.config.epub_basename + '.epub'
         logger.info(__('writing %s file...'), outname)
-        epub_filename = path.join(outdir, outname)
+        epub_filename = path.join(self.outdir, outname)
         with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:
-            epub.write(path.join(outdir, 'mimetype'), 'mimetype', ZIP_STORED)
+            epub.write(path.join(self.outdir, 'mimetype'), 'mimetype', ZIP_STORED)
             for filename in ['META-INF/container.xml', 'content.opf', 'toc.ncx']:
-                epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)
+                epub.write(path.join(self.outdir, filename), filename, ZIP_DEFLATED)
             for filename in self.files:
-                epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)
+                epub.write(path.join(self.outdir, filename), filename, ZIP_DEFLATED)

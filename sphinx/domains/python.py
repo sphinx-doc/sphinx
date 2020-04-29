@@ -25,7 +25,7 @@ from sphinx import addnodes
 from sphinx.addnodes import pending_xref, desc_signature
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
@@ -516,39 +516,6 @@ class PyObject(ObjectDescription):
                 self.env.ref_context.pop('py:module')
 
 
-class PyModulelevel(PyObject):
-    """
-    Description of an object on module level (functions, data).
-    """
-
-    def run(self) -> List[Node]:
-        for cls in self.__class__.__mro__:
-            if cls.__name__ != 'DirectiveAdapter':
-                warnings.warn('PyModulelevel is deprecated. '
-                              'Please check the implementation of %s' % cls,
-                              RemovedInSphinx40Warning)
-                break
-        else:
-            warnings.warn('PyModulelevel is deprecated', RemovedInSphinx40Warning)
-
-        return super().run()
-
-    def needs_arglist(self) -> bool:
-        return self.objtype == 'function'
-
-    def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
-        if self.objtype == 'function':
-            if not modname:
-                return _('%s() (built-in function)') % name_cls[0]
-            return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.objtype == 'data':
-            if not modname:
-                return _('%s (built-in variable)') % name_cls[0]
-            return _('%s (in module %s)') % (name_cls[0], modname)
-        else:
-            return ''
-
-
 class PyFunction(PyObject):
     """Description of a function."""
 
@@ -649,90 +616,6 @@ class PyClasslike(PyObject):
             return _('%s (class in %s)') % (name_cls[0], modname)
         elif self.objtype == 'exception':
             return name_cls[0]
-        else:
-            return ''
-
-
-class PyClassmember(PyObject):
-    """
-    Description of a class member (methods, attributes).
-    """
-
-    def run(self) -> List[Node]:
-        for cls in self.__class__.__mro__:
-            if cls.__name__ != 'DirectiveAdapter':
-                warnings.warn('PyClassmember is deprecated. '
-                              'Please check the implementation of %s' % cls,
-                              RemovedInSphinx40Warning)
-                break
-        else:
-            warnings.warn('PyClassmember is deprecated', RemovedInSphinx40Warning)
-
-        return super().run()
-
-    def needs_arglist(self) -> bool:
-        return self.objtype.endswith('method')
-
-    def get_signature_prefix(self, sig: str) -> str:
-        if self.objtype == 'staticmethod':
-            return 'static '
-        elif self.objtype == 'classmethod':
-            return 'classmethod '
-        return ''
-
-    def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
-        name, cls = name_cls
-        add_modules = self.env.config.add_module_names
-        if self.objtype == 'method':
-            try:
-                clsname, methname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s() (in module %s)') % (name, modname)
-                else:
-                    return '%s()' % name
-            if modname and add_modules:
-                return _('%s() (%s.%s method)') % (methname, modname, clsname)
-            else:
-                return _('%s() (%s method)') % (methname, clsname)
-        elif self.objtype == 'staticmethod':
-            try:
-                clsname, methname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s() (in module %s)') % (name, modname)
-                else:
-                    return '%s()' % name
-            if modname and add_modules:
-                return _('%s() (%s.%s static method)') % (methname, modname,
-                                                          clsname)
-            else:
-                return _('%s() (%s static method)') % (methname, clsname)
-        elif self.objtype == 'classmethod':
-            try:
-                clsname, methname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s() (in module %s)') % (name, modname)
-                else:
-                    return '%s()' % name
-            if modname:
-                return _('%s() (%s.%s class method)') % (methname, modname,
-                                                         clsname)
-            else:
-                return _('%s() (%s class method)') % (methname, clsname)
-        elif self.objtype == 'attribute':
-            try:
-                clsname, attrname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s (in module %s)') % (name, modname)
-                else:
-                    return name
-            if modname and add_modules:
-                return _('%s (%s.%s attribute)') % (attrname, modname, clsname)
-            else:
-                return _('%s (%s attribute)') % (attrname, clsname)
         else:
             return ''
 

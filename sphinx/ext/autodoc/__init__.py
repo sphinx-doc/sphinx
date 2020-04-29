@@ -24,7 +24,7 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.config import ENUM
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
 from sphinx.ext.autodoc.mock import mock
@@ -428,12 +428,8 @@ class Documenter:
             # etc. don't support a prepended module name
             self.add_line('   :module: %s' % self.modname, sourcename)
 
-    def get_doc(self, encoding: str = None, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, ignore: int = 1) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""
-        if encoding is not None:
-            warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx40Warning)
         docstring = getdoc(self.object, self.get_attr,
                            self.env.config.autodoc_inherit_docstrings)
         if docstring:
@@ -939,11 +935,7 @@ class DocstringSignatureMixin:
     feature of reading the signature from the docstring.
     """
 
-    def _find_signature(self, encoding: str = None) -> Tuple[str, str]:
-        if encoding is not None:
-            warnings.warn("The 'encoding' argument to autodoc.%s._find_signature() is "
-                          "deprecated." % self.__class__.__name__,
-                          RemovedInSphinx40Warning)
+    def _find_signature(self) -> Tuple[str, str]:
         docstrings = self.get_doc()
         self._new_docstrings = docstrings[:]
         result = None
@@ -973,15 +965,11 @@ class DocstringSignatureMixin:
             break
         return result
 
-    def get_doc(self, encoding: str = None, ignore: int = 1) -> List[List[str]]:
-        if encoding is not None:
-            warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx40Warning)
+    def get_doc(self, ignore: int = 1) -> List[List[str]]:
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
             return lines
-        return super().get_doc(None, ignore)  # type: ignore
+        return super().get_doc(ignore)  # type: ignore
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.args is None and self.env.config.autodoc_docstring_signature:  # type: ignore
@@ -1228,11 +1216,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
                               sourcename)
 
-    def get_doc(self, encoding: str = None, ignore: int = 1) -> List[List[str]]:
-        if encoding is not None:
-            warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx40Warning)
+    def get_doc(self, ignore: int = 1) -> List[List[str]]:
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
             return lines
@@ -1721,7 +1705,7 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
                 self.env.note_reread()
                 return False
 
-    def get_doc(self, encoding: str = None, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, ignore: int = 1) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""
         name = self.objpath[-1]
         __slots__ = safe_getattr(self.parent, '__slots__', [])
