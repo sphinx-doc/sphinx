@@ -12,7 +12,8 @@ import traceback
 import warnings
 from importlib import import_module
 from types import MethodType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Type, Union
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Tuple, Type,
+                    Union)
 
 from docutils import nodes
 from docutils.io import Input
@@ -286,7 +287,7 @@ class SphinxComponentRegistry:
             parser.set_application(app)
         return parser
 
-    def get_source_input(self, filetype: str) -> Type[Input]:
+    def get_source_input(self, filetype: str) -> Optional[Type[Input]]:
         warnings.warn('SphinxComponentRegistry.get_source_input() is deprecated.',
                       RemovedInSphinx60Warning)
 
