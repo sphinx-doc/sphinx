@@ -1112,8 +1112,7 @@ def test_slots(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app):
-    options = {"members": None,
-               "undoc-members": True}
+    options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enum.EnumCls', options)
     assert list(actual) == [
         '',
@@ -1121,6 +1120,13 @@ def test_enum_class(app):
         '   :module: target.enum',
         '',
         '   this is enum class',
+        '',
+        '',
+        '   .. py:method:: EnumCls.say_goodbye()',
+        '      :module: target.enum',
+        '      :classmethod:',
+        '',
+        '      a classmethod says good-bye to you.',
         '',
         '',
         '   .. py:method:: EnumCls.say_hello()',
@@ -1149,11 +1155,6 @@ def test_enum_class(app):
         '',
         '      doc for val3',
         '',
-        '',
-        '   .. py:attribute:: EnumCls.val4',
-        '      :module: target.enum',
-        '      :value: 34',
-        ''
     ]
 
     # checks for an attribute of EnumClass
