@@ -212,6 +212,15 @@ The following directives are provided for module and class contents:
    Describes an exception class.  The signature can, but need not include
    parentheses with constructor arguments.
 
+   .. rubric:: options
+
+   .. rst:directive:option:: final
+      :type: no value
+
+      Indicate the class is a final class.
+
+      .. versionadded:: 3.1
+
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
 
@@ -234,6 +243,15 @@ The following directives are provided for module and class contents:
       .. py:method:: Bar.quux()
 
    The first way is the preferred one.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: final
+      :type: no value
+
+      Indicate the class is a final class.
+
+      .. versionadded:: 3.1
 
 .. rst:directive:: .. py:attribute:: name
 
@@ -282,6 +300,13 @@ The following directives are provided for module and class contents:
       Indicate the method is a class method.
 
       .. versionadded:: 2.1
+
+   .. rst:directive:option:: final
+      :type: no value
+
+      Indicate the class is a final method.
+
+      .. versionadded:: 3.1
 
    .. rst:directive:option:: property
       :type: no value

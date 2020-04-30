@@ -1691,3 +1691,36 @@ def test_cython():
         '   Docstring.',
         '',
     ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='typing.final is available since python3.8')
+@pytest.mark.usefixtures('setup_test')
+def test_final():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.final', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.final',
+        '',
+        '',
+        '.. py:class:: Class',
+        '   :module: target.final',
+        '   :final:',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Class.meth1()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Class.meth2()',
+        '      :module: target.final',
+        '',
+        '      docstring',
+        '',
+    ]

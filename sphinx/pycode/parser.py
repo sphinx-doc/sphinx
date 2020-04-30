@@ -231,6 +231,9 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.annotations = {}           # type: Dict[Tuple[str, str], str]
         self.previous = None            # type: ast.AST
         self.deforders = {}             # type: Dict[str, int]
+        self.finals = []                # type: List[str]
+        self.typing = None              # type: str
+        self.typing_final = None        # type: str
         super().__init__()
 
     def get_qualname_for(self, name: str) -> Optional[List[str]]:
@@ -249,6 +252,11 @@ class VariableCommentPicker(ast.NodeVisitor):
         if qualname:
             self.deforders[".".join(qualname)] = next(self.counter)
 
+    def add_final_entry(self, name: str) -> None:
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            self.finals.append(".".join(qualname))
+
     def add_variable_comment(self, name: str, comment: str) -> None:
         qualname = self.get_qualname_for(name)
         if qualname:
@@ -260,6 +268,22 @@ class VariableCommentPicker(ast.NodeVisitor):
         if qualname:
             basename = ".".join(qualname[:-1])
             self.annotations[(basename, name)] = unparse(annotation)
+
+    def is_final(self, decorators: List[ast.expr]) -> bool:
+        final = []
+        if self.typing:
+            final.append('%s.final' % self.typing)
+        if self.typing_final:
+            final.append(self.typing_final)
+
+        for decorator in decorators:
+            try:
+                if unparse(decorator) in final:
+                    return True
+            except NotImplementedError:
+                pass
+
+        return False
 
     def get_self(self) -> ast.arg:
         """Returns the name of first argument if in function."""
@@ -282,10 +306,18 @@ class VariableCommentPicker(ast.NodeVisitor):
         for name in node.names:
             self.add_entry(name.asname or name.name)
 
+            if name.name == 'typing':
+                self.typing = name.asname or name.name
+            elif name.name == 'typing.final':
+                self.typing_final = name.asname or name.name
+
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         """Handles Import node and record it to definition orders."""
         for name in node.names:
             self.add_entry(name.asname or name.name)
+
+            if node.module == 'typing' and name.name == 'final':
+                self.typing_final = name.asname or name.name
 
     def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
@@ -370,6 +402,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles ClassDef node and set context."""
         self.current_classes.append(node.name)
         self.add_entry(node.name)
+        if self.is_final(node.decorator_list):
+            self.add_final_entry(node.name)
         self.context.append(node.name)
         self.previous = node
         for child in node.body:
@@ -381,6 +415,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles FunctionDef node and set context."""
         if self.current_function is None:
             self.add_entry(node.name)  # should be called before setting self.current_function
+            if self.is_final(node.decorator_list):
+                self.add_final_entry(node.name)
             self.context.append(node.name)
             self.current_function = node
             for child in node.body:
@@ -481,6 +517,7 @@ class Parser:
         self.comments = {}          # type: Dict[Tuple[str, str], str]
         self.deforders = {}         # type: Dict[str, int]
         self.definitions = {}       # type: Dict[str, Tuple[str, int, int]]
+        self.finals = []            # type: List[str]
 
     def parse(self) -> None:
         """Parse the source code."""
@@ -495,6 +532,7 @@ class Parser:
         self.annotations = picker.annotations
         self.comments = picker.comments
         self.deforders = picker.deforders
+        self.finals = picker.finals
 
     def parse_definition(self) -> None:
         """Parse the location of definitions from the code."""
