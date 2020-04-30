@@ -468,7 +468,10 @@ class Documenter:
                 key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
                 if key in attr_docs:
                     no_docstring = True
-                    docstrings = [attr_docs[key]]
+                    # make a copy of docstring for attributes to avoid cache
+                    # the change of autodoc-process-docstring event.
+                    docstrings = [list(attr_docs[key])]
+
                     for i, line in enumerate(self.process_doc(docstrings)):
                         self.add_line(line, sourcename, i)
 
