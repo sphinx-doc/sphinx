@@ -16,16 +16,13 @@ import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsExecError
 from io import StringIO
-from typing import TYPE_CHECKING
+from typing import Any, Dict
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
 from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
-
-if TYPE_CHECKING:
-    from typing import Any, Dict
 
 
 class BuildDoc(Command):
@@ -91,8 +88,7 @@ class BuildDoc(Command):
     boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
                        'link-index', 'nitpicky']
 
-    def initialize_options(self):
-        # type: () -> None
+    def initialize_options(self) -> None:
         self.fresh_env = self.all_files = False
         self.pdb = False
         self.source_dir = self.build_dir = None  # type: str
@@ -111,8 +107,7 @@ class BuildDoc(Command):
         self.nitpicky = False
         self.keep_going = False
 
-    def _guess_source_dir(self):
-        # type: () -> str
+    def _guess_source_dir(self) -> str:
         for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
@@ -121,8 +116,7 @@ class BuildDoc(Command):
                     return root
         return os.curdir
 
-    def finalize_options(self):
-        # type: () -> None
+    def finalize_options(self) -> None:
         self.ensure_string_list('builder')
 
         if self.source_dir is None:
@@ -144,8 +138,7 @@ class BuildDoc(Command):
             (builder, os.path.join(self.build_dir, builder))
             for builder in self.builder]
 
-    def run(self):
-        # type: () -> None
+    def run(self) -> None:
         if not color_terminal():
             nocolor()
         if not self.verbose:  # type: ignore
