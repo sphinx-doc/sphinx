@@ -378,6 +378,14 @@ def test_autosummary_skip_member(app):
     assert 'Foo._privatemeth' in content
 
 
+@pytest.mark.sphinx(testroot='ext-autosummary-template')
+def test_autosummary_template(app):
+    app.build()
+
+    content = (app.srcdir / 'generate' / 'target.Foo.rst').read_text()
+    assert 'EMPTY' in content
+
+
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',
                     confoverrides={'autosummary_generate': []})
 def test_empty_autosummary_generate(app, status, warning):
