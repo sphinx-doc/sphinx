@@ -152,22 +152,19 @@ class AutosummaryRenderer:
         except TemplateNotFound:
             return False
 
-    def render(self, objtype: str, context: Dict) -> str:
+    def render(self, template_name: str, context: Dict) -> str:
         """Render a template file."""
-        if objtype.endswith('.rst'):
-            # old styled: template_name is given
-            warnings.warn('AutosummaryRenderer.render() takes an object type as an argument.',
-                          RemovedInSphinx50Warning, stacklevel=2)
-            return self.env.get_template(objtype).render(context)
+        if template_name.endswith('.rst'):
+            template = self.env.get_template(template_name)
         else:
-            # objtype is given
+            # objtype is given as template_name
             try:
-                template = self.env.get_template('autosummary/%s.rst' % objtype)
+                template = self.env.get_template('autosummary/%s.rst' % template_name)
             except TemplateNotFound:
                 # fallback to base.rst
                 template = self.env.get_template('autosummary/base.rst')
 
-            return template.render(context)
+        return template.render(context)
 
 
 # -- Generating output ---------------------------------------------------------
@@ -264,7 +261,10 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     ns['objtype'] = doc.objtype
     ns['underline'] = len(name) * '='
 
-    return template.render(doc.objtype, ns)
+    if template_name:
+        return template.render(template_name, ns)
+    else:
+        return template.render(doc.objtype, ns)
 
 
 def generate_autosummary_docs(sources: List[str], output_dir: str = None,
