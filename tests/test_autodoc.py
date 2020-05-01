@@ -1380,6 +1380,15 @@ def test_coroutine():
         '',
     ]
 
+    # force-synchronized wrapper
+    actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
+    assert list(actual) == [
+        '',
+        '.. py:function:: sync_func()',
+        '   :module: target.coroutine',
+        '',
+    ]
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_partialmethod(app):
