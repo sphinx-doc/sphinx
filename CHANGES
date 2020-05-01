@@ -63,6 +63,7 @@ Features added
 * #7543: html theme: Add top and bottom margins to tables
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
+* #7294: C++, parse expressions with user-defined literals.
 * #7143: py domain: Add ``:final:`` option to :rst:dir:`py:class:`,
   :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
 

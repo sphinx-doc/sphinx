@@ -31,7 +31,8 @@ from sphinx.util.cfamily import (
     NoOldIdError, ASTBaseBase, verify_description_mode, StringifyTransform,
     BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
     identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
-    hex_literal_re, binary_literal_re, float_literal_re,
+    hex_literal_re, binary_literal_re, integers_literal_suffix_re,
+    float_literal_re, float_literal_suffix_re,
     char_literal_re
 )
 from sphinx.util.docfields import Field, TypedField
@@ -2076,12 +2077,14 @@ class DefinitionParser(BaseParser):
             return ASTBooleanLiteral(True)
         if self.skip_word('false'):
             return ASTBooleanLiteral(False)
-        for regex in [float_literal_re, binary_literal_re, hex_literal_re,
+        pos = self.pos
+        if self.match(float_literal_re):
+            self.match(float_literal_suffix_re)
+            return ASTNumberLiteral(self.definition[pos:self.pos])
+        for regex in [binary_literal_re, hex_literal_re,
                       integer_literal_re, octal_literal_re]:
-            pos = self.pos
             if self.match(regex):
-                while self.current_char in 'uUlLfF':
-                    self.pos += 1
+                self.match(integers_literal_suffix_re)
                 return ASTNumberLiteral(self.definition[pos:self.pos])
 
         string = self._parse_string()
