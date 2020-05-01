@@ -564,6 +564,21 @@ def test_function_definitions():
     check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
     check('function', 'template<typename T> operator int()', {1: None, 2: 'I0Ecviv'})
 
+    # trailing return types
+    ids = {1: 'f', 2: '1fv'}
+    check('function', 'int f()', ids)
+    check('function', 'auto f() -> int', ids)
+    check('function', 'virtual auto f() -> int = 0', ids)
+    check('function', 'virtual auto f() -> int final', ids)
+    check('function', 'virtual auto f() -> int override', ids)
+
+    ids = {2: 'I0E1fv', 4: 'I0E1fiv'}
+    check('function', 'template<typename T> int f()', ids)
+    check('function', 'template<typename T> f() -> int', ids)
+
+    # from breathe#441
+    check('function', 'auto MakeThingy() -> Thingy*', {1: 'MakeThingy', 2: '10MakeThingyv'})
+
 
 def test_operators():
     check('function', 'void operator new()', {1: "new-operator", 2: "nwv"})

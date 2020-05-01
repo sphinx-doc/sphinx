@@ -1871,13 +1871,14 @@ class ASTNoexceptSpec(ASTBase):
 
 class ASTParametersQualifiers(ASTBase):
     def __init__(self, args: List[ASTFunctionParameter], volatile: bool, const: bool,
-                 refQual: str, exceptionSpec: ASTNoexceptSpec, override: bool, final: bool,
-                 initializer: str) -> None:
+                 refQual: str, exceptionSpec: ASTNoexceptSpec, trailingReturn: "ASTType",
+                 override: bool, final: bool, initializer: str) -> None:
         self.args = args
         self.volatile = volatile
         self.const = const
         self.refQual = refQual
         self.exceptionSpec = exceptionSpec
+        self.trailingReturn = trailingReturn
         self.override = override
         self.final = final
         self.initializer = initializer
@@ -1932,6 +1933,9 @@ class ASTParametersQualifiers(ASTBase):
         if self.exceptionSpec:
             res.append(' ')
             res.append(transform(self.exceptionSpec))
+        if self.trailingReturn:
+            res.append(' -> ')
+            res.append(transform(self.trailingReturn))
         if self.final:
             res.append(' final')
         if self.override:
@@ -1970,6 +1974,9 @@ class ASTParametersQualifiers(ASTBase):
         if self.exceptionSpec:
             signode += nodes.Text(' ')
             self.exceptionSpec.describe_signature(signode, mode, env, symbol)
+        if self.trailingReturn:
+            signode += nodes.Text(' -> ')
+            self.trailingReturn.describe_signature(signode, mode, env, symbol)
         if self.final:
             _add_anno(signode, 'final')
         if self.override:
@@ -2179,6 +2186,10 @@ class ASTDeclarator(ASTBase):
     def function_params(self) -> List[ASTFunctionParameter]:
         raise NotImplementedError(repr(self))
 
+    @property
+    def trailingReturn(self) -> "ASTType":
+        raise NotImplementedError(repr(self))
+
     def require_space_after_declSpecs(self) -> bool:
         raise NotImplementedError(repr(self))
 
@@ -2221,6 +2232,10 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.paramQual.function_params
+
+    @property
+    def trailingReturn(self) -> "ASTType":
+        return self.paramQual.trailingReturn
 
     # only the modifiers for a function, e.g.,
     def get_modifiers_id(self, version: int) -> str:
@@ -2339,6 +2354,10 @@ class ASTDeclaratorPtr(ASTDeclarator):
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
 
+    @property
+    def trailingReturn(self) -> "ASTType":
+        return self.next.trailingReturn
+
     def require_space_after_declSpecs(self) -> bool:
         return self.next.require_space_after_declSpecs()
 
@@ -2438,6 +2457,10 @@ class ASTDeclaratorRef(ASTDeclarator):
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
 
+    @property
+    def trailingReturn(self) -> "ASTType":
+        return self.next.trailingReturn
+
     def require_space_after_declSpecs(self) -> bool:
         return self.next.require_space_after_declSpecs()
 
@@ -2494,6 +2517,10 @@ class ASTDeclaratorParamPack(ASTDeclarator):
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
 
+    @property
+    def trailingReturn(self) -> "ASTType":
+        return self.next.trailingReturn
+
     def require_space_after_declSpecs(self) -> bool:
         return False
 
@@ -2549,6 +2576,10 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
+
+    @property
+    def trailingReturn(self) -> "ASTType":
+        return self.next.trailingReturn
 
     def require_space_after_declSpecs(self) -> bool:
         return True
@@ -2637,6 +2668,10 @@ class ASTDeclaratorParen(ASTDeclarator):
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.inner.function_params
+
+    @property
+    def trailingReturn(self) -> "ASTType":
+        return self.inner.trailingReturn
 
     def require_space_after_declSpecs(self) -> bool:
         return True
@@ -2766,6 +2801,10 @@ class ASTType(ASTBase):
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.decl.function_params
 
+    @property
+    def trailingReturn(self) -> "ASTType":
+        return self.decl.trailingReturn
+
     def get_id(self, version: int, objectType: str = None,
                symbol: "Symbol" = None) -> str:
         if version == 1:
@@ -2802,7 +2841,10 @@ class ASTType(ASTBase):
                     templ = symbol.declaration.templatePrefix
                     if templ is not None:
                         typeId = self.decl.get_ptr_suffix_id(version)
-                        returnTypeId = self.declSpecs.get_id(version)
+                        if self.trailingReturn:
+                            returnTypeId = self.trailingReturn.get_id(version)
+                        else:
+                            returnTypeId = self.declSpecs.get_id(version)
                         res.append(typeId)
                         res.append(returnTypeId)
                 res.append(self.decl.get_param_id(version))
@@ -5575,9 +5617,6 @@ class DefinitionParser(BaseParser):
             refQual = '&'
 
         exceptionSpec = None
-        override = None
-        final = None
-        initializer = None
         self.skip_ws()
         if self.skip_string('noexcept'):
             if self.skip_string_and_ws('('):
@@ -5588,6 +5627,13 @@ class DefinitionParser(BaseParser):
                 exceptionSpec = ASTNoexceptSpec(expr)
             else:
                 exceptionSpec = ASTNoexceptSpec(None)
+
+        self.skip_ws()
+        if self.skip_string('->'):
+            trailingReturn = self._parse_type(named=False)
+        else:
+            trailingReturn = None
+
         self.skip_ws()
         override = self.skip_word_and_ws('override')
         final = self.skip_word_and_ws('final')
@@ -5596,6 +5642,7 @@ class DefinitionParser(BaseParser):
                 'override')  # they can be permuted
 
         self.skip_ws()
+        initializer = None
         if self.skip_string('='):
             self.skip_ws()
             valid = ('0', 'delete', 'default')
@@ -5609,8 +5656,8 @@ class DefinitionParser(BaseParser):
                     % '" or "'.join(valid))
 
         return ASTParametersQualifiers(
-            args, volatile, const, refQual, exceptionSpec, override, final,
-            initializer)
+            args, volatile, const, refQual, exceptionSpec, trailingReturn,
+            override, final, initializer)
 
     def _parse_decl_specs_simple(self, outer: str, typed: bool) -> ASTDeclSpecsSimple:
         """Just parse the simple ones."""
