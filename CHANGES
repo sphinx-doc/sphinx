@@ -74,6 +74,7 @@ Bugs fixed
 * #6588: autodoc: Decorated inherited method has no documentation
 * #7469: autodoc: The change of autodoc-process-docstring for variables is
   cached unexpectedly
+* #7559: autodoc: misdetects a sync function is async
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
 * #2785: html: Bad alignment of equation links
