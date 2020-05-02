@@ -67,6 +67,7 @@ Features added
 * C++, parse trailing return types.
 * #7143: py domain: Add ``:final:`` option to :rst:dir:`py:class:`,
   :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
+* #7582: napoleon: a type for attribute are represented like type annotation
 
 Bugs fixed
 ----------
