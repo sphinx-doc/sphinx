@@ -103,27 +103,27 @@ def test_parse_name(app):
     directive = make_directive_bridge(app.env)
 
     # for modules
-    verify('module', 'test_autodoc', ('test_autodoc', [], None, None))
-    verify('module', 'test.test_autodoc', ('test.test_autodoc', [], None, None))
+    verify('module', 'test_ext_autodoc', ('test_ext_autodoc', [], None, None))
+    verify('module', 'test.test_ext_autodoc', ('test.test_ext_autodoc', [], None, None))
     verify('module', 'test(arg)', ('test', [], 'arg', None))
     assert 'signature arguments' in app._warning.getvalue()
 
     # for functions/classes
-    verify('function', 'test_autodoc.raises',
-           ('test_autodoc', ['raises'], None, None))
-    verify('function', 'test_autodoc.raises(exc) -> None',
-           ('test_autodoc', ['raises'], 'exc', 'None'))
-    directive.env.temp_data['autodoc:module'] = 'test_autodoc'
-    verify('function', 'raises', ('test_autodoc', ['raises'], None, None))
+    verify('function', 'test_ext_autodoc.raises',
+           ('test_ext_autodoc', ['raises'], None, None))
+    verify('function', 'test_ext_autodoc.raises(exc) -> None',
+           ('test_ext_autodoc', ['raises'], 'exc', 'None'))
+    directive.env.temp_data['autodoc:module'] = 'test_ext_autodoc'
+    verify('function', 'raises', ('test_ext_autodoc', ['raises'], None, None))
     del directive.env.temp_data['autodoc:module']
-    directive.env.ref_context['py:module'] = 'test_autodoc'
-    verify('function', 'raises', ('test_autodoc', ['raises'], None, None))
-    verify('class', 'Base', ('test_autodoc', ['Base'], None, None))
+    directive.env.ref_context['py:module'] = 'test_ext_autodoc'
+    verify('function', 'raises', ('test_ext_autodoc', ['raises'], None, None))
+    verify('class', 'Base', ('test_ext_autodoc', ['Base'], None, None))
 
     # for members
     directive.env.ref_context['py:module'] = 'foo'
     verify('method', 'util.SphinxTestApp.cleanup',
-           ('util', ['SphinxTestApp', 'cleanup'], None, None))
+           ('foo', ['util', 'SphinxTestApp', 'cleanup'], None, None))
     directive.env.ref_context['py:module'] = 'util'
     directive.env.ref_context['py:class'] = 'Foo'
     directive.env.temp_data['autodoc:class'] = 'SphinxTestApp'
@@ -735,14 +735,14 @@ def test_autodoc_inner_class(app):
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
     assert list(actual) == [
         '',
-        '.. py:class:: Inner',
-        '   :module: target.Outer',
+        '.. py:class:: Outer.Inner',
+        '   :module: target',
         '',
         '   Foo',
         '',
         '',
-        '   .. py:method:: Inner.meth()',
-        '      :module: target.Outer',
+        '   .. py:method:: Outer.Inner.meth()',
+        '      :module: target',
         '',
         '      Foo',
         '',
