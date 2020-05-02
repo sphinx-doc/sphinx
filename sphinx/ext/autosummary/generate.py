@@ -158,11 +158,11 @@ class AutosummaryRenderer:
 
     def render(self, template_name: str, context: Dict) -> str:
         """Render a template file."""
-        if template_name.endswith('.rst'):
+        try:
             template = self.env.get_template(template_name)
-        else:
-            # objtype is given as template_name
+        except TemplateNotFound:
             try:
+                # objtype is given as template_name
                 template = self.env.get_template('autosummary/%s.rst' % template_name)
             except TemplateNotFound:
                 # fallback to base.rst
