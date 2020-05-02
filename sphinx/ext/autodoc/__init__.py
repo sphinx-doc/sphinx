@@ -849,7 +849,7 @@ class ModuleDocumenter(Documenter):
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
 
-    def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, object]]]:
+    def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
         if want_all:
             if (self.options.ignore_module_all or not
                     hasattr(self.object, '__all__')):
