@@ -623,7 +623,7 @@ class PyVariable(PyObject):
 
         typ = self.options.get('type')
         if typ:
-            signode += addnodes.desc_annotation(typ, ': ' + typ)
+            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), type_to_xref(typ))
 
         value = self.options.get('value')
         if value:
@@ -868,7 +868,7 @@ class PyAttribute(PyObject):
 
         typ = self.options.get('type')
         if typ:
-            signode += addnodes.desc_annotation(typ, ': ' + typ)
+            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), type_to_xref(typ))
 
         value = self.options.get('value')
         if value:
