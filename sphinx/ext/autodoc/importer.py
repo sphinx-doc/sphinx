@@ -142,8 +142,9 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                 members[name] = Attribute(name, True, value)
 
         superclass = subject.__mro__[1]
-        for name, value in obj_dict.items():
+        for name in obj_dict:
             if name not in superclass.__dict__:
+                value = safe_getattr(subject, name)
                 members[name] = Attribute(name, True, value)
 
     # members in __slots__
