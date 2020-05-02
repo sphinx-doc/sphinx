@@ -77,17 +77,19 @@ ModuleEntry = NamedTuple('ModuleEntry', [('docname', str),
                                          ('deprecated', bool)])
 
 
+def type_to_xref(text: str) -> addnodes.pending_xref:
+    """Convert a type string to a cross reference node."""
+    if text == 'None':
+        reftype = 'obj'
+    else:
+        reftype = 'class'
+
+    return pending_xref('', nodes.Text(text),
+                        refdomain='py', reftype=reftype, reftarget=text)
+
+
 def _parse_annotation(annotation: str) -> List[Node]:
     """Parse type annotation."""
-    def make_xref(text: str) -> addnodes.pending_xref:
-        if text == 'None':
-            reftype = 'obj'
-        else:
-            reftype = 'class'
-
-        return pending_xref('', nodes.Text(text),
-                            refdomain='py', reftype=reftype, reftarget=text)
-
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
             return [nodes.Text("%s.%s" % (unparse(node.value)[0], node.attr))]
@@ -133,10 +135,10 @@ def _parse_annotation(annotation: str) -> List[Node]:
         result = unparse(tree)
         for i, node in enumerate(result):
             if isinstance(node, nodes.Text):
-                result[i] = make_xref(str(node))
+                result[i] = type_to_xref(str(node))
         return result
     except SyntaxError:
-        return [make_xref(annotation)]
+        return [type_to_xref(annotation)]
 
 
 def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
