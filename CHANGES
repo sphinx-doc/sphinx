@@ -16,6 +16,7 @@ Deprecated
   been changed to Sphinx object
 * ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` takes an object type
   as an argument
+* The ``ignore`` argument of ``sphinx.ext.autodoc.Documenter.get_doc()``
 * The ``template_dir`` argument of ``sphinx.ext.autosummary.generate.
   AutosummaryRenderer``
 * The ``module`` argument of ``sphinx.ext.autosummary.generate.
@@ -24,6 +25,7 @@ Deprecated
   generate_autosummary_docs()``
 * The ``template_dir`` argument of ``sphinx.ext.autosummary.generate.
   generate_autosummary_docs()``
+* The ``ignore`` argument of ``sphinx.util.docstring.prepare_docstring()``
 * ``sphinx.ext.autosummary.generate.AutosummaryRenderer.exists()``
 
 Features added
