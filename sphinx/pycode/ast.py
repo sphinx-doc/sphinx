@@ -10,6 +10,7 @@
 
 import sys
 from typing import Dict, List, Type, Optional
+from typing import overload
 
 if sys.version_info > (3, 8):
     import ast
@@ -56,6 +57,16 @@ def parse(code: str, mode: str = 'exec') -> "ast.AST":
         # fallback to ast module.
         # typed_ast is used to parse type_comments if installed.
         return ast.parse(code, mode=mode)
+
+
+@overload
+def unparse(node: None) -> None:
+    ...
+
+
+@overload
+def unparse(node: ast.AST) -> str:
+    ...
 
 
 def unparse(node: Optional[ast.AST]) -> Optional[str]:
