@@ -125,13 +125,15 @@ def unwrap(obj: Any) -> Any:
         return obj
 
 
-def unwrap_all(obj: Any) -> Any:
+def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
     """
     Get an original object from wrapped object (unwrapping partials, wrapped
     functions, and other decorators).
     """
     while True:
-        if ispartial(obj):
+        if stop and stop(obj):
+            return obj
+        elif ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
             obj = obj.__wrapped__
@@ -287,7 +289,8 @@ def isroutine(obj: Any) -> bool:
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
-    obj = unwrap_all(obj)
+    # unwrap staticmethod, classmethod and partial (except wrappers)
+    obj = unwrap_all(obj, stop=lambda o: hasattr(o, '__wrapped__'))
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
