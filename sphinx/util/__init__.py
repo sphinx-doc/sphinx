@@ -28,7 +28,7 @@ from time import mktime, strptime
 from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.errors import (
     PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError
 )
@@ -497,6 +497,7 @@ class attrdict(dict):
 
 def rpartition(s: str, t: str) -> Tuple[str, str]:
     """Similar to str.rpartition from 2.5, but doesn't return the separator."""
+    warnings.warn('rpartition() is now deprecated.', RemovedInSphinx50Warning, stacklevel=2)
     i = s.rfind(t)
     if i != -1:
         return s[:i], s[i + len(t):]

@@ -27,6 +27,7 @@ Deprecated
   generate_autosummary_docs()``
 * The ``ignore`` argument of ``sphinx.util.docstring.prepare_docstring()``
 * ``sphinx.ext.autosummary.generate.AutosummaryRenderer.exists()``
+* ``sphinx.util.rpartition()``
 
 Features added
 --------------

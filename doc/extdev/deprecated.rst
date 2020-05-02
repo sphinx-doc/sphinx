@@ -78,6 +78,11 @@ The following is a list of deprecated interfaces.
      - 5.0
      - N/A
 
+   * - ``sphinx.util.rpartition()``
+     - 3.1
+     - 5.0
+     - ``str.rpartition()``
+
    * - ``desc_signature['first']``
      -
      - 3.0
