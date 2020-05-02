@@ -508,7 +508,11 @@ def test_autodoc_typehints_signature(app):
         '',
         '.. py:function:: missing_attr(c, a: str, b: Optional[str] = None) -> str',
         '   :module: target.typehints',
-        ''
+        '',
+        '',
+        '.. py:function:: tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]',
+        '   :module: target.typehints',
+        '',
     ]
 
 
@@ -557,7 +561,11 @@ def test_autodoc_typehints_none(app):
         '',
         '.. py:function:: missing_attr(c, a, b=None)',
         '   :module: target.typehints',
-        ''
+        '',
+        '',
+        '.. py:function:: tuple_args(x)',
+        '   :module: target.typehints',
+        '',
     ]
 
 
@@ -576,6 +584,15 @@ def test_autodoc_typehints_description(app):
             '   Return type:\n'
             '      int\n'
             in context)
+    assert ('target.typehints.tuple_args(x)\n'
+            '\n'
+            '   Parameters:\n'
+            '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
+            '\n'
+            '   Return type:\n'
+            '      Tuple[int, int]\n'
+            in context)
+
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
