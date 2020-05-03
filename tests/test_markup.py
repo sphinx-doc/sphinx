@@ -18,6 +18,7 @@ from docutils.transforms.universal import SmartQuotes
 from sphinx import addnodes
 from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.builders.latex.theming import ThemeFactory
 from sphinx.roles import XRefRole
 from sphinx.testing.util import Struct, assert_node
 from sphinx.util import texescape
@@ -110,7 +111,8 @@ def verify_re_latex(app, parse):
         app.builder = LaTeXBuilder(app)
         app.builder.set_environment(app.env)
         app.builder.init()
-        latex_translator = ForgivingLaTeXTranslator(document, app.builder)
+        theme = app.builder.themes.get('manual')
+        latex_translator = ForgivingLaTeXTranslator(document, app.builder, theme)
         latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)
         latex_translated = ''.join(latex_translator.body).strip()
