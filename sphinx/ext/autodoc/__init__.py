@@ -429,12 +429,16 @@ class Documenter:
             # etc. don't support a prepended module name
             self.add_line('   :module: %s' % self.modname, sourcename)
 
-    def get_doc(self, encoding: str = None, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""
         if encoding is not None:
             warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
                           RemovedInSphinx40Warning)
+        if ignore is not None:
+            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx50Warning, stacklevel=2)
         docstring = getdoc(self.object, self.get_attr,
                            self.env.config.autodoc_inherit_docstrings,
                            self.parent, self.object_name)
@@ -979,7 +983,7 @@ class DocstringSignatureMixin:
             break
         return result
 
-    def get_doc(self, encoding: str = None, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         if encoding is not None:
             warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
@@ -1239,7 +1243,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
                               sourcename)
 
-    def get_doc(self, encoding: str = None, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         if encoding is not None:
             warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
@@ -1736,8 +1740,12 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
                 self.env.note_reread()
                 return False
 
-    def get_doc(self, encoding: str = None, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""
+        if ignore is not None:
+            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx50Warning, stacklevel=2)
         name = self.objpath[-1]
         __slots__ = safe_getattr(self.parent, '__slots__', [])
         if isinstance(__slots__, dict) and isinstance(__slots__.get(name), str):
