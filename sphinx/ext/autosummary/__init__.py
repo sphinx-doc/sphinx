@@ -659,7 +659,7 @@ def autolink_role(typ: str, rawtext: str, etext: str, lineno: int, inliner: Inli
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
-    warnings.warn('autolink_role() is deprecated.', RemovedInSphinx40Warning)
+    warnings.warn('autolink_role() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
     env = inliner.document.settings.env
     pyobj_role = env.get_domain('py').role('obj')
     objects, msg = pyobj_role('obj', rawtext, etext, lineno, inliner, options, content)

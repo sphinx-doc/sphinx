@@ -32,7 +32,7 @@ deprecated_alias('sphinx.builders.htmlhelp',
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     warnings.warn('sphinx.builders.htmlhelp has been moved to sphinxcontrib-htmlhelp.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     app.setup_extension('sphinxcontrib.htmlhelp')
 
     return {

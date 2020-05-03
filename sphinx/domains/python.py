@@ -530,10 +530,11 @@ class PyModulelevel(PyObject):
             if cls.__name__ != 'DirectiveAdapter':
                 warnings.warn('PyModulelevel is deprecated. '
                               'Please check the implementation of %s' % cls,
-                              RemovedInSphinx40Warning)
+                              RemovedInSphinx40Warning, stacklevel=2)
                 break
         else:
-            warnings.warn('PyModulelevel is deprecated', RemovedInSphinx40Warning)
+            warnings.warn('PyModulelevel is deprecated',
+                          RemovedInSphinx40Warning, stacklevel=2)
 
         return super().run()
 
@@ -675,10 +676,11 @@ class PyClassmember(PyObject):
             if cls.__name__ != 'DirectiveAdapter':
                 warnings.warn('PyClassmember is deprecated. '
                               'Please check the implementation of %s' % cls,
-                              RemovedInSphinx40Warning)
+                              RemovedInSphinx40Warning, stacklevel=2)
                 break
         else:
-            warnings.warn('PyClassmember is deprecated', RemovedInSphinx40Warning)
+            warnings.warn('PyClassmember is deprecated',
+                          RemovedInSphinx40Warning, stacklevel=2)
 
         return super().run()
 
@@ -896,10 +898,11 @@ class PyDecoratorMixin:
             if cls.__name__ != 'DirectiveAdapter':
                 warnings.warn('PyDecoratorMixin is deprecated. '
                               'Please check the implementation of %s' % cls,
-                              RemovedInSphinx50Warning)
+                              RemovedInSphinx50Warning, stacklevel=2)
                 break
         else:
-            warnings.warn('PyDecoratorMixin is deprecated', RemovedInSphinx50Warning)
+            warnings.warn('PyDecoratorMixin is deprecated',
+                          RemovedInSphinx50Warning, stacklevel=2)
 
         ret = super().handle_signature(sig, signode)  # type: ignore
         signode.insert(0, addnodes.desc_addname('@', '@'))

@@ -58,7 +58,7 @@ def getargspec(func: Callable) -> Any:
     """Like inspect.getfullargspec but supports bound methods, and wrapped
     methods."""
     warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
-                  RemovedInSphinx50Warning)
+                  RemovedInSphinx50Warning, stacklevel=2)
     # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
     # succeeds with a bogus signature. We want a TypeError uniformly, to
     # match historical behavior.
@@ -329,7 +329,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
 def safe_getmembers(object: Any, predicate: Callable[[str], bool] = None,
                     attr_getter: Callable = safe_getattr) -> List[Tuple[str, Any]]:
     """A version of inspect.getmembers() that uses safe_getattr()."""
-    warnings.warn('safe_getmembers() is deprecated', RemovedInSphinx40Warning)
+    warnings.warn('safe_getmembers() is deprecated', RemovedInSphinx40Warning, stacklevel=2)
 
     results = []  # type: List[Tuple[str, Any]]
     for key in dir(object):
@@ -555,7 +555,7 @@ class Signature:
     def __init__(self, subject: Callable, bound_method: bool = False,
                  has_retval: bool = True) -> None:
         warnings.warn('sphinx.util.inspect.Signature() is deprecated',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
         # check subject is not a built-in class (ex. int, str)
         if (isinstance(subject, type) and

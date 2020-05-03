@@ -96,7 +96,7 @@ class LaTeXWriter(writers.Writer):
             visitor = self.builder.create_translator(self.document, self.builder, self.theme)
         except TypeError:
             warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning)
+                          RemovedInSphinx50Warning, stacklevel=2)
             visitor = self.builder.create_translator(self.document, self.builder)
 
         self.document.walkabout(visitor)
@@ -292,7 +292,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         if theme is None:
             warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning)
+                          RemovedInSphinx50Warning, stacklevel=2)
 
         # flags
         self.in_title = 0
@@ -2072,7 +2072,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def babel_defmacro(self, name: str, definition: str) -> str:
         warnings.warn('babel_defmacro() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
         if self.elements['babel']:
             prefix = '\\addto\\extras%s{' % self.babel.get_language()
@@ -2085,7 +2085,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def generate_numfig_format(self, builder: "LaTeXBuilder") -> str:
         warnings.warn('generate_numfig_format() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         ret = []  # type: List[str]
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:

@@ -203,7 +203,7 @@ class WordCollector(nodes.NodeVisitor):
     def is_meta_keywords(self, node: addnodes.meta, nodetype: Any = None) -> bool:
         if nodetype is not None:
             warnings.warn('"nodetype" argument for WordCollector.is_meta_keywords() '
-                          'is deprecated.', RemovedInSphinx40Warning)
+                          'is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
 
         if isinstance(node, addnodes.meta) and node.get('name') == 'keywords':
             meta_lang = node.get('lang')

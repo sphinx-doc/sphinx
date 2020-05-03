@@ -292,7 +292,7 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
         document.note_explicit_target(term)
     else:
         warnings.warn('make_glossary_term() expects document is passed as an argument.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         gloss_entries = env.temp_data.setdefault('gloss_entries', set())
         node_id = nodes.make_id('term-' + termtext)
         if node_id == 'term':
@@ -660,7 +660,7 @@ class StandardDomain(Domain):
 
     def add_object(self, objtype: str, name: str, docname: str, labelid: str) -> None:
         warnings.warn('StandardDomain.add_object() is deprecated.',
-                      RemovedInSphinx50Warning)
+                      RemovedInSphinx50Warning, stacklevel=2)
         self.objects[objtype, name] = (docname, labelid)
 
     @property
@@ -786,7 +786,7 @@ class StandardDomain(Domain):
             resolver = self._resolve_option_xref
         elif typ == 'citation':
             warnings.warn('pending_xref(domain=std, type=citation) is deprecated: %r' % node,
-                          RemovedInSphinx40Warning)
+                          RemovedInSphinx40Warning, stacklevel=2)
             domain = env.get_domain('citation')
             return domain.resolve_xref(env, fromdocname, builder, typ, target, node, contnode)
         elif typ == 'term':
@@ -1082,15 +1082,15 @@ class StandardDomain(Domain):
 
     def note_citations(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
         warnings.warn('StandardDomain.note_citations() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
     def note_citation_refs(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
         warnings.warn('StandardDomain.note_citation_refs() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
     def note_labels(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
         warnings.warn('StandardDomain.note_labels() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

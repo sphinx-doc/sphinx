@@ -86,7 +86,7 @@ def ensuredir(path: str) -> None:
 def walk(top: str, topdown: bool = True, followlinks: bool = False) -> Iterator[Tuple[str, List[str], List[str]]]:  # NOQA
     warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
                   'Please use os.walk() instead.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return os.walk(top, topdown=topdown, followlinks=followlinks)
 
 
@@ -178,7 +178,7 @@ def abspath(pathdir: str) -> str:
 def getcwd() -> str:
     warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
                   'Please use os.getcwd() instead.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return os.getcwd()
 
 

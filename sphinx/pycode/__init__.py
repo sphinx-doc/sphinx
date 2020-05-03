@@ -133,7 +133,7 @@ class ModuleAnalyzer:
         pos = source.tell()
         if not decoded:
             warnings.warn('decode option for ModuleAnalyzer is deprecated.',
-                          RemovedInSphinx40Warning)
+                          RemovedInSphinx40Warning, stacklevel=2)
             self._encoding, _ = tokenize.detect_encoding(source.readline)
             source.seek(pos)
             self.code = source.read().decode(self._encoding)
@@ -185,5 +185,5 @@ class ModuleAnalyzer:
     @property
     def encoding(self) -> str:
         warnings.warn('ModuleAnalyzer.encoding is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         return self._encoding
