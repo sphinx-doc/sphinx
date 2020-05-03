@@ -358,7 +358,7 @@ def test_autosummary_imported_members(app, status, warning):
 def test_generate_autosummary_docs_property(app):
     with patch('sphinx.ext.autosummary.generate.find_autosummary_in_files') as mock:
         mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', None, False)]
-        generate_autosummary_docs([], output_dir=app.srcdir, builder=app.builder, app=app)
+        generate_autosummary_docs([], output_dir=app.srcdir, app=app)
 
     content = (app.srcdir / 'target.methods.Base.prop.rst').read_text()
     assert content == ("target.methods.Base.prop\n"
