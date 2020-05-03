@@ -751,7 +751,7 @@ class Documenter:
             # be cached anyway)
             self.analyzer.find_attr_docs()
         except PycodeError as err:
-            logger.debug('[autodoc] module analyzer failed:', excinfo=True)
+            logger.debug('[autodoc] module analyzer failed:', exc_info=True)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
             # at least add the module.__file__ as a dependency
