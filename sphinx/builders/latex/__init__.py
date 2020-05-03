@@ -363,7 +363,7 @@ class LaTeXBuilder(Builder):
 
     def apply_transforms(self, doctree: nodes.document) -> None:
         warnings.warn('LaTeXBuilder.apply_transforms() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
     def finish(self) -> None:
         self.copy_image_files()

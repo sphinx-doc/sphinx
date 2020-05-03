@@ -187,7 +187,7 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
 def convert_python_source(source: str, rex: Pattern = re.compile(r"[uU]('.*?')")) -> str:
     # remove Unicode literal prefixes
     warnings.warn('convert_python_source() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return rex.sub('\\1', source)
 
 

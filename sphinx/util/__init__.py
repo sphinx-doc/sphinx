@@ -110,7 +110,7 @@ def get_matching_docs(dirname: str, suffixes: List[str],
     Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
     warnings.warn('get_matching_docs() is now deprecated. Use get_matching_files() instead.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     suffixpatterns = ['*' + s for s in suffixes]
     for filename in get_matching_files(dirname, exclude_matchers):
         for suffixpattern in suffixpatterns:
@@ -315,7 +315,7 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 def detect_encoding(readline: Callable[[], bytes]) -> str:
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
     warnings.warn('sphinx.util.detect_encoding() is deprecated',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
 
     def read_or_stop() -> bytes:
         try:

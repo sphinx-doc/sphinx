@@ -882,7 +882,7 @@ class StandaloneHTMLBuilder(Builder):
                     'The %s.feed() method signature is deprecated. Update to '
                     '%s.feed(docname, filename, title, doctree).' % (
                         indexer_name, indexer_name),
-                    RemovedInSphinx40Warning)
+                    RemovedInSphinx40Warning, stacklevel=2)
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if 'includehidden' not in kwargs:

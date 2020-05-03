@@ -280,7 +280,7 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
 
 def find_source_node(node: Element) -> str:
     warnings.warn('find_source_node() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return get_node_source(node)
 
 

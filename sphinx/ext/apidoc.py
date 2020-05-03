@@ -54,7 +54,7 @@ template_dir = path.join(package_dir, 'templates', 'apidoc')
 def makename(package: str, module: str) -> str:
     """Join package and module with a dot."""
     warnings.warn('makename() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     # Both package and module can be None/empty.
     if package:
         name = package
@@ -112,7 +112,7 @@ def write_file(name: str, text: str, opts: Any) -> None:
 def format_heading(level: int, text: str, escape: bool = True) -> str:
     """Create a heading of <level> [1, 2 or 3 supported]."""
     warnings.warn('format_warning() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     if escape:
         text = rst.escape(text)
     underlining = ['=', '-', '~', ][level - 1] * len(text)
@@ -122,7 +122,7 @@ def format_heading(level: int, text: str, escape: bool = True) -> str:
 def format_directive(module: str, package: str = None) -> str:
     """Create the automodule directive and add the options."""
     warnings.warn('format_directive() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     directive = '.. automodule:: %s\n' % module_join(package, module)
     for option in OPTIONS:
         directive += '    :%s:\n' % option
@@ -209,7 +209,7 @@ def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules'
 def shall_skip(module: str, opts: Any, excludes: List[str] = []) -> bool:
     """Check if we want to skip this module."""
     warnings.warn('shall_skip() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     # skip if the file doesn't exist and not using implicit namespaces
     if not opts.implicit_namespaces and not path.exists(module):
         return True
