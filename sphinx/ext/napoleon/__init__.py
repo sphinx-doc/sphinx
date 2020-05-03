@@ -168,10 +168,9 @@ class Config:
         **If False**::
 
             .. attribute:: attr1
+               :type: int
 
                Description of `attr1`
-
-               :type: int
 
     napoleon_use_param : :obj:`bool` (Defaults to True)
         True to use a ``:param:`` role for each function parameter. False to

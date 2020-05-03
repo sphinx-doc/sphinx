@@ -122,7 +122,7 @@ class AutosummaryRenderer:
                           RemovedInSphinx50Warning, stacklevel=2)
         if template_dir:
             warnings.warn('template_dir argument for AutosummaryRenderer is deprecated.',
-                          RemovedInSphinx50Warning)
+                          RemovedInSphinx50Warning, stacklevel=2)
 
         system_templates_path = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
         loader = SphinxTemplateLoader(app.srcdir, app.config.templates_path,
@@ -274,11 +274,11 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                               overwrite: bool = True) -> None:
     if builder:
         warnings.warn('builder argument for generate_autosummary_docs() is deprecated.',
-                      RemovedInSphinx50Warning)
+                      RemovedInSphinx50Warning, stacklevel=2)
 
     if template_dir:
         warnings.warn('template_dir argument for generate_autosummary_docs() is deprecated.',
-                      RemovedInSphinx50Warning)
+                      RemovedInSphinx50Warning, stacklevel=2)
 
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
@@ -371,7 +371,7 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
     """
     if module:
         warnings.warn('module argument for find_autosummary_in_docstring() is deprecated.',
-                      RemovedInSphinx50Warning)
+                      RemovedInSphinx50Warning, stacklevel=2)
 
     try:
         real_name, obj, parent, modname = import_by_name(name)

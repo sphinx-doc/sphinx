@@ -1227,6 +1227,9 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # load default math renderer
     app.setup_extension('sphinx.ext.mathjax')
 
+    # load transforms for HTML builder
+    app.setup_extension('sphinx.builders.html.transforms')
+
     return {
         'version': 'builtin',
         'parallel_read_safe': True,

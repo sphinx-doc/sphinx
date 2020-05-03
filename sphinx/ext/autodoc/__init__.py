@@ -395,9 +395,9 @@ class Documenter:
                 except TypeError:
                     # retry without arguments for old documenters
                     args = self.format_args()
-            except Exception as err:
-                logger.warning(__('error while formatting arguments for %s: %s') %
-                               (self.fullname, err), type='autodoc')
+            except Exception:
+                logger.warning(__('error while formatting arguments for %s:') %
+                               self.fullname, type='autodoc', exc_info=True)
                 args = None
 
         retann = self.retann
@@ -428,8 +428,12 @@ class Documenter:
             # etc. don't support a prepended module name
             self.add_line('   :module: %s' % self.modname, sourcename)
 
-    def get_doc(self, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""
+        if ignore is not None:
+            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx50Warning, stacklevel=2)
         docstring = getdoc(self.object, self.get_attr,
                            self.env.config.autodoc_inherit_docstrings,
                            self.parent, self.object_name)
@@ -741,8 +745,8 @@ class Documenter:
             # parse right now, to get PycodeErrors on parsing (results will
             # be cached anyway)
             self.analyzer.find_attr_docs()
-        except PycodeError as err:
-            logger.debug('[autodoc] module analyzer failed: %s', err)
+        except PycodeError:
+            logger.debug('[autodoc] module analyzer failed:', exc_info=True)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
             # at least add the module.__file__ as a dependency
@@ -844,7 +848,7 @@ class ModuleDocumenter(Documenter):
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
 
-    def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, object]]]:
+    def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
         if want_all:
             if (self.options.ignore_module_all or not
                     hasattr(self.object, '__all__')):
@@ -970,7 +974,7 @@ class DocstringSignatureMixin:
             break
         return result
 
-    def get_doc(self, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> List[List[str]]:
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
             return lines
@@ -1226,7 +1230,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
                               sourcename)
 
-    def get_doc(self, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> List[List[str]]:
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
             return lines
@@ -1719,8 +1723,12 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
                 self.env.note_reread()
                 return False
 
-    def get_doc(self, ignore: int = 1) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""
+        if ignore is not None:
+            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx50Warning, stacklevel=2)
         name = self.objpath[-1]
         __slots__ = safe_getattr(self.parent, '__slots__', [])
         if isinstance(__slots__, dict) and isinstance(__slots__.get(name), str):
@@ -1732,7 +1740,7 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
 
 def get_documenters(app: Sphinx) -> Dict[str, Type[Documenter]]:
     """Returns registered Documenter classes"""
-    warnings.warn("get_documenters() is deprecated.", RemovedInSphinx50Warning)
+    warnings.warn("get_documenters() is deprecated.", RemovedInSphinx50Warning, stacklevel=2)
     return app.registry.documenters
 
 

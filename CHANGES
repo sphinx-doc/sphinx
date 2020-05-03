@@ -47,6 +47,7 @@ Deprecated
   been changed to Sphinx object
 * ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` takes an object type
   as an argument
+* The ``ignore`` argument of ``sphinx.ext.autodoc.Documenter.get_doc()``
 * The ``template_dir`` argument of ``sphinx.ext.autosummary.generate.
   AutosummaryRenderer``
 * The ``module`` argument of ``sphinx.ext.autosummary.generate.
@@ -55,6 +56,7 @@ Deprecated
   generate_autosummary_docs()``
 * The ``template_dir`` argument of ``sphinx.ext.autosummary.generate.
   generate_autosummary_docs()``
+* The ``ignore`` argument of ``sphinx.util.docstring.prepare_docstring()``
 * ``sphinx.ext.autosummary.generate.AutosummaryRenderer.exists()``
 
 Features added
@@ -80,6 +82,7 @@ Features added
   to generate stub files recursively
 * #4030: autosummary: Add :confval:`autosummary_context` to add template
   variables for custom templates
+* #7530: html: Support nested <kbd> elements
 * #7481: html theme: Add right margin to footnote/citation labels
 * #7482: html theme: CSS spacing for code blocks with captions and line numbers
 * #7443: html theme: Add new options :confval:`globaltoc_collapse` and
@@ -98,6 +101,7 @@ Features added
 * C++, parse trailing return types.
 * #7143: py domain: Add ``:final:`` option to :rst:dir:`py:class:`,
   :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
+* #7582: napoleon: a type for attribute are represented like type annotation
 
 Bugs fixed
 ----------
@@ -108,6 +112,9 @@ Bugs fixed
 * #7469: autodoc: The change of autodoc-process-docstring for variables is
   cached unexpectedly
 * #7559: autodoc: misdetects a sync function is async
+* #6857: autodoc: failed to detect a classmethod on Enum class
+* #7562: autodoc: a typehint contains spaces is wrongly rendered under
+  autodoc_typehints='description' mode
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
 * #2785: html: Bad alignment of equation links

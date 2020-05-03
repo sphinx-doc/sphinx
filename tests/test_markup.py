@@ -16,6 +16,7 @@ from docutils.parsers.rst import Parser as RstParser
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
+from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.roles import XRefRole
 from sphinx.testing.util import Struct, assert_node
@@ -94,6 +95,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 def verify_re_html(app, parse):
     def verify(rst, html_expected):
         document = parse(rst)
+        KeyboardTransform(document).apply()
         html_translator = ForgivingHTMLTranslator(document, app.builder)
         document.walkabout(html_translator)
         html_translated = ''.join(html_translator.fragment).strip()
@@ -236,6 +238,32 @@ def get_verifier(verify, verify_re):
         ':kbd:`space`',
         '<p><kbd class="kbd docutils literal notranslate">space</kbd></p>',
         '\\sphinxkeyboard{\\sphinxupquote{space}}',
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`Control+X`',
+        ('<p><kbd class="kbd docutils literal notranslate">'
+         '<kbd class="kbd docutils literal notranslate">Control</kbd>'
+         '+'
+         '<kbd class="kbd docutils literal notranslate">X</kbd>'
+         '</kbd></p>'),
+        '\\sphinxkeyboard{\\sphinxupquote{Control+X}}',
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`M-x  M-s`',
+        ('<p><kbd class="kbd docutils literal notranslate">'
+         '<kbd class="kbd docutils literal notranslate">M</kbd>'
+         '-'
+         '<kbd class="kbd docutils literal notranslate">x</kbd>'
+         '  '
+         '<kbd class="kbd docutils literal notranslate">M</kbd>'
+         '-'
+         '<kbd class="kbd docutils literal notranslate">s</kbd>'
+         '</kbd></p>'),
+        '\\sphinxkeyboard{\\sphinxupquote{M\\sphinxhyphen{}x  M\\sphinxhyphen{}s}}',
     ),
     (
         # non-interpolation of dashes in option role

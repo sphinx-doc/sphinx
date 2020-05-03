@@ -58,7 +58,7 @@ def getargspec(func: Callable) -> Any:
     """Like inspect.getfullargspec but supports bound methods, and wrapped
     methods."""
     warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
-                  RemovedInSphinx50Warning)
+                  RemovedInSphinx50Warning, stacklevel=2)
     # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
     # succeeds with a bogus signature. We want a TypeError uniformly, to
     # match historical behavior.

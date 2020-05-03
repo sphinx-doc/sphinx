@@ -645,7 +645,7 @@ class StandardDomain(Domain):
 
     def add_object(self, objtype: str, name: str, docname: str, labelid: str) -> None:
         warnings.warn('StandardDomain.add_object() is deprecated.',
-                      RemovedInSphinx50Warning)
+                      RemovedInSphinx50Warning, stacklevel=2)
         self.objects[objtype, name] = (docname, labelid)
 
     @property

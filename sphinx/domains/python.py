@@ -775,10 +775,11 @@ class PyDecoratorMixin:
             if cls.__name__ != 'DirectiveAdapter':
                 warnings.warn('PyDecoratorMixin is deprecated. '
                               'Please check the implementation of %s' % cls,
-                              RemovedInSphinx50Warning)
+                              RemovedInSphinx50Warning, stacklevel=2)
                 break
         else:
-            warnings.warn('PyDecoratorMixin is deprecated', RemovedInSphinx50Warning)
+            warnings.warn('PyDecoratorMixin is deprecated',
+                          RemovedInSphinx50Warning, stacklevel=2)
 
         ret = super().handle_signature(sig, signode)  # type: ignore
         signode.insert(0, addnodes.desc_addname('@', '@'))
