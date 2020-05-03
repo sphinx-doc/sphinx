@@ -396,7 +396,7 @@ class Documenter:
                 except TypeError:
                     # retry without arguments for old documenters
                     args = self.format_args()
-            except Exception as err:
+            except Exception:
                 logger.warning(__('error while formatting arguments for %s:') %
                                self.fullname, type='autodoc', exc_info=True)
                 args = None
@@ -750,7 +750,7 @@ class Documenter:
             # parse right now, to get PycodeErrors on parsing (results will
             # be cached anyway)
             self.analyzer.find_attr_docs()
-        except PycodeError as err:
+        except PycodeError:
             logger.debug('[autodoc] module analyzer failed:', exc_info=True)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
