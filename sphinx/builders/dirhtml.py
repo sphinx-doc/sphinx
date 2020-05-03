@@ -13,6 +13,7 @@ from typing import Any, Dict
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
 from sphinx.util.osutil import SEP, os_path
 
@@ -43,6 +44,14 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
                                     'index' + self.out_suffix)
 
         return outfilename
+
+
+# for compatibility
+deprecated_alias('sphinx.builders.html',
+                 {
+                     'DirectoryHTMLBuilder': DirectoryHTMLBuilder,
+                 },
+                 RemovedInSphinx40Warning)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

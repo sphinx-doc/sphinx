@@ -1162,7 +1162,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
-# for compatibility
+# for compatibility; RemovedInSphinx40Warning
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
 import sphinxcontrib.serializinghtml  # NOQA
