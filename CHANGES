@@ -10,6 +10,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #4826: py domain: The structure of python objects is changed.  A boolean value
+  is added to indicate that the python object is canonical one
+
 Deprecated
 ----------
 
@@ -22,6 +25,9 @@ Deprecated
 
 Features added
 --------------
+
+* #4826: py domain: Add ``:canonical:`` option to python directives to describe
+  the location where the object is defined
 
 Bugs fixed
 ----------

@@ -65,7 +65,8 @@ pairindextypes = {
 
 ObjectEntry = NamedTuple('ObjectEntry', [('docname', str),
                                          ('node_id', str),
-                                         ('objtype', str)])
+                                         ('objtype', str),
+                                         ('canonical', bool)])
 ModuleEntry = NamedTuple('ModuleEntry', [('docname', str),
                                          ('node_id', str),
                                          ('synopsis', str),
@@ -312,6 +313,7 @@ class PyObject(ObjectDescription):
     option_spec = {
         'noindex': directives.flag,
         'module': directives.unchanged,
+        'canonical': directives.unchanged,
         'annotation': directives.unchanged,
     }
 
@@ -452,6 +454,11 @@ class PyObject(ObjectDescription):
 
         domain = cast(PythonDomain, self.env.get_domain('py'))
         domain.note_object(fullname, self.objtype, node_id, location=signode)
+
+        canonical_name = self.options.get('canonical')
+        if canonical_name:
+            domain.note_object(canonical_name, self.objtype, node_id, canonical=True,
+                               location=signode)
 
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
@@ -1037,7 +1044,8 @@ class PythonDomain(Domain):
     def objects(self) -> Dict[str, ObjectEntry]:
         return self.data.setdefault('objects', {})  # fullname -> ObjectEntry
 
-    def note_object(self, name: str, objtype: str, node_id: str, location: Any = None) -> None:
+    def note_object(self, name: str, objtype: str, node_id: str,
+                    canonical: bool = False, location: Any = None) -> None:
         """Note a python object for cross reference.
 
         .. versionadded:: 2.1
@@ -1047,7 +1055,7 @@ class PythonDomain(Domain):
             logger.warning(__('duplicate object description of %s, '
                               'other instance in %s, use :noindex: for one of them'),
                            name, other.docname, location=location)
-        self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype)
+        self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, canonical)
 
     @property
     def modules(self) -> Dict[str, ModuleEntry]:
@@ -1200,7 +1208,11 @@ class PythonDomain(Domain):
             yield (modname, modname, 'module', mod.docname, mod.node_id, 0)
         for refname, obj in self.objects.items():
             if obj.objtype != 'module':  # modules are already handled
-                yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
+                if obj.canonical:
+                    # canonical names are not full-text searchable.
+                    yield (refname, refname, obj.objtype, obj.docname, obj.node_id, -1)
+                else:
+                    yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
 
     def get_full_qualified_name(self, node: Element) -> str:
         modname = node.get('py:module')
@@ -1246,7 +1258,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 2,
+        'env_version': 3,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
