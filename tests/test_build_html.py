@@ -10,7 +10,6 @@
 
 import os
 import re
-from hashlib import md5
 from itertools import cycle, chain
 
 import pytest
@@ -19,7 +18,7 @@ from html5lib import HTMLParser
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import docutils
+from sphinx.util import docutils, fips_safe_md5
 from sphinx.util.inventory import InventoryFile
 
 
@@ -450,9 +449,9 @@ def test_html_download(app):
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5(b'dummy.dat').hexdigest()
+    digest = fips_safe_md5(b'dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
-    digest_another = md5(b'another/dummy.dat').hexdigest()
+    digest_another = fips_safe_md5(b'another/dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').read_text()

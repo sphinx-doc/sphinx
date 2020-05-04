@@ -170,6 +170,21 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
+def fips_safe_md5(data=b'', **kwargs):
+    """Wrapper around hashlib.md5
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError, which happens when OpenSSL FIPS mode is enabled:
+    ValueError: error:060800A3:digital envelope routines:EVP_DigestInit_ex:disabled for fips
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return md5(data, **kwargs)
+    except ValueError:
+        return md5(data, **kwargs, usedforsecurity=False)
+
+
 class DownloadFiles(dict):
     """A special dictionary for download files.
 
@@ -179,7 +194,7 @@ class DownloadFiles(dict):
 
     def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
-            digest = md5(filename.encode()).hexdigest()
+            digest = fips_safe_md5(filename.encode()).hexdigest()
             dest = '%s/%s' % (digest, os.path.basename(filename))
             self[filename] = (set(), dest)
 

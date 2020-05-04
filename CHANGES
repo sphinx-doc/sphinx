@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #7567: autodoc: parametrized types are shown twice for generic types
+* #7611: md5 fails when OpenSSL FIPS is enabled
 
 Testing
 --------
