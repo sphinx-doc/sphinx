@@ -420,7 +420,8 @@ def test_pydata_signature(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "version"],
-                                                    [desc_annotation, ": int"],
+                                                    [desc_annotation, (": ",
+                                                                       [pending_xref, "int"])],
                                                     [desc_annotation, " = 1"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="data",
@@ -690,7 +691,8 @@ def test_pyattribute(app):
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'attr (Class attribute)', 'Class.attr', '', None)])
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "attr"],
-                                                     [desc_annotation, ": str"],
+                                                     [desc_annotation, (": ",
+                                                                        [pending_xref, "str"])],
                                                      [desc_annotation, " = ''"])],
                                    [desc_content, ()]))
     assert 'Class.attr' in domain.objects
