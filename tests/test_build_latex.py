@@ -140,7 +140,7 @@ def test_writer(app, status, warning):
     assert 'Footnotes' not in result
 
 
-@pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
+@pytest.mark.sphinx('latex', testroot='warnings', freshenv=True, verbosity=0)
 def test_latex_warnings(app, status, warning):
     app.builder.build_all()
 

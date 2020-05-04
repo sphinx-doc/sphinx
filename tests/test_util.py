@@ -134,6 +134,7 @@ def test_parselinenos():
 
 
 def test_progress_message(app, status, warning):
+    app.verbosity = 0
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
 

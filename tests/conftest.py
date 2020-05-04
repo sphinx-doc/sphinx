@@ -27,6 +27,11 @@ def rootdir():
     return path(__file__).parent.abspath() / 'roots'
 
 
+@pytest.fixture
+def app_default_params():
+    return {'verbosity': 1}
+
+
 def pytest_report_header(config):
     header = ("libraries: Sphinx-%s, docutils-%s" %
               (sphinx.__display_version__, docutils.__version__))

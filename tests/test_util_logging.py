@@ -387,10 +387,9 @@ def test_prefixed_warnings(app, status, warning):
 
 
 def test_exception_info(app, status, warning):
+    app.verbosity = 0
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
-
-    assert app.verbosity == 0
 
     # verbosity==0, no exceptions
     logger.info('message1')

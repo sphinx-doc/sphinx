@@ -50,8 +50,14 @@ class SharedResult:
 
 
 @pytest.fixture
-def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
-               sphinx_test_tempdir: str, rootdir: str) -> Tuple[Dict, Dict]:
+def app_default_params() -> Dict:
+    return {}
+
+
+@pytest.fixture
+def app_params(request: Any, test_params: Dict, app_default_params: Dict,
+               shared_result: SharedResult, sphinx_test_tempdir: str, rootdir: str
+               ) -> Tuple[Dict, Dict]:
     """
     parameters that is specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -65,6 +71,7 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
         markers = request.node.get_marker("sphinx")
     pargs = {}
     kwargs = {}  # type: Dict[str, Any]
+    kwargs.update(app_default_params)
 
     if markers is not None:
         # to avoid stacking positional args
