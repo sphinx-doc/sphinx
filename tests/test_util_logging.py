@@ -384,3 +384,44 @@ def test_prefixed_warnings(app, status, warning):
     assert 'WARNING: Another PREFIX: message3' in warning.getvalue()
     assert 'WARNING: PREFIX: message4' in warning.getvalue()
     assert 'WARNING: message5' in warning.getvalue()
+
+
+def test_exception_info(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    assert app.verbosity == 0
+
+    # verbosity==0, no exceptions
+    logger.info('message1')
+    logger.warning('message2')
+    assert 'Traceback (most recent call last):' not in status.getvalue()
+    assert 'Traceback (most recent call last):' not in warning.getvalue()
+
+    # verbosity==0, exception raised
+    try:
+        raise
+    except Exception:
+        logger.info('message3')
+        logger.warning('message4')
+    assert 'Traceback (most recent call last):' not in status.getvalue()
+    assert 'Traceback (most recent call last):' not in warning.getvalue()
+
+    app.verbosity = 1
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    # verbosity==1, no exceptions
+    logger.info('message5')
+    logger.warning('message6')
+    assert 'Traceback (most recent call last):' not in status.getvalue()
+    assert 'Traceback (most recent call last):' not in warning.getvalue()
+
+    # verbosity==1, exception raised
+    try:
+        raise
+    except Exception:
+        logger.info('message7')
+        logger.warning('message8')
+    assert 'Traceback (most recent call last):' in status.getvalue()
+    assert 'Traceback (most recent call last):' in warning.getvalue()

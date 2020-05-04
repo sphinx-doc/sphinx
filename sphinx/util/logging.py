@@ -10,6 +10,7 @@
 
 import logging
 import logging.handlers
+import sys
 from collections import defaultdict
 from contextlib import contextmanager
 from typing import Any, Dict, Generator, IO, List, Tuple, Union
@@ -131,6 +132,11 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         self.log(VERBOSE, msg, *args, **kwargs)
 
     def process(self, msg: str, kwargs: Dict) -> Tuple[str, Dict]:  # type: ignore
+        if 'exc_info' not in kwargs:
+            exc_info = sys.exc_info()
+            if exc_info != (None, None, None):
+                kwargs['exc_info'] = True
+
         extra = kwargs.setdefault('extra', {})
         for keyword in self.KEYWORDS:
             if keyword in kwargs:
@@ -533,6 +539,19 @@ class ColorizeFormatter(logging.Formatter):
             return message
 
 
+class SphinxFormatter(ColorizeFormatter):
+    def __init__(self, app: "Sphinx") -> None:
+        self.verbosity = app.verbosity
+        super().__init__()
+
+    def formatException(self, ei: Any) -> str:
+        """Show exception info only when verbose mode."""
+        if self.verbosity > 0:
+            return super().formatException(ei)
+        else:
+            return ''
+
+
 class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
     def __init__(self, stream: IO) -> None:
@@ -575,7 +594,7 @@ def setup(app: "Sphinx", status: IO, warning: IO) -> None:
     info_handler.addFilter(InfoFilter())
     info_handler.addFilter(InfoLogRecordTranslator(app))
     info_handler.setLevel(VERBOSITY_MAP[app.verbosity])
-    info_handler.setFormatter(ColorizeFormatter())
+    info_handler.setFormatter(SphinxFormatter(app))
 
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))  # type: ignore
     warning_handler.addFilter(WarningSuppressor(app))
@@ -583,7 +602,7 @@ def setup(app: "Sphinx", status: IO, warning: IO) -> None:
     warning_handler.addFilter(WarningIsErrorFilter(app))
     warning_handler.addFilter(OnceFilter())
     warning_handler.setLevel(logging.WARNING)
-    warning_handler.setFormatter(ColorizeFormatter())
+    warning_handler.setFormatter(SphinxFormatter(app))
 
     messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))  # type: ignore
     messagelog_handler.addFilter(InfoFilter())
