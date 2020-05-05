@@ -1045,18 +1045,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             # cannot introspect arguments of a C function or method
             return None
         try:
-            if (not inspect.isfunction(unwrapped) and
-                    not inspect.ismethod(unwrapped) and
-                    not inspect.isbuiltin(unwrapped) and
-                    not inspect.is_cython_function_or_method(unwrapped) and
-                    not inspect.isclass(unwrapped) and
-                    hasattr(unwrapped, '__call__')):
-                self.env.app.emit('autodoc-before-process-signature',
-                                  unwrapped.__call__, False)
-                sig = inspect.signature(unwrapped.__call__)
-            else:
-                self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
-                sig = inspect.signature(unwrapped)
+            self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
+            sig = inspect.signature(unwrapped)
             args = stringify_signature(sig, **kwargs)
         except TypeError:
             if (inspect.is_builtin_class_method(unwrapped, '__new__') and
