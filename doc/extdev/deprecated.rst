@@ -56,9 +56,55 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.utils.smartyquotes``
 
+   * - The first argument for
+       ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` has been changed
+       to Sphinx object
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` takes an object
+       type as an argument
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``ignore`` argument of ``sphinx.ext.autodoc.Documenter.get_doc()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``template_dir`` argument of
+       ``sphinx.ext.autosummary.generate.AutosummaryRenderer``
+     - 3.1
+     - 5.0
+     - N/A
+
    * - The ``module`` argument of
        ``sphinx.ext.autosummary.generate.find_autosummary_in_docstring()``
      - 3.0
+     - 5.0
+     - N/A
+
+   * - The ``builder`` argument of
+       ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``template_dir`` argument of
+       ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.generate.AutosummaryRenderer.exists()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``ignore`` argument of ``sphinx.util.docstring.prepare_docstring()``
+     - 3.1
      - 5.0
      - N/A
 

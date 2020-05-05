@@ -13,7 +13,6 @@ import doctest
 import re
 import sys
 import time
-import warnings
 from io import StringIO
 from os import path
 from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type
@@ -27,7 +26,6 @@ from packaging.version import Version
 
 import sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
@@ -42,12 +40,6 @@ logger = logging.getLogger(__name__)
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
-
-
-def doctest_encode(text: str, encoding: str) -> str:
-    warnings.warn('doctest_encode() is deprecated.',
-                  RemovedInSphinx40Warning)
-    return text
 
 
 def is_allowed_version(spec: str, version: str) -> bool:

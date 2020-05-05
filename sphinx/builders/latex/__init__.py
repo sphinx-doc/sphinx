@@ -9,7 +9,6 @@
 """
 
 import os
-import warnings
 from os import path
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
@@ -24,7 +23,6 @@ from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTING
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import Config, ENUM
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
@@ -259,7 +257,6 @@ class LaTeXBuilder(Builder):
             defaults=self.env.settings,
             components=(docwriter,),
             read_config_files=True).get_default_values()  # type: Any
-        patch_settings(docsettings)
 
         self.init_document_data()
         self.write_stylesheet()
@@ -314,6 +311,8 @@ class LaTeXBuilder(Builder):
         self.context['title'] = title
         self.context['author'] = author
         self.context['docclass'] = theme.docclass
+        self.context['papersize'] = theme.papersize
+        self.context['pointsize'] = theme.pointsize
         self.context['wrapperclass'] = theme.wrapperclass
 
     def assemble_doctree(self, indexfile: str, toctree_only: bool, appendices: List[str]) -> nodes.document:  # NOQA
@@ -358,10 +357,6 @@ class LaTeXBuilder(Builder):
                 pass
             pendingnode.replace_self(newnodes)
         return largetree
-
-    def apply_transforms(self, doctree: nodes.document) -> None:
-        warnings.warn('LaTeXBuilder.apply_transforms() is deprecated.',
-                      RemovedInSphinx40Warning)
 
     def finish(self) -> None:
         self.copy_image_files()
@@ -445,50 +440,20 @@ class LaTeXBuilder(Builder):
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
 
-def patch_settings(settings: Any) -> Any:
-    """Make settings object to show deprecation messages."""
-
-    class Values(type(settings)):  # type: ignore
-        @property
-        def author(self) -> str:
-            warnings.warn('settings.author is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._author
-
-        @property
-        def title(self) -> str:
-            warnings.warn('settings.title is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._title
-
-        @property
-        def contentsname(self) -> str:
-            warnings.warn('settings.contentsname is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._contentsname
-
-        @property
-        def docname(self) -> str:
-            warnings.warn('settings.docname is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._docname
-
-        @property
-        def docclass(self) -> str:
-            warnings.warn('settings.docclass is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._docclass
-
-    # dynamic subclassing
-    settings.__class__ = Values
-
-
 def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
             msg = __("Unknown configure key: latex_elements[%r], ignored.")
             logger.warning(msg % (key,))
             config.latex_elements.pop(key)
+
+
+def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
+    for key in list(config.latex_theme_options):
+        if key not in Theme.UPDATABLE_KEYS:
+            msg = __("Unknown theme option: latex_theme_options[%r], ignored.")
+            logger.warning(msg % (key,))
+            config.latex_theme_options.pop(key)
 
 
 def default_latex_engine(config: Config) -> str:
@@ -537,6 +502,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_builder(LaTeXBuilder)
     app.connect('config-inited', validate_config_values, priority=800)
+    app.connect('config-inited', validate_latex_theme_options, priority=800)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
@@ -553,6 +519,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_elements', {}, None)
     app.add_config_value('latex_additional_files', [], None)
     app.add_config_value('latex_theme', 'manual', None, [str])
+    app.add_config_value('latex_theme_options', {}, None)
     app.add_config_value('latex_theme_path', [], None, [list])
 
     app.add_config_value('latex_docclass', default_latex_docclass, None)

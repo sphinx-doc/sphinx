@@ -1,3 +1,6 @@
+from typing import Tuple, Union
+
+
 def incr(a: int, b: int = 1) -> int:
     return a + b
 
@@ -28,6 +31,10 @@ class Math:
               ):
         # type: (...) -> None
         return
+
+
+def tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]:
+    pass
 
 
 def complex_func(arg1, arg2, arg3=None, *args, **kwargs):

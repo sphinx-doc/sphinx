@@ -18,9 +18,7 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature
-from sphinx.deprecation import (
-    RemovedInSphinx40Warning, RemovedInSphinx50Warning, deprecated_alias
-)
+from sphinx.deprecation import RemovedInSphinx50Warning, deprecated_alias
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
@@ -265,39 +263,6 @@ class DefaultDomain(SphinxDirective):
         self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
 
-from sphinx.directives.code import (  # noqa
-    Highlight, CodeBlock, LiteralInclude
-)
-from sphinx.directives.other import (  # noqa
-    TocTree, Author, VersionChange, SeeAlso,
-    TabularColumns, Centered, Acks, HList, Only, Include, Class
-)
-from sphinx.directives.patches import (  # noqa
-    Figure, Meta
-)
-from sphinx.domains.index import IndexDirective  # noqa
-
-deprecated_alias('sphinx.directives',
-                 {
-                     'Highlight': Highlight,
-                     'CodeBlock': CodeBlock,
-                     'LiteralInclude': LiteralInclude,
-                     'TocTree': TocTree,
-                     'Author': Author,
-                     'Index': IndexDirective,
-                     'VersionChange': VersionChange,
-                     'SeeAlso': SeeAlso,
-                     'TabularColumns': TabularColumns,
-                     'Centered': Centered,
-                     'Acks': Acks,
-                     'HList': HList,
-                     'Only': Only,
-                     'Include': Include,
-                     'Class': Class,
-                     'Figure': Figure,
-                     'Meta': Meta,
-                 },
-                 RemovedInSphinx40Warning)
 
 deprecated_alias('sphinx.directives',
                  {

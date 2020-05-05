@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from typing import Any, Dict, Iterable, List, Tuple
 from typing import TYPE_CHECKING
 
@@ -17,7 +16,6 @@ from docutils.nodes import Element, Node, system_message
 from docutils.nodes import make_id
 
 from sphinx.addnodes import pending_xref
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
@@ -139,24 +137,6 @@ class MathDomain(Domain):
 
     def get_objects(self) -> List:
         return []
-
-    def add_equation(self, env: BuildEnvironment, docname: str, labelid: str) -> int:
-        warnings.warn('MathDomain.add_equation() is deprecated.',
-                      RemovedInSphinx40Warning)
-        if labelid in self.equations:
-            path = env.doc2path(self.equations[labelid][0])
-            msg = __('duplicate label of equation %s, other instance in %s') % (labelid, path)
-            raise UserWarning(msg)
-        else:
-            eqno = self.get_next_equation_number(docname)
-            self.equations[labelid] = (docname, eqno)
-            return eqno
-
-    def get_next_equation_number(self, docname: str) -> int:
-        warnings.warn('MathDomain.get_next_equation_number() is deprecated.',
-                      RemovedInSphinx40Warning)
-        targets = [eq for eq in self.equations.values() if eq[0] == docname]
-        return len(targets) + 1
 
     def has_equations(self) -> bool:
         return any(self.data['has_equations'].values())

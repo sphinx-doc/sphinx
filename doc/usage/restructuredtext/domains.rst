@@ -189,6 +189,14 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 2.1
 
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
+
 .. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
@@ -207,10 +215,27 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 2.4
 
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
+
 .. rst:directive:: .. py:exception:: name
 
    Describes an exception class.  The signature can, but need not include
    parentheses with constructor arguments.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: final
+      :type: no value
+
+      Indicate the class is a final class.
+
+      .. versionadded:: 3.1
 
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
@@ -235,6 +260,23 @@ The following directives are provided for module and class contents:
 
    The first way is the preferred one.
 
+   .. rubric:: options
+
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
+
+   .. rst:directive:option:: final
+      :type: no value
+
+      Indicate the class is a final class.
+
+      .. versionadded:: 3.1
+
 .. rst:directive:: .. py:attribute:: name
 
    Describes an object data attribute.  The description should include
@@ -252,6 +294,14 @@ The following directives are provided for module and class contents:
       :type: text
 
       .. versionadded:: 2.4
+
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
 
 .. rst:directive:: .. py:method:: name(parameters)
 
@@ -276,12 +326,27 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 2.1
 
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
+
    .. rst:directive:option:: classmethod
       :type: no value
 
       Indicate the method is a class method.
 
       .. versionadded:: 2.1
+
+   .. rst:directive:option:: final
+      :type: no value
+
+      Indicate the class is a final method.
+
+      .. versionadded:: 3.1
 
    .. rst:directive:option:: property
       :type: no value

@@ -1032,14 +1032,12 @@ def test_instance_attributes(app):
         '',
         '   .. py:attribute:: InstAttCls.ia1',
         '      :module: target',
-        '      :value: None',
         '',
         '      Doc comment for instance attribute InstAttCls.ia1',
         '',
         '',
         '   .. py:attribute:: InstAttCls.ia2',
         '      :module: target',
-        '      :value: None',
         '',
         '      Docstring for instance attribute InstAttCls.ia2.',
         ''
@@ -1066,7 +1064,6 @@ def test_instance_attributes(app):
         '',
         '   .. py:attribute:: InstAttCls.ia1',
         '      :module: target',
-        '      :value: None',
         '',
         '      Doc comment for instance attribute InstAttCls.ia1',
         ''
@@ -1115,8 +1112,7 @@ def test_slots(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app):
-    options = {"members": None,
-               "undoc-members": True}
+    options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enum.EnumCls', options)
     assert list(actual) == [
         '',
@@ -1124,6 +1120,13 @@ def test_enum_class(app):
         '   :module: target.enum',
         '',
         '   this is enum class',
+        '',
+        '',
+        '   .. py:method:: EnumCls.say_goodbye()',
+        '      :module: target.enum',
+        '      :classmethod:',
+        '',
+        '      a classmethod says good-bye to you.',
         '',
         '',
         '   .. py:method:: EnumCls.say_hello()',
@@ -1152,11 +1155,6 @@ def test_enum_class(app):
         '',
         '      doc for val3',
         '',
-        '',
-        '   .. py:attribute:: EnumCls.val4',
-        '      :module: target.enum',
-        '      :value: 34',
-        ''
     ]
 
     # checks for an attribute of EnumClass
@@ -1382,6 +1380,15 @@ def test_coroutine():
         '',
     ]
 
+    # force-synchronized wrapper
+    actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
+    assert list(actual) == [
+        '',
+        '.. py:function:: sync_func()',
+        '   :module: target.coroutine',
+        '',
+    ]
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_partialmethod(app):
@@ -1485,7 +1492,6 @@ def test_autodoc_typed_instance_variables(app):
         '   .. py:attribute:: Class.attr2',
         '      :module: target.typed_vars',
         '      :type: int',
-        '      :value: None',
         '',
         '',
         '   .. py:attribute:: Class.attr3',
@@ -1497,7 +1503,6 @@ def test_autodoc_typed_instance_variables(app):
         '   .. py:attribute:: Class.attr4',
         '      :module: target.typed_vars',
         '      :type: int',
-        '      :value: None',
         '',
         '      attr4',
         '',
@@ -1505,7 +1510,6 @@ def test_autodoc_typed_instance_variables(app):
         '   .. py:attribute:: Class.attr5',
         '      :module: target.typed_vars',
         '      :type: int',
-        '      :value: None',
         '',
         '      attr5',
         '',
@@ -1513,9 +1517,15 @@ def test_autodoc_typed_instance_variables(app):
         '   .. py:attribute:: Class.attr6',
         '      :module: target.typed_vars',
         '      :type: int',
-        '      :value: None',
         '',
         '      attr6',
+        '',
+        '',
+        '   .. py:attribute:: Class.descr4',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '      This is descr4',
         '',
         '',
         '.. py:data:: attr1',
@@ -1529,7 +1539,6 @@ def test_autodoc_typed_instance_variables(app):
         '.. py:data:: attr2',
         '   :module: target.typed_vars',
         '   :type: str',
-        '   :value: None',
         '',
         '   attr2',
         '',
@@ -1604,6 +1613,21 @@ def test_singledispatch():
     ]
 
 
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatch_autofunction():
+    options = {}
+    actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
+    assert list(actual) == [
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '   func(arg: int, kwarg=None)',
+        '   func(arg: str, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '',
+    ]
+
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='singledispatchmethod is available since python3.8')
 @pytest.mark.usefixtures('setup_test')
@@ -1630,6 +1654,23 @@ def test_singledispatchmethod():
         '',
     ]
 
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='singledispatchmethod is available since python3.8')
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatchmethod_automethod():
+    options = {}
+    actual = do_autodoc(app, 'method', 'target.singledispatchmethod.Foo.meth', options)
+    assert list(actual) == [
+        '',
+        '.. py:method:: Foo.meth(arg, kwarg=None)',
+        '   Foo.meth(arg: int, kwarg=None)',
+        '   Foo.meth(arg: str, kwarg=None)',
+        '   :module: target.singledispatchmethod',
+        '',
+        '   A method for general use.',
+        '',
+    ]
 
 @pytest.mark.usefixtures('setup_test')
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
@@ -1658,5 +1699,38 @@ def test_cython():
         '   :module: target.cython',
         '',
         '   Docstring.',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='typing.final is available since python3.8')
+@pytest.mark.usefixtures('setup_test')
+def test_final():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.final', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.final',
+        '',
+        '',
+        '.. py:class:: Class',
+        '   :module: target.final',
+        '   :final:',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Class.meth1()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Class.meth2()',
+        '      :module: target.final',
+        '',
+        '      docstring',
         '',
     ]

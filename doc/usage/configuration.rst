@@ -2117,6 +2117,13 @@ These options influence LaTeX output.
 
    .. versionadded:: 3.0
 
+.. confval:: latex_theme_options
+
+   A dictionary of options that influence the look and feel of the selected
+   theme.
+
+   .. versionadded:: 3.1
+
 .. confval:: latex_theme_path
 
    A list of paths that contain custom LaTeX themes as subdirectories.  Relative

@@ -1,3 +1,7 @@
+import asyncio
+from functools import wraps
+
+
 class AsyncClass:
     async def do_coroutine(self):
         """A documented coroutine function"""
@@ -16,3 +20,14 @@ class AsyncClass:
 
 async def _other_coro_func():
     return "run"
+
+
+def myawait(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        awaitable = f(*args, **kwargs)
+        return asyncio.run(awaitable)
+    return wrapper
+
+
+sync_func = myawait(_other_coro_func)

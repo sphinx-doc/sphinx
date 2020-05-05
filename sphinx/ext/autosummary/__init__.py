@@ -66,13 +66,13 @@ from typing import cast
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import Inliner, RSTStateMachine, Struct, state_classes
+from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import Documenter
@@ -224,8 +224,10 @@ class Autosummary(SphinxDirective):
     final_argument_whitespace = False
     has_content = True
     option_spec = {
+        'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
+        'recursive': directives.flag,
         'template': directives.unchanged,
     }
 
@@ -266,8 +268,13 @@ class Autosummary(SphinxDirective):
                 tocnode['entries'] = [(None, docn) for docn in docnames]
                 tocnode['maxdepth'] = -1
                 tocnode['glob'] = None
+                tocnode['caption'] = self.options.get('caption')
 
                 nodes.append(autosummary_toc('', '', tocnode))
+
+        if 'toctree' not in self.options and 'caption' in self.options:
+            logger.warning(__('A captioned autosummary requires :toctree: option. ignored.'),
+                           location=nodes[-1])
 
         return nodes
 
@@ -396,29 +403,6 @@ class Autosummary(SphinxDirective):
             append_row(col1, col2)
 
         return [table_spec, table]
-
-    def warn(self, msg: str) -> None:
-        warnings.warn('Autosummary.warn() is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        logger.warning(msg)
-
-    @property
-    def genopt(self) -> Options:
-        warnings.warn('Autosummary.genopt is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self.bridge.genopt
-
-    @property
-    def warnings(self) -> List[Node]:
-        warnings.warn('Autosummary.warnings is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return []
-
-    @property
-    def result(self) -> StringList:
-        warnings.warn('Autosummary.result is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self.bridge.result
 
 
 def strip_arg_typehint(s: str) -> str:
@@ -640,33 +624,6 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
 
 # -- :autolink: (smart default role) -------------------------------------------
 
-def autolink_role(typ: str, rawtext: str, etext: str, lineno: int, inliner: Inliner,
-                  options: Dict = {}, content: List[str] = []
-                  ) -> Tuple[List[Node], List[system_message]]:
-    """Smart linking role.
-
-    Expands to ':obj:`text`' if `text` is an object that can be imported;
-    otherwise expands to '*text*'.
-    """
-    warnings.warn('autolink_role() is deprecated.', RemovedInSphinx40Warning)
-    env = inliner.document.settings.env
-    pyobj_role = env.get_domain('py').role('obj')
-    objects, msg = pyobj_role('obj', rawtext, etext, lineno, inliner, options, content)
-    if msg != []:
-        return objects, msg
-
-    assert len(objects) == 1
-    pending_xref = cast(addnodes.pending_xref, objects[0])
-    prefixes = get_import_prefixes_from_env(env)
-    try:
-        name, obj, parent, modname = import_by_name(pending_xref['reftarget'], prefixes)
-    except ImportError:
-        literal = cast(nodes.literal, pending_xref[0])
-        objects[0] = nodes.emphasis(rawtext, literal.astext(), classes=literal['classes'])
-
-    return objects, msg
-
-
 class AutoLink(SphinxRole):
     """Smart linking role.
 
@@ -741,8 +698,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     imported_members = app.config.autosummary_imported_members
     with mock(app.config.autosummary_mock_imports):
-        generate_autosummary_docs(genfiles, builder=app.builder,
-                                  suffix=suffix, base_path=app.srcdir,
+        generate_autosummary_docs(genfiles, suffix=suffix, base_path=app.srcdir,
                                   app=app, imported_members=imported_members,
                                   overwrite=app.config.autosummary_generate_overwrite)
 
@@ -765,6 +721,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', AutoLink())
     app.connect('builder-inited', process_generate_options)
+    app.add_config_value('autosummary_context', {}, True)
     app.add_config_value('autosummary_generate', [], True, [bool])
     app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',

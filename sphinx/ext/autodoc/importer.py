@@ -13,7 +13,7 @@ import traceback
 import warnings
 from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Tuple
 
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
 from sphinx.util.inspect import isclass, isenumclass, safe_getattr
 
@@ -128,7 +128,7 @@ class Attribute(NamedTuple):
 
 
 def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
-                       analyzer: Any = None) -> Dict[str, Attribute]:
+                       analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR
 
@@ -144,8 +144,9 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                 members[name] = Attribute(name, True, value)
 
         superclass = subject.__mro__[1]
-        for name, value in obj_dict.items():
+        for name in obj_dict:
             if name not in superclass.__dict__:
+                value = safe_getattr(subject, name)
                 members[name] = Attribute(name, True, value)
 
     # members in __slots__
@@ -179,18 +180,3 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                 members[name] = Attribute(name, True, INSTANCEATTR)
 
     return members
-
-
-from sphinx.ext.autodoc.mock import (  # NOQA
-    _MockModule, _MockObject, MockFinder, MockLoader, mock
-)
-
-deprecated_alias('sphinx.ext.autodoc.importer',
-                 {
-                     '_MockModule': _MockModule,
-                     '_MockObject': _MockObject,
-                     'MockFinder': MockFinder,
-                     'MockLoader': MockLoader,
-                     'mock': mock,
-                 },
-                 RemovedInSphinx40Warning)

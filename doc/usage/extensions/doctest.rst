@@ -132,8 +132,8 @@ a comma-separated list of group names.
 
           .. testcode::
 
-             1+1        # this will give no output!
-             print 2+2  # this will give output
+             1+1         # this will give no output!
+             print(2+2)  # this will give output
 
           .. testoutput::
 
@@ -161,7 +161,7 @@ a comma-separated list of group names.
 
       .. testcode::
 
-         print 'Output     text.'
+         print('Output     text.')
 
       .. testoutput::
          :hide:
@@ -328,7 +328,7 @@ The doctest extension uses the following configuration values:
 
       Some documentation text.
 
-      >>> print 1
+      >>> print(1)
       1
 
       Some more documentation text.
@@ -344,7 +344,7 @@ The doctest extension uses the following configuration values:
 
       .. doctest::
 
-         >>> print 1
+         >>> print(1)
          1
 
       Some more documentation text.

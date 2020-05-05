@@ -10,13 +10,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from collections import defaultdict
 from operator import attrgetter
 from typing import Any, Callable, Dict, List, NamedTuple
 from typing import TYPE_CHECKING
 
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -56,10 +54,7 @@ core_events = {
 class EventManager:
     """Event manager for Sphinx."""
 
-    def __init__(self, app: "Sphinx" = None) -> None:
-        if app is None:
-            warnings.warn('app argument is required for EventManager.',
-                          RemovedInSphinx40Warning)
+    def __init__(self, app: "Sphinx") -> None:
         self.app = app
         self.events = core_events.copy()
         self.listeners = defaultdict(list)  # type: Dict[str, List[EventListener]]
@@ -100,11 +95,7 @@ class EventManager:
         results = []
         listeners = sorted(self.listeners[name], key=attrgetter("priority"))
         for listener in listeners:
-            if self.app is None:
-                # for compatibility; RemovedInSphinx40Warning
-                results.append(listener.handler(*args))
-            else:
-                results.append(listener.handler(self.app, *args))
+            results.append(listener.handler(self.app, *args))
         return results
 
     def emit_firstresult(self, name: str, *args: Any) -> Any:

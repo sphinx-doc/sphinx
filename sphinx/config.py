@@ -11,7 +11,6 @@
 import re
 import traceback
 import types
-import warnings
 from collections import OrderedDict
 from os import path, getenv
 from typing import (
@@ -19,7 +18,6 @@ from typing import (
 )
 from typing import TYPE_CHECKING
 
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -73,10 +71,6 @@ class ENUM:
             return all(item in self.candidates for item in value)
         else:
             return value in self.candidates
-
-
-# RemovedInSphinx40Warning
-string_classes = [str]  # type: List
 
 
 class Config:
@@ -440,22 +434,6 @@ def check_confval_types(app: "Sphinx", config: Config) -> None:
                 logger.warning(msg.format(name=confval.name,
                                           current=type(confval.value),
                                           default=type(default)))
-
-
-def check_unicode(config: Config) -> None:
-    """check all string values for non-ASCII characters in bytestrings,
-    since that can result in UnicodeErrors all over the place
-    """
-    warnings.warn('sphinx.config.check_unicode() is deprecated.',
-                  RemovedInSphinx40Warning)
-
-    nonascii_re = re.compile(br'[\x80-\xff]')
-
-    for name, value in config._raw_config.items():
-        if isinstance(value, bytes) and nonascii_re.search(value):
-            logger.warning(__('the config value %r is set to a string with non-ASCII '
-                              'characters; this can lead to Unicode errors occurring. '
-                              'Please use Unicode strings, e.g. %r.'), name, 'Content')
 
 
 def check_primary_domain(app: "Sphinx", config: Config) -> None:

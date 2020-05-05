@@ -15,7 +15,7 @@ import re
 import warnings
 from collections import defaultdict
 from os import path
-from typing import Any, Dict, Iterable, Iterator, List, Tuple, Set, Union
+from typing import Any, Dict, Iterable, List, Tuple, Set
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
@@ -23,9 +23,7 @@ from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.deprecation import (
-    RemovedInSphinx40Warning, RemovedInSphinx50Warning, deprecated_alias
-)
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -95,7 +93,7 @@ class LaTeXWriter(writers.Writer):
             visitor = self.builder.create_translator(self.document, self.builder, self.theme)
         except TypeError:
             warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning)
+                          RemovedInSphinx50Warning, stacklevel=2)
             visitor = self.builder.create_translator(self.document, self.builder)
 
         self.document.walkabout(visitor)
@@ -291,7 +289,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         if theme is None:
             warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning)
+                          RemovedInSphinx50Warning, stacklevel=2)
 
         # flags
         self.in_title = 0
@@ -2039,104 +2037,6 @@ class LaTeXTranslator(SphinxTranslator):
     def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
-    # --------- METHODS FOR COMPATIBILITY --------------------------------------
-
-    def collect_footnotes(self, node: Element) -> Dict[str, List[Union["collected_footnote", bool]]]:  # NOQA
-        def footnotes_under(n: Element) -> Iterator[nodes.footnote]:
-            if isinstance(n, nodes.footnote):
-                yield n
-            else:
-                for c in n.children:
-                    if isinstance(c, addnodes.start_of_file):
-                        continue
-                    elif isinstance(c, nodes.Element):
-                        yield from footnotes_under(c)
-
-        warnings.warn('LaTeXWriter.collected_footnote() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-        fnotes = {}  # type: Dict[str, List[Union[collected_footnote, bool]]]
-        for fn in footnotes_under(node):
-            label = cast(nodes.label, fn[0])
-            num = label.astext().strip()
-            newnode = collected_footnote('', *fn.children, number=num)
-            fnotes[num] = [newnode, False]
-        return fnotes
-
-    @property
-    def no_contractions(self) -> int:
-        warnings.warn('LaTeXTranslator.no_contractions is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return 0
-
-    def babel_defmacro(self, name: str, definition: str) -> str:
-        warnings.warn('babel_defmacro() is deprecated.',
-                      RemovedInSphinx40Warning)
-
-        if self.elements['babel']:
-            prefix = '\\addto\\extras%s{' % self.babel.get_language()
-            suffix = '}'
-        else:  # babel is disabled (mainly for Japanese environment)
-            prefix = ''
-            suffix = ''
-
-        return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
-
-    def generate_numfig_format(self, builder: "LaTeXBuilder") -> str:
-        warnings.warn('generate_numfig_format() is deprecated.',
-                      RemovedInSphinx40Warning)
-        ret = []  # type: List[str]
-        figure = self.builder.config.numfig_format['figure'].split('%s', 1)
-        if len(figure) == 1:
-            ret.append('\\def\\fnum@figure{%s}\n' % self.escape(figure[0]).strip())
-        else:
-            definition = escape_abbr(self.escape(figure[0]))
-            ret.append(self.babel_renewcommand('\\figurename', definition))
-            ret.append('\\makeatletter\n')
-            ret.append('\\def\\fnum@figure{\\figurename\\thefigure{}%s}\n' %
-                       self.escape(figure[1]))
-            ret.append('\\makeatother\n')
-
-        table = self.builder.config.numfig_format['table'].split('%s', 1)
-        if len(table) == 1:
-            ret.append('\\def\\fnum@table{%s}\n' % self.escape(table[0]).strip())
-        else:
-            definition = escape_abbr(self.escape(table[0]))
-            ret.append(self.babel_renewcommand('\\tablename', definition))
-            ret.append('\\makeatletter\n')
-            ret.append('\\def\\fnum@table{\\tablename\\thetable{}%s}\n' %
-                       self.escape(table[1]))
-            ret.append('\\makeatother\n')
-
-        codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
-        if len(codeblock) == 1:
-            pass  # FIXME
-        else:
-            definition = self.escape(codeblock[0]).strip()
-            ret.append(self.babel_renewcommand('\\literalblockname', definition))
-            if codeblock[1]:
-                pass  # FIXME
-
-        return ''.join(ret)
-
-
-# Import old modules here for compatibility
-from sphinx.builders.latex import constants  # NOQA
-from sphinx.builders.latex.util import ExtBabel  # NOQA
-
-
-deprecated_alias('sphinx.writers.latex',
-                 {
-                     'ADDITIONAL_SETTINGS': constants.ADDITIONAL_SETTINGS,
-                     'DEFAULT_SETTINGS': constants.DEFAULT_SETTINGS,
-                     'LUALATEX_DEFAULT_FONTPKG': constants.LUALATEX_DEFAULT_FONTPKG,
-                     'PDFLATEX_DEFAULT_FONTPKG': constants.PDFLATEX_DEFAULT_FONTPKG,
-                     'SHORTHANDOFF': constants.SHORTHANDOFF,
-                     'XELATEX_DEFAULT_FONTPKG': constants.XELATEX_DEFAULT_FONTPKG,
-                     'XELATEX_GREEK_DEFAULT_FONTPKG': constants.XELATEX_GREEK_DEFAULT_FONTPKG,
-                     'ExtBabel': ExtBabel,
-                 },
-                 RemovedInSphinx40Warning)
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433

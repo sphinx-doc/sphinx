@@ -11,13 +11,11 @@
 import argparse
 import locale
 import os
-import re
 import sys
 import time
-import warnings
 from collections import OrderedDict
 from os import path
-from typing import Any, Callable, Dict, List, Pattern, Union
+from typing import Any, Callable, Dict, List, Union
 
 # try to import readline, unix specific enhancement
 try:
@@ -35,15 +33,10 @@ from docutils.utils import column_width
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util.console import (  # type: ignore
-    colorize, bold, red, turquoise, nocolor, color_terminal
-)
+from sphinx.util.console import colorize, bold, red, nocolor, color_terminal  # type: ignore
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
-
-TERM_ENCODING = getattr(sys.stdin, 'encoding', None)  # RemovedInSphinx40Warning
 
 EXTENSIONS = OrderedDict([
     ('autodoc', __('automatically insert docstrings from modules')),
@@ -135,30 +128,6 @@ def ok(x: str) -> str:
     return x
 
 
-def term_decode(text: Union[bytes, str]) -> str:
-    warnings.warn('term_decode() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-
-    if isinstance(text, str):
-        return text
-
-    # Use the known encoding, if possible
-    if TERM_ENCODING:
-        return text.decode(TERM_ENCODING)
-
-    # If ascii is safe, use it with no warning
-    if text.decode('ascii', 'replace').encode('ascii', 'replace') == text:
-        return text.decode('ascii')
-
-    print(turquoise(__('* Note: non-ASCII characters entered '
-                       'and terminal encoding unknown -- assuming '
-                       'UTF-8 or Latin-1.')))
-    try:
-        return text.decode()
-    except UnicodeDecodeError:
-        return text.decode('latin1')
-
-
 def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = nonempty) -> Union[str, bool]:  # NOQA
     while True:
         if default is not None:
@@ -182,13 +151,6 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
             continue
         break
     return x
-
-
-def convert_python_source(source: str, rex: Pattern = re.compile(r"[uU]('.*?')")) -> str:
-    # remove Unicode literal prefixes
-    warnings.warn('convert_python_source() is deprecated.',
-                  RemovedInSphinx40Warning)
-    return rex.sub('\\1', source)
 
 
 class QuickstartRenderer(SphinxRenderer):

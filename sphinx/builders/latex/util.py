@@ -8,6 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Optional
+
 from docutils.writers.latex2e import Babel
 
 
@@ -40,7 +42,7 @@ class ExtBabel(Babel):
             self.supported = False
             return 'english'  # fallback to english
 
-    def get_mainlanguage_options(self) -> str:
+    def get_mainlanguage_options(self) -> Optional[str]:
         """Return options for polyglossia's ``\\setmainlanguage``."""
         if self.use_polyglossia is False:
             return None

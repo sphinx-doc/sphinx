@@ -20,7 +20,6 @@ from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx import package_dir
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.search.jssplitter import splitter_code
 from sphinx.util import jsdump, rpartition
@@ -196,11 +195,7 @@ class WordCollector(nodes.NodeVisitor):
         self.found_title_words = []     # type: List[str]
         self.lang = lang
 
-    def is_meta_keywords(self, node: addnodes.meta, nodetype: Any = None) -> bool:
-        if nodetype is not None:
-            warnings.warn('"nodetype" argument for WordCollector.is_meta_keywords() '
-                          'is deprecated.', RemovedInSphinx40Warning)
-
+    def is_meta_keywords(self, node: addnodes.meta) -> bool:
         if isinstance(node, addnodes.meta) and node.get('name') == 'keywords':
             meta_lang = node.get('lang')
             if meta_lang is None:  # lang not specified

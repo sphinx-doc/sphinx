@@ -25,7 +25,7 @@ from sphinx import addnodes
 from sphinx.addnodes import pending_xref, desc_signature
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
@@ -65,7 +65,8 @@ pairindextypes = {
 
 ObjectEntry = NamedTuple('ObjectEntry', [('docname', str),
                                          ('node_id', str),
-                                         ('objtype', str)])
+                                         ('objtype', str),
+                                         ('canonical', bool)])
 ModuleEntry = NamedTuple('ModuleEntry', [('docname', str),
                                          ('node_id', str),
                                          ('synopsis', str),
@@ -312,6 +313,7 @@ class PyObject(ObjectDescription):
     option_spec = {
         'noindex': directives.flag,
         'module': directives.unchanged,
+        'canonical': directives.unchanged,
         'annotation': directives.unchanged,
     }
 
@@ -453,6 +455,11 @@ class PyObject(ObjectDescription):
         domain = cast(PythonDomain, self.env.get_domain('py'))
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
+        canonical_name = self.options.get('canonical')
+        if canonical_name:
+            domain.note_object(canonical_name, self.objtype, node_id, canonical=True,
+                               location=signode)
+
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
             self.indexnode['entries'].append(('single', indextext, node_id, '', None))
@@ -514,39 +521,6 @@ class PyObject(ObjectDescription):
                 self.env.ref_context['py:module'] = modules.pop()
             else:
                 self.env.ref_context.pop('py:module')
-
-
-class PyModulelevel(PyObject):
-    """
-    Description of an object on module level (functions, data).
-    """
-
-    def run(self) -> List[Node]:
-        for cls in self.__class__.__mro__:
-            if cls.__name__ != 'DirectiveAdapter':
-                warnings.warn('PyModulelevel is deprecated. '
-                              'Please check the implementation of %s' % cls,
-                              RemovedInSphinx40Warning)
-                break
-        else:
-            warnings.warn('PyModulelevel is deprecated', RemovedInSphinx40Warning)
-
-        return super().run()
-
-    def needs_arglist(self) -> bool:
-        return self.objtype == 'function'
-
-    def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
-        if self.objtype == 'function':
-            if not modname:
-                return _('%s() (built-in function)') % name_cls[0]
-            return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.objtype == 'data':
-            if not modname:
-                return _('%s (built-in variable)') % name_cls[0]
-            return _('%s (in module %s)') % (name_cls[0], modname)
-        else:
-            return ''
 
 
 class PyFunction(PyObject):
@@ -637,10 +611,18 @@ class PyClasslike(PyObject):
     Description of a class-like object (classes, interfaces, exceptions).
     """
 
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'final': directives.flag,
+    })
+
     allow_nesting = True
 
     def get_signature_prefix(self, sig: str) -> str:
-        return self.objtype + ' '
+        if 'final' in self.options:
+            return 'final %s ' % self.objtype
+        else:
+            return '%s ' % self.objtype
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         if self.objtype == 'class':
@@ -653,90 +635,6 @@ class PyClasslike(PyObject):
             return ''
 
 
-class PyClassmember(PyObject):
-    """
-    Description of a class member (methods, attributes).
-    """
-
-    def run(self) -> List[Node]:
-        for cls in self.__class__.__mro__:
-            if cls.__name__ != 'DirectiveAdapter':
-                warnings.warn('PyClassmember is deprecated. '
-                              'Please check the implementation of %s' % cls,
-                              RemovedInSphinx40Warning)
-                break
-        else:
-            warnings.warn('PyClassmember is deprecated', RemovedInSphinx40Warning)
-
-        return super().run()
-
-    def needs_arglist(self) -> bool:
-        return self.objtype.endswith('method')
-
-    def get_signature_prefix(self, sig: str) -> str:
-        if self.objtype == 'staticmethod':
-            return 'static '
-        elif self.objtype == 'classmethod':
-            return 'classmethod '
-        return ''
-
-    def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
-        name, cls = name_cls
-        add_modules = self.env.config.add_module_names
-        if self.objtype == 'method':
-            try:
-                clsname, methname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s() (in module %s)') % (name, modname)
-                else:
-                    return '%s()' % name
-            if modname and add_modules:
-                return _('%s() (%s.%s method)') % (methname, modname, clsname)
-            else:
-                return _('%s() (%s method)') % (methname, clsname)
-        elif self.objtype == 'staticmethod':
-            try:
-                clsname, methname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s() (in module %s)') % (name, modname)
-                else:
-                    return '%s()' % name
-            if modname and add_modules:
-                return _('%s() (%s.%s static method)') % (methname, modname,
-                                                          clsname)
-            else:
-                return _('%s() (%s static method)') % (methname, clsname)
-        elif self.objtype == 'classmethod':
-            try:
-                clsname, methname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s() (in module %s)') % (name, modname)
-                else:
-                    return '%s()' % name
-            if modname:
-                return _('%s() (%s.%s class method)') % (methname, modname,
-                                                         clsname)
-            else:
-                return _('%s() (%s class method)') % (methname, clsname)
-        elif self.objtype == 'attribute':
-            try:
-                clsname, attrname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s (in module %s)') % (name, modname)
-                else:
-                    return name
-            if modname and add_modules:
-                return _('%s (%s.%s attribute)') % (attrname, modname, clsname)
-            else:
-                return _('%s (%s attribute)') % (attrname, clsname)
-        else:
-            return ''
-
-
 class PyMethod(PyObject):
     """Description of a method."""
 
@@ -745,6 +643,7 @@ class PyMethod(PyObject):
         'abstractmethod': directives.flag,
         'async': directives.flag,
         'classmethod': directives.flag,
+        'final': directives.flag,
         'property': directives.flag,
         'staticmethod': directives.flag,
     })
@@ -757,6 +656,8 @@ class PyMethod(PyObject):
 
     def get_signature_prefix(self, sig: str) -> str:
         prefix = []
+        if 'final' in self.options:
+            prefix.append('final')
         if 'abstractmethod' in self.options:
             prefix.append('abstract')
         if 'async' in self.options:
@@ -881,10 +782,11 @@ class PyDecoratorMixin:
             if cls.__name__ != 'DirectiveAdapter':
                 warnings.warn('PyDecoratorMixin is deprecated. '
                               'Please check the implementation of %s' % cls,
-                              RemovedInSphinx50Warning)
+                              RemovedInSphinx50Warning, stacklevel=2)
                 break
         else:
-            warnings.warn('PyDecoratorMixin is deprecated', RemovedInSphinx50Warning)
+            warnings.warn('PyDecoratorMixin is deprecated',
+                          RemovedInSphinx50Warning, stacklevel=2)
 
         ret = super().handle_signature(sig, signode)  # type: ignore
         signode.insert(0, addnodes.desc_addname('@', '@'))
@@ -1142,7 +1044,8 @@ class PythonDomain(Domain):
     def objects(self) -> Dict[str, ObjectEntry]:
         return self.data.setdefault('objects', {})  # fullname -> ObjectEntry
 
-    def note_object(self, name: str, objtype: str, node_id: str, location: Any = None) -> None:
+    def note_object(self, name: str, objtype: str, node_id: str,
+                    canonical: bool = False, location: Any = None) -> None:
         """Note a python object for cross reference.
 
         .. versionadded:: 2.1
@@ -1152,7 +1055,7 @@ class PythonDomain(Domain):
             logger.warning(__('duplicate object description of %s, '
                               'other instance in %s, use :noindex: for one of them'),
                            name, other.docname, location=location)
-        self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype)
+        self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, canonical)
 
     @property
     def modules(self) -> Dict[str, ModuleEntry]:
@@ -1305,7 +1208,11 @@ class PythonDomain(Domain):
             yield (modname, modname, 'module', mod.docname, mod.node_id, 0)
         for refname, obj in self.objects.items():
             if obj.objtype != 'module':  # modules are already handled
-                yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
+                if obj.canonical:
+                    # canonical names are not full-text searchable.
+                    yield (refname, refname, obj.objtype, obj.docname, obj.node_id, -1)
+                else:
+                    yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
 
     def get_full_qualified_name(self, node: Element) -> str:
         modname = node.get('py:module')
@@ -1351,7 +1258,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 2,
+        'env_version': 3,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

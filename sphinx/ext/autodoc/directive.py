@@ -6,17 +6,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from typing import Any, Callable, Dict, List, Set, Type
 
 from docutils import nodes
 from docutils.nodes import Element, Node
-from docutils.parsers.rst.states import RSTState, Struct
+from docutils.parsers.rst.states import RSTState
 from docutils.statemachine import StringList
 from docutils.utils import Reporter, assemble_option_dict
 
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import Documenter, Options
 from sphinx.util import logging
@@ -49,23 +47,14 @@ class DocumenterBridge:
     """A parameters container for Documenters."""
 
     def __init__(self, env: BuildEnvironment, reporter: Reporter, options: Options,
-                 lineno: int, state: Any = None) -> None:
+                 lineno: int, state: Any) -> None:
         self.env = env
         self.reporter = reporter
         self.genopt = options
         self.lineno = lineno
         self.filename_set = set()  # type: Set[str]
         self.result = StringList()
-
-        if state:
-            self.state = state
-        else:
-            # create fake object for self.state.document.settings.tab_width
-            warnings.warn('DocumenterBridge requires a state object on instantiation.',
-                          RemovedInSphinx40Warning)
-            settings = Struct(tab_width=8)
-            document = Struct(settings=settings)
-            self.state = Struct(document=document)
+        self.state = state
 
     def warn(self, msg: str) -> None:
         logger.warning(msg, location=(self.env.docname, self.lineno))
