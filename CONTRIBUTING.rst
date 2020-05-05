@@ -383,9 +383,9 @@ Therefore you can disable them using:
 * ``set PYTHONWARNINGS=`` and do ``make html`` (Windows)
 
 But you can also explicitly enable the pending ones using e.g.
-``PYTHONWARNINGS=default`` (see the
-:ref:`Python docs on configuring warnings <python:describing-warning-filters>`)
-for more details.
+``PYTHONWARNINGS=default`` (see the `Python docs on configuring warnings
+<https://docs.python.org/3/library/warnings.html#describing-warning-filters>`
+for more details).
 
 Unit Testing
 ------------
