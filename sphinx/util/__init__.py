@@ -10,6 +10,7 @@
 
 import fnmatch
 import functools
+import hashlib
 import os
 import posixpath
 import re
@@ -21,7 +22,6 @@ import warnings
 from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
-from hashlib import md5
 from importlib import import_module
 from os import path
 from time import mktime, strptime
@@ -170,7 +170,7 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-def fips_safe_md5(data=b'', **kwargs):
+def md5(data=b'', **kwargs):
     """Wrapper around hashlib.md5
 
     Attempt call with 'usedforsecurity=False' if we get a ValueError, which happens when
@@ -181,9 +181,9 @@ def fips_safe_md5(data=b'', **kwargs):
     """
 
     try:
-        return md5(data, **kwargs)  # type: ignore
+        return hashlib.md5(data, **kwargs)  # type: ignore
     except ValueError:
-        return md5(data, **kwargs, usedforsecurity=False)  # type: ignore
+        return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
 
 
 class DownloadFiles(dict):
@@ -195,7 +195,7 @@ class DownloadFiles(dict):
 
     def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
-            digest = fips_safe_md5(filename.encode()).hexdigest()
+            digest = md5(filename.encode()).hexdigest()
             dest = '%s/%s' % (digest, os.path.basename(filename))
             self[filename] = (set(), dest)
 

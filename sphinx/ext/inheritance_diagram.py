@@ -54,7 +54,7 @@ from sphinx.ext.graphviz import (
     graphviz, figure_wrapper,
     render_dot_html, render_dot_latex, render_dot_texinfo
 )
-from sphinx.util import fips_safe_md5
+from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
@@ -387,7 +387,7 @@ class InheritanceDiagram(SphinxDirective):
 
 def get_graph_hash(node: inheritance_diagram) -> str:
     encoded = (node['content'] + str(node['parts'])).encode()
-    return fips_safe_md5(encoded).hexdigest()[-10:]
+    return md5(encoded).hexdigest()[-10:]
 
 
 def html_visit_inheritance_diagram(self: HTMLTranslator, node: inheritance_diagram) -> None:

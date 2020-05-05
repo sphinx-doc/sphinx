@@ -37,7 +37,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import logging, progress_message, status_iterator, fips_safe_md5
+from sphinx.util import logging, progress_message, status_iterator, md5
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
@@ -76,7 +76,7 @@ def get_stable_hash(obj: Any) -> str:
         return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
-    return fips_safe_md5(str(obj).encode()).hexdigest()
+    return md5(str(obj).encode()).hexdigest()
 
 
 class Stylesheet(str):
