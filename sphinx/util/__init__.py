@@ -186,6 +186,20 @@ def md5(data=b'', **kwargs):
         return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
 
 
+def sha1(data=b'', **kwargs):
+    """Wrapper around hashlib.sha1
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return hashlib.sha1(data, **kwargs)  # type: ignore
+    except ValueError:
+        return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
+
+
 class DownloadFiles(dict):
     """A special dictionary for download files.
 
