@@ -12,7 +12,6 @@
 import posixpath
 import re
 import subprocess
-from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError, PIPE
 from typing import Any, Dict, List, Tuple
@@ -25,7 +24,7 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
-from sphinx.util import logging
+from sphinx.util import logging, sha1
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import search_image_for_language

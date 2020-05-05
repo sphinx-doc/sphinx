@@ -10,7 +10,6 @@
 
 import os
 import re
-from hashlib import sha1
 from math import ceil
 from typing import Any, Dict, List, Tuple
 
@@ -19,7 +18,7 @@ from docutils import nodes
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch
+from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch, sha1
 from sphinx.util import logging, requests
 from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
 from sphinx.util.osutil import ensuredir, movefile

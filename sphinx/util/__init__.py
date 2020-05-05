@@ -10,6 +10,7 @@
 
 import fnmatch
 import functools
+import hashlib
 import os
 import posixpath
 import re
@@ -21,7 +22,6 @@ import warnings
 from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
-from hashlib import md5
 from importlib import import_module
 from os import path
 from time import mktime, strptime
@@ -168,6 +168,36 @@ class FilenameUniqDict(dict):
 
     def __setstate__(self, state: Set[str]) -> None:
         self._existing = state
+
+
+def md5(data=b'', **kwargs):
+    """Wrapper around hashlib.md5
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError, which happens when
+    OpenSSL FIPS mode is enabled:
+    ValueError: error:060800A3:digital envelope routines:EVP_DigestInit_ex:disabled for fips
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return hashlib.md5(data, **kwargs)  # type: ignore
+    except ValueError:
+        return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
+
+
+def sha1(data=b'', **kwargs):
+    """Wrapper around hashlib.sha1
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return hashlib.sha1(data, **kwargs)  # type: ignore
+    except ValueError:
+        return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
 
 
 class DownloadFiles(dict):
