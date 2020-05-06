@@ -1052,10 +1052,6 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             kwargs.setdefault('show_annotation', False)
 
         unwrapped = inspect.unwrap(self.object)
-        if ((inspect.isbuiltin(unwrapped) or inspect.ismethoddescriptor(unwrapped)) and
-                not inspect.is_cython_function_or_method(unwrapped)):
-            # cannot introspect arguments of a C function or method
-            return None
         try:
             self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
             sig = inspect.signature(unwrapped)

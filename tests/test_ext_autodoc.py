@@ -1190,6 +1190,32 @@ def test_autofunction_for_method(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_builtin(app):
+    actual = do_autodoc(app, 'function', 'os.umask')
+    assert list(actual) == [
+        '',
+        '.. py:function:: umask(mask, /)',
+        '   :module: os',
+        '',
+        '   Set the current numeric umask and return the previous umask.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_methoddescriptor(app):
+    actual = do_autodoc(app, 'function', 'builtins.int.__add__')
+    assert list(actual) == [
+        '',
+        '.. py:function:: int.__add__(self, value, /)',
+        '   :module: builtins',
+        '',
+        '   Return self+value.',
+        '',
+    ]
+
+
 def test_abstractmethods(app):
     options = {"members": None,
                "undoc-members": None}
