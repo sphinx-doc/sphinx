@@ -19,7 +19,6 @@ from docutils.statemachine import ViewList
 from sphinx.ext.autodoc import ModuleLevelDocumenter, ALL, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
-from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
 try:
@@ -28,8 +27,6 @@ try:
     pyximport.install()
 except ImportError:
     pyximport = None
-
-app = None
 
 
 def do_autodoc(app, objtype, name, options=None):
@@ -45,26 +42,6 @@ def do_autodoc(app, objtype, name, options=None):
     documenter.generate()
 
     return bridge.result
-
-
-@pytest.fixture(scope='module', autouse=True)
-def setup_module(rootdir, sphinx_test_tempdir):
-    try:
-        global app
-        srcdir = sphinx_test_tempdir / 'autodoc-root'
-        if not srcdir.exists():
-            (rootdir / 'test-root').copytree(srcdir)
-        testroot = rootdir / 'test-ext-autodoc'
-        sys.path.append(testroot)
-        app = SphinxTestApp(srcdir=srcdir)
-        app.builder.env.app = app
-        app.builder.env.temp_data['docname'] = 'dummy'
-        app.connect('autodoc-process-signature', process_signature)
-        app.connect('autodoc-skip-member', skip_member)
-        yield
-    finally:
-        app.cleanup()
-        sys.path.remove(testroot)
 
 
 def make_directive_bridge(env):
@@ -98,26 +75,6 @@ def make_directive_bridge(env):
     return directive
 
 
-directive = options = None
-
-
-@pytest.fixture
-def setup_test():
-    global options, directive
-    global processed_signatures
-
-    processed_signatures = []
-    directive = make_directive_bridge(app.env)
-    options = directive.genopt
-
-    app._status.truncate(0)
-    app._warning.truncate(0)
-
-    yield
-
-    app.registry.autodoc_attrgettrs.clear()
-
-
 processed_signatures = []
 
 
@@ -136,14 +93,13 @@ def skip_member(app, what, name, obj, skip, options):
         return True
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_parse_name():
-    logging.setup(app, app._status, app._warning)
-
+def test_parse_name(app):
     def verify(objtype, name, result):
         inst = app.registry.documenters[objtype](directive, name)
         assert inst.parse_name()
         assert (inst.modname, inst.objpath, inst.args, inst.retann) == result
+
+    directive = make_directive_bridge(app.env)
 
     # for modules
     verify('module', 'test_autodoc', ('test_autodoc', [], None, None))
@@ -174,14 +130,13 @@ def test_parse_name():
     verify('method', 'SphinxTestApp.cleanup',
            ('util', ['SphinxTestApp', 'cleanup'], None, None))
 
-    # and clean up
-    del directive.env.ref_context['py:module']
-    del directive.env.ref_context['py:class']
-    del directive.env.temp_data['autodoc:class']
 
+def test_format_signature(app):
+    app.connect('autodoc-process-signature', process_signature)
+    app.connect('autodoc-skip-member', skip_member)
 
-@pytest.mark.usefixtures('setup_test')
-def test_format_signature():
+    directive = make_directive_bridge(app.env)
+
     def formatsig(objtype, name, obj, args, retann):
         inst = app.registry.documenters[objtype](directive, name)
         inst.fullname = name
@@ -290,8 +245,9 @@ def test_format_signature():
         '(b, c=42, *d, **e)'
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_get_doc():
+def test_get_doc(app):
+    directive = make_directive_bridge(app.env)
+
     def getdocl(objtype, obj):
         inst = app.registry.documenters[objtype](directive, 'tmp')
         inst.object = obj
@@ -378,10 +334,11 @@ def test_new_documenter(app):
     ]
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_attrgetter_using():
+def test_attrgetter_using(app):
     from target import Class
     from target.inheritance import Derived
+
+    directive = make_directive_bridge(app.env)
 
     def assert_getter_works(objtype, name, obj, attrs=[], **kw):
         getattr_spy = []
@@ -406,11 +363,12 @@ def test_attrgetter_using():
                 '%r was not hooked by special_attrgetter function' % fullname
 
     with catch_warnings(record=True):
-        options.members = ALL
-        options.inherited_members = False
+        directive.genopt['members'] = ALL
+        directive.genopt['inherited_members'] = False
+        print(directive.genopt)
         assert_getter_works('class', 'target.Class', Class, ['meth'])
 
-        options.inherited_members = True
+        directive.genopt['inherited_members'] = True
         assert_getter_works('class', 'target.inheritance.Derived', Derived, ['inheritedmeth'])
 
 
@@ -1231,8 +1189,7 @@ def test_autofunction_for_method(app):
     ]
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_abstractmethods():
+def test_abstractmethods(app):
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.abstractmethods', options)
@@ -1280,8 +1237,7 @@ def test_abstractmethods():
     ]
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_partialfunction():
+def test_partialfunction(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.partialfunction', options)
     assert list(actual) == [
@@ -1315,8 +1271,7 @@ def test_partialfunction():
     ]
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_imported_partialfunction_should_not_shown_without_imported_members():
+def test_imported_partialfunction_should_not_shown_without_imported_members(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.imported_members', options)
     assert list(actual) == [
@@ -1326,8 +1281,7 @@ def test_imported_partialfunction_should_not_shown_without_imported_members():
     ]
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_bound_method():
+def test_bound_method(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.bound_method', options)
     assert list(actual) == [
@@ -1343,8 +1297,7 @@ def test_bound_method():
     ]
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_coroutine():
+def test_coroutine(app):
     actual = do_autodoc(app, 'function', 'target.functions.coroutinefunc')
     assert list(actual) == [
         '',
@@ -1600,8 +1553,7 @@ def test_autodoc_for_egged_code(app):
     ]
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_singledispatch():
+def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
     assert list(actual) == [
@@ -1619,8 +1571,7 @@ def test_singledispatch():
     ]
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_singledispatch_autofunction():
+def test_singledispatch_autofunction(app):
     options = {}
     actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
     assert list(actual) == [
@@ -1634,10 +1585,10 @@ def test_singledispatch_autofunction():
         '',
     ]
 
+
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='singledispatchmethod is available since python3.8')
-@pytest.mark.usefixtures('setup_test')
-def test_singledispatchmethod():
+def test_singledispatchmethod(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatchmethod', options)
     assert list(actual) == [
@@ -1663,8 +1614,7 @@ def test_singledispatchmethod():
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='singledispatchmethod is available since python3.8')
-@pytest.mark.usefixtures('setup_test')
-def test_singledispatchmethod_automethod():
+def test_singledispatchmethod_automethod(app):
     options = {}
     actual = do_autodoc(app, 'method', 'target.singledispatchmethod.Foo.meth', options)
     assert list(actual) == [
@@ -1678,9 +1628,9 @@ def test_singledispatchmethod_automethod():
         '',
     ]
 
-@pytest.mark.usefixtures('setup_test')
+
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
-def test_cython():
+def test_cython(app):
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.cython', options)
@@ -1711,8 +1661,7 @@ def test_cython():
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='typing.final is available since python3.8')
-@pytest.mark.usefixtures('setup_test')
-def test_final():
+def test_final(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.final', options)
     assert list(actual) == [
