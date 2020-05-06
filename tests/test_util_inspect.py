@@ -30,10 +30,10 @@ def test_signature():
         inspect.signature('')
 
     # builitin classes
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         inspect.signature(int)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         inspect.signature(str)
 
     # normal function

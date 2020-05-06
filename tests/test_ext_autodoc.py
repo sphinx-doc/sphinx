@@ -1165,6 +1165,33 @@ def test_descriptor_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_classes(app):
+    actual = do_autodoc(app, 'function', 'target.classes.Foo')
+    assert list(actual) == [
+        '',
+        '.. py:function:: Foo()',
+        '   :module: target.classes',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'function', 'target.classes.Bar')
+    assert list(actual) == [
+        '',
+        '.. py:function:: Bar(x, y)',
+        '   :module: target.classes',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'function', 'target.classes.Baz')
+    assert list(actual) == [
+        '',
+        '.. py:function:: Baz(x, y)',
+        '   :module: target.classes',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autofunction_for_callable(app):
     actual = do_autodoc(app, 'function', 'target.callable.function')
     assert list(actual) == [
