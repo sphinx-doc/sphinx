@@ -67,14 +67,7 @@ def setup_module(rootdir, sphinx_test_tempdir):
         sys.path.remove(testroot)
 
 
-directive = options = None
-
-
-@pytest.fixture
-def setup_test():
-    global options, directive
-    global processed_signatures
-
+def make_directive_bridge(env):
     options = Options(
         inherited_members = False,
         undoc_members = False,
@@ -94,7 +87,7 @@ def setup_test():
     )
 
     directive = Struct(
-        env = app.builder.env,
+        env = env,
         genopt = options,
         result = ViewList(),
         filename_set = set(),
@@ -102,7 +95,20 @@ def setup_test():
     )
     directive.state.document.settings.tab_width = 8
 
+    return directive
+
+
+directive = options = None
+
+
+@pytest.fixture
+def setup_test():
+    global options, directive
+    global processed_signatures
+
     processed_signatures = []
+    directive = make_directive_bridge(app.env)
+    options = directive.genopt
 
     app._status.truncate(0)
     app._warning.truncate(0)
