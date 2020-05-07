@@ -13,7 +13,7 @@
 import importlib
 import re
 import warnings
-from inspect import Parameter
+from inspect import Parameter, Signature
 from types import ModuleType
 from typing import (
     Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, Union
@@ -392,6 +392,17 @@ class Documenter:
         # directives of course)
         return '.'.join(self.objpath) or self.modname
 
+    def _call_format_args(self, **kwargs: Any) -> str:
+        if kwargs:
+            try:
+                return self.format_args(**kwargs)
+            except TypeError:
+                # avoid chaining exceptions, by putting nothing here
+                pass
+
+        # retry without arguments for old documenters
+        return self.format_args()
+
     def format_signature(self, **kwargs: Any) -> str:
         """Format the signature (arguments and return annotation) of the object.
 
@@ -405,12 +416,7 @@ class Documenter:
             # try to introspect the signature
             try:
                 retann = None
-                try:
-                    args = self.format_args(**kwargs)
-                except TypeError:
-                    # retry without arguments for old documenters
-                    args = self.format_args()
-
+                args = self._call_format_args(**kwargs)
                 if args:
                     matched = re.match(r'^(\(.*\))\s+->\s+(.*)$', args)
                     if matched:
@@ -1247,10 +1253,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = True
         return ret
 
-    def format_args(self, **kwargs: Any) -> str:
-        if self.env.config.autodoc_typehints in ('none', 'description'):
-            kwargs.setdefault('show_annotation', False)
-
+    def _get_signature(self) -> Optional[Signature]:
         def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
             """ Get the `attr` function or method from `obj`, if it is user-defined. """
             if inspect.is_builtin_class_method(obj, attr):
@@ -1260,63 +1263,72 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 return None
             return attr
 
-        sig = None
-
-        # this sequence is copied from inspect._signature_from_callable
+        # This sequence is copied from inspect._signature_from_callable.
+        # ValueError means that no signature could be found, so we keep going.
 
         # First, let's see if it has an overloaded __call__ defined
         # in its metaclass
-        if sig is None:
-            call = get_user_defined_function_or_method(type(self.object), '__call__')
+        call = get_user_defined_function_or_method(type(self.object), '__call__')
 
-            if call is not None:
-                if "{0.__module__}.{0.__qualname__}".format(call) in _METACLASS_CALL_BLACKLIST:
-                    call = None
+        if call is not None:
+            if "{0.__module__}.{0.__qualname__}".format(call) in _METACLASS_CALL_BLACKLIST:
+                call = None
 
-            if call is not None:
-                self.env.app.emit('autodoc-before-process-signature', call, True)
-                try:
-                    sig = inspect.signature(call, bound_method=True)
-                except ValueError:
-                    pass
-
-        # Now we check if the 'obj' class has a '__new__' method
-        if sig is None:
-            new = get_user_defined_function_or_method(self.object, '__new__')
-            if new is not None:
-                self.env.app.emit('autodoc-before-process-signature', new, True)
-                try:
-                    sig = inspect.signature(new, bound_method=True)
-                except ValueError:
-                    pass
-
-        # Finally, we should have at least __init__ implemented
-        if sig is None:
-            init = get_user_defined_function_or_method(self.object, '__init__')
-            if init is not None:
-                self.env.app.emit('autodoc-before-process-signature', init, True)
-                try:
-                    sig = inspect.signature(init, bound_method=True)
-                except ValueError:
-                    pass
-
-        # None of the attributes are user-defined, so fall back to let inspect
-        # handle it.
-        if sig is None:
-            # We don't know the exact method that inspect.signature will read
-            # the signature from, so just pass the object itself to our hook.
-            self.env.app.emit('autodoc-before-process-signature', self.object, False)
+        if call is not None:
+            self.env.app.emit('autodoc-before-process-signature', call, True)
             try:
-                sig = inspect.signature(self.object, bound_method=False)
+                return inspect.signature(call, bound_method=True)
             except ValueError:
                 pass
 
-        if sig is not None:
-            return stringify_signature(sig, show_return_annotation=False, **kwargs)
+        # Now we check if the 'obj' class has a '__new__' method
+        new = get_user_defined_function_or_method(self.object, '__new__')
+        if new is not None:
+            self.env.app.emit('autodoc-before-process-signature', new, True)
+            try:
+                return inspect.signature(new, bound_method=True)
+            except ValueError:
+                pass
+
+        # Finally, we should have at least __init__ implemented
+        init = get_user_defined_function_or_method(self.object, '__init__')
+        if init is not None:
+            self.env.app.emit('autodoc-before-process-signature', init, True)
+            try:
+                return inspect.signature(init, bound_method=True)
+            except ValueError:
+                pass
+
+        # None of the attributes are user-defined, so fall back to let inspect
+        # handle it.
+        # We don't know the exact method that inspect.signature will read
+        # the signature from, so just pass the object itself to our hook.
+        self.env.app.emit('autodoc-before-process-signature', self.object, False)
+        try:
+            return inspect.signature(self.object, bound_method=False)
+        except ValueError:
+            pass
 
         # Still no signature: happens e.g. for old-style classes
         # with __init__ in C and no `__text_signature__`.
         return None
+
+    def format_args(self, **kwargs: Any) -> str:
+        if self.env.config.autodoc_typehints in ('none', 'description'):
+            kwargs.setdefault('show_annotation', False)
+
+        try:
+            sig = self._get_signature()
+        except TypeError as exc:
+            # __signature__ attribute contained junk
+            logger.warning(__("Failed to get a constructor signature for %s: %s"),
+                           self.fullname, exc)
+            return None
+
+        if sig is None:
+            return None
+
+        return stringify_signature(sig, show_return_annotation=False, **kwargs)
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.doc_as_attr:
