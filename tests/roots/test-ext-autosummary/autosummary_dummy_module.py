@@ -3,6 +3,9 @@ from typing import Union
 
 
 class Foo:
+    class Bar:
+        pass
+
     def __init__(self):
         pass
 

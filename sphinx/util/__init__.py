@@ -570,6 +570,31 @@ def import_object(objname: str, source: str = None) -> Any:
             raise ExtensionError('Could not import %s' % objname, exc)
 
 
+def split_full_qualified_name(name: str) -> Tuple[str, str]:
+    """Split full qualified name to a pair of modname and qualname.
+
+    A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
+    (https://www.python.org/dev/peps/pep-3155/).  It is a dotted path name
+    from the module top-level.
+
+    A "full" qualified name means a string containing both module name and
+    qualified name.
+
+    .. note:: This function imports module actually to check the exisitence.
+              Therefore you need to mock 3rd party modules if needed before
+              calling this function.
+    """
+    parts = name.split('.')
+    for i, part in enumerate(parts, 1):
+        try:
+            modname = ".".join(parts[:i])
+            import_module(modname)
+        except ImportError:
+            return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+
+    return name, ""
+
+
 def encode_uri(uri: str) -> str:
     split = list(urlsplit(uri))
     split[1] = split[1].encode('idna').decode('ascii')
