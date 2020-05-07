@@ -16,7 +16,6 @@ import warnings
 from inspect import Parameter
 from types import ModuleType
 from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
-from unittest.mock import patch
 
 from docutils.statemachine import StringList
 
@@ -414,14 +413,35 @@ class Documenter:
         else:
             return ''
 
+    def format_signatures(self, **kwargs: Any) -> List[str]:
+        """Format the signatures (arguments and return annotation) of an overloaded object.
+
+        This can be overloaded in subclasses for documenters which support
+        multiple overloaded signatures.
+        """
+        return [self.format_signature(**kwargs)]
+
     def add_directive_header(self, sig: str) -> None:
+        # compatibility for old code calling `super().add_directive_header`
+        self.add_directive_header_multi([sig])
+
+    def add_directive_header_multi(self, sigs: List[str]) -> None:
         """Add the directive header and options to the generated content."""
         domain = getattr(self, 'domain', 'py')
         directive = getattr(self, 'directivetype', self.objtype)
         name = self.format_name()
         sourcename = self.get_sourcename()
-        self.add_line('.. %s:%s:: %s%s' % (domain, directive, name, sig),
-                      sourcename)
+        if not sigs:
+            raise ValueError("need at least one signature")
+
+        # one signature per line
+        prefix = '.. %s:%s:: ' % (domain, directive)
+        for i, sig in enumerate(sigs):
+            self.add_line('%s%s%s' % (prefix, name, sig),
+                          sourcename)
+            if i == 0:
+                prefix = " " * len(prefix)
+
         if self.options.noindex:
             self.add_line('   :noindex:', sourcename)
         if self.objpath:
@@ -780,11 +800,15 @@ class Documenter:
         # reST and no starting newline is present
         self.add_line('', sourcename)
 
-        # format the object's signature, if any
-        sig = self.format_signature()
+        # format the object's signatures, if any
+        sigs = self.format_signatures()
 
         # generate the directive header and options, if applicable
-        self.add_directive_header(sig)
+        if len(sigs) == 1:
+            # backwards compatibility for old code
+            self.add_directive_header(sigs[0])
+        else:
+            self.add_directive_header_multi(sigs)
         self.add_line('', sourcename)
 
         # e.g. the module directive doesn't have content
@@ -840,8 +864,8 @@ class ModuleDocumenter(Documenter):
                            type='autodoc')
         return ret
 
-    def add_directive_header(self, sig: str) -> None:
-        Documenter.add_directive_header(self, sig)
+    def add_directive_header_multi(self, sigs: List[str]) -> None:
+        super().add_directive_header_multi(sigs)
 
         sourcename = self.get_sourcename()
 
@@ -1075,43 +1099,27 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def document_members(self, all_members: bool = False) -> None:
         pass
 
-    def add_directive_header(self, sig: str) -> None:
+    def add_directive_header_multi(self, sigs: List[str]) -> None:
         sourcename = self.get_sourcename()
-        if inspect.is_singledispatch_function(self.object):
-            self.add_singledispatch_directive_header(sig)
-        else:
-            super().add_directive_header(sig)
+        super().add_directive_header_multi(sigs)
 
         if inspect.iscoroutinefunction(self.object):
             self.add_line('   :async:', sourcename)
 
-    def add_singledispatch_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
+    def format_signatures(self, **kwargs):
+        sigs = super().format_signatures(**kwargs)
+        if inspect.is_singledispatch_function(self.object):
+            # inserts signature of singledispatch'ed functions
+            for typ, func in self.object.registry.items():
+                if typ is object:
+                    pass  # default implementation. skipped.
+                else:
+                    self.annotate_to_first_argument(func, typ)
 
-        # intercept generated directive headers
-        # TODO: It is very hacky to use mock to intercept header generation
-        with patch.object(self, 'add_line') as add_line:
-            super().add_directive_header(sig)
-
-        # output first line of header
-        self.add_line(*add_line.call_args_list[0][0])
-
-        # inserts signature of singledispatch'ed functions
-        for typ, func in self.object.registry.items():
-            if typ is object:
-                pass  # default implementation. skipped.
-            else:
-                self.annotate_to_first_argument(func, typ)
-
-                documenter = FunctionDocumenter(self.directive, '')
-                documenter.object = func
-                self.add_line('   %s%s' % (self.format_name(),
-                                           documenter.format_signature()),
-                              sourcename)
-
-        # output remains of directive header
-        for call in add_line.call_args_list[1:]:
-            self.add_line(*call[0])
+                    documenter = FunctionDocumenter(self.directive, '')
+                    documenter.object = func
+                    sigs.append(documenter.format_signature())
+        return sigs
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
@@ -1211,12 +1219,12 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         return super().format_signature(**kwargs)
 
-    def add_directive_header(self, sig: str) -> None:
+    def add_directive_header_multi(self, sigs: List[str]) -> None:
         sourcename = self.get_sourcename()
 
         if self.doc_as_attr:
             self.directivetype = 'attribute'
-        super().add_directive_header(sig)
+        super().add_directive_header_multi(sigs)
 
         if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
@@ -1344,8 +1352,8 @@ class DataDocumenter(ModuleLevelDocumenter):
                             ) -> bool:
         return isinstance(parent, ModuleDocumenter) and isattr
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
+    def add_directive_header_multi(self, sigs: List[str]) -> None:
+        super().add_directive_header_multi(sigs)
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             # obtain annotation for this data
@@ -1434,15 +1442,21 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         return inspect.isroutine(member) and \
             not isinstance(parent, ModuleDocumenter)
 
+    @property
+    def _unbound_object(self):
+        """
+        Like self.object, but without calling the descriptor `__get__` method.
+
+        This means classethod and staticmethod can be distinguished.
+        """
+        return self.parent.__dict__.get(self.object_name, self.object)
+
     def import_object(self) -> Any:
         ret = super().import_object()
         if not ret:
             return ret
 
-        # to distinguish classmethod/staticmethod
-        obj = self.parent.__dict__.get(self.object_name)
-        if obj is None:
-            obj = self.object
+        obj = self._unbound_object
 
         if (inspect.isclassmethod(obj) or
                 inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name)):
@@ -1473,15 +1487,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             args = args.replace('\\', '\\\\')
         return args
 
-    def add_directive_header(self, sig: str) -> None:
-        meth = self.parent.__dict__.get(self.objpath[-1])
-        if inspect.is_singledispatch_method(meth):
-            self.add_singledispatch_directive_header(sig)
-        else:
-            super().add_directive_header(sig)
+    def add_directive_header_multi(self, sigs: List[str]) -> None:
+        super().add_directive_header_multi(sigs)
 
         sourcename = self.get_sourcename()
-        obj = self.parent.__dict__.get(self.object_name, self.object)
+        obj = self._unbound_object
         if inspect.isabstractmethod(obj):
             self.add_line('   :abstractmethod:', sourcename)
         if inspect.iscoroutinefunction(obj):
@@ -1496,34 +1506,21 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def document_members(self, all_members: bool = False) -> None:
         pass
 
-    def add_singledispatch_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
+    def format_signatures(self, **kwargs):
+        sigs = super().format_signatures(**kwargs)
+        obj = self._unbound_object
+        if inspect.is_singledispatch_method(obj):
+            # inserts signature of singledispatch'ed functions
+            for typ, func in obj.dispatcher.registry.items():
+                if typ is object:
+                    pass  # default implementation. skipped.
+                else:
+                    self.annotate_to_first_argument(func, typ)
 
-        # intercept generated directive headers
-        # TODO: It is very hacky to use mock to intercept header generation
-        with patch.object(self, 'add_line') as add_line:
-            super().add_directive_header(sig)
-
-        # output first line of header
-        self.add_line(*add_line.call_args_list[0][0])
-
-        # inserts signature of singledispatch'ed functions
-        meth = self.parent.__dict__.get(self.objpath[-1])
-        for typ, func in meth.dispatcher.registry.items():
-            if typ is object:
-                pass  # default implementation. skipped.
-            else:
-                self.annotate_to_first_argument(func, typ)
-
-                documenter = MethodDocumenter(self.directive, '')
-                documenter.object = func
-                self.add_line('   %s%s' % (self.format_name(),
-                                           documenter.format_signature()),
-                              sourcename)
-
-        # output remains of directive header
-        for call in add_line.call_args_list[1:]:
-            self.add_line(*call[0])
+                    documenter = MethodDocumenter(self.directive, '')
+                    documenter.object = func
+                    sigs.append(documenter.format_signature(**kwargs))
+        return sigs
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
@@ -1592,8 +1589,8 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
+    def add_directive_header_multi(self, sigs: List[str]) -> None:
+        super().add_directive_header_multi(sigs)
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             # obtain type annotation for this attribute
@@ -1653,8 +1650,8 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
+    def add_directive_header_multi(self, sigs: List[str]) -> None:
+        super().add_directive_header_multi(sigs)
         sourcename = self.get_sourcename()
         if inspect.isabstractmethod(self.object):
             self.add_line('   :abstractmethod:', sourcename)
