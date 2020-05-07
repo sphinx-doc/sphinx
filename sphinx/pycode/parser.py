@@ -14,7 +14,7 @@ import sys
 import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from sphinx.pycode.ast import ast  # for py37 or older
 from sphinx.pycode.ast import parse, unparse
@@ -231,43 +231,59 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.annotations = {}           # type: Dict[Tuple[str, str], str]
         self.previous = None            # type: ast.AST
         self.deforders = {}             # type: Dict[str, int]
+        self.finals = []                # type: List[str]
+        self.typing = None              # type: str
+        self.typing_final = None        # type: str
         super().__init__()
 
-    def add_entry(self, name: str) -> None:
+    def get_qualname_for(self, name: str) -> Optional[List[str]]:
+        """Get qualified name for given object as a list of string."""
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
                 # store variable comments inside __init__ method of classes
-                definition = self.context[:-1] + [name]
+                return self.context[:-1] + [name]
             else:
-                return
+                return None
         else:
-            definition = self.context + [name]
+            return self.context + [name]
 
-        self.deforders[".".join(definition)] = next(self.counter)
+    def add_entry(self, name: str) -> None:
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            self.deforders[".".join(qualname)] = next(self.counter)
+
+    def add_final_entry(self, name: str) -> None:
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            self.finals.append(".".join(qualname))
 
     def add_variable_comment(self, name: str, comment: str) -> None:
-        if self.current_function:
-            if self.current_classes and self.context[-1] == "__init__":
-                # store variable comments inside __init__ method of classes
-                context = ".".join(self.context[:-1])
-            else:
-                return
-        else:
-            context = ".".join(self.context)
-
-        self.comments[(context, name)] = comment
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            basename = ".".join(qualname[:-1])
+            self.comments[(basename, name)] = comment
 
     def add_variable_annotation(self, name: str, annotation: ast.AST) -> None:
-        if self.current_function:
-            if self.current_classes and self.context[-1] == "__init__":
-                # store variable comments inside __init__ method of classes
-                context = ".".join(self.context[:-1])
-            else:
-                return
-        else:
-            context = ".".join(self.context)
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            basename = ".".join(qualname[:-1])
+            self.annotations[(basename, name)] = unparse(annotation)
 
-        self.annotations[(context, name)] = unparse(annotation)
+    def is_final(self, decorators: List[ast.expr]) -> bool:
+        final = []
+        if self.typing:
+            final.append('%s.final' % self.typing)
+        if self.typing_final:
+            final.append(self.typing_final)
+
+        for decorator in decorators:
+            try:
+                if unparse(decorator) in final:
+                    return True
+            except NotImplementedError:
+                pass
+
+        return False
 
     def get_self(self) -> ast.arg:
         """Returns the name of first argument if in function."""
@@ -288,18 +304,20 @@ class VariableCommentPicker(ast.NodeVisitor):
     def visit_Import(self, node: ast.Import) -> None:
         """Handles Import node and record it to definition orders."""
         for name in node.names:
-            if name.asname:
-                self.add_entry(name.asname)
-            else:
-                self.add_entry(name.name)
+            self.add_entry(name.asname or name.name)
 
-    def visit_ImportFrom(self, node: ast.Import) -> None:
+            if name.name == 'typing':
+                self.typing = name.asname or name.name
+            elif name.name == 'typing.final':
+                self.typing_final = name.asname or name.name
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         """Handles Import node and record it to definition orders."""
         for name in node.names:
-            if name.asname:
-                self.add_entry(name.asname)
-            else:
-                self.add_entry(name.name)
+            self.add_entry(name.asname or name.name)
+
+            if node.module == 'typing' and name.name == 'final':
+                self.typing_final = name.asname or name.name
 
     def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
@@ -384,6 +402,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles ClassDef node and set context."""
         self.current_classes.append(node.name)
         self.add_entry(node.name)
+        if self.is_final(node.decorator_list):
+            self.add_final_entry(node.name)
         self.context.append(node.name)
         self.previous = node
         for child in node.body:
@@ -395,6 +415,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles FunctionDef node and set context."""
         if self.current_function is None:
             self.add_entry(node.name)  # should be called before setting self.current_function
+            if self.is_final(node.decorator_list):
+                self.add_final_entry(node.name)
             self.context.append(node.name)
             self.current_function = node
             for child in node.body:
@@ -495,6 +517,7 @@ class Parser:
         self.comments = {}          # type: Dict[Tuple[str, str], str]
         self.deforders = {}         # type: Dict[str, int]
         self.definitions = {}       # type: Dict[str, Tuple[str, int, int]]
+        self.finals = []            # type: List[str]
 
     def parse(self) -> None:
         """Parse the source code."""
@@ -509,6 +532,7 @@ class Parser:
         self.annotations = picker.annotations
         self.comments = picker.comments
         self.deforders = picker.deforders
+        self.finals = picker.finals
 
     def parse_definition(self) -> None:
         """Parse the location of definitions from the code."""

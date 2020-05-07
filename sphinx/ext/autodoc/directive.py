@@ -66,7 +66,7 @@ class DocumenterBridge:
         else:
             # create fake object for self.state.document.settings.tab_width
             warnings.warn('DocumenterBridge requires a state object on instantiation.',
-                          RemovedInSphinx40Warning)
+                          RemovedInSphinx40Warning, stacklevel=2)
             settings = Struct(tab_width=8)
             document = Struct(settings=settings)
             self.state = Struct(document=document)

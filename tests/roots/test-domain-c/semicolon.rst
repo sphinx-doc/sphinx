@@ -1,0 +1,10 @@
+.. c:member:: int member;
+.. c:var:: int var;
+.. c:function:: void f();
+.. .. c:macro:: NO_SEMICOLON;
+.. c:struct:: Struct;
+.. c:union:: Union;
+.. c:enum:: Enum;
+.. c:enumerator:: Enumerator;
+.. c:type:: Type;
+.. c:type:: int TypeDef;

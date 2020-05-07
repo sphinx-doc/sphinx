@@ -10,6 +10,7 @@
 
 import binascii
 import struct
+from typing import Optional
 
 
 LEN_IEND = 12
@@ -20,7 +21,7 @@ DEPTH_CHUNK_START = b'tEXtDepth\x00'
 IEND_CHUNK = b'\x00\x00\x00\x00IEND\xAE\x42\x60\x82'
 
 
-def read_png_depth(filename: str) -> int:
+def read_png_depth(filename: str) -> Optional[int]:
     """Read the special tEXt chunk indicating the depth from a PNG file."""
     with open(filename, 'rb') as f:
         f.seek(- (LEN_IEND + LEN_DEPTH), 2)

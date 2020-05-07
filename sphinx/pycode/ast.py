@@ -58,7 +58,7 @@ def parse(code: str, mode: str = 'exec') -> "ast.AST":
         return ast.parse(code, mode=mode)
 
 
-def unparse(node: ast.AST) -> str:
+def unparse(node: Optional[ast.AST]) -> Optional[str]:
     """Unparse an AST to string."""
     if node is None:
         return None

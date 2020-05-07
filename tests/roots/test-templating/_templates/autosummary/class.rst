@@ -3,6 +3,7 @@
 {% block methods %}
 
    .. note:: autosummary/class.rst method block overloading
+             {{ sentence }}
 
    {{ super() }}
 {% endblock %}

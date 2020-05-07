@@ -11,7 +11,6 @@
 import re
 import warnings
 from typing import Any, Dict, List, Tuple
-from typing import Type  # for python3.5.1
 
 from docutils import nodes, utils
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -29,6 +28,7 @@ from sphinx.util.typing import RoleFunction
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -77,7 +77,7 @@ class XRefRole(ReferenceRole):
     innernodeclass = nodes.literal      # type: Type[TextElement]
 
     def __init__(self, fix_parens: bool = False, lowercase: bool = False,
-                 nodeclass: Type[Element] = None, innernodeclass: Type[TextElement] = None,
+                 nodeclass: "Type[Element]" = None, innernodeclass: "Type[TextElement]" = None,
                  warn_dangling: bool = False) -> None:
         self.fix_parens = fix_parens
         self.lowercase = lowercase
@@ -574,7 +574,7 @@ def index_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
 
 class Index(ReferenceRole):
     def run(self) -> Tuple[List[Node], List[system_message]]:
-        warnings.warn('Index role is deprecated.', RemovedInSphinx40Warning)
+        warnings.warn('Index role is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
         target_id = 'index-%s' % self.env.new_serialno('index')
         if self.has_explicit_title:
             # if an explicit target is given, process it as a full entry

@@ -154,6 +154,21 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 3.0
 
+   * autodoc considers a member public if its docstring contains
+     ``:meta public:`` in its :ref:`info-field-lists`, even if it starts with
+     an underscore.
+     For example:
+
+     .. code-block:: rst
+
+        def _my_function(my_arg, my_other_arg):
+            """blah blah blah
+
+            :meta public:
+            """
+
+     .. versionadded:: 3.1
+
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
 

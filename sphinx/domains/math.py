@@ -142,7 +142,7 @@ class MathDomain(Domain):
 
     def add_equation(self, env: BuildEnvironment, docname: str, labelid: str) -> int:
         warnings.warn('MathDomain.add_equation() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         if labelid in self.equations:
             path = env.doc2path(self.equations[labelid][0])
             msg = __('duplicate label of equation %s, other instance in %s') % (labelid, path)
@@ -154,7 +154,7 @@ class MathDomain(Domain):
 
     def get_next_equation_number(self, docname: str) -> int:
         warnings.warn('MathDomain.get_next_equation_number() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         targets = [eq for eq in self.equations.values() if eq[0] == docname]
         return len(targets) + 1
 

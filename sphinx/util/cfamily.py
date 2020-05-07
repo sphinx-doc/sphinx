@@ -41,6 +41,16 @@ integer_literal_re = re.compile(r'[1-9][0-9]*')
 octal_literal_re = re.compile(r'0[0-7]*')
 hex_literal_re = re.compile(r'0[xX][0-9a-fA-F][0-9a-fA-F]*')
 binary_literal_re = re.compile(r'0[bB][01][01]*')
+integers_literal_suffix_re = re.compile(r'''(?x)
+    # unsigned and/or (long) long, in any order, but at least one of them
+    (
+        ([uU]    ([lL]  |  (ll)  |  (LL))?)
+        |
+        (([lL]  |  (ll)  |  (LL))    [uU]?)
+    )\b
+    # the ending word boundary is important for distinguishing
+    # between suffixes and UDLs in C++
+''')
 float_literal_re = re.compile(r'''(?x)
     [+-]?(
     # decimal
@@ -53,6 +63,8 @@ float_literal_re = re.compile(r'''(?x)
     | (0[xX][0-9a-fA-F]+\.([pP][+-]?[0-9a-fA-F]+)?)
     )
 ''')
+float_literal_suffix_re = re.compile(r'[fFlL]\b')
+# the ending word boundary is important for distinguishing between suffixes and UDLs in C++
 char_literal_re = re.compile(r'''(?x)
     ((?:u8)|u|U|L)?
     '(
@@ -69,7 +81,7 @@ char_literal_re = re.compile(r'''(?x)
 
 
 def verify_description_mode(mode: str) -> None:
-    if mode not in ('lastIsName', 'noneIsName', 'markType', 'markName', 'param'):
+    if mode not in ('lastIsName', 'noneIsName', 'markType', 'markName', 'param', 'udl'):
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
@@ -338,10 +350,14 @@ class BaseParser:
         self.pos = self.end
         return rv
 
-    def assert_end(self) -> None:
+    def assert_end(self, *, allowSemicolon: bool = False) -> None:
         self.skip_ws()
-        if not self.eof:
-            self.fail('Expected end of definition.')
+        if allowSemicolon:
+            if not self.eof and self.definition[self.pos:] != ';':
+                self.fail('Expected end of definition or ;.')
+        else:
+            if not self.eof:
+                self.fail('Expected end of definition.')
 
     ################################################################################
 

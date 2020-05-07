@@ -42,6 +42,7 @@
         {%- for parent in parents %}
           <li class="nav-item nav-item-{{ loop.index }}"><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a>{{ reldelim1 }}</li>
         {%- endfor %}
+        <li class="nav-item nav-item-this"><a href="{{ link|e }}">{{ title }}</a></li>
         {%- block relbaritems %} {% endblock %}
       </ul>
     </div>
@@ -131,7 +132,7 @@
     {{- script() }}
     {%- endblock %}
     {%- if pageurl %}
-    <link rel="canonical" href="{{ pageurl }}" />
+    <link rel="canonical" href="{{ pageurl|e }}" />
     {%- endif %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"
@@ -180,6 +181,7 @@
       {%- endif %}
           <div class="body" role="main">
             {% block body %} {% endblock %}
+            <div class="clearer"></div>
           </div>
       {%- if render_sidebar %}
         </div>
@@ -207,7 +209,7 @@
       {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
     {%- endif %}
     {%- if show_sphinx %}
-      {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+      {% trans sphinx_version=sphinx_version|e %}Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
     {%- endif %}
     </div>
 {%- endblock %}

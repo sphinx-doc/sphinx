@@ -29,7 +29,7 @@ class IndexEntriesCollector(EnvironmentCollector):
 
     def __init__(self) -> None:
         warnings.warn('IndexEntriesCollector is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.indexentries.pop(docname, None)

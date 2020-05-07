@@ -31,7 +31,8 @@ from sphinx.util.cfamily import (
     NoOldIdError, ASTBaseBase, verify_description_mode, StringifyTransform,
     BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
     identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
-    hex_literal_re, binary_literal_re, float_literal_re,
+    hex_literal_re, binary_literal_re, integers_literal_suffix_re,
+    float_literal_re, float_literal_suffix_re,
     char_literal_re
 )
 from sphinx.util.docfields import Field, TypedField
@@ -792,20 +793,60 @@ class ASTDeclSpecs(ASTBase):
 ################################################################################
 
 class ASTArray(ASTBase):
-    def __init__(self, size: ASTExpression):
+    def __init__(self, static: bool, const: bool, volatile: bool, restrict: bool,
+                 vla: bool, size: ASTExpression):
+        self.static = static
+        self.const = const
+        self.volatile = volatile
+        self.restrict = restrict
+        self.vla = vla
         self.size = size
+        if vla:
+            assert size is None
+        if size is not None:
+            assert not vla
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        if self.size:
-            return '[' + transform(self.size) + ']'
-        else:
-            return '[]'
+        el = []
+        if self.static:
+            el.append('static')
+        if self.restrict:
+            el.append('restrict')
+        if self.volatile:
+            el.append('volatile')
+        if self.const:
+            el.append('const')
+        if self.vla:
+            return '[' + ' '.join(el) + '*]'
+        elif self.size:
+            el.append(transform(self.size))
+        return '[' + ' '.join(el) + ']'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         signode.append(nodes.Text("["))
-        if self.size:
+        addSpace = False
+
+        def _add(signode: TextElement, text: str) -> bool:
+            if addSpace:
+                signode += nodes.Text(' ')
+            signode += addnodes.desc_annotation(text, text)
+            return True
+
+        if self.static:
+            addSpace = _add(signode, 'static')
+        if self.restrict:
+            addSpace = _add(signode, 'restrict')
+        if self.volatile:
+            addSpace = _add(signode, 'volatile')
+        if self.const:
+            addSpace = _add(signode, 'const')
+        if self.vla:
+            signode.append(nodes.Text('*'))
+        elif self.size:
+            if addSpace:
+                signode += nodes.Text(' ')
             self.size.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text("]"))
 
@@ -1272,10 +1313,12 @@ class ASTEnumerator(ASTBase):
 
 
 class ASTDeclaration(ASTBaseBase):
-    def __init__(self, objectType: str, directiveType: str, declaration: Any) -> None:
+    def __init__(self, objectType: str, directiveType: str, declaration: Any,
+                 semicolon: bool = False) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
         self.declaration = declaration
+        self.semicolon = semicolon
 
         self.symbol = None  # type: Symbol
         # set by CObject._add_enumerator_to_parent
@@ -1304,7 +1347,10 @@ class ASTDeclaration(ASTBaseBase):
         return self.get_id(_max_id, True)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return transform(self.declaration)
+        res = transform(self.declaration)
+        if self.semicolon:
+            res += ';'
+        return res
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", options: Dict) -> None:
@@ -1340,6 +1386,8 @@ class ASTDeclaration(ASTBaseBase):
         else:
             assert False
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
+        if self.semicolon:
+            mainDeclNode += nodes.Text(';')
 
 
 class SymbolLookupResult:
@@ -2029,12 +2077,14 @@ class DefinitionParser(BaseParser):
             return ASTBooleanLiteral(True)
         if self.skip_word('false'):
             return ASTBooleanLiteral(False)
-        for regex in [float_literal_re, binary_literal_re, hex_literal_re,
+        pos = self.pos
+        if self.match(float_literal_re):
+            self.match(float_literal_suffix_re)
+            return ASTNumberLiteral(self.definition[pos:self.pos])
+        for regex in [binary_literal_re, hex_literal_re,
                       integer_literal_re, octal_literal_re]:
-            pos = self.pos
             if self.match(regex):
-                while self.current_char in 'uUlLfF':
-                    self.pos += 1
+                self.match(integers_literal_suffix_re)
                 return ASTNumberLiteral(self.definition[pos:self.pos])
 
         string = self._parse_string()
@@ -2588,18 +2638,45 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
             if typed and self.skip_string('['):
                 self.skip_ws()
-                if self.skip_string(']'):
-                    arrayOps.append(ASTArray(None))
-                    continue
+                static = False
+                const = False
+                volatile = False
+                restrict = False
+                while True:
+                    if not static:
+                        if self.skip_word_and_ws('static'):
+                            static = True
+                            continue
+                    if not const:
+                        if self.skip_word_and_ws('const'):
+                            const = True
+                            continue
+                    if not volatile:
+                        if self.skip_word_and_ws('volatile'):
+                            volatile = True
+                            continue
+                    if not restrict:
+                        if self.skip_word_and_ws('restrict'):
+                            restrict = True
+                            continue
+                    break
+                vla = False if static else self.skip_string_and_ws('*')
+                if vla:
+                    if not self.skip_string(']'):
+                        self.fail("Expected ']' in end of array operator.")
+                    size = None
+                else:
+                    if self.skip_string(']'):
+                        size = None
+                    else:
 
-                def parser() -> ASTExpression:
-                    return self._parse_expression()
-
-                value = self._parse_expression_fallback([']'], parser)
-                if not self.skip_string(']'):
-                    self.fail("Expected ']' in end of array operator.")
-                arrayOps.append(ASTArray(value))
-                continue
+                        def parser():
+                            return self._parse_expression()
+                        size = self._parse_expression_fallback([']'], parser)
+                        self.skip_ws()
+                        if not self.skip_string(']'):
+                            self.fail("Expected ']' in end of array operator.")
+                arrayOps.append(ASTArray(static, const, volatile, restrict, vla, size))
             else:
                 break
         param = self._parse_parameters(paramMode)
@@ -2742,7 +2819,7 @@ class DefinitionParser(BaseParser):
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
                 decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
-                self.assert_end()
+                self.assert_end(allowSemicolon=True)
             except DefinitionError as exUntyped:
                 desc = "If just a name"
                 prevErrors.append((exUntyped, desc))
@@ -2875,7 +2952,12 @@ class DefinitionParser(BaseParser):
             declaration = self._parse_type(named=True, outer='type')
         else:
             assert False
-        return ASTDeclaration(objectType, directiveType, declaration)
+        if objectType != 'macro':
+            self.skip_ws()
+            semicolon = self.skip_string(';')
+        else:
+            semicolon = False
+        return ASTDeclaration(objectType, directiveType, declaration, semicolon)
 
     def parse_namespace_object(self) -> ASTNestedName:
         return self._parse_nested_name()

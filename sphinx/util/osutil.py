@@ -18,7 +18,7 @@ import sys
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Tuple
+from typing import Any, Generator, Iterator, List, Optional, Tuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 
@@ -86,7 +86,7 @@ def ensuredir(path: str) -> None:
 def walk(top: str, topdown: bool = True, followlinks: bool = False) -> Iterator[Tuple[str, List[str], List[str]]]:  # NOQA
     warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
                   'Please use os.walk() instead.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return os.walk(top, topdown=topdown, followlinks=followlinks)
 
 
@@ -178,7 +178,7 @@ def abspath(pathdir: str) -> str:
 def getcwd() -> str:
     warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
                   'Please use os.getcwd() instead.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return os.getcwd()
 
 
@@ -206,7 +206,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: StringIO
+        self._io = None  # type: Optional[StringIO]
 
     def write(self, data: str) -> None:
         if not self._io:

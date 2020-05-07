@@ -25,6 +25,7 @@ class _MockObject:
     """Used by autodoc_mock_imports."""
 
     __display_name__ = '_MockObject'
+    __sphinx_mock__ = True
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
@@ -78,6 +79,7 @@ def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
     __file__ = os.devnull
+    __sphinx_mock__ = True
 
     def __init__(self, name: str) -> None:
         super().__init__(name)

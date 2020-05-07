@@ -10,7 +10,6 @@
 import codecs
 import warnings
 from typing import Any, List
-from typing import Type  # for python3.5.1
 
 from docutils import nodes
 from docutils.core import Publisher
@@ -40,6 +39,7 @@ from sphinx.versioning import UIDTransform
 
 if False:
     # For type annotation
+    from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
 
 
@@ -80,7 +80,7 @@ class SphinxBaseReader(standalone.Reader):
         self._app = app      # hold application object only for compatibility
         self._env = app.env
 
-    def get_transforms(self) -> List[Type[Transform]]:
+    def get_transforms(self) -> List["Type[Transform]"]:
         transforms = super().get_transforms() + self.transforms
 
         # remove transforms which is not needed for Sphinx

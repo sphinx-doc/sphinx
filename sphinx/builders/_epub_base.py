@@ -173,7 +173,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Replace all characters not allowed in text an attribute values."""
         warnings.warn(
             '%s.esc() is deprecated. Use html.escape() instead.' % self.__class__.__name__,
-            RemovedInSphinx40Warning)
+            RemovedInSphinx40Warning, stacklevel=2)
         name = name.replace('&', '&amp;')
         name = name.replace('<', '&lt;')
         name = name.replace('>', '&gt;')

@@ -374,3 +374,81 @@ def test_formfeed_char():
     parser = Parser(source)
     parser.parse()
     assert parser.comments == {('Foo', 'attr'): 'comment'}
+
+
+def test_typing_final():
+    source = ('import typing\n'
+              '\n'
+              '@typing.final\n'
+              'def func(): pass\n'
+              '\n'
+              '@typing.final\n'
+              'class Foo:\n'
+              '    @typing.final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == ['func', 'Foo', 'Foo.meth']
+
+
+def test_typing_final_from_import():
+    source = ('from typing import final\n'
+              '\n'
+              '@final\n'
+              'def func(): pass\n'
+              '\n'
+              '@final\n'
+              'class Foo:\n'
+              '    @final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == ['func', 'Foo', 'Foo.meth']
+
+
+def test_typing_final_import_as():
+    source = ('import typing as foo\n'
+              '\n'
+              '@foo.final\n'
+              'def func(): pass\n'
+              '\n'
+              '@foo.final\n'
+              'class Foo:\n'
+              '    @typing.final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == ['func', 'Foo']
+
+
+def test_typing_final_from_import_as():
+    source = ('from typing import final as bar\n'
+              '\n'
+              '@bar\n'
+              'def func(): pass\n'
+              '\n'
+              '@bar\n'
+              'class Foo:\n'
+              '    @final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == ['func', 'Foo']
+
+
+def test_typing_final_not_imported():
+    source = ('@typing.final\n'
+              'def func(): pass\n'
+              '\n'
+              '@typing.final\n'
+              'class Foo:\n'
+              '    @final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == []

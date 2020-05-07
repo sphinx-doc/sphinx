@@ -30,7 +30,9 @@ _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
 _google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.*[^\s]+)\s*\)')
 _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
 _single_colon_regex = re.compile(r'(?<!:):(?!:)')
-_xref_regex = re.compile(r'(:(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)')
+_xref_or_code_regex = re.compile(
+    r'((?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)|'
+    r'(?:``.+``))')
 _bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
 _enumerated_list_regex = re.compile(
     r'^(?P<paren>\()?'
@@ -586,13 +588,12 @@ class GoogleDocstring:
                 lines.append('.. attribute:: ' + _name)
                 if self._opt and 'noindex' in self._opt:
                     lines.append('   :noindex:')
+                if _type:
+                    lines.extend(self._indent([':type: %s' % _type], 3))
                 lines.append('')
 
                 fields = self._format_field('', '', _desc)
                 lines.extend(self._indent(fields, 3))
-                if _type:
-                    lines.append('')
-                    lines.extend(self._indent([':type: %s' % _type], 3))
                 lines.append('')
         if self._config.napoleon_use_ivar:
             lines.append('')
@@ -728,7 +729,7 @@ class GoogleDocstring:
         after_colon = []
         colon = ''
         found_colon = False
-        for i, source in enumerate(_xref_regex.split(line)):
+        for i, source in enumerate(_xref_or_code_regex.split(line)):
             if found_colon:
                 after_colon.append(source)
             else:

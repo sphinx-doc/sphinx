@@ -317,6 +317,15 @@ def test_signature_from_str_complex_annotations():
     assert sig.return_annotation == 'Callable[[int, int], int]'
 
 
+def test_signature_from_str_kwonly_args():
+    sig = inspect.signature_from_str('(a, *, b)')
+    assert list(sig.parameters.keys()) == ['a', 'b']
+    assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['a'].default == Parameter.empty
+    assert sig.parameters['b'].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters['b'].default == Parameter.empty
+
+
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='python-3.8 or above is required')
 def test_signature_from_str_positionaly_only_args():
@@ -555,3 +564,18 @@ def test_unpartial():
 
     assert inspect.unpartial(func2) is func1
     assert inspect.unpartial(func3) is func1
+
+
+def test_getdoc_inherited_decorated_method():
+    class Foo:
+        def meth(self):
+            """docstring."""
+
+    class Bar(Foo):
+        @functools.lru_cache()
+        def meth(self):
+            # inherited and decorated method
+            pass
+
+    assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == "docstring."

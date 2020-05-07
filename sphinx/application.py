@@ -990,7 +990,7 @@ class Sphinx:
         if isinstance(lexer, Lexer):
             warnings.warn('app.add_lexer() API changed; '
                           'Please give lexer class instead instance',
-                          RemovedInSphinx40Warning)
+                          RemovedInSphinx40Warning, stacklevel=2)
             lexers[alias] = lexer
         else:
             lexer_classes[alias] = lexer
