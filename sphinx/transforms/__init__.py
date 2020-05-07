@@ -23,6 +23,7 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import _, __
+from sphinx.util import docutils
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
@@ -360,12 +361,18 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     def get_tokens(self, txtnodes: List[Text]) -> Generator[Tuple[str, str], None, None]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
-
-        texttype = {True: 'literal',  # "literal" text is not changed:
-                    False: 'plain'}
         for txtnode in txtnodes:
-            notsmartquotable = not is_smartquotable(txtnode)
-            yield (texttype[notsmartquotable], txtnode.astext())
+            if is_smartquotable(txtnode):
+                if docutils.__version_info__ >= (0, 16):
+                    # SmartQuotes uses backslash escapes instead of null-escapes
+                    text = re.sub(r'(?<=\x00)([-\\\'".`])', r'\\\1', str(txtnode))
+                else:
+                    text = txtnode.astext()
+
+                yield ('plain', text)
+            else:
+                # skip smart quotes
+                yield ('literal', txtnode.astext())
 
 
 class DoctreeReadEvent(SphinxTransform):
