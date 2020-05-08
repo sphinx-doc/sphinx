@@ -642,6 +642,28 @@ class Documenter:
 
         return ret
 
+    @staticmethod
+    def get_attributes(obj: Any, _cache: Dict[Any, List[str]] = {}) -> List[str]:
+        """
+        Get the object's namespace with the order preserved as best as possible.
+
+        *_cache* is used internally and should not be set to anything else.
+        """
+        try:
+            names = _cache[obj]
+        except KeyError:
+            names = _cache[obj] = []
+            dirspace = dir(obj)
+            try:
+                dictspace = obj.__dict__.keys()
+            except KeyError:
+                pass
+            else:
+                names.extend(dictspace)
+                dirspace = sorted(set(dirspace).difference(dictspace))
+            names.extend(dirspace)
+        return names
+
     def document_members(self, all_members: bool = False) -> None:
         """Generate reST for member documentation.
 
@@ -697,6 +719,17 @@ class Documenter:
             def keyfunc(entry: Tuple[Documenter, bool]) -> int:
                 fullname = entry[0].name.split('::')[1]
                 return tagorder.get(fullname, len(tagorder))
+            memberdocumenters.sort(key=keyfunc)
+        elif member_order == 'byobject':
+            # sort in order of addition to parents' namespace
+            def keyfunc(entry: Tuple[Documenter, bool], cache = {}) -> int:
+                fullname = entry[0].name.split('::')[1]
+                child_obj = self.module
+                for name in fullname.split('.'):
+                    parent_obj = child_obj
+                    child_obj = getattr(parent_obj, name)
+                names = self.get_attributes(parent_obj)
+                return names.index(child_obj.__name__)
             memberdocumenters.sort(key=keyfunc)
 
         for documenter, isattr in memberdocumenters:
