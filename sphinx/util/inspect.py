@@ -389,12 +389,23 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     Why this function needed? CPython implements int.__init__ by Descriptor
     but PyPy implements it by pure Python code.
     """
-    classes = [c for c in inspect.getmro(obj) if attr_name in c.__dict__]
-    cls = classes[0] if classes else object
-
-    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):
+    try:
+        mro = inspect.getmro(obj)
+    except AttributeError:
+        # no __mro__, assume the object has no methods as we know them
         return False
-    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls
+
+    try:
+        cls = next(c for c in mro if attr_name in safe_getattr(c, '__dict__', {}))
+    except StopIteration:
+        return False
+
+    try:
+        name = safe_getattr(cls, '__name__')
+    except AttributeError:
+        return False
+
+    return getattr(builtins, name, None) is cls
 
 
 def signature(subject: Callable, bound_method: bool = False) -> inspect.Signature:

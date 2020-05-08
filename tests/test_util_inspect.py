@@ -18,7 +18,7 @@ from inspect import Parameter
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import stringify_signature
+from sphinx.util.inspect import stringify_signature, is_builtin_class_method
 
 
 def test_signature():
@@ -579,3 +579,21 @@ def test_getdoc_inherited_decorated_method():
 
     assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
     assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == "docstring."
+
+
+def test_is_builtin_class_method():
+    class MyInt(int):
+        def my_method(self):
+            pass
+
+    assert inspect.is_builtin_class_method(MyInt, 'to_bytes')
+    assert inspect.is_builtin_class_method(MyInt, '__init__')
+    assert not inspect.is_builtin_class_method(MyInt, 'my_method')
+    assert not inspect.is_builtin_class_method(MyInt, 'does_not_exist')
+    assert not inspect.is_builtin_class_method(4, 'still does not crash')
+
+    class ObjectWithMroAttr:
+        def __init__(self, mro_attr):
+            self.__mro__ = mro_attr
+
+    assert not inspect.is_builtin_class_method(ObjectWithMroAttr([1, 2, 3]), 'still does not crash')
