@@ -39,6 +39,12 @@ TitleGetter = Callable[[nodes.Node], str]
 Inventory = Dict[str, Dict[str, Tuple[str, str, str, str]]]
 
 
+def is_system_TypeVar(typ: Any) -> bool:
+    """Check *typ* is system defined TypeVar."""
+    modname = getattr(typ, '__module__', '')
+    return modname == 'typing' and isinstance(typ, TypeVar)  # type: ignore
+
+
 def stringify(annotation: Any) -> str:
     """Stringify type annotation object."""
     if isinstance(annotation, str):
@@ -96,7 +102,8 @@ def _stringify_py37(annotation: Any) -> str:
             return '%s[[%s], %s]' % (qualname, args, returns)
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify(annotation.__args__[0])
-        elif getattr(annotation, '_special', False):
+        elif all(is_system_TypeVar(a) for a in annotation.__args__):
+            # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
             return qualname
         else:
             args = ', '.join(stringify(a) for a in annotation.__args__)
