@@ -38,7 +38,6 @@ r"""
 import builtins
 import inspect
 import re
-from hashlib import md5
 from importlib import import_module
 from typing import Any, Dict, Iterable, List, Tuple
 from typing import cast
@@ -55,6 +54,7 @@ from sphinx.ext.graphviz import (
     graphviz, figure_wrapper,
     render_dot_html, render_dot_latex, render_dot_texinfo
 )
+from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
