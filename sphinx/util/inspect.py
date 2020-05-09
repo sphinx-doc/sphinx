@@ -413,12 +413,6 @@ def signature(subject: Callable, bound_method: bool = False) -> inspect.Signatur
 
     :param bound_method: Specify *subject* is a bound method or not
     """
-    # check subject is not a built-in class (ex. int, str)
-    if (isinstance(subject, type) and
-            is_builtin_class_method(subject, "__new__") and
-            is_builtin_class_method(subject, "__init__")):
-        raise TypeError("can't compute signature for built-in type {}".format(subject))
-
     try:
         signature = inspect.signature(subject)
         parameters = list(signature.parameters.values())

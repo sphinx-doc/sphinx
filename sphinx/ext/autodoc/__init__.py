@@ -1061,23 +1061,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             sig = inspect.signature(unwrapped)
             args = stringify_signature(sig, **kwargs)
         except TypeError:
-            if (inspect.is_builtin_class_method(unwrapped, '__new__') and
-               inspect.is_builtin_class_method(unwrapped, '__init__')):
-                raise TypeError('%r is a builtin class' % unwrapped)
-
-            # if a class should be documented as function (yay duck
-            # typing) we try to use the constructor signature as function
-            # signature without the first argument.
-            try:
-                self.env.app.emit('autodoc-before-process-signature',
-                                  unwrapped.__new__, True)
-                sig = inspect.signature(unwrapped.__new__, bound_method=True)
-                args = stringify_signature(sig, show_return_annotation=False, **kwargs)
-            except TypeError:
-                self.env.app.emit('autodoc-before-process-signature',
-                                  unwrapped.__init__, True)
-                sig = inspect.signature(unwrapped.__init__, bound_method=True)
-                args = stringify_signature(sig, show_return_annotation=False, **kwargs)
+            args = ''
 
         if self.env.config.strip_signature_backslash:
             # escape backslashes for reST
