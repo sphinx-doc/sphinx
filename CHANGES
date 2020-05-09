@@ -86,7 +86,6 @@ Bugs fixed
 * #7562: autodoc: a typehint contains spaces is wrongly rendered under
   autodoc_typehints='description' mode
 * #7551: autodoc: failed to import nested class
-* #7637: autodoc: system defined TypeVars are shown in Python 3.9
 * #7362: autodoc: does not render correct signatures for built-in functions
 * #7551: autosummary: a nested class is indexed as non-nested class
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
