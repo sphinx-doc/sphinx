@@ -275,7 +275,7 @@ def ask_user(d: Dict) -> None:
         print(__('Sphinx has the notion of a "version" and a "release" for the\n'
                  'software. Each version can have multiple releases. For example, for\n'
                  'Python the version is something like 2.5 or 3.0, while the release is\n'
-                 'something like 2.5.1 or 3.0a1.  If you don\'t need this dual structure,\n'
+                 'something like 2.5.1 or 3.0a1. If you don\'t need this dual structure,\n'
                  'just set both to the same value.'))
         d['version'] = do_prompt(__('Project version'), '', allow_empty)
     if 'release' not in d:
@@ -296,7 +296,7 @@ def ask_user(d: Dict) -> None:
     if 'suffix' not in d:
         print()
         print(__('The file name suffix for source files. Commonly, this is either ".txt"\n'
-                 'or ".rst".  Only files with this suffix are considered documents.'))
+                 'or ".rst". Only files with this suffix are considered documents.'))
         d['suffix'] = do_prompt(__('Source file suffix'), '.rst', suffix)
 
     if 'master' not in d:
