@@ -942,7 +942,7 @@ class ClassLevelDocumenter(Documenter):
 
             try:
                 modname, qualname = split_full_qualified_name(mod_cls)
-                parents = qualname.split(".")
+                parents = qualname.split(".") if qualname else []
             except ImportError:
                 parents = mod_cls.split(".")
 
@@ -1467,6 +1467,10 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     self.env.app.emit('autodoc-before-process-signature', unwrapped, True)
                     sig = inspect.signature(unwrapped, bound_method=True)
                 args = stringify_signature(sig, **kwargs)
+        except TypeError as exc:
+            logger.warning(__("Failed to get a method signature for %s: %s"),
+                           self.fullname, exc)
+            return None
         except ValueError:
             args = ''
 
