@@ -44,7 +44,7 @@ msgstr "स्फिंक्स %s संस्करण चल रहा ह�
 #: sphinx/application.py:202
 msgid ""
 "For security reason, parallel mode is disabled on macOS and python3.8 and "
-"above.  For more details, please read https://github.com/sphinx-"
+"above. For more details, please read https://github.com/sphinx-"
 "doc/sphinx/issues/6803"
 msgstr "सुरक्षा कारण वर्ष macOS तथा python 3.8 और अधिक, के साथ समानांतर कार्य शैली कि सुविधा उपलब्ध नहीं हैं | अधिक जानकारी के लिए, कृपया \"https://github.com/sphinx-doc/sphinx/issues/6803\" पढ़े |"
 
@@ -1134,7 +1134,7 @@ msgstr "पुनरावर्तन त्रुटि:"
 
 #: sphinx/cmd/build.py:62
 msgid ""
-"This can happen with very large or deeply nested source files.  You can "
+"This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
 msgstr "ऐसा बहुत बड़ी अथवा गहरे स्तर तक गई स्रोत फाइलों से संभव है. आप स्वतः मानक पाइथन पुनरावर्तन सीमा 1000 को conf.py में बाधा सकते हैं. जैसे कि:"
@@ -1171,7 +1171,7 @@ msgid ""
 "\n"
 "sphinx-build generates documentation from the files in SOURCEDIR and places it\n"
 "in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration\n"
-"settings.  The 'sphinx-quickstart' tool may be used to generate template files,\n"
+"settings. The 'sphinx-quickstart' tool may be used to generate template files,\n"
 "including 'conf.py'\n"
 "\n"
 "sphinx-build can create documentation in different formats. A format is\n"
@@ -1458,7 +1458,7 @@ msgid ""
 "Sphinx has the notion of a \"version\" and a \"release\" for the\n"
 "software. Each version can have multiple releases. For example, for\n"
 "Python the version is something like 2.5 or 3.0, while the release is\n"
-"something like 2.5.1 or 3.0a1.  If you don't need this dual structure,\n"
+"something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
 "just set both to the same value."
 msgstr "स्फिंक्स सॉफ्टवेयर के लिए संस्करण और आवृत्ति को मान्यता देता है.\nहर संस्करण की कई आवृत्तियाँ हो सकती हैं. उदाहरण के लिए,\nपाइथन संस्करण 2.5 अथवा 3.0 आदि हैं, और आवृत्ति\n2.5.1 अथवा 3.0a1 आदि हैं. यदि आपको इसे दो स्तर पर रखना नहीं चाहिए\nतो दोनों मान एक ही रख दें."
 
@@ -1487,7 +1487,7 @@ msgstr "परियोजना की भाषा"
 #: sphinx/cmd/quickstart.py:298
 msgid ""
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
-"or \".rst\".  Only files with this suffix are considered documents."
+"or \".rst\". Only files with this suffix are considered documents."
 msgstr ""
 
 #: sphinx/cmd/quickstart.py:300
@@ -2789,7 +2789,7 @@ msgstr "स्वतः-प्रभाग %s के लिए हस्ता�
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
-msgstr "__all__ अंतिम अक्षरमाला होनी चाहिए, न कि %r (%s प्रभाग में) --  __all__ की उपेक्षा की जाएगी"
+msgstr "__all__ अंतिम अक्षरमाला होनी चाहिए, न कि %r (%s प्रभाग में) -- __all__ की उपेक्षा की जाएगी"
 
 #: sphinx/ext/autodoc/__init__.py:852
 #, python-format

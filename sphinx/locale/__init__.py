@@ -17,7 +17,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 class _TranslationProxy(UserString):
     """
-    Class for proxy strings from gettext translations.  This is a helper for the
+    Class for proxy strings from gettext translations. This is a helper for the
     lazy_* functions from this module.
 
     The proxy implementation attempts to be as complete as possible, so that
@@ -109,7 +109,7 @@ translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullT
 def init(locale_dirs: List[str], language: str,
          catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
-    least a NullTranslations catalog set in `translators`.  If called multiple
+    least a NullTranslations catalog set in `translators`. If called multiple
     times or if several ``.mo`` files are found, their contents are merged
     together (thus making ``init`` reentrant).
     """

@@ -47,7 +47,7 @@ msgstr "Ejecutando Sphinx v%s"
 #: sphinx/application.py:202
 msgid ""
 "For security reason, parallel mode is disabled on macOS and python3.8 and "
-"above.  For more details, please read https://github.com/sphinx-"
+"above. For more details, please read https://github.com/sphinx-"
 "doc/sphinx/issues/6803"
 msgstr "Por razones de seguridad, el modo paralelo está deshabilitado en macOS y python3.8 y superior. Para más detalles, lea https://github.com/sphinx-doc/sphinx/issues/6803"
 
@@ -154,7 +154,7 @@ msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
 "assuming it isn't - please ask the extension author to check and make it "
 "explicit"
-msgstr "la extensión de %s no declara si es seguro para la lectura  en paralelo, asumiendo que no es - consulte con el autor de la extensión para comprobar y hacer explícito"
+msgstr "la extensión de %s no declara si es seguro para la lectura en paralelo, asumiendo que no es - consulte con el autor de la extensión para comprobar y hacer explícito"
 
 #: sphinx/application.py:1128
 #, python-format
@@ -1137,7 +1137,7 @@ msgstr "Error de recursión:"
 
 #: sphinx/cmd/build.py:62
 msgid ""
-"This can happen with very large or deeply nested source files.  You can "
+"This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
 msgstr "Esto puede suceder con archivos fuente muy grandes o profundamente anidados. Puede aumentar cuidadosamente el límite de recursión de Python predeterminado de 1000 en el archivo conf.py con, por ejemplo:"
@@ -1174,7 +1174,7 @@ msgid ""
 "\n"
 "sphinx-build generates documentation from the files in SOURCEDIR and places it\n"
 "in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration\n"
-"settings.  The 'sphinx-quickstart' tool may be used to generate template files,\n"
+"settings. The 'sphinx-quickstart' tool may be used to generate template files,\n"
 "including 'conf.py'\n"
 "\n"
 "sphinx-build can create documentation in different formats. A format is\n"
@@ -1184,7 +1184,7 @@ msgid ""
 "\n"
 "By default, everything that is outdated is built. Output only for selected\n"
 "files can be built by specifying individual filenames.\n"
-msgstr "\nGenerar documentación a partir de archivos fuente.\n\nsphinx-build genera documentación de los archivos en SOURCEDIR y la coloca\nen OUTPUTDIR. Busca el archivo 'conf.py' en SOURCEDIR para los ajustes de la \nconfiguración.  La herramienta 'sphinx-quickstart' puede usarse para generar archivos de plantilla,\nincluyendo el archivo 'conf.py'\n\nsphinx-build puede crear documentación en diferentes formatos. Un formato es\nseleccionado especificando el nombre del constructor en la línea de comando; por defecto es\nHTML. Los constructores también pueden realizar otras tareas relacionadas con la\ndocumentación.\n\nPor defecto, todo lo que está desactualizado está construido. Salida solo para los archivos\nseleccionados se pueden construir especificando nombres de archivo individuales.\n"
+msgstr "\nGenerar documentación a partir de archivos fuente.\n\nsphinx-build genera documentación de los archivos en SOURCEDIR y la coloca\nen OUTPUTDIR. Busca el archivo 'conf.py' en SOURCEDIR para los ajustes de la \nconfiguración. La herramienta 'sphinx-quickstart' puede usarse para generar archivos de plantilla,\nincluyendo el archivo 'conf.py'\n\nsphinx-build puede crear documentación en diferentes formatos. Un formato es\nseleccionado especificando el nombre del constructor en la línea de comando; por defecto es\nHTML. Los constructores también pueden realizar otras tareas relacionadas con la\ndocumentación.\n\nPor defecto, todo lo que está desactualizado está construido. Salida solo para los archivos\nseleccionados se pueden construir especificando nombres de archivo individuales.\n"
 
 #: sphinx/cmd/build.py:122
 msgid "path to documentation source files"
@@ -1461,7 +1461,7 @@ msgid ""
 "Sphinx has the notion of a \"version\" and a \"release\" for the\n"
 "software. Each version can have multiple releases. For example, for\n"
 "Python the version is something like 2.5 or 3.0, while the release is\n"
-"something like 2.5.1 or 3.0a1.  If you don't need this dual structure,\n"
+"something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
 "just set both to the same value."
 msgstr "Sphinx tiene la noción de una \"version\" y un \"release\" para el\nsoftware. Cada versión puede tener múltiples versiones. Por ejemplo, para\nPython la versión es algo así como 2.5 o 3.0, mientras que el lanzamiento es\nalgo así como 2.5.1 o 3.0a1. Si no necesita esta estructura dual,\nsolo establezca ambos en el mismo valor."
 
@@ -1490,7 +1490,7 @@ msgstr "Lenguaje del proyecto"
 #: sphinx/cmd/quickstart.py:298
 msgid ""
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
-"or \".rst\".  Only files with this suffix are considered documents."
+"or \".rst\". Only files with this suffix are considered documents."
 msgstr "El sufijo del nombre de archivo para los archivos de origen. Comúnmente, esto es \".txt\"\no \".rst\". Solo los archivos con este sufijo se consideran documentos."
 
 #: sphinx/cmd/quickstart.py:300
@@ -2617,7 +2617,7 @@ msgstr "[gráfica]"
 #: sphinx/ext/imgconverter.py:41 sphinx/ext/imgconverter.py:65
 #, python-format
 msgid "convert command %r cannot be run, check the image_converter setting"
-msgstr "el comando convert %r no puede ejecutar, compruebe el valor  de configuración image_converter"
+msgstr "el comando convert %r no puede ejecutar, compruebe el valor de configuración image_converter"
 
 #: sphinx/ext/imgconverter.py:46 sphinx/ext/imgconverter.py:70
 #, python-format
