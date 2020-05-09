@@ -1056,7 +1056,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
             sig = inspect.signature(unwrapped)
             args = stringify_signature(sig, **kwargs)
-        except TypeError:
+        except TypeError as exc:
+            logger.warning(__("Failed to get a function signature for %s: %s"),
+                           self.fullname, exc)
+            return None
+        except ValueError:
             args = ''
 
         if self.env.config.strip_signature_backslash:
