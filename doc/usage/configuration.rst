@@ -1385,7 +1385,7 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.3
 
-   .. versionchanged:: 2.4
+   .. versionchanged:: 3.0
 
       It is disabled for images having ``no-scaled-link`` class
 
