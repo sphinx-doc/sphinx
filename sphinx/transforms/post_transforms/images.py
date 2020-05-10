@@ -193,7 +193,9 @@ class ImageConverter(BaseImageConverter):
         super().__init__(*args, **kwargs)
 
     def match(self, node: nodes.image) -> bool:
-        if self.available is None:
+        if not self.app.builder.supported_image_types:
+            return False
+        elif self.available is None:
             self.available = self.is_available()
 
         if not self.available:
