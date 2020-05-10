@@ -1256,6 +1256,7 @@ def test_automethod_for_builtin(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_abstractmethods(app):
     options = {"members": None,
                "undoc-members": None}
@@ -1304,6 +1305,7 @@ def test_abstractmethods(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_partialfunction(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.partialfunction', options)
@@ -1338,6 +1340,7 @@ def test_partialfunction(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_imported_partialfunction_should_not_shown_without_imported_members(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.imported_members', options)
@@ -1348,6 +1351,7 @@ def test_imported_partialfunction_should_not_shown_without_imported_members(app)
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_bound_method(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.bound_method', options)
@@ -1364,6 +1368,7 @@ def test_bound_method(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_coroutine(app):
     actual = do_autodoc(app, 'function', 'target.functions.coroutinefunc')
     assert list(actual) == [
@@ -1620,6 +1625,7 @@ def test_autodoc_for_egged_code(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
@@ -1638,6 +1644,7 @@ def test_singledispatch(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatch_autofunction(app):
     options = {}
     actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
@@ -1655,6 +1662,7 @@ def test_singledispatch_autofunction(app):
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='singledispatchmethod is available since python3.8')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatchmethod', options)
@@ -1681,6 +1689,7 @@ def test_singledispatchmethod(app):
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='singledispatchmethod is available since python3.8')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod_automethod(app):
     options = {}
     actual = do_autodoc(app, 'method', 'target.singledispatchmethod.Foo.meth', options)
@@ -1697,6 +1706,7 @@ def test_singledispatchmethod_automethod(app):
 
 
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cython(app):
     options = {"members": None,
                "undoc-members": None}
@@ -1728,6 +1738,7 @@ def test_cython(app):
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='typing.final is available since python3.8')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_final(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.final', options)
