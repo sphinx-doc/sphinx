@@ -1051,10 +1051,12 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
-        unwrapped = inspect.unwrap(self.object)
         try:
-            self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
-            sig = inspect.signature(unwrapped)
+            self.env.app.emit('autodoc-before-process-signature', self.object, False)
+            if inspect.is_singledispatch_function(self.object):
+                sig = inspect.signature(self.object, follow_wrapped=True)
+            else:
+                sig = inspect.signature(self.object)
             args = stringify_signature(sig, **kwargs)
         except TypeError:
             args = ''
@@ -1447,7 +1449,6 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
-        unwrapped = inspect.unwrap(self.object)
         try:
             if self.object == object.__init__ and self.parent != object:
                 # Classes not having own __init__() method are shown as no arguments.
@@ -1456,12 +1457,18 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 #       But it makes users confused.
                 args = '()'
             else:
-                if inspect.isstaticmethod(unwrapped, cls=self.parent, name=self.object_name):
-                    self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
-                    sig = inspect.signature(unwrapped, bound_method=False)
+                if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
+                    self.env.app.emit('autodoc-before-process-signature', self.object, False)
+                    sig = inspect.signature(self.object, bound_method=False)
                 else:
-                    self.env.app.emit('autodoc-before-process-signature', unwrapped, True)
-                    sig = inspect.signature(unwrapped, bound_method=True)
+                    self.env.app.emit('autodoc-before-process-signature', self.object, True)
+
+                    meth = self.parent.__dict__.get(self.objpath[-1], None)
+                    if meth and inspect.is_singledispatch_method(meth):
+                        sig = inspect.signature(self.object, bound_method=True,
+                                                follow_wrapped=True)
+                    else:
+                        sig = inspect.signature(self.object, bound_method=True)
                 args = stringify_signature(sig, **kwargs)
         except ValueError:
             args = ''
@@ -1514,7 +1521,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 self.annotate_to_first_argument(func, typ)
 
                 documenter = MethodDocumenter(self.directive, '')
+                documenter.parent = self.parent
                 documenter.object = func
+                documenter.objpath = self.objpath
                 self.add_line('   %s%s' % (self.format_name(),
                                            documenter.format_signature()),
                               sourcename)

@@ -88,6 +88,7 @@ Bugs fixed
   autodoc_typehints='description' mode
 * #7551: autodoc: failed to import nested class
 * #7362: autodoc: does not render correct signatures for built-in functions
+* #7650: autodoc: undecorated signature is shown for decorated functions
 * #7551: autosummary: a nested class is indexed as non-nested class
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
