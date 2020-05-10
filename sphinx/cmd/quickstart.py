@@ -11,6 +11,7 @@
 import argparse
 import locale
 import os
+import pathlib
 import re
 import sys
 import time
@@ -357,6 +358,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     d.setdefault('extensions', [])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
 
+    d["path"] = pathlib.Path(d['path']).resolve()
     ensuredir(d['path'])
 
     srcdir = path.join(d['path'], 'source') if d['sep'] else d['path']
