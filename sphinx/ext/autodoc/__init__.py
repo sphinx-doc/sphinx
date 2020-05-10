@@ -722,7 +722,7 @@ class Documenter:
             memberdocumenters.sort(key=keyfunc)
         elif member_order == 'byobject':
             # sort in order of addition to parents' namespace
-            def keyfunc(entry: Tuple[Documenter, bool], cache = {}) -> int:
+            def keyfunc(entry: Tuple[Documenter, bool]) -> int:
                 fullname = entry[0].name.split('::')[1]
                 child_obj = self.module
                 for name in fullname.split('.'):
