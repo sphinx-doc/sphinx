@@ -96,6 +96,10 @@ def f19(*args: int, **kwargs: str):
     pass
 
 
+def f20() -> Optional[Union[int, str]]:
+    pass
+
+
 
 class Node:
     def __init__(self, parent: Optional['Node']) -> None:
