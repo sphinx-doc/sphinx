@@ -680,6 +680,10 @@ span.pre {
     hyphens: none;
 }
 
+div[class^="highlight-"] {
+    margin: 1em 0;
+}
+
 td.linenos pre {
     border: 0;
     background-color: transparent;
@@ -688,7 +692,6 @@ td.linenos pre {
 
 table.highlighttable {
     display: block;
-    margin: 1em 0;
 }
 
 table.highlighttable tbody {
@@ -717,11 +720,12 @@ table.highlighttable td.code {
     display: block;
 }
 
+div.highlight pre,
 table.highlighttable pre {
     margin: 0;
 }
 
-div.code-block-caption + div > table.highlighttable {
+div.code-block-caption + div {
     margin-top: 0;
 }
 
@@ -733,10 +737,6 @@ div.code-block-caption {
 
 div.code-block-caption code {
     background-color: transparent;
-}
-
-div.code-block-caption + div > div.highlight > pre {
-    margin-top: 0;
 }
 
 table.highlighttable td.linenos,
