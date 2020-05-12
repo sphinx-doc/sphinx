@@ -316,7 +316,7 @@ img.align-default, .figure.align-default {
 div.sidebar {
     margin: 0 0 0.5em 1em;
     border: 1px solid #ddb;
-    padding: 7px 7px 0 7px;
+    padding: 7px;
     background-color: #ffe;
     width: 40%;
     float: right;
@@ -336,7 +336,7 @@ div.admonition, div.topic, pre, div[class|="highlight"] {
 
 div.topic {
     border: 1px solid #ccc;
-    padding: 7px 7px 0 7px;
+    padding: 7px;
     margin: 10px 0 10px 0;
     overflow-x: auto;
 }
