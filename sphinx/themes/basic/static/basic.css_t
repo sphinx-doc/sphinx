@@ -575,6 +575,11 @@ dd {
     margin-left: 30px;
 }
 
+dl > dd:last-child,
+dl > dd:last-child > :last-child {
+    margin-bottom: 0;
+}
+
 dt:target, span.highlighted {
     background-color: #fbe54e;
 }
