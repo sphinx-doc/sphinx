@@ -360,10 +360,6 @@ div.admonition dt {
     font-weight: bold;
 }
 
-div.admonition dl {
-    margin-bottom: 0;
-}
-
 p.admonition-title {
     margin: 0px 10px 5px 0px;
     font-weight: bold;
@@ -372,6 +368,14 @@ p.admonition-title {
 div.body p.centered {
     text-align: center;
     margin-top: 25px;
+}
+
+/* -- content of sidebars/topics/admonitions -------------------------------- */
+
+div.sidebar > :last-child,
+div.topic > :last-child,
+div.admonition > :last-child {
+    margin-bottom: 0;
 }
 
 /* -- tables ---------------------------------------------------------------- */
