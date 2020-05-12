@@ -482,6 +482,10 @@ table.field-list td, table.field-list th {
 
 /* -- hlist styles ---------------------------------------------------------- */
 
+table.hlist {
+    margin: 1em 0;
+}
+
 table.hlist td {
     vertical-align: top;
 }
