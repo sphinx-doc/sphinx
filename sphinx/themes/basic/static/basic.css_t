@@ -426,13 +426,13 @@ table.citation td {
     border-bottom: none;
 }
 
-th > p:first-child,
-td > p:first-child {
+th > :first-child,
+td > :first-child {
     margin-top: 0px;
 }
 
-th > p:last-child,
-td > p:last-child {
+th > :last-child,
+td > :last-child {
     margin-bottom: 0px;
 }
 
@@ -505,11 +505,11 @@ ol.upperroman {
     list-style: upper-roman;
 }
 
-li > p:first-child {
+li > :first-child {
     margin-top: 0px;
 }
 
-li > p:last-child {
+li > :last-child {
     margin-bottom: 0px;
 }
 
@@ -557,7 +557,7 @@ dl {
     margin-bottom: 15px;
 }
 
-dd > p:first-child {
+dd > :first-child {
     margin-top: 0px;
 }
 
