@@ -91,11 +91,15 @@ def _stringify_py37(annotation: Any) -> str:
 
     if getattr(annotation, '__args__', None):
         if qualname == 'Union':
-            if len(annotation.__args__) == 2 and annotation.__args__[1] is NoneType:  # type: ignore  # NOQA
-                return 'Optional[%s]' % stringify(annotation.__args__[0])
+            if len(annotation.__args__) > 1 and annotation.__args__[-1] is NoneType:  # type: ignore  # NOQA
+                if len(annotation.__args__) > 2:
+                    args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
+                    return 'Optional[Union[%s]]' % args
+                else:
+                    return 'Optional[%s]' % stringify(annotation.__args__[0])
             else:
                 args = ', '.join(stringify(a) for a in annotation.__args__)
-                return '%s[%s]' % (qualname, args)
+                return 'Union[%s]' % args
         elif qualname == 'Callable':
             args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
             returns = stringify(annotation.__args__[-1])
@@ -170,8 +174,12 @@ def _stringify_py36(annotation: Any) -> str:
           annotation.__origin__ is typing.Union):  # for Python 3.5.2+
         params = annotation.__args__
         if params is not None:
-            if len(params) == 2 and params[1] is NoneType:  # type: ignore
-                return 'Optional[%s]' % stringify(params[0])
+            if len(params) > 1 and params[-1] is NoneType:  # type: ignore
+                if len(params) > 2:
+                    param_str = ", ".join(stringify(p) for p in params[:-1])
+                    return 'Optional[Union[%s]]' % param_str
+                else:
+                    return 'Optional[%s]' % stringify(params[0])
             else:
                 param_str = ', '.join(stringify(p) for p in params)
                 return 'Union[%s]' % param_str
