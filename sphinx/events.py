@@ -16,7 +16,7 @@ from operator import attrgetter
 from typing import Any, Callable, Dict, List, NamedTuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.errors import ExtensionError
+from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 
@@ -100,11 +100,17 @@ class EventManager:
         results = []
         listeners = sorted(self.listeners[name], key=attrgetter("priority"))
         for listener in listeners:
-            if self.app is None:
-                # for compatibility; RemovedInSphinx40Warning
-                results.append(listener.handler(*args))
-            else:
-                results.append(listener.handler(self.app, *args))
+            try:
+                if self.app is None:
+                    # for compatibility; RemovedInSphinx40Warning
+                    results.append(listener.handler(*args))
+                else:
+                    results.append(listener.handler(self.app, *args))
+            except SphinxError:
+                raise
+            except Exception as exc:
+                raise ExtensionError(__("Handler %r for event %r threw an exception") %
+                                     (listener.handler, name)) from exc
         return results
 
     def emit_firstresult(self, name: str, *args: Any) -> Any:

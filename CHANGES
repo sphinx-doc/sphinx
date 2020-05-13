@@ -103,6 +103,7 @@ Bugs fixed
 * #7628: imgconverter: runs imagemagick once unnecessary for builders not
   supporting images
 * #7610: incorrectly renders consecutive backslashes for docutils-0.16
+* #7646: handle errors on event handlers
 
 Testing
 --------
