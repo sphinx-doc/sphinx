@@ -194,6 +194,15 @@ def test_diagram_w_nested_classes(status, build_context):
         ]
 
 
+@pytest.mark.usefixtures('if_graphviz_found')
+@pytest.mark.sphinx(buildername="html", testroot="inheritance")
+def test_diagram_w_uml(status, build_context):
+    """Check that the empty arrow is part of the UML diagram
+    """
+    dot = build_context['diagram_w_uml'].dot
+    assert 'arrowtail="empty"' in dot
+
+
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_png_html(app, status, warning):
