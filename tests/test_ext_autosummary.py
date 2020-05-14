@@ -205,15 +205,14 @@ def test_autosummary_generate(app, status, warning):
                                                                 [nodes.tbody, (nodes.row,
                                                                                nodes.row,
                                                                                nodes.row,
-                                                                               nodes.row,
                                                                                nodes.row)])])
     assert_node(doctree[4][0], addnodes.toctree, caption="An autosummary")
 
+    assert len(doctree[3][0][0][2]) == 4
     assert doctree[3][0][0][2][0].astext() == 'autosummary_dummy_module\n\n'
     assert doctree[3][0][0][2][1].astext() == 'autosummary_dummy_module.Foo()\n\n'
     assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.Foo.Bar\n\n'
     assert doctree[3][0][0][2][3].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
-    assert doctree[3][0][0][2][4].astext() == 'autosummary_importfail\n\n'
 
     module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
     assert ('   .. autosummary::\n'
