@@ -11,11 +11,12 @@
 import re
 import os
 import sys
+import collections
 
 import pytest
 
 from sphinx.ext.inheritance_diagram import (
-    InheritanceDiagram, InheritanceException, import_classes
+    InheritanceDiagram, InheritanceGraph, InheritanceException, import_classes
 )
 
 CACHE = None
@@ -31,44 +32,57 @@ def build_context(make_app, app_params, warning):
     if CACHE is not None:
         return CACHE
 
-    # monkey-patch InheritaceDiagram.run() so we can get access to its
-    # results.
+    # monkey-patch InheritaceDiagram.run() and InheritanceGraph.generate_dot()
+    # so we can get access to its results.
     orig_run = InheritanceDiagram.run
+    orig_generate_dot = InheritanceGraph.generate_dot
     graphs = {}
+    dots = {}
 
     def new_run(self):
         result = orig_run(self)
         node = result[0]
         source = os.path.basename(node.document.current_source).replace(".rst", "")
         graphs[source] = node['graph']
+        node['graph']._source = source
+        return result
+
+    def new_generate_dot(self, *args, **kwargs):
+        result = orig_generate_dot(self, *args, **kwargs)
+        dots[self._source] = result
         return result
 
     InheritanceDiagram.run = new_run
+    InheritanceGraph.generate_dot = new_generate_dot
 
     try:
         args, kwargs = app_params
-        print(args, kwargs)
         app = make_app(*args, **kwargs)
         app.builder.build_all()
     finally:
         InheritanceDiagram.run = orig_run
+        InheritanceGraph.generate_dot = orig_generate_dot
 
     assert app.statuscode == 0
 
     html_warnings = warning.getvalue()
     assert html_warnings == ""
+    
+    results = {}
+    Result = collections.namedtuple("Result", ["graph", "dot"])
+    for k in graphs:
+        r = Result(graphs[k], dots[k])
+        results[k] = r
 
-    CACHE = graphs
-    return graphs
+    CACHE = results
+    return results
 
 
 @pytest.mark.usefixtures('if_graphviz_found')
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
 def test_basic_diagram(status, build_context):
     """Basic inheritance diagram showing all classes"""
-    print("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
-    print(build_context)
-    for cls in build_context['basic_diagram'].class_info:
+    for cls in build_context['basic_diagram'].graph.class_info:
         # use in b/c traversing order is different sometimes
         assert cls in [
             ('dummy.test.A', 'dummy.test.A', [], None),
@@ -83,7 +97,7 @@ def test_basic_diagram(status, build_context):
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
 def test_diagram_w_parts(status, build_context):
     """Inheritance diagram using :parts: 1 option"""
-    for cls in build_context['diagram_w_parts'].class_info:
+    for cls in build_context['diagram_w_parts'].graph.class_info:
         assert cls in [
             ('A', 'dummy.test.A', [], None),
             ('F', 'dummy.test.F', ['C'], None),
@@ -106,7 +120,7 @@ def test_diagram_w_1_top_class(status, build_context):
     #    / \ / \
     #   E   D   F
     #
-    for cls in build_context['diagram_w_1_top_class'].class_info:
+    for cls in build_context['diagram_w_1_top_class'].graph.class_info:
         assert cls in [
             ('dummy.test.A', 'dummy.test.A', [], None),
             ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
@@ -129,7 +143,7 @@ def test_diagram_w_2_top_classes(status, build_context):
     #    / \ / \
     #   E   D   F
     #
-    for cls in build_context['diagram_w_2_top_classes'].class_info:
+    for cls in build_context['diagram_w_2_top_classes'].graph.class_info:
         assert cls in [
             ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
             ('dummy.test.C', 'dummy.test.C', [], None),
@@ -156,7 +170,7 @@ def test_diagram_module_w_2_top_classes(status, build_context):
     # hard to exclude parent classes once after they have been included in the graph.
     # If you'd like to not show class A in the graph don't specify the entire module.
     # this is a known issue.
-    for cls in build_context['diagram_module_w_2_top_classes'].class_info:
+    for cls in build_context['diagram_module_w_2_top_classes'].graph.class_info:
         assert cls in [
             ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
             ('dummy.test.C', 'dummy.test.C', [], None),
@@ -172,7 +186,7 @@ def test_diagram_module_w_2_top_classes(status, build_context):
 def test_diagram_w_nested_classes(status, build_context):
     """Inheritance diagram involving a base class nested within another class
     """
-    for cls in build_context['diagram_w_nested_classes'].class_info:
+    for cls in build_context['diagram_w_nested_classes'].graph.class_info:
         assert cls in [
             ('dummy.test_nested.A', 'dummy.test_nested.A', [], None),
             ('dummy.test_nested.C', 'dummy.test_nested.C', ['dummy.test_nested.A.B'], None),
