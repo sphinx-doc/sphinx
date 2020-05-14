@@ -397,7 +397,7 @@ def test_autosummary_template(app):
                     confoverrides={'autosummary_generate': []})
 def test_empty_autosummary_generate(app, status, warning):
     app.build()
-    assert ("WARNING: autosummary: stub file not found 'autosummary_importfail'"
+    assert ("WARNING: autosummary: failed to import autosummary_importfail"
             in warning.getvalue())
 
 
