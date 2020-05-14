@@ -138,13 +138,14 @@ class InheritanceGraph:
     """
     def __init__(self, class_names: List[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0, aliases: Dict[str, str] = None,
-                 top_classes: List[Any] = []) -> None:
+                 top_classes: List[Any] = [], style: str = "default") -> None:
         """*class_names* is a list of child classes to show bases from.
 
         If *show_builtins* is True, then Python builtins will be shown
         in the graph.
         """
         self.class_names = class_names
+        self.diagram_style = style
         classes = self._import_classes(class_names, currmodule)
         self.class_info = self._class_info(classes, show_builtins,
                                            private_bases, parts, aliases, top_classes)
@@ -262,6 +263,13 @@ class InheritanceGraph:
         'arrowsize': 0.5,
         'style': '"setlinewidth(0.5)"',
     }
+    uml_edge_attrs = {
+        'arrowsize': 0.8,
+        'style': '"setlinewidth(0.5)"',
+        'arrowtail': '"empty"',
+        'arrowhead': '"none"',
+        'dir': '"both"',
+    }
 
     def _format_node_attrs(self, attrs: Dict) -> str:
         return ','.join(['%s=%s' % x for x in sorted(attrs.items())])
@@ -284,7 +292,10 @@ class InheritanceGraph:
         """
         g_attrs = self.default_graph_attrs.copy()
         n_attrs = self.default_node_attrs.copy()
-        e_attrs = self.default_edge_attrs.copy()
+        if self.diagram_style == "uml":
+            e_attrs = self.uml_edge_attrs.copy()
+        else:
+            e_attrs = self.default_edge_attrs.copy()
         g_attrs.update(graph_attrs)
         n_attrs.update(node_attrs)
         e_attrs.update(edge_attrs)
@@ -324,6 +335,10 @@ class inheritance_diagram(graphviz):
     pass
 
 
+def style_spec(argument: Any) -> str:
+    return directives.choice(argument, ('default', 'uml', None))
+
+
 class InheritanceDiagram(SphinxDirective):
     """
     Run when the inheritance_diagram directive is first encountered.
@@ -334,6 +349,7 @@ class InheritanceDiagram(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {
         'parts': int,
+        'style': style_spec,
         'private-bases': directives.flag,
         'caption': directives.unchanged,
         'top-classes': directives.unchanged_required,
@@ -346,6 +362,7 @@ class InheritanceDiagram(SphinxDirective):
         class_role = self.env.get_domain('py').role('class')
         # Store the original content for use as a hash
         node['parts'] = self.options.get('parts', 0)
+        node['style'] = self.options.get('style', 'default')
         node['content'] = ', '.join(class_names)
         node['top-classes'] = []
         for cls in self.options.get('top-classes', '').split(','):
@@ -353,11 +370,19 @@ class InheritanceDiagram(SphinxDirective):
             if cls:
                 node['top-classes'].append(cls)
 
+        # Check style property validity
+        available_styles = ['default', 'uml']
+        if node['style'] not in available_styles:
+            available_str = ", ".join(['"%s"' % s for s in available_styles])
+            msg = ':style: property but be one of %s' % available_str
+            return [node.document.reporter.warning(msg, line=self.lineno)]
+
         # Create a graph starting with the list of classes
         try:
             graph = InheritanceGraph(
                 class_names, self.env.ref_context.get('py:module'),
                 parts=node['parts'],
+                style=node['style'],
                 private_bases='private-bases' in self.options,
                 aliases=self.config.inheritance_alias,
                 top_classes=node['top-classes'])

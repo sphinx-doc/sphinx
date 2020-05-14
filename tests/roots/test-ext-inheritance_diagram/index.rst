@@ -8,3 +8,6 @@ test-ext-inheritance_diagram
    :caption: Test Foo!
 
 .. inheritance-diagram:: test.Baz
+
+.. inheritance-diagram:: test.Baz
+   :style: uml
