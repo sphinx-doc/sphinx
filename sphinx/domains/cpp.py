@@ -3722,8 +3722,8 @@ class LookupKey:
 class Symbol:
     debug_indent = 0
     debug_indent_string = "  "
-    debug_lookup = False
-    debug_show_tree = False
+    debug_lookup = False  # overridden by the corresponding config value
+    debug_show_tree = False  # overridden by the corresponding config value
 
     @staticmethod
     def debug_print(*args: Any) -> None:
@@ -7383,9 +7383,18 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value("cpp_paren_attributes", [], 'env')
     app.add_post_transform(AliasTransform)
 
+    # debug stuff
+    app.add_config_value("cpp_debug_lookup", False, '')
+    app.add_config_value("cpp_debug_show_tree", False, '')
+
+    def setDebugFlags(app):
+        Symbol.debug_lookup = app.config.cpp_debug_lookup
+        Symbol.debug_show_tree = app.config.cpp_debug_show_tree
+    app.connect("builder-inited", setDebugFlags)
+
     return {
         'version': 'builtin',
-        'env_version': 2,
+        'env_version': 3,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
