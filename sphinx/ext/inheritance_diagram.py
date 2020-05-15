@@ -67,12 +67,7 @@ module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
 
 
 def try_import(objname: str) -> Any:
-    """Import a object or module using *name* and *currentmodule*.
-    *name* should be a relative name from *currentmodule* or
-    a fully-qualified name.
-
-    Returns imported object or module.  If failed, returns None value.
-    """
+    """Import a module or an object using its fully-qualified *objname*."""
     try:
         return import_module(objname)
     except TypeError:
@@ -95,15 +90,23 @@ def try_import(objname: str) -> Any:
             return None
 
 
-def import_classes(name: str, currmodule: str) -> Any:
-    """Import a class using its fully-qualified *name*."""
+def import_classes(name: str, module_name: str) -> List[Any]:
+    """Import classes from it's *name* and it's *module_name*.
+
+    *name* should be a relative name from *module_name* or
+    a fully-qualified name.
+
+    If the input identify a class, a list of this single class is returned.
+    If the input identify a module, the list of the whole classes contained is
+    returned. Else raises *InheritanceException*.
+    """
     target = None
 
-    # import class or module using currmodule
-    if currmodule:
-        target = try_import(currmodule + '.' + name)
+    # import class or module using module_name
+    if module_name:
+        target = try_import(module_name + '.' + name)
 
-    # import class or module without currmodule
+    # import class or module without module_name
     if target is None:
         target = try_import(name)
 
@@ -127,6 +130,7 @@ def import_classes(name: str, currmodule: str) -> Any:
 
 
 class InheritanceException(Exception):
+    """Exception raised if the extension as configured can't be used."""
     pass
 
 
@@ -394,7 +398,7 @@ class InheritanceDiagram(SphinxDirective):
         # references to real URLs later.  These nodes will eventually be
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
-            refnodes, x = class_role(  # type: ignore
+            refnodes, _x = class_role(  # type: ignore
                 'class', ':class:`%s`' % name, name, 0, self.state)  # type: ignore
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
@@ -417,7 +421,7 @@ def get_graph_hash(node: inheritance_diagram) -> str:
 
 def html_visit_inheritance_diagram(self: HTMLTranslator, node: inheritance_diagram) -> None:
     """
-    Output the graph for HTML.  This will insert a PNG with clickable
+    Output the graph for HTML. This will insert a PNG with clickable
     image map.
     """
     graph = node['graph']

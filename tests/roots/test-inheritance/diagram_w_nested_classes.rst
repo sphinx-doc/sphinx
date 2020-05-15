@@ -1,4 +1,4 @@
-Diagram with Nested Classes
+Diagram with nested classes
 ===========================
 
 .. inheritance-diagram::
