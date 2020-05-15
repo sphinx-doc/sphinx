@@ -97,6 +97,10 @@ It adds this directive:
    .. versionchanged:: 1.7
       Added ``top-classes`` option to limit the scope of inheritance graphs.
 
+   One of the predefined style can be selected with the directive ``style``.
+   It supports two different values: ``default``, which generates a diagram
+   with normal arrows; and ``uml`` which generates UML-like arrows.
+
 
 Examples
 --------
@@ -131,6 +135,13 @@ part (``sphinx``) from all names::
    :top-classes: sphinx.util.docutils.SphinxDirective
    :parts: -1
 
+Using UML-like diagram::
+
+   .. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+      :style: uml
+
+.. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+   :style: uml
 
 
 Configuration
