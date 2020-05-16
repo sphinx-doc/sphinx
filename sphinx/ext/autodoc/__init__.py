@@ -521,12 +521,12 @@ class Documenter:
                 else:
                     logger.warning(__('missing attribute %s in object %s') %
                                    (name, self.fullname), type='autodoc')
-            return False, sorted(selected)
+            return False, selected
         elif self.options.inherited_members:
-            return False, sorted((m.name, m.value) for m in members.values())
+            return False, [(m.name, m.value) for m in members.values()]
         else:
-            return False, sorted((m.name, m.value) for m in members.values()
-                                 if m.directly_defined)
+            return False, [(m.name, m.value) for m in members.values()
+                           if m.directly_defined]
 
     def filter_members(self, members: List[Tuple[str, Any]], want_all: bool
                        ) -> List[Tuple[str, Any, bool]]:
@@ -699,17 +699,26 @@ class Documenter:
         member_order = self.options.member_order or \
             self.env.config.autodoc_member_order
         if member_order == 'groupwise':
-            # sort by group; relies on stable sort to keep items in the
-            # same group sorted alphabetically
-            memberdocumenters.sort(key=lambda e: e[0].member_order)
-        elif member_order == 'bysource' and self.analyzer:
-            # sort by source order, by virtue of the module analyzer
-            tagorder = self.analyzer.tagorder
+            # sort by group; alphabetically within groups
+            memberdocumenters.sort(key=lambda e: (e[0].member_order, e[0].name))
+        elif member_order == 'bysource':
+            if self.analyzer:
+                # sort by source order, by virtue of the module analyzer
+                tagorder = self.analyzer.tagorder
 
-            def keyfunc(entry: Tuple[Documenter, bool]) -> int:
-                fullname = entry[0].name.split('::')[1]
-                return tagorder.get(fullname, len(tagorder))
-            memberdocumenters.sort(key=keyfunc)
+                def keyfunc(entry: Tuple[Documenter, bool]) -> int:
+                    fullname = entry[0].name.split('::')[1]
+                    return tagorder.get(fullname, len(tagorder))
+                memberdocumenters.sort(key=keyfunc)
+            else:
+                # Assume that member discovery order matches source order.
+                # This is a reasonable assumption in Python 3.6 and up, where
+                # module.__dict__ is insertion-ordered.
+                pass
+        elif member_order == 'alphabetical':
+            memberdocumenters.sort(key=lambda e: e[0].name)
+        else:
+            raise ValueError("Illegal member order {}".format(member_order))
 
         for documenter, isattr in memberdocumenters:
             documenter.generate(
