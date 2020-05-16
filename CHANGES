@@ -98,6 +98,7 @@ Bugs fixed
   import the target module
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
+* #7653: sphinx-quickstart: Fix multiple directory creation for nested relpath
 * #2785: html: Bad alignment of equation links
 * #7581: napoleon: bad parsing of inline code in attribute docstrings
 * #7628: imgconverter: runs imagemagick once unnecessary for builders not
