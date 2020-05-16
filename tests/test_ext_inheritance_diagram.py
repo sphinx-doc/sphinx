@@ -133,20 +133,16 @@ def test_diagram_w_1_top_class(status, build_context):
     """Inheritance diagram with 1 top class"""
     # :top-classes: dummy.test.B
     # rendering should be
-    #       A
-    #        \
-    #     B   C
-    #    / \ / \
-    #   E   D   F
+    #
+    #     B
+    #    / \
+    #   E   D
     #
     dot = build_context.dots['diagram_w_1_top_class']
-    assert dot.count("->") == 5
-    assert dot.count("label=") == 6
-    assert edge("dummy.test.A", "dummy.test.C") in dot
+    assert dot.count("->") == 2
+    assert dot.count("label=") == 3
     assert edge("dummy.test.B", "dummy.test.D") in dot
     assert edge("dummy.test.B", "dummy.test.E") in dot
-    assert edge("dummy.test.C", "dummy.test.D") in dot
-    assert edge("dummy.test.C", "dummy.test.F") in dot
 
 
 @pytest.mark.usefixtures('if_graphviz_found')
@@ -173,23 +169,17 @@ def test_diagram_w_2_top_classes(status, build_context):
 @pytest.mark.usefixtures('if_graphviz_found')
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
 def test_diagram_module_w_2_top_classes(status, build_context):
-    """inheritance diagram with 2 top classes and specifying the entire
+    """Inheritance diagram with 2 top classes and specifying the entire
     module"""
     # rendering should be
     #
-    #       A
     #     B   C
     #    / \ / \
     #   E   D   F
     #
-    # Note: dummy.test.A is included in the graph before its descendants are even processed
-    # b/c we've specified to load the entire module. The way InheritanceGraph works it is very
-    # hard to exclude parent classes once after they have been included in the graph.
-    # If you'd like to not show class A in the graph don't specify the entire module.
-    # this is a known issue.
     dot = build_context.dots['diagram_module_w_2_top_classes']
     assert dot.count("->") == 4
-    assert dot.count("label=") == 6
+    assert dot.count("label=") == 5
     assert edge("dummy.test.B", "dummy.test.D") in dot
     assert edge("dummy.test.C", "dummy.test.D") in dot
     assert edge("dummy.test.B", "dummy.test.E") in dot

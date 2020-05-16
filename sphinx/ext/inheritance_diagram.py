@@ -38,7 +38,7 @@ r"""
 import builtins
 import inspect
 from importlib import import_module
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Dict, Iterable, List, Set
 from typing import cast
 
 from docutils import nodes
@@ -140,6 +140,15 @@ class InheritanceGraph:
     from all the way to the root "object", and then is able to generate a
     graphviz dot graph from them.
     """
+
+    class Node:
+        """Hold a class and it's relations with the other classes"""
+        def __init__(self, cls):
+            self.cls = cls
+            self.based = set([])  # type: Set[Any]
+            self.derived = set([])  # type: Set[Any]
+            self.used = False
+
     def __init__(self, class_names: List[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0, aliases: Dict[str, str] = None,
                  top_classes: List[Any] = [], style: str = "default") -> None:
@@ -167,8 +176,21 @@ class InheritanceGraph:
         self.show_builtins = show_builtins
         self.private_bases = private_bases
         self.classes = self._import_classes(class_names, currmodule)
-        self.top_classes = top_classes
-        self.class_dag = self._create_class_graph()
+        self.top_classes = self._import_classes(top_classes, currmodule)
+
+        # Create the whole relationships
+        self.class_dag = {}  # type: Dict[Any, InheritanceGraph.Node]
+        for c in self.classes:
+            self._add_class(c)
+
+        # Flag the classes to finally use
+        if not self.top_classes:
+            for _cls, node in self.class_dag.items():
+                node.used = True
+        else:
+            for top_class in self.top_classes:
+                self._use_all_derived_classes(top_class)
+
         if not self.class_dag:
             raise InheritanceException('No classes found for '
                                        'inheritance diagram')
@@ -180,39 +202,50 @@ class InheritanceGraph:
             classes.extend(import_classes(name, currmodule))
         return classes
 
-    def _create_class_graph(self) -> List[Tuple[str, str, List[str], str]]:
-        """Feed the class graph using the configuration.
+    def _add_class(self, cls, force=False):
         """
-        all_classes = {}
-        py_builtins = vars(builtins).values()
+        Add a new class to the DAG structure.
 
-        def recurse(cls: Any) -> None:
-            if not self.show_builtins and cls in py_builtins:
-                return
+        If *force* is True, the node is added anyway there is filter. This is
+        the case for an explicit user request.
+        """
+        if cls in self.class_dag:
+            # Already known
+            return
+
+        # Is filtered by something
+        if not force:
+            if not self.show_builtins:
+                py_builtins = vars(builtins).values()
+                if cls in py_builtins:
+                    return
             if not self.private_bases and cls.__name__.startswith('_'):
                 return
 
-            fullname = self.class_name(cls, 0, self.aliases)
-            if fullname in self.top_classes:
-                all_classes[cls] = []
-                return
+        node = self.Node(cls)
+        self.class_dag[cls] = node
+        for base in cls.__bases__:
+            if base not in self.class_dag:
+                self._add_class(base)
+            basenode = self.class_dag.get(base, None)
+            if basenode is not None:
+                node.based.add(base)
+                basenode.derived.add(cls)
 
-            baselist = []  # type: List[str]
-            for base in cls.__bases__:
-                if not self.show_builtins and base in py_builtins:
-                    continue
-                if not self.private_bases and base.__name__.startswith('_'):
-                    continue
-                baselist.append(base)
-                if base not in all_classes:
-                    recurse(base)
-
-            all_classes[cls] = baselist
-
-        for cls in self.classes:
-            recurse(cls)
-
-        return all_classes
+    def _use_all_derived_classes(self, cls):
+        """Flag all the known derived classes from the **cls** class."""
+        if cls not in self.class_dag:
+            # A top class without classes interest specified
+            # Skip it
+            return
+        visiting = [cls]
+        while visiting:
+            cls = visiting.pop()
+            node = self.class_dag[cls]
+            if node.used:
+                continue
+            node.used = True
+            visiting.extend(node.derived)
 
     def full_class_name(self, cls):
         """Returns the full class name from a class."""
@@ -240,8 +273,8 @@ class InheritanceGraph:
 
     def get_all_class_names(self) -> List[str]:
         """Get all of the class names involved in the graph."""
-        classes = self.class_dag.keys()
-        return [self.class_name(cls, 0, self.aliases) for cls in classes]
+        nodes = self.class_dag.values()
+        return [self.class_name(n.cls, 0, self.aliases) for n in nodes if n.used]
 
     # These are the default attrs for graphviz
     default_graph_attrs = {
@@ -276,6 +309,23 @@ class InheritanceGraph:
     def _format_graph_attrs(self, attrs: Dict) -> str:
         return ''.join(['%s=%s;\n' % x for x in sorted(attrs.items())])
 
+    def _iter_used_classes(self):
+        """Iter through all the used classes"""
+        for node in self.class_dag.values():
+            if node.used:
+                yield node.cls
+
+    def _iter_used_edges(self):
+        """Iter through all the used edges"""
+        for base in self.class_dag.values():
+            if not base.used:
+                continue
+            for cls in base.derived:
+                node = self.class_dag[cls]
+                if not node.used:
+                    continue
+                yield base.cls, cls
+
     def generate_dot(self, name: str, urls: Dict = {},
                      env: BuildEnvironment = None, graph_attrs: Dict = {},
                      node_attrs: Dict = {}, edge_attrs: Dict = {}) -> str:
@@ -307,12 +357,8 @@ class InheritanceGraph:
         res.append('digraph %s {' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
-        edges_style = self._format_node_attrs(e_attrs)
-
-        content = self.class_dag.items()
-        content = [(self.full_class_name(cls), cls, bases) for (cls, bases) in content]
-        content = sorted(content)
-        for full_class_name, cls, bases in content:
+        # Write the nodes
+        for cls in self._iter_used_classes():
             nodename = self.class_name(cls, self.parts, self.aliases)
             fullname = self.class_name(cls, 0, self.aliases)
             # Use first line of docstring as tooltip, if available
@@ -334,16 +380,19 @@ class InheritanceGraph:
                 this_node_attrs['tooltip'] = tooltip
             this_node_attrs['label'] = '"%s"' % nodename
 
+            full_class_name = self.full_class_name(cls)
             node_style = self._format_node_attrs(this_node_attrs)
             line = '  "%s" [%s];' % (full_class_name, node_style)
             res.append(line)
 
-            # Write the edges
-            for base_cls in bases:
-                line = '  "%s" -> "%s" [%s];' % (self.full_class_name(base_cls),
-                                                 full_class_name,
-                                                 edges_style)
-                res.append(line)
+        # Write the edges
+        edges_style = self._format_node_attrs(e_attrs)
+        for basecls, cls in self._iter_used_edges():
+            base_id = self.full_class_name(basecls)
+            cls_id = self.full_class_name(cls)
+            line = '  "%s" -> "%s" [%s];' % (base_id, cls_id, edges_style)
+            res.append(line)
+
         res.append('}')
         dot = '\n'.join(res)
         return dot
