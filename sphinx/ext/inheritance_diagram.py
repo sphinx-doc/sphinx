@@ -145,31 +145,6 @@ class InheritanceGraph:
                  top_classes: List[Any] = [], style: str = "default") -> None:
         """*class_names* is a list of child classes to show bases from.
 
-        If *show_builtins* is True, then Python builtins will be shown
-        in the graph.
-        """
-        self.class_names = class_names
-        self.diagram_style = style
-        classes = self._import_classes(class_names, currmodule)
-        self.class_info = self._class_info(classes, show_builtins,
-                                           private_bases, parts, aliases, top_classes)
-        if not self.class_info:
-            raise InheritanceException('No classes found for '
-                                       'inheritance diagram')
-
-    def _import_classes(self, class_names: List[str], currmodule: str) -> List[Any]:
-        """Import a list of classes."""
-        classes = []  # type: List[Any]
-        for name in class_names:
-            classes.extend(import_classes(name, currmodule))
-        return classes
-
-    def _class_info(self, classes: List[Any], show_builtins: bool, private_bases: bool,
-                    parts: int, aliases: Dict[str, str], top_classes: List[Any]
-                    ) -> List[Tuple[str, str, List[str], str]]:
-        """Return name and bases for all classes that are ancestors of
-        *classes*.
-
         *parts* gives the number of dotted name parts to include in the
         displayed node names, from right to left. If given as a negative, the
         number of parts to drop from the left. A value of 0 displays the full
@@ -180,49 +155,72 @@ class InheritanceGraph:
         ``parts=-1``.
 
         *top_classes* gives the name(s) of the top most ancestor class to
-        traverse to. Multiple names can be specified separated by comma.
+        traverse to. Multiple names can be specified.
+
+        If *show_builtins* is True, then Python builtins will be shown
+        in the graph.
+        """
+        self.parts = parts
+        self.aliases = aliases
+        self.class_names = class_names
+        self.diagram_style = style
+        self.show_builtins = show_builtins
+        self.private_bases = private_bases
+        self.classes = self._import_classes(class_names, currmodule)
+        self.top_classes = top_classes
+        self.class_dag = self._create_class_graph()
+        if not self.class_dag:
+            raise InheritanceException('No classes found for '
+                                       'inheritance diagram')
+
+    def _import_classes(self, class_names: List[str], currmodule: str) -> List[Any]:
+        """Import a list of classes."""
+        classes = []  # type: List[Any]
+        for name in class_names:
+            classes.extend(import_classes(name, currmodule))
+        return classes
+
+    def _create_class_graph(self) -> List[Tuple[str, str, List[str], str]]:
+        """Feed the class graph using the configuration.
         """
         all_classes = {}
         py_builtins = vars(builtins).values()
 
         def recurse(cls: Any) -> None:
-            if not show_builtins and cls in py_builtins:
+            if not self.show_builtins and cls in py_builtins:
                 return
-            if not private_bases and cls.__name__.startswith('_'):
+            if not self.private_bases and cls.__name__.startswith('_'):
                 return
 
-            nodename = self.class_name(cls, parts, aliases)
-            fullname = self.class_name(cls, 0, aliases)
-
-            # Use first line of docstring as tooltip, if available
-            tooltip = None
-            try:
-                if cls.__doc__:
-                    doc = cls.__doc__.strip().split("\n")[0]
-                    if doc:
-                        tooltip = '"%s"' % doc.replace('"', '\\"')
-            except Exception:  # might raise AttributeError for strange classes
-                pass
+            fullname = self.class_name(cls, 0, self.aliases)
+            if fullname in self.top_classes:
+                all_classes[cls] = []
+                return
 
             baselist = []  # type: List[str]
-            all_classes[cls] = (nodename, fullname, baselist, tooltip)
-
-            if fullname in top_classes:
-                return
-
             for base in cls.__bases__:
-                if not show_builtins and base in py_builtins:
+                if not self.show_builtins and base in py_builtins:
                     continue
-                if not private_bases and base.__name__.startswith('_'):
+                if not self.private_bases and base.__name__.startswith('_'):
                     continue
-                baselist.append(self.class_name(base, parts, aliases))
+                baselist.append(base)
                 if base not in all_classes:
                     recurse(base)
 
-        for cls in classes:
+            all_classes[cls] = baselist
+
+        for cls in self.classes:
             recurse(cls)
 
-        return list(all_classes.values())
+        return all_classes
+
+    def full_class_name(self, cls):
+        """Returns the full class name from a class."""
+        module = cls.__module__
+        if module in (None, '__builtin__', 'builtins'):
+            return cls.__name__
+        else:
+            return '%s.%s' % (module, cls.__qualname__)
 
     def class_name(self, cls: Any, parts: int = 0, aliases: Dict[str, str] = None) -> str:
         """Given a class object, return a fully-qualified name.
@@ -230,11 +228,7 @@ class InheritanceGraph:
         This works for things I've tested in matplotlib so far, but may not be
         completely general.
         """
-        module = cls.__module__
-        if module in ('__builtin__', 'builtins'):
-            fullname = cls.__name__
-        else:
-            fullname = '%s.%s' % (module, cls.__qualname__)
+        fullname = self.full_class_name(cls)
         if parts == 0:
             result = fullname
         else:
@@ -246,7 +240,8 @@ class InheritanceGraph:
 
     def get_all_class_names(self) -> List[str]:
         """Get all of the class names involved in the graph."""
-        return [fullname for (_, fullname, _, _) in self.class_info]
+        classes = self.class_dag.keys()
+        return [self.class_name(cls, 0, self.aliases) for cls in classes]
 
     # These are the default attrs for graphviz
     default_graph_attrs = {
@@ -281,9 +276,9 @@ class InheritanceGraph:
     def _format_graph_attrs(self, attrs: Dict) -> str:
         return ''.join(['%s=%s;\n' % x for x in sorted(attrs.items())])
 
-    def generate_dot(self, name: str, urls: Dict = {}, env: BuildEnvironment = None,
-                     graph_attrs: Dict = {}, node_attrs: Dict = {}, edge_attrs: Dict = {}
-                     ) -> str:
+    def generate_dot(self, name: str, urls: Dict = {},
+                     env: BuildEnvironment = None, graph_attrs: Dict = {},
+                     node_attrs: Dict = {}, edge_attrs: Dict = {}) -> str:
         """Generate a graphviz dot graph from the classes that were passed in
         to __init__.
 
@@ -309,10 +304,27 @@ class InheritanceGraph:
             e_attrs.update(env.config.inheritance_edge_attrs)
 
         res = []  # type: List[str]
-        res.append('digraph %s {\n' % name)
+        res.append('digraph %s {' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
-        for name, fullname, bases, tooltip in sorted(self.class_info):
+        edges_style = self._format_node_attrs(e_attrs)
+
+        content = self.class_dag.items()
+        content = [(self.full_class_name(cls), cls, bases) for (cls, bases) in content]
+        content = sorted(content)
+        for full_class_name, cls, bases in content:
+            nodename = self.class_name(cls, self.parts, self.aliases)
+            fullname = self.class_name(cls, 0, self.aliases)
+            # Use first line of docstring as tooltip, if available
+            tooltip = None
+            try:
+                if cls.__doc__:
+                    doc = cls.__doc__.strip().split("\n")[0]
+                    if doc:
+                        tooltip = '"%s"' % doc.replace('"', '\\"')
+            except Exception:  # might raise AttributeError for strange classes
+                pass
+
             # Write the node
             this_node_attrs = n_attrs.copy()
             if fullname in urls:
@@ -320,16 +332,21 @@ class InheritanceGraph:
                 this_node_attrs['target'] = '"_top"'
             if tooltip:
                 this_node_attrs['tooltip'] = tooltip
-            res.append('  "%s" [%s];\n' %
-                       (name, self._format_node_attrs(this_node_attrs)))
+            this_node_attrs['label'] = '"%s"' % nodename
+
+            node_style = self._format_node_attrs(this_node_attrs)
+            line = '  "%s" [%s];' % (full_class_name, node_style)
+            res.append(line)
 
             # Write the edges
-            for base_name in bases:
-                res.append('  "%s" -> "%s" [%s];\n' %
-                           (base_name, name,
-                            self._format_node_attrs(e_attrs)))
-        res.append('}\n')
-        return ''.join(res)
+            for base_cls in bases:
+                line = '  "%s" -> "%s" [%s];' % (self.full_class_name(base_cls),
+                                                 full_class_name,
+                                                 edges_style)
+                res.append(line)
+        res.append('}')
+        dot = '\n'.join(res)
+        return dot
 
 
 class inheritance_diagram(graphviz):
@@ -364,15 +381,13 @@ class InheritanceDiagram(SphinxDirective):
         node.document = self.state.document
         class_names = self.arguments[0].split()
         class_role = self.env.get_domain('py').role('class')
+        top_classes = self.options.get('top-classes', '').replace(',', ' ').split()
+
         # Store the original content for use as a hash
         node['parts'] = self.options.get('parts', 0)
         node['style'] = self.options.get('style', 'default')
-        node['content'] = ', '.join(class_names)
-        node['top-classes'] = []
-        for cls in self.options.get('top-classes', '').split(','):
-            cls = cls.strip()
-            if cls:
-                node['top-classes'].append(cls)
+        node['class_names'] = class_names
+        node['top-classes'] = top_classes
 
         # Check style property validity
         available_styles = ['default', 'uml']
@@ -415,8 +430,12 @@ class InheritanceDiagram(SphinxDirective):
 
 
 def get_graph_hash(node: inheritance_diagram) -> str:
-    encoded = (node['content'] + str(node['parts'])).encode()
-    return md5(encoded).hexdigest()[-10:]
+    encoded = (node['class_names'],
+               node['top-classes'],
+               node['style'],
+               node['parts'])
+    bencoded = str(encoded).encode()
+    return md5(bencoded).hexdigest()[-10:]
 
 
 def html_visit_inheritance_diagram(self: HTMLTranslator, node: inheritance_diagram) -> None:
@@ -447,8 +466,8 @@ def html_visit_inheritance_diagram(self: HTMLTranslator, node: inheritance_diagr
                 urls[child['reftitle']] = '#' + child.get('refid')
 
     dotcode = graph.generate_dot(name, urls, env=self.builder.env)
-    render_dot_html(self, node, dotcode, {}, 'inheritance', 'inheritance',
-                    alt='Inheritance diagram of ' + node['content'])
+    alt = 'Inheritance diagram of ' + ', '.join(node['class_names'])
+    render_dot_html(self, node, dotcode, {}, 'inheritance', 'inheritance', alt=alt)
     raise nodes.SkipNode
 
 
