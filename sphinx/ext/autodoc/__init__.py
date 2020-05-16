@@ -23,7 +23,7 @@ from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.application import Sphinx
-from sphinx.config import ENUM
+from sphinx.config import Config, ENUM
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
@@ -1766,6 +1766,14 @@ def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
     return safe_getattr(obj, name, *defargs)
 
 
+def migrate_autodoc_member_order(app: Sphinx, config: Config) -> None:
+    if config.autodoc_member_order == 'alphabetic':
+        # RemovedInSphinx50Warning
+        logger.warning(__('autodoc_member_order now accepts "alphabetical" '
+                          'instead of "alphabetic". Please update your setting.'))
+        config.autodoc_member_order = 'alphabetical'  # type: ignore
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ModuleDocumenter)
     app.add_autodocumenter(ClassDocumenter)
@@ -1781,7 +1789,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(SlotsAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
-    app.add_config_value('autodoc_member_order', 'alphabetic', True)
+    app.add_config_value('autodoc_member_order', 'alphabetical', True,
+                         ENUM('alphabetic', 'alphabetical', 'bysource', 'groupwise'))
     app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
@@ -1793,6 +1802,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
+
+    app.connect('config-inited', migrate_autodoc_member_order)
 
     app.setup_extension('sphinx.ext.autodoc.type_comment')
     app.setup_extension('sphinx.ext.autodoc.typehints')
