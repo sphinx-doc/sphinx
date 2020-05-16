@@ -199,6 +199,30 @@ def test_diagram_w_nested_classes(status, build_context):
 
 @pytest.mark.usefixtures('if_graphviz_found')
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
+def test_diagram_classe(status, build_context):
+    """Inheritance diagram from a complex module
+    where a specific class is designed
+
+    Private classes are not displayed.
+    """
+    #
+    #       A
+    #      / \
+    #     B   C
+    #      \ /
+    #       D
+    #
+    dot = build_context.dots['diagram_class']
+    assert dot.count("->") == 4
+    assert dot.count("label=") == 4
+    assert edge("dummy.test.B", "dummy.test.D") in dot
+    assert edge("dummy.test.C", "dummy.test.D") in dot
+    assert edge("dummy.test.A", "dummy.test.B") in dot
+    assert edge("dummy.test.A", "dummy.test.C") in dot
+
+
+@pytest.mark.usefixtures('if_graphviz_found')
+@pytest.mark.sphinx(buildername="html", testroot="inheritance")
 def test_diagram_w_uml(status, build_context):
     """Check that the empty arrow is part of the UML diagram
     """
