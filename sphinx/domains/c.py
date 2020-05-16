@@ -186,11 +186,17 @@ class ASTNestedName(ASTBase):
             # If lastIsName, then wrap all of the prefix in a desc_addname,
             # else append directly to signode.
             # TODO: also for C?
-            #  NOTE: Breathe relies on the prefix being in the desc_addname node,
+            #  NOTE: Breathe previously relied on the prefix being in the desc_addname node,
             #       so it can remove it in inner declarations.
             dest = signode
             if mode == 'lastIsName':
                 dest = addnodes.desc_addname()
+            if self.rooted:
+                prefix += '.'
+                if mode == 'lastIsName' and len(names) == 0:
+                    signode += nodes.Text('.')
+                else:
+                    dest += nodes.Text('.')
             for i in range(len(names)):
                 ident = names[i]
                 if not first:

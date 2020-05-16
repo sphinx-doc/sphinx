@@ -27,15 +27,29 @@ def parse(name, string):
     return ast
 
 
-def _check(name, input, idDict, output):
+def _check(name, input, idDict, output, key, asTextOutput):
+    if key is None:
+        key = name
+    key += ' '
+    if name in ('function', 'member'):
+        inputActual = input
+        outputAst = output
+        outputAsText = output
+    else:
+        inputActual = input.format(key='')
+        outputAst = output.format(key='')
+        outputAsText = output.format(key=key)
+    if asTextOutput is not None:
+        outputAsText = asTextOutput
+
     # first a simple check of the AST
-    ast = parse(name, input)
+    ast = parse(name, inputActual)
     res = str(ast)
-    if res != output:
+    if res != outputAst:
         print("")
         print("Input:    ", input)
         print("Result:   ", res)
-        print("Expected: ", output)
+        print("Expected: ", outputAst)
         raise DefinitionError("")
     rootSymbol = Symbol(None, None, None, None)
     symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
@@ -43,6 +57,13 @@ def _check(name, input, idDict, output):
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
     ast.describe_signature(signode, 'lastIsName', symbol, options={})
+    resAsText = parentNode.astext()
+    if resAsText != outputAsText:
+        print("")
+        print("Input:    ", input)
+        print("astext(): ", resAsText)
+        print("Expected: ", outputAsText)
+        raise DefinitionError("")
 
     idExpected = [None]
     for i in range(1, _max_id + 1):
@@ -75,14 +96,15 @@ def _check(name, input, idDict, output):
         raise DefinitionError("")
 
 
-def check(name, input, idDict, output=None):
+def check(name, input, idDict, output=None, key=None, asTextOutput=None):
     if output is None:
         output = input
     # First, check without semicolon
-    _check(name, input, idDict, output)
+    _check(name, input, idDict, output, key, asTextOutput)
     if name != 'macro':
         # Second, check with semicolon
-        _check(name, input + ' ;', idDict, output + ';')
+        _check(name, input + ' ;', idDict, output + ';', key,
+           asTextOutput + ';' if asTextOutput is not None else None)
 
 
 def test_expressions():
@@ -234,24 +256,24 @@ def test_expressions():
 
 
 def test_type_definitions():
-    check('type', "T", {1: "T"})
+    check('type', "{key}T", {1: "T"})
 
-    check('type', "bool *b", {1: 'b'})
-    check('type', "bool *const b", {1: 'b'})
-    check('type', "bool *const *b", {1: 'b'})
-    check('type', "bool *volatile *b", {1: 'b'})
-    check('type', "bool *restrict *b", {1: 'b'})
-    check('type', "bool *volatile const b", {1: 'b'})
-    check('type', "bool *volatile const b", {1: 'b'})
-    check('type', "bool *volatile const *b", {1: 'b'})
-    check('type', "bool b[]", {1: 'b'})
-    check('type', "long long int foo", {1: 'foo'})
+    check('type', "{key}bool *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *const b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *const *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *volatile *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *restrict *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *volatile const b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *volatile const b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *volatile const *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool b[]", {1: 'b'}, key='typedef')
+    check('type', "{key}long long int foo", {1: 'foo'}, key='typedef')
     # test decl specs on right
-    check('type', "bool const b", {1: 'b'})
+    check('type', "{key}bool const b", {1: 'b'}, key='typedef')
 
     # from breathe#267 (named function parameters for function pointers
-    check('type', 'void (*gpio_callback_t)(struct device *port, uint32_t pin)',
-          {1: 'gpio_callback_t'})
+    check('type', '{key}void (*gpio_callback_t)(struct device *port, uint32_t pin)',
+          {1: 'gpio_callback_t'}, key='typedef')
 
 
 def test_macro_definitions():
@@ -378,19 +400,26 @@ def test_function_definitions():
           output='void f(int arr[static volatile const 42])')
 
 
-def test_union_definitions():
-    check('struct', 'A', {1: 'A'})
+class test_nested_name():
+    check('struct', '{key}.A', {1: "A"})
+    check('struct', '{key}.A.B', {1: "A.B"})
+    check('function', 'void f(.A a)', {1: "f"})
+    check('function', 'void f(.A.B a)', {1: "f"})
 
 
 def test_union_definitions():
-    check('union', 'A', {1: 'A'})
+    check('struct', '{key}A', {1: 'A'})
+
+
+def test_union_definitions():
+    check('union', '{key}A', {1: 'A'})
 
 
 def test_enum_definitions():
-    check('enum', 'A', {1: 'A'})
+    check('enum', '{key}A', {1: 'A'})
 
-    check('enumerator', 'A', {1: 'A'})
-    check('enumerator', 'A = 42', {1: 'A'})
+    check('enumerator', '{key}A', {1: 'A'})
+    check('enumerator', '{key}A = 42', {1: 'A'})
 
 
 def test_anon_definitions():
