@@ -942,7 +942,7 @@ class ClassLevelDocumenter(Documenter):
 
             try:
                 modname, qualname = split_full_qualified_name(mod_cls)
-                parents = qualname.split(".")
+                parents = qualname.split(".") if qualname else []
             except ImportError:
                 parents = mod_cls.split(".")
 
@@ -1058,7 +1058,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             else:
                 sig = inspect.signature(self.object)
             args = stringify_signature(sig, **kwargs)
-        except TypeError:
+        except TypeError as exc:
+            logger.warning(__("Failed to get a function signature for %s: %s"),
+                           self.fullname, exc)
+            return None
+        except ValueError:
             args = ''
 
         if self.env.config.strip_signature_backslash:
@@ -1470,6 +1474,10 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     else:
                         sig = inspect.signature(self.object, bound_method=True)
                 args = stringify_signature(sig, **kwargs)
+        except TypeError as exc:
+            logger.warning(__("Failed to get a method signature for %s: %s"),
+                           self.fullname, exc)
+            return None
         except ValueError:
             args = ''
 
