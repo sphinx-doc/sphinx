@@ -828,6 +828,15 @@ def test_templates():
     check('type', 'template<C T = int&> {key}A', {2: 'I_1CE1A'}, key='using')
 
 
+def test_requires_clauses():
+    check('function', 'template<typename T> requires A auto f() -> void requires B',
+          {4: 'I0EIQaa1A1BE1fvv'})
+    check('function', 'template<typename T> requires A || B or C void f()',
+          {4: 'I0EIQoo1Aoo1B1CE1fvv'})
+    check('function', 'template<typename T> requires A && B || C and D void f()',
+          {4: 'I0EIQooaa1A1Baa1C1DE1fvv'})
+
+
 def test_template_args():
     # from breathe#218
     check('function',
