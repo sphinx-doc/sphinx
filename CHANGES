@@ -93,6 +93,7 @@ Bugs fixed
 * #7629: autodoc: autofunction emits an unfriendly warning if an invalid object
   specified
 * #7650: autodoc: undecorated signature is shown for decorated functions
+* #7676: autodoc: typo in the default value of autodoc_member_order
 * #7551: autosummary: a nested class is indexed as non-nested class
 * #7661: autosummary: autosummary directive emits warnings twices if failed to
   import the target module
