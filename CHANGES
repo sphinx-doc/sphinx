@@ -104,6 +104,8 @@ Bugs fixed
   supporting images
 * #7610: incorrectly renders consecutive backslashes for docutils-0.16
 * #7646: handle errors on event handlers
+* C++, fix rendering and xrefs in nested names explicitly starting
+  in global scope, e.g., ``::A::B``.
 
 Testing
 --------
