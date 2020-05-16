@@ -142,6 +142,7 @@ def test_format_signature(app):
         inst = app.registry.documenters[objtype](directive, name)
         inst.fullname = name
         inst.doc_as_attr = False  # for class objtype
+        inst.parent = object  # dummy
         inst.object = obj
         inst.objpath = [name]
         inst.args = args
@@ -1244,6 +1245,17 @@ def test_autofunction_for_methoddescriptor(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_decorated(app):
+    actual = do_autodoc(app, 'function', 'target.decorator.foo')
+    assert list(actual) == [
+        '',
+        '.. py:function:: foo()',
+        '   :module: target.decorator',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_automethod_for_builtin(app):
     actual = do_autodoc(app, 'method', 'builtins.int.__add__')
     assert list(actual) == [
@@ -1252,6 +1264,17 @@ def test_automethod_for_builtin(app):
         '   :module: builtins',
         '',
         '   Return self+value.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_automethod_for_decorated(app):
+    actual = do_autodoc(app, 'method', 'target.decorator.Bar.meth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Bar.meth()',
+        '   :module: target.decorator',
         '',
     ]
 
@@ -1415,7 +1438,7 @@ def test_coroutine(app):
     actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
     assert list(actual) == [
         '',
-        '.. py:function:: sync_func()',
+        '.. py:function:: sync_func(*args, **kwargs)',
         '   :module: target.coroutine',
         '',
     ]

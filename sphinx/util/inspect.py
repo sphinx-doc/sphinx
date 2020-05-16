@@ -408,13 +408,20 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     return getattr(builtins, name, None) is cls
 
 
-def signature(subject: Callable, bound_method: bool = False) -> inspect.Signature:
+def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False
+              ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
+    :param follow_wrapped: Same as ``inspect.signature()``.
+                           Defaults to ``False`` (get a signature of *subject*).
     """
     try:
-        signature = inspect.signature(subject)
+        try:
+            signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
+        except ValueError:
+            # follow built-in wrappers up (ex. functools.lru_cache)
+            signature = inspect.signature(subject)
         parameters = list(signature.parameters.values())
         return_annotation = signature.return_annotation
     except IndexError:
