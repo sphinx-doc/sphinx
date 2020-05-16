@@ -106,6 +106,8 @@ Bugs fixed
 * #7646: handle errors on event handlers
 * C++, fix rendering and xrefs in nested names explicitly starting
   in global scope, e.g., ``::A::B``.
+* C, fix rendering and xrefs in nested names explicitly starting
+  in global scope, e.g., ``.A.B``.
 
 Testing
 --------
