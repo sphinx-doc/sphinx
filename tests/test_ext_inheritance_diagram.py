@@ -216,6 +216,19 @@ def test_diagram_w_uml(status, build_context):
     assert 'arrowtail="empty"' in dot
 
 
+@pytest.mark.usefixtures('if_graphviz_found')
+@pytest.mark.sphinx(buildername="html", testroot="inheritance")
+def test_diagram_w_homonyms(status, build_context):
+    """Test that homonymous classes are not merged together
+    """
+    dot = build_context.dots['diagram_w_homonyms']
+    assert dot.count("->") == 1
+    assert dot.count("label=") == 3
+    assert edge("dummy.test_homonyms.A", "dummy.test_homonyms.B.A") in dot
+    assert get_label("dummy.test_homonyms.A", dot) == "A"
+    assert get_label("dummy.test_homonyms.B.A", dot) == "A"
+
+
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_png_html(app, status, warning):
