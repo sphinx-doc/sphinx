@@ -223,6 +223,27 @@ def test_diagram_classe(status, build_context):
 
 @pytest.mark.usefixtures('if_graphviz_found')
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
+def test_diagram_module_w_top_and_private(status, build_context):
+    """Inheritance diagram from a complex module
+    where a top class is specified and private classes displayed.
+    """
+    #
+    #       G
+    #      / \
+    #    _H   I
+    #    /
+    #   F
+    #
+    dot = build_context.dots['diagram_module_w_top_and_private']
+    assert dot.count("->") == 3
+    assert dot.count("label=") == 4
+    assert edge("dummy.test_module.G", "dummy.test_module._H") in dot
+    assert edge("dummy.test_module._H", "dummy.test_module.F") in dot
+    assert edge("dummy.test_module.G", "dummy.test_module.I") in dot
+
+
+@pytest.mark.usefixtures('if_graphviz_found')
+@pytest.mark.sphinx(buildername="html", testroot="inheritance")
 def test_diagram_w_uml(status, build_context):
     """Check that the empty arrow is part of the UML diagram
     """
