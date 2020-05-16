@@ -59,7 +59,7 @@ def make_directive_bridge(env):
         platform = '',
         deprecated = False,
         members = [],
-        member_order = 'alphabetic',
+        member_order = 'alphabetical',
         exclude_members = set(),
         ignore_module_all = False,
     )
