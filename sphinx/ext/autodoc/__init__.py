@@ -15,7 +15,9 @@ import re
 import warnings
 from inspect import Parameter
 from types import ModuleType
-from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
+from typing import (
+    Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, Union
+)
 
 from docutils.statemachine import StringList
 
@@ -90,6 +92,16 @@ def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
         return 'object'
     else:
         return arg
+
+
+def member_order_option(arg: Any) -> Optional[str]:
+    """Used to convert the :members: option to auto directives."""
+    if arg is None:
+        return None
+    elif arg in ('alphabetical', 'bysource', 'groupwise'):
+        return arg
+    else:
+        raise ValueError(__('invalid value for member-order option: %s') % arg)
 
 
 SUPPRESS = object()
@@ -817,7 +829,7 @@ class ModuleDocumenter(Documenter):
         'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
-        'member-order': identity, 'exclude-members': members_set_option,
+        'member-order': member_order_option, 'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
         'imported-members': bool_option, 'ignore-module-all': bool_option
     }  # type: Dict[str, Callable]
@@ -1150,7 +1162,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     option_spec = {
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': inherited_members_option,
-        'show-inheritance': bool_option, 'member-order': identity,
+        'show-inheritance': bool_option, 'member-order': member_order_option,
         'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
     }  # type: Dict[str, Callable]
