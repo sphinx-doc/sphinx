@@ -38,7 +38,7 @@ r"""
 import builtins
 import inspect
 from importlib import import_module
-from typing import Any, Dict, Iterable, List, Set
+from typing import Any, Dict, Iterable, List, Set, Optional
 from typing import cast
 
 from docutils import nodes
@@ -151,7 +151,8 @@ class InheritanceGraph:
 
     def __init__(self, class_names: List[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0, aliases: Dict[str, str] = None,
-                 top_classes: List[Any] = [], style: str = "default") -> None:
+                 top_classes: List[Any] = [], style: str = "default",
+                 direction: Optional[str] = None) -> None:
         """*class_names* is a list of child classes to show bases from.
 
         *parts* gives the number of dotted name parts to include in the
@@ -173,6 +174,7 @@ class InheritanceGraph:
         self.aliases = aliases
         self.class_names = class_names
         self.diagram_style = style
+        self.diagram_direction = direction
         self.show_builtins = show_builtins
         self.private_bases = private_bases
         self.classes = self._import_classes(class_names, currmodule)
@@ -353,6 +355,11 @@ class InheritanceGraph:
             n_attrs.update(env.config.inheritance_node_attrs)
             e_attrs.update(env.config.inheritance_edge_attrs)
 
+        if self.diagram_direction is not None:
+            rankdirs = {"left-right": "LR", "top-bottom": "TB"}
+            rankdir = rankdirs[self.diagram_direction]
+            g_attrs["rankdir"] = rankdir
+
         res = []  # type: List[str]
         res.append('digraph %s {' % name)
         res.append(self._format_graph_attrs(g_attrs))
@@ -409,6 +416,10 @@ def style_spec(argument: Any) -> str:
     return directives.choice(argument, ('default', 'uml', None))
 
 
+def direction_spec(argument: Any) -> str:
+    return directives.choice(argument, ('left-right', 'top-bottom', None))
+
+
 class InheritanceDiagram(SphinxDirective):
     """
     Run when the inheritance_diagram directive is first encountered.
@@ -420,6 +431,7 @@ class InheritanceDiagram(SphinxDirective):
     option_spec = {
         'parts': int,
         'style': style_spec,
+        'direction': direction_spec,
         'private-bases': directives.flag,
         'caption': directives.unchanged,
         'top-classes': directives.unchanged_required,
@@ -435,6 +447,7 @@ class InheritanceDiagram(SphinxDirective):
         # Store the original content for use as a hash
         node['parts'] = self.options.get('parts', 0)
         node['style'] = self.options.get('style', 'default')
+        node['direction'] = self.options.get('direction', None)
         node['class_names'] = class_names
         node['top-classes'] = top_classes
 
@@ -445,12 +458,20 @@ class InheritanceDiagram(SphinxDirective):
             msg = ':style: property but be one of %s' % available_str
             return [node.document.reporter.warning(msg, line=self.lineno)]
 
+        # Check direction property validity
+        available_directions = ['left-right', 'top-bottom']
+        if node['direction'] is not None and node['direction'] not in available_directions:
+            available_str = ", ".join(['"%s"' % s for s in available_directions])
+            msg = ':direction: property but be one of %s' % available_str
+            return [node.document.reporter.warning(msg, line=self.lineno)]
+
         # Create a graph starting with the list of classes
         try:
             graph = InheritanceGraph(
                 class_names, self.env.ref_context.get('py:module'),
                 parts=node['parts'],
                 style=node['style'],
+                direction=node['direction'],
                 private_bases='private-bases' in self.options,
                 aliases=self.config.inheritance_alias,
                 top_classes=node['top-classes'])
@@ -482,6 +503,7 @@ def get_graph_hash(node: inheritance_diagram) -> str:
     encoded = (node['class_names'],
                node['top-classes'],
                node['style'],
+               node['direction'],
                node['parts'])
     bencoded = str(encoded).encode()
     return md5(bencoded).hexdigest()[-10:]

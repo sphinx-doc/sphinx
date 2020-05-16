@@ -253,6 +253,15 @@ def test_diagram_w_uml(status, build_context):
 
 @pytest.mark.usefixtures('if_graphviz_found')
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
+def test_diagram_w_direction(status, build_context):
+    """Check that the empty arrow is part of the UML diagram
+    """
+    dot = build_context.dots['diagram_w_direction']
+    assert 'rankdir=TB' in dot
+
+
+@pytest.mark.usefixtures('if_graphviz_found')
+@pytest.mark.sphinx(buildername="html", testroot="inheritance")
 def test_diagram_w_homonyms(status, build_context):
     """Test that homonymous classes are not merged together
     """

@@ -101,6 +101,10 @@ It adds this directive:
    It supports two different values: ``default``, which generates a diagram
    with normal arrows; and ``uml`` which generates UML-like arrows.
 
+   The direction of the diagram can be specified with the directive
+   ``direction``. It can be one of the values: ``left-right`` (the default),
+   or ``top-bottom``.
+
 
 Examples
 --------
@@ -134,6 +138,14 @@ part (``sphinx``) from all names::
 .. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
    :top-classes: sphinx.util.docutils.SphinxDirective
    :parts: -1
+
+Using a diagram with vertical orientation::
+
+   .. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+      :direction: top-bottom
+
+.. inheritance-diagram:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+   :direction: top-bottom
 
 Using UML-like diagram::
 
