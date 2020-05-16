@@ -1798,7 +1798,7 @@ def test_autodoc(app, status, warning):
 
     content = app.env.get_doctree('index')
     assert isinstance(content[3], addnodes.desc)
-    assert content[3][0].astext() == 'autodoc_dummy_module.test'
+    assert content[3][0].astext() == 'autodoc_dummy_module.test()'
     assert content[3][1].astext() == 'Dummy function using dummy.*'
 
     # issue sphinx-doc/sphinx#2437
