@@ -37,7 +37,6 @@ r"""
 
 import builtins
 import inspect
-import re
 from importlib import import_module
 from typing import Any, Dict, Iterable, List, Tuple
 from typing import cast
@@ -61,33 +60,34 @@ from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
-module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
-                           (\w+)  \s* $          # class/final module name
-                           ''', re.VERBOSE)
-
-
 def try_import(objname: str) -> Any:
-    """Import a module or an object using its fully-qualified *objname*."""
+    """Import a module or an object using its fully-qualified *objname*.
+
+    It supports nested objects
+    """
     try:
         return import_module(objname)
     except TypeError:
         # Relative import
         return None
     except ImportError:
-        matched = module_sig_re.match(objname)
-
-        if not matched:
+        elements = objname.split(".")
+        if len(elements) < 2:
             return None
 
-        modname, attrname = matched.groups()
-
-        if modname is None:
-            return None
-        try:
-            module = import_module(modname)
-            return getattr(module, attrname, None)
-        except ImportError:
-            return None
+        for i in reversed(range(1, len(elements))):
+            modname = ".".join(elements[0:i])
+            try:
+                module = import_module(modname)
+                current = module
+                for attrname in elements[i:]:
+                    if hasattr(current, attrname):
+                        current = getattr(current, attrname)
+                else:
+                    return current
+            except ImportError:
+                pass
+        return None
 
 
 def import_classes(name: str, module_name: str) -> List[Any]:
