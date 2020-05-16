@@ -423,12 +423,11 @@ def test_enum_definitions():
 
 
 def test_anon_definitions():
-    return  # TODO
-    check('class', '@a', {3: "Ut1_a"})
-    check('union', '@a', {3: "Ut1_a"})
-    check('enum', '@a', {3: "Ut1_a"})
-    check('class', '@1', {3: "Ut1_1"})
-    check('class', '@a::A', {3: "NUt1_a1AE"})
+    check('struct', '@a', {1: "@a"}, asTextOutput='struct [anonymous]')
+    check('union', '@a', {1: "@a"}, asTextOutput='union [anonymous]')
+    check('enum', '@a', {1: "@a"}, asTextOutput='enum [anonymous]')
+    check('struct', '@1', {1: "@1"}, asTextOutput='struct [anonymous]')
+    check('struct', '@a.A', {1: "@a.A"}, asTextOutput='struct [anonymous].A')
 
 
 def test_initializers():
