@@ -8,7 +8,7 @@
 
    .. autosummary::
    {% for item in attributes %}
-      {{item}}
+      {{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}

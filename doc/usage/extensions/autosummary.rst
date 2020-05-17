@@ -288,6 +288,10 @@ The following variables available in the templates:
    List containing names of "public" attributes in the class/module.  Only
    available for classes and modules.
 
+    .. versionchanged:: 3.1
+
+    Attributes of modules are supported.
+
 .. data:: modules
 
    List containing names of "public" modules in the package.  Only available for

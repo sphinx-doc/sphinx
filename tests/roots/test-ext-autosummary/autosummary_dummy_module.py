@@ -19,3 +19,7 @@ class Foo:
 
 def bar(x: Union[int, str], y: int = 1):
     pass
+
+
+#: a module-level attribute
+qux = 2
