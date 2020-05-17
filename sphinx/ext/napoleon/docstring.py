@@ -932,8 +932,6 @@ class NumpyDocstring(GoogleDocstring):
                 type_ = "value_set"
             elif token in ("optional", "default"):
                 type_ = "control"
-            elif "instance" in token:
-                type_ = "literal"
             elif re.match(":[^:]+:`[^`]+`", token):
                 type_ = "reference"
             elif token.isnumeric() or (token.startswith('"') and token.endswith('"')):
