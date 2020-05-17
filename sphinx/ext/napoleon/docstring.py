@@ -20,10 +20,22 @@ from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
 
+from sphinx.util.docutils import SphinxRole
+from docutils import nodes
+from docutils.nodes import Node, system_message
+from docutils.parsers.rst import roles
+
+
+class LiteralText(SphinxRole):
+    def run(self) -> Tuple[List[Node], List[system_message]]:
+        return [nodes.Text(self.text, self.text, **self.options)], []
+
+
+roles.register_local_role("noref", LiteralText())
+
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
-
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
@@ -878,6 +890,84 @@ class NumpyDocstring(GoogleDocstring):
                  obj: Any = None, options: Any = None) -> None:
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
+
+    def _convert_type_spec(self, _type):
+        def recombine_set(tokens):
+            def combine_set(tokens):
+                in_set = False
+                set_items = []
+
+                for token in tokens:
+                    if token.startswith("{"):
+                        in_set = True
+                    elif token.endswith("}"):
+                        in_set = False
+                        set_items.append(token)
+
+                    if in_set:
+                        set_items.append(token)
+                    else:
+                        if set_items:
+                            token = "".join(set_items)
+                            set_items = []
+                        yield token
+
+            return list(combine_set(tokens))
+
+        def tokenize_type_spec(spec):
+            delimiters = r"(\sor\s|\sof\s|:\s|,\s|[{]|[}])"
+
+            split = [
+                item
+                for item in re.split(delimiters, _type)
+                if item
+            ]
+            tokens = recombine_set(split)
+            return tokens
+
+        def token_type(token):
+            if token.startswith(" ") or token.endswith(" "):
+                type_ = "delimiter"
+            elif token.startswith("{") and token.endswith("}"):
+                type_ = "value_set"
+            elif token in ("optional", "default"):
+                type_ = "control"
+            elif "instance" in token:
+                type_ = "literal"
+            elif re.match(":[^:]+:`[^`]+`", token):
+                type_ = "reference"
+            elif token.isnumeric() or (token.startswith('"') and token.endswith('"')):
+                type_ = "literal"
+            else:
+                type_ = "obj"
+
+            return type_
+
+        def convert_obj(obj, translations):
+            return translations.get(obj, ":obj:`{}`".format(obj))
+
+        tokens = tokenize_type_spec(_type)
+        types = [
+            (token, token_type(token))
+            for token in tokens
+        ]
+
+        # TODO: make this configurable
+        translations = {
+            "sequence": ":term:`sequence`",
+            "dict-like": ":term:`mapping`",
+        }
+
+        converters = {
+            "value_set": lambda x: f":noref:`{x}`",
+            "literal": lambda x: f":noref:`{x}`",
+            "obj": lambda x: convert_obj(x, translations),
+            "control": lambda x: f":noref:`{x}`",
+            "delimiter": lambda x: x,
+            "reference": lambda x: x,
+        }
+
+        return "".join(converters.get(type_)(token) for token, type_ in types)
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
