@@ -18,6 +18,7 @@
 """
 
 import argparse
+import inspect
 import locale
 import os
 import pkgutil
@@ -176,6 +177,56 @@ class AutosummaryRenderer:
 # -- Generating output ---------------------------------------------------------
 
 
+class ModuleScanner:
+    def __init__(self, app: Any, obj: Any) -> None:
+        self.app = app
+        self.object = obj
+
+    def get_object_type(self, name: str, value: Any) -> str:
+        return get_documenter(self.app, value, self.object).objtype
+
+    def is_skipped(self, name: str, value: Any, objtype: str) -> bool:
+        try:
+            return self.app.emit_firstresult('autodoc-skip-member', objtype,
+                                             name, value, False, {})
+        except Exception as exc:
+            logger.warning(__('autosummary: failed to determine %r to be documented, '
+                              'the following exception was raised:\n%s'),
+                           name, exc, type='autosummary')
+            return False
+
+    def scan(self, imported_members: bool) -> List[str]:
+        members = []
+        for name in dir(self.object):
+            try:
+                value = safe_getattr(self.object, name)
+            except AttributeError:
+                value = None
+
+            objtype = self.get_object_type(name, value)
+            if self.is_skipped(name, value, objtype):
+                continue
+
+            try:
+                if inspect.ismodule(value):
+                    imported = True
+                elif safe_getattr(value, '__module__') != self.object.__name__:
+                    imported = True
+                else:
+                    imported = False
+            except AttributeError:
+                imported = False
+
+            if imported_members:
+                # list all members up
+                members.append(name)
+            elif imported is False:
+                # list not-imported members up
+                members.append(name)
+
+        return members
+
+
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
                                  imported_members: bool, app: Any,
@@ -246,7 +297,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     ns.update(context)
 
     if doc.objtype == 'module':
-        ns['members'] = dir(obj)
+        scanner = ModuleScanner(app, obj)
+        ns['members'] = scanner.scan(imported_members)
         ns['functions'], ns['all_functions'] = \
             get_members(obj, {'function'}, imported=imported_members)
         ns['classes'], ns['all_classes'] = \

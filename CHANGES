@@ -101,6 +101,8 @@ Bugs fixed
 * #7551: autosummary: a nested class is indexed as non-nested class
 * #7661: autosummary: autosummary directive emits warnings twices if failed to
   import the target module
+* #7685: autosummary: The template variable "members" contains imported members
+  even if :confval:`autossummary_imported_members` is False
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
 * #7653: sphinx-quickstart: Fix multiple directory creation for nested relpath
