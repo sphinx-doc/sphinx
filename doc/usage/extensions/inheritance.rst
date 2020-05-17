@@ -16,11 +16,11 @@ It adds this directive:
 .. rst:directive:: inheritance-diagram
 
    This directive has one or more arguments, each giving a module or class
-   name.  Class names can be unqualified; in that case they are taken to exist
+   name. Class names can be unqualified; in that case they are taken to exist
    in the currently described module (see :rst:dir:`py:module`).
 
    For each given class, and each class in each given module, the base classes
-   are determined.  Then, from all classes and their base classes, a graph is
+   are determined. Then, from all classes and their base classes, a graph is
    generated which is then rendered via the graphviz extension to a directed
    graph.
 
@@ -49,8 +49,10 @@ It adds this directive:
       Added ``caption`` option
 
    It also supports a ``top-classes`` option which requires one or more class
-   names separated by comma. If specified inheritance traversal will stop at the
-   specified class names. Given the following Python module::
+   names separated by space (or comma). If specified, the known classes,
+   as selected by other directives will be filtered in order to remove classes
+   which are not of the inheritance from one of the ``top-classes``
+   classes. Given the following Python module::
 
         """
                A
@@ -59,8 +61,10 @@ It adds this directive:
             / \ / \
            E   D   F
         """
+        class NotIncluded:
+            pass
 
-        class A:
+        class A(NotIncluded):
             pass
 
         class B(A):
@@ -78,26 +82,10 @@ It adds this directive:
         class F(C):
             pass
 
-   If you have specified a module in the inheritance diagram like this::
-
-        .. inheritance-diagram:: dummy.test
-           :top-classes: dummy.test.B, dummy.test.C
-
-   any base classes which are ancestors to ``top-classes`` and are also defined
-   in the same module will be rendered as stand alone nodes. In this example
-   class A will be rendered as stand alone node in the graph. This is a known
-   issue due to how this extension works internally.
-
-   If you don't want class A (or any other ancestors) to be visible then specify
-   only the classes you would like to generate the diagram for like this::
-
-        .. inheritance-diagram:: dummy.test.D dummy.test.E dummy.test.F
-           :top-classes: dummy.test.B, dummy.test.C
-
    .. versionchanged:: 1.7
       Added ``top-classes`` option to limit the scope of inheritance graphs.
 
-   One of the predefined style can be selected with the directive ``style``.
+   The way the diagram is rendered can be selected with the directive ``style``.
    It supports two different values: ``default``, which generates a diagram
    with normal arrows; and ``uml`` which generates UML-like arrows.
 
