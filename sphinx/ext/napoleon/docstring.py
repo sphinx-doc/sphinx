@@ -953,7 +953,8 @@ class NumpyDocstring(GoogleDocstring):
         # TODO: make this configurable
         translations = {
             "sequence": ":term:`sequence`",
-            "dict-like": ":term:`mapping`",
+            "mapping": ":term:`mapping`",
+            "dict-like": ":term:`dict-like <mapping>`",
         }
 
         converters = {
