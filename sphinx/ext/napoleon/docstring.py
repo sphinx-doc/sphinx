@@ -978,6 +978,7 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
+        _type = self._convert_type_spec(_type)
 
         if prefer_type and not _type:
             _type, _name = _name, _type
