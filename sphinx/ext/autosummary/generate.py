@@ -232,7 +232,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                         public.append(attr_name)
         except PycodeError:
             pass    # give up if ModuleAnalyzer fails to parse code
-        return attrs, public
+        return public, attrs
 
     def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
