@@ -1791,7 +1791,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
 
-    app.connect('config-inited', migrate_autodoc_member_order)
+    app.connect('config-inited', migrate_autodoc_member_order, priority=800)
 
     app.setup_extension('sphinx.ext.autodoc.type_comment')
     app.setup_extension('sphinx.ext.autodoc.typehints')
