@@ -64,6 +64,7 @@ Deprecated
   generate_autosummary_docs()``
 * The ``ignore`` argument of ``sphinx.util.docstring.prepare_docstring()``
 * ``sphinx.ext.autosummary.generate.AutosummaryRenderer.exists()``
+* ``sphinx.util.rpartition()``
 
 Features added
 --------------
@@ -107,6 +108,7 @@ Features added
 * C++, parse trailing return types.
 * #7143: py domain: Add ``:final:`` option to :rst:dir:`py:class:`,
   :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
+* #7596: py domain: Change a type annotation for variables to a hyperlink
 * #7582: napoleon: a type for attribute are represented like type annotation
 
 Bugs fixed
@@ -121,10 +123,30 @@ Bugs fixed
 * #6857: autodoc: failed to detect a classmethod on Enum class
 * #7562: autodoc: a typehint contains spaces is wrongly rendered under
   autodoc_typehints='description' mode
+* #7551: autodoc: failed to import nested class
+* #7362: autodoc: does not render correct signatures for built-in functions
+* #7654: autodoc: ``Optional[Union[foo, bar]]`` is presented as
+  ``Union[foo, bar, None]``
+* #7629: autodoc: autofunction emits an unfriendly warning if an invalid object
+  specified
+* #7650: autodoc: undecorated signature is shown for decorated functions
+* #7676: autodoc: typo in the default value of autodoc_member_order
+* #7551: autosummary: a nested class is indexed as non-nested class
+* #7661: autosummary: autosummary directive emits warnings twices if failed to
+  import the target module
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
+* #7653: sphinx-quickstart: Fix multiple directory creation for nested relpath
 * #2785: html: Bad alignment of equation links
 * #7581: napoleon: bad parsing of inline code in attribute docstrings
+* #7628: imgconverter: runs imagemagick once unnecessary for builders not
+  supporting images
+* #7610: incorrectly renders consecutive backslashes for docutils-0.16
+* #7646: handle errors on event handlers
+* C++, fix rendering and xrefs in nested names explicitly starting
+  in global scope, e.g., ``::A::B``.
+* C, fix rendering and xrefs in nested names explicitly starting
+  in global scope, e.g., ``.A.B``.
 
 Testing
 --------
@@ -148,6 +170,9 @@ Bugs fixed
 ----------
 
 * #7567: autodoc: parametrized types are shown twice for generic types
+* #7637: autodoc: system defined TypeVars are shown in Python 3.9
+* #7611: md5 fails when OpenSSL FIPS is enabled
+* #7626: release package does not contain ``CODE_OF_CONDUCT``
 
 Testing
 --------
@@ -1432,7 +1457,7 @@ Incompatible changes
   object.  Please use ``config.gettext_compact`` instead.
 * The processing order on reading phase is changed.  smart_quotes, sphinx
   domains, :event:`doctree-read` event and versioning doctrees are invoked
-  earlier than so far.  For more details, please read a description of
+  earlier than so far. For more details, please read a description of
   :py:meth:`.Sphinx.add_transform()`
 * #4827: All ``substitution_definition`` nodes are removed from doctree on
   reading phase

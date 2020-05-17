@@ -17,13 +17,12 @@ from inspect import Parameter
 from types import ModuleType
 from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.application import Sphinx
-from sphinx.config import ENUM
+from sphinx.config import Config, ENUM
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
@@ -32,7 +31,7 @@ from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect
 from sphinx.util import logging
-from sphinx.util import rpartition
+from sphinx.util import split_full_qualified_name
 from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import getdoc, object_description, safe_getattr, stringify_signature
 from sphinx.util.typing import stringify as stringify_typehint
@@ -311,7 +310,8 @@ class Documenter:
             modname = None
             parents = []
 
-        self.modname, self.objpath = self.resolve_name(modname, parents, path, base)
+        with mock(self.env.config.autodoc_mock_imports):
+            self.modname, self.objpath = self.resolve_name(modname, parents, path, base)
 
         if not self.modname:
             return False
@@ -419,8 +419,15 @@ class Documenter:
         directive = getattr(self, 'directivetype', self.objtype)
         name = self.format_name()
         sourcename = self.get_sourcename()
-        self.add_line('.. %s:%s:: %s%s' % (domain, directive, name, sig),
-                      sourcename)
+
+        # one signature per line, indented by column
+        prefix = '.. %s:%s:: ' % (domain, directive)
+        for i, sig_line in enumerate(sig.split("\n")):
+            self.add_line('%s%s%s' % (prefix, name, sig_line),
+                          sourcename)
+            if i == 0:
+                prefix = " " * len(prefix)
+
         if self.options.noindex:
             self.add_line('   :noindex:', sourcename)
         if self.objpath:
@@ -893,8 +900,14 @@ class ModuleLevelDocumenter(Documenter):
                      ) -> Tuple[str, List[str]]:
         if modname is None:
             if path:
-                modname = path.rstrip('.')
-            else:
+                stripped = path.rstrip('.')
+                modname, qualname = split_full_qualified_name(stripped)
+                if qualname:
+                    parents = qualname.split(".")
+                else:
+                    parents = []
+
+            if modname is None:
                 # if documenting a toplevel object without explicit module,
                 # it can be contained in another auto directive ...
                 modname = self.env.temp_data.get('autodoc:module')
@@ -927,8 +940,13 @@ class ClassLevelDocumenter(Documenter):
                 # ... if still None, there's no way to know
                 if mod_cls is None:
                     return None, []
-            modname, cls = rpartition(mod_cls, '.')
-            parents = [cls]
+
+            try:
+                modname, qualname = split_full_qualified_name(mod_cls)
+                parents = qualname.split(".") if qualname else []
+            except ImportError:
+                parents = mod_cls.split(".")
+
             # if the module name is still missing, get it like above
             if not modname:
                 modname = self.env.temp_data.get('autodoc:module')
@@ -1026,43 +1044,19 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
-        unwrapped = inspect.unwrap(self.object)
-        if ((inspect.isbuiltin(unwrapped) or inspect.ismethoddescriptor(unwrapped)) and
-                not inspect.is_cython_function_or_method(unwrapped)):
-            # cannot introspect arguments of a C function or method
-            return None
         try:
-            if (not inspect.isfunction(unwrapped) and
-                    not inspect.ismethod(unwrapped) and
-                    not inspect.isbuiltin(unwrapped) and
-                    not inspect.is_cython_function_or_method(unwrapped) and
-                    not inspect.isclass(unwrapped) and
-                    hasattr(unwrapped, '__call__')):
-                self.env.app.emit('autodoc-before-process-signature',
-                                  unwrapped.__call__, False)
-                sig = inspect.signature(unwrapped.__call__)
+            self.env.app.emit('autodoc-before-process-signature', self.object, False)
+            if inspect.is_singledispatch_function(self.object):
+                sig = inspect.signature(self.object, follow_wrapped=True)
             else:
-                self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
-                sig = inspect.signature(unwrapped)
+                sig = inspect.signature(self.object)
             args = stringify_signature(sig, **kwargs)
-        except TypeError:
-            if (inspect.is_builtin_class_method(unwrapped, '__new__') and
-               inspect.is_builtin_class_method(unwrapped, '__init__')):
-                raise TypeError('%r is a builtin class' % unwrapped)
-
-            # if a class should be documented as function (yay duck
-            # typing) we try to use the constructor signature as function
-            # signature without the first argument.
-            try:
-                self.env.app.emit('autodoc-before-process-signature',
-                                  unwrapped.__new__, True)
-                sig = inspect.signature(unwrapped.__new__, bound_method=True)
-                args = stringify_signature(sig, show_return_annotation=False, **kwargs)
-            except TypeError:
-                self.env.app.emit('autodoc-before-process-signature',
-                                  unwrapped.__init__, True)
-                sig = inspect.signature(unwrapped.__init__, bound_method=True)
-                args = stringify_signature(sig, show_return_annotation=False, **kwargs)
+        except TypeError as exc:
+            logger.warning(__("Failed to get a function signature for %s: %s"),
+                           self.fullname, exc)
+            return None
+        except ValueError:
+            args = ''
 
         if self.env.config.strip_signature_backslash:
             # escape backslashes for reST
@@ -1074,41 +1068,28 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
-        if inspect.is_singledispatch_function(self.object):
-            self.add_singledispatch_directive_header(sig)
-        else:
-            super().add_directive_header(sig)
+        super().add_directive_header(sig)
 
         if inspect.iscoroutinefunction(self.object):
             self.add_line('   :async:', sourcename)
 
-    def add_singledispatch_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
+    def format_signature(self, **kwargs: Any) -> str:
+        sig = super().format_signature(**kwargs)
+        sigs = [sig]
 
-        # intercept generated directive headers
-        # TODO: It is very hacky to use mock to intercept header generation
-        with patch.object(self, 'add_line') as add_line:
-            super().add_directive_header(sig)
+        if inspect.is_singledispatch_function(self.object):
+            # append signature of singledispatch'ed functions
+            for typ, func in self.object.registry.items():
+                if typ is object:
+                    pass  # default implementation. skipped.
+                else:
+                    self.annotate_to_first_argument(func, typ)
 
-        # output first line of header
-        self.add_line(*add_line.call_args_list[0][0])
+                    documenter = FunctionDocumenter(self.directive, '')
+                    documenter.object = func
+                    sigs.append(documenter.format_signature())
 
-        # inserts signature of singledispatch'ed functions
-        for typ, func in self.object.registry.items():
-            if typ is object:
-                pass  # default implementation. skipped.
-            else:
-                self.annotate_to_first_argument(func, typ)
-
-                documenter = FunctionDocumenter(self.directive, '')
-                documenter.object = func
-                self.add_line('   %s%s' % (self.format_name(),
-                                           documenter.format_signature()),
-                              sourcename)
-
-        # output remains of directive header
-        for call in add_line.call_args_list[1:]:
-            self.add_line(*call[0])
+        return "\n".join(sigs)
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
@@ -1448,18 +1429,33 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
-        unwrapped = inspect.unwrap(self.object)
-        if ((inspect.isbuiltin(unwrapped) or inspect.ismethoddescriptor(unwrapped)) and
-                not inspect.is_cython_function_or_method(unwrapped)):
-            # can never get arguments of a C function or method
+        try:
+            if self.object == object.__init__ and self.parent != object:
+                # Classes not having own __init__() method are shown as no arguments.
+                #
+                # Note: The signature of object.__init__() is (self, /, *args, **kwargs).
+                #       But it makes users confused.
+                args = '()'
+            else:
+                if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
+                    self.env.app.emit('autodoc-before-process-signature', self.object, False)
+                    sig = inspect.signature(self.object, bound_method=False)
+                else:
+                    self.env.app.emit('autodoc-before-process-signature', self.object, True)
+
+                    meth = self.parent.__dict__.get(self.objpath[-1], None)
+                    if meth and inspect.is_singledispatch_method(meth):
+                        sig = inspect.signature(self.object, bound_method=True,
+                                                follow_wrapped=True)
+                    else:
+                        sig = inspect.signature(self.object, bound_method=True)
+                args = stringify_signature(sig, **kwargs)
+        except TypeError as exc:
+            logger.warning(__("Failed to get a method signature for %s: %s"),
+                           self.fullname, exc)
             return None
-        if inspect.isstaticmethod(unwrapped, cls=self.parent, name=self.object_name):
-            self.env.app.emit('autodoc-before-process-signature', unwrapped, False)
-            sig = inspect.signature(unwrapped, bound_method=False)
-        else:
-            self.env.app.emit('autodoc-before-process-signature', unwrapped, True)
-            sig = inspect.signature(unwrapped, bound_method=True)
-        args = stringify_signature(sig, **kwargs)
+        except ValueError:
+            args = ''
 
         if self.env.config.strip_signature_backslash:
             # escape backslashes for reST
@@ -1467,11 +1463,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         return args
 
     def add_directive_header(self, sig: str) -> None:
-        meth = self.parent.__dict__.get(self.objpath[-1])
-        if inspect.is_singledispatch_method(meth):
-            self.add_singledispatch_directive_header(sig)
-        else:
-            super().add_directive_header(sig)
+        super().add_directive_header(sig)
 
         sourcename = self.get_sourcename()
         obj = self.parent.__dict__.get(self.object_name, self.object)
@@ -1489,34 +1481,26 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def document_members(self, all_members: bool = False) -> None:
         pass
 
-    def add_singledispatch_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
+    def format_signature(self, **kwargs: Any) -> str:
+        sig = super().format_signature(**kwargs)
+        sigs = [sig]
 
-        # intercept generated directive headers
-        # TODO: It is very hacky to use mock to intercept header generation
-        with patch.object(self, 'add_line') as add_line:
-            super().add_directive_header(sig)
-
-        # output first line of header
-        self.add_line(*add_line.call_args_list[0][0])
-
-        # inserts signature of singledispatch'ed functions
         meth = self.parent.__dict__.get(self.objpath[-1])
-        for typ, func in meth.dispatcher.registry.items():
-            if typ is object:
-                pass  # default implementation. skipped.
-            else:
-                self.annotate_to_first_argument(func, typ)
+        if inspect.is_singledispatch_method(meth):
+            # append signature of singledispatch'ed functions
+            for typ, func in meth.dispatcher.registry.items():
+                if typ is object:
+                    pass  # default implementation. skipped.
+                else:
+                    self.annotate_to_first_argument(func, typ)
 
-                documenter = MethodDocumenter(self.directive, '')
-                documenter.object = func
-                self.add_line('   %s%s' % (self.format_name(),
-                                           documenter.format_signature()),
-                              sourcename)
+                    documenter = MethodDocumenter(self.directive, '')
+                    documenter.parent = self.parent
+                    documenter.object = func
+                    documenter.objpath = [None]
+                    sigs.append(documenter.format_signature())
 
-        # output remains of directive header
-        for call in add_line.call_args_list[1:]:
-            self.add_line(*call[0])
+        return "\n".join(sigs)
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
@@ -1753,6 +1737,14 @@ def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
     return safe_getattr(obj, name, *defargs)
 
 
+def migrate_autodoc_member_order(app: Sphinx, config: Config) -> None:
+    if config.autodoc_member_order == 'alphabetic':
+        # RemovedInSphinx50Warning
+        logger.warning(__('autodoc_member_order now accepts "alphabetical" '
+                          'instead of "alphabetic". Please update your setting.'))
+        config.autodoc_member_order = 'alphabetical'  # type: ignore
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ModuleDocumenter)
     app.add_autodocumenter(ClassDocumenter)
@@ -1768,7 +1760,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(SlotsAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
-    app.add_config_value('autodoc_member_order', 'alphabetic', True)
+    app.add_config_value('autodoc_member_order', 'alphabetical', True,
+                         ENUM('alphabetic', 'alphabetical', 'bysource', 'groupwise'))
     app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
@@ -1780,6 +1773,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
+
+    app.connect('config-inited', migrate_autodoc_member_order)
 
     app.setup_extension('sphinx.ext.autodoc.type_comment')
     app.setup_extension('sphinx.ext.autodoc.typehints')

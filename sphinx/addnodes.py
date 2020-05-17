@@ -109,6 +109,13 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
     In that case all child nodes must be ``desc_signature_line`` nodes.
     """
 
+    @property
+    def child_text_separator(self):
+        if self.get('is_multiline'):
+            return ' '
+        else:
+            return super().child_text_separator
+
 
 class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a line in a multi-line object signatures.
@@ -146,6 +153,9 @@ class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general parameter list."""
     child_text_separator = ', '
+
+    def astext(self):
+        return '({})'.format(super().astext())
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):

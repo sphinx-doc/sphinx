@@ -40,22 +40,22 @@ def parse(sig):
 
 def test_function_signatures():
     rv = parse('func(a=1) -> int object')
-    assert rv == 'a=1'
+    assert rv == '(a=1)'
 
     rv = parse('func(a=1, [b=None])')
-    assert rv == 'a=1, [b=None]'
+    assert rv == '(a=1, [b=None])'
 
     rv = parse('func(a=1[, b=None])')
-    assert rv == 'a=1, [b=None]'
+    assert rv == '(a=1, [b=None])'
 
     rv = parse("compile(source : string, filename, symbol='file')")
-    assert rv == "source : string, filename, symbol='file'"
+    assert rv == "(source : string, filename, symbol='file')"
 
     rv = parse('func(a=[], [b=None])')
-    assert rv == 'a=[], [b=None]'
+    assert rv == '(a=[], [b=None])'
 
     rv = parse('func(a=[][, b=None])')
-    assert rv == 'a=[], [b=None]'
+    assert rv == '(a=[], [b=None])'
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
@@ -422,7 +422,8 @@ def test_pydata_signature(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "version"],
-                                                    [desc_annotation, ": int"],
+                                                    [desc_annotation, (": ",
+                                                                       [pending_xref, "int"])],
                                                     [desc_annotation, " = 1"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="data",
@@ -454,8 +455,8 @@ def test_pyobject_prefix(app):
                                                   desc,
                                                   addnodes.index,
                                                   desc)])]))
-    assert doctree[1][1][1].astext().strip() == 'say'           # prefix is stripped
-    assert doctree[1][1][3].astext().strip() == 'FooBar.say'    # not stripped
+    assert doctree[1][1][1].astext().strip() == 'say()'           # prefix is stripped
+    assert doctree[1][1][3].astext().strip() == 'FooBar.say()'    # not stripped
 
 
 def test_pydata(app):
@@ -692,7 +693,8 @@ def test_pyattribute(app):
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'attr (Class attribute)', 'Class.attr', '', None)])
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "attr"],
-                                                     [desc_annotation, ": str"],
+                                                     [desc_annotation, (": ",
+                                                                        [pending_xref, "str"])],
                                                      [desc_annotation, " = ''"])],
                                    [desc_content, ()]))
     assert 'Class.attr' in domain.objects

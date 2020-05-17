@@ -208,10 +208,11 @@ def test_autosummary_generate(app, status, warning):
                                                                                nodes.row)])])
     assert_node(doctree[4][0], addnodes.toctree, caption="An autosummary")
 
+    assert len(doctree[3][0][0][2]) == 4
     assert doctree[3][0][0][2][0].astext() == 'autosummary_dummy_module\n\n'
     assert doctree[3][0][0][2][1].astext() == 'autosummary_dummy_module.Foo()\n\n'
-    assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
-    assert doctree[3][0][0][2][3].astext() == 'autosummary_importfail\n\n'
+    assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.Foo.Bar\n\n'
+    assert doctree[3][0][0][2][3].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
 
     module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
     assert ('   .. autosummary::\n'
@@ -230,6 +231,11 @@ def test_autosummary_generate(app, status, warning):
             '   \n'
             '      ~Foo.baz\n'
             '   \n' in Foo)
+
+    FooBar = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.Bar.rst').read_text()
+    assert ('.. currentmodule:: autosummary_dummy_module\n'
+            '\n'
+            '.. autoclass:: Foo.Bar\n' in FooBar)
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',
@@ -390,7 +396,7 @@ def test_autosummary_template(app):
                     confoverrides={'autosummary_generate': []})
 def test_empty_autosummary_generate(app, status, warning):
     app.build()
-    assert ("WARNING: autosummary: stub file not found 'autosummary_importfail'"
+    assert ("WARNING: autosummary: failed to import autosummary_importfail"
             in warning.getvalue())
 
 

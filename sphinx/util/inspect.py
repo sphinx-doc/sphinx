@@ -372,27 +372,39 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     Why this function needed? CPython implements int.__init__ by Descriptor
     but PyPy implements it by pure Python code.
     """
-    classes = [c for c in inspect.getmro(obj) if attr_name in c.__dict__]
-    cls = classes[0] if classes else object
-
-    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):
+    try:
+        mro = inspect.getmro(obj)
+    except AttributeError:
+        # no __mro__, assume the object has no methods as we know them
         return False
-    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls
+
+    try:
+        cls = next(c for c in mro if attr_name in safe_getattr(c, '__dict__', {}))
+    except StopIteration:
+        return False
+
+    try:
+        name = safe_getattr(cls, '__name__')
+    except AttributeError:
+        return False
+
+    return getattr(builtins, name, None) is cls
 
 
-def signature(subject: Callable, bound_method: bool = False) -> inspect.Signature:
+def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False
+              ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
+    :param follow_wrapped: Same as ``inspect.signature()``.
+                           Defaults to ``False`` (get a signature of *subject*).
     """
-    # check subject is not a built-in class (ex. int, str)
-    if (isinstance(subject, type) and
-            is_builtin_class_method(subject, "__new__") and
-            is_builtin_class_method(subject, "__init__")):
-        raise TypeError("can't compute signature for built-in type {}".format(subject))
-
     try:
-        signature = inspect.signature(subject)
+        try:
+            signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
+        except ValueError:
+            # follow built-in wrappers up (ex. functools.lru_cache)
+            signature = inspect.signature(subject)
         parameters = list(signature.parameters.values())
         return_annotation = signature.return_annotation
     except IndexError:

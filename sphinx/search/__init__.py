@@ -22,7 +22,7 @@ from sphinx import addnodes
 from sphinx import package_dir
 from sphinx.environment import BuildEnvironment
 from sphinx.search.jssplitter import splitter_code
-from sphinx.util import jsdump, rpartition
+from sphinx.util import jsdump
 
 
 class SearchLanguage:
@@ -324,7 +324,7 @@ class IndexBuilder:
                     continue
                 fullname = html.escape(fullname)
                 dispname = html.escape(dispname)
-                prefix, name = rpartition(dispname, '.')
+                prefix, _, name = dispname.rpartition('.')
                 pdict = rv.setdefault(prefix, {})
                 try:
                     typeindex = otypes[domainname, type]
