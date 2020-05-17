@@ -177,13 +177,18 @@ class InheritanceGraph:
         self.diagram_direction = direction
         self.show_builtins = show_builtins
         self.private_bases = private_bases
-        self.classes = self._import_classes(class_names, currmodule)
         self.top_classes = self._import_classes(top_classes, currmodule)
 
         # Create the whole relationships
+        self.classes = []
         self.class_dag = {}  # type: Dict[Any, InheritanceGraph.Node]
-        for c in self.classes:
-            self._add_class(c)
+        for target in class_names:
+            classes = self._import_classes([target], currmodule)
+            self.classes.extend(classes)
+            # If length is 1, guess the target is not a module
+            force = len(classes) == 1
+            for c in classes:
+                self._add_class(c, force=force)
 
         # Flag the classes to finally use
         if not self.top_classes:
