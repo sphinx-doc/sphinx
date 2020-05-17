@@ -12,7 +12,7 @@ import platform
 
 import pytest
 
-from test_autodoc import do_autodoc
+from test_ext_autodoc import do_autodoc
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
 

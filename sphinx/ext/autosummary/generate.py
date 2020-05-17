@@ -45,6 +45,7 @@ from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging
 from sphinx.util import rst
+from sphinx.util import split_full_qualified_name
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
@@ -244,19 +245,19 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         ns['attributes'], ns['all_attributes'] = \
             get_members(obj, {'attribute', 'property'})
 
-    parts = name.split('.')
+    modname, qualname = split_full_qualified_name(name)
     if doc.objtype in ('method', 'attribute', 'property'):
-        mod_name = '.'.join(parts[:-2])
-        cls_name = parts[-2]
-        obj_name = '.'.join(parts[-2:])
-        ns['class'] = cls_name
+        ns['class'] = qualname.rsplit(".", 1)[0]
+
+    if doc.objtype in ('class',):
+        shortname = qualname
     else:
-        mod_name, obj_name = '.'.join(parts[:-1]), parts[-1]
+        shortname = qualname.rsplit(".", 1)[-1]
 
     ns['fullname'] = name
-    ns['module'] = mod_name
-    ns['objname'] = obj_name
-    ns['name'] = parts[-1]
+    ns['module'] = modname
+    ns['objname'] = qualname
+    ns['name'] = shortname
 
     ns['objtype'] = doc.objtype
     ns['underline'] = len(name) * '='

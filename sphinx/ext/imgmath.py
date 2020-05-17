@@ -14,7 +14,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError, PIPE
 from typing import Any, Dict, List, Tuple
@@ -29,7 +28,7 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
-from sphinx.util import logging
+from sphinx.util import logging, sha1
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth

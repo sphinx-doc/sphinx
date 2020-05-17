@@ -51,8 +51,13 @@ msgstr "正在运行 Sphinx v%s"
 #: sphinx/application.py:202
 msgid ""
 "For security reason, parallel mode is disabled on macOS and python3.8 and "
+<<<<<<< HEAD
 "above.  For more details, please read https://github.com/sphinx-doc/sphinx/"
 "issues/6803"
+=======
+"above. For more details, please read https://github.com/sphinx-"
+"doc/sphinx/issues/6803"
+>>>>>>> master
 msgstr ""
 "出于安全原因，在macOS和python3.8及更高版本上禁用了并行模式。有关更多详细信"
 "息，请阅读https://github.com/sphinx-doc/sphinx/issues/6803"
@@ -510,7 +515,7 @@ msgstr "不支持的主题选项 %r"
 #: sphinx/theming.py:228
 #, python-format
 msgid "file %r on theme path is not a valid zipfile or contains no theme"
-msgstr "主题路径指定的文件 %r 是一个无效的或不包含主题的  zip 文件"
+msgstr "主题路径指定的文件 %r 是一个无效的或不包含主题的 zip 文件"
 
 #: sphinx/theming.py:258 sphinx/theming.py:243
 msgid ""
@@ -1198,7 +1203,7 @@ msgstr "递归错误："
 
 #: sphinx/cmd/build.py:66 sphinx/cmd/build.py:62
 msgid ""
-"This can happen with very large or deeply nested source files.  You can "
+"This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
 msgstr ""
@@ -1244,8 +1249,12 @@ msgid ""
 "sphinx-build generates documentation from the files in SOURCEDIR and places "
 "it\n"
 "in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration\n"
+<<<<<<< HEAD
 "settings.  The 'sphinx-quickstart' tool may be used to generate template "
 "files,\n"
+=======
+"settings. The 'sphinx-quickstart' tool may be used to generate template files,\n"
+>>>>>>> master
 "including 'conf.py'\n"
 "\n"
 "sphinx-build can create documentation in different formats. A format is\n"
@@ -1543,7 +1552,7 @@ msgid ""
 "Sphinx has the notion of a \"version\" and a \"release\" for the\n"
 "software. Each version can have multiple releases. For example, for\n"
 "Python the version is something like 2.5 or 3.0, while the release is\n"
-"something like 2.5.1 or 3.0a1.  If you don't need this dual structure,\n"
+"something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
 "just set both to the same value."
 msgstr ""
 "Sphinx对于软件具有“版本”和“发行”的概念。每个版本可以有多个发行版。例如，对于"
@@ -1581,7 +1590,7 @@ msgstr "项目语种"
 #: sphinx/cmd/quickstart.py:298
 msgid ""
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
-"or \".rst\".  Only files with this suffix are considered documents."
+"or \".rst\". Only files with this suffix are considered documents."
 msgstr ""
 "源文件的文件名后缀。通常，这是“ .txt”或“ .rst”。仅将带有此后缀的文件视为文"
 "档。"
