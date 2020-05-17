@@ -2,7 +2,16 @@ from os import path  # NOQA
 from typing import Union
 
 
+#: module variable
+CONSTANT1 = None
+CONSTANT2 = None
+
+
 class Foo:
+    #: class variable
+    CONSTANT3 = None
+    CONSTANT4 = None
+
     class Bar:
         pass
 
