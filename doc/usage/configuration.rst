@@ -1385,7 +1385,7 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.3
 
-   .. versionchanged:: 2.4
+   .. versionchanged:: 3.0
 
       It is disabled for images having ``no-scaled-link`` class
 
@@ -2119,6 +2119,13 @@ These options influence LaTeX output.
 
    .. versionadded:: 3.0
 
+.. confval:: latex_theme_options
+
+   A dictionary of options that influence the look and feel of the selected
+   theme.
+
+   .. versionadded:: 3.1
+
 .. confval:: latex_theme_path
 
    A list of paths that contain custom LaTeX themes as subdirectories.  Relative
@@ -2477,6 +2484,30 @@ Options for the XML builder
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
        these all don't match slashes.  A double star ``**`` can be used to
        match any sequence of characters *including* slashes.
+
+
+.. _c-config:
+
+Options for the C domain
+------------------------
+
+.. confval:: c_id_attributes
+
+   A list of strings that the parser additionally should accept as attributes.
+   This can for example be used when attributes have been ``#define`` d for
+   portability.
+
+   .. versionadded:: 3.0
+
+.. confval:: c_paren_attributes
+
+   A list of strings that the parser additionally should accept as attributes
+   with one argument.  That is, if ``my_align_as`` is in the list, then
+   ``my_align_as(X)`` is parsed as an attribute for all strings ``X`` that have
+   balanced braces (``()``, ``[]``, and ``{}``).  This can for example be used
+   when attributes have been ``#define`` d for portability.
+
+   .. versionadded:: 3.0
 
 
 .. _cpp-config:

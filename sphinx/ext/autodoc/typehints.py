@@ -104,24 +104,16 @@ def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> No
             continue
 
         arg = arguments.get(name, {})
-        field = nodes.field()
-        if arg.get('param') and arg.get('type'):
-            # both param and type are already filled manually
-            continue
-        elif arg.get('param'):
-            # only param: fill type field
+        if not arg.get('type'):
+            field = nodes.field()
             field += nodes.field_name('', 'type ' + name)
             field += nodes.field_body('', nodes.paragraph('', annotation))
-        elif arg.get('type'):
-            # only type: It's odd...
+            node += field
+        if not arg.get('param'):
+            field = nodes.field()
             field += nodes.field_name('', 'param ' + name)
             field += nodes.field_body('', nodes.paragraph('', ''))
-        else:
-            # both param and type are not found
-            field += nodes.field_name('', 'param ' + annotation + ' ' + name)
-            field += nodes.field_body('', nodes.paragraph('', ''))
-
-        node += field
+            node += field
 
     if 'return' in annotations and 'return' not in arguments:
         field = nodes.field()

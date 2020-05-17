@@ -23,7 +23,7 @@ from sphinx import package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.search.jssplitter import splitter_code
-from sphinx.util import jsdump, rpartition
+from sphinx.util import jsdump
 
 if False:
     # For type annotation
@@ -203,7 +203,7 @@ class WordCollector(nodes.NodeVisitor):
     def is_meta_keywords(self, node: addnodes.meta, nodetype: Any = None) -> bool:
         if nodetype is not None:
             warnings.warn('"nodetype" argument for WordCollector.is_meta_keywords() '
-                          'is deprecated.', RemovedInSphinx40Warning)
+                          'is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
 
         if isinstance(node, addnodes.meta) and node.get('name') == 'keywords':
             meta_lang = node.get('lang')
@@ -333,7 +333,7 @@ class IndexBuilder:
                     continue
                 fullname = html.escape(fullname)
                 dispname = html.escape(dispname)
-                prefix, name = rpartition(dispname, '.')
+                prefix, _, name = dispname.rpartition('.')
                 pdict = rv.setdefault(prefix, {})
                 try:
                     typeindex = otypes[domainname, type]

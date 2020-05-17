@@ -204,7 +204,7 @@ class Sphinx:
         # notice for parallel build on macOS and py38+
         if sys.version_info > (3, 8) and platform.system() == 'Darwin' and parallel > 1:
             logger.info(bold(__("For security reason, parallel mode is disabled on macOS and "
-                                "python3.8 and above.  For more details, please read "
+                                "python3.8 and above. For more details, please read "
                                 "https://github.com/sphinx-doc/sphinx/issues/6803")))
 
         # status code for command-line application
@@ -436,22 +436,32 @@ class Sphinx:
         logger.debug('[app] disconnecting event: [id=%s]', listener_id)
         self.events.disconnect(listener_id)
 
-    def emit(self, event: str, *args: Any) -> List:
+    def emit(self, event: str, *args: Any,
+             allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> List:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
         Sphinx events in extensions!
-        """
-        return self.events.emit(event, *args)
 
-    def emit_firstresult(self, event: str, *args: Any) -> Any:
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
+        """
+        return self.events.emit(event, *args, allowed_exceptions=allowed_exceptions)
+
+    def emit_firstresult(self, event: str, *args: Any,
+                         allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> Any:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
 
         .. versionadded:: 0.5
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
         """
-        return self.events.emit_firstresult(event, *args)
+        return self.events.emit_firstresult(event, *args,
+                                            allowed_exceptions=allowed_exceptions)
 
     # registering addon parts
 
@@ -990,7 +1000,7 @@ class Sphinx:
         if isinstance(lexer, Lexer):
             warnings.warn('app.add_lexer() API changed; '
                           'Please give lexer class instead instance',
-                          RemovedInSphinx40Warning)
+                          RemovedInSphinx40Warning, stacklevel=2)
             lexers[alias] = lexer
         else:
             lexer_classes[alias] = lexer

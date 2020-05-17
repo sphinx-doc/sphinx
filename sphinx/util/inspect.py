@@ -20,7 +20,7 @@ from inspect import (  # NOQA
     Parameter, isclass, ismethod, ismethoddescriptor
 )
 from io import StringIO
-from typing import Any, Callable, Mapping, List, Tuple
+from typing import Any, Callable, Mapping, List, Optional, Tuple
 from typing import cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
@@ -58,7 +58,7 @@ def getargspec(func: Callable) -> Any:
     """Like inspect.getfullargspec but supports bound methods, and wrapped
     methods."""
     warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
-                  RemovedInSphinx50Warning)
+                  RemovedInSphinx50Warning, stacklevel=2)
     # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
     # succeeds with a bogus signature. We want a TypeError uniformly, to
     # match historical behavior.
@@ -125,13 +125,15 @@ def unwrap(obj: Any) -> Any:
         return obj
 
 
-def unwrap_all(obj: Any) -> Any:
+def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
     """
     Get an original object from wrapped object (unwrapping partials, wrapped
     functions, and other decorators).
     """
     while True:
-        if ispartial(obj):
+        if stop and stop(obj):
+            return obj
+        elif ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
             obj = obj.__wrapped__
@@ -287,7 +289,8 @@ def isroutine(obj: Any) -> bool:
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
-    obj = unwrap_all(obj)
+    # unwrap staticmethod, classmethod and partial (except wrappers)
+    obj = unwrap_all(obj, stop=lambda o: hasattr(o, '__wrapped__'))
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
@@ -326,7 +329,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
 def safe_getmembers(object: Any, predicate: Callable[[str], bool] = None,
                     attr_getter: Callable = safe_getattr) -> List[Tuple[str, Any]]:
     """A version of inspect.getmembers() that uses safe_getattr()."""
-    warnings.warn('safe_getmembers() is deprecated', RemovedInSphinx40Warning)
+    warnings.warn('safe_getmembers() is deprecated', RemovedInSphinx40Warning, stacklevel=2)
 
     results = []  # type: List[Tuple[str, Any]]
     for key in dir(object):
@@ -386,27 +389,39 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     Why this function needed? CPython implements int.__init__ by Descriptor
     but PyPy implements it by pure Python code.
     """
-    classes = [c for c in inspect.getmro(obj) if attr_name in c.__dict__]
-    cls = classes[0] if classes else object
-
-    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):
+    try:
+        mro = inspect.getmro(obj)
+    except AttributeError:
+        # no __mro__, assume the object has no methods as we know them
         return False
-    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls
+
+    try:
+        cls = next(c for c in mro if attr_name in safe_getattr(c, '__dict__', {}))
+    except StopIteration:
+        return False
+
+    try:
+        name = safe_getattr(cls, '__name__')
+    except AttributeError:
+        return False
+
+    return getattr(builtins, name, None) is cls
 
 
-def signature(subject: Callable, bound_method: bool = False) -> inspect.Signature:
+def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False
+              ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
+    :param follow_wrapped: Same as ``inspect.signature()``.
+                           Defaults to ``False`` (get a signature of *subject*).
     """
-    # check subject is not a built-in class (ex. int, str)
-    if (isinstance(subject, type) and
-            is_builtin_class_method(subject, "__new__") and
-            is_builtin_class_method(subject, "__init__")):
-        raise TypeError("can't compute signature for built-in type {}".format(subject))
-
     try:
-        signature = inspect.signature(subject)
+        try:
+            signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
+        except ValueError:
+            # follow built-in wrappers up (ex. functools.lru_cache)
+            signature = inspect.signature(subject)
         parameters = list(signature.parameters.values())
         return_annotation = signature.return_annotation
     except IndexError:
@@ -527,7 +542,7 @@ def signature_from_str(signature: str) -> inspect.Signature:
                                 annotation=annotation))
 
     for i, arg in enumerate(args.kwonlyargs):
-        default = ast_unparse(args.kw_defaults[i])
+        default = ast_unparse(args.kw_defaults[i]) or Parameter.empty
         annotation = ast_unparse(arg.annotation) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))
@@ -552,7 +567,7 @@ class Signature:
     def __init__(self, subject: Callable, bound_method: bool = False,
                  has_retval: bool = True) -> None:
         warnings.warn('sphinx.util.inspect.Signature() is deprecated',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
         # check subject is not a built-in class (ex. int, str)
         if (isinstance(subject, type) and
@@ -565,7 +580,7 @@ class Signature:
         self.partialmethod_with_noargs = False
 
         try:
-            self.signature = inspect.signature(subject)
+            self.signature = inspect.signature(subject)  # type: Optional[inspect.Signature]
         except IndexError:
             # Until python 3.6.4, cpython has been crashed on inspection for
             # partialmethods not having any arguments.
@@ -691,18 +706,29 @@ class Signature:
 
 
 def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
-           allow_inherited: bool = False) -> str:
+           allow_inherited: bool = False, cls: Any = None, name: str = None) -> str:
     """Get the docstring for the object.
 
     This tries to obtain the docstring for some kind of objects additionally:
 
     * partial functions
     * inherited docstring
+    * inherited decorated methods
     """
     doc = attrgetter(obj, '__doc__', None)
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)
     elif doc is None and allow_inherited:
         doc = inspect.getdoc(obj)
+
+        if doc is None and cls:
+            # inspect.getdoc() does not support some kind of inherited and decorated methods.
+            # This tries to obtain the docstring from super classes.
+            for basecls in getattr(cls, '__mro__', []):
+                meth = safe_getattr(basecls, name, None)
+                if meth:
+                    doc = inspect.getdoc(meth)
+                    if doc:
+                        break
 
     return doc

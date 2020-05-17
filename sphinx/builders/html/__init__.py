@@ -13,7 +13,6 @@ import posixpath
 import re
 import sys
 import warnings
-from hashlib import md5
 from os import path
 from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
 
@@ -38,7 +37,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import logging, progress_message, status_iterator
+from sphinx.util import logging, progress_message, status_iterator, md5
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
@@ -882,7 +881,7 @@ class StandaloneHTMLBuilder(Builder):
                     'The %s.feed() method signature is deprecated. Update to '
                     '%s.feed(docname, filename, title, doctree).' % (
                         indexer_name, indexer_name),
-                    RemovedInSphinx40Warning)
+                    RemovedInSphinx40Warning, stacklevel=2)
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if 'includehidden' not in kwargs:
@@ -1242,6 +1241,9 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     # load default math renderer
     app.setup_extension('sphinx.ext.mathjax')
+
+    # load transforms for HTML builder
+    app.setup_extension('sphinx.builders.html.transforms')
 
     return {
         'version': 'builtin',

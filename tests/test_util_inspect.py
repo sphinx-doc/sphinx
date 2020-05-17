@@ -18,7 +18,7 @@ from inspect import Parameter
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import stringify_signature
+from sphinx.util.inspect import stringify_signature, is_builtin_class_method
 
 
 def test_signature():
@@ -30,10 +30,10 @@ def test_signature():
         inspect.signature('')
 
     # builitin classes
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         inspect.signature(int)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         inspect.signature(str)
 
     # normal function
@@ -97,7 +97,7 @@ def test_signature_methods():
 
     # wrapped bound method
     sig = inspect.signature(wrapped_bound_method)
-    assert stringify_signature(sig) == '(arg1, **kwargs)'
+    assert stringify_signature(sig) == '(*args, **kwargs)'
 
 
 def test_signature_partialmethod():
@@ -127,7 +127,7 @@ def test_signature_partialmethod():
 
 def test_signature_annotations():
     from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                                  f11, f12, f13, f14, f15, f16, f17, f18, f19, Node)
+                                  f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, Node)
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -183,6 +183,10 @@ def test_signature_annotations():
     # optional
     sig = inspect.signature(f13)
     assert stringify_signature(sig) == '() -> Optional[str]'
+
+    # optional union
+    sig = inspect.signature(f20)
+    assert stringify_signature(sig) == '() -> Optional[Union[int, str]]'
 
     # Any
     sig = inspect.signature(f14)
@@ -315,6 +319,15 @@ def test_signature_from_str_complex_annotations():
 
     sig = inspect.signature_from_str('() -> Callable[[int, int], int]')
     assert sig.return_annotation == 'Callable[[int, int], int]'
+
+
+def test_signature_from_str_kwonly_args():
+    sig = inspect.signature_from_str('(a, *, b)')
+    assert list(sig.parameters.keys()) == ['a', 'b']
+    assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['a'].default == Parameter.empty
+    assert sig.parameters['b'].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters['b'].default == Parameter.empty
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
@@ -555,3 +568,36 @@ def test_unpartial():
 
     assert inspect.unpartial(func2) is func1
     assert inspect.unpartial(func3) is func1
+
+
+def test_getdoc_inherited_decorated_method():
+    class Foo:
+        def meth(self):
+            """docstring."""
+
+    class Bar(Foo):
+        @functools.lru_cache()
+        def meth(self):
+            # inherited and decorated method
+            pass
+
+    assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == "docstring."
+
+
+def test_is_builtin_class_method():
+    class MyInt(int):
+        def my_method(self):
+            pass
+
+    assert inspect.is_builtin_class_method(MyInt, 'to_bytes')
+    assert inspect.is_builtin_class_method(MyInt, '__init__')
+    assert not inspect.is_builtin_class_method(MyInt, 'my_method')
+    assert not inspect.is_builtin_class_method(MyInt, 'does_not_exist')
+    assert not inspect.is_builtin_class_method(4, 'still does not crash')
+
+    class ObjectWithMroAttr:
+        def __init__(self, mro_attr):
+            self.__mro__ = mro_attr
+
+    assert not inspect.is_builtin_class_method(ObjectWithMroAttr([1, 2, 3]), 'still does not crash')

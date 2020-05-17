@@ -11,10 +11,10 @@
 import importlib
 import traceback
 import warnings
-from collections import namedtuple
-from typing import Any, Callable, Dict, List, Mapping, Tuple
+from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Tuple
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
 from sphinx.util.inspect import isclass, isenumclass, safe_getattr
 
@@ -122,11 +122,13 @@ def get_module_members(module: Any) -> List[Tuple[str, Any]]:
     return sorted(list(members.values()))
 
 
-Attribute = namedtuple('Attribute', ['name', 'directly_defined', 'value'])
+Attribute = NamedTuple('Attribute', [('name', str),
+                                     ('directly_defined', bool),
+                                     ('value', Any)])
 
 
 def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
-                       analyzer: Any = None) -> Dict[str, Attribute]:
+                       analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR
 
@@ -142,8 +144,9 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                 members[name] = Attribute(name, True, value)
 
         superclass = subject.__mro__[1]
-        for name, value in obj_dict.items():
+        for name in obj_dict:
             if name not in superclass.__dict__:
+                value = safe_getattr(subject, name)
                 members[name] = Attribute(name, True, value)
 
     # members in __slots__

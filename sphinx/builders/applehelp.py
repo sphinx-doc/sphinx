@@ -32,7 +32,7 @@ deprecated_alias('sphinx.builders.applehelp',
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     warnings.warn('sphinx.builders.applehelp has been moved to sphinxcontrib-applehelp.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     app.setup_extension('sphinxcontrib.applehelp')
 
     return {

@@ -10,6 +10,7 @@
 
 import fnmatch
 import functools
+import hashlib
 import os
 import posixpath
 import re
@@ -21,14 +22,13 @@ import warnings
 from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
-from hashlib import md5
 from importlib import import_module
 from os import path
 from time import mktime, strptime
 from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.errors import (
     PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError
 )
@@ -110,7 +110,7 @@ def get_matching_docs(dirname: str, suffixes: List[str],
     Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
     warnings.warn('get_matching_docs() is now deprecated. Use get_matching_files() instead.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     suffixpatterns = ['*' + s for s in suffixes]
     for filename in get_matching_files(dirname, exclude_matchers):
         for suffixpattern in suffixpatterns:
@@ -168,6 +168,36 @@ class FilenameUniqDict(dict):
 
     def __setstate__(self, state: Set[str]) -> None:
         self._existing = state
+
+
+def md5(data=b'', **kwargs):
+    """Wrapper around hashlib.md5
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError, which happens when
+    OpenSSL FIPS mode is enabled:
+    ValueError: error:060800A3:digital envelope routines:EVP_DigestInit_ex:disabled for fips
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return hashlib.md5(data, **kwargs)  # type: ignore
+    except ValueError:
+        return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
+
+
+def sha1(data=b'', **kwargs):
+    """Wrapper around hashlib.sha1
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return hashlib.sha1(data, **kwargs)  # type: ignore
+    except ValueError:
+        return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
 
 
 class DownloadFiles(dict):
@@ -315,7 +345,7 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 def detect_encoding(readline: Callable[[], bytes]) -> str:
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
     warnings.warn('sphinx.util.detect_encoding() is deprecated',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
 
     def read_or_stop() -> bytes:
         try:
@@ -467,6 +497,7 @@ class attrdict(dict):
 
 def rpartition(s: str, t: str) -> Tuple[str, str]:
     """Similar to str.rpartition from 2.5, but doesn't return the separator."""
+    warnings.warn('rpartition() is now deprecated.', RemovedInSphinx50Warning, stacklevel=2)
     i = s.rfind(t)
     if i != -1:
         return s[:i], s[i + len(t):]
@@ -568,6 +599,31 @@ def import_object(objname: str, source: str = None) -> Any:
                                  (objname, source), exc)
         else:
             raise ExtensionError('Could not import %s' % objname, exc)
+
+
+def split_full_qualified_name(name: str) -> Tuple[str, str]:
+    """Split full qualified name to a pair of modname and qualname.
+
+    A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
+    (https://www.python.org/dev/peps/pep-3155/).  It is a dotted path name
+    from the module top-level.
+
+    A "full" qualified name means a string containing both module name and
+    qualified name.
+
+    .. note:: This function imports module actually to check the exisitence.
+              Therefore you need to mock 3rd party modules if needed before
+              calling this function.
+    """
+    parts = name.split('.')
+    for i, part in enumerate(parts, 1):
+        try:
+            modname = ".".join(parts[:i])
+            import_module(modname)
+        except ImportError:
+            return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+
+    return name, ""
 
 
 def encode_uri(uri: str) -> str:

@@ -187,7 +187,7 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
 def convert_python_source(source: str, rex: Pattern = re.compile(r"[uU]('.*?')")) -> str:
     # remove Unicode literal prefixes
     warnings.warn('convert_python_source() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return rex.sub('\\1', source)
 
 
@@ -275,7 +275,7 @@ def ask_user(d: Dict) -> None:
         print(__('Sphinx has the notion of a "version" and a "release" for the\n'
                  'software. Each version can have multiple releases. For example, for\n'
                  'Python the version is something like 2.5 or 3.0, while the release is\n'
-                 'something like 2.5.1 or 3.0a1.  If you don\'t need this dual structure,\n'
+                 'something like 2.5.1 or 3.0a1. If you don\'t need this dual structure,\n'
                  'just set both to the same value.'))
         d['version'] = do_prompt(__('Project version'), '', allow_empty)
     if 'release' not in d:
@@ -296,7 +296,7 @@ def ask_user(d: Dict) -> None:
     if 'suffix' not in d:
         print()
         print(__('The file name suffix for source files. Commonly, this is either ".txt"\n'
-                 'or ".rst".  Only files with this suffix are considered documents.'))
+                 'or ".rst". Only files with this suffix are considered documents.'))
         d['suffix'] = do_prompt(__('Source file suffix'), '.rst', suffix)
 
     if 'master' not in d:
@@ -357,6 +357,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     d.setdefault('extensions', [])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
 
+    d["path"] = os.path.abspath(d['path'])
     ensuredir(d['path'])
 
     srcdir = path.join(d['path'], 'source') if d['sep'] else d['path']

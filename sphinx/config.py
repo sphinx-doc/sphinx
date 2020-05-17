@@ -444,7 +444,7 @@ def check_unicode(config: Config) -> None:
     since that can result in UnicodeErrors all over the place
     """
     warnings.warn('sphinx.config.check_unicode() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
 
     nonascii_re = re.compile(br'[\x80-\xff]')
 

@@ -53,22 +53,19 @@ class NamedtupleSubclassTest(BaseDocstringTest):
 Sample namedtuple subclass
 
 .. attribute:: attr1
+   :type: Arbitrary type
 
    Quick description of attr1
 
-   :type: Arbitrary type
-
 .. attribute:: attr2
+   :type: Another arbitrary type
 
    Quick description of attr2
 
-   :type: Another arbitrary type
-
 .. attribute:: attr3
+   :type: Type
 
    Adds a newline after the type
-
-   :type: Type
 """
 
         self.assertEqual(expected, actual)
@@ -78,15 +75,17 @@ class InlineAttributeTest(BaseDocstringTest):
 
     def test_class_data_member(self):
         config = Config()
-        docstring = """data member description:
+        docstring = dedent("""\
+        data member description:
 
-- a: b
-"""
+        - a: b
+        """)
         actual = str(GoogleDocstring(docstring, config=config, app=None,
                      what='attribute', name='some_data', obj=0))
-        expected = """data member description:
+        expected = dedent("""\
+        data member description:
 
-- a: b"""
+        - a: b""")
 
         self.assertEqual(expected, actual)
 
@@ -95,10 +94,30 @@ class InlineAttributeTest(BaseDocstringTest):
         docstring = """b: data member description with :ref:`reference`"""
         actual = str(GoogleDocstring(docstring, config=config, app=None,
                      what='attribute', name='some_data', obj=0))
-        expected = """data member description with :ref:`reference`
+        expected = dedent("""\
+        data member description with :ref:`reference`
 
-:type: b"""
+        :type: b""")
+        self.assertEqual(expected, actual)
 
+    def test_class_data_member_inline_no_type(self):
+        config = Config()
+        docstring = """data with ``a : in code`` and :ref:`reference` and no type"""
+        actual = str(GoogleDocstring(docstring, config=config, app=None,
+                     what='attribute', name='some_data', obj=0))
+        expected = """data with ``a : in code`` and :ref:`reference` and no type"""
+
+        self.assertEqual(expected, actual)
+
+    def test_class_data_member_inline_ref_in_type(self):
+        config = Config()
+        docstring = """:class:`int`: data member description"""
+        actual = str(GoogleDocstring(docstring, config=config, app=None,
+                     what='attribute', name='some_data', obj=0))
+        expected = dedent("""\
+        data member description
+
+        :type: :class:`int`""")
         self.assertEqual(expected, actual)
 
 
@@ -390,10 +409,9 @@ Attributes:
         actual = str(GoogleDocstring(docstring))
         expected = """\
 .. attribute:: in_attr
+   :type: :class:`numpy.ndarray`
 
    super-dooper attribute
-
-   :type: :class:`numpy.ndarray`
 """
         self.assertEqual(expected, actual)
 
@@ -405,10 +423,9 @@ Attributes:
         actual = str(GoogleDocstring(docstring))
         expected = """\
 .. attribute:: in_attr
+   :type: numpy.ndarray
 
    super-dooper attribute
-
-   :type: numpy.ndarray
 """
         self.assertEqual(expected, actual)
 

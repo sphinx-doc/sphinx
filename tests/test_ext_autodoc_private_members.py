@@ -10,7 +10,7 @@
 
 import pytest
 
-from test_autodoc import do_autodoc
+from test_ext_autodoc import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -21,6 +21,14 @@ def test_private_field(app):
     assert list(actual) == [
         '',
         '.. py:module:: target.private',
+        '',
+        '',
+        '.. py:function:: _public_function(name)',
+        '   :module: target.private',
+        '',
+        '   public_function is a docstring().',
+        '',
+        '   :meta public:',
         '',
     ]
 
@@ -34,6 +42,14 @@ def test_private_field_and_private_members(app):
     assert list(actual) == [
         '',
         '.. py:module:: target.private',
+        '',
+        '',
+        '.. py:function:: _public_function(name)',
+        '   :module: target.private',
+        '',
+        '   public_function is a docstring().',
+        '',
+        '   :meta public:',
         '',
         '',
         '.. py:function:: private_function(name)',

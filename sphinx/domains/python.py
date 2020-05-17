@@ -77,17 +77,19 @@ ModuleEntry = NamedTuple('ModuleEntry', [('docname', str),
                                          ('deprecated', bool)])
 
 
+def type_to_xref(text: str) -> addnodes.pending_xref:
+    """Convert a type string to a cross reference node."""
+    if text == 'None':
+        reftype = 'obj'
+    else:
+        reftype = 'class'
+
+    return pending_xref('', nodes.Text(text),
+                        refdomain='py', reftype=reftype, reftarget=text)
+
+
 def _parse_annotation(annotation: str) -> List[Node]:
     """Parse type annotation."""
-    def make_xref(text: str) -> addnodes.pending_xref:
-        if text == 'None':
-            reftype = 'obj'
-        else:
-            reftype = 'class'
-
-        return pending_xref('', nodes.Text(text),
-                            refdomain='py', reftype=reftype, reftarget=text)
-
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
             return [nodes.Text("%s.%s" % (unparse(node.value)[0], node.attr))]
@@ -114,11 +116,16 @@ def _parse_annotation(annotation: str) -> List[Node]:
             result.append(addnodes.desc_sig_punctuation('', ']'))
             return result
         elif isinstance(node, ast.Tuple):
-            result = []
-            for elem in node.elts:
-                result.extend(unparse(elem))
-                result.append(addnodes.desc_sig_punctuation('', ', '))
-            result.pop()
+            if node.elts:
+                result = []
+                for elem in node.elts:
+                    result.extend(unparse(elem))
+                    result.append(addnodes.desc_sig_punctuation('', ', '))
+                result.pop()
+            else:
+                result = [addnodes.desc_sig_punctuation('', '('),
+                          addnodes.desc_sig_punctuation('', ')')]
+
             return result
         else:
             raise SyntaxError  # unsupported syntax
@@ -128,10 +135,10 @@ def _parse_annotation(annotation: str) -> List[Node]:
         result = unparse(tree)
         for i, node in enumerate(result):
             if isinstance(node, nodes.Text):
-                result[i] = make_xref(str(node))
+                result[i] = type_to_xref(str(node))
         return result
     except SyntaxError:
-        return [make_xref(annotation)]
+        return [type_to_xref(annotation)]
 
 
 def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
@@ -525,10 +532,11 @@ class PyModulelevel(PyObject):
             if cls.__name__ != 'DirectiveAdapter':
                 warnings.warn('PyModulelevel is deprecated. '
                               'Please check the implementation of %s' % cls,
-                              RemovedInSphinx40Warning)
+                              RemovedInSphinx40Warning, stacklevel=2)
                 break
         else:
-            warnings.warn('PyModulelevel is deprecated', RemovedInSphinx40Warning)
+            warnings.warn('PyModulelevel is deprecated',
+                          RemovedInSphinx40Warning, stacklevel=2)
 
         return super().run()
 
@@ -615,7 +623,7 @@ class PyVariable(PyObject):
 
         typ = self.options.get('type')
         if typ:
-            signode += addnodes.desc_annotation(typ, ': ' + typ)
+            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), type_to_xref(typ))
 
         value = self.options.get('value')
         if value:
@@ -636,10 +644,18 @@ class PyClasslike(PyObject):
     Description of a class-like object (classes, interfaces, exceptions).
     """
 
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'final': directives.flag,
+    })
+
     allow_nesting = True
 
     def get_signature_prefix(self, sig: str) -> str:
-        return self.objtype + ' '
+        if 'final' in self.options:
+            return 'final %s ' % self.objtype
+        else:
+            return '%s ' % self.objtype
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         if self.objtype == 'class':
@@ -662,10 +678,11 @@ class PyClassmember(PyObject):
             if cls.__name__ != 'DirectiveAdapter':
                 warnings.warn('PyClassmember is deprecated. '
                               'Please check the implementation of %s' % cls,
-                              RemovedInSphinx40Warning)
+                              RemovedInSphinx40Warning, stacklevel=2)
                 break
         else:
-            warnings.warn('PyClassmember is deprecated', RemovedInSphinx40Warning)
+            warnings.warn('PyClassmember is deprecated',
+                          RemovedInSphinx40Warning, stacklevel=2)
 
         return super().run()
 
@@ -744,6 +761,7 @@ class PyMethod(PyObject):
         'abstractmethod': directives.flag,
         'async': directives.flag,
         'classmethod': directives.flag,
+        'final': directives.flag,
         'property': directives.flag,
         'staticmethod': directives.flag,
     })
@@ -756,6 +774,8 @@ class PyMethod(PyObject):
 
     def get_signature_prefix(self, sig: str) -> str:
         prefix = []
+        if 'final' in self.options:
+            prefix.append('final')
         if 'abstractmethod' in self.options:
             prefix.append('abstract')
         if 'async' in self.options:
@@ -848,7 +868,7 @@ class PyAttribute(PyObject):
 
         typ = self.options.get('type')
         if typ:
-            signode += addnodes.desc_annotation(typ, ': ' + typ)
+            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), type_to_xref(typ))
 
         value = self.options.get('value')
         if value:
@@ -880,10 +900,11 @@ class PyDecoratorMixin:
             if cls.__name__ != 'DirectiveAdapter':
                 warnings.warn('PyDecoratorMixin is deprecated. '
                               'Please check the implementation of %s' % cls,
-                              RemovedInSphinx50Warning)
+                              RemovedInSphinx50Warning, stacklevel=2)
                 break
         else:
-            warnings.warn('PyDecoratorMixin is deprecated', RemovedInSphinx50Warning)
+            warnings.warn('PyDecoratorMixin is deprecated',
+                          RemovedInSphinx50Warning, stacklevel=2)
 
         ret = super().handle_signature(sig, signode)  # type: ignore
         signode.insert(0, addnodes.desc_addname('@', '@'))

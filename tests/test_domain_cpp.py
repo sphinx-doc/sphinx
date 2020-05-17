@@ -23,8 +23,7 @@ def parse(name, string):
     class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
-    parser = DefinitionParser(string, location=None,
-                              config=Config())
+    parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
@@ -34,17 +33,29 @@ def parse(name, string):
     return ast
 
 
-def check(name, input, idDict, output=None):
+def _check(name, input, idDict, output, key, asTextOutput):
+    if key is None:
+        key = name
+    key += ' '
+    if name in ('function', 'member'):
+        inputActual = input
+        outputAst = output
+        outputAsText = output
+    else:
+        inputActual = input.format(key='')
+        outputAst = output.format(key='')
+        outputAsText = output.format(key=key)
+    if asTextOutput is not None:
+        outputAsText = asTextOutput
+
     # first a simple check of the AST
-    if output is None:
-        output = input
-    ast = parse(name, input)
+    ast = parse(name, inputActual)
     res = str(ast)
-    if res != output:
+    if res != outputAst:
         print("")
         print("Input:    ", input)
         print("Result:   ", res)
-        print("Expected: ", output)
+        print("Expected: ", outputAst)
         raise DefinitionError("")
     rootSymbol = Symbol(None, None, None, None, None, None)
     symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
@@ -52,6 +63,13 @@ def check(name, input, idDict, output=None):
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
     ast.describe_signature(signode, 'lastIsName', symbol, options={})
+    resAsText = parentNode.astext()
+    if resAsText != outputAsText:
+        print("")
+        print("Input:    ", input)
+        print("astext(): ", resAsText)
+        print("Expected: ", outputAsText)
+        raise DefinitionError("")
 
     idExpected = [None]
     for i in range(1, _max_id + 1):
@@ -84,6 +102,16 @@ def check(name, input, idDict, output=None):
         raise DefinitionError("")
 
 
+def check(name, input, idDict, output=None, key=None, asTextOutput=None):
+    if output is None:
+        output = input
+    # First, check without semicolon
+    _check(name, input, idDict, output, key, asTextOutput)
+    # Second, check with semicolon
+    _check(name, input + ' ;', idDict, output + ';', key,
+           asTextOutput + ';' if asTextOutput is not None else None)
+
+
 def test_fundamental_types():
     # see https://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
@@ -107,10 +135,11 @@ def test_fundamental_types():
 def test_expressions():
     def exprCheck(expr, id, id4=None):
         ids = 'IE1CIA%s_1aE'
-        idDict = {2: ids % expr, 3: ids % id}
+        # call .format() on the expr to unescape double curly braces
+        idDict = {2: ids % expr.format(), 3: ids % id}
         if id4 is not None:
             idDict[4] = ids % id4
-        check('class', 'template<> C<a[%s]>' % expr, idDict)
+        check('class', 'template<> {key}C<a[%s]>' % expr, idDict)
 
         class Config:
             cpp_id_attributes = ["id_attr"]
@@ -140,37 +169,48 @@ def test_expressions():
                 exprCheck(expr, 'L' + expr + 'E')
                 expr = i + l + u
                 exprCheck(expr, 'L' + expr + 'E')
+    decimalFloats = ['5e42', '5e+42', '5e-42',
+                  '5.', '5.e42', '5.e+42', '5.e-42',
+                  '.5', '.5e42', '.5e+42', '.5e-42',
+                  '5.0', '5.0e42', '5.0e+42', '5.0e-42']
+    hexFloats = ['ApF', 'Ap+F', 'Ap-F',
+                 'A.', 'A.pF', 'A.p+F', 'A.p-F',
+                 '.A', '.ApF', '.Ap+F', '.Ap-F',
+                 'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']
     for suffix in ['', 'f', 'F', 'l', 'L']:
-        for e in [
-                '5e42', '5e+42', '5e-42',
-                '5.', '5.e42', '5.e+42', '5.e-42',
-                '.5', '.5e42', '.5e+42', '.5e-42',
-                '5.0', '5.0e42', '5.0e+42', '5.0e-42']:
+        for e in decimalFloats:
             expr = e + suffix
             exprCheck(expr, 'L' + expr + 'E')
-        for e in [
-                'ApF', 'Ap+F', 'Ap-F',
-                'A.', 'A.pF', 'A.p+F', 'A.p-F',
-                '.A', '.ApF', '.Ap+F', '.Ap-F',
-                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']:
+        for e in hexFloats:
             expr = "0x" + e + suffix
             exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     exprCheck('this', 'fpT')
     # character literals
-    for p, t in [('', 'c'), ('u8', 'c'), ('u', 'Ds'), ('U', 'Di'), ('L', 'w')]:
-        exprCheck(p + "'a'", t + "97")
-        exprCheck(p + "'\\n'", t + "10")
-        exprCheck(p + "'\\012'", t + "10")
-        exprCheck(p + "'\\0'", t + "0")
-        exprCheck(p + "'\\x0a'", t + "10")
-        exprCheck(p + "'\\x0A'", t + "10")
-        exprCheck(p + "'\\u0a42'", t + "2626")
-        exprCheck(p + "'\\u0A42'", t + "2626")
-        exprCheck(p + "'\\U0001f34c'", t + "127820")
-        exprCheck(p + "'\\U0001F34C'", t + "127820")
+    charPrefixAndIds = [('', 'c'), ('u8', 'c'), ('u', 'Ds'), ('U', 'Di'), ('L', 'w')]
+    chars = [('a', '97'), ('\\n', '10'), ('\\012', '10'), ('\\0', '0'),
+             ('\\x0a', '10'), ('\\x0A', '10'), ('\\u0a42', '2626'), ('\\u0A42', '2626'),
+             ('\\U0001f34c', '127820'), ('\\U0001F34C', '127820')]
+    for p, t in charPrefixAndIds:
+        for c, val in chars:
+            exprCheck("{}'{}'".format(p, c), t + val)
+    # user-defined literals
+    for i in ints:
+        exprCheck(i + '_udl', 'clL_Zli4_udlEL' + i + 'EE')
+        exprCheck(i + 'uludl', 'clL_Zli5uludlEL' + i + 'EE')
+    for f in decimalFloats:
+        exprCheck(f + '_udl', 'clL_Zli4_udlEL' + f + 'EE')
+        exprCheck(f + 'fudl', 'clL_Zli4fudlEL' + f + 'EE')
+    for f in hexFloats:
+        exprCheck('0x' + f + '_udl', 'clL_Zli4_udlEL0x' + f + 'EE')
+    for p, t in charPrefixAndIds:
+        for c, val in chars:
+            exprCheck("{}'{}'_udl".format(p, c), 'clL_Zli4_udlE' + t + val + 'E')
+    exprCheck('"abc"_udl', 'clL_Zli4_udlELA3_KcEE')
+    # from issue #7294
+    exprCheck('6.62607015e-34q_J', 'clL_Zli3q_JEL6.62607015e-34EE')
 
-    # TODO: user-defined lit
+    # fold expressions, paren, name
     exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
     exprCheck('(Ns + ...)', '(Ns + ...)', id4='frpl2Ns')
     exprCheck('(Ns + ... + 0)', '(Ns + ... + 0)', id4='fLpl2NsL0E')
@@ -212,8 +252,8 @@ def test_expressions():
     exprCheck('new int()', 'nw_ipiE')
     exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
     exprCheck('::new int', 'nw_iE')
-    exprCheck('new int{}', 'nw_iilE')
-    exprCheck('new int{5, 42}', 'nw_iilL5EL42EE')
+    exprCheck('new int{{}}', 'nw_iilE')
+    exprCheck('new int{{5, 42}}', 'nw_iilL5EL42EE')
     # delete-expression
     exprCheck('delete p', 'dl1p')
     exprCheck('delete [] p', 'da1p')
@@ -274,7 +314,7 @@ def test_expressions():
     exprCheck('a xor_eq 5', 'eO1aL5E')
     exprCheck('a |= 5', 'oR1aL5E')
     exprCheck('a or_eq 5', 'oR1aL5E')
-    exprCheck('a = {1, 2, 3}', 'aS1ailL1EL2EL3EE')
+    exprCheck('a = {{1, 2, 3}}', 'aS1ailL1EL2EL3EE')
     # comma operator
     exprCheck('a, 5', 'cm1aL5E')
 
@@ -284,8 +324,8 @@ def test_expressions():
     check('function', 'template<> void f(A<B, 2> &v)',
           {2: "IE1fR1AI1BX2EE", 3: "IE1fR1AI1BXL2EEE", 4: "IE1fvR1AI1BXL2EEE"})
     exprCheck('A<1>::value', 'N1AIXL1EEE5valueE')
-    check('class', "template<int T = 42> A", {2: "I_iE1A"})
-    check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
+    check('class', "template<int T = 42> {key}A", {2: "I_iE1A"})
+    check('enumerator', '{key}A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
 
     exprCheck('operator()()', 'clclE')
     exprCheck('operator()<int>()', 'clclIiEE')
@@ -295,58 +335,59 @@ def test_expressions():
 
 
 def test_type_definitions():
-    check("type", "public bool b", {1: "b", 2: "1b"}, "bool b")
-    check("type", "bool A::b", {1: "A::b", 2: "N1A1bE"})
-    check("type", "bool *b", {1: "b", 2: "1b"})
-    check("type", "bool *const b", {1: "b", 2: "1b"})
-    check("type", "bool *volatile const b", {1: "b", 2: "1b"})
-    check("type", "bool *volatile const b", {1: "b", 2: "1b"})
-    check("type", "bool *volatile const *b", {1: "b", 2: "1b"})
-    check("type", "bool &b", {1: "b", 2: "1b"})
-    check("type", "bool b[]", {1: "b", 2: "1b"})
-    check("type", "std::pair<int, int> coord", {1: "coord", 2: "5coord"})
-    check("type", "long long int foo", {1: "foo", 2: "3foo"})
-    check("type", 'std::vector<std::pair<std::string, long long>> module::blah',
-          {1: "module::blah", 2: "N6module4blahE"})
-    check("type", "std::function<void()> F", {1: "F", 2: "1F"})
-    check("type", "std::function<R(A1, A2)> F", {1: "F", 2: "1F"})
-    check("type", "std::function<R(A1, A2, A3)> F", {1: "F", 2: "1F"})
-    check("type", "std::function<R(A1, A2, A3, As...)> F", {1: "F", 2: "1F"})
-    check("type", "MyContainer::const_iterator",
+    check("type", "public bool b", {1: "b", 2: "1b"}, "{key}bool b", key='typedef')
+    check("type", "{key}bool A::b", {1: "A::b", 2: "N1A1bE"}, key='typedef')
+    check("type", "{key}bool *b", {1: "b", 2: "1b"}, key='typedef')
+    check("type", "{key}bool *const b", {1: "b", 2: "1b"}, key='typedef')
+    check("type", "{key}bool *volatile const b", {1: "b", 2: "1b"}, key='typedef')
+    check("type", "{key}bool *volatile const b", {1: "b", 2: "1b"}, key='typedef')
+    check("type", "{key}bool *volatile const *b", {1: "b", 2: "1b"}, key='typedef')
+    check("type", "{key}bool &b", {1: "b", 2: "1b"}, key='typedef')
+    check("type", "{key}bool b[]", {1: "b", 2: "1b"}, key='typedef')
+    check("type", "{key}std::pair<int, int> coord", {1: "coord", 2: "5coord"}, key='typedef')
+    check("type", "{key}long long int foo", {1: "foo", 2: "3foo"}, key='typedef')
+    check("type", '{key}std::vector<std::pair<std::string, long long>> module::blah',
+          {1: "module::blah", 2: "N6module4blahE"}, key='typedef')
+    check("type", "{key}std::function<void()> F", {1: "F", 2: "1F"}, key='typedef')
+    check("type", "{key}std::function<R(A1, A2)> F", {1: "F", 2: "1F"}, key='typedef')
+    check("type", "{key}std::function<R(A1, A2, A3)> F", {1: "F", 2: "1F"}, key='typedef')
+    check("type", "{key}std::function<R(A1, A2, A3, As...)> F", {1: "F", 2: "1F"}, key='typedef')
+    check("type", "{key}MyContainer::const_iterator",
           {1: "MyContainer::const_iterator", 2: "N11MyContainer14const_iteratorE"})
     check("type",
           "public MyContainer::const_iterator",
           {1: "MyContainer::const_iterator", 2: "N11MyContainer14const_iteratorE"},
-          output="MyContainer::const_iterator")
+          output="{key}MyContainer::const_iterator")
     # test decl specs on right
-    check("type", "bool const b", {1: "b", 2: "1b"})
+    check("type", "{key}bool const b", {1: "b", 2: "1b"}, key='typedef')
     # test name in global scope
-    check("type", "bool ::B::b", {1: "B::b", 2: "N1B1bE"})
+    check("type", "{key}bool ::B::b", {1: "B::b", 2: "N1B1bE"}, key='typedef')
 
-    check('type', 'A = B', {2: '1A'})
-    check('type', 'A = decltype(b)', {2: '1A'})
+    check('type', '{key}A = B', {2: '1A'}, key='using')
+    check('type', '{key}A = decltype(b)', {2: '1A'}, key='using')
 
     # from breathe#267 (named function parameters for function pointers
-    check('type', 'void (*gpio_callback_t)(struct device *port, uint32_t pin)',
-          {1: 'gpio_callback_t', 2: '15gpio_callback_t'})
-    check('type', 'void (*f)(std::function<void(int i)> g)', {1: 'f', 2: '1f'})
+    check('type', '{key}void (*gpio_callback_t)(struct device *port, uint32_t pin)',
+          {1: 'gpio_callback_t', 2: '15gpio_callback_t'}, key='typedef')
+    check('type', '{key}void (*f)(std::function<void(int i)> g)', {1: 'f', 2: '1f'},
+          key='typedef')
 
-    check('type', 'T = A::template B<int>::template C<double>', {2: '1T'})
+    check('type', '{key}T = A::template B<int>::template C<double>', {2: '1T'}, key='using')
 
-    check('type', 'T = Q<A::operator()>', {2: '1T'})
-    check('type', 'T = Q<A::operator()<int>>', {2: '1T'})
-    check('type', 'T = Q<A::operator bool>', {2: '1T'})
+    check('type', '{key}T = Q<A::operator()>', {2: '1T'}, key='using')
+    check('type', '{key}T = Q<A::operator()<int>>', {2: '1T'}, key='using')
+    check('type', '{key}T = Q<A::operator bool>', {2: '1T'}, key='using')
 
 
 def test_concept_definitions():
-    check('concept', 'template<typename Param> A::B::Concept',
+    check('concept', 'template<typename Param> {key}A::B::Concept',
           {2: 'I0EN1A1B7ConceptE'})
-    check('concept', 'template<typename A, typename B, typename ...C> Foo',
+    check('concept', 'template<typename A, typename B, typename ...C> {key}Foo',
           {2: 'I00DpE3Foo'})
     with pytest.raises(DefinitionError):
-        parse('concept', 'Foo')
+        parse('concept', '{key}Foo')
     with pytest.raises(DefinitionError):
-        parse('concept', 'template<typename T> template<typename U> Foo')
+        parse('concept', 'template<typename T> template<typename U> {key}Foo')
 
 
 def test_member_definitions():
@@ -394,7 +435,7 @@ def test_function_definitions():
     x = 'std::vector<std::pair<std::string, int>> &module::test(register int ' \
         'foo, bar, std::string baz = "foobar, blah, bleh") const = 0'
     check('function', x, {1: "module::test__i.bar.ssC",
-          2: "NK6module4testEi3barNSt6stringE"})
+                          2: "NK6module4testEi3barNSt6stringE"})
     check('function', 'void f(std::pair<A, B>)',
           {1: "f__std::pair:A.B:", 2: "1fNSt4pairI1A1BEE"})
     check('function', 'explicit module::myclass::foo::foo()',
@@ -427,6 +468,10 @@ def test_function_definitions():
     check('function', 'static constexpr int get_value()',
           {1: "get_valueCE", 2: "9get_valuev"})
     check('function', 'int get_value() const noexcept',
+          {1: "get_valueC", 2: "NK9get_valueEv"})
+    check('function', 'int get_value() const noexcept(std::is_nothrow_move_constructible<T>::value)',
+          {1: "get_valueC", 2: "NK9get_valueEv"})
+    check('function', 'int get_value() const noexcept("see below")',
           {1: "get_valueC", 2: "NK9get_valueEv"})
     check('function', 'int get_value() const noexcept = delete',
           {1: "get_valueC", 2: "NK9get_valueEv"})
@@ -543,6 +588,21 @@ def test_function_definitions():
     check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
     check('function', 'template<typename T> operator int()', {1: None, 2: 'I0Ecviv'})
 
+    # trailing return types
+    ids = {1: 'f', 2: '1fv'}
+    check('function', 'int f()', ids)
+    check('function', 'auto f() -> int', ids)
+    check('function', 'virtual auto f() -> int = 0', ids)
+    check('function', 'virtual auto f() -> int final', ids)
+    check('function', 'virtual auto f() -> int override', ids)
+
+    ids = {2: 'I0E1fv', 4: 'I0E1fiv'}
+    check('function', 'template<typename T> int f()', ids)
+    check('function', 'template<typename T> f() -> int', ids)
+
+    # from breathe#441
+    check('function', 'auto MakeThingy() -> Thingy*', {1: 'MakeThingy', 2: '10MakeThingyv'})
+
 
 def test_operators():
     check('function', 'void operator new()', {1: "new-operator", 2: "nwv"})
@@ -603,95 +663,102 @@ def test_operators():
     check('function', 'void operator[]()', {1: "subscript-operator", 2: "ixv"})
 
 
+class test_nested_name():
+    check('class', '{key}::A', {1: "A", 2: "1A"})
+    check('class', '{key}::A::B', {1: "A::B", 2: "N1A1BE"})
+    check('function', 'void f(::A a)', {1: "f__A", 2: "1f1A"})
+    check('function', 'void f(::A::B a)', {1: "f__A::B", 2: "1fN1A1BE"})
+
+
 def test_class_definitions():
-    check('class', 'public A', {1: "A", 2: "1A"}, output='A')
-    check('class', 'private A', {1: "A", 2: "1A"})
-    check('class', 'A final', {1: 'A', 2: '1A'})
+    check('class', 'public A', {1: "A", 2: "1A"}, output='{key}A')
+    check('class', 'private {key}A', {1: "A", 2: "1A"})
+    check('class', '{key}A final', {1: 'A', 2: '1A'})
 
     # test bases
-    check('class', 'A', {1: "A", 2: "1A"})
-    check('class', 'A::B::C', {1: "A::B::C", 2: "N1A1B1CE"})
-    check('class', 'A : B', {1: "A", 2: "1A"})
-    check('class', 'A : private B', {1: "A", 2: "1A"})
-    check('class', 'A : public B', {1: "A", 2: "1A"})
-    check('class', 'A : B, C', {1: "A", 2: "1A"})
-    check('class', 'A : B, protected C, D', {1: "A", 2: "1A"})
-    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='A : private virtual B')
-    check('class', 'A : private virtual B', {1: 'A', 2: '1A'})
-    check('class', 'A : B, virtual C', {1: 'A', 2: '1A'})
-    check('class', 'A : public virtual B', {1: 'A', 2: '1A'})
-    check('class', 'A : B, C...', {1: 'A', 2: '1A'})
-    check('class', 'A : B..., C', {1: 'A', 2: '1A'})
+    check('class', '{key}A', {1: "A", 2: "1A"})
+    check('class', '{key}A::B::C', {1: "A::B::C", 2: "N1A1B1CE"})
+    check('class', '{key}A : B', {1: "A", 2: "1A"})
+    check('class', '{key}A : private B', {1: "A", 2: "1A"})
+    check('class', '{key}A : public B', {1: "A", 2: "1A"})
+    check('class', '{key}A : B, C', {1: "A", 2: "1A"})
+    check('class', '{key}A : B, protected C, D', {1: "A", 2: "1A"})
+    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='{key}A : private virtual B')
+    check('class', '{key}A : private virtual B', {1: 'A', 2: '1A'})
+    check('class', '{key}A : B, virtual C', {1: 'A', 2: '1A'})
+    check('class', '{key}A : public virtual B', {1: 'A', 2: '1A'})
+    check('class', '{key}A : B, C...', {1: 'A', 2: '1A'})
+    check('class', '{key}A : B..., C', {1: 'A', 2: '1A'})
 
     # from #4094
-    check('class', 'template<class, class = std::void_t<>> has_var', {2: 'I00E7has_var'})
-    check('class', 'template<class T> has_var<T, std::void_t<decltype(&T::var)>>',
+    check('class', 'template<class, class = std::void_t<>> {key}has_var', {2: 'I00E7has_var'})
+    check('class', 'template<class T> {key}has_var<T, std::void_t<decltype(&T::var)>>',
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
 
 
-    check('class', 'template<typename ...Ts> T<int (*)(Ts)...>',
+    check('class', 'template<typename ...Ts> {key}T<int (*)(Ts)...>',
           {2: 'IDpE1TIJPFi2TsEEE'})
-    check('class', 'template<int... Is> T<(Is)...>',
+    check('class', 'template<int... Is> {key}T<(Is)...>',
           {2: 'I_DpiE1TIJX(Is)EEE', 3: 'I_DpiE1TIJX2IsEEE'})
 
 
 def test_union_definitions():
-    check('union', 'A', {2: "1A"})
+    check('union', '{key}A', {2: "1A"})
 
 
 def test_enum_definitions():
-    check('enum', 'A', {2: "1A"})
-    check('enum', 'A : std::underlying_type<B>::type', {2: "1A"})
-    check('enum', 'A : unsigned int', {2: "1A"})
-    check('enum', 'public A', {2: "1A"}, output='A')
-    check('enum', 'private A', {2: "1A"})
+    check('enum', '{key}A', {2: "1A"})
+    check('enum', '{key}A : std::underlying_type<B>::type', {2: "1A"})
+    check('enum', '{key}A : unsigned int', {2: "1A"})
+    check('enum', 'public A', {2: "1A"}, output='{key}A')
+    check('enum', 'private {key}A', {2: "1A"})
 
-    check('enumerator', 'A', {2: "1A"})
-    check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
+    check('enumerator', '{key}A', {2: "1A"})
+    check('enumerator', '{key}A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
 
 
 def test_anon_definitions():
-    check('class', '@a', {3: "Ut1_a"})
-    check('union', '@a', {3: "Ut1_a"})
-    check('enum', '@a', {3: "Ut1_a"})
-    check('class', '@1', {3: "Ut1_1"})
-    check('class', '@a::A', {3: "NUt1_a1AE"})
+    check('class', '@a', {3: "Ut1_a"}, asTextOutput='class [anonymous]')
+    check('union', '@a', {3: "Ut1_a"}, asTextOutput='union [anonymous]')
+    check('enum', '@a', {3: "Ut1_a"}, asTextOutput='enum [anonymous]')
+    check('class', '@1', {3: "Ut1_1"}, asTextOutput='class [anonymous]')
+    check('class', '@a::A', {3: "NUt1_a1AE"}, asTextOutput='class [anonymous]::A')
 
 
 def test_templates():
-    check('class', "A<T>", {2: "IE1AI1TE"}, output="template<> A<T>")
+    check('class', "A<T>", {2: "IE1AI1TE"}, output="template<> {key}A<T>")
     # first just check which objects support templating
-    check('class', "template<> A", {2: "IE1A"})
+    check('class', "template<> {key}A", {2: "IE1A"})
     check('function', "template<> void A()", {2: "IE1Av", 4: "IE1Avv"})
     check('member', "template<> A a", {2: "IE1a"})
-    check('type', "template<> a = A", {2: "IE1a"})
+    check('type', "template<> {key}a = A", {2: "IE1a"}, key='using')
     with pytest.raises(DefinitionError):
         parse('enum', "template<> A")
     with pytest.raises(DefinitionError):
         parse('enumerator', "template<> A")
     # then all the real tests
-    check('class', "template<typename T1, typename T2> A", {2: "I00E1A"})
-    check('type', "template<> a", {2: "IE1a"})
+    check('class', "template<typename T1, typename T2> {key}A", {2: "I00E1A"})
+    check('type', "template<> {key}a", {2: "IE1a"}, key='using')
 
-    check('class', "template<typename T> A", {2: "I0E1A"})
-    check('class', "template<class T> A", {2: "I0E1A"})
-    check('class', "template<typename ...T> A", {2: "IDpE1A"})
-    check('class', "template<typename...> A", {2: "IDpE1A"})
-    check('class', "template<typename = Test> A", {2: "I0E1A"})
-    check('class', "template<typename T = Test> A", {2: "I0E1A"})
+    check('class', "template<typename T> {key}A", {2: "I0E1A"})
+    check('class', "template<class T> {key}A", {2: "I0E1A"})
+    check('class', "template<typename ...T> {key}A", {2: "IDpE1A"})
+    check('class', "template<typename...> {key}A", {2: "IDpE1A"})
+    check('class', "template<typename = Test> {key}A", {2: "I0E1A"})
+    check('class', "template<typename T = Test> {key}A", {2: "I0E1A"})
 
-    check('class', "template<template<typename> typename T> A", {2: "II0E0E1A"})
-    check('class', "template<template<typename> typename> A", {2: "II0E0E1A"})
-    check('class', "template<template<typename> typename ...T> A", {2: "II0EDpE1A"})
-    check('class', "template<template<typename> typename...> A", {2: "II0EDpE1A"})
+    check('class', "template<template<typename> typename T> {key}A", {2: "II0E0E1A"})
+    check('class', "template<template<typename> typename> {key}A", {2: "II0E0E1A"})
+    check('class', "template<template<typename> typename ...T> {key}A", {2: "II0EDpE1A"})
+    check('class', "template<template<typename> typename...> {key}A", {2: "II0EDpE1A"})
 
-    check('class', "template<int> A", {2: "I_iE1A"})
-    check('class', "template<int T> A", {2: "I_iE1A"})
-    check('class', "template<int... T> A", {2: "I_DpiE1A"})
-    check('class', "template<int T = 42> A", {2: "I_iE1A"})
-    check('class', "template<int = 42> A", {2: "I_iE1A"})
+    check('class', "template<int> {key}A", {2: "I_iE1A"})
+    check('class', "template<int T> {key}A", {2: "I_iE1A"})
+    check('class', "template<int... T> {key}A", {2: "I_DpiE1A"})
+    check('class', "template<int T = 42> {key}A", {2: "I_iE1A"})
+    check('class', "template<int = 42> {key}A", {2: "I_iE1A"})
 
-    check('class', "template<> A<NS::B<>>", {2: "IE1AIN2NS1BIEEE"})
+    check('class', "template<> {key}A<NS::B<>>", {2: "IE1AIN2NS1BIEEE"})
 
     # from #2058
     check('function',
@@ -711,21 +778,21 @@ def test_templates():
         parse('enum', 'abc::ns::foo{id_0, id_1, id_2} A')
     with pytest.raises(DefinitionError):
         parse('enumerator', 'abc::ns::foo{id_0, id_1, id_2} A')
-    check('class', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar',
+    check('class', 'abc::ns::foo{{id_0, id_1, id_2}} {key}xyz::bar',
           {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'})
-    check('class', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar',
+    check('class', 'abc::ns::foo{{id_0, id_1, ...id_2}} {key}xyz::bar',
           {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
-    check('class', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar<id_0, id_1, id_2>',
+    check('class', 'abc::ns::foo{{id_0, id_1, id_2}} {key}xyz::bar<id_0, id_1, id_2>',
           {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barI4id_04id_14id_2EE'})
-    check('class', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar<id_0, id_1, id_2...>',
+    check('class', 'abc::ns::foo{{id_0, id_1, ...id_2}} {key}xyz::bar<id_0, id_1, id_2...>',
           {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barI4id_04id_1Dp4id_2EE'})
 
-    check('class', 'template<> Concept{U} A<int>::B', {2: 'IEI0EX7ConceptI1UEEN1AIiE1BE'})
+    check('class', 'template<> Concept{{U}} {key}A<int>::B', {2: 'IEI0EX7ConceptI1UEEN1AIiE1BE'})
 
-    check('type', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar = ghi::qux',
-          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'})
-    check('type', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar = ghi::qux',
-          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
+    check('type', 'abc::ns::foo{{id_0, id_1, id_2}} {key}xyz::bar = ghi::qux',
+          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'}, key='using')
+    check('type', 'abc::ns::foo{{id_0, id_1, ...id_2}} {key}xyz::bar = ghi::qux',
+          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'}, key='using')
     check('function', 'abc::ns::foo{id_0, id_1, id_2} void xyz::bar()',
           {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEv',
            4: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEvv'})
@@ -736,8 +803,8 @@ def test_templates():
           {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'})
     check('member', 'abc::ns::foo{id_0, id_1, ...id_2} ghi::qux xyz::bar',
           {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
-    check('concept', 'Iterator{T, U} Another', {2: 'I00EX8IteratorI1T1UEE7Another'})
-    check('concept', 'template<typename ...Pack> Numerics = (... && Numeric<Pack>)',
+    check('concept', 'Iterator{{T, U}} {key}Another', {2: 'I00EX8IteratorI1T1UEE7Another'})
+    check('concept', 'template<typename ...Pack> {key}Numerics = (... && Numeric<Pack>)',
           {2: 'IDpE8Numerics'})
 
     # explicit specializations of members
@@ -749,7 +816,7 @@ def test_templates():
           output='template<> template<> int A<int>::B<int>::b')  # same as above
 
     # defaulted constrained type parameters
-    check('type', 'template<C T = int&> A', {2: 'I_1CE1A'})
+    check('type', 'template<C T = int&> {key}A', {2: 'I_1CE1A'}, key='using')
 
 
 def test_template_args():
@@ -761,9 +828,10 @@ def test_template_args():
            3: "I0E5allowP1FN4funcI1F1BXne1GL1EEE4typeE",
            4: "I0E5allowvP1FN4funcI1F1BXne1GL1EEE4typeE"})
     # from #3542
-    check('type', "template<typename T> "
+    check('type', "template<typename T> {key}"
           "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
-          {2: "I0E21enable_if_not_array_t"})
+          {2: "I0E21enable_if_not_array_t"},
+          key='using')
 
 
 def test_initializers():
@@ -869,7 +937,7 @@ def test_xref_parsing():
 
 
 def filter_warnings(warning, file):
-    lines = warning.getvalue().split("\n");
+    lines = warning.getvalue().split("\n")
     res = [l for l in lines if "domain-cpp" in l and "{}.rst".format(file) in l and
            "WARNING: document isn't included in any toctree" not in l]
     print("Filtered warnings for file '{}':".format(file))
@@ -901,6 +969,13 @@ def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warnin
 def test_build_domain_cpp_backslash_ok(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_semicolon(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "semicolon")
     assert len(ws) == 0
 
 

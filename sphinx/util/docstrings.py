@@ -10,9 +10,12 @@
 
 import re
 import sys
+import warnings
 from typing import Dict, List
 
 from docutils.parsers.rst.states import Body
+
+from sphinx.deprecation import RemovedInSphinx50Warning
 
 
 field_list_item_re = re.compile(Body.patterns['field_marker'])
@@ -42,7 +45,7 @@ def extract_metadata(s: str) -> Dict[str, str]:
     return metadata
 
 
-def prepare_docstring(s: str, ignore: int = 1, tabsize: int = 8) -> List[str]:
+def prepare_docstring(s: str, ignore: int = None, tabsize: int = 8) -> List[str]:
     """Convert a docstring into lines of parseable reST.  Remove common leading
     indentation, where the indentation of a given number of lines (usually just
     one) is ignored.
@@ -51,6 +54,12 @@ def prepare_docstring(s: str, ignore: int = 1, tabsize: int = 8) -> List[str]:
     ViewList (used as argument of nested_parse().)  An empty line is added to
     act as a separator between this docstring and following content.
     """
+    if ignore is None:
+        ignore = 1
+    else:
+        warnings.warn("The 'ignore' argument to parepare_docstring() is deprecated.",
+                      RemovedInSphinx50Warning, stacklevel=2)
+
     lines = s.expandtabs(tabsize).splitlines()
     # Find minimum indentation of any non-blank lines after ignored lines.
     margin = sys.maxsize

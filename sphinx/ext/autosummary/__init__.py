@@ -228,8 +228,10 @@ class Autosummary(SphinxDirective):
     final_argument_whitespace = False
     has_content = True
     option_spec = {
+        'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
+        'recursive': directives.flag,
         'template': directives.unchanged,
     }
 
@@ -270,8 +272,13 @@ class Autosummary(SphinxDirective):
                 tocnode['entries'] = [(None, docn) for docn in docnames]
                 tocnode['maxdepth'] = -1
                 tocnode['glob'] = None
+                tocnode['caption'] = self.options.get('caption')
 
                 nodes.append(autosummary_toc('', '', tocnode))
+
+        if 'toctree' not in self.options and 'caption' in self.options:
+            logger.warning(__('A captioned autosummary requires :toctree: option. ignored.'),
+                           location=nodes[-1])
 
         return nodes
 
@@ -295,8 +302,7 @@ class Autosummary(SphinxDirective):
                 with mock(self.config.autosummary_mock_imports):
                     real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
             except ImportError:
-                logger.warning(__('failed to import %s'), name)
-                items.append((name, '', '', name))
+                logger.warning(__('autosummary: failed to import %s'), name)
                 continue
 
             self.bridge.result = StringList()  # initialize for each documenter
@@ -652,7 +658,7 @@ def autolink_role(typ: str, rawtext: str, etext: str, lineno: int, inliner: Inli
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
-    warnings.warn('autolink_role() is deprecated.', RemovedInSphinx40Warning)
+    warnings.warn('autolink_role() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
     env = inliner.document.settings.env
     pyobj_role = env.get_domain('py').role('obj')
     objects, msg = pyobj_role('obj', rawtext, etext, lineno, inliner, options, content)
@@ -745,8 +751,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     imported_members = app.config.autosummary_imported_members
     with mock(app.config.autosummary_mock_imports):
-        generate_autosummary_docs(genfiles, builder=app.builder,
-                                  suffix=suffix, base_path=app.srcdir,
+        generate_autosummary_docs(genfiles, suffix=suffix, base_path=app.srcdir,
                                   app=app, imported_members=imported_members,
                                   overwrite=app.config.autosummary_generate_overwrite)
 
@@ -769,6 +774,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', AutoLink())
     app.connect('builder-inited', process_generate_options)
+    app.add_config_value('autosummary_context', {}, True)
     app.add_config_value('autosummary_generate', [], True, [bool])
     app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',

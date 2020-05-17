@@ -7,45 +7,49 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-import re
-
 import pytest
 
-from docutils import nodes
-import sphinx.domains.c as cDomain
 from sphinx import addnodes
-from sphinx.addnodes import (
-    desc, desc_addname, desc_annotation, desc_content, desc_name, desc_optional,
-    desc_parameter, desc_parameterlist, desc_returns, desc_signature, desc_type,
-    pending_xref
-)
 from sphinx.domains.c import DefinitionParser, DefinitionError
 from sphinx.domains.c import _max_id, _id_prefix, Symbol
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
-from sphinx.util import docutils
 
 
 def parse(name, string):
-    parser = DefinitionParser(string, location=None)
+    class Config:
+        c_id_attributes = ["id_attr", 'LIGHTGBM_C_EXPORT']
+        c_paren_attributes = ["paren_attr"]
+    parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
     return ast
 
 
-def check(name, input, idDict, output=None):
+def _check(name, input, idDict, output, key, asTextOutput):
+    if key is None:
+        key = name
+    key += ' '
+    if name in ('function', 'member'):
+        inputActual = input
+        outputAst = output
+        outputAsText = output
+    else:
+        inputActual = input.format(key='')
+        outputAst = output.format(key='')
+        outputAsText = output.format(key=key)
+    if asTextOutput is not None:
+        outputAsText = asTextOutput
+
     # first a simple check of the AST
-    if output is None:
-        output = input
-    ast = parse(name, input)
+    ast = parse(name, inputActual)
     res = str(ast)
-    if res != output:
+    if res != outputAst:
         print("")
         print("Input:    ", input)
         print("Result:   ", res)
-        print("Expected: ", output)
+        print("Expected: ", outputAst)
         raise DefinitionError("")
     rootSymbol = Symbol(None, None, None, None)
     symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
@@ -53,6 +57,13 @@ def check(name, input, idDict, output=None):
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
     ast.describe_signature(signode, 'lastIsName', symbol, options={})
+    resAsText = parentNode.astext()
+    if resAsText != outputAsText:
+        print("")
+        print("Input:    ", input)
+        print("astext(): ", resAsText)
+        print("Expected: ", outputAsText)
+        raise DefinitionError("")
 
     idExpected = [None]
     for i in range(1, _max_id + 1):
@@ -85,9 +96,23 @@ def check(name, input, idDict, output=None):
         raise DefinitionError("")
 
 
+def check(name, input, idDict, output=None, key=None, asTextOutput=None):
+    if output is None:
+        output = input
+    # First, check without semicolon
+    _check(name, input, idDict, output, key, asTextOutput)
+    if name != 'macro':
+        # Second, check with semicolon
+        _check(name, input + ' ;', idDict, output + ';', key,
+           asTextOutput + ';' if asTextOutput is not None else None)
+
+
 def test_expressions():
     def exprCheck(expr, output=None):
-        parser = DefinitionParser(expr, location=None)
+        class Config:
+            c_id_attributes = ["id_attr"]
+            c_paren_attributes = ["paren_attr"]
+        parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         parser.assert_end()
@@ -231,24 +256,24 @@ def test_expressions():
 
 
 def test_type_definitions():
-    check('type', "T", {1: "T"})
+    check('type', "{key}T", {1: "T"})
 
-    check('type', "bool *b", {1: 'b'})
-    check('type', "bool *const b", {1: 'b'})
-    check('type', "bool *const *b", {1: 'b'})
-    check('type', "bool *volatile *b", {1: 'b'})
-    check('type', "bool *restrict *b", {1: 'b'})
-    check('type', "bool *volatile const b", {1: 'b'})
-    check('type', "bool *volatile const b", {1: 'b'})
-    check('type', "bool *volatile const *b", {1: 'b'})
-    check('type', "bool b[]", {1: 'b'})
-    check('type', "long long int foo", {1: 'foo'})
+    check('type', "{key}bool *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *const b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *const *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *volatile *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *restrict *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *volatile const b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *volatile const b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool *volatile const *b", {1: 'b'}, key='typedef')
+    check('type', "{key}bool b[]", {1: 'b'}, key='typedef')
+    check('type', "{key}long long int foo", {1: 'foo'}, key='typedef')
     # test decl specs on right
-    check('type', "bool const b", {1: 'b'})
+    check('type', "{key}bool const b", {1: 'b'}, key='typedef')
 
     # from breathe#267 (named function parameters for function pointers
-    check('type', 'void (*gpio_callback_t)(struct device *port, uint32_t pin)',
-          {1: 'gpio_callback_t'})
+    check('type', '{key}void (*gpio_callback_t)(struct device *port, uint32_t pin)',
+          {1: 'gpio_callback_t'}, key='typedef')
 
 
 def test_macro_definitions():
@@ -359,29 +384,50 @@ def test_function_definitions():
     check('function', 'void f(enum E e)', {1: 'f'})
     check('function', 'void f(union E e)', {1: 'f'})
 
+    # array declarators
+    check('function', 'void f(int arr[])', {1: 'f'})
+    check('function', 'void f(int arr[*])', {1: 'f'})
+    cvrs = ['', 'const', 'volatile', 'restrict', 'restrict volatile const']
+    for cvr in cvrs:
+        space = ' ' if len(cvr) != 0 else ''
+        check('function', 'void f(int arr[{}*])'.format(cvr), {1: 'f'})
+        check('function', 'void f(int arr[{}])'.format(cvr), {1: 'f'})
+        check('function', 'void f(int arr[{}{}42])'.format(cvr, space), {1: 'f'})
+        check('function', 'void f(int arr[static{}{} 42])'.format(space, cvr), {1: 'f'})
+        check('function', 'void f(int arr[{}{}static 42])'.format(cvr, space), {1: 'f'},
+              output='void f(int arr[static{}{} 42])'.format(space, cvr))
+    check('function', 'void f(int arr[const static volatile 42])', {1: 'f'},
+          output='void f(int arr[static volatile const 42])')
+
+
+class test_nested_name():
+    check('struct', '{key}.A', {1: "A"})
+    check('struct', '{key}.A.B', {1: "A.B"})
+    check('function', 'void f(.A a)', {1: "f"})
+    check('function', 'void f(.A.B a)', {1: "f"})
+
 
 def test_union_definitions():
-    check('struct', 'A', {1: 'A'})
+    check('struct', '{key}A', {1: 'A'})
 
 
 def test_union_definitions():
-    check('union', 'A', {1: 'A'})
+    check('union', '{key}A', {1: 'A'})
 
 
 def test_enum_definitions():
-    check('enum', 'A', {1: 'A'})
+    check('enum', '{key}A', {1: 'A'})
 
-    check('enumerator', 'A', {1: 'A'})
-    check('enumerator', 'A = 42', {1: 'A'})
+    check('enumerator', '{key}A', {1: 'A'})
+    check('enumerator', '{key}A = 42', {1: 'A'})
 
 
 def test_anon_definitions():
-    return  # TODO
-    check('class', '@a', {3: "Ut1_a"})
-    check('union', '@a', {3: "Ut1_a"})
-    check('enum', '@a', {3: "Ut1_a"})
-    check('class', '@1', {3: "Ut1_1"})
-    check('class', '@a::A', {3: "NUt1_a1AE"})
+    check('struct', '@a', {1: "@a"}, asTextOutput='struct [anonymous]')
+    check('union', '@a', {1: "@a"}, asTextOutput='union [anonymous]')
+    check('enum', '@a', {1: "@a"}, asTextOutput='enum [anonymous]')
+    check('struct', '@1', {1: "@1"}, asTextOutput='struct [anonymous]')
+    check('struct', '@a.A', {1: "@a.A"}, asTextOutput='struct [anonymous].A')
 
 
 def test_initializers():
@@ -404,24 +450,23 @@ def test_initializers():
 
 
 def test_attributes():
-    return  # TODO
     # style: C++
-    check('member', '[[]] int f', {1: 'f__i', 2: '1f'})
-    check('member', '[ [ ] ] int f', {1: 'f__i', 2: '1f'},
+    check('member', '[[]] int f', {1: 'f'})
+    check('member', '[ [ ] ] int f', {1: 'f'},
           # this will fail when the proper grammar is implemented
           output='[[ ]] int f')
-    check('member', '[[a]] int f', {1: 'f__i', 2: '1f'})
+    check('member', '[[a]] int f', {1: 'f'})
     # style: GNU
-    check('member', '__attribute__(()) int f', {1: 'f__i', 2: '1f'})
-    check('member', '__attribute__((a)) int f', {1: 'f__i', 2: '1f'})
-    check('member', '__attribute__((a, b)) int f', {1: 'f__i', 2: '1f'})
+    check('member', '__attribute__(()) int f', {1: 'f'})
+    check('member', '__attribute__((a)) int f', {1: 'f'})
+    check('member', '__attribute__((a, b)) int f', {1: 'f'})
     # style: user-defined id
-    check('member', 'id_attr int f', {1: 'f__i', 2: '1f'})
+    check('member', 'id_attr int f', {1: 'f'})
     # style: user-defined paren
-    check('member', 'paren_attr() int f', {1: 'f__i', 2: '1f'})
-    check('member', 'paren_attr(a) int f', {1: 'f__i', 2: '1f'})
-    check('member', 'paren_attr("") int f', {1: 'f__i', 2: '1f'})
-    check('member', 'paren_attr(()[{}][]{}) int f', {1: 'f__i', 2: '1f'})
+    check('member', 'paren_attr() int f', {1: 'f'})
+    check('member', 'paren_attr(a) int f', {1: 'f'})
+    check('member', 'paren_attr("") int f',{1: 'f'})
+    check('member', 'paren_attr(()[{}][]{}) int f', {1: 'f'})
     with pytest.raises(DefinitionError):
         parse('member', 'paren_attr(() int f')
     with pytest.raises(DefinitionError):
@@ -437,18 +482,20 @@ def test_attributes():
 
     # position: decl specs
     check('function', 'static inline __attribute__(()) void f()',
-          {1: 'f', 2: '1fv'},
+          {1: 'f'},
           output='__attribute__(()) static inline void f()')
     check('function', '[[attr1]] [[attr2]] void f()',
-          {1: 'f', 2: '1fv'},
+          {1: 'f'},
           output='[[attr1]] [[attr2]] void f()')
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i__iP', 2: '1i'})
-    check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
+    check('member', 'int *[[attr]] i', {1: 'i'})
+    check('member', 'int *const [[attr]] volatile i', {1: 'i'},
           output='int *[[attr]] volatile const i')
-    check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
-    check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
+    check('member', 'int *[[attr]] *i', {1: 'i'})
 
+    # issue michaeljones/breathe#500
+    check('function', 'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
+          {1: 'LGBM_BoosterFree'})
 
 # def test_print():
 #     # used for getting all the ids out for checking
@@ -475,12 +522,29 @@ def test_build_domain_c(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_domain_c_namespace(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "namespace")
+    assert len(ws) == 0
+    t = (app.outdir / "namespace.html").read_text()
+    for id_ in ('NS.NSVar', 'NULLVar', 'ZeroVar', 'NS2.NS3.NS2NS3Var', 'PopVar'):
+        assert 'id="c.{}"'.format(id_) in t
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_build_domain_c_anon_dup_decl(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "anon-dup-decl")
     assert len(ws) == 2
     assert "WARNING: c:identifier reference target not found: @a" in ws[0]
     assert "WARNING: c:identifier reference target not found: @b" in ws[1]
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_domain_c_semicolon(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "semicolon")
+    assert len(ws) == 0
 
 
 def test_cfunction(app):

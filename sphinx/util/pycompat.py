@@ -31,8 +31,15 @@ logger = logging.getLogger(__name__)
 # convert_with_2to3():
 # support for running 2to3 over config files
 def convert_with_2to3(filepath: str) -> str:
-    from lib2to3.refactor import RefactoringTool, get_fixers_from_package
-    from lib2to3.pgen2.parse import ParseError
+    try:
+        from lib2to3.refactor import RefactoringTool, get_fixers_from_package
+        from lib2to3.pgen2.parse import ParseError
+    except ImportError:
+        # python 3.9.0a6+ emits PendingDeprecationWarning for lib2to3.
+        # Additionally, removal of the module is still discussed at PEP-594.
+        # To support future python, this catches ImportError for lib2to3.
+        raise SyntaxError
+
     fixers = get_fixers_from_package('lib2to3.fixes')
     refactoring_tool = RefactoringTool(fixers)
     source = refactoring_tool._read_python_source(filepath)[0]

@@ -31,10 +31,12 @@ from sphinx.util.cfamily import (
     NoOldIdError, ASTBaseBase, verify_description_mode, StringifyTransform,
     BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
     identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
-    hex_literal_re, binary_literal_re, float_literal_re,
+    hex_literal_re, binary_literal_re, integers_literal_suffix_re,
+    float_literal_re, float_literal_suffix_re,
     char_literal_re
 )
 from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)
@@ -184,11 +186,17 @@ class ASTNestedName(ASTBase):
             # If lastIsName, then wrap all of the prefix in a desc_addname,
             # else append directly to signode.
             # TODO: also for C?
-            #  NOTE: Breathe relies on the prefix being in the desc_addname node,
+            #  NOTE: Breathe previously relied on the prefix being in the desc_addname node,
             #       so it can remove it in inner declarations.
             dest = signode
             if mode == 'lastIsName':
                 dest = addnodes.desc_addname()
+            if self.rooted:
+                prefix += '.'
+                if mode == 'lastIsName' and len(names) == 0:
+                    signode += nodes.Text('.')
+                else:
+                    dest += nodes.Text('.')
             for i in range(len(names)):
                 ident = names[i]
                 if not first:
@@ -791,20 +799,60 @@ class ASTDeclSpecs(ASTBase):
 ################################################################################
 
 class ASTArray(ASTBase):
-    def __init__(self, size: ASTExpression):
+    def __init__(self, static: bool, const: bool, volatile: bool, restrict: bool,
+                 vla: bool, size: ASTExpression):
+        self.static = static
+        self.const = const
+        self.volatile = volatile
+        self.restrict = restrict
+        self.vla = vla
         self.size = size
+        if vla:
+            assert size is None
+        if size is not None:
+            assert not vla
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        if self.size:
-            return '[' + transform(self.size) + ']'
-        else:
-            return '[]'
+        el = []
+        if self.static:
+            el.append('static')
+        if self.restrict:
+            el.append('restrict')
+        if self.volatile:
+            el.append('volatile')
+        if self.const:
+            el.append('const')
+        if self.vla:
+            return '[' + ' '.join(el) + '*]'
+        elif self.size:
+            el.append(transform(self.size))
+        return '[' + ' '.join(el) + ']'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         signode.append(nodes.Text("["))
-        if self.size:
+        addSpace = False
+
+        def _add(signode: TextElement, text: str) -> bool:
+            if addSpace:
+                signode += nodes.Text(' ')
+            signode += addnodes.desc_annotation(text, text)
+            return True
+
+        if self.static:
+            addSpace = _add(signode, 'static')
+        if self.restrict:
+            addSpace = _add(signode, 'restrict')
+        if self.volatile:
+            addSpace = _add(signode, 'volatile')
+        if self.const:
+            addSpace = _add(signode, 'const')
+        if self.vla:
+            signode.append(nodes.Text('*'))
+        elif self.size:
+            if addSpace:
+                signode += nodes.Text(' ')
             self.size.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text("]"))
 
@@ -1271,10 +1319,12 @@ class ASTEnumerator(ASTBase):
 
 
 class ASTDeclaration(ASTBaseBase):
-    def __init__(self, objectType: str, directiveType: str, declaration: Any) -> None:
+    def __init__(self, objectType: str, directiveType: str, declaration: Any,
+                 semicolon: bool = False) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
         self.declaration = declaration
+        self.semicolon = semicolon
 
         self.symbol = None  # type: Symbol
         # set by CObject._add_enumerator_to_parent
@@ -1303,7 +1353,10 @@ class ASTDeclaration(ASTBaseBase):
         return self.get_id(_max_id, True)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return transform(self.declaration)
+        res = transform(self.declaration)
+        if self.semicolon:
+            res += ';'
+        return res
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", options: Dict) -> None:
@@ -1339,6 +1392,8 @@ class ASTDeclaration(ASTBaseBase):
         else:
             assert False
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
+        if self.semicolon:
+            mainDeclNode += nodes.Text(';')
 
 
 class SymbolLookupResult:
@@ -1990,6 +2045,14 @@ class DefinitionParser(BaseParser):
     def language(self) -> str:
         return 'C'
 
+    @property
+    def id_attributes(self):
+        return self.config.c_id_attributes
+
+    @property
+    def paren_attributes(self):
+        return self.config.c_paren_attributes
+
     def _parse_string(self) -> str:
         if self.current_char != '"':
             return None
@@ -2009,66 +2072,6 @@ class DefinitionParser(BaseParser):
             self.pos += 1
         return self.definition[startPos:self.pos]
 
-    def _parse_attribute(self) -> Any:
-        return None
-        # self.skip_ws()
-        # # try C++11 style
-        # startPos = self.pos
-        # if self.skip_string_and_ws('['):
-        #     if not self.skip_string('['):
-        #         self.pos = startPos
-        #     else:
-        #         # TODO: actually implement the correct grammar
-        #         arg = self._parse_balanced_token_seq(end=[']'])
-        #         if not self.skip_string_and_ws(']'):
-        #             self.fail("Expected ']' in end of attribute.")
-        #         if not self.skip_string_and_ws(']'):
-        #             self.fail("Expected ']' in end of attribute after [[...]")
-        #         return ASTCPPAttribute(arg)
-        #
-        # # try GNU style
-        # if self.skip_word_and_ws('__attribute__'):
-        #     if not self.skip_string_and_ws('('):
-        #         self.fail("Expected '(' after '__attribute__'.")
-        #     if not self.skip_string_and_ws('('):
-        #         self.fail("Expected '(' after '__attribute__('.")
-        #     attrs = []
-        #     while 1:
-        #         if self.match(identifier_re):
-        #             name = self.matched_text
-        #             self.skip_ws()
-        #             if self.skip_string_and_ws('('):
-        #                 self.fail('Parameterized GNU style attribute not yet supported.')
-        #             attrs.append(ASTGnuAttribute(name, None))
-        #             # TODO: parse arguments for the attribute
-        #         if self.skip_string_and_ws(','):
-        #             continue
-        #         elif self.skip_string_and_ws(')'):
-        #             break
-        #         else:
-        #             self.fail("Expected identifier, ')', or ',' in __attribute__.")
-        #     if not self.skip_string_and_ws(')'):
-        #         self.fail("Expected ')' after '__attribute__((...)'")
-        #     return ASTGnuAttributeList(attrs)
-        #
-        # # try the simple id attributes defined by the user
-        # for id in self.config.cpp_id_attributes:
-        #     if self.skip_word_and_ws(id):
-        #         return ASTIdAttribute(id)
-        #
-        # # try the paren attributes defined by the user
-        # for id in self.config.cpp_paren_attributes:
-        #     if not self.skip_string_and_ws(id):
-        #         continue
-        #     if not self.skip_string('('):
-        #         self.fail("Expected '(' after user-defined paren-attribute.")
-        #     arg = self._parse_balanced_token_seq(end=[')'])
-        #     if not self.skip_string(')'):
-        #         self.fail("Expected ')' to end user-defined paren-attribute.")
-        #     return ASTParenAttribute(id, arg)
-
-        return None
-
     def _parse_literal(self) -> ASTLiteral:
         # -> integer-literal
         #  | character-literal
@@ -2080,12 +2083,14 @@ class DefinitionParser(BaseParser):
             return ASTBooleanLiteral(True)
         if self.skip_word('false'):
             return ASTBooleanLiteral(False)
-        for regex in [float_literal_re, binary_literal_re, hex_literal_re,
+        pos = self.pos
+        if self.match(float_literal_re):
+            self.match(float_literal_suffix_re)
+            return ASTNumberLiteral(self.definition[pos:self.pos])
+        for regex in [binary_literal_re, hex_literal_re,
                       integer_literal_re, octal_literal_re]:
-            pos = self.pos
             if self.match(regex):
-                while self.current_char in 'uUlLfF':
-                    self.pos += 1
+                self.match(integers_literal_suffix_re)
                 return ASTNumberLiteral(self.definition[pos:self.pos])
 
         string = self._parse_string()
@@ -2639,18 +2644,45 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
             if typed and self.skip_string('['):
                 self.skip_ws()
-                if self.skip_string(']'):
-                    arrayOps.append(ASTArray(None))
-                    continue
+                static = False
+                const = False
+                volatile = False
+                restrict = False
+                while True:
+                    if not static:
+                        if self.skip_word_and_ws('static'):
+                            static = True
+                            continue
+                    if not const:
+                        if self.skip_word_and_ws('const'):
+                            const = True
+                            continue
+                    if not volatile:
+                        if self.skip_word_and_ws('volatile'):
+                            volatile = True
+                            continue
+                    if not restrict:
+                        if self.skip_word_and_ws('restrict'):
+                            restrict = True
+                            continue
+                    break
+                vla = False if static else self.skip_string_and_ws('*')
+                if vla:
+                    if not self.skip_string(']'):
+                        self.fail("Expected ']' in end of array operator.")
+                    size = None
+                else:
+                    if self.skip_string(']'):
+                        size = None
+                    else:
 
-                def parser() -> ASTExpression:
-                    return self._parse_expression()
-
-                value = self._parse_expression_fallback([']'], parser)
-                if not self.skip_string(']'):
-                    self.fail("Expected ']' in end of array operator.")
-                arrayOps.append(ASTArray(value))
-                continue
+                        def parser():
+                            return self._parse_expression()
+                        size = self._parse_expression_fallback([']'], parser)
+                        self.skip_ws()
+                        if not self.skip_string(']'):
+                            self.fail("Expected ']' in end of array operator.")
+                arrayOps.append(ASTArray(static, const, volatile, restrict, vla, size))
             else:
                 break
         param = self._parse_parameters(paramMode)
@@ -2793,7 +2825,7 @@ class DefinitionParser(BaseParser):
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
                 decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
-                self.assert_end()
+                self.assert_end(allowSemicolon=True)
             except DefinitionError as exUntyped:
                 desc = "If just a name"
                 prevErrors.append((exUntyped, desc))
@@ -2926,7 +2958,15 @@ class DefinitionParser(BaseParser):
             declaration = self._parse_type(named=True, outer='type')
         else:
             assert False
-        return ASTDeclaration(objectType, directiveType, declaration)
+        if objectType != 'macro':
+            self.skip_ws()
+            semicolon = self.skip_string(';')
+        else:
+            semicolon = False
+        return ASTDeclaration(objectType, directiveType, declaration, semicolon)
+
+    def parse_namespace_object(self) -> ASTNestedName:
+        return self._parse_nested_name()
 
     def parse_xref_object(self) -> ASTNestedName:
         name = self._parse_nested_name()
@@ -3081,7 +3121,7 @@ class CObject(ObjectDescription):
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol = self.env.temp_data['c:parent_symbol']  # type: Symbol
 
-        parser = DefinitionParser(sig, location=signode)
+        parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -3178,6 +3218,97 @@ class CTypeObject(CObject):
     object_type = 'type'
 
 
+class CNamespaceObject(SphinxDirective):
+    """
+    This directive is just to tell Sphinx that we're documenting stuff in
+    namespace foo.
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        rootSymbol = self.env.domaindata['c']['root_symbol']
+        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+            symbol = rootSymbol
+            stack = []  # type: List[Symbol]
+        else:
+            parser = DefinitionParser(self.arguments[0],
+                                      location=self.get_source_info(),
+                                      config=self.env.config)
+            try:
+                name = parser.parse_namespace_object()
+                parser.assert_end()
+            except DefinitionError as e:
+                logger.warning(e, location=self.get_source_info())
+                name = _make_phony_error_name()
+            symbol = rootSymbol.add_name(name)
+            stack = [symbol]
+        self.env.temp_data['c:parent_symbol'] = symbol
+        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
+        return []
+
+
+class CNamespacePushObject(SphinxDirective):
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+            return []
+        parser = DefinitionParser(self.arguments[0],
+                                  location=self.get_source_info(),
+                                  config=self.env.config)
+        try:
+            name = parser.parse_namespace_object()
+            parser.assert_end()
+        except DefinitionError as e:
+            logger.warning(e, location=self.get_source_info())
+            name = _make_phony_error_name()
+        oldParent = self.env.temp_data.get('c:parent_symbol', None)
+        if not oldParent:
+            oldParent = self.env.domaindata['c']['root_symbol']
+        symbol = oldParent.add_name(name)
+        stack = self.env.temp_data.get('c:namespace_stack', [])
+        stack.append(symbol)
+        self.env.temp_data['c:parent_symbol'] = symbol
+        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
+        return []
+
+
+class CNamespacePopObject(SphinxDirective):
+    has_content = False
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        stack = self.env.temp_data.get('c:namespace_stack', None)
+        if not stack or len(stack) == 0:
+            logger.warning("C namespace pop on empty stack. Defaulting to gobal scope.",
+                           location=self.get_source_info())
+            stack = []
+        else:
+            stack.pop()
+        if len(stack) > 0:
+            symbol = stack[-1]
+        else:
+            symbol = self.env.domaindata['c']['root_symbol']
+        self.env.temp_data['c:parent_symbol'] = symbol
+        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.ref_context['cp:parent_key'] = symbol.get_lookup_key()
+        return []
+
+
 class CXRefRole(XRefRole):
     def process_link(self, env: BuildEnvironment, refnode: Element,
                      has_explicit_title: bool, title: str, target: str) -> Tuple[str, str]:
@@ -3214,7 +3345,8 @@ class CExprRole(SphinxRole):
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
         text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text, location=self.get_source_info())
+        parser = DefinitionParser(text, location=self.get_source_info(),
+                                  config=self.env.config)
         # attempt to mimic XRefRole classes, except that...
         classes = ['xref', 'c', self.class_type]
         try:
@@ -3256,6 +3388,10 @@ class CDomain(Domain):
         'enum': CEnumObject,
         'enumerator': CEnumeratorObject,
         'type': CTypeObject,
+        # scope control
+        'namespace': CNamespaceObject,
+        'namespace-push': CNamespacePushObject,
+        'namespace-pop': CNamespacePopObject,
     }
     roles = {
         'member': CXRefRole(),
@@ -3344,7 +3480,7 @@ class CDomain(Domain):
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
                             contnode: Element) -> Tuple[Element, str]:
-        parser = DefinitionParser(target, location=node)
+        parser = DefinitionParser(target, location=node, config=env.config)
         try:
             name = parser.parse_xref_object()
         except DefinitionError as e:
@@ -3401,6 +3537,8 @@ class CDomain(Domain):
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(CDomain)
+    app.add_config_value("c_id_attributes", [], 'env')
+    app.add_config_value("c_paren_attributes", [], 'env')
 
     return {
         'version': 'builtin',

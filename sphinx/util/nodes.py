@@ -62,8 +62,8 @@ class NodeMatcher:
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *classes: "Type[Node]", **attrs: Any) -> None:
-        self.classes = classes
+    def __init__(self, *node_classes: "Type[Node]", **attrs: Any) -> None:
+        self.classes = node_classes
         self.attrs = attrs
 
     def match(self, node: Node) -> bool:
@@ -280,7 +280,7 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
 
 def find_source_node(node: Element) -> str:
     warnings.warn('find_source_node() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return get_node_source(node)
 
 

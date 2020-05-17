@@ -10,7 +10,6 @@
 
 import os
 import re
-from hashlib import md5
 from itertools import cycle, chain
 
 import pytest
@@ -19,7 +18,7 @@ from html5lib import HTMLParser
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import docutils
+from sphinx.util import docutils, md5
 from sphinx.util.inventory import InventoryFile
 
 

@@ -16,3 +16,8 @@ class EnumCls(enum.Enum):
     def say_hello(self):
         """a method says hello to you."""
         pass
+
+    @classmethod
+    def say_goodbye(cls):
+        """a classmethod says good-bye to you."""
+        pass

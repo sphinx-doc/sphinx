@@ -47,7 +47,7 @@ doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
 
 def doctest_encode(text: str, encoding: str) -> str:
     warnings.warn('doctest_encode() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return text
 
 
