@@ -15,15 +15,15 @@ import re
 from functools import partial
 from typing import Any, Callable, Dict, List, Tuple, Union
 
+from docutils import nodes
+from docutils.nodes import Node, system_message
+from docutils.parsers.rst import roles
+
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
-
 from sphinx.util.docutils import SphinxRole
-from docutils import nodes
-from docutils.nodes import Node, system_message
-from docutils.parsers.rst import roles
 
 
 class LiteralText(SphinxRole):
