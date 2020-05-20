@@ -33,7 +33,7 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
-from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
+from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError, SphinxError
 from sphinx.events import EventManager
 from sphinx.extension import Extension
 from sphinx.highlighting import lexer_classes, lexers
@@ -330,7 +330,7 @@ class Sphinx:
     def _init_builder(self) -> None:
         self.builder.set_environment(self.env)
         self.builder.init()
-        self.events.emit('builder-inited')
+        self.events.emit('builder-inited', allowed_exceptions=(SphinxError,))
 
     # ---- main "build" method -------------------------------------------------
 
