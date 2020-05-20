@@ -19,7 +19,10 @@ from sphinx import addnodes
 from sphinx.ext.autosummary import (
     autosummary_table, autosummary_toc, mangle_signature, import_by_name, extract_summary
 )
-from sphinx.ext.autosummary.generate import AutosummaryEntry, generate_autosummary_docs, main as autogen_main
+from sphinx.ext.autosummary.generate import (
+    AutosummaryEntry, generate_autosummary_content, generate_autosummary_docs,
+    main as autogen_main
+)
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
 from sphinx.util.osutil import cd
@@ -187,6 +190,83 @@ def test_escaping(app, status, warning):
     title = etree_parse(docpage).find('section/title')
 
     assert str_content(title) == 'underscore_module_'
+
+
+@pytest.mark.sphinx(testroot='ext-autosummary')
+def test_autosummary_generate_content_for_module(app):
+    import autosummary_dummy_module
+    template = Mock()
+
+    generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
+                                 template, None, False, app, False, {})
+    assert template.render.call_args[0][0] == 'module'
+
+    context = template.render.call_args[0][1]
+    assert context['members'] == ['Exc', 'Foo', '_Baz', '_Exc', '__builtins__',
+                                  '__cached__', '__doc__', '__file__', '__name__',
+                                  '__package__', '_quux', 'bar', 'qux']
+    assert context['functions'] == ['bar']
+    assert context['all_functions'] == ['_quux', 'bar']
+    assert context['classes'] == ['Foo']
+    assert context['all_classes'] == ['Foo', '_Baz']
+    assert context['exceptions'] == ['Exc']
+    assert context['all_exceptions'] == ['Exc', '_Exc']
+    assert context['attributes'] == ['qux']
+    assert context['all_attributes'] == ['qux']
+    assert context['fullname'] == 'autosummary_dummy_module'
+    assert context['module'] == 'autosummary_dummy_module'
+    assert context['objname'] == ''
+    assert context['name'] == ''
+    assert context['objtype'] == 'module'
+
+
+@pytest.mark.sphinx(testroot='ext-autosummary')
+def test_autosummary_generate_content_for_module_skipped(app):
+    import autosummary_dummy_module
+    template = Mock()
+
+    def skip_member(app, what, name, obj, skip, options):
+        if name in ('Foo', 'bar', 'Exc'):
+            return True
+
+    app.connect('autodoc-skip-member', skip_member)
+    generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
+                                 template, None, False, app, False, {})
+    context = template.render.call_args[0][1]
+    assert context['members'] == ['_Baz', '_Exc', '__builtins__', '__cached__', '__doc__',
+                                  '__file__', '__name__', '__package__', '_quux', 'qux']
+    assert context['functions'] == []
+    assert context['classes'] == []
+    assert context['exceptions'] == []
+
+
+@pytest.mark.sphinx(testroot='ext-autosummary')
+def test_autosummary_generate_content_for_module_imported_members(app):
+    import autosummary_dummy_module
+    template = Mock()
+
+    generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
+                                 template, None, True, app, False, {})
+    assert template.render.call_args[0][0] == 'module'
+
+    context = template.render.call_args[0][1]
+    assert context['members'] == ['Exc', 'Foo', 'Union', '_Baz', '_Exc', '__builtins__',
+                                  '__cached__', '__doc__', '__file__', '__loader__',
+                                  '__name__', '__package__', '__spec__', '_quux',
+                                  'bar', 'path', 'qux']
+    assert context['functions'] == ['bar']
+    assert context['all_functions'] == ['_quux', 'bar']
+    assert context['classes'] == ['Foo']
+    assert context['all_classes'] == ['Foo', '_Baz']
+    assert context['exceptions'] == ['Exc']
+    assert context['all_exceptions'] == ['Exc', '_Exc']
+    assert context['attributes'] == ['qux']
+    assert context['all_attributes'] == ['qux']
+    assert context['fullname'] == 'autosummary_dummy_module'
+    assert context['module'] == 'autosummary_dummy_module'
+    assert context['objname'] == ''
+    assert context['name'] == ''
+    assert context['objtype'] == 'module'
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary')
