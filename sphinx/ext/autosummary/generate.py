@@ -42,6 +42,7 @@ from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warnin
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.locale import __
+from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging
 from sphinx.util import rst
@@ -218,6 +219,21 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                             public.append(name)
         return public, items
 
+    def get_module_attrs(members: Any) -> Tuple[List[str], List[str]]:
+        """Find module attributes with docstrings."""
+        attrs, public = [], []
+        try:
+            analyzer = ModuleAnalyzer.for_module(name)
+            attr_docs = analyzer.find_attr_docs()
+            for namespace, attr_name in attr_docs:
+                if namespace == '' and attr_name in members:
+                    attrs.append(attr_name)
+                    if not attr_name.startswith('_'):
+                        public.append(attr_name)
+        except PycodeError:
+            pass    # give up if ModuleAnalyzer fails to parse code
+        return public, attrs
+
     def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
@@ -237,6 +253,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             get_members(obj, {'class'}, imported=imported_members)
         ns['exceptions'], ns['all_exceptions'] = \
             get_members(obj, {'exception'}, imported=imported_members)
+        ns['attributes'], ns['all_attributes'] = \
+            get_module_attrs(ns['members'])
         ispackage = hasattr(obj, '__path__')
         if ispackage and recursive:
             ns['modules'], ns['all_modules'] = get_modules(obj)
