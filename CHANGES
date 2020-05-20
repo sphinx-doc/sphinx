@@ -65,6 +65,7 @@ Features added
 * #7541: html theme: Add a "clearer" at the end of the "body"
 * #7542: html theme: Make admonition/topic/sidebar scrollable
 * #7543: html theme: Add top and bottom margins to tables
+* #7695: html theme: Add viewport meta tag for basic theme
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
 * #7294: C++, parse expressions with user-defined literals.
