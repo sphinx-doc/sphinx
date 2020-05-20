@@ -48,6 +48,7 @@ Features added
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree
+* #7469: autosummary: Support module attributes
 * #248, #6040: autosummary: Add ``:recursive:`` option to autosummary directive
   to generate stub files recursively
 * #4030: autosummary: Add :confval:`autosummary_context` to add template
