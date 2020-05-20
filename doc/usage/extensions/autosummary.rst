@@ -290,7 +290,7 @@ The following variables available in the templates:
 
     .. versionchanged:: 3.1
 
-    Attributes of modules are supported.
+       Attributes of modules are supported.
 
 .. data:: modules
 
