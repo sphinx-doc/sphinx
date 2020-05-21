@@ -31,6 +31,7 @@
 <%= fontpkg %>
 <%= textgreek %>
 <%= fncychap %>
+<%= grffile %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
 <%= fvset %>

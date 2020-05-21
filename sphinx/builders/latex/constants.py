@@ -91,6 +91,7 @@ DEFAULT_SETTINGS = {
     'fontpkg':         PDFLATEX_DEFAULT_FONTPKG,
     'substitutefont':  '',
     'textcyrillic':    '',
+    'grffile':         '\\usepackage{grffile}[=v1]',
     'textgreek':       '\\usepackage{textalpha}',
     'fncychap':        '\\usepackage[Bjarne]{fncychap}',
     'hyperref':        ('% Include hyperref last.\n'
@@ -140,7 +141,7 @@ ADDITIONAL_SETTINGS = {
         'latex_engine': 'xelatex',
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
-        'fontenc':     ('\\usepackage{fontspec}\n'
+        'fontenc':     ('\\usepackage[no-math]{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      XELATEX_DEFAULT_FONTPKG,
         'textgreek':    '',
@@ -151,7 +152,7 @@ ADDITIONAL_SETTINGS = {
         'latex_engine': 'lualatex',
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
-        'fontenc':     ('\\usepackage{fontspec}\n'
+        'fontenc':     ('\\usepackage[no-math]{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
         'textgreek':    '',
