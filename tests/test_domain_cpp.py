@@ -663,7 +663,7 @@ def test_operators():
     check('function', 'void operator[]()', {1: "subscript-operator", 2: "ixv"})
 
 
-class test_nested_name():
+def test_nested_name():
     check('class', '{key}::A', {1: "A", 2: "1A"})
     check('class', '{key}::A::B', {1: "A::B", 2: "N1A1BE"})
     check('function', 'void f(::A a)', {1: "f__A", 2: "1f1A"})

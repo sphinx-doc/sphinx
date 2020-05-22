@@ -400,7 +400,7 @@ def test_function_definitions():
           output='void f(int arr[static volatile const 42])')
 
 
-class test_nested_name():
+def test_nested_name():
     check('struct', '{key}.A', {1: "A"})
     check('struct', '{key}.A.B', {1: "A.B"})
     check('function', 'void f(.A a)', {1: "f"})
