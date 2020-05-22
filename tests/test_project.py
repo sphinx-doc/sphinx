@@ -58,8 +58,8 @@ def test_project_path2doc(app):
     assert project.path2doc('index.foo') is None  # unknown extension
     assert project.path2doc('index.foo.rst') == 'index.foo'
     assert project.path2doc('index') is None
-    assert project.path2doc('/path/to/index.rst') == PathComparer('/path/to/index')
-    assert project.path2doc(app.srcdir / '/to/index.rst') == PathComparer('/to/index')
+    assert project.path2doc('path/to/index.rst') == 'path/to/index'
+    assert project.path2doc(app.srcdir / 'to/index.rst') == 'to/index'
 
 
 @pytest.mark.sphinx(srcdir='project_doc2path', testroot='basic')
