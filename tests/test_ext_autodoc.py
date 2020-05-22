@@ -59,7 +59,7 @@ def make_directive_bridge(env):
         platform = '',
         deprecated = False,
         members = [],
-        member_order = 'alphabetic',
+        member_order = 'alphabetical',
         exclude_members = set(),
         ignore_module_all = False,
     )
@@ -252,6 +252,7 @@ def test_get_doc(app):
 
     def getdocl(objtype, obj):
         inst = app.registry.documenters[objtype](directive, 'tmp')
+        inst.parent = object  # dummy
         inst.object = obj
         inst.objpath = [obj.__name__]
         inst.doc_as_attr = False
@@ -1658,8 +1659,8 @@ def test_singledispatch(app):
         '',
         '',
         '.. py:function:: func(arg, kwarg=None)',
-        '   func(arg: int, kwarg=None)',
-        '   func(arg: str, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
         '   :module: target.singledispatch',
         '',
         '   A function for general use.',
@@ -1674,8 +1675,8 @@ def test_singledispatch_autofunction(app):
     assert list(actual) == [
         '',
         '.. py:function:: func(arg, kwarg=None)',
-        '   func(arg: int, kwarg=None)',
-        '   func(arg: str, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
         '   :module: target.singledispatch',
         '',
         '   A function for general use.',
@@ -1701,8 +1702,8 @@ def test_singledispatchmethod(app):
         '',
         '',
         '   .. py:method:: Foo.meth(arg, kwarg=None)',
-        '      Foo.meth(arg: int, kwarg=None)',
-        '      Foo.meth(arg: str, kwarg=None)',
+        '                  Foo.meth(arg: int, kwarg=None)',
+        '                  Foo.meth(arg: str, kwarg=None)',
         '      :module: target.singledispatchmethod',
         '',
         '      A method for general use.',
@@ -1719,8 +1720,8 @@ def test_singledispatchmethod_automethod(app):
     assert list(actual) == [
         '',
         '.. py:method:: Foo.meth(arg, kwarg=None)',
-        '   Foo.meth(arg: int, kwarg=None)',
-        '   Foo.meth(arg: str, kwarg=None)',
+        '               Foo.meth(arg: int, kwarg=None)',
+        '               Foo.meth(arg: str, kwarg=None)',
         '   :module: target.singledispatchmethod',
         '',
         '   A method for general use.',

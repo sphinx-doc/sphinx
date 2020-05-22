@@ -436,22 +436,32 @@ class Sphinx:
         logger.debug('[app] disconnecting event: [id=%s]', listener_id)
         self.events.disconnect(listener_id)
 
-    def emit(self, event: str, *args: Any) -> List:
+    def emit(self, event: str, *args: Any,
+             allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> List:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
         Sphinx events in extensions!
-        """
-        return self.events.emit(event, *args)
 
-    def emit_firstresult(self, event: str, *args: Any) -> Any:
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
+        """
+        return self.events.emit(event, *args, allowed_exceptions=allowed_exceptions)
+
+    def emit_firstresult(self, event: str, *args: Any,
+                         allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> Any:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
 
         .. versionadded:: 0.5
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
         """
-        return self.events.emit_firstresult(event, *args)
+        return self.events.emit_firstresult(event, *args,
+                                            allowed_exceptions=allowed_exceptions)
 
     # registering addon parts
 

@@ -15,14 +15,15 @@ import re
 import warnings
 from inspect import Parameter
 from types import ModuleType
-from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union
-from unittest.mock import patch
+from typing import (
+    Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, Union
+)
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.application import Sphinx
-from sphinx.config import ENUM
+from sphinx.config import Config, ENUM
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
@@ -91,6 +92,16 @@ def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
         return 'object'
     else:
         return arg
+
+
+def member_order_option(arg: Any) -> Optional[str]:
+    """Used to convert the :members: option to auto directives."""
+    if arg is None:
+        return None
+    elif arg in ('alphabetical', 'bysource', 'groupwise'):
+        return arg
+    else:
+        raise ValueError(__('invalid value for member-order option: %s') % arg)
 
 
 SUPPRESS = object()
@@ -421,8 +432,15 @@ class Documenter:
         directive = getattr(self, 'directivetype', self.objtype)
         name = self.format_name()
         sourcename = self.get_sourcename()
-        self.add_line('.. %s:%s:: %s%s' % (domain, directive, name, sig),
-                      sourcename)
+
+        # one signature per line, indented by column
+        prefix = '.. %s:%s:: ' % (domain, directive)
+        for i, sig_line in enumerate(sig.split("\n")):
+            self.add_line('%s%s%s' % (prefix, name, sig_line),
+                          sourcename)
+            if i == 0:
+                prefix = " " * len(prefix)
+
         if self.options.noindex:
             self.add_line('   :noindex:', sourcename)
         if self.objpath:
@@ -515,12 +533,12 @@ class Documenter:
                 else:
                     logger.warning(__('missing attribute %s in object %s') %
                                    (name, self.fullname), type='autodoc')
-            return False, sorted(selected)
+            return False, selected
         elif self.options.inherited_members:
-            return False, sorted((m.name, m.value) for m in members.values())
+            return False, [(m.name, m.value) for m in members.values()]
         else:
-            return False, sorted((m.name, m.value) for m in members.values()
-                                 if m.directly_defined)
+            return False, [(m.name, m.value) for m in members.values()
+                           if m.directly_defined]
 
     def filter_members(self, members: List[Tuple[str, Any]], want_all: bool
                        ) -> List[Tuple[str, Any, bool]]:
@@ -693,17 +711,26 @@ class Documenter:
         member_order = self.options.member_order or \
             self.env.config.autodoc_member_order
         if member_order == 'groupwise':
-            # sort by group; relies on stable sort to keep items in the
-            # same group sorted alphabetically
-            memberdocumenters.sort(key=lambda e: e[0].member_order)
-        elif member_order == 'bysource' and self.analyzer:
-            # sort by source order, by virtue of the module analyzer
-            tagorder = self.analyzer.tagorder
+            # sort by group; alphabetically within groups
+            memberdocumenters.sort(key=lambda e: (e[0].member_order, e[0].name))
+        elif member_order == 'bysource':
+            if self.analyzer:
+                # sort by source order, by virtue of the module analyzer
+                tagorder = self.analyzer.tagorder
 
-            def keyfunc(entry: Tuple[Documenter, bool]) -> int:
-                fullname = entry[0].name.split('::')[1]
-                return tagorder.get(fullname, len(tagorder))
-            memberdocumenters.sort(key=keyfunc)
+                def keyfunc(entry: Tuple[Documenter, bool]) -> int:
+                    fullname = entry[0].name.split('::')[1]
+                    return tagorder.get(fullname, len(tagorder))
+                memberdocumenters.sort(key=keyfunc)
+            else:
+                # Assume that member discovery order matches source order.
+                # This is a reasonable assumption in Python 3.6 and up, where
+                # module.__dict__ is insertion-ordered.
+                pass
+        elif member_order == 'alphabetical':
+            memberdocumenters.sort(key=lambda e: e[0].name)
+        else:
+            raise ValueError("Illegal member order {}".format(member_order))
 
         for documenter, isattr in memberdocumenters:
             documenter.generate(
@@ -811,7 +838,7 @@ class ModuleDocumenter(Documenter):
         'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
-        'member-order': identity, 'exclude-members': members_set_option,
+        'member-order': member_order_option, 'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
         'imported-members': bool_option, 'ignore-module-all': bool_option
     }  # type: Dict[str, Callable]
@@ -1075,41 +1102,28 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
-        if inspect.is_singledispatch_function(self.object):
-            self.add_singledispatch_directive_header(sig)
-        else:
-            super().add_directive_header(sig)
+        super().add_directive_header(sig)
 
         if inspect.iscoroutinefunction(self.object):
             self.add_line('   :async:', sourcename)
 
-    def add_singledispatch_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
+    def format_signature(self, **kwargs: Any) -> str:
+        sig = super().format_signature(**kwargs)
+        sigs = [sig]
 
-        # intercept generated directive headers
-        # TODO: It is very hacky to use mock to intercept header generation
-        with patch.object(self, 'add_line') as add_line:
-            super().add_directive_header(sig)
+        if inspect.is_singledispatch_function(self.object):
+            # append signature of singledispatch'ed functions
+            for typ, func in self.object.registry.items():
+                if typ is object:
+                    pass  # default implementation. skipped.
+                else:
+                    self.annotate_to_first_argument(func, typ)
 
-        # output first line of header
-        self.add_line(*add_line.call_args_list[0][0])
+                    documenter = FunctionDocumenter(self.directive, '')
+                    documenter.object = func
+                    sigs.append(documenter.format_signature())
 
-        # inserts signature of singledispatch'ed functions
-        for typ, func in self.object.registry.items():
-            if typ is object:
-                pass  # default implementation. skipped.
-            else:
-                self.annotate_to_first_argument(func, typ)
-
-                documenter = FunctionDocumenter(self.directive, '')
-                documenter.object = func
-                self.add_line('   %s%s' % (self.format_name(),
-                                           documenter.format_signature()),
-                              sourcename)
-
-        # output remains of directive header
-        for call in add_line.call_args_list[1:]:
-            self.add_line(*call[0])
+        return "\n".join(sigs)
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
@@ -1157,7 +1171,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     option_spec = {
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': inherited_members_option,
-        'show-inheritance': bool_option, 'member-order': identity,
+        'show-inheritance': bool_option, 'member-order': member_order_option,
         'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
     }  # type: Dict[str, Callable]
@@ -1487,11 +1501,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         return args
 
     def add_directive_header(self, sig: str) -> None:
-        meth = self.parent.__dict__.get(self.objpath[-1])
-        if inspect.is_singledispatch_method(meth):
-            self.add_singledispatch_directive_header(sig)
-        else:
-            super().add_directive_header(sig)
+        super().add_directive_header(sig)
 
         sourcename = self.get_sourcename()
         obj = self.parent.__dict__.get(self.object_name, self.object)
@@ -1509,36 +1519,26 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def document_members(self, all_members: bool = False) -> None:
         pass
 
-    def add_singledispatch_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
+    def format_signature(self, **kwargs: Any) -> str:
+        sig = super().format_signature(**kwargs)
+        sigs = [sig]
 
-        # intercept generated directive headers
-        # TODO: It is very hacky to use mock to intercept header generation
-        with patch.object(self, 'add_line') as add_line:
-            super().add_directive_header(sig)
-
-        # output first line of header
-        self.add_line(*add_line.call_args_list[0][0])
-
-        # inserts signature of singledispatch'ed functions
         meth = self.parent.__dict__.get(self.objpath[-1])
-        for typ, func in meth.dispatcher.registry.items():
-            if typ is object:
-                pass  # default implementation. skipped.
-            else:
-                self.annotate_to_first_argument(func, typ)
+        if inspect.is_singledispatch_method(meth):
+            # append signature of singledispatch'ed functions
+            for typ, func in meth.dispatcher.registry.items():
+                if typ is object:
+                    pass  # default implementation. skipped.
+                else:
+                    self.annotate_to_first_argument(func, typ)
 
-                documenter = MethodDocumenter(self.directive, '')
-                documenter.parent = self.parent
-                documenter.object = func
-                documenter.objpath = self.objpath
-                self.add_line('   %s%s' % (self.format_name(),
-                                           documenter.format_signature()),
-                              sourcename)
+                    documenter = MethodDocumenter(self.directive, '')
+                    documenter.parent = self.parent
+                    documenter.object = func
+                    documenter.objpath = [None]
+                    sigs.append(documenter.format_signature())
 
-        # output remains of directive header
-        for call in add_line.call_args_list[1:]:
-            self.add_line(*call[0])
+        return "\n".join(sigs)
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
@@ -1775,6 +1775,14 @@ def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
     return safe_getattr(obj, name, *defargs)
 
 
+def migrate_autodoc_member_order(app: Sphinx, config: Config) -> None:
+    if config.autodoc_member_order == 'alphabetic':
+        # RemovedInSphinx50Warning
+        logger.warning(__('autodoc_member_order now accepts "alphabetical" '
+                          'instead of "alphabetic". Please update your setting.'))
+        config.autodoc_member_order = 'alphabetical'  # type: ignore
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ModuleDocumenter)
     app.add_autodocumenter(ClassDocumenter)
@@ -1790,7 +1798,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(SlotsAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
-    app.add_config_value('autodoc_member_order', 'alphabetic', True)
+    app.add_config_value('autodoc_member_order', 'alphabetical', True,
+                         ENUM('alphabetic', 'alphabetical', 'bysource', 'groupwise'))
     app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
@@ -1802,6 +1811,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
+
+    app.connect('config-inited', migrate_autodoc_member_order, priority=800)
 
     app.setup_extension('sphinx.ext.autodoc.type_comment')
     app.setup_extension('sphinx.ext.autodoc.typehints')
