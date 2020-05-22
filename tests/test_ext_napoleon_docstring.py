@@ -2106,15 +2106,15 @@ definition_after_normal_text : int
         """)
         expected = textwrap.dedent("""\
         :param param1: the data to work on
-        :type param1: :obj:`DataFrame`
+        :type param1: DataFrame
         :param param2: a parameter with different types
         :type param2: :obj:`int` or :obj:`float` or :obj:`None`
         :param param3: a optional mapping
-        :type param3: :obj:`dict-like`, optional
+        :type param3: :term:`dict-like <mapping>`, :noref:`optional`
         :param param4: a optional parameter with different types
-        :type param4: :obj:`int` or :obj:`float` or :obj:`None`, optional
+        :type param4: :obj:`int` or :obj:`float` or :obj:`None`, :noref:`optional`
         :param param5: a optional parameter with fixed values
-        :type param5: {"F", "C", "N"}, optional
+        :type param5: :noref:`{"F", "C", "N"}`, :noref:`optional`
         """)
         config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
         actual = str(NumpyDocstring(docstring, config))
