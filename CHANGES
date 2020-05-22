@@ -98,6 +98,7 @@ Bugs fixed
   specified
 * #7650: autodoc: undecorated signature is shown for decorated functions
 * #7676: autodoc: typo in the default value of autodoc_member_order
+* #7676: autodoc: wrong value for :member-order: option is ignored silently
 * #7551: autosummary: a nested class is indexed as non-nested class
 * #7661: autosummary: autosummary directive emits warnings twices if failed to
   import the target module
