@@ -40,22 +40,22 @@ def parse(sig):
 
 def test_function_signatures():
     rv = parse('func(a=1) -> int object')
-    assert rv == 'a=1'
+    assert rv == '(a=1)'
 
     rv = parse('func(a=1, [b=None])')
-    assert rv == 'a=1, [b=None]'
+    assert rv == '(a=1, [b=None])'
 
     rv = parse('func(a=1[, b=None])')
-    assert rv == 'a=1, [b=None]'
+    assert rv == '(a=1, [b=None])'
 
     rv = parse("compile(source : string, filename, symbol='file')")
-    assert rv == "source : string, filename, symbol='file'"
+    assert rv == "(source : string, filename, symbol='file')"
 
     rv = parse('func(a=[], [b=None])')
-    assert rv == 'a=[], [b=None]'
+    assert rv == '(a=[], [b=None])'
 
     rv = parse('func(a=[][, b=None])')
-    assert rv == 'a=[], [b=None]'
+    assert rv == '(a=[], [b=None])'
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
@@ -453,8 +453,8 @@ def test_pyobject_prefix(app):
                                                   desc,
                                                   addnodes.index,
                                                   desc)])]))
-    assert doctree[1][1][1].astext().strip() == 'say'           # prefix is stripped
-    assert doctree[1][1][3].astext().strip() == 'FooBar.say'    # not stripped
+    assert doctree[1][1][1].astext().strip() == 'say()'           # prefix is stripped
+    assert doctree[1][1][3].astext().strip() == 'FooBar.say()'    # not stripped
 
 
 def test_pydata(app):

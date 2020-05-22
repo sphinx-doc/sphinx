@@ -230,11 +230,15 @@ connect handlers to the events.  Example:
 
 .. event:: missing-reference (app, env, node, contnode)
 
-   Emitted when a cross-reference to a Python module or object cannot be
-   resolved.  If the event handler can resolve the reference, it should return a
+   Emitted when a cross-reference to an object cannot be resolved.
+   If the event handler can resolve the reference, it should return a
    new docutils node to be inserted in the document tree in place of the node
    *node*.  Usually this node is a :class:`reference` node containing *contnode*
    as a child.
+   If the handler can not resolve the cross-reference,
+   it can either return ``None`` to let other handlers try,
+   or raise :class:`NoUri` to prevent other handlers in trying and suppress
+   a warning about this cross-reference being unresolved.
 
    :param env: The build environment (``app.builder.env``).
    :param node: The :class:`pending_xref` node to be resolved.  Its attributes

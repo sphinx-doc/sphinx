@@ -59,7 +59,7 @@ def make_directive_bridge(env):
         platform = '',
         deprecated = False,
         members = [],
-        member_order = 'alphabetic',
+        member_order = 'alphabetical',
         exclude_members = set(),
         ignore_module_all = False,
     )
@@ -142,6 +142,7 @@ def test_format_signature(app):
         inst = app.registry.documenters[objtype](directive, name)
         inst.fullname = name
         inst.doc_as_attr = False  # for class objtype
+        inst.parent = object  # dummy
         inst.object = obj
         inst.objpath = [name]
         inst.args = args
@@ -271,6 +272,7 @@ def test_get_doc(app):
 
     def getdocl(objtype, obj):
         inst = app.registry.documenters[objtype](directive, 'tmp')
+        inst.parent = object  # dummy
         inst.object = obj
         inst.objpath = [obj.__name__]
         inst.doc_as_attr = False
@@ -1264,6 +1266,17 @@ def test_autofunction_for_methoddescriptor(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_decorated(app):
+    actual = do_autodoc(app, 'function', 'target.decorator.foo')
+    assert list(actual) == [
+        '',
+        '.. py:function:: foo()',
+        '   :module: target.decorator',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_automethod_for_builtin(app):
     actual = do_autodoc(app, 'method', 'builtins.int.__add__')
     assert list(actual) == [
@@ -1272,6 +1285,17 @@ def test_automethod_for_builtin(app):
         '   :module: builtins',
         '',
         '   Return self+value.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_automethod_for_decorated(app):
+    actual = do_autodoc(app, 'method', 'target.decorator.Bar.meth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Bar.meth()',
+        '   :module: target.decorator',
         '',
     ]
 
@@ -1435,7 +1459,7 @@ def test_coroutine(app):
     actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
     assert list(actual) == [
         '',
-        '.. py:function:: sync_func()',
+        '.. py:function:: sync_func(*args, **kwargs)',
         '   :module: target.coroutine',
         '',
     ]
@@ -1655,8 +1679,8 @@ def test_singledispatch(app):
         '',
         '',
         '.. py:function:: func(arg, kwarg=None)',
-        '   func(arg: int, kwarg=None)',
-        '   func(arg: str, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
         '   :module: target.singledispatch',
         '',
         '   A function for general use.',
@@ -1671,8 +1695,8 @@ def test_singledispatch_autofunction(app):
     assert list(actual) == [
         '',
         '.. py:function:: func(arg, kwarg=None)',
-        '   func(arg: int, kwarg=None)',
-        '   func(arg: str, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
         '   :module: target.singledispatch',
         '',
         '   A function for general use.',
@@ -1698,8 +1722,8 @@ def test_singledispatchmethod(app):
         '',
         '',
         '   .. py:method:: Foo.meth(arg, kwarg=None)',
-        '      Foo.meth(arg: int, kwarg=None)',
-        '      Foo.meth(arg: str, kwarg=None)',
+        '                  Foo.meth(arg: int, kwarg=None)',
+        '                  Foo.meth(arg: str, kwarg=None)',
         '      :module: target.singledispatchmethod',
         '',
         '      A method for general use.',
@@ -1716,8 +1740,8 @@ def test_singledispatchmethod_automethod(app):
     assert list(actual) == [
         '',
         '.. py:method:: Foo.meth(arg, kwarg=None)',
-        '   Foo.meth(arg: int, kwarg=None)',
-        '   Foo.meth(arg: str, kwarg=None)',
+        '               Foo.meth(arg: int, kwarg=None)',
+        '               Foo.meth(arg: str, kwarg=None)',
         '   :module: target.singledispatchmethod',
         '',
         '   A method for general use.',
@@ -1795,7 +1819,7 @@ def test_autodoc(app, status, warning):
 
     content = app.env.get_doctree('index')
     assert isinstance(content[3], addnodes.desc)
-    assert content[3][0].astext() == 'autodoc_dummy_module.test'
+    assert content[3][0].astext() == 'autodoc_dummy_module.test()'
     assert content[3][1].astext() == 'Dummy function using dummy.*'
 
     # issue sphinx-doc/sphinx#2437

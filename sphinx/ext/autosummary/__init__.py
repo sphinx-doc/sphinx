@@ -302,8 +302,7 @@ class Autosummary(SphinxDirective):
                 with mock(self.config.autosummary_mock_imports):
                     real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
             except ImportError:
-                logger.warning(__('failed to import %s'), name)
-                items.append((name, '', '', name))
+                logger.warning(__('autosummary: failed to import %s'), name)
                 continue
 
             self.bridge.result = StringList()  # initialize for each documenter
