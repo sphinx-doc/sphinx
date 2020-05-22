@@ -842,8 +842,8 @@ def _parse_numpy_type_spec(_type):
 
         return type_
 
-    def convert_obj(obj, translations):
-        return translations.get(obj, ":obj:`{}`".format(obj))
+    def convert_obj(obj, translations, default_translation=":obj:`{}`"):
+        return translations.get(obj, default_translation.format(obj))
 
     tokens = tokenize_type_spec(_type)
     types = [
@@ -858,10 +858,17 @@ def _parse_numpy_type_spec(_type):
         "dict-like": ":term:`dict-like <mapping>`",
     }
 
+    # don't use the object role if it's not necessary
+    default_translation = (
+        ":obj:`{}`"
+        if not all(type_ == "obj" for _, type_ in types)
+        else "{}"
+    )
+
     converters = {
         "value_set": lambda x: f":noref:`{x}`",
         "literal": lambda x: f":noref:`{x}`",
-        "obj": lambda x: convert_obj(x, translations),
+        "obj": lambda x: convert_obj(x, translations, default_translation),
         "control": lambda x: f":noref:`{x}`",
         "delimiter": lambda x: x,
         "reference": lambda x: x,
