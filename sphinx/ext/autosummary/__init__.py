@@ -254,14 +254,13 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    location = self.state_machine.get_source_and_line(self.lineno)
                     if excluded(self.env.doc2path(docname, None)):
                         msg = __('autosummary references excluded document %r. Ignored.')
                     else:
                         msg = __('autosummary: stub file not found %r. '
                                  'Check your autosummary_generate setting.')
 
-                    logger.warning(msg, real_name, location=location)
+                    logger.warning(msg, real_name, location=self.get_source_info())
                     continue
 
                 docnames.append(docname)
@@ -302,7 +301,8 @@ class Autosummary(SphinxDirective):
                 with mock(self.config.autosummary_mock_imports):
                     real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
             except ImportError:
-                logger.warning(__('autosummary: failed to import %s'), name)
+                logger.warning(__('autosummary: failed to import %s'), name,
+                               location=self.get_source_info())
                 continue
 
             self.bridge.result = StringList()  # initialize for each documenter
@@ -316,11 +316,13 @@ class Autosummary(SphinxDirective):
             doccls = get_documenter(self.env.app, obj, parent)
             documenter = doccls(self.bridge, full_name)
             if not documenter.parse_name():
-                logger.warning(__('failed to parse name %s'), real_name)
+                logger.warning(__('failed to parse name %s'), real_name,
+                               location=self.get_source_info())
                 items.append((display_name, '', '', real_name))
                 continue
             if not documenter.import_object():
-                logger.warning(__('failed to import object %s'), real_name)
+                logger.warning(__('failed to import object %s'), real_name,
+                               location=self.get_source_info())
                 items.append((display_name, '', '', real_name))
                 continue
             if documenter.options.members and not documenter.check_module():
