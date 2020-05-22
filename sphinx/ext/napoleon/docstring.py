@@ -840,13 +840,7 @@ def _tokenize_type_spec(spec):
     return _recombine_set_tokens(tokens)
 
 
-def _parse_numpy_type_spec(_type):
-    raw_tokens = _tokenize_type_spec(_type)
-    tokens = list(_recombine_set_tokens(raw_tokens))
-    return tokens
-
-
-def _parse_numpy_type_spec2(_type):
+def _convert_numpy_type_spec(_type):
     def token_type(token):
         if token.startswith(" ") or token.endswith(" "):
             type_ = "delimiter"
@@ -866,7 +860,7 @@ def _parse_numpy_type_spec2(_type):
     def convert_obj(obj, translations, default_translation=":obj:`{}`"):
         return translations.get(obj, default_translation.format(obj))
 
-    tokens = tokenize_type_spec(_type)
+    tokens = _tokenize_type_spec(_type)
     types = [
         (token, token_type(token))
         for token in tokens
@@ -895,7 +889,9 @@ def _parse_numpy_type_spec2(_type):
         "reference": lambda x: x,
     }
 
-    return "".join(converters.get(type_)(token) for token, type_ in types)
+    converted = "".join(converters.get(type_)(token) for token, type_ in types)
+
+    return converted
 
 
 class NumpyDocstring(GoogleDocstring):
@@ -1006,7 +1002,7 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
-        _type = _parse_numpy_type_spec(_type)
+        _type = _convert_numpy_type_spec(_type)
 
         if prefer_type and not _type:
             _type, _name = _name, _type

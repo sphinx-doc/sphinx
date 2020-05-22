@@ -16,7 +16,7 @@ from unittest import TestCase, mock
 
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-from sphinx.ext.napoleon.docstring import _tokenize_type_spec, _recombine_set_tokens, _parse_numpy_type_spec
+from sphinx.ext.napoleon.docstring import _tokenize_type_spec, _recombine_set_tokens, _convert_numpy_type_spec
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -2041,7 +2041,7 @@ definition_after_normal_text : int
             actual = _tokenize_type_spec(type_spec)
             self.assertEqual(expected, actual)
 
-    def test_parse_numpy_type_spec(self):
+    def test_convert_numpy_type_spec(self):
         types = (
             "str",
             "int or float or None",
@@ -2049,34 +2049,43 @@ definition_after_normal_text : int
             "{'F', 'C', 'N'}",
         )
         modifiers = (
+            "",
             "optional",
             "default: None",
         )
-
-        type_tokens = (
-            ["str"],
-            ["int", " or ", "float", " or ", "None"],
-            ['{"F", "C", "N"}'],
-            ["{'F', 'C', 'N'}"],
-        )
-        modifier_tokens = (
-            ["optional"],
-            ["default", ": ", "None"],
-        )
-
         type_specs = tuple(
             ", ".join([type_, modifier])
+            if modifier
+            else type_
             for type_ in types
             for modifier in modifiers
         )
-        tokens = tuple(
-            tuple(tokens_ + [", "] + modifier_tokens_)
-            for tokens_ in type_tokens
-            for modifier_tokens_ in modifier_tokens
+
+        converted_types = (
+            ":obj:`str`",
+            ":obj:`int` or :obj:`float` or :obj:`None`",
+            ':noref:`{"F", "C", "N"}`',
+            ":noref:`{'F', 'C', 'N'}`",
+        )
+        converted_modifiers = (
+            "",
+            ":noref:`optional`",
+            ":noref:`default`: :obj:`None`",
+        )
+        converted = tuple(
+            ", ".join([converted_type, converted_modifier])
+            if converted_modifier
+            else (
+                type_
+                if ("{" not in type_ and "or" not in type_)
+                else converted_type
+            )
+            for converted_type, type_ in zip(converted_types, types)
+            for converted_modifier in converted_modifiers
         )
 
-        for type_spec, expected in zip(type_specs, tokens):
-            actual = _parse_numpy_type_spec(type_spec)
+        for type_, expected in zip(type_specs, converted):
+            actual = _convert_numpy_type_spec(type_)
             self.assertEqual(expected, actual)
 
     def test_parameter_types(self):
