@@ -142,6 +142,7 @@ Bugs fixed
 
 * #7567: autodoc: parametrized types are shown twice for generic types
 * #7637: autodoc: system defined TypeVars are shown in Python 3.9
+* #7696: html: Updated jQuery version from 3.4.1 to 3.5.1 for security reasons
 * #7611: md5 fails when OpenSSL FIPS is enabled
 * #7626: release package does not contain ``CODE_OF_CONDUCT``
 
