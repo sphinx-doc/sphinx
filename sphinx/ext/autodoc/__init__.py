@@ -400,20 +400,26 @@ class Documenter:
         if self.args is not None:
             # signature given explicitly
             args = "(%s)" % self.args
+            retann = self.retann
         else:
             # try to introspect the signature
             try:
+                retann = None
                 try:
                     args = self.format_args(**kwargs)
                 except TypeError:
                     # retry without arguments for old documenters
                     args = self.format_args()
+
+                if args:
+                    matched = re.match(r'^(\(.*\))\s+->\s+(.*)$', args)
+                    if matched:
+                        args = matched.group(1)
+                        retann = matched.group(2)
             except Exception:
                 logger.warning(__('error while formatting arguments for %s:') %
                                self.fullname, type='autodoc', exc_info=True)
                 args = None
-
-        retann = self.retann
 
         result = self.env.events.emit_firstresult('autodoc-process-signature',
                                                   self.objtype, self.fullname,

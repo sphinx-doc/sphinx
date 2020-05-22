@@ -162,7 +162,6 @@ def test_format_signature(app):
         pass
     assert formatsig('function', 'f', f, None, None) == '(a, b, c=1, **d)'
     assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
-    assert formatsig('function', 'f', f, None, 'None') == '(a, b, c=1, **d) -> None'
     assert formatsig('function', 'g', g, None, None) == r"(a='\n')"
 
     # test for classes
@@ -245,6 +244,27 @@ def test_format_signature(app):
     curried4 = partial(lambda a, b, c=42, *d, **e: None, 'A')
     assert formatsig('function', 'curried4', curried4, None, None) == \
         '(b, c=42, *d, **e)'
+
+
+def test_autodoc_process_signature_typehints(app):
+    captured = []
+
+    def process_signature(*args):
+        captured.append(args)
+
+    app.connect('autodoc-process-signature', process_signature)
+
+    def func(x: int, y: int) -> int:
+        pass
+
+    directive = make_directive_bridge(app.env)
+    inst = app.registry.documenters['function'](directive, 'func')
+    inst.fullname = 'func'
+    inst.object = func
+    inst.objpath = ['func']
+    inst.format_signature()
+    assert captured == [(app, 'function', 'func', func,
+                         directive.genopt, '(x: int, y: int)', 'int')]
 
 
 def test_get_doc(app):
