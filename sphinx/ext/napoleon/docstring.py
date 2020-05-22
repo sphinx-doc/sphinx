@@ -792,40 +792,61 @@ class GoogleDocstring:
         return lines
 
 
+def _recombine_set_tokens(tokens):
+    def takewhile_set(iterable):
+        yield "{"
+
+        open_braces = 1
+        while True:
+            try:
+                token = next(iterable)
+            except StopIteration:
+                if open_braces != 0:
+                    raise ValueError("invalid value set: {}".format("".join(tokens)))
+
+                break
+
+            if token == "{":
+                open_braces += 1
+            elif token == "}":
+                open_braces -= 1
+
+            yield token
+
+            if open_braces == 0:
+                break
+
+    def combine_set(tokens):
+        iterable = iter(tokens)
+        while True:
+            try:
+                token = next(iterable)
+            except StopIteration:
+                break
+
+            yield "".join(takewhile_set(iterable)) if token == "{" else token
+
+    return list(combine_set(tokens))
+
+
+def _tokenize_type_spec(spec):
+    delimiters = r"(\sor\s|\sof\s|:\s|,\s|[{]|[}])"
+
+    tokens = tuple(
+        item
+        for item in re.split(delimiters, spec)
+        if item
+    )
+    return _recombine_set_tokens(tokens)
+
+
 def _parse_numpy_type_spec(_type):
-    def recombine_set(tokens):
-        def combine_set(tokens):
-            in_set = False
-            set_items = []
+    raw_tokens = _tokenize_type_spec(_type)
+    tokens = list(_recombine_set_tokens(raw_tokens))
+    return tokens
 
-            for token in tokens:
-                if token.startswith("{"):
-                    in_set = True
-                elif token.endswith("}"):
-                    in_set = False
-                    set_items.append(token)
 
-                if in_set:
-                    set_items.append(token)
-                else:
-                    if set_items:
-                        token = "".join(set_items)
-                        set_items = []
-                    yield token
-
-        return list(combine_set(tokens))
-
-    def tokenize_type_spec(spec):
-        delimiters = r"(\sor\s|\sof\s|:\s|,\s|[{]|[}])"
-
-        split = [
-            item
-            for item in re.split(delimiters, _type)
-            if item
-        ]
-        tokens = recombine_set(split)
-        return tokens
-
+def _parse_numpy_type_spec2(_type):
     def token_type(token):
         if token.startswith(" ") or token.endswith(" "):
             type_ = "delimiter"

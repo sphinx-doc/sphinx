@@ -16,6 +16,7 @@ from unittest import TestCase, mock
 
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
+from sphinx.ext.napoleon.docstring import _tokenize_type_spec, _recombine_set_tokens, _parse_numpy_type_spec
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -1975,6 +1976,108 @@ definition_after_normal_text : int
         config = Config(napoleon_use_param=False)
         actual = str(NumpyDocstring(docstring, config))
         self.assertEqual(expected, actual)
+
+    def test_recombine_set_tokens(self):
+        tokens = (
+            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}"],
+            ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
+            ["{", "1", ", ", "2", "}"],
+        )
+        recombined_tokens = (
+            ["{'F', 'C', 'N'}"],
+            ['{"F", "C", "N"}'],
+            ["{1, 2}"],
+        )
+
+        for input_tokens, expected in zip(tokens, recombined_tokens):
+            actual = _recombine_set_tokens(input_tokens)
+            self.assertEqual(expected, actual)
+
+    def test_recombine_set_tokens_invalid(self):
+        invalid_tokens = (
+            ["{", "1", ", ", "2"],
+        )
+
+        for input_tokens in invalid_tokens:
+            with self.assertRaisesRegex(ValueError, "invalid value set:"):
+                _recombine_set_tokens(input_tokens)
+
+
+    def test_tokenize_type_spec(self):
+        types = (
+            "str",
+            "int or float or None",
+            '{"F", "C", "N"}',
+            "{'F', 'C', 'N'}",
+        )
+        modifiers = (
+            "optional",
+            "default: None",
+        )
+
+        type_tokens = (
+            ["str"],
+            ["int", " or ", "float", " or ", "None"],
+            ['{"F", "C", "N"}'],
+            ["{'F', 'C', 'N'}"],
+        )
+        modifier_tokens = (
+            ["optional"],
+            ["default", ": ", "None"],
+        )
+        
+        type_specs = tuple(
+            ", ".join([type_, modifier])
+            for type_ in types
+            for modifier in modifiers
+        )
+        tokens = tuple(
+            tokens_ + [", "] + modifier_tokens_
+            for tokens_ in type_tokens
+            for modifier_tokens_ in modifier_tokens
+        )
+
+        for type_spec, expected in zip(type_specs, tokens):
+            actual = _tokenize_type_spec(type_spec)
+            self.assertEqual(expected, actual)
+
+    def test_parse_numpy_type_spec(self):
+        types = (
+            "str",
+            "int or float or None",
+            '{"F", "C", "N"}',
+            "{'F', 'C', 'N'}",
+        )
+        modifiers = (
+            "optional",
+            "default: None",
+        )
+
+        type_tokens = (
+            ["str"],
+            ["int", " or ", "float", " or ", "None"],
+            ['{"F", "C", "N"}'],
+            ["{'F', 'C', 'N'}"],
+        )
+        modifier_tokens = (
+            ["optional"],
+            ["default", ": ", "None"],
+        )
+
+        type_specs = tuple(
+            ", ".join([type_, modifier])
+            for type_ in types
+            for modifier in modifiers
+        )
+        tokens = tuple(
+            tuple(tokens_ + [", "] + modifier_tokens_)
+            for tokens_ in type_tokens
+            for modifier_tokens_ in modifier_tokens
+        )
+
+        for type_spec, expected in zip(type_specs, tokens):
+            actual = _parse_numpy_type_spec(type_spec)
+            self.assertEqual(expected, actual)
 
     def test_parameter_types(self):
         import textwrap
