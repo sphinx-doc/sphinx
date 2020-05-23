@@ -857,6 +857,7 @@ class ModuleDocumenter(Documenter):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_special_members_option(self.options)
+        self.__all__ = None
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -879,6 +880,30 @@ class ModuleDocumenter(Documenter):
                            type='autodoc')
         return ret
 
+    def import_object(self) -> Any:
+        def is_valid_module_all(__all__: Any) -> bool:
+            """Check the given *__all__* is valid for a module."""
+            if (isinstance(__all__, (list, tuple)) and
+                    all(isinstance(e, str) for e in __all__)):
+                return True
+            else:
+                return False
+
+        ret = super().import_object()
+
+        if not self.options.ignore_module_all:
+            __all__ = getattr(self.object, '__all__', None)
+            if is_valid_module_all(__all__):
+                # valid __all__ found. copy it to self.__all__
+                self.__all__ = __all__
+            elif __all__:
+                # invalid __all__ found.
+                logger.warning(__('__all__ should be a list of strings, not %r '
+                                  '(in module %s) -- ignoring __all__') %
+                               (__all__, self.fullname), type='autodoc')
+
+        return ret
+
     def add_directive_header(self, sig: str) -> None:
         Documenter.add_directive_header(self, sig)
 
@@ -894,24 +919,12 @@ class ModuleDocumenter(Documenter):
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
         if want_all:
-            if (self.options.ignore_module_all or not
-                    hasattr(self.object, '__all__')):
+            if self.__all__:
+                memberlist = self.__all__
+            else:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
                 return True, get_module_members(self.object)
-            else:
-                memberlist = self.object.__all__
-                # Sometimes __all__ is broken...
-                if not isinstance(memberlist, (list, tuple)) or not \
-                   all(isinstance(entry, str) for entry in memberlist):
-                    logger.warning(
-                        __('__all__ should be a list of strings, not %r '
-                           '(in module %s) -- ignoring __all__') %
-                        (memberlist, self.fullname),
-                        type='autodoc'
-                    )
-                    # fall back to all members
-                    return True, get_module_members(self.object)
         else:
             memberlist = self.options.members or []
         ret = []
