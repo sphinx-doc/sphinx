@@ -733,10 +733,8 @@ class Documenter:
                 # This is a reasonable assumption in Python 3.6 and up, where
                 # module.__dict__ is insertion-ordered.
                 pass
-        elif member_order == 'alphabetical':
+        else:  # alphabetical
             memberdocumenters.sort(key=lambda e: e[0].name)
-        else:
-            raise ValueError("Illegal member order {}".format(member_order))
 
         for documenter, isattr in memberdocumenters:
             documenter.generate(
