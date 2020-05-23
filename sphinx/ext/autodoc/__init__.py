@@ -940,6 +940,25 @@ class ModuleDocumenter(Documenter):
                 )
         return False, ret
 
+    def sort_members(self, documenters: List[Tuple["Documenter", bool]],
+                     order: str) -> List[Tuple["Documenter", bool]]:
+        if order == 'bysource' and self.__all__:
+            # Sort alphabetically first (for members not listed on the __all__)
+            documenters.sort(key=lambda e: e[0].name)
+
+            # Sort by __all__
+            def keyfunc(entry: Tuple[Documenter, bool]) -> int:
+                name = entry[0].name.split('::')[1]
+                if name in self.__all__:
+                    return self.__all__.index(name)
+                else:
+                    return len(self.__all__)
+            documenters.sort(key=keyfunc)
+
+            return documenters
+        else:
+            return super().sort_members(documenters, order)
+
 
 class ModuleLevelDocumenter(Documenter):
     """
