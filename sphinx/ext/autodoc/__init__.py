@@ -714,27 +714,9 @@ class Documenter:
                 '.'.join(self.objpath + [mname])
             documenter = classes[-1](self.directive, full_mname, self.indent)
             memberdocumenters.append((documenter, isattr))
-        member_order = self.options.member_order or \
-            self.env.config.autodoc_member_order
-        if member_order == 'groupwise':
-            # sort by group; alphabetically within groups
-            memberdocumenters.sort(key=lambda e: (e[0].member_order, e[0].name))
-        elif member_order == 'bysource':
-            if self.analyzer:
-                # sort by source order, by virtue of the module analyzer
-                tagorder = self.analyzer.tagorder
 
-                def keyfunc(entry: Tuple[Documenter, bool]) -> int:
-                    fullname = entry[0].name.split('::')[1]
-                    return tagorder.get(fullname, len(tagorder))
-                memberdocumenters.sort(key=keyfunc)
-            else:
-                # Assume that member discovery order matches source order.
-                # This is a reasonable assumption in Python 3.6 and up, where
-                # module.__dict__ is insertion-ordered.
-                pass
-        else:  # alphabetical
-            memberdocumenters.sort(key=lambda e: e[0].name)
+        member_order = self.options.member_order or self.env.config.autodoc_member_order
+        memberdocumenters = self.sort_members(memberdocumenters, member_order)
 
         for documenter, isattr in memberdocumenters:
             documenter.generate(
@@ -744,6 +726,31 @@ class Documenter:
         # reset current objects
         self.env.temp_data['autodoc:module'] = None
         self.env.temp_data['autodoc:class'] = None
+
+    def sort_members(self, documenters: List[Tuple["Documenter", bool]],
+                     order: str) -> List[Tuple["Documenter", bool]]:
+        """Sort the given member list."""
+        if order == 'groupwise':
+            # sort by group; alphabetically within groups
+            documenters.sort(key=lambda e: (e[0].member_order, e[0].name))
+        elif order == 'bysource':
+            if self.analyzer:
+                # sort by source order, by virtue of the module analyzer
+                tagorder = self.analyzer.tagorder
+
+                def keyfunc(entry: Tuple[Documenter, bool]) -> int:
+                    fullname = entry[0].name.split('::')[1]
+                    return tagorder.get(fullname, len(tagorder))
+                documenters.sort(key=keyfunc)
+            else:
+                # Assume that member discovery order matches source order.
+                # This is a reasonable assumption in Python 3.6 and up, where
+                # module.__dict__ is insertion-ordered.
+                pass
+        else:  # alphabetical
+            documenters.sort(key=lambda e: e[0].name)
+
+        return documenters
 
     def generate(self, more_content: Any = None, real_modname: str = None,
                  check_module: bool = False, all_members: bool = False) -> None:
