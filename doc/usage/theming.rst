@@ -219,9 +219,6 @@ These themes are:
   - **headbgcolor** (CSS color): Background color for headings.
   - **headtextcolor** (CSS color): Text color for headings.
   - **headlinkcolor** (CSS color): Link color for headings.
-  - **codebgcolor** (CSS color): Background color for code blocks.
-  - **codetextcolor** (CSS color): Default text color for code blocks, if not
-    set differently by the highlighting style.
 
   - **bodyfont** (CSS font-family): Font for normal text.
   - **headfont** (CSS font-family): Font for headings.

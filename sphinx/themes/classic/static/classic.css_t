@@ -278,8 +278,6 @@ p.admonition-title:after {
 
 pre {
     padding: 5px;
-    background-color: {{ theme_codebgcolor }};
-    color: {{ theme_codetextcolor }};
     line-height: 120%;
     border: 1px solid #ac9;
     border-left: none;
