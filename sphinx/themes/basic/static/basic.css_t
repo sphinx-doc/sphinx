@@ -680,7 +680,7 @@ table.highlighttable td {
 }
 
 table.highlighttable td.linenos {
-    padding: 0 0.5em;
+    padding-right: 0.5em;
 }
 
 table.highlighttable td.code {
