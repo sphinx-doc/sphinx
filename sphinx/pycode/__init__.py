@@ -12,6 +12,7 @@ import re
 import tokenize
 import warnings
 from importlib import import_module
+from inspect import Signature
 from io import StringIO
 from os import path
 from typing import Any, Dict, IO, List, Tuple, Optional
@@ -145,6 +146,7 @@ class ModuleAnalyzer:
         self.annotations = None  # type: Dict[Tuple[str, str], str]
         self.attr_docs = None    # type: Dict[Tuple[str, str], List[str]]
         self.finals = None       # type: List[str]
+        self.overloads = None    # type: Dict[str, List[Signature]]
         self.tagorder = None     # type: Dict[str, int]
         self.tags = None         # type: Dict[str, Tuple[str, int, int]]
 
@@ -163,6 +165,7 @@ class ModuleAnalyzer:
 
             self.annotations = parser.annotations
             self.finals = parser.finals
+            self.overloads = parser.overloads
             self.tags = parser.definitions
             self.tagorder = parser.deforders
         except Exception as exc:
