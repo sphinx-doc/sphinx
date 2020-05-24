@@ -1192,8 +1192,14 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             self.add_line('   :async:', sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
-        sig = super().format_signature(**kwargs)
-        sigs = [sig]
+        sigs = []
+        if self.analyzer and '.'.join(self.objpath) in self.analyzer.overloads:
+            # Use signatures for overloaded functions instead of the implementation function.
+            overloaded = True
+        else:
+            overloaded = False
+            sig = super().format_signature(**kwargs)
+            sigs.append(sig)
 
         if inspect.is_singledispatch_function(self.object):
             # append signature of singledispatch'ed functions
@@ -1207,6 +1213,10 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                     documenter.object = func
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
+        if overloaded:
+            for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                sig = stringify_signature(overload, **kwargs)
+                sigs.append(sig)
 
         return "\n".join(sigs)
 
@@ -1693,8 +1703,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         pass
 
     def format_signature(self, **kwargs: Any) -> str:
-        sig = super().format_signature(**kwargs)
-        sigs = [sig]
+        sigs = []
+        if self.analyzer and '.'.join(self.objpath) in self.analyzer.overloads:
+            # Use signatures for overloaded methods instead of the implementation method.
+            overloaded = True
+        else:
+            overloaded = False
+            sig = super().format_signature(**kwargs)
+            sigs.append(sig)
 
         meth = self.parent.__dict__.get(self.objpath[-1])
         if inspect.is_singledispatch_method(meth):
@@ -1710,6 +1726,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     documenter.object = func
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
+        if overloaded:
+            for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                if not inspect.isstaticmethod(self.object, cls=self.parent,
+                                              name=self.object_name):
+                    parameters = list(overload.parameters.values())
+                    overload = overload.replace(parameters=parameters[1:])
+                sig = stringify_signature(overload, **kwargs)
+                sigs.append(sig)
 
         return "\n".join(sigs)
 
