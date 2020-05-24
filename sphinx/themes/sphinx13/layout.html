@@ -1,8 +1,8 @@
 {#
-    sphinxdoc/layout.html
+    sphinx13/layout.html
     ~~~~~~~~~~~~~~~~~~~~~
 
-    Sphinx layout template for the sphinxdoc theme.
+    Sphinx layout template for the sphinx13 theme.
 
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -56,23 +56,23 @@
 {%- endif %}
 {% endblock %}
 
-{% block rootrellink %}
-        <li><a href="{{ pathto('index') }}">Sphinx home</a>&#160;|</li>
-        <li><a href="{{ pathto('contents') }}">Documentation</a> &#187;</li>
-{% endblock %}
+{% block sidebarlogo %}{% endblock %}
 
 {% block header %}
 <div class="pageheader">
   <ul>
-    <li><a href="{{ pathto('index') }}">Home</a></li>
-    <li><a href="{{ pathto('usage/installation') }}">Get it</a></li>
-    <li><a href="{{ pathto('contents') }}">Docs</a></li>
-    <li><a href="{{ pathto('develop') }}">Extend/Develop</a></li>
+    {%- for pagename, text in theme_headerlinks %}
+    <li><a href="{{ pathto(pagename)|e }}">{{ text|e }}</a></li>
+    {%- endfor %}
   </ul>
   <div>
-    <a href="{{ pathto('index') }}">
-      <img src="{{ pathto('_static/sphinxheader.png', 1) }}" alt="SPHINX" />
-    </a>
+    {%- block headerlogo %}
+    {%- if logo %}
+    <p class="logo"><a href="{{ pathto(master_doc)|e }}">
+      <img class="logo" src="{{ pathto('_static/' + logo, 1)|e }}" alt="Logo"/>
+    </a></p>
+    {%- endif %}
+    {%- endblock %}
   </div>
 </div>
 {% endblock %}

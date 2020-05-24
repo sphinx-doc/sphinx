@@ -1,0 +1,12 @@
+{% extends "!layout.html" %}
+
+{% block rootrellink %}
+        <li><a href="{{ pathto('index') }}">Sphinx home</a>&#160;|</li>
+        <li><a href="{{ pathto('contents') }}">Documentation</a> &#187;</li>
+{% endblock %}
+
+{% block headerlogo %}
+    <a href="{{ pathto('index') }}">
+      <img src="{{ pathto('_static/sphinxheader.png', 1) }}" alt="SPHINX" />
+    </a>
+{% endblock %}

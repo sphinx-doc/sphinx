@@ -21,7 +21,14 @@ release = version
 show_authors = True
 
 html_theme = 'sphinx13'
-html_theme_path = ['_themes']
+html_theme_options = {
+    'headerlinks': [
+        ('index', 'Home'),
+        ('usage/installation', 'Get it'),
+        ('contents', 'Docs'),
+        ('develop', 'Extend/Develop'),
+    ],
+}
 modindex_common_prefix = ['sphinx.']
 html_static_path = ['_static']
 html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
