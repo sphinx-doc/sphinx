@@ -25,7 +25,7 @@ def test_theme_api(app, status, warning):
 
     themes = ['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
               'traditional', 'epub', 'nature', 'pyramid', 'bizstyle', 'classic', 'nonav',
-              'test-theme', 'ziptheme', 'staticfiles', 'parent', 'child']
+              'test-theme', 'ziptheme', 'staticfiles', 'parent', 'child', 'sphinx13']
     if alabaster.version.__version_info__ >= (0, 7, 11):
         themes.append('alabaster')
 
