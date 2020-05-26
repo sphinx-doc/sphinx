@@ -575,7 +575,7 @@ General configuration
    A dictionary of options that modify how the lexer specified by
    :confval:`highlight_language` generates highlighted source code. These are
    lexer-specific; for the options understood by each, see the
-   `Pygments documentation <https://pygments.org/docs/lexers.html>`_.
+   `Pygments documentation <https://pygments.org/docs/lexers>`_.
 
    .. versionadded:: 1.3
 
