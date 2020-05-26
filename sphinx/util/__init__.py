@@ -16,8 +16,8 @@ import re
 import sys
 import tempfile
 import traceback
-import warnings
 import unicodedata
+import warnings
 from datetime import datetime
 from importlib import import_module
 from os import path
