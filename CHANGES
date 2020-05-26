@@ -126,7 +126,7 @@ Bugs fixed
 Testing
 --------
 
-Release 3.0.4 (in development)
+Release 3.0.5 (in development)
 ==============================
 
 Dependencies
@@ -144,14 +144,20 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 3.0.4 (released May 27, 2020)
+=====================================
+
+Bugs fixed
+----------
+
 * #7567: autodoc: parametrized types are shown twice for generic types
 * #7637: autodoc: system defined TypeVars are shown in Python 3.9
 * #7696: html: Updated jQuery version from 3.4.1 to 3.5.1 for security reasons
 * #7611: md5 fails when OpenSSL FIPS is enabled
 * #7626: release package does not contain ``CODE_OF_CONDUCT``
-
-Testing
---------
 
 Release 3.0.3 (released Apr 26, 2020)
 =====================================
