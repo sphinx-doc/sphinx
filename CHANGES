@@ -1,17 +1,5 @@
-Release 3.0.4 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 3.0.4 (released May 27, 2020)
+=====================================
 
 Bugs fixed
 ----------
@@ -21,9 +9,6 @@ Bugs fixed
 * #7696: html: Updated jQuery version from 3.4.1 to 3.5.1 for security reasons
 * #7611: md5 fails when OpenSSL FIPS is enabled
 * #7626: release package does not contain ``CODE_OF_CONDUCT``
-
-Testing
---------
 
 Release 3.0.3 (released Apr 26, 2020)
 =====================================
