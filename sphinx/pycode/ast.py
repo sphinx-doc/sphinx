@@ -189,7 +189,7 @@ class _UnparseVisitor(ast.NodeVisitor):
             return "()"
 
     if sys.version_info >= (3, 6):
-        def visit_Constant(self, node: ast.Constant) -> str:
+        def visit_Constant(self, node: ast.Constant) -> str:  # type: ignore
             if node.value is Ellipsis:
                 return "..."
             else:
