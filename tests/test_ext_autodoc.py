@@ -915,6 +915,40 @@ def test_autodoc_member_order(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_module_member_order(app):
+    # case member-order='bysource'
+    options = {"members": 'foo, Bar, baz, qux, Quux, foobar',
+               'member-order': 'bysource',
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.sort_by_all', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:module:: target.sort_by_all',
+        '.. py:function:: baz()',
+        '.. py:function:: foo()',
+        '.. py:class:: Bar',
+        '.. py:class:: Quux',
+        '.. py:function:: foobar()',
+        '.. py:function:: qux()',
+    ]
+
+    # case member-order='bysource' and ignore-module-all
+    options = {"members": 'foo, Bar, baz, qux, Quux, foobar',
+               'member-order': 'bysource',
+               "undoc-members": True,
+               "ignore-module-all": True}
+    actual = do_autodoc(app, 'module', 'target.sort_by_all', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:module:: target.sort_by_all',
+        '.. py:function:: foo()',
+        '.. py:class:: Bar',
+        '.. py:function:: baz()',
+        '.. py:function:: qux()',
+        '.. py:class:: Quux',
+        '.. py:function:: foobar()',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_module_scope(app):
     app.env.temp_data['autodoc:module'] = 'target'
     actual = do_autodoc(app, 'attribute', 'Class.mdocattr')

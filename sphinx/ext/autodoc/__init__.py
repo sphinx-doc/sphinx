@@ -714,27 +714,9 @@ class Documenter:
                 '.'.join(self.objpath + [mname])
             documenter = classes[-1](self.directive, full_mname, self.indent)
             memberdocumenters.append((documenter, isattr))
-        member_order = self.options.member_order or \
-            self.env.config.autodoc_member_order
-        if member_order == 'groupwise':
-            # sort by group; alphabetically within groups
-            memberdocumenters.sort(key=lambda e: (e[0].member_order, e[0].name))
-        elif member_order == 'bysource':
-            if self.analyzer:
-                # sort by source order, by virtue of the module analyzer
-                tagorder = self.analyzer.tagorder
 
-                def keyfunc(entry: Tuple[Documenter, bool]) -> int:
-                    fullname = entry[0].name.split('::')[1]
-                    return tagorder.get(fullname, len(tagorder))
-                memberdocumenters.sort(key=keyfunc)
-            else:
-                # Assume that member discovery order matches source order.
-                # This is a reasonable assumption in Python 3.6 and up, where
-                # module.__dict__ is insertion-ordered.
-                pass
-        else:  # alphabetical
-            memberdocumenters.sort(key=lambda e: e[0].name)
+        member_order = self.options.member_order or self.env.config.autodoc_member_order
+        memberdocumenters = self.sort_members(memberdocumenters, member_order)
 
         for documenter, isattr in memberdocumenters:
             documenter.generate(
@@ -744,6 +726,31 @@ class Documenter:
         # reset current objects
         self.env.temp_data['autodoc:module'] = None
         self.env.temp_data['autodoc:class'] = None
+
+    def sort_members(self, documenters: List[Tuple["Documenter", bool]],
+                     order: str) -> List[Tuple["Documenter", bool]]:
+        """Sort the given member list."""
+        if order == 'groupwise':
+            # sort by group; alphabetically within groups
+            documenters.sort(key=lambda e: (e[0].member_order, e[0].name))
+        elif order == 'bysource':
+            if self.analyzer:
+                # sort by source order, by virtue of the module analyzer
+                tagorder = self.analyzer.tagorder
+
+                def keyfunc(entry: Tuple[Documenter, bool]) -> int:
+                    fullname = entry[0].name.split('::')[1]
+                    return tagorder.get(fullname, len(tagorder))
+                documenters.sort(key=keyfunc)
+            else:
+                # Assume that member discovery order matches source order.
+                # This is a reasonable assumption in Python 3.6 and up, where
+                # module.__dict__ is insertion-ordered.
+                pass
+        else:  # alphabetical
+            documenters.sort(key=lambda e: e[0].name)
+
+        return documenters
 
     def generate(self, more_content: Any = None, real_modname: str = None,
                  check_module: bool = False, all_members: bool = False) -> None:
@@ -850,6 +857,7 @@ class ModuleDocumenter(Documenter):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_special_members_option(self.options)
+        self.__all__ = None
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -872,6 +880,30 @@ class ModuleDocumenter(Documenter):
                            type='autodoc')
         return ret
 
+    def import_object(self) -> Any:
+        def is_valid_module_all(__all__: Any) -> bool:
+            """Check the given *__all__* is valid for a module."""
+            if (isinstance(__all__, (list, tuple)) and
+                    all(isinstance(e, str) for e in __all__)):
+                return True
+            else:
+                return False
+
+        ret = super().import_object()
+
+        if not self.options.ignore_module_all:
+            __all__ = getattr(self.object, '__all__', None)
+            if is_valid_module_all(__all__):
+                # valid __all__ found. copy it to self.__all__
+                self.__all__ = __all__
+            elif __all__:
+                # invalid __all__ found.
+                logger.warning(__('__all__ should be a list of strings, not %r '
+                                  '(in module %s) -- ignoring __all__') %
+                               (__all__, self.fullname), type='autodoc')
+
+        return ret
+
     def add_directive_header(self, sig: str) -> None:
         Documenter.add_directive_header(self, sig)
 
@@ -887,24 +919,12 @@ class ModuleDocumenter(Documenter):
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
         if want_all:
-            if (self.options.ignore_module_all or not
-                    hasattr(self.object, '__all__')):
+            if self.__all__:
+                memberlist = self.__all__
+            else:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
                 return True, get_module_members(self.object)
-            else:
-                memberlist = self.object.__all__
-                # Sometimes __all__ is broken...
-                if not isinstance(memberlist, (list, tuple)) or not \
-                   all(isinstance(entry, str) for entry in memberlist):
-                    logger.warning(
-                        __('__all__ should be a list of strings, not %r '
-                           '(in module %s) -- ignoring __all__') %
-                        (memberlist, self.fullname),
-                        type='autodoc'
-                    )
-                    # fall back to all members
-                    return True, get_module_members(self.object)
         else:
             memberlist = self.options.members or []
         ret = []
@@ -919,6 +939,25 @@ class ModuleDocumenter(Documenter):
                     type='autodoc'
                 )
         return False, ret
+
+    def sort_members(self, documenters: List[Tuple["Documenter", bool]],
+                     order: str) -> List[Tuple["Documenter", bool]]:
+        if order == 'bysource' and self.__all__:
+            # Sort alphabetically first (for members not listed on the __all__)
+            documenters.sort(key=lambda e: e[0].name)
+
+            # Sort by __all__
+            def keyfunc(entry: Tuple[Documenter, bool]) -> int:
+                name = entry[0].name.split('::')[1]
+                if name in self.__all__:
+                    return self.__all__.index(name)
+                else:
+                    return len(self.__all__)
+            documenters.sort(key=keyfunc)
+
+            return documenters
+        else:
+            return super().sort_members(documenters, order)
 
 
 class ModuleLevelDocumenter(Documenter):
