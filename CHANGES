@@ -75,6 +75,7 @@ Features added
   :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
 * #7596: py domain: Change a type annotation for variables to a hyperlink
 * #7582: napoleon: a type for attribute are represented like type annotation
+* #7734: napoleon: overescaped trailing underscore on attribute
 * #7683: Add ``allowed_exceptions`` parameter to ``Sphinx.emit()`` to allow
   handlers to raise specified exceptions
 
