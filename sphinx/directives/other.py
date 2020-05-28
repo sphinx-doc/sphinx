@@ -6,22 +6,25 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import re
 from typing import Any, Dict, List
 from typing import cast
 
-from docutils import nodes
+from docutils import nodes, io
 from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
+from docutils.utils import new_document, relative_path
+from docutils.utils.error_reporting import SafeString, ErrorString
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
-from sphinx.util import url_re, docname_join
+from sphinx.util import url_re, docname_join, get_filetype
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
@@ -361,6 +364,92 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
+class IncludeDocument(SphinxDirective):
+
+    """ Include one document in another. The language need not match  """
+
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {'start-line': int,
+                   'end-line': int,
+                   'start-after': directives.unchanged_required,
+                   'end-before': directives.unchanged_required,
+                   'encoding': directives.encoding}
+
+    standard_include_path = BaseInclude.standard_include_path
+
+    def run(self):
+        """Include a file as part of the content of this reST file."""
+
+        # copied from docutils.parsers.rst.directives.misc.Include
+        if not self.state.document.settings.file_insertion_enabled:
+            raise self.warning('"%s" directive disabled.' % self.name)
+        source = self.state_machine.input_lines.source(
+            self.lineno - self.state_machine.input_offset - 1)
+        source_dir = os.path.dirname(os.path.abspath(source))
+        path = directives.path(self.arguments[0])
+        if path.startswith('<') and path.endswith('>'):
+            path = os.path.join(self.standard_include_path, path[1:-1])
+        path = os.path.normpath(os.path.join(source_dir, path))
+        path = relative_path(None, path)
+        path = nodes.reprunicode(path)
+        encoding = self.options.get(
+            'encoding', self.state.document.settings.input_encoding)
+        e_handler = self.state.document.settings.input_encoding_error_handler
+        try:
+            self.state.document.settings.record_dependencies.add(path)
+            include_file = io.FileInput(source_path=path,
+                                        encoding=encoding,
+                                        error_handler=e_handler)
+        except UnicodeEncodeError:
+            raise self.severe(u'Problems with "%s" directive path:\n'
+                              'Cannot encode input file path "%s" '
+                              '(wrong locale?).' %
+                              (self.name, SafeString(path)))
+        except IOError as error:
+            raise self.severe(u'Problems with "%s" directive path:\n%s.' %
+                              (self.name, ErrorString(error)))
+        startline = self.options.get('start-line', None)
+        endline = self.options.get('end-line', None)
+        try:
+            if startline or (endline is not None):
+                lines = include_file.readlines()
+                rawtext = ''.join(lines[startline:endline])
+            else:
+                rawtext = include_file.read()
+        except UnicodeError as error:
+            raise self.severe(u'Problem with "%s" directive:\n%s' %
+                              (self.name, ErrorString(error)))
+        # start-after/end-before: no restrictions on newlines in match-text,
+        # and no restrictions on matching inside lines vs. line boundaries
+        after_text = self.options.get('start-after', None)
+        if after_text:
+            # skip content in rawtext before *and incl.* a matching text
+            after_index = rawtext.find(after_text)
+            if after_index < 0:
+                raise self.severe('Problem with "start-after" option of "%s" '
+                                  'directive:\nText not found.' % self.name)
+            rawtext = rawtext[after_index + len(after_text):]
+        before_text = self.options.get('end-before', None)
+        if before_text:
+            # skip content in rawtext after *and incl.* a matching text
+            before_index = rawtext.find(before_text)
+            if before_index < 0:
+                raise self.severe('Problem with "end-before" option of "%s" '
+                                  'directive:\nText not found.' % self.name)
+            rawtext = rawtext[:before_index]
+
+        # copied code ends
+        app = self.env.app
+        filetype = get_filetype(app.config.source_suffix, path)
+        parser = app.registry.create_source_parser(app, filetype)
+
+        sub_document = new_document(path, self.state.document.settings)
+        parser.parse(rawtext, sub_document)
+        return sub_document.children
+
+
 # Import old modules here for compatibility
 from sphinx.domains.index import IndexDirective  # NOQA
 
@@ -383,6 +472,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('hlist', HList)
     directives.register_directive('only', Only)
     directives.register_directive('include', Include)
+    directives.register_directive('includedoc', IncludeDocument)
 
     # register the standard rst class directive under a different name
     # only for backwards compatibility now

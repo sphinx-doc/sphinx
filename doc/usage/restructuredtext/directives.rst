@@ -708,6 +708,21 @@ __ http://pygments.org/docs/lexers
    .. versionchanged:: 2.1
       Added the ``force`` option.
 
+
+.. rst:directive:: .. docinclude:: filename
+
+   Includes another document in this one. Unlike :directive:`include`, this
+   allows inclusion of documents that use different parsers to their parent
+   document, such as including a markdown file in an rst file.
+
+   .. rst:directive:option:: start-line
+                             end-line
+                             start-after
+                             end-after
+                             encoding
+
+      Options treated the same way as the :rst:dir:`include` directive.
+
 .. _glossary-directive:
 
 Glossary
