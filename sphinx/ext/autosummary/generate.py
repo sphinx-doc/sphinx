@@ -296,7 +296,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     template = AutosummaryRenderer(app)
 
     # read
-    items = find_autosummary_in_files(sources)
+    items = find_autosummary_in_files(sources, app=app)
 
     # keep track of new files
     new_files = []
@@ -351,7 +351,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
 
 # -- Finding documented entries in files ---------------------------------------
 
-def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
+def find_autosummary_in_files(filenames: List[str], app: Any) -> List[AutosummaryEntry]:
     """Find out what items are documented in source/*.rst.
 
     See `find_autosummary_in_lines`.
@@ -360,12 +360,12 @@ def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
     for filename in filenames:
         with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
-            documented.extend(find_autosummary_in_lines(lines, filename=filename))
+            documented.extend(find_autosummary_in_lines(lines, app=app, filename=filename))
     return documented
 
 
-def find_autosummary_in_docstring(name: str, module: str = None, filename: str = None
-                                  ) -> List[AutosummaryEntry]:
+def find_autosummary_in_docstring(name: str, app: Any, module: str = None, 
+                                  filename: str = None) -> List[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
     See `find_autosummary_in_lines`.
@@ -377,7 +377,7 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
     try:
         real_name, obj, parent, modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
-        return find_autosummary_in_lines(lines, module=name, filename=filename)
+        return find_autosummary_in_lines(lines, app=app, module=name, filename=filename)
     except AttributeError:
         pass
     except ImportError as e:
@@ -388,8 +388,8 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
     return []
 
 
-def find_autosummary_in_lines(lines: List[str], module: str = None, filename: str = None
-                              ) -> List[AutosummaryEntry]:
+def find_autosummary_in_lines(lines: List[str], app: Any, module: str = None,
+                              filename: str = None) -> List[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
 
@@ -430,8 +430,7 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
             if m:
                 toctree = m.group(1)
                 if filename:
-                    toctree = os.path.join(os.path.dirname(filename),
-                                           toctree)
+                    _, toctree = app.env.relfn2path(toctree, filename)
                 continue
 
             m = template_arg_re.match(line)
@@ -472,7 +471,7 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
             current_module = m.group(1).strip()
             # recurse into the automodule docstring
             documented.extend(find_autosummary_in_docstring(
-                current_module, filename=filename))
+                current_module, app=app, filename=filename))
             continue
 
         m = module_re.match(line)
