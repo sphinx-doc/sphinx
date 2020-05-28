@@ -726,7 +726,7 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
             # This tries to obtain the docstring from super classes.
             for basecls in getattr(cls, '__mro__', []):
                 meth = safe_getattr(basecls, name, None)
-                if meth:
+                if meth is not None:
                     doc = inspect.getdoc(meth)
                     if doc:
                         break
