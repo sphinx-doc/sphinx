@@ -2009,6 +2009,8 @@ definition_after_normal_text : int
             "int or float or None",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}",
+            '"ma{icious"',
+            r"'with \'quotes\''",
         )
         modifiers = (
             "optional",
@@ -2020,6 +2022,8 @@ definition_after_normal_text : int
             ["int", " or ", "float", " or ", "None"],
             ['{"F", "C", "N"}'],
             ["{'F', 'C', 'N'}"],
+            ['"ma{icious"'],
+            [r"'with \'quotes\''"],
         )
         modifier_tokens = (
             ["optional"],
