@@ -169,20 +169,63 @@ def test_format_signature(app):
         pass
 
     class E:
-        pass
-    # no signature for classes without __init__
-    for C in (D, E):
-        assert formatsig('class', 'D', C, None, None) == ''
+        def __init__(self):
+            pass
 
+    # an empty init and no init are the same
+    for C in (D, E):
+        assert formatsig('class', 'D', C, None, None) == '()'
+
+
+    class SomeMeta(type):
+        def __call__(cls, a, b=None):
+            return type.__call__(cls, a, b)
+
+    # these three are all equivalent
     class F:
         def __init__(self, a, b=None):
             pass
 
+    class FNew:
+        def __new__(cls, a, b=None):
+            return super().__new__(cls)
+
+    class FMeta(metaclass=SomeMeta):
+        pass
+
+    # and subclasses should always inherit
     class G(F):
         pass
-    for C in (F, G):
+
+    class GNew(FNew):
+        pass
+
+    class GMeta(FMeta):
+        pass
+
+    # subclasses inherit
+    for C in (F, FNew, FMeta, G, GNew, GMeta):
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
     assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
+
+
+    class ListSubclass(list):
+        pass
+
+    # only supported if the python implementation decides to document it
+    if getattr(list, '__text_signature__', None) is not None:
+        assert formatsig('class', 'C', ListSubclass, None, None) == '(iterable=(), /)'
+    else:
+        assert formatsig('class', 'C', ListSubclass, None, None) == ''
+
+
+    class ExceptionSubclass(Exception):
+        pass
+
+    # Exception has no __text_signature__ at least in Python 3.8
+    if getattr(Exception, '__text_signature__', None) is None:
+        assert formatsig('class', 'C', ExceptionSubclass, None, None) == ''
+
 
     # __init__ have signature at first line of docstring
     directive.env.config.autoclass_content = 'both'
@@ -497,14 +540,14 @@ def test_autodoc_members(app):
     # default (no-members)
     actual = do_autodoc(app, 'class', 'target.inheritance.Base')
     assert list(filter(lambda l: '::' in l, actual)) == [
-        '.. py:class:: Base',
+        '.. py:class:: Base()',
     ]
 
     # default ALL-members
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
-        '.. py:class:: Base',
+        '.. py:class:: Base()',
         '   .. py:method:: Base.inheritedclassmeth()',
         '   .. py:method:: Base.inheritedmeth()',
         '   .. py:method:: Base.inheritedstaticmeth(cls)'
@@ -514,7 +557,7 @@ def test_autodoc_members(app):
     options = {"members": "inheritedmeth,inheritedstaticmeth"}
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
-        '.. py:class:: Base',
+        '.. py:class:: Base()',
         '   .. py:method:: Base.inheritedmeth()',
         '   .. py:method:: Base.inheritedstaticmeth(cls)'
     ]
@@ -526,7 +569,7 @@ def test_autodoc_exclude_members(app):
                "exclude-members": "inheritedmeth,inheritedstaticmeth"}
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
-        '.. py:class:: Base',
+        '.. py:class:: Base()',
         '   .. py:method:: Base.inheritedclassmeth()'
     ]
 
@@ -535,7 +578,7 @@ def test_autodoc_exclude_members(app):
                "exclude-members": "inheritedmeth"}
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
-        '.. py:class:: Base',
+        '.. py:class:: Base()',
     ]
 
 
@@ -679,10 +722,10 @@ def test_autodoc_ignore_module_all(app):
     assert list(filter(lambda l: 'class::' in l, actual)) == [
         '.. py:class:: Class(arg)',
         '.. py:class:: CustomDict',
-        '.. py:class:: InnerChild',
+        '.. py:class:: InnerChild()',
         '.. py:class:: InstAttCls()',
-        '.. py:class:: Outer',
-        '   .. py:class:: Outer.Inner',
+        '.. py:class:: Outer()',
+        '   .. py:class:: Outer.Inner()',
         '.. py:class:: StrRepr'
     ]
 
@@ -703,7 +746,7 @@ def test_autodoc_noindex(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(actual) == [
         '',
-        '.. py:class:: Base',
+        '.. py:class:: Base()',
         '   :noindex:',
         '   :module: target.inheritance',
         ''
@@ -730,13 +773,13 @@ def test_autodoc_inner_class(app):
     actual = do_autodoc(app, 'class', 'target.Outer', options)
     assert list(actual) == [
         '',
-        '.. py:class:: Outer',
+        '.. py:class:: Outer()',
         '   :module: target',
         '',
         '   Foo',
         '',
         '',
-        '   .. py:class:: Outer.Inner',
+        '   .. py:class:: Outer.Inner()',
         '      :module: target',
         '',
         '      Foo',
@@ -757,7 +800,7 @@ def test_autodoc_inner_class(app):
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
     assert list(actual) == [
         '',
-        '.. py:class:: Outer.Inner',
+        '.. py:class:: Outer.Inner()',
         '   :module: target',
         '',
         '   Foo',
@@ -774,7 +817,7 @@ def test_autodoc_inner_class(app):
     actual = do_autodoc(app, 'class', 'target.InnerChild', options)
     assert list(actual) == [
         '',
-        '.. py:class:: InnerChild',
+        '.. py:class:: InnerChild()',
         '   :module: target', '',
         '   Bases: :class:`target.Outer.Inner`',
         '',
@@ -818,7 +861,7 @@ def test_autodoc_descriptor(app):
     actual = do_autodoc(app, 'class', 'target.descriptor.Class', options)
     assert list(actual) == [
         '',
-        '.. py:class:: Class',
+        '.. py:class:: Class()',
         '   :module: target.descriptor',
         '',
         '',
@@ -915,6 +958,40 @@ def test_autodoc_member_order(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_module_member_order(app):
+    # case member-order='bysource'
+    options = {"members": 'foo, Bar, baz, qux, Quux, foobar',
+               'member-order': 'bysource',
+               "undoc-members": True}
+    actual = do_autodoc(app, 'module', 'target.sort_by_all', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:module:: target.sort_by_all',
+        '.. py:function:: baz()',
+        '.. py:function:: foo()',
+        '.. py:class:: Bar()',
+        '.. py:class:: Quux()',
+        '.. py:function:: foobar()',
+        '.. py:function:: qux()',
+    ]
+
+    # case member-order='bysource' and ignore-module-all
+    options = {"members": 'foo, Bar, baz, qux, Quux, foobar',
+               'member-order': 'bysource',
+               "undoc-members": True,
+               "ignore-module-all": True}
+    actual = do_autodoc(app, 'module', 'target.sort_by_all', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:module:: target.sort_by_all',
+        '.. py:function:: foo()',
+        '.. py:class:: Bar()',
+        '.. py:function:: baz()',
+        '.. py:function:: qux()',
+        '.. py:class:: Quux()',
+        '.. py:function:: foobar()',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_module_scope(app):
     app.env.temp_data['autodoc:module'] = 'target'
     actual = do_autodoc(app, 'attribute', 'Class.mdocattr')
@@ -952,7 +1029,7 @@ def test_class_attributes(app):
     actual = do_autodoc(app, 'class', 'target.AttCls', options)
     assert list(actual) == [
         '',
-        '.. py:class:: AttCls',
+        '.. py:class:: AttCls()',
         '   :module: target',
         '',
         '',
@@ -1072,7 +1149,7 @@ def test_slots(app):
         '      :module: target.slots',
         '',
         '',
-        '.. py:class:: Foo',
+        '.. py:class:: Foo()',
         '   :module: target.slots',
         '',
         '',
@@ -1088,7 +1165,7 @@ def test_enum_class(app):
     actual = do_autodoc(app, 'class', 'target.enum.EnumCls', options)
     assert list(actual) == [
         '',
-        '.. py:class:: EnumCls',
+        '.. py:class:: EnumCls(value)',
         '   :module: target.enum',
         '',
         '   this is enum class',
@@ -1205,7 +1282,7 @@ def test_abstractmethods(app):
         '.. py:module:: target.abstractmethods',
         '',
         '',
-        '.. py:class:: Base',
+        '.. py:class:: Base()',
         '   :module: target.abstractmethods',
         '',
         '',
@@ -1322,7 +1399,7 @@ def test_coroutine(app):
     actual = do_autodoc(app, 'class', 'target.coroutine.AsyncClass', options)
     assert list(actual) == [
         '',
-        '.. py:class:: AsyncClass',
+        '.. py:class:: AsyncClass()',
         '   :module: target.coroutine',
         '',
         '',
@@ -1364,7 +1441,7 @@ def test_coroutine(app):
 def test_partialmethod(app):
     expected = [
         '',
-        '.. py:class:: Cell',
+        '.. py:class:: Cell()',
         '   :module: target.partialmethod',
         '',
         '   An example for partialmethod.',
@@ -1394,7 +1471,7 @@ def test_partialmethod(app):
 def test_partialmethod_undoc_members(app):
     expected = [
         '',
-        '.. py:class:: Cell',
+        '.. py:class:: Cell()',
         '   :module: target.partialmethod',
         '',
         '   An example for partialmethod.',
@@ -1581,7 +1658,7 @@ def test_singledispatchmethod(app):
         '.. py:module:: target.singledispatchmethod',
         '',
         '',
-        '.. py:class:: Foo',
+        '.. py:class:: Foo()',
         '   :module: target.singledispatchmethod',
         '',
         '   docstring',
@@ -1626,7 +1703,7 @@ def test_cython(app):
         '.. py:module:: target.cython',
         '',
         '',
-        '.. py:class:: Class',
+        '.. py:class:: Class()',
         '   :module: target.cython',
         '',
         '   Docstring.',
@@ -1657,7 +1734,7 @@ def test_final(app):
         '.. py:module:: target.final',
         '',
         '',
-        '.. py:class:: Class',
+        '.. py:class:: Class()',
         '   :module: target.final',
         '   :final:',
         '',

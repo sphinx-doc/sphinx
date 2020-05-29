@@ -13,7 +13,7 @@
 import importlib
 import re
 import warnings
-from inspect import Parameter
+from inspect import Parameter, Signature
 from types import ModuleType
 from typing import (
     Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, Union
@@ -392,6 +392,17 @@ class Documenter:
         # directives of course)
         return '.'.join(self.objpath) or self.modname
 
+    def _call_format_args(self, **kwargs: Any) -> str:
+        if kwargs:
+            try:
+                return self.format_args(**kwargs)
+            except TypeError:
+                # avoid chaining exceptions, by putting nothing here
+                pass
+
+        # retry without arguments for old documenters
+        return self.format_args()
+
     def format_signature(self, **kwargs: Any) -> str:
         """Format the signature (arguments and return annotation) of the object.
 
@@ -405,12 +416,7 @@ class Documenter:
             # try to introspect the signature
             try:
                 retann = None
-                try:
-                    args = self.format_args(**kwargs)
-                except TypeError:
-                    # retry without arguments for old documenters
-                    args = self.format_args()
-
+                args = self._call_format_args(**kwargs)
                 if args:
                     matched = re.match(r'^(\(.*\))\s+->\s+(.*)$', args)
                     if matched:
@@ -714,29 +720,9 @@ class Documenter:
                 '.'.join(self.objpath + [mname])
             documenter = classes[-1](self.directive, full_mname, self.indent)
             memberdocumenters.append((documenter, isattr))
-        member_order = self.options.member_order or \
-            self.env.config.autodoc_member_order
-        if member_order == 'groupwise':
-            # sort by group; alphabetically within groups
-            memberdocumenters.sort(key=lambda e: (e[0].member_order, e[0].name))
-        elif member_order == 'bysource':
-            if self.analyzer:
-                # sort by source order, by virtue of the module analyzer
-                tagorder = self.analyzer.tagorder
 
-                def keyfunc(entry: Tuple[Documenter, bool]) -> int:
-                    fullname = entry[0].name.split('::')[1]
-                    return tagorder.get(fullname, len(tagorder))
-                memberdocumenters.sort(key=keyfunc)
-            else:
-                # Assume that member discovery order matches source order.
-                # This is a reasonable assumption in Python 3.6 and up, where
-                # module.__dict__ is insertion-ordered.
-                pass
-        elif member_order == 'alphabetical':
-            memberdocumenters.sort(key=lambda e: e[0].name)
-        else:
-            raise ValueError("Illegal member order {}".format(member_order))
+        member_order = self.options.member_order or self.env.config.autodoc_member_order
+        memberdocumenters = self.sort_members(memberdocumenters, member_order)
 
         for documenter, isattr in memberdocumenters:
             documenter.generate(
@@ -746,6 +732,31 @@ class Documenter:
         # reset current objects
         self.env.temp_data['autodoc:module'] = None
         self.env.temp_data['autodoc:class'] = None
+
+    def sort_members(self, documenters: List[Tuple["Documenter", bool]],
+                     order: str) -> List[Tuple["Documenter", bool]]:
+        """Sort the given member list."""
+        if order == 'groupwise':
+            # sort by group; alphabetically within groups
+            documenters.sort(key=lambda e: (e[0].member_order, e[0].name))
+        elif order == 'bysource':
+            if self.analyzer:
+                # sort by source order, by virtue of the module analyzer
+                tagorder = self.analyzer.tagorder
+
+                def keyfunc(entry: Tuple[Documenter, bool]) -> int:
+                    fullname = entry[0].name.split('::')[1]
+                    return tagorder.get(fullname, len(tagorder))
+                documenters.sort(key=keyfunc)
+            else:
+                # Assume that member discovery order matches source order.
+                # This is a reasonable assumption in Python 3.6 and up, where
+                # module.__dict__ is insertion-ordered.
+                pass
+        else:  # alphabetical
+            documenters.sort(key=lambda e: e[0].name)
+
+        return documenters
 
     def generate(self, more_content: Any = None, real_modname: str = None,
                  check_module: bool = False, all_members: bool = False) -> None:
@@ -852,6 +863,7 @@ class ModuleDocumenter(Documenter):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_special_members_option(self.options)
+        self.__all__ = None
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -874,6 +886,30 @@ class ModuleDocumenter(Documenter):
                            type='autodoc')
         return ret
 
+    def import_object(self) -> Any:
+        def is_valid_module_all(__all__: Any) -> bool:
+            """Check the given *__all__* is valid for a module."""
+            if (isinstance(__all__, (list, tuple)) and
+                    all(isinstance(e, str) for e in __all__)):
+                return True
+            else:
+                return False
+
+        ret = super().import_object()
+
+        if not self.options.ignore_module_all:
+            __all__ = getattr(self.object, '__all__', None)
+            if is_valid_module_all(__all__):
+                # valid __all__ found. copy it to self.__all__
+                self.__all__ = __all__
+            elif __all__:
+                # invalid __all__ found.
+                logger.warning(__('__all__ should be a list of strings, not %r '
+                                  '(in module %s) -- ignoring __all__') %
+                               (__all__, self.fullname), type='autodoc')
+
+        return ret
+
     def add_directive_header(self, sig: str) -> None:
         Documenter.add_directive_header(self, sig)
 
@@ -889,24 +925,12 @@ class ModuleDocumenter(Documenter):
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
         if want_all:
-            if (self.options.ignore_module_all or not
-                    hasattr(self.object, '__all__')):
+            if self.__all__:
+                memberlist = self.__all__
+            else:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
                 return True, get_module_members(self.object)
-            else:
-                memberlist = self.object.__all__
-                # Sometimes __all__ is broken...
-                if not isinstance(memberlist, (list, tuple)) or not \
-                   all(isinstance(entry, str) for entry in memberlist):
-                    logger.warning(
-                        __('__all__ should be a list of strings, not %r '
-                           '(in module %s) -- ignoring __all__') %
-                        (memberlist, self.fullname),
-                        type='autodoc'
-                    )
-                    # fall back to all members
-                    return True, get_module_members(self.object)
         else:
             memberlist = self.options.members or []
         ret = []
@@ -921,6 +945,25 @@ class ModuleDocumenter(Documenter):
                     type='autodoc'
                 )
         return False, ret
+
+    def sort_members(self, documenters: List[Tuple["Documenter", bool]],
+                     order: str) -> List[Tuple["Documenter", bool]]:
+        if order == 'bysource' and self.__all__:
+            # Sort alphabetically first (for members not listed on the __all__)
+            documenters.sort(key=lambda e: e[0].name)
+
+            # Sort by __all__
+            def keyfunc(entry: Tuple[Documenter, bool]) -> int:
+                name = entry[0].name.split('::')[1]
+                if name in self.__all__:
+                    return self.__all__.index(name)
+                else:
+                    return len(self.__all__)
+            documenters.sort(key=keyfunc)
+
+            return documenters
+        else:
+            return super().sort_members(documenters, order)
 
 
 class ModuleLevelDocumenter(Documenter):
@@ -1168,6 +1211,14 @@ class DecoratorDocumenter(FunctionDocumenter):
             return None
 
 
+# Types which have confusing metaclass signatures it would be best not to show.
+# These are listed by name, rather than storing the objects themselves, to avoid
+# needing to import the modules.
+_METACLASS_CALL_BLACKLIST = [
+    'enum.EnumMeta.__call__',
+]
+
+
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for classes.
@@ -1202,26 +1253,82 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = True
         return ret
 
+    def _get_signature(self) -> Optional[Signature]:
+        def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
+            """ Get the `attr` function or method from `obj`, if it is user-defined. """
+            if inspect.is_builtin_class_method(obj, attr):
+                return None
+            attr = self.get_attr(obj, attr, None)
+            if not (inspect.ismethod(attr) or inspect.isfunction(attr)):
+                return None
+            return attr
+
+        # This sequence is copied from inspect._signature_from_callable.
+        # ValueError means that no signature could be found, so we keep going.
+
+        # First, let's see if it has an overloaded __call__ defined
+        # in its metaclass
+        call = get_user_defined_function_or_method(type(self.object), '__call__')
+
+        if call is not None:
+            if "{0.__module__}.{0.__qualname__}".format(call) in _METACLASS_CALL_BLACKLIST:
+                call = None
+
+        if call is not None:
+            self.env.app.emit('autodoc-before-process-signature', call, True)
+            try:
+                return inspect.signature(call, bound_method=True)
+            except ValueError:
+                pass
+
+        # Now we check if the 'obj' class has a '__new__' method
+        new = get_user_defined_function_or_method(self.object, '__new__')
+        if new is not None:
+            self.env.app.emit('autodoc-before-process-signature', new, True)
+            try:
+                return inspect.signature(new, bound_method=True)
+            except ValueError:
+                pass
+
+        # Finally, we should have at least __init__ implemented
+        init = get_user_defined_function_or_method(self.object, '__init__')
+        if init is not None:
+            self.env.app.emit('autodoc-before-process-signature', init, True)
+            try:
+                return inspect.signature(init, bound_method=True)
+            except ValueError:
+                pass
+
+        # None of the attributes are user-defined, so fall back to let inspect
+        # handle it.
+        # We don't know the exact method that inspect.signature will read
+        # the signature from, so just pass the object itself to our hook.
+        self.env.app.emit('autodoc-before-process-signature', self.object, False)
+        try:
+            return inspect.signature(self.object, bound_method=False)
+        except ValueError:
+            pass
+
+        # Still no signature: happens e.g. for old-style classes
+        # with __init__ in C and no `__text_signature__`.
+        return None
+
     def format_args(self, **kwargs: Any) -> str:
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
-        # for classes, the relevant signature is the __init__ method's
-        initmeth = self.get_attr(self.object, '__init__', None)
-        # classes without __init__ method, default __init__ or
-        # __init__ written in C?
-        if initmeth is None or \
-                inspect.is_builtin_class_method(self.object, '__init__') or \
-                not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
-            return None
         try:
-            self.env.app.emit('autodoc-before-process-signature', initmeth, True)
-            sig = inspect.signature(initmeth, bound_method=True)
-            return stringify_signature(sig, show_return_annotation=False, **kwargs)
-        except TypeError:
-            # still not possible: happens e.g. for old-style classes
-            # with __init__ in C
+            sig = self._get_signature()
+        except TypeError as exc:
+            # __signature__ attribute contained junk
+            logger.warning(__("Failed to get a constructor signature for %s: %s"),
+                           self.fullname, exc)
             return None
+
+        if sig is None:
+            return None
+
+        return stringify_signature(sig, show_return_annotation=False, **kwargs)
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.doc_as_attr:

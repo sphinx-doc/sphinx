@@ -45,6 +45,8 @@ Features added
 * #7487: autodoc: Allow to generate docs for singledispatch functions by
   py:autofunction
 * #7143: autodoc: Support final classes and methods
+* #7384: autodoc: Support signatures defined by ``__new__()``, metaclasses and
+  builtin base classes
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree
@@ -75,6 +77,7 @@ Features added
   :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
 * #7596: py domain: Change a type annotation for variables to a hyperlink
 * #7582: napoleon: a type for attribute are represented like type annotation
+* #7734: napoleon: overescaped trailing underscore on attribute
 * #7683: Add ``allowed_exceptions`` parameter to ``Sphinx.emit()`` to allow
   handlers to raise specified exceptions
 
@@ -100,8 +103,11 @@ Bugs fixed
 * #7676: autodoc: typo in the default value of autodoc_member_order
 * #7676: autodoc: wrong value for :member-order: option is ignored silently
 * #7676: autodoc: member-order="bysource" does not work for C module
+* #3673: autodoc: member-order="bysource" does not work for a module having
+  __all__
 * #7668: autodoc: wrong retann value is passed to a handler of
   autodoc-proccess-signature
+* #7711: autodoc: fails with ValueError when processing numpy objects
 * #7551: autosummary: a nested class is indexed as non-nested class
 * #7661: autosummary: autosummary directive emits warnings twices if failed to
   import the target module
@@ -117,6 +123,7 @@ Bugs fixed
   supporting images
 * #7610: incorrectly renders consecutive backslashes for docutils-0.16
 * #7646: handle errors on event handlers
+* #4187: LaTeX: EN DASH disappears from PDF bookmarks in Japanese documents
 * #7701: LaTeX: Anonymous indirect hyperlink target causes duplicated labels
 * C++, fix rendering and xrefs in nested names explicitly starting
   in global scope, e.g., ``::A::B``.
@@ -126,7 +133,7 @@ Bugs fixed
 Testing
 --------
 
-Release 3.0.4 (in development)
+Release 3.0.5 (in development)
 ==============================
 
 Dependencies
@@ -144,14 +151,20 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 3.0.4 (released May 27, 2020)
+=====================================
+
+Bugs fixed
+----------
+
 * #7567: autodoc: parametrized types are shown twice for generic types
 * #7637: autodoc: system defined TypeVars are shown in Python 3.9
 * #7696: html: Updated jQuery version from 3.4.1 to 3.5.1 for security reasons
 * #7611: md5 fails when OpenSSL FIPS is enabled
 * #7626: release package does not contain ``CODE_OF_CONDUCT``
-
-Testing
---------
 
 Release 3.0.3 (released Apr 26, 2020)
 =====================================

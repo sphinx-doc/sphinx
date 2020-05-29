@@ -37,6 +37,26 @@ def tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]:
     pass
 
 
+class NewAnnotation:
+    def __new__(cls, i: int) -> 'NewAnnotation':
+        pass
+
+
+class NewComment:
+    def __new__(cls, i):
+        # type: (int) -> NewComment
+        pass
+
+
+class _MetaclassWithCall(type):
+    def __call__(cls, a: int):
+        pass
+
+
+class SignatureFromMetaclass(metaclass=_MetaclassWithCall):
+    pass
+
+
 def complex_func(arg1, arg2, arg3=None, *args, **kwargs):
     # type: (str, List[int], Tuple[int, Union[str, Unknown]], *str, **str) -> None
     pass
@@ -48,4 +68,3 @@ def missing_attr(c,
                  ):
     # type: (...) -> str
     return a + (b or "")
-

@@ -29,12 +29,14 @@ def test_signature():
     with pytest.raises(TypeError):
         inspect.signature('')
 
-    # builitin classes
-    with pytest.raises(ValueError):
-        inspect.signature(int)
-
-    with pytest.raises(ValueError):
-        inspect.signature(str)
+    # builtins are supported on a case-by-case basis, depending on whether
+    # they define __text_signature__
+    if getattr(list, '__text_signature__', None):
+        sig = inspect.stringify_signature(inspect.signature(list))
+        assert sig == '(iterable=(), /)'
+    else:
+        with pytest.raises(ValueError):
+            inspect.signature(list)
 
     # normal function
     def func(a, b, c=1, d=2, *e, **f):
