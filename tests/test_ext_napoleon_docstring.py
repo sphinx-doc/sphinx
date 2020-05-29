@@ -1999,7 +1999,7 @@ definition_after_normal_text : int
         )
 
         for input_tokens in invalid_tokens:
-            with self.assertRaisesRegex(ValueError, "invalid value set:"):
+            with self.assertWarnsRegex(UserWarning, "invalid value set:"):
                 _recombine_set_tokens(input_tokens)
 
 
