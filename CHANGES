@@ -124,6 +124,7 @@ Bugs fixed
 * #7610: incorrectly renders consecutive backslashes for docutils-0.16
 * #7646: handle errors on event handlers
 * #4187: LaTeX: EN DASH disappears from PDF bookmarks in Japanese documents
+* #7701: LaTeX: Anonymous indirect hyperlink target causes duplicated labels
 * C++, fix rendering and xrefs in nested names explicitly starting
   in global scope, e.g., ``::A::B``.
 * C, fix rendering and xrefs in nested names explicitly starting
