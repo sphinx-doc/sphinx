@@ -1,4 +1,3 @@
-
 .. _contents:
 
 Sphinx documentation contents
@@ -9,24 +8,14 @@ Sphinx documentation contents
 
    intro
 
-   usage/installation
-   usage/quickstart
-   usage/restructuredtext/index
-   usage/markdown
-   usage/configuration
-   usage/builders/index
-   usage/extensions/index
-   usage/theming
-   usage/advanced/intl
-   usage/advanced/setuptools
-   usage/advanced/websupport/index
-
+   usage/index
+   development/index
    man/index
+
    theming
    templating
    latex
    extdev/index
-   development/tutorials/index
 
    faq
    glossary
