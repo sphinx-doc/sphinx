@@ -45,6 +45,8 @@ Features added
 * #7487: autodoc: Allow to generate docs for singledispatch functions by
   py:autofunction
 * #7143: autodoc: Support final classes and methods
+* #7384: autodoc: Support signatures defined by ``__new__()``, metaclasses and
+  builtin base classes
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree
