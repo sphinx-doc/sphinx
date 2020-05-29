@@ -848,7 +848,7 @@ def _tokenize_type_spec(spec):
     return _recombine_set_tokens(tokens)
 
 
-def _convert_numpy_type_spec(_type, translations):
+def _convert_numpy_type_spec(_type, translations={}):
     def token_type(token):
         if token.startswith(" ") or token.endswith(" "):
             type_ = "delimiter"
