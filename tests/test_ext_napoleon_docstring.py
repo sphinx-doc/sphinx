@@ -2068,13 +2068,13 @@ definition_after_normal_text : int
         converted_types = (
             ":obj:`str`",
             ":obj:`int` or :obj:`float` or :obj:`None`",
-            ':noref:`{"F", "C", "N"}`',
-            ":noref:`{'F', 'C', 'N'}`",
+            '``{"F", "C", "N"}``',
+            "``{'F', 'C', 'N'}``",
         )
         converted_modifiers = (
             "",
-            ":noref:`optional`",
-            ":noref:`default`: :obj:`None`",
+            "*optional*",
+            "*default*: :obj:`None`",
         )
         converted = tuple(
             ", ".join([converted_type, converted_modifier])
@@ -2114,13 +2114,20 @@ definition_after_normal_text : int
         :param param2: a parameter with different types
         :type param2: :obj:`int` or :obj:`float` or :obj:`None`
         :param param3: a optional mapping
-        :type param3: :term:`dict-like <mapping>`, :noref:`optional`
+        :type param3: :term:`dict-like <mapping>`, *optional*
         :param param4: a optional parameter with different types
-        :type param4: :obj:`int` or :obj:`float` or :obj:`None`, :noref:`optional`
+        :type param4: :obj:`int` or :obj:`float` or :obj:`None`, *optional*
         :param param5: a optional parameter with fixed values
-        :type param5: :noref:`{"F", "C", "N"}`, :noref:`optional`
+        :type param5: ``{"F", "C", "N"}``, *optional*
         """)
-        config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
+        translations = {
+            "dict-like": ":term:`dict-like <mapping>`",
+        }
+        config = Config(
+            napoleon_use_param=True,
+            napoleon_use_rtype=True,
+            napoleon_type_aliases=translations,
+        )
         actual = str(NumpyDocstring(docstring, config))
         self.assertEqual(expected, actual)
 
