@@ -35,11 +35,19 @@ _single_colon_regex = re.compile(r'(?<!:):(?!:)')
 _xref_or_code_regex = re.compile(
     r'((?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)|'
     r'(?:``.+``))')
+_xref_regex = re.compile(
+    r'(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)'
+)
 _bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
 _enumerated_list_regex = re.compile(
     r'^(?P<paren>\()?'
     r'(\d+|#|[ivxlcdm]+|[IVXLCDM]+|[a-zA-Z])'
     r'(?(paren)\)|\.)(\s+\S|\s*$)')
+_token_regex = re.compile(
+    r"(\sor\s|\sof\s|:\s|,\s|[{]|[}]"
+    r'|"(?:\\"|[^"])*"'
+    r"|'(?:\\'|[^'])*')"
+)
 
 
 class GoogleDocstring:
@@ -825,24 +833,9 @@ def _recombine_set_tokens(tokens):
 
 
 def _tokenize_type_spec(spec):
-    delimiters = [
-        r"\sor\s",
-        r"\sof\s",
-        r":\s",
-        r",\s",
-    ]
-    braces = [
-        "[{]",
-        "[}]",
-    ]
-    quoted_strings = [
-        r'"(?:[^"]|\\")*"',
-        r"'(?:[^']|\\')*'",
-    ]
-    tokenization_re = re.compile(f"({'|'.join(delimiters + braces + quoted_strings)})")
     tokens = tuple(
         item
-        for item in tokenization_re.split(spec)
+        for item in _token_regex.split(spec)
         if item is not None and item.strip()
     )
     return _recombine_set_tokens(tokens)
@@ -856,7 +849,7 @@ def _convert_numpy_type_spec(_type, translations={}):
             type_ = "value_set"
         elif token in ("optional", "default"):
             type_ = "control"
-        elif re.match(":[^:]+:`[^`]+`", token):
+        elif _xref_regex.match(token):
             type_ = "reference"
         elif token.isnumeric() or (token.startswith('"') and token.endswith('"')):
             type_ = "literal"
