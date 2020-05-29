@@ -825,12 +825,25 @@ def _recombine_set_tokens(tokens):
 
 
 def _tokenize_type_spec(spec):
-    delimiters = r"(\sor\s|\sof\s|:\s|,\s|[{]|[}])"
-
+    delimiters = [
+        r"\sor\s",
+        r"\sof\s",
+        r":\s",
+        r",\s",
+    ]
+    braces = [
+        "[{]",
+        "[}]",
+    ]
+    quoted_strings = [
+        r'"(?:[^"]|\\")*"',
+        r"'(?:[^']|\\')*'",
+    ]
+    tokenization_re = re.compile(f"({'|'.join(delimiters + braces + quoted_strings)})")
     tokens = tuple(
         item
-        for item in re.split(delimiters, spec)
-        if item
+        for item in tokenization_re.split(spec)
+        if item is not None and item.strip()
     )
     return _recombine_set_tokens(tokens)
 
