@@ -840,7 +840,7 @@ def _tokenize_type_spec(spec):
     return _recombine_set_tokens(tokens)
 
 
-def _convert_numpy_type_spec(_type):
+def _convert_numpy_type_spec(_type, translations):
     def token_type(token):
         if token.startswith(" ") or token.endswith(" "):
             type_ = "delimiter"
@@ -865,13 +865,6 @@ def _convert_numpy_type_spec(_type):
         (token, token_type(token))
         for token in tokens
     ]
-
-    # TODO: make this configurable
-    translations = {
-        "sequence": ":term:`sequence`",
-        "mapping": ":term:`mapping`",
-        "dict-like": ":term:`dict-like <mapping>`",
-    }
 
     # don't use the object role if it's not necessary
     default_translation = (
@@ -1002,7 +995,10 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
-        _type = _convert_numpy_type_spec(_type)
+        _type = _convert_numpy_type_spec(
+            _type,
+            translations=self._config.napoleon_numpy_type_aliases or {},
+        )
 
         if prefer_type and not _type:
             _type, _name = _name, _type
