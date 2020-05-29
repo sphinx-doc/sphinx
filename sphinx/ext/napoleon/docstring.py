@@ -15,23 +15,10 @@ import re
 from functools import partial
 from typing import Any, Callable, Dict, List, Tuple, Union
 
-from docutils import nodes
-from docutils.nodes import Node, system_message
-from docutils.parsers.rst import roles
-
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
-from sphinx.locale import _
-from sphinx.util.docutils import SphinxRole
 
-
-class LiteralText(SphinxRole):
-    def run(self) -> Tuple[List[Node], List[system_message]]:
-        return [nodes.Text(self.text, self.text, **self.options)], []
-
-
-roles.register_local_role("noref", LiteralText())
 
 if False:
     # For type annotation
@@ -874,10 +861,10 @@ def _convert_numpy_type_spec(_type, translations):
     )
 
     converters = {
-        "value_set": lambda x: f":noref:`{x}`",
-        "literal": lambda x: f":noref:`{x}`",
+        "value_set": lambda x: f"``{x}``",
+        "literal": lambda x: f"``{x}``",
         "obj": lambda x: convert_obj(x, translations, default_translation),
-        "control": lambda x: f":noref:`{x}`",
+        "control": lambda x: f"*{x}*",
         "delimiter": lambda x: x,
         "reference": lambda x: x,
     }
