@@ -861,7 +861,7 @@ def _convert_numpy_type_spec(_type, translations={}):
 
         return type_
 
-    def convert_obj(obj, translations, default_translation=":obj:`{}`"):
+    def convert_obj(obj, translations, default_translation):
         return translations.get(obj, default_translation.format(obj))
 
     tokens = _tokenize_type_spec(_type)
