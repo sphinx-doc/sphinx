@@ -13,12 +13,15 @@
 import inspect
 import re
 from functools import partial
+import logging
 from typing import Any, Callable, Dict, List, Tuple, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
+from sphinx.locale import _, __
 
+logger = logging.Logger(__name__)
 
 if False:
     # For type annotation
@@ -789,7 +792,7 @@ def _recombine_set_tokens(tokens):
                 token = next(iterable)
             except StopIteration:
                 if open_braces != 0:
-                    raise ValueError("invalid value set: {}".format("".join(tokens)))
+                    logger.warning(__("invalid value set: %r"), "".join(tokens))
 
                 break
 
