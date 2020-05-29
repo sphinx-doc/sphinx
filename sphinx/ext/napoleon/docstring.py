@@ -845,14 +845,17 @@ def _convert_numpy_type_spec(_type, translations={}):
     def token_type(token):
         if token.startswith(" ") or token.endswith(" "):
             type_ = "delimiter"
-        elif token.startswith("{") and token.endswith("}"):
-            type_ = "value_set"
+        elif (
+                token.isnumeric()
+                or (token.startswith("{") and token.endswith("}"))
+                or (token.startswith('"') and token.endswith('"'))
+                or (token.startswith("'") and token.endswith("'"))
+                ):
+            type_ = "literal"
         elif token in ("optional", "default"):
             type_ = "control"
         elif _xref_regex.match(token):
             type_ = "reference"
-        elif token.isnumeric() or (token.startswith('"') and token.endswith('"')):
-            type_ = "literal"
         else:
             type_ = "obj"
 
@@ -875,7 +878,6 @@ def _convert_numpy_type_spec(_type, translations={}):
     )
 
     converters = {
-        "value_set": lambda x: f"``{x}``",
         "literal": lambda x: f"``{x}``",
         "obj": lambda x: convert_obj(x, translations, default_translation),
         "control": lambda x: f"*{x}*",
