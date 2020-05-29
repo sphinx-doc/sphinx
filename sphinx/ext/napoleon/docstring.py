@@ -852,6 +852,9 @@ def _convert_numpy_type_spec(_type, translations={}):
                 or (token.startswith("'") and token.endswith("'"))
                 ):
             type_ = "literal"
+        elif token.startswith("{"):
+            # invalid value set, make it a literal to avoid further warnings
+            type_ = "literal"
         elif token in ("optional", "default"):
             type_ = "control"
         elif _xref_regex.match(token):
