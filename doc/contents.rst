@@ -6,8 +6,6 @@ Sphinx documentation contents
 .. toctree::
    :maxdepth: 2
 
-   intro
-
    usage/index
    development/index
    man/index
