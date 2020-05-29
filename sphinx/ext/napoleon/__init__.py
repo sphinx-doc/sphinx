@@ -41,7 +41,7 @@ class Config:
         napoleon_use_param = True
         napoleon_use_rtype = True
         napoleon_use_keyword = True
-        napoleon_numpy_type_aliases = None
+        napoleon_type_aliases = None
         napoleon_custom_sections = None
 
     .. _Google style:
@@ -237,8 +237,8 @@ class Config:
 
             :returns: *bool* -- True if successful, False otherwise
 
-    napoleon_numpy_type_aliases : :obj:`dict` (Defaults to None)
-        Add a mapping of strings to string, translating types.
+    napoleon_type_aliases : :obj:`dict` (Defaults to None)
+        Add a mapping of strings to string, translating types in numpy style docstrings.
 
     napoleon_custom_sections : :obj:`list` (Defaults to None)
         Add a list of custom sections to include, expanding the list of parsed sections.
@@ -267,7 +267,7 @@ class Config:
         'napoleon_use_param': (True, 'env'),
         'napoleon_use_rtype': (True, 'env'),
         'napoleon_use_keyword': (True, 'env'),
-        'napoleon_numpy_type_aliases': (None, 'env'),
+        'napoleon_type_aliases': (None, 'env'),
         'napoleon_custom_sections': (None, 'env')
     }
 

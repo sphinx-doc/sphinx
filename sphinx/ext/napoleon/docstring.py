@@ -997,7 +997,7 @@ class NumpyDocstring(GoogleDocstring):
         _name = self._escape_args_and_kwargs(_name)
         _type = _convert_numpy_type_spec(
             _type,
-            translations=self._config.napoleon_numpy_type_aliases or {},
+            translations=self._config.napoleon_type_aliases or {},
         )
 
         if prefer_type and not _type:
