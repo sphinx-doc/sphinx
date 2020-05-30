@@ -49,6 +49,7 @@ Features added
 * #7143: autodoc: Support final classes and methods
 * #7384: autodoc: Support signatures defined by ``__new__()``, metaclasses and
   builtin base classes
+* #4422: autodoc: Support GenericAlias in Python 3.7 or above
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree

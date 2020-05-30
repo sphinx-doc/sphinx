@@ -91,14 +91,14 @@ def setup_documenters(app: Any) -> None:
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
         SingledispatchFunctionDocumenter,
     )
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
         SingledispatchFunctionDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
