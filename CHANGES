@@ -52,6 +52,7 @@ Features added
 * #2106: autodoc: Support multiple signatures on docstring
 * #4422: autodoc: Support GenericAlias in Python 3.7 or above
 * #3610: autodoc: Support overloaded functions
+* #7722: autodoc: Support TypeVar
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree

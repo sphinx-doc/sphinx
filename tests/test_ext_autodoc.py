@@ -1618,6 +1618,46 @@ def test_autodoc_GenericAlias(app):
         ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_TypeVar(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.typevar', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typevar',
+        '',
+        '',
+        '.. py:data:: T1',
+        '   :module: target.typevar',
+        '',
+        '   T1',
+        '',
+        "   alias of TypeVar('T1')",
+        '',
+        '.. py:data:: T3',
+        '   :module: target.typevar',
+        '',
+        '   T3',
+        '',
+        "   alias of TypeVar('T3', int, str)",
+        '',
+        '.. py:data:: T4',
+        '   :module: target.typevar',
+        '',
+        '   T4',
+        '',
+        "   alias of TypeVar('T4', covariant=True)",
+        '',
+        '.. py:data:: T5',
+        '   :module: target.typevar',
+        '',
+        '   T5',
+        '',
+        "   alias of TypeVar('T5', contravariant=True)",
+    ]
+
+
 @pytest.mark.skipif(sys.version_info < (3, 9), reason='py39+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_Annotated(app):
