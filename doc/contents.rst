@@ -15,14 +15,13 @@ Sphinx documentation contents
    latex
    extdev/index
 
+   internals/index
+
    faq
    glossary
    devguide
    changes
    examples
-   authors
-   code_of_conduct
-
 
 
 Indices and tables
