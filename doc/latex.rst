@@ -70,13 +70,13 @@ Keys that you may want to override include:
    Paper size option of the document class (``'a4paper'`` or
    ``'letterpaper'``)
 
-   :Default: ``'letterpaper'``
+   Default: ``'letterpaper'``
 
 ``'pointsize'``
    Point size option of the document class (``'10pt'``, ``'11pt'`` or
    ``'12pt'``)
 
-   :Default: ``'10pt'``
+   Default: ``'10pt'``
 
 ``'pxunit'``
    The value of the ``px`` when used in image attributes ``width`` and
@@ -87,7 +87,7 @@ Keys that you may want to override include:
    used in the specification); for ``72px=1in``, simply use ``'1bp'``; for
    ``90px=1in``, use ``'0.8bp'`` or ``'0.803pt'``.
 
-   :Default: ``'0.75bp'``
+   Default: ``'0.75bp'``
 
    .. versionadded:: 1.5
 
@@ -95,7 +95,7 @@ Keys that you may want to override include:
    A string which will be positioned early in the preamble, designed to
    contain ``\\PassOptionsToPackage{options}{foo}`` commands.
 
-   :Default: ``''``
+   Default: ``''``
 
    .. versionadded:: 1.4
 
@@ -119,7 +119,7 @@ Keys that you may want to override include:
       build repertory before next PDF build, else left-over auxiliary
       files are likely to break the build.
 
-   :Default:  ``'\\usepackage{babel}'`` (``''`` for Japenese documents)
+   Default:  ``'\\usepackage{babel}'`` (``''`` for Japanese documents)
 
    .. versionchanged:: 1.5
       For :confval:`latex_engine` set to ``'xelatex'``, the default
@@ -176,7 +176,7 @@ Keys that you may want to override include:
    ``'platex'`` (Japanese documents) engine supports individual Cyrillic and
    Greek letters with no need of extra user set-up.
 
-   :Default: ``'\\usepackage{times}'`` (or ``''`` when using a Cyrillic script)
+   Default: ``'\\usepackage{times}'`` (or ``''`` when using a Cyrillic script)
 
    .. versionchanged:: 1.2
       Defaults to ``''`` when the :confval:`language` uses the Cyrillic
@@ -194,7 +194,7 @@ Keys that you may want to override include:
    "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
    "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
 
-   :Default: ``'\\usepackage[Bjarne]{fncychap}'`` for English documents,
+   Default: ``'\\usepackage[Bjarne]{fncychap}'`` for English documents,
        ``'\\usepackage[Sonny]{fncychap}'`` for internationalized documents, and
        ``''`` for Japanese documents.
 
@@ -214,7 +214,7 @@ Keys that you may want to override include:
 
       latex_additional_files = ["mystyle.sty"]
 
-   :Default: ``''``
+   Default: ``''``
 
 ``'figure_align'``
    Latex figure float alignment. Whenever an image doesn't fit into the current
@@ -223,14 +223,14 @@ Keys that you may want to override include:
    floating and position figures strictly in the order they appear in the
    source.
 
-   :Default: ``'htbp'`` (here, top, bottom, page)
+   Default: ``'htbp'`` (here, top, bottom, page)
 
    .. versionadded:: 1.3
 
 ``'atendofbody'``
    Additional document content (right before the indices).
 
-   :Default: ``''``
+   Default: ``''``
 
    .. versionadded:: 1.5
 
@@ -250,14 +250,14 @@ Keys that you may want to override include:
       If you'd like to load additional LaTeX packages after hyperref, use
       ``'preamble'`` key instead.
 
-   :Default: ``''``
+   Default: ``''``
 
    .. versionadded:: 2.3
 
 ``'footer'``
    Additional footer content (before the indices).
 
-   :Default: ``''``
+   Default: ``''``
 
    .. deprecated:: 1.5
       Use ``'atendofbody'`` key instead.
@@ -269,7 +269,7 @@ Keys that don't need to be overridden unless in special cases are:
    'openany'`` will allow chapters (for documents of the ``'manual'``
    type) to start on any page.
 
-   :Default: ``''``
+   Default: ``''``
 
    .. versionadded:: 1.2
 
@@ -292,14 +292,14 @@ Keys that don't need to be overridden unless in special cases are:
         is executed inside the document preamble. Use then rather the
         dedicated commands of this LaTeX package.
 
-   :Default: ``6``
+   Default: ``6``
 
    .. versionadded:: 1.5
 
 ``'inputenc'``
    "inputenc" package inclusion.
 
-   :Default: ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex, else
+   Default: ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex, else
        ``''``
 
    .. versionchanged:: 1.4.3
@@ -309,7 +309,7 @@ Keys that don't need to be overridden unless in special cases are:
 ``'cmappkg'``
    "cmap" package inclusion.
 
-   :Default: ``'\\usepackage{cmap}'``
+   Default: ``'\\usepackage{cmap}'``
 
    .. versionadded:: 1.2
 
@@ -344,7 +344,7 @@ Keys that don't need to be overridden unless in special cases are:
       loading ``fontenc``.  Thus, use this key with this extra at its
       start if needed.
 
-   :Default: ``'\\usepackage[T1]{fontenc}'``
+   Default: ``'\\usepackage[T1]{fontenc}'``
 
    .. versionchanged:: 1.5
       Defaults to ``'\\usepackage{fontspec}'`` when
@@ -388,7 +388,7 @@ Keys that don't need to be overridden unless in special cases are:
    With ``'platex'`` (Japanese),  ``'xelatex'`` or ``'lualatex'``, this
    key is ignored.
 
-   :Default: ``'\\usepackage{textalpha}'`` or ``''`` if ``fontenc`` does not
+   Default: ``'\\usepackage{textalpha}'`` or ``''`` if ``fontenc`` does not
        include the ``LGR`` option.
 
    .. versionadded:: 2.0
@@ -406,7 +406,7 @@ Keys that don't need to be overridden unless in special cases are:
    which can be customized via corresponding :ref:`'sphinxsetup' options
    <latexsphinxsetup>`.
 
-   :Default: ``'\\usepackage{geometry}'`` (or
+   Default: ``'\\usepackage{geometry}'`` (or
        ``'\\usepackage[dvipdfm]{geometry}'`` for Japanese documents)
 
    .. versionadded:: 1.5
@@ -450,7 +450,7 @@ Keys that don't need to be overridden unless in special cases are:
       material>}\sphinxmaketitle'``, then ``<Extra material>`` will be
       typeset on back of title page (``'manual'`` docclass only).
 
-   :Default: ``'\\sphinxmaketitle'``
+   Default: ``'\\sphinxmaketitle'``
 
    .. versionchanged:: 1.8.3
       Original ``\maketitle`` from document class is not overwritten,
@@ -465,7 +465,7 @@ Keys that don't need to be overridden unless in special cases are:
    *author* used in the tuples of :confval:`latex_documents`, it is inserted as
    LaTeX markup.
 
-   :Default: ``'Release'``
+   Default: ``'Release'``
 
 ``'tableofcontents'``
    "tableofcontents" call. The default of ``'\\sphinxtableofcontents'`` is a
@@ -473,7 +473,7 @@ Keys that don't need to be overridden unless in special cases are:
    by user loaded packages. Override if you want to generate a different table
    of contents or put content between the title page and the TOC.
 
-   :Default: ``'\\sphinxtableofcontents'``
+   Default: ``'\\sphinxtableofcontents'``
 
    .. versionchanged:: 1.5
       Previously the meaning of ``\tableofcontents`` itself was modified
@@ -484,7 +484,7 @@ Keys that don't need to be overridden unless in special cases are:
    Commands used to display transitions. Override if you want to display
    transitions differently.
 
-   :Default: ``'\n\n\\bigskip\\hrule\\bigskip\n\n'``
+   Default: ``'\n\n\\bigskip\\hrule\\bigskip\n\n'``
 
    .. versionadded:: 1.2
 
@@ -497,7 +497,7 @@ Keys that don't need to be overridden unless in special cases are:
    example ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
    index is full of long entries.
 
-   :Default: ``'\\printindex'``
+   Default: ``'\\printindex'``
 
 ``'fvset'``
    Customization of ``fancyvrb`` LaTeX package. The default value of
@@ -505,7 +505,7 @@ Keys that don't need to be overridden unless in special cases are:
    width of the monospace font, used in code-blocks.  You may need to modify
    this if you use custom fonts.
 
-   :Default: ``'\\fvset{fontsize=\\small}'``
+   Default: ``'\\fvset{fontsize=\\small}'``
 
    .. versionadded:: 1.8
 
@@ -598,7 +598,7 @@ macros may be significant.
     the text height set to an integer multiple of the baselineskip, with the
     closest fit for the margins.
 
-    :Default: ``1in`` (equivalent to ``{1in,1in}``)
+    Default: ``1in`` (equivalent to ``{1in,1in}``)
 
     .. hint::
 
@@ -615,7 +615,7 @@ macros may be significant.
     The ``\marginparwidth`` LaTeX dimension. For Japanese documents, the value
     is modified to be the closest integer multiple of the *zenkaku* width.
 
-    :Default: ``0.5in``
+    Default: ``0.5in``
 
     .. versionadded:: 1.5.3
 
@@ -624,18 +624,18 @@ macros may be significant.
     framed. Setting it to ``false`` does not deactivate use of package
     "framed", because it is still in use for the optional background colour.
 
-    :Default: ``true``.
+    Default: ``true``.
 
 ``verbatimwrapslines``
     Boolean to specify if long lines in :rst:dir:`code-block`\ 's contents are
     wrapped.
 
-    :Default: ``true``
+    Default: ``true``
 
 ``literalblockcappos``
     Decides the caption position: either ``b`` ("bottom") or ``t`` ("top").
 
-    :Default: ``t``
+    Default: ``t``
 
     .. versionadded:: 1.7
 
@@ -643,7 +643,7 @@ macros may be significant.
     Boolean to specify if code-blocks display "continued on next page" and
     "continued from previous page" hints in case of pagebreaks.
 
-    :Default: ``true``
+    Default: ``true``
 
     .. versionadded:: 1.6.3
     .. versionchanged:: 1.7
@@ -653,7 +653,7 @@ macros may be significant.
     Horizontal position relative to the framed contents: either ``l`` (left
     aligned), ``r`` (right aligned) or ``c`` (centered).
 
-    :Default: ``r``
+    Default: ``r``
 
     .. versionadded:: 1.7
 
@@ -661,7 +661,7 @@ macros may be significant.
     Boolean to specify if long lines in :dudir:`parsed-literal`\ 's contents
     should wrap.
 
-    :Default: ``true``
+    Default: ``true``
 
     .. versionadded:: 1.5.2
        set this option value to ``false`` to recover former behaviour.
@@ -673,7 +673,7 @@ macros may be significant.
     ``. , ; ? ! /`` and ``\``. Due to TeX internals, white space in the line
     will be stretched (or shrunk) in order to accommodate the linebreak.
 
-    :Default: ``true``
+    Default: ``true``
 
     .. versionadded:: 1.5
        set this option value to ``false`` to recover former behaviour.
@@ -685,7 +685,7 @@ macros may be significant.
     When a long code line is split, the last space character from the source
     code line right before the linebreak location is typeset using this.
 
-    :Default: ``\textcolor{red}{\textvisiblespace}``
+    Default: ``\textcolor{red}{\textvisiblespace}``
 
 ``verbatimcontinued``
     A LaTeX macro inserted at start of continuation code lines. Its
@@ -701,7 +701,7 @@ macros may be significant.
 ``TitleColor``
     The colour for titles (as configured via use of package "titlesec".)
 
-    :Default: ``{rgb}{0.126,0.263,0.361}``
+    Default: ``{rgb}{0.126,0.263,0.361}``
 
 .. warning::
 
@@ -712,28 +712,28 @@ macros may be significant.
     A colour passed to ``hyperref`` as value of ``linkcolor``  and
     ``citecolor``.
 
-    :Default: ``{rgb}{0.208,0.374,0.486}``.
+    Default: ``{rgb}{0.208,0.374,0.486}``.
 
 ``OuterLinkColor``
     A colour passed to ``hyperref`` as value of ``filecolor``, ``menucolor``,
     and ``urlcolor``.
 
-    :Default: ``{rgb}{0.216,0.439,0.388}``
+    Default: ``{rgb}{0.216,0.439,0.388}``
 
 ``VerbatimColor``
     The background colour for :rst:dir:`code-block`\ s.
 
-    :Default: ``{rgb}{1,1,1}`` (white)
+    Default: ``{rgb}{1,1,1}`` (white)
 
 ``VerbatimBorderColor``
     The frame color.
 
-    :Default: ``{rgb}{0,0,0}`` (black)
+    Default: ``{rgb}{0,0,0}`` (black)
 
 ``VerbatimHighlightColor``
     The color for highlighted lines.
 
-    :Default: ``{rgb}{0.878,1,1}``
+    Default: ``{rgb}{0.878,1,1}``
 
     .. versionadded:: 1.6.6
 
@@ -745,75 +745,75 @@ macros may be significant.
 ``verbatimsep``
     The separation between code lines and the frame.
 
-    :Default: ``\fboxsep``
+    Default: ``\fboxsep``
 
 ``verbatimborder``
     The width of the frame around :rst:dir:`code-block`\ s.
 
-    :Default: ``\fboxrule``
+    Default: ``\fboxrule``
 
 ``shadowsep``
     The separation between contents and frame for :dudir:`contents` and
     :dudir:`topic` boxes.
 
-    :Default: ``5pt``
+    Default: ``5pt``
 
 ``shadowsize``
     The width of the lateral "shadow" to the right.
 
-    :Default: ``4pt``
+    Default: ``4pt``
 
 ``shadowrule``
     The width of the frame around :dudir:`topic` boxes.
 
-    :Default: ``\fboxrule``
+    Default: ``\fboxrule``
 
 |notebdcolors|
     The colour for the two horizontal rules used by Sphinx in LaTeX for styling
     a :dudir:`note` type admonition.
 
-    :Default: ``{rgb}{0,0,0}`` (black)
+    Default: ``{rgb}{0,0,0}`` (black)
 
 ``noteborder``, ``hintborder``, ``importantborder``, ``tipborder``
     The width of the two horizontal rules.
 
-    :Default: ``0.5pt``
+    Default: ``0.5pt``
 
 .. only:: not latex
 
    |warningbdcolors|
        The colour for the admonition frame.
 
-       :Default: ``{rgb}{0,0,0}`` (black)
+       Default: ``{rgb}{0,0,0}`` (black)
 
 .. only:: latex
 
    |wgbdcolorslatex|
        The colour for the admonition frame.
 
-       :Default: ``{rgb}{0,0,0}`` (black)
+       Default: ``{rgb}{0,0,0}`` (black)
 
 |warningbgcolors|
     The background colours for the respective admonitions.
 
-    :Default: ``{rgb}{1,1,1}`` (white)
+    Default: ``{rgb}{1,1,1}`` (white)
 
 |warningborders|
     The width of the frame.
 
-    :Default: ``1pt``
+    Default: ``1pt``
 
 ``AtStartFootnote``
     LaTeX macros inserted at the start of the footnote text at bottom of page,
     after the footnote number.
 
-    :Default: ``\mbox{ }``
+    Default: ``\mbox{ }``
 
 ``BeforeFootnote``
     LaTeX macros inserted before the footnote mark. The default removes
     possible space before it (else, TeX could insert a line break there).
 
-    :Default: ``\leavevmode\unskip``
+    Default: ``\leavevmode\unskip``
 
     .. versionadded:: 1.5
 
