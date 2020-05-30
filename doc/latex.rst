@@ -119,7 +119,7 @@ Keys that you may want to override include:
       build repertory before next PDF build, else left-over auxiliary
       files are likely to break the build.
 
-    :Default:  ``'\\usepackage{babel}'`` (``''`` for Japenese documents)
+   :Default:  ``'\\usepackage{babel}'`` (``''`` for Japenese documents)
 
    .. versionchanged:: 1.5
       For :confval:`latex_engine` set to ``'xelatex'``, the default
@@ -667,7 +667,7 @@ macros may be significant.
        set this option value to ``false`` to recover former behaviour.
 
 ``inlineliteralwraps``
-    Boolean to specify is linebreaks are allowed inside inline literals: but
+    Boolean to specify if line breaks are allowed inside inline literals: but
     extra potential break-points (additionally to those allowed by LaTeX at
     spaces or for hyphenation) are currently inserted only after the characters
     ``. , ; ? ! /`` and ``\``. Due to TeX internals, white space in the line
