@@ -9,5 +9,6 @@ how to contribute to the project.
 .. toctree::
    :maxdepth: 2
 
+   organization
    code-of-conduct
    authors
