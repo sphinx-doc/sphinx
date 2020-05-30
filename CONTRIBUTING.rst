@@ -1,0 +1,17 @@
+======================
+Contributing to Sphinx
+======================
+
+Interested in contributing to Sphinx? Hurrah! We welcome all forms of
+contribution, including code patches, documentation improvements and bug
+reports/feature requests.
+
+Our contributing guide can be found online at:
+
+https://www.sphinx-doc.org/en/master/internals/contributing/
+
+You can also browse it from this repository from
+``doc/internals/contributing/``
+
+Sphinx uses GitHub to host source code, track patches and bugs, and more.
+Please make an effort to provide as much possible when filing bugs.
