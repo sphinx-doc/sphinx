@@ -13,6 +13,7 @@ import enum
 import inspect
 import re
 import sys
+import types
 import typing
 import warnings
 from functools import partial, partialmethod
@@ -302,6 +303,18 @@ def iscoroutinefunction(obj: Any) -> bool:
 def isproperty(obj: Any) -> bool:
     """Check if the object is property."""
     return isinstance(obj, property)
+
+
+def isgenericalias(obj: Any) -> bool:
+    """Check if the object is GenericAlias."""
+    if (hasattr(typing, '_GenericAlias') and  # only for py37+
+            isinstance(obj, typing._GenericAlias)):  # type: ignore
+        return True
+    elif (hasattr(types, 'GenericAlias') and  # only for py39+
+          isinstance(obj, types.GenericAlias)):  # type: ignore
+        return True
+    else:
+        return False
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:

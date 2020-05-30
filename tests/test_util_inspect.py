@@ -560,6 +560,18 @@ def test_isproperty(app):
     assert inspect.isproperty(func) is False            # function
 
 
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_isgenericalias(app):
+    from target.genericalias import C, T
+    from target.methods import Base
+
+    assert inspect.isgenericalias(C) is True
+    assert inspect.isgenericalias(T) is True
+    assert inspect.isgenericalias(object()) is False
+    assert inspect.isgenericalias(Base) is False
+
+
 def test_unpartial():
     def func1(a, b, c):
         pass
