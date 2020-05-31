@@ -124,3 +124,36 @@ def test_auth(app, status, warning):
                 assert c_kwargs['auth'] == 'authinfo2'
             else:
                 assert not c_kwargs['auth']
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck', freshenv=True,
+    confoverrides={'linkcheck_request_headers': {
+        "https://localhost:7777/": {
+            "Accept": "text/html",
+        },
+        "http://www.sphinx-doc.org": {  # no slash at the end
+            "Accept": "application/json",
+        },
+        "*": {
+            "X-Secret": "open sesami",
+        }
+    }})
+def test_linkcheck_request_headers(app, status, warning):
+    mock_req = mock.MagicMock()
+    mock_req.return_value = 'fake-response'
+
+    with mock.patch.multiple('requests', get=mock_req, head=mock_req):
+        app.builder.build_all()
+        for args, kwargs in mock_req.call_args_list:
+            url = args[0]
+            headers = kwargs.get('headers', {})
+            if "https://localhost:7777" in url:
+                assert headers["Accept"] == "text/html"
+            elif 'http://www.sphinx-doc.org' in url:
+                assert headers["Accept"] == "application/json"
+            elif 'https://www.google.com' in url:
+                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
+                assert headers["X-Secret"] == "open sesami"
+            else:
+                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
