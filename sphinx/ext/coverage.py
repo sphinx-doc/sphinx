@@ -129,8 +129,7 @@ class CoverageBuilder(Builder):
                             logger.warning(__('undocumented c api: %s [%s] in file %s'),
                                            name, typ, filename)
                         else:
-                            logger.info(red('undocumented  ') + darkgreen('c   ') +
-                                        darkblue('api       ') +
+                            logger.info(red('undocumented  ') + 'c   ' + 'api       ' +
                                         '%-30s' % (name + " [%9s]" % typ) +
                                         red(' - in file ') + filename)
                 op.write('\n')
@@ -259,9 +258,8 @@ class CoverageBuilder(Builder):
                                         name, func)
                             else:
                                 for func in undoc['funcs']:
-                                    logger.info(red('undocumented  ') + green('py  ') +
-                                                teal('function  ') + '%-30s' % func +
-                                                red(' - in module ') + name)
+                                    logger.info(red('undocumented  ') + 'py  ' + 'function  ' +
+                                                '%-30s' % func + red(' - in module ') + name)
                         op.write('\n')
                     if undoc['classes']:
                         op.write('Classes:\n')
@@ -275,8 +273,8 @@ class CoverageBuilder(Builder):
                                             __('undocumented python class: %s :: %s'),
                                             name, class_name)
                                     else:
-                                        logger.info(red('undocumented  ') + green('py  ') +
-                                                    blue('class     ') + '%-30s' % class_name +
+                                        logger.info(red('undocumented  ') + 'py  ' +
+                                                    'class     ' + '%-30s' % class_name +
                                                     red(' - in module ') + name)
                             else:
                                 op.write(' * %s -- missing methods:\n\n' % class_name)
@@ -290,8 +288,8 @@ class CoverageBuilder(Builder):
                                                 name, class_name, meth)
                                     else:
                                         for meth in methods:
-                                            logger.info(red('undocumented  ') + green('py  ') +
-                                                        turquoise('method    ') + '%-30s' %
+                                            logger.info(red('undocumented  ') + 'py  ' +
+                                                        'method    ' + '%-30s' %
                                                         (class_name + '.' + meth) +
                                                         red(' - in module ') + name)
                         op.write('\n')
