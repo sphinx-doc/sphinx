@@ -130,7 +130,8 @@ class CoverageBuilder(Builder):
                                            name, typ, filename)
                         else:
                             logger.info(red('undocumented  ') + darkgreen('c   ') +
-                                        darkblue('api       ') + '%-30s' % (name + " [%9s]" % typ) +
+                                        darkblue('api       ') +
+                                        '%-30s' % (name + " [%9s]" % typ) +
                                         red(' - in file ') + filename)
                 op.write('\n')
 
@@ -253,8 +254,9 @@ class CoverageBuilder(Builder):
                         if self.config.coverage_show_missing_items:
                             if self.app.quiet or self.app.warningiserror:
                                 for func in undoc['funcs']:
-                                    logger.warning(__('undocumented python function: %s :: %s'),
-                                                   name, func)
+                                    logger.warning(
+                                        __('undocumented python function: %s :: %s'),
+                                        name, func)
                             else:
                                 for func in undoc['funcs']:
                                     logger.info(red('undocumented  ') + green('py  ') +
@@ -269,8 +271,9 @@ class CoverageBuilder(Builder):
                                 op.write(' * %s\n' % class_name)
                                 if self.config.coverage_show_missing_items:
                                     if self.app.quiet or self.app.warningiserror:
-                                        logger.warning(__('undocumented python class: %s :: %s'),
-                                                       name, class_name)
+                                        logger.warning(
+                                            __('undocumented python class: %s :: %s'),
+                                            name, class_name)
                                     else:
                                         logger.info(red('undocumented  ') + green('py  ') +
                                                     blue('class     ') + '%-30s' % class_name +
@@ -282,7 +285,8 @@ class CoverageBuilder(Builder):
                                     if self.app.quiet or self.app.warningiserror:
                                         for meth in methods:
                                             logger.warning(
-                                                __('undocumented python method: %s :: %s :: %s'),
+                                                __('undocumented python method:' +
+                                                   ' %s :: %s :: %s'),
                                                 name, class_name, meth)
                                     else:
                                         for meth in methods:
