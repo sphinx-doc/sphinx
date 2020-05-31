@@ -1587,6 +1587,37 @@ def test_autodoc_typed_instance_variables(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_GenericAlias(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.genericalias', options)
+    if sys.version_info < (3, 7):
+        assert list(actual) == [
+            '',
+            '.. py:module:: target.genericalias',
+            '',
+            '',
+            '.. py:attribute:: T',
+            '   :module: target.genericalias',
+            '',
+            '   alias of :class:`typing.List`',
+        ]
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:module:: target.genericalias',
+            '',
+            '',
+            '.. py:data:: T',
+            '   :module: target.genericalias',
+            '',
+            '   A list of int',
+            '',
+            '   alias of List[int]',
+        ]
+
+
 @pytest.mark.skipif(sys.version_info < (3, 9), reason='py39+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_Annotated(app):

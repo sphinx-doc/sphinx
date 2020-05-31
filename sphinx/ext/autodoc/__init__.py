@@ -1580,6 +1580,30 @@ class DataDeclarationDocumenter(DataDocumenter):
         super().add_content(more_content, no_docstring=True)
 
 
+class GenericAliasDocumenter(DataDocumenter):
+    """
+    Specialized Documenter subclass for GenericAliases.
+    """
+
+    objtype = 'genericalias'
+    directivetype = 'data'
+    priority = DataDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        return inspect.isgenericalias(member)
+
+    def add_directive_header(self, sig: str) -> None:
+        self.options.annotation = SUPPRESS  # type: ignore
+        super().add_directive_header(sig)
+
+    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+        name = stringify_typehint(self.object)
+        content = StringList([_('alias of %s') % name], source='')
+        super().add_content(content)
+
+
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for methods (normal, static and class).
@@ -1938,6 +1962,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ExceptionDocumenter)
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(DataDeclarationDocumenter)
+    app.add_autodocumenter(GenericAliasDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
