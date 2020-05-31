@@ -124,7 +124,7 @@ class CoverageBuilder(Builder):
                 write_header(op, filename)
                 for typ, name in sorted(undoc):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
-                    if self.config.coverage_print_missing_c_items:
+                    if self.config.coverage_show_missing_items:
                         if self.app.quiet or self.app.warningiserror:
                             logger.warning(__('undocumented c api: %s [%s] in file %s'),
                                            name, typ, filename)
@@ -250,7 +250,7 @@ class CoverageBuilder(Builder):
                     if undoc['funcs']:
                         op.write('Functions:\n')
                         op.writelines(' * %s\n' % x for x in undoc['funcs'])
-                        if self.config.coverage_print_missing_py_items:
+                        if self.config.coverage_show_missing_items:
                             if self.app.quiet or self.app.warningiserror:
                                 for func in undoc['funcs']:
                                     logger.warning(__('undocumented python function: %s :: %s'),
@@ -267,7 +267,7 @@ class CoverageBuilder(Builder):
                                 undoc['classes'].items()):
                             if not methods:
                                 op.write(' * %s\n' % class_name)
-                                if self.config.coverage_print_missing_py_items:
+                                if self.config.coverage_show_missing_items:
                                     if self.app.quiet or self.app.warningiserror:
                                         logger.warning(__('undocumented python class: %s :: %s'),
                                                        name, class_name)
@@ -278,7 +278,7 @@ class CoverageBuilder(Builder):
                             else:
                                 op.write(' * %s -- missing methods:\n\n' % class_name)
                                 op.writelines('   - %s\n' % x for x in methods)
-                                if self.config.coverage_print_missing_py_items:
+                                if self.config.coverage_show_missing_items:
                                     if self.app.quiet or self.app.warningiserror:
                                         for meth in methods:
                                             logger.warning(
@@ -314,6 +314,5 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('coverage_ignore_c_items', {}, False)
     app.add_config_value('coverage_write_headline', True, False)
     app.add_config_value('coverage_skip_undoc_in_source', False, False)
-    app.add_config_value('coverage_print_missing_c_items', False, False)
-    app.add_config_value('coverage_print_missing_py_items', False, False)
+    app.add_config_value('coverage_show_missing_items', False, False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
