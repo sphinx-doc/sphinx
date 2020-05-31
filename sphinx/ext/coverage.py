@@ -22,6 +22,9 @@ from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.console import (  # type: ignore
+    blue, darkblue, darkgreen, green, red, teal, turquoise
+)
 from sphinx.util.inspect import safe_getattr
 
 logger = logging.getLogger(__name__)
@@ -121,6 +124,14 @@ class CoverageBuilder(Builder):
                 write_header(op, filename)
                 for typ, name in sorted(undoc):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
+                    if self.config.coverage_print_missing_c_items:
+                        if self.app.quiet or self.app.warningiserror:
+                            logger.warning(__('undocumented c api: %s [%s] in file %s'),
+                                           name, typ, filename)
+                        else:
+                            logger.info(red('undocumented  ') + darkgreen('c   ') +
+                                        darkblue('api       ') + '%-30s' % (name + " [%9s]" % typ) +
+                                        red(' - in file ') + filename)
                 op.write('\n')
 
     def ignore_pyobj(self, full_name: str) -> bool:
@@ -239,16 +250,46 @@ class CoverageBuilder(Builder):
                     if undoc['funcs']:
                         op.write('Functions:\n')
                         op.writelines(' * %s\n' % x for x in undoc['funcs'])
+                        if self.config.coverage_print_missing_py_items:
+                            if self.app.quiet or self.app.warningiserror:
+                                for func in undoc['funcs']:
+                                    logger.warning(__('undocumented python function: %s :: %s'),
+                                                   name, func)
+                            else:
+                                for func in undoc['funcs']:
+                                    logger.info(red('undocumented  ') + green('py  ') +
+                                                teal('function  ') + '%-30s' % func +
+                                                red(' - in module ') + name)
                         op.write('\n')
                     if undoc['classes']:
                         op.write('Classes:\n')
-                        for name, methods in sorted(
+                        for class_name, methods in sorted(
                                 undoc['classes'].items()):
                             if not methods:
-                                op.write(' * %s\n' % name)
+                                op.write(' * %s\n' % class_name)
+                                if self.config.coverage_print_missing_py_items:
+                                    if self.app.quiet or self.app.warningiserror:
+                                        logger.warning(__('undocumented python class: %s :: %s'),
+                                                       name, class_name)
+                                    else:
+                                        logger.info(red('undocumented  ') + green('py  ') +
+                                                    blue('class     ') + '%-30s' % class_name +
+                                                    red(' - in module ') + name)
                             else:
-                                op.write(' * %s -- missing methods:\n\n' % name)
+                                op.write(' * %s -- missing methods:\n\n' % class_name)
                                 op.writelines('   - %s\n' % x for x in methods)
+                                if self.config.coverage_print_missing_py_items:
+                                    if self.app.quiet or self.app.warningiserror:
+                                        for meth in methods:
+                                            logger.warning(
+                                                __('undocumented python method: %s :: %s :: %s'),
+                                                name, class_name, meth)
+                                    else:
+                                        for meth in methods:
+                                            logger.info(red('undocumented  ') + green('py  ') +
+                                                        turquoise('method    ') + '%-30s' %
+                                                        (class_name + '.' + meth) +
+                                                        red(' - in module ') + name)
                         op.write('\n')
 
             if failed:
@@ -273,4 +314,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('coverage_ignore_c_items', {}, False)
     app.add_config_value('coverage_write_headline', True, False)
     app.add_config_value('coverage_skip_undoc_in_source', False, False)
+    app.add_config_value('coverage_print_missing_c_items', False, False)
+    app.add_config_value('coverage_print_missing_py_items', False, False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
