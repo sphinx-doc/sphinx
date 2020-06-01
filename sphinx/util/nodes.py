@@ -521,12 +521,18 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
 
     # try to generate node_id by *term*
     if prefix and term:
-        node_id = _make_id(idformat % term)
+        if not env.config.node_id_compat:
+            node_id = _make_id(idformat % term)
+        else:
+            node_id = nodes.make_id(idformat % term)
         if node_id == prefix:
             # *term* is not good to generate a node_id.
             node_id = None
     elif term:
-        node_id = _make_id(term)
+        if not env.config.node_id_compat:
+            node_id = _make_id(term)
+        else:
+            node_id = nodes.make_id(term)
         if node_id == '':
             node_id = None  # fallback to None
 

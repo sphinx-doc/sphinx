@@ -152,6 +152,7 @@ class Config:
         'smartquotes_excludes': ({'languages': ['ja'],
                                   'builders': ['man', 'text']},
                                  'env', []),
+        'node_id_compat': (False, 'env', []),
     }  # type: Dict[str, Tuple]
 
     def __init__(self, config: Dict[str, Any] = {}, overrides: Dict[str, Any] = {}) -> None:
