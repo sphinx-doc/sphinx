@@ -951,12 +951,12 @@ class ASTFoldExpr(ASTExpression):
         if self.leftExpr:
             res.append(transform(self.leftExpr))
             res.append(' ')
-            res.append(transform(self.op))
+            res.append(self.op)
             res.append(' ')
         res.append('...')
         if self.rightExpr:
             res.append(' ')
-            res.append(transform(self.op))
+            res.append(self.op)
             res.append(' ')
             res.append(transform(self.rightExpr))
         res.append(')')
@@ -1223,9 +1223,9 @@ class ASTUnaryOpExpr(ASTExpression):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.op[0] in 'cn':
-            return transform(self.op) + " " + transform(self.expr)
+            return self.op + " " + transform(self.expr)
         else:
-            return transform(self.op) + transform(self.expr)
+            return self.op + transform(self.expr)
 
     def get_id(self, version: int) -> str:
         return _id_operator_unary_v2[self.op] + self.expr.get_id(version)
