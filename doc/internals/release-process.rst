@@ -5,22 +5,19 @@ Sphinx's release process
 Branch Model
 ------------
 
-Sphinx project uses following branches for developing that conforms to Semantic
-Versioning 2.0.0 (refs: https://semver.org/ ).
+Sphinx project uses following branches for developing that conforms to
+`Semantic Versioning 2.0.0`__.
+
+.. __: https://semver.org/
 
 ``master``
-    Development for MAJOR version.
-    All changes including incompatible behaviors and public API updates are
-    allowed.
+    Development for next release. Typically this is a MINOR release. New
+    features are allowed but must be backwards-compatible, preserving API
+    compatibility.
 
-``A.x`` (ex. ``2.x``)
-    Where ``A.x`` is the ``MAJOR.MINOR`` release.  Used to maintain current
-    MINOR release. All changes are allowed if the change preserves
-    backwards-compatibility of API and features.
-
-    Only the most recent ``MAJOR.MINOR`` branch is currently retained. When a
-    new MAJOR version is released, the old ``MAJOR.MINOR`` branch will be
-    deleted and replaced by an equivalent tag.
+``devel``
+    Development for the next MAJOR release. All changes including incompatible
+    behaviors and public API updates are allowed.
 
 ``A.B.x`` (ex. ``2.4.x``)
     Where ``A.B.x`` is the ``MAJOR.MINOR.PATCH`` release.  Only
@@ -28,9 +25,18 @@ Versioning 2.0.0 (refs: https://semver.org/ ).
     version is used for urgent bug fix.
 
     ``MAJOR.MINOR.PATCH`` branch will be branched from the ``v`` prefixed
-    release tag (ex. make 2.3.1 that branched from v2.3.0) when a urgent
-    release is needed. When new PATCH version is released, the branch will be
-    deleted and replaced by an equivalent tag (ex. v2.3.1).
+    release tag (for example, make ``2.3.1`` that branched from ``v2.3.0``)
+    when a urgent release is needed. When new PATCH version is released, the
+    branch will be deleted and replaced by an equivalent tag (ex. v2.3.1).
+
+
+Release schedule
+----------------
+
+Sphinx uses a time-based release schedule with releases roughly every three
+months. Every fourth release is a major version, in which it is possible to
+make :ref:`breaking changes <deprecation-policy>`. Future releases are listed
+on `GitHub <https://github.com/sphinx-doc/sphinx/milestones>`.
 
 
 Deprecating a feature
