@@ -84,6 +84,7 @@ Features added
 * #7734: napoleon: overescaped trailing underscore on attribute
 * #7683: Add ``allowed_exceptions`` parameter to ``Sphinx.emit()`` to allow
   handlers to raise specified exceptions
+* #7295: C++, parse (trailing) requires clauses.
 
 Bugs fixed
 ----------
