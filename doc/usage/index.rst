@@ -17,7 +17,6 @@ looking for guidance on extending Sphinx, refer to :doc:`/development/index`.
    configuration
    builders/index
    extensions/index
-   theming
    advanced/intl
    advanced/setuptools
    advanced/websupport/index

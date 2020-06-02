@@ -331,7 +331,7 @@ More topics to be covered
 
 - :doc:`Other extensions </usage/extensions/index>`:
 - Static files
-- :doc:`Selecting a theme </usage/theming>`
+- :ref:`Selecting a theme <html-themes>`
 - :doc:`/usage/advanced/setuptools`
 - :ref:`Templating <templating>`
 - Using extensions
