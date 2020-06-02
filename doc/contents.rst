@@ -19,7 +19,6 @@ Sphinx documentation contents
 
    faq
    glossary
-   devguide
    changes
    examples
 
