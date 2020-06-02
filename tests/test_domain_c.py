@@ -96,6 +96,15 @@ def test_expressions():
             print("Result:   ", res)
             print("Expected: ", output)
             raise DefinitionError("")
+        displayString = ast.get_display_string()
+        if res != displayString:
+            # note: if the expression contains an anon name then this will trigger a falsely
+            print("")
+            print("Input:    ", expr)
+            print("Result:   ", res)
+            print("Display:  ", displayString)
+            raise DefinitionError("")
+
     # type expressions
     exprCheck('int*')
     exprCheck('int *const*')
