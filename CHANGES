@@ -134,7 +134,7 @@ Bugs fixed
   in global scope, e.g., ``::A::B``.
 * C, fix rendering and xrefs in nested names explicitly starting
   in global scope, e.g., ``.A.B``.
-- #7763: C and C++, don't crash during display stringification of unary
+* #7763: C and C++, don't crash during display stringification of unary
   expressions and fold expressions.
 
 Testing
