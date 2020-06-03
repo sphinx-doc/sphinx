@@ -53,7 +53,7 @@ def stringify(annotation: Any) -> str:
         return annotation.__name__
     elif not annotation:
         return repr(annotation)
-    elif annotation is NoneType:  # type: ignore
+    elif annotation is NoneType:
         return 'None'
     elif (getattr(annotation, '__module__', None) == 'builtins' and
           hasattr(annotation, '__qualname__')):
@@ -91,7 +91,7 @@ def _stringify_py37(annotation: Any) -> str:
 
     if getattr(annotation, '__args__', None):
         if qualname == 'Union':
-            if len(annotation.__args__) == 2 and annotation.__args__[1] is NoneType:  # type: ignore  # NOQA
+            if len(annotation.__args__) == 2 and annotation.__args__[1] is NoneType:
                 return 'Optional[%s]' % stringify(annotation.__args__[0])
             else:
                 args = ', '.join(stringify(a) for a in annotation.__args__)
@@ -161,7 +161,7 @@ def _stringify_py36(annotation: Any) -> str:
           hasattr(annotation, '__union_params__')):  # for Python 3.5
         params = annotation.__union_params__
         if params is not None:
-            if len(params) == 2 and params[1] is NoneType:  # type: ignore
+            if len(params) == 2 and params[1] is NoneType:
                 return 'Optional[%s]' % stringify(params[0])
             else:
                 param_str = ', '.join(stringify(p) for p in params)
@@ -170,7 +170,7 @@ def _stringify_py36(annotation: Any) -> str:
           annotation.__origin__ is typing.Union):  # for Python 3.5.2+
         params = annotation.__args__
         if params is not None:
-            if len(params) == 2 and params[1] is NoneType:  # type: ignore
+            if len(params) == 2 and params[1] is NoneType:
                 return 'Optional[%s]' % stringify(params[0])
             else:
                 param_str = ', '.join(stringify(p) for p in params)

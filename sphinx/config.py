@@ -131,7 +131,7 @@ class Config:
         'rst_epilog': (None, 'env', [str]),
         'rst_prolog': (None, 'env', [str]),
         'trim_doctest_flags': (True, 'env', []),
-        'primary_domain': ('py', 'env', [NoneType]),   # type: ignore
+        'primary_domain': ('py', 'env', [NoneType]),
         'needs_sphinx': (None, None, [str]),
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
