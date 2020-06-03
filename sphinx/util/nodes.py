@@ -29,6 +29,7 @@ if False:
     # For type annotation
     from typing import Type  # for python3.5.1
     from sphinx.builders import Builder
+    from sphinx.domain import IndexEntry
     from sphinx.environment import BuildEnvironment
     from sphinx.utils.tags import Tags
 
@@ -313,7 +314,7 @@ def get_prev_node(node: Node) -> Node:
         return None
 
 
-def traverse_translatable_index(doctree: Element) -> Iterable[Tuple[Element, List[str]]]:
+def traverse_translatable_index(doctree: Element) -> Iterable[Tuple[Element, List["IndexEntry"]]]:  # NOQA
     """Traverse translatable index node from a document tree."""
     for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):  # type: addnodes.index  # NOQA
         if 'raw_entries' in node:

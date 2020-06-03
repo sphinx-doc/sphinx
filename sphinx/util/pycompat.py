@@ -83,7 +83,7 @@ def execfile_(filepath: str, _globals: Any, open: Callable = open) -> None:
 
 deprecated_alias('sphinx.util.pycompat',
                  {
-                     'NoneType': NoneType,  # type: ignore
+                     'NoneType': NoneType,
                      'TextIOWrapper': io.TextIOWrapper,
                      'htmlescape': html.escape,
                      'indent': textwrap.indent,
