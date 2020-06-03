@@ -92,7 +92,8 @@ class ReferencesResolver(SphinxPostTransform):
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = self.app.emit_firstresult('missing-reference', self.env,
-                                                        node, contnode)
+                                                        node, contnode,
+                                                        allowed_exceptions=(NoUri,))
                     # still not found? warn if node wishes to be warned about or
                     # we are in nit-picky mode
                     if newnode is None:

@@ -12,7 +12,7 @@
 
 from collections import defaultdict
 from operator import attrgetter
-from typing import Any, Callable, Dict, List, NamedTuple
+from typing import Any, Callable, Dict, List, NamedTuple, Tuple, Type
 from typing import TYPE_CHECKING
 
 from sphinx.errors import ExtensionError, SphinxError
@@ -83,7 +83,8 @@ class EventManager:
                 if listener.id == listener_id:
                     listeners.remove(listener)
 
-    def emit(self, name: str, *args: Any) -> List:
+    def emit(self, name: str, *args: Any,
+             allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> List:
         """Emit a Sphinx event."""
         try:
             logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
@@ -97,6 +98,9 @@ class EventManager:
         for listener in listeners:
             try:
                 results.append(listener.handler(self.app, *args))
+            except allowed_exceptions:
+                # pass through the errors specified as *allowed_exceptions*
+                raise
             except SphinxError:
                 raise
             except Exception as exc:
@@ -104,12 +108,13 @@ class EventManager:
                                      (listener.handler, name)) from exc
         return results
 
-    def emit_firstresult(self, name: str, *args: Any) -> Any:
+    def emit_firstresult(self, name: str, *args: Any,
+                         allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> Any:
         """Emit a Sphinx event and returns first result.
 
         This returns the result of the first handler that doesn't return ``None``.
         """
-        for result in self.emit(name, *args):
+        for result in self.emit(name, *args, allowed_exceptions=allowed_exceptions):
             if result is not None:
                 return result
         return None

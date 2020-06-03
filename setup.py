@@ -44,7 +44,7 @@ extras_require = {
     'lint': [
         'flake8>=3.5.0',
         'flake8-import-order',
-        'mypy>=0.770',
+        'mypy>=0.780',
         'docutils-stubs',
     ],
     'test': [
@@ -201,6 +201,7 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Setuptools Plugin',

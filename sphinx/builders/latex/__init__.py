@@ -127,6 +127,7 @@ class LaTeXBuilder(Builder):
         self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
         self.themes = ThemeFactory(self.app)
         self.usepackages = self.app.registry.latex_packages
+        self.usepackages_after_hyperref = self.app.registry.latex_packages_after_hyperref
         texescape.init()
 
         self.init_context()
@@ -178,6 +179,7 @@ class LaTeXBuilder(Builder):
 
         # Apply extension settings to context
         self.context['packages'] = self.usepackages
+        self.context['packages_after_hyperref'] = self.usepackages_after_hyperref
 
         # Apply user settings to context
         self.context.update(self.config.latex_elements)
@@ -456,6 +458,12 @@ def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
             config.latex_theme_options.pop(key)
 
 
+def install_pakcages_for_ja(app: Sphinx) -> None:
+    """Install packages for Japanese."""
+    if app.config.language == 'ja':
+        app.add_latex_package('pxjahyper', after_hyperref=True)
+
+
 def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
@@ -503,6 +511,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(LaTeXBuilder)
     app.connect('config-inited', validate_config_values, priority=800)
     app.connect('config-inited', validate_latex_theme_options, priority=800)
+    app.connect('builder-inited', install_pakcages_for_ja)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
