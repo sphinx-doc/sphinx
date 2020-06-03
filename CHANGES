@@ -80,6 +80,8 @@ Features added
 * #7143: py domain: Add ``:final:`` option to :rst:dir:`py:class:`,
   :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
 * #7596: py domain: Change a type annotation for variables to a hyperlink
+* #7770: std domain: :rst:dir:`option` directive support arguments in the form
+  of ``foo[=bar]``
 * #7582: napoleon: a type for attribute are represented like type annotation
 * #7734: napoleon: overescaped trailing underscore on attribute
 * #7683: Add ``allowed_exceptions`` parameter to ``Sphinx.emit()`` to allow
