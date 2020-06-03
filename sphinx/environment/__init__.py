@@ -57,6 +57,7 @@ default_settings = {
     'halt_level': 5,
     'file_insertion_enabled': True,
     'smartquotes_locales': [],
+    'tab_width': 8,
 }  # type: Dict[str, Any]
 
 # This is increased every time an environment attribute is added
