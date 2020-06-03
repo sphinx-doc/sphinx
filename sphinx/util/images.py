@@ -54,7 +54,7 @@ def get_image_size(filename: str) -> Optional[Tuple[int, int]]:
 
 
 def guess_mimetype_for_stream(stream: IO, default: Optional[str] = None) -> Optional[str]:
-    imgtype = imghdr.what(stream)  # type: ignore
+    imgtype = imghdr.what(stream)
     if imgtype:
         return 'image/' + imgtype
     else:
