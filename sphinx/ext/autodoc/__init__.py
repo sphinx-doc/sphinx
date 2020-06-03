@@ -950,7 +950,7 @@ class ModuleDocumenter(Documenter):
             # Sort by __all__
             def keyfunc(entry: Tuple[Documenter, bool]) -> int:
                 name = entry[0].name.split('::')[1]
-                if name in self.__all__:
+                if self.__all__ and name in self.__all__:
                     return self.__all__.index(name)
                 else:
                     return len(self.__all__)
