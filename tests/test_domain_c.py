@@ -126,6 +126,15 @@ def test_expressions():
             print("Result:   ", res)
             print("Expected: ", output)
             raise DefinitionError("")
+        displayString = ast.get_display_string()
+        if res != displayString:
+            # note: if the expression contains an anon name then this will trigger a falsely
+            print("")
+            print("Input:    ", expr)
+            print("Result:   ", res)
+            print("Display:  ", displayString)
+            raise DefinitionError("")
+
     # type expressions
     exprCheck('int*')
     exprCheck('int *const*')
@@ -400,7 +409,7 @@ def test_function_definitions():
           output='void f(int arr[static volatile const 42])')
 
 
-class test_nested_name():
+def test_nested_name():
     check('struct', '{key}.A', {1: "A"})
     check('struct', '{key}.A.B', {1: "A.B"})
     check('function', 'void f(.A a)', {1: "f"})

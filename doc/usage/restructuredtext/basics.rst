@@ -159,7 +159,7 @@ Doctest blocks
 Doctest blocks (:duref:`ref <doctest-blocks>`) are interactive Python sessions
 cut-and-pasted into docstrings. They do not require the
 :ref:`literal blocks <rst-literal-blocks>` syntax. The doctest block must end
-with a blank line and should *not* end with with an unused prompt::
+with a blank line and should *not* end with an unused prompt::
 
     >>> 1 + 1
     2

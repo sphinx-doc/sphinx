@@ -41,6 +41,8 @@ Release 3.1.0 (in development)
 Dependencies
 ------------
 
+* #7746: mathjax: Update to 2.7.5
+
 Incompatible changes
 --------------------
 
@@ -82,9 +84,14 @@ Features added
 * #7487: autodoc: Allow to generate docs for singledispatch functions by
   py:autofunction
 * #7143: autodoc: Support final classes and methods
+* #7384: autodoc: Support signatures defined by ``__new__()``, metaclasses and
+  builtin base classes
+* #2106: autodoc: Support multiple signatures on docstring
+* #4422: autodoc: Support GenericAlias in Python 3.7 or above
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree
+* #7469: autosummary: Support module attributes
 * #248, #6040: autosummary: Add ``:recursive:`` option to autosummary directive
   to generate stub files recursively
 * #4030: autosummary: Add :confval:`autosummary_context` to add template
@@ -102,6 +109,7 @@ Features added
 * #7541: html theme: Add a "clearer" at the end of the "body"
 * #7542: html theme: Make admonition/topic/sidebar scrollable
 * #7543: html theme: Add top and bottom margins to tables
+* #7695: html theme: Add viewport meta tag for basic theme
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
 * #7294: C++, parse expressions with user-defined literals.
@@ -110,6 +118,10 @@ Features added
   :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
 * #7596: py domain: Change a type annotation for variables to a hyperlink
 * #7582: napoleon: a type for attribute are represented like type annotation
+* #7734: napoleon: overescaped trailing underscore on attribute
+* #7683: Add ``allowed_exceptions`` parameter to ``Sphinx.emit()`` to allow
+  handlers to raise specified exceptions
+* #7295: C++, parse (trailing) requires clauses.
 
 Bugs fixed
 ----------
@@ -131,9 +143,19 @@ Bugs fixed
   specified
 * #7650: autodoc: undecorated signature is shown for decorated functions
 * #7676: autodoc: typo in the default value of autodoc_member_order
+* #7676: autodoc: wrong value for :member-order: option is ignored silently
+* #7676: autodoc: member-order="bysource" does not work for C module
+* #3673: autodoc: member-order="bysource" does not work for a module having
+  __all__
+* #7668: autodoc: wrong retann value is passed to a handler of
+  autodoc-proccess-signature
+* #7711: autodoc: fails with ValueError when processing numpy objects
 * #7551: autosummary: a nested class is indexed as non-nested class
 * #7661: autosummary: autosummary directive emits warnings twices if failed to
   import the target module
+* #7685: autosummary: The template variable "members" contains imported members
+  even if :confval:`autossummary_imported_members` is False
+* #7671: autosummary: The location of import failure warning is missing
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
 * #7653: sphinx-quickstart: Fix multiple directory creation for nested relpath
@@ -143,15 +165,20 @@ Bugs fixed
   supporting images
 * #7610: incorrectly renders consecutive backslashes for docutils-0.16
 * #7646: handle errors on event handlers
+* #4187: LaTeX: EN DASH disappears from PDF bookmarks in Japanese documents
+* #7701: LaTeX: Anonymous indirect hyperlink target causes duplicated labels
+* #7756: py domain: The default value for positional only argument is not shown
 * C++, fix rendering and xrefs in nested names explicitly starting
   in global scope, e.g., ``::A::B``.
 * C, fix rendering and xrefs in nested names explicitly starting
   in global scope, e.g., ``.A.B``.
+* #7763: C and C++, don't crash during display stringification of unary
+  expressions and fold expressions.
 
 Testing
 --------
 
-Release 3.0.4 (in development)
+Release 3.0.5 (in development)
 ==============================
 
 Dependencies
@@ -169,13 +196,20 @@ Features added
 Bugs fixed
 ----------
 
-* #7567: autodoc: parametrized types are shown twice for generic types
-* #7637: autodoc: system defined TypeVars are shown in Python 3.9
-* #7611: md5 fails when OpenSSL FIPS is enabled
-* #7626: release package does not contain ``CODE_OF_CONDUCT``
-
 Testing
 --------
+
+Release 3.0.4 (released May 27, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #7567: autodoc: parametrized types are shown twice for generic types
+* #7637: autodoc: system defined TypeVars are shown in Python 3.9
+* #7696: html: Updated jQuery version from 3.4.1 to 3.5.1 for security reasons
+* #7611: md5 fails when OpenSSL FIPS is enabled
+* #7626: release package does not contain ``CODE_OF_CONDUCT``
 
 Release 3.0.3 (released Apr 26, 2020)
 =====================================

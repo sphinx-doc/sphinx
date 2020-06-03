@@ -454,7 +454,14 @@ There are also config values that you can set:
    looks like a signature, use the line as the signature and remove it from the
    docstring content.
 
+   If the signature line ends with backslash, autodoc considers the function has
+   multiple signatures and look at the next line of the docstring.  It is useful
+   for overloaded function.
+
    .. versionadded:: 1.1
+   .. versionchanged:: 3.1
+
+      Support overloaded signatures
 
 .. confval:: autodoc_mock_imports
 

@@ -1399,11 +1399,32 @@ arg_ : type
 """
 
         expected = """
+:ivar arg_: some description
+:vartype arg_: type
+"""
+
+        config = Config(napoleon_use_ivar=True)
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "class"))
+
+        self.assertEqual(expected, actual)
+
+    def test_underscore_in_attribute_strip_signature_backslash(self):
+        docstring = """
+Attributes
+----------
+
+arg_ : type
+    some description
+"""
+
+        expected = """
 :ivar arg\\_: some description
 :vartype arg\\_: type
 """
 
         config = Config(napoleon_use_ivar=True)
+        config.strip_signature_backslash = True
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "class"))
 

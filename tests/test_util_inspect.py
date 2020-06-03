@@ -29,12 +29,14 @@ def test_signature():
     with pytest.raises(TypeError):
         inspect.signature('')
 
-    # builitin classes
-    with pytest.raises(ValueError):
-        inspect.signature(int)
-
-    with pytest.raises(ValueError):
-        inspect.signature(str)
+    # builtins are supported on a case-by-case basis, depending on whether
+    # they define __text_signature__
+    if getattr(list, '__text_signature__', None):
+        sig = inspect.stringify_signature(inspect.signature(list))
+        assert sig == '(iterable=(), /)'
+    else:
+        with pytest.raises(ValueError):
+            inspect.signature(list)
 
     # normal function
     def func(a, b, c=1, d=2, *e, **f):
@@ -333,10 +335,14 @@ def test_signature_from_str_kwonly_args():
 @pytest.mark.skipif(sys.version_info < (3, 8),
                     reason='python-3.8 or above is required')
 def test_signature_from_str_positionaly_only_args():
-    sig = inspect.signature_from_str('(a, /, b)')
-    assert list(sig.parameters.keys()) == ['a', 'b']
+    sig = inspect.signature_from_str('(a, b=0, /, c=1)')
+    assert list(sig.parameters.keys()) == ['a', 'b', 'c']
     assert sig.parameters['a'].kind == Parameter.POSITIONAL_ONLY
-    assert sig.parameters['b'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['a'].default == Parameter.empty
+    assert sig.parameters['b'].kind == Parameter.POSITIONAL_ONLY
+    assert sig.parameters['b'].default == '0'
+    assert sig.parameters['c'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['c'].default == '1'
 
 
 def test_signature_from_str_invalid():
@@ -556,6 +562,18 @@ def test_isproperty(app):
     assert inspect.isproperty(Base.meth) is False       # method of class
     assert inspect.isproperty(Base().meth) is False     # method of instance
     assert inspect.isproperty(func) is False            # function
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
+@pytest.mark.sphinx(testroot='ext-autodoc')
+def test_isgenericalias(app):
+    from target.genericalias import C, T
+    from target.methods import Base
+
+    assert inspect.isgenericalias(C) is True
+    assert inspect.isgenericalias(T) is True
+    assert inspect.isgenericalias(object()) is False
+    assert inspect.isgenericalias(Base) is False
 
 
 def test_unpartial():

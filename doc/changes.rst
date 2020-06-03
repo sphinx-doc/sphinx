@@ -4,7 +4,8 @@
 
 .. _changes:
 
-Changes in Sphinx
-*****************
+=========
+Changelog
+=========
 
 .. include:: ../CHANGES

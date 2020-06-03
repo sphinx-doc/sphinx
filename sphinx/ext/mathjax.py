@@ -96,7 +96,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # more information for mathjax secure url is here:
     # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
-                         'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?'
+                         'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?'
                          'config=TeX-AMS-MML_HTMLorMML', 'html')
     app.add_config_value('mathjax_options', {}, 'html')
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')

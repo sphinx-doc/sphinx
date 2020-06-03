@@ -432,22 +432,32 @@ class Sphinx:
         logger.debug('[app] disconnecting event: [id=%s]', listener_id)
         self.events.disconnect(listener_id)
 
-    def emit(self, event: str, *args: Any) -> List:
+    def emit(self, event: str, *args: Any,
+             allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> List:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
         Sphinx events in extensions!
-        """
-        return self.events.emit(event, *args)
 
-    def emit_firstresult(self, event: str, *args: Any) -> Any:
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
+        """
+        return self.events.emit(event, *args, allowed_exceptions=allowed_exceptions)
+
+    def emit_firstresult(self, event: str, *args: Any,
+                         allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> Any:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
 
         .. versionadded:: 0.5
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
         """
-        return self.events.emit_firstresult(event, *args)
+        return self.events.emit_firstresult(event, *args,
+                                            allowed_exceptions=allowed_exceptions)
 
     # registering addon parts
 
@@ -929,12 +939,14 @@ class Sphinx:
         if hasattr(self.builder, 'add_css_file'):
             self.builder.add_css_file(filename, **kwargs)  # type: ignore
 
-    def add_latex_package(self, packagename: str, options: str = None) -> None:
+    def add_latex_package(self, packagename: str, options: str = None,
+                          after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
 
         Add *packagename* to the list of packages that LaTeX source code will
         include.  If you provide *options*, it will be taken to `\usepackage`
-        declaration.
+        declaration.  If you set *after_hyperref* truthy, the package will be
+        loaded after ``hyperref`` package.
 
         .. code-block:: python
 
@@ -944,8 +956,11 @@ class Sphinx:
            # => \usepackage[foo,bar]{mypackage}
 
         .. versionadded:: 1.3
+        .. versionadded:: 3.1
+
+           *after_hyperref* option.
         """
-        self.registry.add_latex_package(packagename, options)
+        self.registry.add_latex_package(packagename, options, after_hyperref)
 
     def add_lexer(self, alias: str, lexer: Type[Lexer]) -> None:
         """Register a new lexer for source code.

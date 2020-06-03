@@ -14,7 +14,8 @@ Sphinx is a maintained by a group of volunteers.  We value every contribution!
 * There is also the #sphinx-doc IRC channel on `freenode
   <https://freenode.net/>`_.
 
-For more about our development process and methods, see the :doc:`devguide`.
+For more about our development process and methods, refer to
+:doc:`/internals/index`.
 
 Extensions
 ==========

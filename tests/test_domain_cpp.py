@@ -154,6 +154,15 @@ def test_expressions():
             print("Input:    ", expr)
             print("Result:   ", res)
             raise DefinitionError("")
+        displayString = ast.get_display_string()
+        if res != displayString:
+            # note: if the expression contains an anon name then this will trigger a falsely
+            print("")
+            print("Input:    ", expr)
+            print("Result:   ", res)
+            print("Display:  ", displayString)
+            raise DefinitionError("")
+
     # primary
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
@@ -662,7 +671,7 @@ def test_operators():
     check('function', 'void operator[]()', {1: "subscript-operator", 2: "ixv"})
 
 
-class test_nested_name():
+def test_nested_name():
     check('class', '{key}::A', {1: "A", 2: "1A"})
     check('class', '{key}::A::B', {1: "A::B", 2: "N1A1BE"})
     check('function', 'void f(::A a)', {1: "f__A", 2: "1f1A"})
@@ -816,6 +825,15 @@ def test_templates():
 
     # defaulted constrained type parameters
     check('type', 'template<C T = int&> {key}A', {2: 'I_1CE1A'}, key='using')
+
+
+def test_requires_clauses():
+    check('function', 'template<typename T> requires A auto f() -> void requires B',
+          {4: 'I0EIQaa1A1BE1fvv'})
+    check('function', 'template<typename T> requires A || B or C void f()',
+          {4: 'I0EIQoo1Aoo1B1CE1fvv'})
+    check('function', 'template<typename T> requires A && B || C and D void f()',
+          {4: 'I0EIQooaa1A1Baa1C1DE1fvv'})
 
 
 def test_template_args():

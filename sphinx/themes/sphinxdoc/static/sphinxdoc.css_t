@@ -37,6 +37,11 @@ div.document {
     background-repeat: repeat-x;
 }
 
+div.documentwrapper {
+    float: left;
+    width: 100%;
+}
+
 div.bodywrapper {
     margin: 0 calc({{ theme_sidebarwidth|todim }} + 10px) 0 0;
     border-right: 1px solid #ccc;
@@ -86,7 +91,6 @@ div.sphinxsidebarwrapper {
 }
 
 div.sphinxsidebar {
-    margin: 0;
     padding: 0.5em 15px 15px 0;
     width: calc({{ theme_sidebarwidth|todim }} - 20px);
     float: right;

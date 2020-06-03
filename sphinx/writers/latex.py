@@ -1428,6 +1428,8 @@ class LaTeXTranslator(SphinxTranslator):
 
         if 'refuri' in node:
             return
+        if 'anonymous' in node:
+            return
         if node.get('refid'):
             prev_node = get_prev_node(node)
             if isinstance(prev_node, nodes.reference) and node['refid'] == prev_node['refid']:
