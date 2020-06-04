@@ -129,6 +129,8 @@ Bugs fixed
 * #7781: sphinx-build: Wrong error message when outdir is not directory
 * #7653: sphinx-quickstart: Fix multiple directory creation for nested relpath
 * #2785: html: Bad alignment of equation links
+* #7718: html theme: some themes does not respect background color of Pygments
+  style (agogo, haiku, nature, pyramid, scrolls, sphinxdoc and traditional)
 * #7581: napoleon: bad parsing of inline code in attribute docstrings
 * #7628: imgconverter: runs imagemagick once unnecessary for builders not
   supporting images
