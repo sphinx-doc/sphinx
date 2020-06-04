@@ -1787,6 +1787,60 @@ def test_final(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.overload', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload',
+        '',
+        '',
+        '.. py:class:: Bar(x: int, y: int)',
+        '              Bar(x: str, y: str)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Baz(x: int, y: int)',
+        '              Baz(x: str, y: str)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Foo(x: int, y: int)',
+        '              Foo(x: str, y: str)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Math()',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Math.sum(x: int, y: int) -> int',
+        '                  Math.sum(x: float, y: float) -> float',
+        '                  Math.sum(x: str, y: str) -> str',
+        '      :module: target.overload',
+        '',
+        '      docstring',
+        '',
+        '',
+        '.. py:function:: sum(x: int, y: int) -> int',
+        '                 sum(x: float, y: float) -> float',
+        '                 sum(x: str, y: str) -> str',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('dummy', testroot='ext-autodoc')
 def test_autodoc(app, status, warning):
     app.builder.build_all()
