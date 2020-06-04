@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import collections
 import inspect
 import re
 from functools import partial
@@ -790,16 +791,33 @@ class GoogleDocstring:
         return lines
 
 
-def _recombine_set_tokens(tokens):
-    def takewhile_set(iterable):
-        yield "{"
+def _recombine_sets(tokens):
+    tokens = collections.deque(tokens)
+    keywords = ("optional", "default")
 
-        open_braces = 1
+    def takewhile_set(tokens):
+        open_braces = 0
+        previous_token = None
+        print("combining set:", tokens)
         while True:
             try:
-                token = next(iterable)
-            except StopIteration:
+                token = tokens.popleft()
+            except IndexError:
                 break
+
+            if token == ", ":
+                previous_token = token
+                continue
+
+            if token in keywords:
+                tokens.appendleft(token)
+                if previous_token is not None:
+                    tokens.appendleft(previous_token)
+                break
+
+            if previous_token is not None:
+                yield previous_token
+                previous_token = None
 
             if token == "{":
                 open_braces += 1
@@ -812,26 +830,28 @@ def _recombine_set_tokens(tokens):
                 break
 
     def combine_set(tokens):
-        iterable = iter(tokens)
         while True:
             try:
-                token = next(iterable)
-            except StopIteration:
+                token = tokens.popleft()
+            except IndexError:
                 break
 
-            yield "".join(takewhile_set(iterable)) if token == "{" else token
+            if token == "{":
+                tokens.appendleft("{")
+                yield "".join(takewhile_set(tokens))
+            else:
+                yield token
 
     return list(combine_set(tokens))
 
 
 def _tokenize_type_spec(spec):
-    tokens = tuple(
+    tokens = list(
         item
         for item in _token_regex.split(spec)
         if item is not None and item.strip()
     )
-    return _recombine_set_tokens(tokens)
-
+    return tokens
 
 
 def _token_type(token):
@@ -842,7 +862,7 @@ def _token_type(token):
             or (token.startswith("{") and token.endswith("}"))
             or (token.startswith('"') and token.endswith('"'))
             or (token.startswith("'") and token.endswith("'"))
-            ):
+    ):
         type_ = "literal"
     elif token.startswith("{"):
         logger.warning(
@@ -887,9 +907,10 @@ def _convert_numpy_type_spec(_type, translations={}):
         return translations.get(obj, default_translation.format(obj))
 
     tokens = _tokenize_type_spec(_type)
+    combined_tokens = _recombine_sets(tokens)
     types = [
         (token, _token_type(token))
-        for token in tokens
+        for token in combined_tokens
     ]
 
     # don't use the object role if it's not necessary
