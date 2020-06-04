@@ -165,7 +165,7 @@ class Sphinx:
 
         if path.exists(self.outdir) and not path.isdir(self.outdir):
             raise ApplicationError(__('Output directory (%s) is not a directory') %
-                                   self.srcdir)
+                                   self.outdir)
 
         if self.srcdir == self.outdir:
             raise ApplicationError(__('Source directory and destination '
