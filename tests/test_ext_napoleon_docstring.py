@@ -2128,14 +2128,13 @@ definition_after_normal_text : int
             "default: None",
         )
         type_specs = tuple(
-            ", ".join([type_, modifier])
-            if modifier
-            else type_
+            ", ".join(part for part in (type_, modifier) if part)
             for type_ in types
             for modifier in modifiers
         )
 
         converted_types = (
+            "",
             ":obj:`str`",
             ":obj:`int` or :obj:`float` or :obj:`None`",
             '``{"F", "C", "N"}``',
@@ -2147,7 +2146,7 @@ definition_after_normal_text : int
             "*default*: :obj:`None`",
         )
         converted = tuple(
-            ", ".join([converted_type, converted_modifier])
+            ", ".join(part for part in (converted_type, converted_modifier) if part)
             if converted_modifier
             else (
                 type_
