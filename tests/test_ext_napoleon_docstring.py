@@ -2008,13 +2008,17 @@ definition_after_normal_text : int
     def test_token_type_invalid(self):
         tokens = (
             "{1, 2",
-            "1, 2}",
+            "}",
             "'abc",
             "def'",
+            '"ghi',
+            'jkl"',
         )
         for token in tokens:
             # TODO: check for the warning
             _token_type(token)
+
+        assert False
 
     def test_tokenize_type_spec(self):
         types = (
