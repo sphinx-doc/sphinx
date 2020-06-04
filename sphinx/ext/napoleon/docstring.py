@@ -799,14 +799,6 @@ def _recombine_set_tokens(tokens):
             try:
                 token = next(iterable)
             except StopIteration:
-                if open_braces != 0:
-                    location = ("", "")
-                    logger.warning(
-                        __("invalid value set: %r"),
-                        "".join(tokens),
-                        location=location,
-                    )
-
                 break
 
             if token == "{":
@@ -841,35 +833,62 @@ def _tokenize_type_spec(spec):
     return _recombine_set_tokens(tokens)
 
 
+
+def _token_type(token):
+    if token.startswith(" ") or token.endswith(" "):
+        type_ = "delimiter"
+    elif (
+            token.isnumeric()
+            or (token.startswith("{") and token.endswith("}"))
+            or (token.startswith('"') and token.endswith('"'))
+            or (token.startswith("'") and token.endswith("'"))
+            ):
+        type_ = "literal"
+    elif token.startswith("{"):
+        logger.warning(
+            __("invalid value set (missing closing brace): %s"),
+            token,
+            location=None,
+        )
+        type_ = "literal"
+    elif token.endswith("}"):
+        logger.warning(
+            __("invalid value set (missing opening brace): %s"),
+            token,
+            location=None,
+        )
+        type_ = "literal"
+    elif token.startswith("'") or token.startswith('"'):
+        logger.warning(
+            __("malformed string literal (missing closing quote): %s"),
+            token,
+            location=None,
+        )
+        type_ = "literal"
+    elif token.endswith("'") or token.endswith('"'):
+        logger.warning(
+            __("malformed string literal (missing opening quote): %s"),
+            token,
+            location=None,
+        )
+        type_ = "literal"
+    elif token in ("optional", "default"):
+        type_ = "control"
+    elif _xref_regex.match(token):
+        type_ = "reference"
+    else:
+        type_ = "obj"
+
+    return type_
+
+
 def _convert_numpy_type_spec(_type, translations={}):
-    def token_type(token):
-        if token.startswith(" ") or token.endswith(" "):
-            type_ = "delimiter"
-        elif (
-                token.isnumeric()
-                or (token.startswith("{") and token.endswith("}"))
-                or (token.startswith('"') and token.endswith('"'))
-                or (token.startswith("'") and token.endswith("'"))
-                ):
-            type_ = "literal"
-        elif token.startswith("{"):
-            # invalid value set, make it a literal to avoid further warnings
-            type_ = "literal"
-        elif token in ("optional", "default"):
-            type_ = "control"
-        elif _xref_regex.match(token):
-            type_ = "reference"
-        else:
-            type_ = "obj"
-
-        return type_
-
     def convert_obj(obj, translations, default_translation):
         return translations.get(obj, default_translation.format(obj))
 
     tokens = _tokenize_type_spec(_type)
     types = [
-        (token, token_type(token))
+        (token, _token_type(token))
         for token in tokens
     ]
 

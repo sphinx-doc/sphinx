@@ -16,7 +16,12 @@ from unittest import TestCase, mock
 
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-from sphinx.ext.napoleon.docstring import _tokenize_type_spec, _recombine_set_tokens, _convert_numpy_type_spec
+from sphinx.ext.napoleon.docstring import (
+    _tokenize_type_spec,
+    _recombine_set_tokens,
+    _convert_numpy_type_spec,
+    _token_type
+)
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -1993,15 +1998,39 @@ definition_after_normal_text : int
             actual = _recombine_set_tokens(input_tokens)
             self.assertEqual(expected, actual)
 
-    def test_recombine_set_tokens_invalid(self):
-        invalid_tokens = (
-            ["{", "1", ", ", "2"],
+    def test_token_type(self):
+        tokens = (
+            ("1", "literal"),
+            ("'string'", "literal"),
+            ('"another_string"', "literal"),
+            ("{1, 2}", "literal"),
+            ("{'va{ue', 'set'}", "literal"),
+            ("optional", "control"),
+            ("default", "control"),
+            (", ", "delimiter"),
+            (" of ", "delimiter"),
+            (" or ", "delimiter"),
+            (": ", "delimiter"),
+            ("True", "obj"),
+            ("None", "obj"),
+            ("name", "obj"),
+            (":py:class:`Enum`", "reference"),
         )
 
-        for input_tokens in invalid_tokens:
-            with self.assertWarnsRegex(UserWarning, "invalid value set:"):
-                _recombine_set_tokens(input_tokens)
+        for token, expected in tokens:
+            actual = _token_type(token)
+            self.assertEqual(expected, actual)
 
+    def test_token_type_invalid(self):
+        tokens = (
+            "{1, 2",
+            "1, 2}",
+            "'abc",
+            "def'",
+        )
+        for token in tokens:
+            # TODO: check for the warning
+            _token_type(token)
 
     def test_tokenize_type_spec(self):
         types = (
