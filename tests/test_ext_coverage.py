@@ -81,3 +81,15 @@ def test_show_missing_items(app, status, warning):
     assert "py  method    Class.roger" in status.getvalue()
 
     assert "c   api       Py_SphinxTest [ function]" in status.getvalue()
+
+
+@pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
+def test_show_missing_items_quiet(app, status, warning):
+    app.quiet = True
+    app.builder.build_all()
+
+    assert "undocumented python function: autodoc_target :: raises" in warning.getvalue()
+    assert "undocumented python class: autodoc_target :: Base" in warning.getvalue()
+    assert "undocumented python method: autodoc_target :: Class :: roger" in warning.getvalue()
+
+    assert "undocumented c api: Py_SphinxTest [function]" in warning.getvalue()
