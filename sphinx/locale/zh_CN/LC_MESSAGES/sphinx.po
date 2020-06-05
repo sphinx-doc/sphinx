@@ -49,9 +49,6 @@ msgid "Running Sphinx v%s"
 msgstr "正在运行 Sphinx v%s"
 
 #: sphinx/application.py:202
-#, fuzzy
-#| msgid ""
-#| "For security reason, parallel mode is disabled on macOS and python3.8 and "
 msgid ""
 "For security reason, parallel mode is disabled on macOS and python3.8 and "
 "above.  For more details, please read https://github.com/sphinx-doc/sphinx/"
@@ -465,7 +462,7 @@ msgstr "无法导入扩展 %s"
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension module?"
-msgstr ""
+msgstr "扩展 %r 没有setup（）函数；这真的是Sphinx扩展模块吗？"
 
 #: sphinx/registry.py:418
 #, python-format
@@ -1236,6 +1233,19 @@ msgid ""
 "By default, everything that is outdated is built. Output only for selected\n"
 "files can be built by specifying individual filenames.\n"
 msgstr ""
+"\n"
+"从源文件生成文档。\n"
+"\n"
+"sphinx-build 从 SOURCEDIR 中的文件生成文档，并保存在 OUTPUTDIR。\n"
+"它从 SOURCEDIR 的“conf.py” 中读取配置。“sphinx-quickstart”工具可以生\n"
+"成包括“conf.py”在内的模板文件。\n"
+"\n"
+"sphinx-build 可以生成多种格式的文档。在命令行中指定构建器名称即可\n"
+"选择文档格式，默认是 HTML。构建器也可以执行文档处理相关的其他\n"
+"任务。\n"
+"\n"
+"默认只会重新构建过期内容。如果指定了文件名，那么只会产生这些文件\n"
+"的输出。\n"
 
 #: sphinx/cmd/build.py:122
 msgid "path to documentation source files"
@@ -1497,6 +1507,9 @@ msgid ""
 "files. You can enter another prefix (such as \".\") to replace the "
 "underscore."
 msgstr ""
+"在根目录中，将再创建两个目录;\"_templates\"\n"
+"用于自定义 HTML 模板和自定义样式表和其他静态的\"_static\"\n"
+"文件。您可以输入另一个前缀（如\".\"）以替换下划线。"
 
 #: sphinx/cmd/quickstart.py:264
 msgid "Name prefix for templates and static dir"
@@ -1556,10 +1569,6 @@ msgid "Project language"
 msgstr "项目语种"
 
 #: sphinx/cmd/quickstart.py:298
-#, fuzzy
-#| msgid ""
-#| "The file name suffix for source files. Commonly, this is either \".txt\"\n"
-#| "or \".rst\". Only files with this suffix are considered documents."
 msgid ""
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
 "or \".rst\".  Only files with this suffix are considered documents."
@@ -2276,6 +2285,8 @@ msgid ""
 "Malformed option description %r, should look like \"opt\", \"-opt args\", "
 "\"--opt args\", \"/opt args\" or \"+opt args\""
 msgstr ""
+"格式错误的选项描述 %r，应看起来像\"选择\"、\"选择 args\"、\"-选择 args\"、\"/"
+"选择 args\"或\"+选择 args\""
 
 #: sphinx/domains/std.py:235
 #, python-format
@@ -2439,7 +2450,7 @@ msgstr "在文档树中检测到循环引用，已忽略：%s <- %s"
 msgid ""
 "toctree contains reference to document %r that doesn't have a title: no link "
 "will be generated"
-msgstr ""
+msgstr "toctree 包含对文档 %r 的引用，该文档没有标题：不会生成任何链接"
 
 #: sphinx/environment/adapters/toctree.py:178
 #, python-format
@@ -2885,11 +2896,7 @@ msgid "missing attribute %s in object %s"
 msgstr "属性 %s 不存在，在对象 %s 上"
 
 #: sphinx/ext/autodoc/__init__.py:617
-#, fuzzy, python-format
-#| msgid ""
-#| "autosummary: failed to determine %r to be documented, the following "
-#| "exception was raised:\n"
-#| "%s"
+#, python-format
 msgid ""
 "autodoc: failed to determine %r to be documented, the following exception "
 "was raised:\n"
@@ -3306,6 +3313,8 @@ msgid ""
 "Searching for multiple words only shows matches that contain\n"
 "    all words."
 msgstr ""
+"搜索多个单词仅显示包含的匹配项\n"
+"    所有的话。"
 
 #: sphinx/themes/basic/search.html:32
 msgid "search"
