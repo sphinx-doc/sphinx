@@ -90,6 +90,7 @@ Features added
 * #7734: napoleon: overescaped trailing underscore on attribute
 * #7247: linkcheck: Add :confval:`linkcheck_request_headers` to send custom HTTP
   headers for specific host
+* #7792: setuptools: Support ``--verbosity`` option
 * #7683: Add ``allowed_exceptions`` parameter to ``Sphinx.emit()`` to allow
   handlers to raise specified exceptions
 * #7295: C++, parse (trailing) requires clauses.
