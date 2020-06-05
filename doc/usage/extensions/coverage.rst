@@ -51,7 +51,7 @@ should check:
 
    .. versionadded:: 1.1
 
-.. conval:: coverage_show_missing_items 
+.. confval:: coverage_show_missing_items 
 
    Print objects that are missing to standard output also.
    ``False`` by default.
