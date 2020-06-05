@@ -18,6 +18,7 @@
 """
 
 import argparse
+import inspect
 import locale
 import os
 import pkgutil
@@ -42,6 +43,7 @@ from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.locale import __
+from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging
 from sphinx.util import rst
@@ -85,14 +87,14 @@ def setup_documenters(app: Any) -> None:
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
         SingledispatchFunctionDocumenter,
     )
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter,
+        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
         SingledispatchFunctionDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
@@ -137,11 +139,11 @@ class AutosummaryRenderer:
         if isinstance(app, (Sphinx, DummyApplication)):
             if app.translator:
                 self.env.add_extension("jinja2.ext.i18n")
-                self.env.install_gettext_translations(app.translator)  # type: ignore
+                self.env.install_gettext_translations(app.translator)
         elif isinstance(app, Builder):
             if app.app.translator:
                 self.env.add_extension("jinja2.ext.i18n")
-                self.env.install_gettext_translations(app.app.translator)  # type: ignore
+                self.env.install_gettext_translations(app.app.translator)
 
     def exists(self, template_name: str) -> bool:
         """Check if template file exists."""
@@ -169,6 +171,56 @@ class AutosummaryRenderer:
 
 
 # -- Generating output ---------------------------------------------------------
+
+
+class ModuleScanner:
+    def __init__(self, app: Any, obj: Any) -> None:
+        self.app = app
+        self.object = obj
+
+    def get_object_type(self, name: str, value: Any) -> str:
+        return get_documenter(self.app, value, self.object).objtype
+
+    def is_skipped(self, name: str, value: Any, objtype: str) -> bool:
+        try:
+            return self.app.emit_firstresult('autodoc-skip-member', objtype,
+                                             name, value, False, {})
+        except Exception as exc:
+            logger.warning(__('autosummary: failed to determine %r to be documented, '
+                              'the following exception was raised:\n%s'),
+                           name, exc, type='autosummary')
+            return False
+
+    def scan(self, imported_members: bool) -> List[str]:
+        members = []
+        for name in dir(self.object):
+            try:
+                value = safe_getattr(self.object, name)
+            except AttributeError:
+                value = None
+
+            objtype = self.get_object_type(name, value)
+            if self.is_skipped(name, value, objtype):
+                continue
+
+            try:
+                if inspect.ismodule(value):
+                    imported = True
+                elif safe_getattr(value, '__module__') != self.object.__name__:
+                    imported = True
+                else:
+                    imported = False
+            except AttributeError:
+                imported = False
+
+            if imported_members:
+                # list all members up
+                members.append(name)
+            elif imported is False:
+                # list not-imported members up
+                members.append(name)
+
+        return members
 
 
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
@@ -214,6 +266,21 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                             public.append(name)
         return public, items
 
+    def get_module_attrs(members: Any) -> Tuple[List[str], List[str]]:
+        """Find module attributes with docstrings."""
+        attrs, public = [], []
+        try:
+            analyzer = ModuleAnalyzer.for_module(name)
+            attr_docs = analyzer.find_attr_docs()
+            for namespace, attr_name in attr_docs:
+                if namespace == '' and attr_name in members:
+                    attrs.append(attr_name)
+                    if not attr_name.startswith('_'):
+                        public.append(attr_name)
+        except PycodeError:
+            pass    # give up if ModuleAnalyzer fails to parse code
+        return public, attrs
+
     def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
@@ -226,13 +293,16 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     ns.update(context)
 
     if doc.objtype == 'module':
-        ns['members'] = dir(obj)
+        scanner = ModuleScanner(app, obj)
+        ns['members'] = scanner.scan(imported_members)
         ns['functions'], ns['all_functions'] = \
             get_members(obj, {'function'}, imported=imported_members)
         ns['classes'], ns['all_classes'] = \
             get_members(obj, {'class'}, imported=imported_members)
         ns['exceptions'], ns['all_exceptions'] = \
             get_members(obj, {'exception'}, imported=imported_members)
+        ns['attributes'], ns['all_attributes'] = \
+            get_module_attrs(ns['members'])
         ispackage = hasattr(obj, '__path__')
         if ispackage and recursive:
             ns['modules'], ns['all_modules'] = get_modules(obj)

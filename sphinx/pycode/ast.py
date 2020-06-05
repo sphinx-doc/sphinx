@@ -155,6 +155,12 @@ class _UnparseVisitor(ast.NodeVisitor):
                 ["%s=%s" % (k.arg, self.visit(k.value)) for k in node.keywords])
         return "%s(%s)" % (self.visit(node.func), ", ".join(args))
 
+    def visit_Constant(self, node: ast.Constant) -> str:  # type: ignore
+        if node.value is Ellipsis:
+            return "..."
+        else:
+            return repr(node.value)
+
     def visit_Dict(self, node: ast.Dict) -> str:
         keys = (self.visit(k) for k in node.keys)
         values = (self.visit(v) for v in node.values)
@@ -187,13 +193,6 @@ class _UnparseVisitor(ast.NodeVisitor):
             return ", ".join(self.visit(e) for e in node.elts)
         else:
             return "()"
-
-    if sys.version_info >= (3, 6):
-        def visit_Constant(self, node: ast.Constant) -> str:
-            if node.value is Ellipsis:
-                return "..."
-            else:
-                return repr(node.value)
 
     if sys.version_info < (3, 8):
         # these ast nodes were deprecated in python 3.8

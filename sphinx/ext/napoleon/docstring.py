@@ -314,7 +314,7 @@ class GoogleDocstring:
             return [line[min_indent:] for line in lines]
 
     def _escape_args_and_kwargs(self, name: str) -> str:
-        if name.endswith('_'):
+        if name.endswith('_') and getattr(self._config, 'strip_signature_backslash', False):
             name = name[:-1] + r'\_'
 
         if name[:2] == '**':

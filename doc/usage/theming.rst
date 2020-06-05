@@ -1,5 +1,7 @@
 .. highlight:: python
 
+.. _html-themes:
+
 HTML
 ====
 

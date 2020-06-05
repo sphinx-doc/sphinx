@@ -8,6 +8,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pytest
+
+from sphinx.errors import ExtensionError
 from sphinx.events import EventManager
 
 
@@ -22,3 +25,19 @@ def test_event_priority():
 
     events.emit('builder-inited')
     assert result == [3, 1, 2, 5, 4]
+
+
+def test_event_allowed_exceptions():
+    def raise_error(app):
+        raise RuntimeError
+
+    events = EventManager(object())  # pass an dummy object as an app
+    events.connect('builder-inited', raise_error, priority=500)
+
+    # all errors are conveted to ExtensionError
+    with pytest.raises(ExtensionError):
+        events.emit('builder-inited')
+
+    # Allow RuntimeError (pass-through)
+    with pytest.raises(RuntimeError):
+        events.emit('builder-inited', allowed_exceptions=(RuntimeError,))

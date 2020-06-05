@@ -28,7 +28,7 @@ class BaseRenderer:
     def __init__(self, loader: BaseLoader = None) -> None:
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
         self.env.filters['repr'] = repr
-        self.env.install_gettext_translations(get_translator())  # type: ignore
+        self.env.install_gettext_translations(get_translator())
 
     def render(self, template_name: str, context: Dict) -> str:
         return self.env.get_template(template_name).render(context)

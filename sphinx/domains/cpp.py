@@ -951,12 +951,12 @@ class ASTFoldExpr(ASTExpression):
         if self.leftExpr:
             res.append(transform(self.leftExpr))
             res.append(' ')
-            res.append(transform(self.op))
+            res.append(self.op)
             res.append(' ')
         res.append('...')
         if self.rightExpr:
             res.append(' ')
-            res.append(transform(self.op))
+            res.append(self.op)
             res.append(' ')
             res.append(transform(self.rightExpr))
         res.append(')')
@@ -1223,9 +1223,9 @@ class ASTUnaryOpExpr(ASTExpression):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.op[0] in 'cn':
-            return transform(self.op) + " " + transform(self.expr)
+            return self.op + " " + transform(self.expr)
         else:
-            return transform(self.op) + transform(self.expr)
+            return self.op + transform(self.expr)
 
     def get_id(self, version: int) -> str:
         return _id_operator_unary_v2[self.op] + self.expr.get_id(version)
@@ -3538,6 +3538,8 @@ class ASTTemplateIntroduction(ASTBase):
         signode += nodes.Text('}')
 
 
+################################################################################
+
 class ASTTemplateDeclarationPrefix(ASTBase):
     def __init__(self,
                  templates: List[Union[ASTTemplateParams,
@@ -3566,18 +3568,35 @@ class ASTTemplateDeclarationPrefix(ASTBase):
             t.describe_signature_as_introducer(signode, 'lastIsName', env, symbol, lineSpec)
 
 
+class ASTRequiresClause(ASTBase):
+    def __init__(self, expr: ASTExpression) -> None:
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return 'requires ' + transform(self.expr)
+
+    def describe_signature(self, signode: addnodes.desc_signature_line, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode += nodes.Text('requires ', 'requires ')
+        self.expr.describe_signature(signode, mode, env, symbol)
+
+
 ################################################################################
 ################################################################################
 
 class ASTDeclaration(ASTBase):
     def __init__(self, objectType: str, directiveType: str, visibility: str,
-                 templatePrefix: ASTTemplateDeclarationPrefix, declaration: Any,
+                 templatePrefix: ASTTemplateDeclarationPrefix,
+                 requiresClause: ASTRequiresClause, declaration: Any,
+                 trailingRequiresClause: ASTRequiresClause,
                  semicolon: bool = False) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
         self.visibility = visibility
         self.templatePrefix = templatePrefix
+        self.requiresClause = requiresClause
         self.declaration = declaration
+        self.trailingRequiresClause = trailingRequiresClause
         self.semicolon = semicolon
 
         self.symbol = None  # type: Symbol
@@ -3585,13 +3604,14 @@ class ASTDeclaration(ASTBase):
         self.enumeratorScopedSymbol = None  # type: Symbol
 
     def clone(self) -> "ASTDeclaration":
-        if self.templatePrefix:
-            templatePrefixClone = self.templatePrefix.clone()
-        else:
-            templatePrefixClone = None
-        return ASTDeclaration(self.objectType, self.directiveType,
-                              self.visibility, templatePrefixClone,
-                              self.declaration.clone(), self.semicolon)
+        templatePrefixClone = self.templatePrefix.clone() if self.templatePrefix else None
+        requiresClasueClone = self.requiresClause.clone() if self.requiresClause else None
+        trailingRequiresClasueClone = self.trailingRequiresClause.clone() \
+            if self.trailingRequiresClause else None
+        return ASTDeclaration(self.objectType, self.directiveType, self.visibility,
+                              templatePrefixClone, requiresClasueClone,
+                              self.declaration.clone(), trailingRequiresClasueClone,
+                              self.semicolon)
 
     @property
     def name(self) -> ASTNestedName:
@@ -3619,6 +3639,17 @@ class ASTDeclaration(ASTBase):
             res = []
         if self.templatePrefix:
             res.append(self.templatePrefix.get_id(version))
+        if self.requiresClause or self.trailingRequiresClause:
+            if version < 4:
+                raise NoOldIdError()
+            res.append('IQ')
+            if self.requiresClause and self.trailingRequiresClause:
+                res.append('aa')
+            if self.requiresClause:
+                res.append(self.requiresClause.expr.get_id(version))
+            if self.trailingRequiresClause:
+                res.append(self.trailingRequiresClause.expr.get_id(version))
+            res.append('E')
         res.append(self.declaration.get_id(version, self.objectType, self.symbol))
         return ''.join(res)
 
@@ -3632,7 +3663,13 @@ class ASTDeclaration(ASTBase):
             res.append(' ')
         if self.templatePrefix:
             res.append(transform(self.templatePrefix))
+        if self.requiresClause:
+            res.append(transform(self.requiresClause))
+            res.append(' ')
         res.append(transform(self.declaration))
+        if self.trailingRequiresClause:
+            res.append(' ')
+            res.append(transform(self.trailingRequiresClause))
         if self.semicolon:
             res.append(';')
         return ''.join(res)
@@ -3653,6 +3690,11 @@ class ASTDeclaration(ASTBase):
             self.templatePrefix.describe_signature(signode, mode, env,
                                                    symbol=self.symbol,
                                                    lineSpec=options.get('tparam-line-spec'))
+        if self.requiresClause:
+            reqNode = addnodes.desc_signature_line()
+            reqNode.sphinx_line_type = 'requiresClause'
+            signode.append(reqNode)
+            self.requiresClause.describe_signature(reqNode, 'markType', env, self.symbol)
         signode += mainDeclNode
         if self.visibility and self.visibility != "public":
             mainDeclNode += addnodes.desc_annotation(self.visibility + " ",
@@ -3688,8 +3730,16 @@ class ASTDeclaration(ASTBase):
         else:
             assert False
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
+        lastDeclNode = mainDeclNode
+        if self.trailingRequiresClause:
+            trailingReqNode = addnodes.desc_signature_line()
+            trailingReqNode.sphinx_line_type = 'trailingRequiresClause'
+            signode.append(trailingReqNode)
+            lastDeclNode = trailingReqNode
+            self.trailingRequiresClause.describe_signature(
+                trailingReqNode, 'markType', env, self.symbol)
         if self.semicolon:
-            mainDeclNode += nodes.Text(';')
+            lastDeclNode += nodes.Text(';')
 
 
 class ASTNamespace(ASTBase):
@@ -3808,7 +3858,7 @@ class Symbol:
                     continue
                 # only add a declaration if we our self are from a declaration
                 if self.declaration:
-                    decl = ASTDeclaration('templateParam', None, None, None, tp)
+                    decl = ASTDeclaration('templateParam', None, None, None, None, tp, None)
                 else:
                     decl = None
                 nne = ASTNestedNameElement(tp.get_identifier(), None)
@@ -3823,7 +3873,7 @@ class Symbol:
                 if nn is None:
                     continue
                 # (comparing to the template params: we have checked that we are a declaration)
-                decl = ASTDeclaration('functionParam', None, None, None, fp)
+                decl = ASTDeclaration('functionParam', None, None, None, None, fp, None)
                 assert not nn.rooted
                 assert len(nn.names) == 1
                 self._add_symbols(nn, [], decl, self.docname)
@@ -6297,8 +6347,61 @@ class DefinitionParser(BaseParser):
                           'Expected ",", or "}".')
         return ASTTemplateIntroduction(concept, params)
 
+    def _parse_requires_clause(self) -> Optional[ASTRequiresClause]:
+        # requires-clause -> 'requires' constraint-logical-or-expression
+        # constraint-logical-or-expression
+        #   -> constraint-logical-and-expression
+        #    | constraint-logical-or-expression '||' constraint-logical-and-expression
+        # constraint-logical-and-expression
+        #   -> primary-expression
+        #    | constraint-logical-and-expression '&&' primary-expression
+        self.skip_ws()
+        if not self.skip_word('requires'):
+            return None
+
+        def parse_and_expr(self: DefinitionParser) -> ASTExpression:
+            andExprs = []
+            ops = []
+            andExprs.append(self._parse_primary_expression())
+            while True:
+                self.skip_ws()
+                oneMore = False
+                if self.skip_string('&&'):
+                    oneMore = True
+                    ops.append('&&')
+                elif self.skip_word('and'):
+                    oneMore = True
+                    ops.append('and')
+                if not oneMore:
+                    break
+                andExprs.append(self._parse_primary_expression())
+            if len(andExprs) == 1:
+                return andExprs[0]
+            else:
+                return ASTBinOpExpr(andExprs, ops)
+
+        orExprs = []
+        ops = []
+        orExprs.append(parse_and_expr(self))
+        while True:
+            self.skip_ws()
+            oneMore = False
+            if self.skip_string('||'):
+                oneMore = True
+                ops.append('||')
+            elif self.skip_word('or'):
+                oneMore = True
+                ops.append('or')
+            if not oneMore:
+                break
+            orExprs.append(parse_and_expr(self))
+        if len(orExprs) == 1:
+            return ASTRequiresClause(orExprs[0])
+        else:
+            return ASTRequiresClause(ASTBinOpExpr(orExprs, ops))
+
     def _parse_template_declaration_prefix(self, objectType: str
-                                           ) -> ASTTemplateDeclarationPrefix:
+                                           ) -> Optional[ASTTemplateDeclarationPrefix]:
         templates = []  # type: List[Union[ASTTemplateParams, ASTTemplateIntroduction]]
         while 1:
             self.skip_ws()
@@ -6377,6 +6480,8 @@ class DefinitionParser(BaseParser):
             raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
         visibility = None
         templatePrefix = None
+        requiresClause = None
+        trailingRequiresClause = None
         declaration = None  # type: Any
 
         self.skip_ws()
@@ -6385,6 +6490,8 @@ class DefinitionParser(BaseParser):
 
         if objectType in ('type', 'concept', 'member', 'function', 'class'):
             templatePrefix = self._parse_template_declaration_prefix(objectType)
+            if objectType == 'function' and templatePrefix is not None:
+                requiresClause = self._parse_requires_clause()
 
         if objectType == 'type':
             prevErrors = []
@@ -6410,6 +6517,8 @@ class DefinitionParser(BaseParser):
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
             declaration = self._parse_type(named=True, outer='function')
+            if templatePrefix is not None:
+                trailingRequiresClause = self._parse_requires_clause()
         elif objectType == 'class':
             declaration = self._parse_class()
         elif objectType == 'union':
@@ -6427,7 +6536,8 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         semicolon = self.skip_string(';')
         return ASTDeclaration(objectType, directiveType, visibility,
-                              templatePrefix, declaration, semicolon)
+                              templatePrefix, requiresClause, declaration,
+                              trailingRequiresClause, semicolon)
 
     def parse_namespace_object(self) -> ASTNamespace:
         templatePrefix = self._parse_template_declaration_prefix(objectType="namespace")

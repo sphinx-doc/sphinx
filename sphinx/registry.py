@@ -97,6 +97,8 @@ class SphinxComponentRegistry:
         #: LaTeX packages; list of package names and its options
         self.latex_packages = []        # type: List[Tuple[str, str]]
 
+        self.latex_packages_after_hyperref = []     # type: List[Tuple[str, str]]
+
         #: post transforms; list of transforms
         self.post_transforms = []       # type: List[Type[Transform]]
 
@@ -362,9 +364,12 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 
-    def add_latex_package(self, name: str, options: str) -> None:
+    def add_latex_package(self, name: str, options: str, after_hyperref: bool = False) -> None:
         logger.debug('[app] adding latex package: %r', name)
-        self.latex_packages.append((name, options))
+        if after_hyperref:
+            self.latex_packages_after_hyperref.append((name, options))
+        else:
+            self.latex_packages.append((name, options))
 
     def add_enumerable_node(self, node: "Type[Node]", figtype: str,
                             title_getter: TitleGetter = None, override: bool = False) -> None:
