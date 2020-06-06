@@ -16,7 +16,7 @@ import warnings
 from inspect import Parameter, Signature
 from types import ModuleType
 from typing import (
-    Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, Union
+    Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, TypeVar, Union
 )
 
 from docutils.statemachine import StringList
@@ -1644,6 +1644,48 @@ class GenericAliasDocumenter(DataDocumenter):
         super().add_content(content)
 
 
+class TypeVarDocumenter(DataDocumenter):
+    """
+    Specialized Documenter subclass for TypeVars.
+    """
+
+    objtype = 'typevar'
+    directivetype = 'data'
+    priority = DataDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        return isinstance(member, TypeVar) and isattr  # type: ignore
+
+    def add_directive_header(self, sig: str) -> None:
+        self.options.annotation = SUPPRESS  # type: ignore
+        super().add_directive_header(sig)
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        if ignore is not None:
+            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx50Warning, stacklevel=2)
+
+        if self.object.__doc__ != TypeVar.__doc__:
+            return super().get_doc()
+        else:
+            return []
+
+    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+        attrs = [repr(self.object.__name__)]
+        for constraint in self.object.__constraints__:
+            attrs.append(stringify_typehint(constraint))
+        if self.object.__covariant__:
+            attrs.append("covariant=True")
+        if self.object.__contravariant__:
+            attrs.append("contravariant=True")
+
+        content = StringList([_('alias of TypeVar(%s)') % ", ".join(attrs)], source='')
+        super().add_content(content)
+
+
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for methods (normal, static and class).
@@ -2017,6 +2059,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(DataDeclarationDocumenter)
     app.add_autodocumenter(GenericAliasDocumenter)
+    app.add_autodocumenter(TypeVarDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
