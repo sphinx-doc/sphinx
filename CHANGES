@@ -141,6 +141,7 @@ Bugs fixed
 * #7646: handle errors on event handlers
 * #4187: LaTeX: EN DASH disappears from PDF bookmarks in Japanese documents
 * #7701: LaTeX: Anonymous indirect hyperlink target causes duplicated labels
+* #7723: LaTeX: pdflatex crashed when URL contains a single quote
 * #7756: py domain: The default value for positional only argument is not shown
 * #7760: coverage: Add :confval:`coverage_show_missing_items` to show coverage
   result to console
