@@ -858,10 +858,10 @@ def _token_type(token):
     if token.startswith(" ") or token.endswith(" "):
         type_ = "delimiter"
     elif (
-            token.isnumeric()
-            or (token.startswith("{") and token.endswith("}"))
-            or (token.startswith('"') and token.endswith('"'))
-            or (token.startswith("'") and token.endswith("'"))
+            token.isnumeric() or
+            (token.startswith("{") and token.endswith("}")) or
+            (token.startswith('"') and token.endswith('"')) or
+            (token.startswith("'") and token.endswith("'"))
     ):
         type_ = "literal"
     elif token.startswith("{"):
