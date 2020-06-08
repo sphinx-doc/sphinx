@@ -123,6 +123,7 @@ Bugs fixed
 * #7668: autodoc: wrong retann value is passed to a handler of
   autodoc-proccess-signature
 * #7711: autodoc: fails with ValueError when processing numpy objects
+* #7791: autodoc: TypeError is raised on documenting singledispatch function
 * #7551: autosummary: a nested class is indexed as non-nested class
 * #7661: autosummary: autosummary directive emits warnings twices if failed to
   import the target module

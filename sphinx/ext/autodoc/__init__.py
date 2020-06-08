@@ -1222,7 +1222,15 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
-        sig = inspect.signature(func)
+        try:
+            sig = inspect.signature(func)
+        except TypeError as exc:
+            logger.warning(__("Failed to get a function signature for %s: %s"),
+                           self.fullname, exc)
+            return
+        except ValueError:
+            return
+
         if len(sig.parameters) == 0:
             return
 
@@ -1811,7 +1819,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
-        sig = inspect.signature(func)
+        try:
+            sig = inspect.signature(func)
+        except TypeError as exc:
+            logger.warning(__("Failed to get a method signature for %s: %s"),
+                           self.fullname, exc)
+            return
+        except ValueError:
+            return
         if len(sig.parameters) == 1:
             return
 
