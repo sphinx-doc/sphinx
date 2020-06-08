@@ -711,7 +711,7 @@ __ http://pygments.org/docs/lexers
 
 .. rst:directive:: .. docinclude:: filename
 
-   Includes another document in this one. Unlike :directive:`include`, this
+   Includes another document in this one. Unlike :rst:dir:`include`, this
    allows inclusion of documents that use different parsers to their parent
    document, such as including a markdown file in an rst file.
 
