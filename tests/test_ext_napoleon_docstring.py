@@ -1189,6 +1189,23 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
+        Parameters
+        ----------
+        arg1:str
+             Extended description of arg1
+        *args, **kwargs:
+            Variable length argument list and arbitrary keyword arguments.
+        """,
+        """
+        Single line summary
+
+        :Parameters: * **arg1** (*str*) -- Extended description of arg1
+                     * **\\*args, \\*\\*kwargs** -- Variable length argument list and arbitrary keyword arguments.
+        """
+    ), (
+        """
+        Single line summary
+
         Yield
         -----
         str
