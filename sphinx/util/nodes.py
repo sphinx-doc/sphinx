@@ -447,16 +447,15 @@ def _make_id(string: str) -> str:
     id = string.translate(_non_id_translate_digraphs)
     id = id.translate(_non_id_translate)
     # get rid of non-ascii characters.
-    # 'ascii' lowercase to prevent problems with turkish locale.
-    id = unicodedata.normalize('NFKD', id).encode('ascii', 'ignore').decode('ascii')
-    # shrink runs of whitespace and replace by hyphen
+    id = unicodedata.normalize('NFKD', id).encode('ascii', 'backslashreplace').decode('ascii')
+    # shrink runs of whitespace and replace by single hyphen.
+    id = '-'.join(id.split())
+    # replace non-id chars with hyphens.
     id = _non_id_chars.sub('-', ' '.join(id.split()))
-    id = _non_id_at_ends.sub('', id)
-    return str(id)
+    return id
 
 
-_non_id_chars = re.compile('[^a-zA-Z0-9._]+')
-_non_id_at_ends = re.compile('^[-0-9._]+|-+$')
+_non_id_chars = re.compile('[^a-zA-Z0-9._]')
 _non_id_translate = {
     0x00f8: u'o',       # o with stroke
     0x0111: u'd',       # d with stroke

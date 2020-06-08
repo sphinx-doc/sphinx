@@ -191,13 +191,19 @@ def test_clean_astext():
         ('term', 'Sphinx', 'term-Sphinx'),
         ('', 'io.StringIO', 'io.StringIO'),   # contains a dot
         ('', 'sphinx.setup_command', 'sphinx.setup_command'),  # contains a dot & underscore
-        ('', '_io.StringIO', 'io.StringIO'),  # starts with underscore
+        ('', '_io.StringIO', '_io.StringIO'),  # starts with underscore
+        ('', 'term_', 'term_'),  # ends with underscore
+        ('', '.surrounded.with.dots.', '.surrounded.with.dots.'),
+        ('', '  with  whitespace  ', 'with-whitespace'),
         ('', 'ｓｐｈｉｎｘ', 'sphinx'),  # alphabets in unicode fullwidth characters
-        ('', '悠好', 'id0'),  # multibytes text (in Chinese)
-        ('', 'Hello=悠好=こんにちは', 'Hello'),  # alphabets and multibytes text
-        ('', 'fünf', 'funf'),  # latin1 (umlaut)
-        ('', '0sphinx', 'sphinx'),  # starts with number
-        ('', 'sphinx-', 'sphinx'),  # ends with hyphen
+        ('', '悠好', '-u60a0-u597d'),  # multibytes text (in Chinese)
+        ('', 'Hello=悠好=こんにちは', 'Hello--u60a0-u597d--u3053-u3093-u306b-u3061-u306f'),  # alphabets and multibytes text
+        ('', 'fünf', 'fu-u0308nf'),  # latin1 (umlaut)
+        ('', 'foo::bar', 'foo--bar'),  # two non-id (but ascii) chars
+        ('', '0sphinx', '0sphinx'),  # starts with number
+        ('', 'sphinx0', 'sphinx0'),  # ends with number
+        ('', '-sphinx', '-sphinx'),  # starts with hyphen
+        ('', 'sphinx-', 'sphinx-'),  # ends with hyphen
     ])
 def test_make_id(app, prefix, term, expected):
     document = create_new_document()
