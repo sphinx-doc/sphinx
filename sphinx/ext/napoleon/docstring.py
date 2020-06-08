@@ -876,6 +876,16 @@ class NumpyDocstring(GoogleDocstring):
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
 
+    def _escape_args_and_kwargs(self, name):
+        if ", " in name:
+            parts = name.split(", ")
+            return ", ".join(
+                super()._escape_args_and_kwargs(part)
+                for part in parts
+            )
+
+        return super()._escape_args_and_kwargs(name)
+
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
         line = next(self._line_iter)
