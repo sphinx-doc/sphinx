@@ -18,12 +18,15 @@ from typing import Any, Callable, Dict, List, Tuple, Union
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
-from sphinx.locale import _
+from sphinx.locale import _, __
+from sphinx.util import logging
 
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
 
+
+logger = logging.getLogger(__name__)
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
@@ -880,8 +883,30 @@ class NumpyDocstring(GoogleDocstring):
         func = super()._escape_args_and_kwargs
 
         if ", " in name:
-            parts = name.split(", ")
-            return ", ".join(func(part) for part in parts)
+            args, kwargs, *rest = name.split(", ")
+
+            is_args = args[:1] == "*" and len([c for c in args if c == "*"]) == 1
+            is_kwargs = kwargs[:2] == "**" and len([c for c in kwargs if c == "*"]) == 2
+
+            if is_args or is_kwargs and not (is_args and is_kwargs):
+                name_ = args if is_args else kwargs
+                other = "*args" if not is_args else "**kwargs"
+                logger.warning(
+                    __("can only combine parameters of form %s with %s: %s"),
+                    name_,
+                    other,
+                    name,
+                    location=None,
+                )
+            elif is_args and is_kwargs and rest:
+                logger.warning(
+                    __("cannot combine %s and %s with more parameters: %s"),
+                    args,
+                    kwargs,
+                    name,
+                    location=None,
+                )
+            return ", ".join([func(args), func(kwargs)])
 
         return func(name)
 
