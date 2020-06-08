@@ -1,5 +1,5 @@
-Release 3.1.0 (in development)
-==============================
+Release 3.1.0 (released Jun 08, 2020)
+=====================================
 
 Dependencies
 ------------
@@ -156,29 +156,8 @@ Bugs fixed
 * #7763: C and C++, don't crash during display stringification of unary
   expressions and fold expressions.
 
-Testing
---------
-
 Release 3.0.5 (in development)
 ==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 3.0.4 (released May 27, 2020)
 =====================================
