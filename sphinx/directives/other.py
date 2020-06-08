@@ -393,7 +393,6 @@ class IncludeDocument(SphinxDirective):
             path = os.path.join(self.standard_include_path, path[1:-1])
         path = os.path.normpath(os.path.join(source_dir, path))
         path = relative_path(None, path)
-        path = nodes.reprunicode(path)
         encoding = self.options.get(
             'encoding', self.state.document.settings.input_encoding)
         e_handler = self.state.document.settings.input_encoding_error_handler
