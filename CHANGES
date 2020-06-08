@@ -177,9 +177,6 @@ Bugs fixed
 * #7763: C and C++, don't crash during display stringification of unary
   expressions and fold expressions.
 
-Release 3.0.5 (in development)
-==============================
-
 Release 3.0.4 (released May 27, 2020)
 =====================================
 
