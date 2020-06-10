@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7808: autodoc: Warnings raised on variable and attribute type annotations
+
 Testing
 --------
 
