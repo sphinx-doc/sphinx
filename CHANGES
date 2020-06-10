@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7811: sphinx.util.inspect causes circular import problem
+
 Testing
 --------
 
