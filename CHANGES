@@ -16,6 +16,7 @@ Features added
 Bugs fixed
 ----------
 
+* #7802: autodoc: EOFError is raised on parallel build
 * #7811: sphinx.util.inspect causes circular import problem
 
 Testing
