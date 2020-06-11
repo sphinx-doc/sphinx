@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #7808: autodoc: Warnings raised on variable and attribute type annotations
+* #7811: sphinx.util.inspect causes circular import problem
 
 Testing
 --------
