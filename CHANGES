@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #7808: autodoc: Warnings raised on variable and attribute type annotations
+* #7821: autodoc: TypeError is raised for overloaded C-ext function
 * #7812: autosummary: generates broken stub files if the target code contains
   an attribute and module that are same name
 * #7811: sphinx.util.inspect causes circular import problem
