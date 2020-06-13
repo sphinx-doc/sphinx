@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #7807: autodoc: Show detailed warning when type_comment is mismatched with its
+  signature
+
 Bugs fixed
 ----------
 
