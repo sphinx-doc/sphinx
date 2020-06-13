@@ -227,12 +227,13 @@ class LiteralIncludeReader:
                     text = text.expandtabs(self.options['tab-width'])
 
                 return text.splitlines(True)
-        except OSError:
-            raise OSError(__('Include file %r not found or reading it failed') % filename)
-        except UnicodeError:
+        except OSError as exc:
+            raise OSError(__('Include file %r not found or reading it failed') %
+                          filename) from exc
+        except UnicodeError as exc:
             raise UnicodeError(__('Encoding %r used for reading included file %r seems to '
                                   'be wrong, try giving an :encoding: option') %
-                               (self.encoding, filename))
+                               (self.encoding, filename)) from exc
 
     def read(self, location: Tuple[str, int] = None) -> Tuple[str, int]:
         if 'diff' in self.options:
