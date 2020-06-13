@@ -2300,7 +2300,8 @@ class DefinitionParser(BaseParser):
                     errs = []
                     errs.append((exCast, "If type cast expression"))
                     errs.append((exUnary, "If unary expression"))
-                    raise self._make_multi_error(errs, "Error in cast expression.")
+                    raise self._make_multi_error(errs,
+                                                 "Error in cast expression.") from exUnary
         else:
             return self._parse_unary_expression()
 
@@ -2767,7 +2768,7 @@ class DefinitionParser(BaseParser):
                         msg += " (e.g., 'void (*f(int arg))(double)')"
                     prevErrors.append((exNoPtrParen, msg))
                     header = "Error in declarator"
-                    raise self._make_multi_error(prevErrors, header)
+                    raise self._make_multi_error(prevErrors, header) from exNoPtrParen
         pos = self.pos
         try:
             return self._parse_declarator_name_suffix(named, paramMode, typed)
@@ -2775,7 +2776,7 @@ class DefinitionParser(BaseParser):
             self.pos = pos
             prevErrors.append((e, "If declarator-id"))
             header = "Error in declarator or parameters"
-            raise self._make_multi_error(prevErrors, header)
+            raise self._make_multi_error(prevErrors, header) from e
 
     def _parse_initializer(self, outer: str = None, allowFallback: bool = True
                            ) -> ASTInitializer:
@@ -2843,7 +2844,7 @@ class DefinitionParser(BaseParser):
                     if True:
                         header = "Type must be either just a name or a "
                         header += "typedef-like declaration."
-                        raise self._make_multi_error(prevErrors, header)
+                        raise self._make_multi_error(prevErrors, header) from exTyped
                     else:
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
@@ -2994,7 +2995,7 @@ class DefinitionParser(BaseParser):
                 errs = []
                 errs.append((exExpr, "If expression"))
                 errs.append((exType, "If type"))
-                raise self._make_multi_error(errs, header)
+                raise self._make_multi_error(errs, header) from exType
         return res
 
 
@@ -3132,7 +3133,7 @@ class CObject(ObjectDescription):
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             self.env.temp_data['c:last_symbol'] = symbol
-            raise ValueError
+            raise ValueError from e
 
         try:
             symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)

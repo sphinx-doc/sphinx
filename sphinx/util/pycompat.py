@@ -34,11 +34,11 @@ def convert_with_2to3(filepath: str) -> str:
     try:
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
         from lib2to3.pgen2.parse import ParseError
-    except ImportError:
+    except ImportError as exc:
         # python 3.9.0a6+ emits PendingDeprecationWarning for lib2to3.
         # Additionally, removal of the module is still discussed at PEP-594.
         # To support future python, this catches ImportError for lib2to3.
-        raise SyntaxError
+        raise SyntaxError from exc
 
     fixers = get_fixers_from_package('lib2to3.fixes')
     refactoring_tool = RefactoringTool(fixers)
@@ -49,7 +49,8 @@ def convert_with_2to3(filepath: str) -> str:
         # do not propagate lib2to3 exceptions
         lineno, offset = err.context[1]
         # try to match ParseError details with SyntaxError details
-        raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
+
+        raise SyntaxError(err.msg, (filepath, lineno, offset, err.value)) from err
     return str(tree)
 
 

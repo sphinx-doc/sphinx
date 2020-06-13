@@ -256,7 +256,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
         return None, None
     except CalledProcessError as exc:
         raise GraphvizError(__('dot exited with error:\n[stderr]\n%r\n'
-                               '[stdout]\n%r') % (exc.stderr, exc.stdout))
+                               '[stdout]\n%r') % (exc.stderr, exc.stdout)) from exc
 
 
 def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Dict,
@@ -270,7 +270,7 @@ def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Di
         fname, outfn = render_dot(self, code, options, format, prefix)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
-        raise nodes.SkipNode
+        raise nodes.SkipNode from exc
 
     classes = [imgcls, 'graphviz'] + node.get('classes', [])
     imgcls = ' '.join(filter(None, classes))
@@ -321,7 +321,7 @@ def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
-        raise nodes.SkipNode
+        raise nodes.SkipNode from exc
 
     is_inline = self.is_inline(node)
 
@@ -358,7 +358,7 @@ def render_dot_texinfo(self: TexinfoTranslator, node: graphviz, code: str,
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
-        raise nodes.SkipNode
+        raise nodes.SkipNode from exc
     if fname is not None:
         self.body.append('@image{%s,,,[graphviz],png}\n' % fname[:-4])
     raise nodes.SkipNode

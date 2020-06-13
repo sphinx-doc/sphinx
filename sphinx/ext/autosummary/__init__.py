@@ -647,7 +647,7 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
         else:
             return sys.modules[modname], None, modname
     except (ValueError, ImportError, AttributeError, KeyError) as e:
-        raise ImportError(*e.args)
+        raise ImportError(*e.args) from e
 
 
 # -- :autolink: (smart default role) -------------------------------------------
