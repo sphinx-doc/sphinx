@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #7808: napoleon: a type for attribute are represented as typed field
+
 Deprecated
 ----------
 
@@ -20,6 +22,7 @@ Bugs fixed
 * #7802: autodoc: EOFError is raised on parallel build
 * #7812: autosummary: generates broken stub files if the target code contains
   an attribute and module that are same name
+* #7808: napoleon: Warnings raised on variable and attribute type annotations
 * #7811: sphinx.util.inspect causes circular import problem
 
 Testing
