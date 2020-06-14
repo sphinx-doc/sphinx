@@ -1,16 +1,10 @@
-Release 3.1.1 (in development)
-==============================
-
-Dependencies
-------------
+Release 3.1.1 (released Jun 14, 2020)
+=====================================
 
 Incompatible changes
 --------------------
 
 * #7808: napoleon: a type for attribute are represented as typed field
-
-Deprecated
-----------
 
 Features added
 --------------
@@ -30,9 +24,6 @@ Bugs fixed
   an attribute and module that are same name
 * #7808: napoleon: Warnings raised on variable and attribute type annotations
 * #7811: sphinx.util.inspect causes circular import problem
-
-Testing
---------
 
 Release 3.1.0 (released Jun 08, 2020)
 =====================================
