@@ -1,10 +1,14 @@
-name: Lint source code (flake8)
+name: Lint source code
 
 on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [docslint, flake8, mypy]
 
     steps:
     - uses: actions/checkout@v2
@@ -15,4 +19,4 @@ jobs:
     - name: Install dependencies
       run:  pip install -U tox
     - name: Run Tox
-      run:  tox -e flake8
+      run:  tox -e ${{ matrix.tool }}
