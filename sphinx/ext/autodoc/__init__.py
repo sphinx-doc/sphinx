@@ -1929,6 +1929,17 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         else:
             self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
 
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        try:
+            # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
+            # a docstring from the value which descriptor returns unexpectedly.
+            # ref: https://github.com/sphinx-doc/sphinx/issues/7805
+            orig = self.env.config.autodoc_inherit_docstrings
+            self.env.config.autodoc_inherit_docstrings = False  # type: ignore
+            return super().get_doc(encoding, ignore)
+        finally:
+            self.env.config.autodoc_inherit_docstrings = orig  # type: ignore
+
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         if not self._datadescriptor:
             # if it's not a data descriptor, its docstring is very probably the
