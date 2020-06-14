@@ -1237,7 +1237,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         params = list(sig.parameters.values())
         if params[0].annotation is Parameter.empty:
             params[0] = params[0].replace(annotation=typ)
-            func.__signature__ = sig.replace(parameters=params)  # type: ignore
+            try:
+                func.__signature__ = sig.replace(parameters=params)  # type: ignore
+            except TypeError:
+                # failed to update signature (ex. built-in or extension types)
+                return
 
 
 class SingledispatchFunctionDocumenter(FunctionDocumenter):
@@ -1833,7 +1837,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         params = list(sig.parameters.values())
         if params[1].annotation is Parameter.empty:
             params[1] = params[1].replace(annotation=typ)
-            func.__signature__ = sig.replace(parameters=params)  # type: ignore
+            try:
+                func.__signature__ = sig.replace(parameters=params)  # type: ignore
+            except TypeError:
+                # failed to update signature (ex. built-in or extension types)
+                return
 
 
 class SingledispatchMethodDocumenter(MethodDocumenter):
@@ -1920,6 +1928,17 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             pass
         else:
             self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        try:
+            # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
+            # a docstring from the value which descriptor returns unexpectedly.
+            # ref: https://github.com/sphinx-doc/sphinx/issues/7805
+            orig = self.env.config.autodoc_inherit_docstrings
+            self.env.config.autodoc_inherit_docstrings = False  # type: ignore
+            return super().get_doc(encoding, ignore)
+        finally:
+            self.env.config.autodoc_inherit_docstrings = orig  # type: ignore
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         if not self._datadescriptor:
