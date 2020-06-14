@@ -422,9 +422,9 @@ class Documenter:
                     if matched:
                         args = matched.group(1)
                         retann = matched.group(2)
-            except Exception:
-                logger.warning(__('error while formatting arguments for %s:') %
-                               self.fullname, type='autodoc', exc_info=True)
+            except Exception as exc:
+                logger.warning(__('error while formatting arguments for %s: %s'),
+                               self.fullname, exc, type='autodoc')
                 args = None
 
         result = self.env.events.emit_firstresult('autodoc-process-signature',
@@ -795,8 +795,8 @@ class Documenter:
             # parse right now, to get PycodeErrors on parsing (results will
             # be cached anyway)
             self.analyzer.find_attr_docs()
-        except PycodeError:
-            logger.debug('[autodoc] module analyzer failed:', exc_info=True)
+        except PycodeError as exc:
+            logger.debug('[autodoc] module analyzer failed: %s', exc)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
             # at least add the module.__file__ as a dependency
@@ -1237,7 +1237,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         params = list(sig.parameters.values())
         if params[0].annotation is Parameter.empty:
             params[0] = params[0].replace(annotation=typ)
-            func.__signature__ = sig.replace(parameters=params)  # type: ignore
+            try:
+                func.__signature__ = sig.replace(parameters=params)  # type: ignore
+            except TypeError:
+                # failed to update signature (ex. built-in or extension types)
+                return
 
 
 class SingledispatchFunctionDocumenter(FunctionDocumenter):
@@ -1833,7 +1837,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         params = list(sig.parameters.values())
         if params[1].annotation is Parameter.empty:
             params[1] = params[1].replace(annotation=typ)
-            func.__signature__ = sig.replace(parameters=params)  # type: ignore
+            try:
+                func.__signature__ = sig.replace(parameters=params)  # type: ignore
+            except TypeError:
+                # failed to update signature (ex. built-in or extension types)
+                return
 
 
 class SingledispatchMethodDocumenter(MethodDocumenter):
@@ -1920,6 +1928,17 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             pass
         else:
             self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        try:
+            # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
+            # a docstring from the value which descriptor returns unexpectedly.
+            # ref: https://github.com/sphinx-doc/sphinx/issues/7805
+            orig = self.env.config.autodoc_inherit_docstrings
+            self.env.config.autodoc_inherit_docstrings = False  # type: ignore
+            return super().get_doc(encoding, ignore)
+        finally:
+            self.env.config.autodoc_inherit_docstrings = orig  # type: ignore
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         if not self._datadescriptor:
