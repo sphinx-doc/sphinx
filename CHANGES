@@ -15,6 +15,9 @@ Deprecated
 Features added
 --------------
 
+* #7807: autodoc: Show detailed warning when type_comment is mismatched with its
+  signature
+
 Bugs fixed
 ----------
 
@@ -22,6 +25,7 @@ Bugs fixed
 * #7802: autodoc: EOFError is raised on parallel build
 * #7821: autodoc: TypeError is raised for overloaded C-ext function
 * #7805: autodoc: an object which descriptors returns is unexpectedly documented
+* #7807: autodoc: wrong signature is shown for the function using contextmanager
 * #7812: autosummary: generates broken stub files if the target code contains
   an attribute and module that are same name
 * #7808: napoleon: Warnings raised on variable and attribute type annotations

@@ -9,6 +9,7 @@
 """
 
 import builtins
+import contextlib
 import enum
 import inspect
 import re
@@ -421,6 +422,17 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     return getattr(builtins, name, None) is cls
 
 
+def _should_unwrap(subject: Callable) -> bool:
+    """Check the function should be unwrapped on getting signature."""
+    if (safe_getattr(subject, '__globals__', None) and
+            subject.__globals__.get('__name__') == 'contextlib' and  # type: ignore
+            subject.__globals__.get('__file__') == contextlib.__file__):  # type: ignore
+        # contextmanger should be unwrapped
+        return True
+
+    return False
+
+
 def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False
               ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
@@ -431,7 +443,10 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
     """
     try:
         try:
-            signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
+            if _should_unwrap(subject):
+                signature = inspect.signature(subject)
+            else:
+                signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
         except ValueError:
             # follow built-in wrappers up (ex. functools.lru_cache)
             signature = inspect.signature(subject)
