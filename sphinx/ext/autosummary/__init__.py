@@ -755,7 +755,8 @@ def process_generate_options(app: Sphinx) -> None:
     with mock(app.config.autosummary_mock_imports):
         generate_autosummary_docs(genfiles, suffix=suffix, base_path=app.srcdir,
                                   app=app, imported_members=imported_members,
-                                  overwrite=app.config.autosummary_generate_overwrite)
+                                  overwrite=app.config.autosummary_generate_overwrite,
+                                  encoding=app.config.source_encoding)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
