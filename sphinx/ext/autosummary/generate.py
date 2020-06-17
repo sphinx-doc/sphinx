@@ -347,7 +347,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                               info: Callable = None, base_path: str = None,
                               builder: Builder = None, template_dir: str = None,
                               imported_members: bool = False, app: Any = None,
-                              overwrite: bool = True) -> None:
+                              overwrite: bool = True, encoding: str = 'utf-8') -> None:
     if info:
         warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
@@ -415,17 +415,17 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
 
         filename = os.path.join(path, name + suffix)
         if os.path.isfile(filename):
-            with open(filename) as f:
+            with open(filename, encoding=encoding) as f:
                 old_content = f.read()
 
             if content == old_content:
                 continue
             elif overwrite:  # content has changed
-                with open(filename, 'w') as f:
+                with open(filename, 'w', encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)
         else:
-            with open(filename, 'w') as f:
+            with open(filename, 'w', encoding=encoding) as f:
                 f.write(content)
             new_files.append(filename)
 
