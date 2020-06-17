@@ -28,6 +28,7 @@ Features added
 
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined
+* #7830: Add debug logs for change detection of sources and templates
 
 Bugs fixed
 ----------
