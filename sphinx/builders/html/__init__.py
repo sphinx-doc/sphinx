@@ -12,6 +12,7 @@ import html
 import posixpath
 import re
 import sys
+from datetime import datetime
 from os import path
 from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple, Type
 
@@ -344,6 +345,7 @@ class StandaloneHTMLBuilder(Builder):
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
+                logger.debug('[build target] did not match: build_info ')
                 yield from self.env.found_docs
                 return
         except ValueError as exc:
@@ -358,6 +360,7 @@ class StandaloneHTMLBuilder(Builder):
             template_mtime = 0
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
+                logger.debug('[build target] did not in env: %r', docname)
                 yield docname
                 continue
             targetname = self.get_outfilename(docname)
@@ -369,6 +372,14 @@ class StandaloneHTMLBuilder(Builder):
                 srcmtime = max(path.getmtime(self.env.doc2path(docname)),
                                template_mtime)
                 if srcmtime > targetmtime:
+                    logger.debug(
+                        '[build target] targetname %r(%s), template(%s), docname %r(%s)',
+                        targetname,
+                        datetime.utcfromtimestamp(targetmtime),
+                        datetime.utcfromtimestamp(template_mtime),
+                        docname,
+                        datetime.utcfromtimestamp(path.getmtime(self.env.doc2path(docname))),
+                    )
                     yield docname
             except OSError:
                 # source doesn't exist anymore

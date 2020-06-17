@@ -12,6 +12,7 @@ import os
 import pickle
 from collections import defaultdict
 from copy import copy
+from datetime import datetime
 from os import path
 from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
 from typing import TYPE_CHECKING
@@ -391,21 +392,28 @@ class BuildEnvironment:
         else:
             for docname in self.found_docs:
                 if docname not in self.all_docs:
+                    logger.debug('[build target] added %r', docname)
                     added.add(docname)
                     continue
                 # if the doctree file is not there, rebuild
                 filename = path.join(self.doctreedir, docname + '.doctree')
                 if not path.isfile(filename):
+                    logger.debug('[build target] changed %r', docname)
                     changed.add(docname)
                     continue
                 # check the "reread always" list
                 if docname in self.reread_always:
+                    logger.debug('[build target] changed %r', docname)
                     changed.add(docname)
                     continue
                 # check the mtime of the document
                 mtime = self.all_docs[docname]
                 newmtime = path.getmtime(self.doc2path(docname))
                 if newmtime > mtime:
+                    logger.debug('[build target] outdated %r: %s -> %s',
+                                 docname,
+                                 datetime.utcfromtimestamp(mtime),
+                                 datetime.utcfromtimestamp(newmtime))
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
