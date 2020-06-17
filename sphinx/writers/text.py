@@ -223,7 +223,7 @@ class Table:
                 for left, right in zip(out, out[1:])
             ]
             glue.append(tail)
-            return head + "".join(chain(*zip(out, glue)))
+            return head + "".join(chain.from_iterable(zip(out, glue)))
 
         for lineno, line in enumerate(self.lines):
             if self.separator and lineno == self.separator:
