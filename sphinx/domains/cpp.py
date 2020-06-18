@@ -6784,7 +6784,11 @@ class CPPObject(ObjectDescription):
             ast = self.parse_definition(parser)
             parser.assert_end()
         except DefinitionError as e:
-            logger.warning(e, location=signode)
+            if 'Error when parsing function declaration.' in str(e):
+                logger.warning(e, location=signode,
+                               type='cpp', subtype='parse_function_declaration')
+            else:
+                logger.warning(e, location=signode)
             # It is easier to assume some phony name than handling the error in
             # the possibly inner declarations.
             name = _make_phony_error_name()
@@ -6806,7 +6810,8 @@ class CPPObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['cpp:last_symbol'] = e.symbol
-            logger.warning("Duplicate declaration, %s", sig, location=signode)
+            logger.warning("Duplicate declaration, %s", sig, location=signode,
+                           type='cpp', subtype='duplicate_declaration')
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
