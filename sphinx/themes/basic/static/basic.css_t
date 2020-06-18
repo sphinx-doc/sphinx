@@ -537,6 +537,14 @@ ul ul > li:last-child > :last-child {
     margin-bottom: revert;
 }
 
+ol.simple > li > p,
+ul.simple > li > p,
+ol.compact > li > p,
+ul.compact > li > p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 dl.footnote > dt,
 dl.citation > dt {
     float: left;
