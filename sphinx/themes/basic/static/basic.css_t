@@ -538,9 +538,7 @@ ul ul > li:last-child > :last-child {
 }
 
 ol.simple > li > p,
-ul.simple > li > p,
-ol.compact > li > p,
-ul.compact > li > p {
+ul.simple > li > p {
     margin-top: 0;
     margin-bottom: 0;
 }
