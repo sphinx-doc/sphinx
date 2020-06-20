@@ -10,11 +10,11 @@ Subject: <short purpose of this pull request>
   For more details, see https://www.sphinx-doc.org/en/master/devguide.html#branch-model
 -->
 
-### Feature or Bugfix
-<!-- please choose -->
-- Feature
-- Bugfix
-- Refactoring
+### Type
+<!-- change [ ] to [x] for those that apply -->
+- [ ] Feature
+- [ ] Bugfix
+- [ ] Refactoring
 
 ### Purpose
 - <long purpose of this pull request>
