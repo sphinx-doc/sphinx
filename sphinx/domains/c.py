@@ -28,7 +28,8 @@ from sphinx.locale import _, __
 from sphinx.roles import SphinxRole, XRefRole
 from sphinx.util import logging
 from sphinx.util.cfamily import (
-    NoOldIdError, ASTBaseBase, verify_description_mode, StringifyTransform,
+    NoOldIdError, ASTBaseBase, ASTBaseParenExprList,
+    verify_description_mode, StringifyTransform,
     BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
     identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
     hex_literal_re, binary_literal_re, integers_literal_suffix_re,
@@ -1053,7 +1054,7 @@ class ASTDeclaratorParen(ASTDeclarator):
 # Initializer
 ################################################################################
 
-class ASTParenExprList(ASTBase):
+class ASTParenExprList(ASTBaseParenExprList):
     def __init__(self, exprs: List[ASTExpression]) -> None:
         self.exprs = exprs
 
