@@ -31,7 +31,8 @@ from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
 from sphinx.util.cfamily import (
-    NoOldIdError, ASTBaseBase, ASTAttribute, verify_description_mode, StringifyTransform,
+    NoOldIdError, ASTBaseBase, ASTAttribute, ASTBaseParenExprList,
+    verify_description_mode, StringifyTransform,
     BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
     identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
     hex_literal_re, binary_literal_re, integers_literal_suffix_re,
@@ -2742,7 +2743,7 @@ class ASTPackExpansionExpr(ASTExpression):
         signode += nodes.Text('...')
 
 
-class ASTParenExprList(ASTBase):
+class ASTParenExprList(ASTBaseParenExprList):
     def __init__(self, exprs: List[Union[ASTExpression, ASTBracedInitList]]) -> None:
         self.exprs = exprs
 

@@ -469,6 +469,8 @@ def test_attributes():
     check('member', '__attribute__(()) int f', {1: 'f'})
     check('member', '__attribute__((a)) int f', {1: 'f'})
     check('member', '__attribute__((a, b)) int f', {1: 'f'})
+    check('member', '__attribute__((optimize(3))) int f', {1: 'f'})
+    check('member', '__attribute__((format(printf, 1, 2))) int f', {1: 'f'})
     # style: user-defined id
     check('member', 'id_attr int f', {1: 'f'})
     # style: user-defined paren
