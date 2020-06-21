@@ -46,11 +46,16 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
     if objtype == 'class' and app.config.autoclass_content not in ('init', 'both'):
         return
 
-    signature = cast(addnodes.desc_signature, contentnode.parent[0])
-    if signature['module']:
-        fullname = '.'.join([signature['module'], signature['fullname']])
-    else:
-        fullname = signature['fullname']
+    try:
+        signature = cast(addnodes.desc_signature, contentnode.parent[0])
+        if signature['module']:
+            fullname = '.'.join([signature['module'], signature['fullname']])
+        else:
+            fullname = signature['fullname']
+    except KeyError:
+        # signature node does not have valid context info for the target object
+        return
+
     annotations = app.env.temp_data.get('annotations', {})
     if annotations.get(fullname, {}):
         field_lists = [n for n in contentnode if isinstance(n, nodes.field_list)]
