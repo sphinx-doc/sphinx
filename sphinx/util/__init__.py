@@ -634,7 +634,10 @@ def split_full_qualified_name(name: str) -> Tuple[str, str]:
                 if not inspect.ismodule(value):
                     return ".".join(parts[:i]), ".".join(parts[i:])
         except ImportError:
-            return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            if parts[:i - 1]:
+                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            else:
+                return None, ".".join(parts)
         except IndexError:
             pass
 
