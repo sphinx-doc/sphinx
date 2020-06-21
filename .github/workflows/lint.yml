@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tool: [docslint, flake8, mypy]
+        tool: [docslint, flake8, mypy, twine]
 
     steps:
     - uses: actions/checkout@v2
