@@ -16,6 +16,7 @@ import warnings
 from typing import Any, Iterable, Tuple
 from typing import cast
 
+import docutils
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
@@ -76,7 +77,23 @@ class HTMLWriter(Writer):
                      'footer', 'html_prolog', 'html_head', 'html_title',
                      'html_subtitle', 'html_body', ):
             setattr(self, attr, getattr(visitor, attr, None))
-        self.clean_meta = ''.join(self.visitor.meta[2:])
+        self.clean_meta = self.get_clean_meta()
+
+    def get_clean_meta(self) -> str:
+        visitor = cast(HTMLTranslator, self.visitor)
+        meta = visitor.meta[:]
+
+        # Remove <meta charset> tag from docutils
+        content_type = visitor.content_type % visitor.settings.output_encoding
+        if len(meta) and meta[0] == content_type:
+            meta.pop(0)
+
+        # Remove <meta name=generator> tag from docutils
+        generator = visitor.generator % docutils.__version__
+        if len(meta) and meta[0] == generator:
+            meta.pop(0)
+
+        return ''.join(meta)
 
 
 class HTMLTranslator(SphinxTranslator, BaseTranslator):

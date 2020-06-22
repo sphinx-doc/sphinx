@@ -20,6 +20,7 @@ Bugs fixed
 
 * #7839: autosummary: cannot handle umlauts in function names
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
+* #7863: html: HTMLWriter strips the first two entries of meta
 * #7846: html theme: XML-invalid files were generated
 
 Testing
