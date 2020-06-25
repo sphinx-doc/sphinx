@@ -121,15 +121,16 @@ def test_parse_name(app):
     verify('class', 'Base', ('test_ext_autodoc', ['Base'], None, None))
 
     # for members
-    directive.env.ref_context['py:module'] = 'foo'
+    directive.env.ref_context['py:module'] = 'sphinx.testing'
     verify('method', 'util.SphinxTestApp.cleanup',
-           ('foo', ['util', 'SphinxTestApp', 'cleanup'], None, None))
-    directive.env.ref_context['py:module'] = 'util'
+           ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None))
+    directive.env.ref_context['py:module'] = 'sphinx.testing.util'
     directive.env.ref_context['py:class'] = 'Foo'
     directive.env.temp_data['autodoc:class'] = 'SphinxTestApp'
-    verify('method', 'cleanup', ('util', ['SphinxTestApp', 'cleanup'], None, None))
+    verify('method', 'cleanup',
+           ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None))
     verify('method', 'SphinxTestApp.cleanup',
-           ('util', ['SphinxTestApp', 'cleanup'], None, None))
+           ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None))
 
 
 def test_format_signature(app):
@@ -1877,6 +1878,43 @@ def test_overload(app):
         '   :module: target.overload',
         '',
         '   docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_pymodule_for_ModuleLevelDocumenter(app):
+    app.env.ref_context['py:module'] = 'target'
+    actual = do_autodoc(app, 'class', 'classes.Foo')
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.classes',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_pymodule_for_ClassLevelDocumenter(app):
+    app.env.ref_context['py:module'] = 'target'
+    actual = do_autodoc(app, 'method', 'methods.Base.meth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Base.meth()',
+        '   :module: target.methods',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_pyclass_for_ClassLevelDocumenter(app):
+    app.env.ref_context['py:module'] = 'target.methods'
+    app.env.ref_context['py:class'] = 'Base'
+    actual = do_autodoc(app, 'method', 'meth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Base.meth()',
+        '   :module: target.methods',
         '',
     ]
 

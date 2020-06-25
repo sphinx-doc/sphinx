@@ -977,19 +977,29 @@ class ModuleLevelDocumenter(Documenter):
             if path:
                 stripped = path.rstrip('.')
                 modname, qualname = split_full_qualified_name(stripped)
+                if modname is None:
+                    # if documenting a toplevel object without explicit module,
+                    # it can be contained in another auto directive ...
+                    modname = self.env.temp_data.get('autodoc:module')
+                    # ... or in the scope of a module directive
+                    if not modname:
+                        modname = self.env.ref_context.get('py:module')
+
+                    if modname:
+                        stripped = ".".join([modname, stripped])
+                        modname, qualname = split_full_qualified_name(stripped)
+
                 if qualname:
                     parents = qualname.split(".")
                 else:
                     parents = []
-
-            if modname is None:
-                # if documenting a toplevel object without explicit module,
-                # it can be contained in another auto directive ...
+            else:
                 modname = self.env.temp_data.get('autodoc:module')
-                # ... or in the scope of a module directive
+                parents = []
+
                 if not modname:
                     modname = self.env.ref_context.get('py:module')
-                # ... else, it stays None, which means invalid
+
         return modname, parents + [base]
 
 
@@ -1016,18 +1026,24 @@ class ClassLevelDocumenter(Documenter):
                 if mod_cls is None:
                     return None, []
 
-            try:
-                modname, qualname = split_full_qualified_name(mod_cls)
-                parents = qualname.split(".") if qualname else []
-            except ImportError:
-                parents = mod_cls.split(".")
-
-            # if the module name is still missing, get it like above
-            if not modname:
+            modname, qualname = split_full_qualified_name(mod_cls)
+            if modname is None:
+                # if documenting a toplevel object without explicit module,
+                # it can be contained in another auto directive ...
                 modname = self.env.temp_data.get('autodoc:module')
-            if not modname:
-                modname = self.env.ref_context.get('py:module')
-            # ... else, it stays None, which means invalid
+                # ... or in the scope of a module directive
+                if not modname:
+                    modname = self.env.ref_context.get('py:module')
+
+                if modname:
+                    stripped = ".".join([modname, mod_cls])
+                    modname, qualname = split_full_qualified_name(stripped)
+
+            if qualname:
+                parents = qualname.split(".")
+            else:
+                parents = []
+
         return modname, parents + [base]
 
 

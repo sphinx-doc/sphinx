@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7844: autodoc: Failed to detect module when relative module name given
+
 Testing
 --------
 
