@@ -17,6 +17,8 @@ Bugs fixed
 ----------
 
 * #7844: autodoc: Failed to detect module when relative module name given
+* #7856: autodoc: AttributeError is raised when non-class object is given to
+  the autoclass directive
 
 Testing
 --------

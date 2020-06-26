@@ -826,7 +826,12 @@ class Documenter:
         self.add_line('', sourcename)
 
         # format the object's signature, if any
-        sig = self.format_signature()
+        try:
+            sig = self.format_signature()
+        except Exception as exc:
+            logger.warning(__('error while formatting signature for %s: %s'),
+                           self.fullname, exc, type='autodoc')
+            return
 
         # generate the directive header and options, if applicable
         self.add_directive_header(sig)
