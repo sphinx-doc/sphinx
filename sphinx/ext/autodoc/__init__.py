@@ -32,7 +32,6 @@ from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect
 from sphinx.util import logging
-from sphinx.util import split_full_qualified_name
 from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import getdoc, object_description, safe_getattr, stringify_signature
 from sphinx.util.typing import stringify as stringify_typehint
@@ -980,31 +979,15 @@ class ModuleLevelDocumenter(Documenter):
                      ) -> Tuple[str, List[str]]:
         if modname is None:
             if path:
-                stripped = path.rstrip('.')
-                modname, qualname = split_full_qualified_name(stripped)
-                if modname is None:
-                    # if documenting a toplevel object without explicit module,
-                    # it can be contained in another auto directive ...
-                    modname = self.env.temp_data.get('autodoc:module')
-                    # ... or in the scope of a module directive
-                    if not modname:
-                        modname = self.env.ref_context.get('py:module')
-
-                    if modname:
-                        stripped = ".".join([modname, stripped])
-                        modname, qualname = split_full_qualified_name(stripped)
-
-                if qualname:
-                    parents = qualname.split(".")
-                else:
-                    parents = []
+                modname = path.rstrip('.')
             else:
+                # if documenting a toplevel object without explicit module,
+                # it can be contained in another auto directive ...
                 modname = self.env.temp_data.get('autodoc:module')
-                parents = []
-
+                # ... or in the scope of a module directive
                 if not modname:
                     modname = self.env.ref_context.get('py:module')
-
+                # ... else, it stays None, which means invalid
         return modname, parents + [base]
 
 
@@ -1030,25 +1013,14 @@ class ClassLevelDocumenter(Documenter):
                 # ... if still None, there's no way to know
                 if mod_cls is None:
                     return None, []
-
-            modname, qualname = split_full_qualified_name(mod_cls)
-            if modname is None:
-                # if documenting a toplevel object without explicit module,
-                # it can be contained in another auto directive ...
+            modname, sep, cls = mod_cls.rpartition('.')
+            parents = [cls]
+            # if the module name is still missing, get it like above
+            if not modname:
                 modname = self.env.temp_data.get('autodoc:module')
-                # ... or in the scope of a module directive
-                if not modname:
-                    modname = self.env.ref_context.get('py:module')
-
-                if modname:
-                    stripped = ".".join([modname, mod_cls])
-                    modname, qualname = split_full_qualified_name(stripped)
-
-            if qualname:
-                parents = qualname.split(".")
-            else:
-                parents = []
-
+            if not modname:
+                modname = self.env.ref_context.get('py:module')
+            # ... else, it stays None, which means invalid
         return modname, parents + [base]
 
 
