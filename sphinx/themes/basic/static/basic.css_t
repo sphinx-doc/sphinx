@@ -15,6 +15,12 @@ div.clearer {
     clear: both;
 }
 
+div.section::after {
+    display: block;
+    content: '';
+    clear: left;
+}
+
 /* -- relbar ---------------------------------------------------------------- */
 
 div.related {
@@ -374,6 +380,15 @@ div.sidebar > :last-child,
 div.topic > :last-child,
 div.admonition > :last-child {
     margin-bottom: 0;
+}
+
+div.sidebar::after,
+div.topic::after,
+div.admonition::after,
+blockquote::after {
+    display: block;
+    content: '';
+    clear: both;
 }
 
 /* -- tables ---------------------------------------------------------------- */
