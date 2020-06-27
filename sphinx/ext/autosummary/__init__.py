@@ -497,6 +497,13 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
 
 def extract_summary(doc: List[str], document: Any) -> str:
     """Extract summary from docstring."""
+    def parse(doc: List[str], settings: Any) -> nodes.document:
+        state_machine = RSTStateMachine(state_classes, 'Body')
+        node = new_document('', settings)
+        node.reporter = NullReporter()
+        state_machine.run(doc, node)
+
+        return node
 
     # Skip a blank lines at the top
     while doc and not doc[0].strip():
@@ -514,11 +521,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
         return ''
 
     # parse the docstring
-    state_machine = RSTStateMachine(state_classes, 'Body')
-    node = new_document('', document.settings)
-    node.reporter = NullReporter()
-    state_machine.run(doc, node)
-
+    node = parse(doc, document.settings)
     if not isinstance(node[0], nodes.paragraph):
         # document starts with non-paragraph: pick up the first line
         summary = doc[0].strip()
@@ -532,7 +535,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
             while sentences:
                 summary += sentences.pop(0) + '.'
                 node[:] = []
-                state_machine.run([summary], node)
+                node = parse(doc, document.settings)
                 if not node.traverse(nodes.system_message):
                     # considered as that splitting by period does not break inline markups
                     break
