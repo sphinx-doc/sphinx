@@ -97,7 +97,7 @@ def test_extract_summary(capsys):
 
     # abbreviations
     doc = ['Blabla, i.e. bla.']
-    assert extract_summary(doc, document) == 'Blabla, i.e.'
+    assert extract_summary(doc, document) == ' '.join(doc)
 
     # literal
     doc = ['blah blah::']

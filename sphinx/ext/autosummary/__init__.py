@@ -99,6 +99,8 @@ logger = logging.getLogger(__name__)
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
 
+WELL_KNOWN_ABBREVIATIONS = (' i.e.',)
+
 
 # -- autosummary_toc node ------------------------------------------------------
 
@@ -529,11 +531,13 @@ def extract_summary(doc: List[str], document: Any) -> str:
             summary = sentences[0].strip()
         else:
             summary = ''
-            while sentences:
-                summary += sentences.pop(0) + '.'
+            for i in range(len(sentences)):
+                summary = ". ".join(sentences[:i + 1]).rstrip(".") + "."
                 node[:] = []
                 state_machine.run([summary], node)
-                if not node.traverse(nodes.system_message):
+                if summary.endswith(WELL_KNOWN_ABBREVIATIONS):
+                    pass
+                elif not node.traverse(nodes.system_message):
                     # considered as that splitting by period does not break inline markups
                     break
 
