@@ -21,6 +21,8 @@ Bugs fixed
   the autoclass directive
 * #7850: autodoc: KeyError is raised for invalid mark up when autodoc_typehints
   is 'description'
+* #7812: autosummary: generates broken stub files if the target code contains
+  an attribute and module that are same name
 
 Testing
 --------
