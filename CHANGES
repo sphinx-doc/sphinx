@@ -21,6 +21,7 @@ Bugs fixed
   the autoclass directive
 * #7850: autodoc: KeyError is raised for invalid mark up when autodoc_typehints
   is 'description'
+* #7806: viewcode: Failed to resolve viewcode references on 3rd party builders
 
 Testing
 --------
