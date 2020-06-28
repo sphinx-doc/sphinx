@@ -20,7 +20,8 @@ Bugs fixed
 
 * #7839: autosummary: cannot handle umlauts in function names
 * #7865: autosummary: Failed to extract summary line when abbreviations found
-
+* #7866: autosummary: Failed to extract correct summary line when docstring
+  contains a hyperlink target
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
 * #7846: html theme: XML-invalid files were generated
 
