@@ -27,8 +27,6 @@ jobs:
     - python: 'nightly'
       env:
         - TOXENV=du16
-    - python: '3.6'
-      env: TOXENV=docs
 
     - language: node_js
       node_js: '10.7'
