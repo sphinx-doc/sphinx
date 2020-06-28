@@ -108,6 +108,12 @@ def test_extract_summary(capsys):
            '=========']
     assert extract_summary(doc, document) == 'blah blah'
 
+    # hyperlink target
+    doc = ['Do `this <https://www.sphinx-doc.org/>`_ and that. '
+           'blah blah blah.']
+    assert (extract_summary(doc, document) ==
+            'Do `this <https://www.sphinx-doc.org/>`_ and that.')
+
     _, err = capsys.readouterr()
     assert err == ''
 
