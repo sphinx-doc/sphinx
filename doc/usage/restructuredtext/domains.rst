@@ -699,6 +699,41 @@ Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
 .. versionadded:: 3.0
 
 
+Aliasing Declarations
+~~~~~~~~~~~~~~~~~~~~~
+
+.. c:namespace-push:: @alias
+
+Sometimes it may be helpful list declarations elsewhere than their main
+documentation, e.g., when creating a synopsis of an interface.
+The following directive can be used for this purpose.
+
+.. rst:directive:: .. c:alias:: name
+
+   Insert one or more alias declarations. Each entity can be specified
+   as they can in the :rst:role:`c:any` role.
+
+   For example::
+
+       .. c:var:: int data
+       .. c:function:: int f(double k)
+
+       .. c:alias:: data
+                    f
+
+   becomes
+
+   .. c:var:: int data
+   .. c:function:: int f(double k)
+
+   .. c:alias:: data
+                f
+
+   .. versionadded:: 3.2
+
+.. c:namespace-pop::
+
+
 Inline Expressions and Types
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
