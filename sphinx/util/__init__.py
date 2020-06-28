@@ -285,21 +285,21 @@ def get_module_source(modname: str) -> Tuple[str, str]:
     try:
         mod = import_module(modname)
     except Exception as err:
-        raise PycodeError('error importing %r' % modname, err)
+        raise PycodeError('error importing %r' % modname, err) from err
     filename = getattr(mod, '__file__', None)
     loader = getattr(mod, '__loader__', None)
     if loader and getattr(loader, 'get_filename', None):
         try:
             filename = loader.get_filename(modname)
         except Exception as err:
-            raise PycodeError('error getting filename for %r' % filename, err)
+            raise PycodeError('error getting filename for %r' % filename, err) from err
     if filename is None and loader:
         try:
             filename = loader.get_source(modname)
             if filename:
                 return 'string', filename
         except Exception as err:
-            raise PycodeError('error getting source for %r' % modname, err)
+            raise PycodeError('error getting source for %r' % modname, err) from err
     if filename is None:
         raise PycodeError('no source found for module %r' % modname)
     filename = path.normpath(path.abspath(filename))
@@ -456,8 +456,8 @@ def parselinenos(spec: str, total: int) -> List[int]:
                 items.extend(range(start - 1, end))
             else:
                 raise ValueError
-        except Exception:
-            raise ValueError('invalid line number spec: %r' % spec)
+        except Exception as exc:
+            raise ValueError('invalid line number spec: %r' % spec) from exc
 
     return items
 
@@ -596,9 +596,9 @@ def import_object(objname: str, source: str = None) -> Any:
     except (AttributeError, ImportError) as exc:
         if source:
             raise ExtensionError('Could not import %s (needed for %s)' %
-                                 (objname, source), exc)
+                                 (objname, source), exc) from exc
         else:
-            raise ExtensionError('Could not import %s' % objname, exc)
+            raise ExtensionError('Could not import %s' % objname, exc) from exc
 
 
 def split_full_qualified_name(name: str) -> Tuple[str, str]:

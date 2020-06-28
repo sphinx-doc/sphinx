@@ -196,9 +196,9 @@ class Config:
             elif isinstance(defvalue, int):
                 try:
                     return int(value)
-                except ValueError:
+                except ValueError as exc:
                     raise ValueError(__('invalid number %r for config value %r, ignoring') %
-                                     (value, name))
+                                     (value, name)) from exc
             elif hasattr(defvalue, '__call__'):
                 return value
             elif defvalue is not None and not isinstance(defvalue, str):
@@ -319,17 +319,17 @@ def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
             execfile_(filename, namespace)
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
-            raise ConfigError(msg % err)
-        except SystemExit:
+            raise ConfigError(msg % err) from err
+        except SystemExit as exc:
             msg = __("The configuration file (or one of the modules it imports) "
                      "called sys.exit()")
-            raise ConfigError(msg)
+            raise ConfigError(msg) from exc
         except ConfigError:
             # pass through ConfigError from conf.py as is.  It will be shown in console.
             raise
-        except Exception:
+        except Exception as exc:
             msg = __("There is a programmable error in your configuration file:\n\n%s")
-            raise ConfigError(msg % traceback.format_exc())
+            raise ConfigError(msg % traceback.format_exc()) from exc
 
     return namespace
 

@@ -33,7 +33,7 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
-        raise ImportError(exc, traceback.format_exc())
+        raise ImportError(exc, traceback.format_exc()) from exc
 
 
 def import_object(modname: str, objpath: List[str], objtype: str = '',
@@ -98,7 +98,7 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
             errmsg += '; the following exception was raised:\n%s' % traceback.format_exc()
 
         logger.debug(errmsg)
-        raise ImportError(errmsg)
+        raise ImportError(errmsg) from exc
 
 
 def get_module_members(module: Any) -> List[Tuple[str, Any]]:

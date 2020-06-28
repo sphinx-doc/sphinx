@@ -4883,7 +4883,7 @@ class DefinitionParser(BaseParser):
                 raise self._make_multi_error([
                     (eFold, "If fold expression"),
                     (eExpr, "If parenthesized expression")
-                ], "Error in fold expression or parenthesized expression.")
+                ], "Error in fold expression or parenthesized expression.") from eExpr
             return ASTParenExpr(res)
         # now it definitely is a fold expression
         if self.skip_string(')'):
@@ -5067,7 +5067,7 @@ class DefinitionParser(BaseParser):
                     errors = []
                     errors.append((eType, "If type"))
                     errors.append((eExpr, "If expression"))
-                    raise self._make_multi_error(errors, header)
+                    raise self._make_multi_error(errors, header) from eExpr
         else:  # a primary expression or a type
             pos = self.pos
             try:
@@ -5094,7 +5094,7 @@ class DefinitionParser(BaseParser):
                     errors = []
                     errors.append((eOuter, "If primary expression"))
                     errors.append((eInner, "If type"))
-                    raise self._make_multi_error(errors, header)
+                    raise self._make_multi_error(errors, header) from eInner
 
         # and now parse postfixes
         postFixes = []  # type: List[ASTPostfixOp]
@@ -5254,7 +5254,8 @@ class DefinitionParser(BaseParser):
                     errs = []
                     errs.append((exCast, "If type cast expression"))
                     errs.append((exUnary, "If unary expression"))
-                    raise self._make_multi_error(errs, "Error in cast expression.")
+                    raise self._make_multi_error(errs,
+                                                 "Error in cast expression.") from exUnary
         else:
             return self._parse_unary_expression()
 
@@ -5505,7 +5506,7 @@ class DefinitionParser(BaseParser):
                     self.pos = pos
                     prevErrors.append((e, "If non-type argument"))
                     header = "Error in parsing template argument list."
-                    raise self._make_multi_error(prevErrors, header)
+                    raise self._make_multi_error(prevErrors, header) from e
             if parsedEnd:
                 assert not parsedComma
                 break
@@ -5950,7 +5951,7 @@ class DefinitionParser(BaseParser):
                     self.pos = pos
                     prevErrors.append((exNoPtrParen, "If parenthesis in noptr-declarator"))
                     header = "Error in declarator"
-                    raise self._make_multi_error(prevErrors, header)
+                    raise self._make_multi_error(prevErrors, header) from exNoPtrParen
         if typed:  # pointer to member
             pos = self.pos
             try:
@@ -5989,7 +5990,7 @@ class DefinitionParser(BaseParser):
             self.pos = pos
             prevErrors.append((e, "If declarator-id"))
             header = "Error in declarator or parameters-and-qualifiers"
-            raise self._make_multi_error(prevErrors, header)
+            raise self._make_multi_error(prevErrors, header) from e
 
     def _parse_initializer(self, outer: str = None, allowFallback: bool = True
                            ) -> ASTInitializer:
@@ -6097,7 +6098,7 @@ class DefinitionParser(BaseParser):
                             header = "Error when parsing function declaration."
                         else:
                             assert False
-                        raise self._make_multi_error(prevErrors, header)
+                        raise self._make_multi_error(prevErrors, header) from exTyped
                     else:
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
@@ -6164,7 +6165,7 @@ class DefinitionParser(BaseParser):
             errs.append((eType, "If default template argument is a type"))
             msg = "Error in non-type template parameter"
             msg += " or constrained template parameter."
-            raise self._make_multi_error(errs, msg)
+            raise self._make_multi_error(errs, msg) from eType
 
     def _parse_type_using(self) -> ASTTypeUsing:
         name = self._parse_nested_name()
@@ -6511,7 +6512,7 @@ class DefinitionParser(BaseParser):
                 self.pos = pos
                 prevErrors.append((e, "If type alias or template alias"))
                 header = "Error in type declaration."
-                raise self._make_multi_error(prevErrors, header)
+                raise self._make_multi_error(prevErrors, header) from e
         elif objectType == 'concept':
             declaration = self._parse_concept()
         elif objectType == 'member':
@@ -6577,7 +6578,7 @@ class DefinitionParser(BaseParser):
                 errs.append((e1, "If shorthand ref"))
                 errs.append((e2, "If full function ref"))
                 msg = "Error in cross-reference."
-                raise self._make_multi_error(errs, msg)
+                raise self._make_multi_error(errs, msg) from e2
 
     def parse_expression(self) -> Union[ASTExpression, ASTType]:
         pos = self.pos
@@ -6598,7 +6599,7 @@ class DefinitionParser(BaseParser):
                 errs = []
                 errs.append((exExpr, "If expression"))
                 errs.append((exType, "If type"))
-                raise self._make_multi_error(errs, header)
+                raise self._make_multi_error(errs, header) from exType
 
 
 def _make_phony_error_name() -> ASTNestedName:
@@ -6791,7 +6792,7 @@ class CPPObject(ObjectDescription):
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             self.env.temp_data['cpp:last_symbol'] = symbol
-            raise ValueError
+            raise ValueError from e
 
         try:
             symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
