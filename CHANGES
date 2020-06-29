@@ -14,6 +14,7 @@ Features added
 --------------
 
 * #7853: C and C++, support parameterized GNU style attributes.
+* #7888: napoleon: Add aliases Warn and Raise.
 
 Bugs fixed
 ----------
