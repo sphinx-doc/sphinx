@@ -1038,7 +1038,6 @@ Options
 
 Some directives support options:
 
-- ``:noindex:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 

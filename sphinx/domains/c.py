@@ -1884,7 +1884,7 @@ class Symbol:
                     ourChild._fill_empty(otherChild.declaration, otherChild.docname)
                 elif ourChild.docname != otherChild.docname:
                     name = str(ourChild.declaration)
-                    msg = __("Duplicate declaration, also defined in '%s'.\n"
+                    msg = __("Duplicate C declaration, also defined in '%s'.\n"
                              "Declaration is '%s'.")
                     msg = msg % (ourChild.docname, name)
                     logger.warning(msg, location=otherChild.docname)
@@ -3019,6 +3019,13 @@ class CObject(ObjectDescription):
               names=('rtype',)),
     ]
 
+    option_spec = {
+        # have a dummy option to ensure proper errors on options,
+        # otherwise the option is taken as a continuation of the
+        # argument
+        'dummy': None
+    }
+
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
         assert ast.objectType == 'enumerator'
         # find the parent, if it exists && is an enum
@@ -3085,7 +3092,8 @@ class CObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
 
             domain = cast(CDomain, self.env.get_domain('c'))
-            domain.note_object(name, self.objtype, newestId)
+            if name not in domain.objects:
+                domain.objects[name] = (domain.env.docname, newestId, self.objtype)
 
         indexText = self.get_index_text(name)
         self.indexnode['entries'].append(('single', indexText, newestId, '', None))
@@ -3150,7 +3158,10 @@ class CObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['c:last_symbol'] = e.symbol
-            logger.warning("Duplicate declaration, %s", sig, location=signode)
+            msg = __("Duplicate C declaration, also defined in '%s'.\n"
+                     "Declaration is '%s'.")
+            msg = msg % (e.symbol.docname, sig)
+            logger.warning(msg, location=signode)
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -3418,14 +3429,6 @@ class CDomain(Domain):
     def objects(self) -> Dict[str, Tuple[str, str, str]]:
         return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
 
-    def note_object(self, name: str, objtype: str, node_id: str, location: Any = None) -> None:
-        if name in self.objects:
-            docname = self.objects[name][0]
-            logger.warning(__('Duplicate C object description of %s, '
-                              'other instance in %s, use :noindex: for one of them'),
-                           name, docname, location=location)
-        self.objects[name] = (self.env.docname, node_id, objtype)
-
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
             print("clear_doc:", docname)
@@ -3471,13 +3474,9 @@ class CDomain(Domain):
         ourObjects = self.data['objects']
         for fullname, (fn, id_, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                if fullname in ourObjects:
-                    msg = __("Duplicate declaration, also defined in '%s'.\n"
-                             "Name of declaration is '%s'.")
-                    msg = msg % (ourObjects[fullname], fullname)
-                    logger.warning(msg, location=fn)
-                else:
+                if fullname not in ourObjects:
                     ourObjects[fullname] = (fn, id_, objtype)
+                # no need to warn on duplicates, the symbol merge already does that
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,

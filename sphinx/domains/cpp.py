@@ -4455,7 +4455,7 @@ class Symbol:
                     ourChild._fill_empty(otherChild.declaration, otherChild.docname)
                 elif ourChild.docname != otherChild.docname:
                     name = str(ourChild.declaration)
-                    msg = __("Duplicate declaration, also defined in '%s'.\n"
+                    msg = __("Duplicate C++ declaration, also defined in '%s'.\n"
                              "Declaration is '%s'.")
                     msg = msg % (ourChild.docname, name)
                     logger.warning(msg, location=otherChild.docname)
@@ -6624,8 +6624,9 @@ class CPPObject(ObjectDescription):
               names=('returns', 'return')),
     ]
 
-    option_spec = dict(ObjectDescription.option_spec)
-    option_spec['tparam-line-spec'] = directives.flag
+    option_spec = {
+        'tparam-line-spec': directives.flag,
+    }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
         assert ast.objectType == 'enumerator'
@@ -6808,7 +6809,10 @@ class CPPObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['cpp:last_symbol'] = e.symbol
-            logger.warning("Duplicate declaration, %s", sig, location=signode)
+            msg = __("Duplicate C++ declaration, also defined in '%s'.\n"
+                     "Declaration is '%s'.")
+            msg = msg % (e.symbol.docname, sig)
+            logger.warning(msg, location=signode)
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -7083,7 +7087,6 @@ class CPPAliasObject(ObjectDescription):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
-        node['noindex'] = True
 
         self.names = []  # type: List[str]
         signatures = self.get_signatures()
@@ -7275,13 +7278,9 @@ class CPPDomain(Domain):
         ourNames = self.data['names']
         for name, docname in otherdata['names'].items():
             if docname in docnames:
-                if name in ourNames:
-                    msg = __("Duplicate declaration, also defined in '%s'.\n"
-                             "Name of declaration is '%s'.")
-                    msg = msg % (ourNames[name], name)
-                    logger.warning(msg, location=docname)
-                else:
+                if name not in ourNames:
                     ourNames[name] = docname
+                # no need to warn on duplicates, the symbol merge already does that
         if Symbol.debug_show_tree:
             print("\tresult:")
             print(self.data['root_symbol'].dump(1))
