@@ -10,7 +10,7 @@
 
 import re
 from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, Type, Tuple, Union
+    Any, Callable, Dict, Generator, Iterator, List, Type, TypeVar, Tuple, Union
 )
 from typing import cast
 
@@ -26,6 +26,8 @@ from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import SphinxRole, XRefRole
+from sphinx.transforms import SphinxTransform
+from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
 from sphinx.util.cfamily import (
     NoOldIdError, ASTBaseBase, ASTBaseParenExprList,
@@ -41,6 +43,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)
+T = TypeVar('T')
 
 # https://en.cppreference.com/w/c/keyword
 _keywords = [
@@ -3311,6 +3314,106 @@ class CNamespacePopObject(SphinxDirective):
         return []
 
 
+class AliasNode(nodes.Element):
+    def __init__(self, sig: str, env: "BuildEnvironment" = None,
+                 parentKey: LookupKey = None) -> None:
+        super().__init__()
+        self.sig = sig
+        if env is not None:
+            if 'c:parent_symbol' not in env.temp_data:
+                root = env.domaindata['c']['root_symbol']
+                env.temp_data['c:parent_symbol'] = root
+            self.parentKey = env.temp_data['c:parent_symbol'].get_lookup_key()
+        else:
+            assert parentKey is not None
+            self.parentKey = parentKey
+
+    def copy(self: T) -> T:
+        return self.__class__(self.sig, env=None, parentKey=self.parentKey)  # type: ignore
+
+
+class AliasTransform(SphinxTransform):
+    default_priority = ReferencesResolver.default_priority - 1
+
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.traverse(AliasNode):
+            sig = node.sig
+            parentKey = node.parentKey
+            try:
+                parser = DefinitionParser(sig, location=node,
+                                          config=self.env.config)
+                name = parser.parse_xref_object()
+            except DefinitionError as e:
+                logger.warning(e, location=node)
+                name = None
+
+            if name is None:
+                # could not be parsed, so stop here
+                signode = addnodes.desc_signature(sig, '')
+                signode.clear()
+                signode += addnodes.desc_name(sig, sig)
+                node.replace_self(signode)
+                continue
+
+            rootSymbol = self.env.domains['c'].data['root_symbol']  # type: Symbol
+            parentSymbol = rootSymbol.direct_lookup(parentKey)  # type: Symbol
+            if not parentSymbol:
+                print("Target: ", sig)
+                print("ParentKey: ", parentKey)
+                print(rootSymbol.dump(1))
+            assert parentSymbol  # should be there
+
+            s = parentSymbol.find_declaration(
+                name, 'any',
+                matchSelf=True, recurseInAnon=True)
+            if s is None:
+                signode = addnodes.desc_signature(sig, '')
+                node.append(signode)
+                signode.clear()
+                signode += addnodes.desc_name(sig, sig)
+
+                logger.warning("Could not find C declaration for alias '%s'." % name,
+                               location=node)
+                node.replace_self(signode)
+            else:
+                nodes = []
+                options = dict()  # type: ignore
+                signode = addnodes.desc_signature(sig, '')
+                nodes.append(signode)
+                s.declaration.describe_signature(signode, 'markName', self.env, options)
+                node.replace_self(nodes)
+
+
+class CAliasObject(ObjectDescription):
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        if ':' in self.name:
+            self.domain, self.objtype = self.name.split(':', 1)
+        else:
+            self.domain, self.objtype = '', self.name
+
+        node = addnodes.desc()
+        node.document = self.state.document
+        node['domain'] = self.domain
+        # 'desctype' is a backwards compatible attribute
+        node['objtype'] = node['desctype'] = self.objtype
+        node['noindex'] = True
+
+        self.names = []  # type: List[str]
+        signatures = self.get_signatures()
+        for i, sig in enumerate(signatures):
+            node.append(AliasNode(sig, env=self.env))
+
+        contentnode = addnodes.desc_content()
+        node.append(contentnode)
+        self.before_content()
+        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        self.env.temp_data['object'] = None
+        self.after_content()
+        return [node]
+
+
 class CXRefRole(XRefRole):
     def process_link(self, env: BuildEnvironment, refnode: Element,
                      has_explicit_title: bool, title: str, target: str) -> Tuple[str, str]:
@@ -3394,6 +3497,8 @@ class CDomain(Domain):
         'namespace': CNamespaceObject,
         'namespace-push': CNamespacePushObject,
         'namespace-pop': CNamespacePopObject,
+        # other
+        'alias': CAliasObject
     }
     roles = {
         'member': CXRefRole(),
@@ -3541,6 +3646,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(CDomain)
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
+    app.add_post_transform(AliasTransform)
 
     return {
         'version': 'builtin',
