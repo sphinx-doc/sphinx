@@ -165,9 +165,9 @@ Use custom page metadata in HTML templates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Any key / value pairs in :doc:`field lists </usage/restructuredtext/field-lists>`
-that are placed *before* the page's title will be available to the Jinja template when
-building the page within the :data:`meta` attribute. For example, if a page had the
-following text before its first title:
+that are placed *before* the page's title will be available to the Jinja
+template when building the page within the :data:`meta` attribute. For example,
+if a page had the following text before its first title:
 
 .. code-block:: rst
 
