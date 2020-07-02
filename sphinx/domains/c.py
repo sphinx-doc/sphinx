@@ -22,6 +22,7 @@ from sphinx import addnodes
 from sphinx.addnodes import pending_xref
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
@@ -2937,6 +2938,23 @@ class DefinitionParser(BaseParser):
             init = ASTInitializer(initVal)
         return ASTEnumerator(name, init)
 
+    def parse_pre_v3_type_definition(self) -> ASTDeclaration:
+        self.skip_ws()
+        declaration = None  # type: Any
+        if self.skip_word('struct'):
+            typ = 'struct'
+            declaration = self._parse_struct()
+        elif self.skip_word('union'):
+            typ = 'union'
+            declaration = self._parse_union()
+        elif self.skip_word('enum'):
+            typ = 'enum'
+            declaration = self._parse_enum()
+        else:
+            self.fail("Could not parse pre-v3 type directive."
+                      " Must start with 'struct', 'union', or 'enum'.")
+        return ASTDeclaration(typ, typ, declaration, False)
+
     def parse_declaration(self, objectType: str, directiveType: str) -> ASTDeclaration:
         if objectType not in ('function', 'member',
                               'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
@@ -3114,6 +3132,9 @@ class CObject(ObjectDescription):
     def parse_definition(self, parser: DefinitionParser) -> ASTDeclaration:
         return parser.parse_declaration(self.object_type, self.objtype)
 
+    def parse_pre_v3_type_definition(self, parser: DefinitionParser) -> ASTDeclaration:
+        return parser.parse_pre_v3_type_definition()
+
     def describe_signature(self, signode: TextElement, ast: Any, options: Dict) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
@@ -3135,8 +3156,26 @@ class CObject(ObjectDescription):
 
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
-            ast = self.parse_definition(parser)
-            parser.assert_end()
+            try:
+                ast = self.parse_definition(parser)
+                parser.assert_end()
+            except DefinitionError as eOrig:
+                if not self.env.config['c_allow_pre_v3']:
+                    raise
+                if self.objtype != 'type':
+                    raise
+                try:
+                    ast = self.parse_pre_v3_type_definition(parser)
+                    parser.assert_end()
+                except DefinitionError:
+                    raise eOrig
+                self.object_type = ast.objectType  # type: ignore
+                msg = "{}: Pre-v3 C type directive '.. c:type:: {}' converted to " \
+                      "'.. c:{}:: {}'." \
+                      "\nThe original parsing error was:\n{}"
+                msg = msg.format(RemovedInSphinx50Warning.__name__,
+                                 sig, ast.objectType, ast, eOrig)
+                logger.warning(msg, location=signode)
         except DefinitionError as e:
             logger.warning(e, location=signode)
             # It is easier to assume some phony name than handling the error in
@@ -3645,6 +3684,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
     app.add_post_transform(AliasTransform)
+
+    app.add_config_value("c_allow_pre_v3", False, 'env')
 
     return {
         'version': 'builtin',
