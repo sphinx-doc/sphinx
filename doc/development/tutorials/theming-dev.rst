@@ -1,7 +1,5 @@
-.. highlight:: python
-
-HTML theming support
-====================
+HTML theme development
+======================
 
 .. versionadded:: 0.6
 
@@ -19,6 +17,11 @@ the theme's look and feel.
 
 Themes are meant to be project-unaware, so they can be used for different
 projects without change.
+
+.. note::
+
+   See :ref:`dev-extensions` for more information that may
+   be helpful in developing themes.
 
 
 Creating themes
@@ -125,7 +128,7 @@ If your theme package contains two or more themes, please call
 Templating
 ----------
 
-The :doc:`guide to templating <templating>` is helpful if you want to write your
+The :doc:`guide to templating </templating>` is helpful if you want to write your
 own templates.  What is important to keep in mind is the order in which Sphinx
 searches for templates:
 
@@ -137,6 +140,9 @@ When extending a template in the base theme with the same name, use the theme
 name as an explicit directory: ``{% extends "basic/layout.html" %}``.  From a
 user ``templates_path`` template, you can still use the "exclamation mark"
 syntax as described in the templating document.
+
+
+.. _theming-static-templates:
 
 Static templates
 ~~~~~~~~~~~~~~~~
@@ -153,6 +159,137 @@ example, the *classic* theme has a file ``static/classic.css_t`` which uses
 templating to put the color options into the stylesheet.  When a documentation
 is built with the classic theme, the output directory will contain a
 ``_static/classic.css`` file where all template tags have been processed.
+
+
+Use custom page metadata in HTML templates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Any key / value pairs in :doc:`field lists </usage/restructuredtext/field-lists>`
+that are placed *before* the page's title will be available to the Jinja template when
+building the page within the :data:`meta` attribute. For example, if a page had the
+following text before its first title:
+
+.. code-block:: rst
+
+    :mykey: My value
+
+    My first title
+    --------------
+
+Then it could be accessed within a Jinja template like so:
+
+.. code-block:: jinja
+
+    {%- if meta is mapping %}
+        {{ meta.get("mykey") }}
+    {%- endif %}
+
+Note the check that ``meta`` is a dictionary ("mapping" in Jinja
+terminology) to ensure that using it in this way is valid.
+
+
+Defining custom template functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes it is useful to define your own function in Python that you wish to
+then use in a template. For example, if you'd like to insert a template value
+with logic that depends on the user's configuration in the project, or if you'd
+like to include non-trivial checks and provide friendly error messages for
+incorrect configuration in the template.
+
+To define your own template function, you'll need to define two functions
+inside your module:
+
+* A **page context event handler** (or **registration**) function. This is
+  connected to the :class:`.Sphinx` application via an event callback.
+* A **template function** that you will use in your Jinja template.
+
+First, define the registration function, which accepts the arguments for
+:event:`html-page-context`.
+
+Within the registration function, define the template function that you'd like to use
+within Jinja. The template function should return a string or Python objects (lists,
+dictionaries) with strings inside that Jinja uses in the templating process
+
+.. note::
+
+    The template function will have access to all of the variables that
+    are passed to the registration function.
+
+At the end of the registration function, add the template function to the
+Sphinx application's context with ``context['template_func'] = template_func``.
+
+Finally, in your extension's ``setup()`` function, add your registration
+function as a callback for :event:`html-page-context`.
+
+.. code-block:: python
+
+   # The registration function
+    def setup_my_func(app, pagename, templatename, context, doctree):
+        # The template function
+        def my_func(mystring):
+            return "Your string is %s" % mystring
+        # Add it to the page's context
+        context['my_func'] = my_func
+    # Your extension's setup function
+    def setup(app):
+        app.connect("html-page-context", setup_my_func)
+
+Now, you will have access to this function in jinja like so:
+
+.. code-block:: jinja
+
+   <div>
+   {{ my_func("some string") }}
+   </div>
+
+
+Inject javsacript based on user configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your extension makes use of JavaScript, it can be useful to allow users
+to control its behavior using their Sphinx configuration. However, this can
+be difficult to do if your JavaScript comes in the form of a static library
+(which will not be built with Jinja).
+
+There are two ways to inject variables into the JavaScript space based on user
+configuration.
+
+First, you may append ``_t`` to the end of any static files included with your
+extension. This will cause Sphinx to process these files with the templating
+engine, allowing you to embed variables and control behavior. See
+:ref:`theming-static-templates` for more information.
+
+Second, you may use the :meth:`Sphinx.add_js_file` method without pointing it
+to a file. Normally, this method is used to insert a new JavaScript file
+into your site. However, if you do *not* pass a file path, but instead pass
+a string to the "body" argument, then this text will be inserted as JavaScript
+into your site's head. This allows you to insert variables into your project's
+javascript from Python.
+
+For example, the following code will read in a user-configured value and then
+insert this value as a JavaScript variable, which your extension's JavaScript
+code may use:
+
+.. code-block:: python
+
+    # This function reads in a variable and inserts it into JavaScript
+    def add_js_variable(app):
+        # This is a configuration that you've specified for users in `conf.py`
+        js_variable = app.config['my_javascript_variable']
+        js_text = "var my_variable = '%s';" % js_variable
+        app.add_js_file(None, body=js_text)
+    # We connect this function to the step after the builder is initialized
+    def setup(app):
+        # Tell Sphinx about this configuration variable
+        app.add_config_value('my_javascript_variable')
+        # Run the function after the builder is initialized
+        app.connect('builder-inited', add_js_variable)
+
+As a result, in your theme you can use code that depends on the presence of
+this variable. Users can control the variable's value by defining it in their
+:file:`conf.py` file.
+
 
 .. [1] It is not an executable Python file, as opposed to :file:`conf.py`,
        because that would pose an unnecessary security risk if themes are

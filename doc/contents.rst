@@ -10,7 +10,6 @@ Sphinx documentation contents
    development/index
    man/index
 
-   theming
    templating
    latex
    extdev/index

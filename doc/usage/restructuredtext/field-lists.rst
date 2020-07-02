@@ -9,7 +9,17 @@ fields marked up like this::
 
     :fieldname: Field content
 
-Sphinx provides custom behavior for bibliographic fields compared to docutils.
+Field lists are :duref:`originally defined in docutils <bibliographic-fields>`
+to show information about a page (such as the document author or date of
+publication).
+
+.. note::
+
+    The values of field lists will be parsed as
+    strings. You cannot use Python collections such as lists or dictionaries.
+
+Sphinx treats field lists slightly differently, as explained
+below.
 
 .. _metadata:
 
@@ -17,11 +27,20 @@ File-wide metadata
 ------------------
 
 A field list near the top of a file is normally parsed by docutils as the
-*docinfo* which is generally used to record the author, date of publication and
-other metadata.  However, in Sphinx, a field list preceding any other markup is
-moved from the *docinfo* to the Sphinx environment as document metadata and is
-not displayed in the output; a field list appearing after the document title
-will be part of the *docinfo* as normal and will be displayed in the output.
+*docinfo* and shown on the page.  However, in Sphinx, a field list preceding
+any other markup is moved from the *docinfo* to the Sphinx environment as
+document metadata, and is not displayed in the output.
+
+.. note::
+
+   A field list appearing after the document title *will* be part of the
+   *docinfo* as normal and will be displayed in the output.
+
+
+Special metadata fields
+-----------------------
+
+Sphinx provides custom behavior for bibliographic fields compared to docutils.
 
 At the moment, these metadata fields are recognized:
 

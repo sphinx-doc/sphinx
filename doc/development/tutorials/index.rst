@@ -1,7 +1,15 @@
+.. _extension-tutorials-index:
+
 Extension tutorials
 ===================
 
 Refer to the following tutorials to get started with extension development.
+
+.. toctree::
+   :caption: General extension tutorials
+
+   overview
+   builders
 
 .. toctree::
    :caption: Directive tutorials
@@ -10,3 +18,9 @@ Refer to the following tutorials to get started with extension development.
    helloworld
    todo
    recipe
+
+.. toctree::
+   :caption: Theming
+   :maxdepth: 1
+
+   theming-dev
