@@ -3170,12 +3170,13 @@ class CObject(ObjectDescription):
                 except DefinitionError:
                     raise eOrig
                 self.object_type = ast.objectType  # type: ignore
-                msg = "{}: Pre-v3 C type directive '.. c:type:: {}' converted to " \
-                      "'.. c:{}:: {}'." \
-                      "\nThe original parsing error was:\n{}"
-                msg = msg.format(RemovedInSphinx50Warning.__name__,
-                                 sig, ast.objectType, ast, eOrig)
-                logger.warning(msg, location=signode)
+                if self.env.config['c_warn_on_allowed_pre_v3']:
+                    msg = "{}: Pre-v3 C type directive '.. c:type:: {}' converted to " \
+                          "'.. c:{}:: {}'." \
+                          "\nThe original parsing error was:\n{}"
+                    msg = msg.format(RemovedInSphinx50Warning.__name__,
+                                     sig, ast.objectType, ast, eOrig)
+                    logger.warning(msg, location=signode)
         except DefinitionError as e:
             logger.warning(e, location=signode)
             # It is easier to assume some phony name than handling the error in
@@ -3510,10 +3511,11 @@ class CXRefRole(XRefRole):
             signode = nodes.inline(classes=classes)
             ast.describe_signature(signode, 'markType', self.env, parentSymbol)
 
-            msg = "{}: Pre-v3 C type role ':c:type:`{}`' converted to ':c:expr:`{}`'."
-            msg += "\nThe original parsing error was:\n{}"
-            msg = msg.format(RemovedInSphinx50Warning.__name__, text, text, eOrig)
-            logger.warning(msg, location=self.get_source_info())
+            if self.env.config['c_warn_on_allowed_pre_v3']:
+                msg = "{}: Pre-v3 C type role ':c:type:`{}`' converted to ':c:expr:`{}`'."
+                msg += "\nThe original parsing error was:\n{}"
+                msg = msg.format(RemovedInSphinx50Warning.__name__, text, text, eOrig)
+                logger.warning(msg, location=self.get_source_info())
             return [signode], []
 
 
@@ -3718,6 +3720,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(AliasTransform)
 
     app.add_config_value("c_allow_pre_v3", False, 'env')
+    app.add_config_value("c_warn_on_allowed_pre_v3", True, 'env')
 
     return {
         'version': 'builtin',
