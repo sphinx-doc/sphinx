@@ -29,6 +29,8 @@ Bugs fixed
 * #7846: html theme: XML-invalid files were generated
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
+* C and C++, removed ``noindex`` directive option as it did
+  nothing.
 
 Testing
 --------
