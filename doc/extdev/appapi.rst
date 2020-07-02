@@ -185,7 +185,7 @@ type for that event::
       13. event.doctree-resolved(app, doctree, docname)
           - (for any reference node that fails to resolve) event.missing-reference(env, node, contnode)
 
-   14. call builder
+   14. Generate output files
 
    15. event.build-finished(app, exception)
 
