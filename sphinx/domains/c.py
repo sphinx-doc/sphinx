@@ -3484,6 +3484,38 @@ class CXRefRole(XRefRole):
                     title = title[dot + 1:]
         return title, target
 
+    def run(self) -> Tuple[List[Node], List[system_message]]:
+        if not self.env.config['c_allow_pre_v3']:
+            return super().run()
+
+        text = self.text.replace('\n', ' ')
+        parser = DefinitionParser(text, location=self.get_source_info(),
+                                  config=self.env.config)
+        try:
+            parser.parse_xref_object()
+            # it suceeded, so let it through
+            return super().run()
+        except DefinitionError as eOrig:
+            # try as if it was an c:expr
+            parser.pos = 0
+            try:
+                ast = parser.parse_expression()
+            except DefinitionError:
+                # that didn't go well, just default back
+                return super().run()
+            classes = ['xref', 'c', 'c-texpr']
+            parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
+            if parentSymbol is None:
+                parentSymbol = self.env.domaindata['c']['root_symbol']
+            signode = nodes.inline(classes=classes)
+            ast.describe_signature(signode, 'markType', self.env, parentSymbol)
+
+            msg = "{}: Pre-v3 C type role ':c:type:`{}`' converted to ':c:expr:`{}`'."
+            msg += "\nThe original parsing error was:\n{}"
+            msg = msg.format(RemovedInSphinx50Warning.__name__, text, text, eOrig)
+            logger.warning(msg, location=self.get_source_info())
+            return [signode], []
+
 
 class CExprRole(SphinxRole):
     def __init__(self, asCode: bool) -> None:
