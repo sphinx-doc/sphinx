@@ -662,9 +662,9 @@ documentation on :ref:`intl` for details.
    sets obtained from :confval:`locale_dirs`.  Sphinx will search
    language-specific figures named by `figure.language.filename` 
    (e.g. the German version of `myfigure.png` will be `myfigure.de.png`) 
-   and substitute them for original figures.  In the LaTeX builder, a suitable language will
-   be selected as an option for the *Babel* package.  Default is ``None``,
-   which means that no translation will be done.
+   and substitute them for original figures.  In the LaTeX builder, a suitable 
+   language will be selected as an option for the *Babel* package.  Default is 
+   ``None``, which means that no translation will be done.
 
    .. versionadded:: 0.5
 
