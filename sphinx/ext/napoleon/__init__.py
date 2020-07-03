@@ -438,7 +438,11 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
                         mod_path = cls_path.split('.')
                         cls = functools.reduce(getattr, mod_path, mod)
                     else:
-                        cls = obj.__globals__[cls_path]
+                        if hasattr(obj, '__wrapped__'):
+                            # handle functions decorated by @functools.wrap
+                            cls = obj.__wrapped__.__globals__[cls_path]
+                        else:
+                            cls = obj.__globals__[cls_path]
                 except Exception:
                     cls_is_owner = False
                 else:

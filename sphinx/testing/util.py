@@ -14,6 +14,7 @@ import warnings
 from io import StringIO
 from typing import Any, Dict, Generator, IO, List, Pattern
 from xml.etree import ElementTree
+import functools
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -195,3 +196,15 @@ def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:
 
 def strip_escseq(text: str) -> str:
     return re.sub('\x1b.*?m', '', text)
+
+
+def simple_decorator(f):
+    """
+    A simple decorator that does nothing, for tests to use.
+    """
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+    return wrapper
+
+

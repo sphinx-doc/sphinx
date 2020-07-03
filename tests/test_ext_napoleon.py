@@ -14,6 +14,7 @@ from collections import namedtuple
 from unittest import TestCase, mock
 
 from sphinx.application import Sphinx
+from sphinx.testing.util import simple_decorator
 from sphinx.ext.napoleon import _process_docstring, _skip_member, Config, setup
 
 
@@ -48,6 +49,11 @@ class SampleClass:
         pass
 
     def __special_undoc__(self):
+        pass
+
+    @simple_decorator
+    def __decorated_func__(self):
+        """doc"""
         pass
 
 
@@ -130,8 +136,8 @@ class SkipMemberTest(TestCase):
             self.assertEqual(None, _skip_member(app, what, member, obj, skip,
                                                 mock.Mock()))
         else:
-            self.assertFalse(_skip_member(app, what, member, obj, skip,
-                                          mock.Mock()))
+            self.assertIs(_skip_member(app, what, member, obj, skip,
+                                       mock.Mock()), False)
         setattr(app.config, config_name, False)
         self.assertEqual(None, _skip_member(app, what, member, obj, skip,
                                             mock.Mock()))
@@ -168,6 +174,11 @@ class SkipMemberTest(TestCase):
     def test_class_special_undoc(self):
         self.assertSkip('class', '__special_undoc__',
                         SampleClass.__special_undoc__, True,
+                        'napoleon_include_special_with_doc')
+
+    def test_class_decorated_doc(self):
+        self.assertSkip('class', '__decorated_func__',
+                        SampleClass.__decorated_func__, False,
                         'napoleon_include_special_with_doc')
 
     def test_exception_private_doc(self):
