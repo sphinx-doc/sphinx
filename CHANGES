@@ -21,6 +21,7 @@ Features added
 Bugs fixed
 ----------
 
+* #7886: autodoc: TypeError is raised on mocking generic-typed classes
 * #7839: autosummary: cannot handle umlauts in function names
 * #7865: autosummary: Failed to extract summary line when abbreviations found
 * #7866: autosummary: Failed to extract correct summary line when docstring
