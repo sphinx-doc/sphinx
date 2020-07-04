@@ -26,6 +26,7 @@ Bugs fixed
 * #7812: autosummary: generates broken stub files if the target code contains
   an attribute and module that are same name
 * #7806: viewcode: Failed to resolve viewcode references on 3rd party builders
+* #7838: html theme: List items have extra vertical space
 
 Testing
 --------
