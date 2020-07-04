@@ -1656,7 +1656,7 @@ class TypeVarDocumenter(DataDocumenter):
         self.options.annotation = SUPPRESS  # type: ignore
         super().add_directive_header(sig)
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> List[List[str]]:
         if ignore is not None:
             warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
