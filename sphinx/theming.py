@@ -74,17 +74,17 @@ class Theme:
 
         try:
             inherit = self.config.get('theme', 'inherit')
-        except configparser.NoSectionError:
-            raise ThemeError(__('theme %r doesn\'t have "theme" setting') % name)
-        except configparser.NoOptionError:
-            raise ThemeError(__('theme %r doesn\'t have "inherit" setting') % name)
+        except configparser.NoSectionError as exc:
+            raise ThemeError(__('theme %r doesn\'t have "theme" setting') % name) from exc
+        except configparser.NoOptionError as exc:
+            raise ThemeError(__('theme %r doesn\'t have "inherit" setting') % name) from exc
 
         if inherit != 'none':
             try:
                 self.base = factory.create(inherit)
-            except ThemeError:
+            except ThemeError as exc:
                 raise ThemeError(__('no theme named %r found, inherited by %r') %
-                                 (inherit, name))
+                                 (inherit, name)) from exc
 
     def get_theme_dirs(self) -> List[str]:
         """Return a list of theme directories, beginning with this theme's,
@@ -101,13 +101,13 @@ class Theme:
         """
         try:
             return self.config.get(section, name)
-        except (configparser.NoOptionError, configparser.NoSectionError):
+        except (configparser.NoOptionError, configparser.NoSectionError) as exc:
             if self.base:
                 return self.base.get_config(section, name, default)
 
             if default is NODEFAULT:
                 raise ThemeError(__('setting %s.%s occurs in none of the '
-                                    'searched theme configs') % (section, name))
+                                    'searched theme configs') % (section, name)) from exc
             else:
                 return default
 

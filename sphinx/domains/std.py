@@ -1041,10 +1041,10 @@ class StandardDomain(Domain):
             try:
                 figure_id = target_node['ids'][0]
                 return env.toc_fignumbers[docname][figtype][figure_id]
-            except (KeyError, IndexError):
+            except (KeyError, IndexError) as exc:
                 # target_node is found, but fignumber is not assigned.
                 # Maybe it is defined in orphaned document.
-                raise ValueError
+                raise ValueError from exc
 
     def get_full_qualified_name(self, node: Element) -> str:
         if node.get('reftype') == 'option':

@@ -1,21 +1,22 @@
-name: CI on Windows
+name: Lint source code
 
 on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        architecture: [x86, x64]
+        tool: [docslint, flake8, mypy, twine]
 
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        architecture: ${{ matrix.architecture }}
+        python-version: 3.6
     - name: Install dependencies
       run:  pip install -U tox
     - name: Run Tox
-      run:  tox -e py -- -vv
+      run:  tox -e ${{ matrix.tool }}

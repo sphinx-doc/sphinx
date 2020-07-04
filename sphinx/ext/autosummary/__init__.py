@@ -95,6 +95,8 @@ logger = logging.getLogger(__name__)
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
 
+WELL_KNOWN_ABBREVIATIONS = (' i.e.',)
+
 
 # -- autosummary_toc node ------------------------------------------------------
 
@@ -470,6 +472,13 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
 
 def extract_summary(doc: List[str], document: Any) -> str:
     """Extract summary from docstring."""
+    def parse(doc: List[str], settings: Any) -> nodes.document:
+        state_machine = RSTStateMachine(state_classes, 'Body')
+        node = new_document('', settings)
+        node.reporter = NullReporter()
+        state_machine.run(doc, node)
+
+        return node
 
     # Skip a blank lines at the top
     while doc and not doc[0].strip():
@@ -487,11 +496,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
         return ''
 
     # parse the docstring
-    state_machine = RSTStateMachine(state_classes, 'Body')
-    node = new_document('', document.settings)
-    node.reporter = NullReporter()
-    state_machine.run(doc, node)
-
+    node = parse(doc, document.settings)
     if not isinstance(node[0], nodes.paragraph):
         # document starts with non-paragraph: pick up the first line
         summary = doc[0].strip()
@@ -502,11 +507,13 @@ def extract_summary(doc: List[str], document: Any) -> str:
             summary = sentences[0].strip()
         else:
             summary = ''
-            while sentences:
-                summary += sentences.pop(0) + '.'
+            for i in range(len(sentences)):
+                summary = ". ".join(sentences[:i + 1]).rstrip(".") + "."
                 node[:] = []
-                state_machine.run([summary], node)
-                if not node.traverse(nodes.system_message):
+                node = parse(doc, document.settings)
+                if summary.endswith(WELL_KNOWN_ABBREVIATIONS):
+                    pass
+                elif not node.traverse(nodes.system_message):
                     # considered as that splitting by period does not break inline markups
                     break
 
@@ -620,7 +627,7 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
         else:
             return sys.modules[modname], None, modname
     except (ValueError, ImportError, AttributeError, KeyError) as e:
-        raise ImportError(*e.args)
+        raise ImportError(*e.args) from e
 
 
 # -- :autolink: (smart default role) -------------------------------------------
@@ -701,7 +708,8 @@ def process_generate_options(app: Sphinx) -> None:
     with mock(app.config.autosummary_mock_imports):
         generate_autosummary_docs(genfiles, suffix=suffix, base_path=app.srcdir,
                                   app=app, imported_members=imported_members,
-                                  overwrite=app.config.autosummary_generate_overwrite)
+                                  overwrite=app.config.autosummary_generate_overwrite,
+                                  encoding=app.config.source_encoding)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

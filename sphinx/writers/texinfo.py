@@ -852,8 +852,8 @@ class TexinfoTranslator(SphinxTranslator):
         num = node.astext().strip()
         try:
             footnode, used = self.footnotestack[-1][num]
-        except (KeyError, IndexError):
-            raise nodes.SkipNode
+        except (KeyError, IndexError) as exc:
+            raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
         footnode.walkabout(self)  # type: ignore
         raise nodes.SkipChildren

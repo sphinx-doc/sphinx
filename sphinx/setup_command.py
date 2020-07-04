@@ -198,7 +198,7 @@ class BuildDoc(Command):
             except Exception as exc:
                 handle_exception(app, self, exc, sys.stderr)
                 if not self.pdb:
-                    raise SystemExit(1)
+                    raise SystemExit(1) from exc
 
             if not self.link_index:
                 continue

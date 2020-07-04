@@ -10,7 +10,7 @@
 
 import re
 from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, Type, Tuple, Union
+    Any, Callable, Dict, Generator, Iterator, List, Type, TypeVar, Tuple, Union
 )
 from typing import cast
 
@@ -26,9 +26,12 @@ from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import SphinxRole, XRefRole
+from sphinx.transforms import SphinxTransform
+from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
 from sphinx.util.cfamily import (
-    NoOldIdError, ASTBaseBase, verify_description_mode, StringifyTransform,
+    NoOldIdError, ASTBaseBase, ASTBaseParenExprList,
+    verify_description_mode, StringifyTransform,
     BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
     identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
     hex_literal_re, binary_literal_re, integers_literal_suffix_re,
@@ -40,6 +43,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)
+T = TypeVar('T')
 
 # https://en.cppreference.com/w/c/keyword
 _keywords = [
@@ -1053,7 +1057,7 @@ class ASTDeclaratorParen(ASTDeclarator):
 # Initializer
 ################################################################################
 
-class ASTParenExprList(ASTBase):
+class ASTParenExprList(ASTBaseParenExprList):
     def __init__(self, exprs: List[ASTExpression]) -> None:
         self.exprs = exprs
 
@@ -1883,7 +1887,7 @@ class Symbol:
                     ourChild._fill_empty(otherChild.declaration, otherChild.docname)
                 elif ourChild.docname != otherChild.docname:
                     name = str(ourChild.declaration)
-                    msg = __("Duplicate declaration, also defined in '%s'.\n"
+                    msg = __("Duplicate C declaration, also defined in '%s'.\n"
                              "Declaration is '%s'.")
                     msg = msg % (ourChild.docname, name)
                     logger.warning(msg, location=otherChild.docname)
@@ -2300,7 +2304,8 @@ class DefinitionParser(BaseParser):
                     errs = []
                     errs.append((exCast, "If type cast expression"))
                     errs.append((exUnary, "If unary expression"))
-                    raise self._make_multi_error(errs, "Error in cast expression.")
+                    raise self._make_multi_error(errs,
+                                                 "Error in cast expression.") from exUnary
         else:
             return self._parse_unary_expression()
 
@@ -2767,7 +2772,7 @@ class DefinitionParser(BaseParser):
                         msg += " (e.g., 'void (*f(int arg))(double)')"
                     prevErrors.append((exNoPtrParen, msg))
                     header = "Error in declarator"
-                    raise self._make_multi_error(prevErrors, header)
+                    raise self._make_multi_error(prevErrors, header) from exNoPtrParen
         pos = self.pos
         try:
             return self._parse_declarator_name_suffix(named, paramMode, typed)
@@ -2775,7 +2780,7 @@ class DefinitionParser(BaseParser):
             self.pos = pos
             prevErrors.append((e, "If declarator-id"))
             header = "Error in declarator or parameters"
-            raise self._make_multi_error(prevErrors, header)
+            raise self._make_multi_error(prevErrors, header) from e
 
     def _parse_initializer(self, outer: str = None, allowFallback: bool = True
                            ) -> ASTInitializer:
@@ -2843,7 +2848,7 @@ class DefinitionParser(BaseParser):
                     if True:
                         header = "Type must be either just a name or a "
                         header += "typedef-like declaration."
-                        raise self._make_multi_error(prevErrors, header)
+                        raise self._make_multi_error(prevErrors, header) from exTyped
                     else:
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
@@ -2994,7 +2999,7 @@ class DefinitionParser(BaseParser):
                 errs = []
                 errs.append((exExpr, "If expression"))
                 errs.append((exType, "If type"))
-                raise self._make_multi_error(errs, header)
+                raise self._make_multi_error(errs, header) from exType
         return res
 
 
@@ -3016,6 +3021,13 @@ class CObject(ObjectDescription):
         Field('returntype', label=_('Return type'), has_arg=False,
               names=('rtype',)),
     ]
+
+    option_spec = {
+        # have a dummy option to ensure proper errors on options,
+        # otherwise the option is taken as a continuation of the
+        # argument
+        'dummy': None
+    }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
         assert ast.objectType == 'enumerator'
@@ -3083,7 +3095,8 @@ class CObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
 
             domain = cast(CDomain, self.env.get_domain('c'))
-            domain.note_object(name, self.objtype, newestId)
+            if name not in domain.objects:
+                domain.objects[name] = (domain.env.docname, newestId, self.objtype)
 
         indexText = self.get_index_text(name)
         self.indexnode['entries'].append(('single', indexText, newestId, '', None))
@@ -3132,7 +3145,7 @@ class CObject(ObjectDescription):
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             self.env.temp_data['c:last_symbol'] = symbol
-            raise ValueError
+            raise ValueError from e
 
         try:
             symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
@@ -3148,7 +3161,10 @@ class CObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['c:last_symbol'] = e.symbol
-            logger.warning("Duplicate declaration, %s", sig, location=signode)
+            msg = __("Duplicate C declaration, also defined in '%s'.\n"
+                     "Declaration is '%s'.")
+            msg = msg % (e.symbol.docname, sig)
+            logger.warning(msg, location=signode)
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -3309,6 +3325,106 @@ class CNamespacePopObject(SphinxDirective):
         return []
 
 
+class AliasNode(nodes.Element):
+    def __init__(self, sig: str, env: "BuildEnvironment" = None,
+                 parentKey: LookupKey = None) -> None:
+        super().__init__()
+        self.sig = sig
+        if env is not None:
+            if 'c:parent_symbol' not in env.temp_data:
+                root = env.domaindata['c']['root_symbol']
+                env.temp_data['c:parent_symbol'] = root
+            self.parentKey = env.temp_data['c:parent_symbol'].get_lookup_key()
+        else:
+            assert parentKey is not None
+            self.parentKey = parentKey
+
+    def copy(self: T) -> T:
+        return self.__class__(self.sig, env=None, parentKey=self.parentKey)  # type: ignore
+
+
+class AliasTransform(SphinxTransform):
+    default_priority = ReferencesResolver.default_priority - 1
+
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.traverse(AliasNode):
+            sig = node.sig
+            parentKey = node.parentKey
+            try:
+                parser = DefinitionParser(sig, location=node,
+                                          config=self.env.config)
+                name = parser.parse_xref_object()
+            except DefinitionError as e:
+                logger.warning(e, location=node)
+                name = None
+
+            if name is None:
+                # could not be parsed, so stop here
+                signode = addnodes.desc_signature(sig, '')
+                signode.clear()
+                signode += addnodes.desc_name(sig, sig)
+                node.replace_self(signode)
+                continue
+
+            rootSymbol = self.env.domains['c'].data['root_symbol']  # type: Symbol
+            parentSymbol = rootSymbol.direct_lookup(parentKey)  # type: Symbol
+            if not parentSymbol:
+                print("Target: ", sig)
+                print("ParentKey: ", parentKey)
+                print(rootSymbol.dump(1))
+            assert parentSymbol  # should be there
+
+            s = parentSymbol.find_declaration(
+                name, 'any',
+                matchSelf=True, recurseInAnon=True)
+            if s is None:
+                signode = addnodes.desc_signature(sig, '')
+                node.append(signode)
+                signode.clear()
+                signode += addnodes.desc_name(sig, sig)
+
+                logger.warning("Could not find C declaration for alias '%s'." % name,
+                               location=node)
+                node.replace_self(signode)
+            else:
+                nodes = []
+                options = dict()  # type: ignore
+                signode = addnodes.desc_signature(sig, '')
+                nodes.append(signode)
+                s.declaration.describe_signature(signode, 'markName', self.env, options)
+                node.replace_self(nodes)
+
+
+class CAliasObject(ObjectDescription):
+    option_spec = {}  # type: Dict
+
+    def run(self) -> List[Node]:
+        if ':' in self.name:
+            self.domain, self.objtype = self.name.split(':', 1)
+        else:
+            self.domain, self.objtype = '', self.name
+
+        node = addnodes.desc()
+        node.document = self.state.document
+        node['domain'] = self.domain
+        # 'desctype' is a backwards compatible attribute
+        node['objtype'] = node['desctype'] = self.objtype
+        node['noindex'] = True
+
+        self.names = []  # type: List[str]
+        signatures = self.get_signatures()
+        for i, sig in enumerate(signatures):
+            node.append(AliasNode(sig, env=self.env))
+
+        contentnode = addnodes.desc_content()
+        node.append(contentnode)
+        self.before_content()
+        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        self.env.temp_data['object'] = None
+        self.after_content()
+        return [node]
+
+
 class CXRefRole(XRefRole):
     def process_link(self, env: BuildEnvironment, refnode: Element,
                      has_explicit_title: bool, title: str, target: str) -> Tuple[str, str]:
@@ -3392,6 +3508,8 @@ class CDomain(Domain):
         'namespace': CNamespaceObject,
         'namespace-push': CNamespacePushObject,
         'namespace-pop': CNamespacePopObject,
+        # other
+        'alias': CAliasObject
     }
     roles = {
         'member': CXRefRole(),
@@ -3415,14 +3533,6 @@ class CDomain(Domain):
     @property
     def objects(self) -> Dict[str, Tuple[str, str, str]]:
         return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
-
-    def note_object(self, name: str, objtype: str, node_id: str, location: Any = None) -> None:
-        if name in self.objects:
-            docname = self.objects[name][0]
-            logger.warning(__('Duplicate C object description of %s, '
-                              'other instance in %s, use :noindex: for one of them'),
-                           name, docname, location=location)
-        self.objects[name] = (self.env.docname, node_id, objtype)
 
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
@@ -3469,13 +3579,9 @@ class CDomain(Domain):
         ourObjects = self.data['objects']
         for fullname, (fn, id_, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                if fullname in ourObjects:
-                    msg = __("Duplicate declaration, also defined in '%s'.\n"
-                             "Name of declaration is '%s'.")
-                    msg = msg % (ourObjects[fullname], fullname)
-                    logger.warning(msg, location=fn)
-                else:
+                if fullname not in ourObjects:
                     ourObjects[fullname] = (fn, id_, objtype)
+                # no need to warn on duplicates, the symbol merge already does that
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
@@ -3539,6 +3645,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(CDomain)
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
+    app.add_post_transform(AliasTransform)
 
     return {
         'version': 'builtin',

@@ -51,10 +51,24 @@ Deprecated
 Features added
 --------------
 
+* #7853: C and C++, support parameterized GNU style attributes.
+* #7888: napoleon: Add aliases Warn and Raise.
+* C, added :rst:dir:`c:alias` directive for inserting copies
+  of existing declarations.
+
 Bugs fixed
 ----------
 
+* #7839: autosummary: cannot handle umlauts in function names
+* #7865: autosummary: Failed to extract summary line when abbreviations found
+* #7866: autosummary: Failed to extract correct summary line when docstring
+  contains a hyperlink target
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
+* #7846: html theme: XML-invalid files were generated
+* #7869: :rst:role:`abbr` role without an explanation will show the explanation
+  from the previous abbr role
+* C and C++, removed ``noindex`` directive option as it did
+  nothing.
 
 Testing
 --------
@@ -76,6 +90,17 @@ Features added
 
 Bugs fixed
 ----------
+
+* #7844: autodoc: Failed to detect module when relative module name given
+* #7856: autodoc: AttributeError is raised when non-class object is given to
+  the autoclass directive
+* #7850: autodoc: KeyError is raised for invalid mark up when autodoc_typehints
+  is 'description'
+* #7812: autodoc: crashed if the target name matches to both an attribute and
+  module that are same name
+* #7812: autosummary: generates broken stub files if the target code contains
+  an attribute and module that are same name
+* #7806: viewcode: Failed to resolve viewcode references on 3rd party builders
 
 Testing
 --------

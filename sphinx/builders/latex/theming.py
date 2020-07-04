@@ -87,10 +87,12 @@ class UserTheme(Theme):
             try:
                 value = self.config.get('theme', key)
                 setattr(self, key, value)
-            except configparser.NoSectionError:
-                raise ThemeError(__('%r doesn\'t have "theme" setting') % filename)
+            except configparser.NoSectionError as exc:
+                raise ThemeError(__('%r doesn\'t have "theme" setting') %
+                                 filename) from exc
             except configparser.NoOptionError as exc:
-                raise ThemeError(__('%r doesn\'t have "%s" setting') % (filename, exc.args[0]))
+                raise ThemeError(__('%r doesn\'t have "%s" setting') %
+                                 (filename, exc.args[0])) from exc
 
         for key in self.OPTIONAL_CONFIG_KEYS:
             try:

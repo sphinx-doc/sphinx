@@ -322,7 +322,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)
-    except Exception:
+    except Exception as exc:
         # sometimes accessing a property raises an exception (e.g.
         # NotImplementedError), so let's try to read the attribute directly
         try:
@@ -337,7 +337,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         if defargs:
             return defargs[0]
 
-        raise AttributeError(name)
+        raise AttributeError(name) from exc
 
 
 def object_description(object: Any) -> str:
@@ -369,8 +369,8 @@ def object_description(object: Any) -> str:
                                                  for x in sorted_values)
     try:
         s = repr(object)
-    except Exception:
-        raise ValueError
+    except Exception as exc:
+        raise ValueError from exc
     # Strip non-deterministic memory addresses such as
     # ``<__main__.A at 0x7f68cb685710>``
     s = memory_address_re.sub('', s)

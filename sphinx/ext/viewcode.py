@@ -131,10 +131,8 @@ def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
 
 def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnode: Node
                       ) -> Node:
-    if app.builder.format != 'html':
-        return None
-    elif node['reftype'] == 'viewcode':
-        # resolve our "viewcode" reference nodes -- they need special treatment
+    # resolve our "viewcode" reference nodes -- they need special treatment
+    if node['reftype'] == 'viewcode':
         return make_refnode(app.builder, node['refdoc'], node['reftarget'],
                             node['refid'], contnode)
 

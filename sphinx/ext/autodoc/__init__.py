@@ -33,7 +33,6 @@ from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect
 from sphinx.util import logging
-from sphinx.util import split_full_qualified_name
 from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import getdoc, object_description, safe_getattr, stringify_signature
 from sphinx.util.typing import stringify as stringify_typehint
@@ -821,7 +820,12 @@ class Documenter:
         self.add_line('', sourcename)
 
         # format the object's signature, if any
-        sig = self.format_signature()
+        try:
+            sig = self.format_signature()
+        except Exception as exc:
+            logger.warning(__('error while formatting signature for %s: %s'),
+                           self.fullname, exc, type='autodoc')
+            return
 
         # generate the directive header and options, if applicable
         self.add_directive_header(sig)
@@ -970,14 +974,8 @@ class ModuleLevelDocumenter(Documenter):
                      ) -> Tuple[str, List[str]]:
         if modname is None:
             if path:
-                stripped = path.rstrip('.')
-                modname, qualname = split_full_qualified_name(stripped)
-                if qualname:
-                    parents = qualname.split(".")
-                else:
-                    parents = []
-
-            if modname is None:
+                modname = path.rstrip('.')
+            else:
                 # if documenting a toplevel object without explicit module,
                 # it can be contained in another auto directive ...
                 modname = self.env.temp_data.get('autodoc:module')
@@ -1010,13 +1008,8 @@ class ClassLevelDocumenter(Documenter):
                 # ... if still None, there's no way to know
                 if mod_cls is None:
                     return None, []
-
-            try:
-                modname, qualname = split_full_qualified_name(mod_cls)
-                parents = qualname.split(".") if qualname else []
-            except ImportError:
-                parents = mod_cls.split(".")
-
+            modname, sep, cls = mod_cls.rpartition('.')
+            parents = [cls]
             # if the module name is still missing, get it like above
             if not modname:
                 modname = self.env.temp_data.get('autodoc:module')

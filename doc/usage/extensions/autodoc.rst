@@ -280,6 +280,12 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.3
 
+   * As a hint to autodoc extension, you can put a ``::`` separator in between
+     module name and object name to let autodoc know the correct module name if
+     it is ambiguous. ::
+
+        .. autoclass:: module.name::Noodle
+
 
 .. rst:directive:: autofunction
                    autodecorator
