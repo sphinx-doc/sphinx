@@ -39,7 +39,7 @@ install:
   - if [ $IS_PYTHON = false ]; then npm install; fi
 
 script:
-  - if [ $IS_PYTHON = true ]; then tox -- -v; fi
+  - if [ $IS_PYTHON = true ]; then tox -- -vv; fi
   - if [ $IS_PYTHON = false ]; then npm test; fi
 
 after_success:
