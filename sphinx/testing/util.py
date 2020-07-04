@@ -7,6 +7,7 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import functools
 import os
 import re
 import sys
@@ -14,7 +15,6 @@ import warnings
 from io import StringIO
 from typing import Any, Dict, Generator, IO, List, Pattern
 from xml.etree import ElementTree
-import functools
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -206,5 +206,3 @@ def simple_decorator(f):
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
     return wrapper
-
-
