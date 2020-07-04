@@ -16,7 +16,7 @@ import threading
 from html.parser import HTMLParser
 from os import path
 from typing import Any, Dict, List, Set, Tuple
-from urllib.parse import unquote
+from urllib.parse import unquote, urlparse
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -34,6 +34,11 @@ from sphinx.util.requests import is_ssl_error
 
 
 logger = logging.getLogger(__name__)
+
+
+DEFAULT_REQUEST_HEADERS = {
+    'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
+}
 
 
 class AnchorCheckParser(HTMLParser):
@@ -107,12 +112,24 @@ class CheckExternalLinksBuilder(Builder):
     def check_thread(self) -> None:
         kwargs = {
             'allow_redirects': True,
-            'headers': {
-                'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
-            },
-        }
+        }  # type: Dict
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
+
+        def get_request_headers() -> Dict:
+            url = urlparse(uri)
+            candidates = ["%s://%s" % (url.scheme, url.netloc),
+                          "%s://%s/" % (url.scheme, url.netloc),
+                          uri,
+                          "*"]
+
+            for u in candidates:
+                if u in self.config.linkcheck_request_headers:
+                    headers = dict(DEFAULT_REQUEST_HEADERS)
+                    headers.update(self.config.linkcheck_request_headers[u])
+                    return headers
+
+            return {}
 
         def check_uri() -> Tuple[str, str, int]:
             # split off anchor
@@ -138,6 +155,9 @@ class CheckExternalLinksBuilder(Builder):
                     break
             else:
                 auth_info = None
+
+            # update request headers for the URL
+            kwargs['headers'] = get_request_headers()
 
             try:
                 if anchor and self.app.config.linkcheck_anchors:
@@ -337,6 +357,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_config_value('linkcheck_ignore', [], None)
     app.add_config_value('linkcheck_auth', [], None)
+    app.add_config_value('linkcheck_request_headers', {}, None)
     app.add_config_value('linkcheck_retries', 1, None)
     app.add_config_value('linkcheck_timeout', None, None, [int])
     app.add_config_value('linkcheck_workers', 5, None)

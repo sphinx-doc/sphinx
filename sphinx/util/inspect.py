@@ -510,10 +510,14 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 def signature_from_str(signature: str) -> inspect.Signature:
     """Create a Signature object from string."""
     module = ast.parse('def func' + signature + ': pass')
-    definition = cast(ast.FunctionDef, module.body[0])  # type: ignore
+    function = cast(ast.FunctionDef, module.body[0])  # type: ignore
 
-    # parameters
-    args = definition.args
+    return signature_from_ast(function)
+
+
+def signature_from_ast(node: ast.FunctionDef) -> inspect.Signature:
+    """Create a Signature object from AST *node*."""
+    args = node.args
     defaults = list(args.defaults)
     params = []
     if hasattr(args, "posonlyargs"):
@@ -563,7 +567,7 @@ def signature_from_str(signature: str) -> inspect.Signature:
         params.append(Parameter(args.kwarg.arg, Parameter.VAR_KEYWORD,
                                 annotation=annotation))
 
-    return_annotation = ast_unparse(definition.returns) or Parameter.empty
+    return_annotation = ast_unparse(node.returns) or Parameter.empty
 
     return inspect.Signature(params, return_annotation=return_annotation)
 

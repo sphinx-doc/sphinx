@@ -16,7 +16,7 @@ import warnings
 from inspect import Parameter, Signature
 from types import ModuleType
 from typing import (
-    Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, Union
+    Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, TypeVar, Union
 )
 from typing import TYPE_CHECKING
 
@@ -1178,8 +1178,14 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             self.add_line('   :async:', sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
-        sig = super().format_signature(**kwargs)
-        sigs = [sig]
+        sigs = []
+        if self.analyzer and '.'.join(self.objpath) in self.analyzer.overloads:
+            # Use signatures for overloaded functions instead of the implementation function.
+            overloaded = True
+        else:
+            overloaded = False
+            sig = super().format_signature(**kwargs)
+            sigs.append(sig)
 
         if inspect.is_singledispatch_function(self.object):
             # append signature of singledispatch'ed functions
@@ -1193,12 +1199,24 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                     documenter.object = func
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
+        if overloaded:
+            for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                sig = stringify_signature(overload, **kwargs)
+                sigs.append(sig)
 
         return "\n".join(sigs)
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
-        sig = inspect.signature(func)
+        try:
+            sig = inspect.signature(func)
+        except TypeError as exc:
+            logger.warning(__("Failed to get a function signature for %s: %s"),
+                           self.fullname, exc)
+            return
+        except ValueError:
+            return
+
         if len(sig.parameters) == 0:
             return
 
@@ -1255,6 +1273,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'private-members': bool_option, 'special-members': members_option,
     }  # type: Dict[str, Callable]
 
+    _signature_class = None  # type: Any
+    _signature_method_name = None  # type: str
+
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_special_members_option(self.options)
@@ -1275,7 +1296,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = True
         return ret
 
-    def _get_signature(self) -> Optional[Signature]:
+    def _get_signature(self) -> Tuple[Optional[Any], Optional[str], Optional[Signature]]:
         def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
             """ Get the `attr` function or method from `obj`, if it is user-defined. """
             if inspect.is_builtin_class_method(obj, attr):
@@ -1299,7 +1320,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if call is not None:
             self.env.app.emit('autodoc-before-process-signature', call, True)
             try:
-                return inspect.signature(call, bound_method=True)
+                sig = inspect.signature(call, bound_method=True)
+                return type(self.object), '__call__', sig
             except ValueError:
                 pass
 
@@ -1308,7 +1330,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if new is not None:
             self.env.app.emit('autodoc-before-process-signature', new, True)
             try:
-                return inspect.signature(new, bound_method=True)
+                sig = inspect.signature(new, bound_method=True)
+                return self.object, '__new__', sig
             except ValueError:
                 pass
 
@@ -1317,7 +1340,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if init is not None:
             self.env.app.emit('autodoc-before-process-signature', init, True)
             try:
-                return inspect.signature(init, bound_method=True)
+                sig = inspect.signature(init, bound_method=True)
+                return self.object, '__init__', sig
             except ValueError:
                 pass
 
@@ -1327,20 +1351,21 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # the signature from, so just pass the object itself to our hook.
         self.env.app.emit('autodoc-before-process-signature', self.object, False)
         try:
-            return inspect.signature(self.object, bound_method=False)
+            sig = inspect.signature(self.object, bound_method=False)
+            return None, None, sig
         except ValueError:
             pass
 
         # Still no signature: happens e.g. for old-style classes
         # with __init__ in C and no `__text_signature__`.
-        return None
+        return None, None, None
 
     def format_args(self, **kwargs: Any) -> str:
         if self.env.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
 
         try:
-            sig = self._get_signature()
+            self._signature_class, self._signature_method_name, sig = self._get_signature()
         except TypeError as exc:
             # __signature__ attribute contained junk
             logger.warning(__("Failed to get a constructor signature for %s: %s"),
@@ -1356,7 +1381,30 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if self.doc_as_attr:
             return ''
 
-        return super().format_signature(**kwargs)
+        sig = super().format_signature()
+
+        overloaded = False
+        qualname = None
+        # TODO: recreate analyzer for the module of class (To be clear, owner of the method)
+        if self._signature_class and self._signature_method_name and self.analyzer:
+            qualname = '.'.join([self._signature_class.__qualname__,
+                                 self._signature_method_name])
+            if qualname in self.analyzer.overloads:
+                overloaded = True
+
+        sigs = []
+        if overloaded:
+            # Use signatures for overloaded methods instead of the implementation method.
+            for overload in self.analyzer.overloads.get(qualname):
+                parameters = list(overload.parameters.values())
+                overload = overload.replace(parameters=parameters[1:],
+                                            return_annotation=Parameter.empty)
+                sig = stringify_signature(overload, **kwargs)
+                sigs.append(sig)
+        else:
+            sigs.append(sig)
+
+        return "\n".join(sigs)
 
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
@@ -1586,6 +1634,48 @@ class GenericAliasDocumenter(DataDocumenter):
         super().add_content(content)
 
 
+class TypeVarDocumenter(DataDocumenter):
+    """
+    Specialized Documenter subclass for TypeVars.
+    """
+
+    objtype = 'typevar'
+    directivetype = 'data'
+    priority = DataDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        return isinstance(member, TypeVar) and isattr  # type: ignore
+
+    def add_directive_header(self, sig: str) -> None:
+        self.options.annotation = SUPPRESS  # type: ignore
+        super().add_directive_header(sig)
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        if ignore is not None:
+            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx50Warning, stacklevel=2)
+
+        if self.object.__doc__ != TypeVar.__doc__:
+            return super().get_doc()
+        else:
+            return []
+
+    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+        attrs = [repr(self.object.__name__)]
+        for constraint in self.object.__constraints__:
+            attrs.append(stringify_typehint(constraint))
+        if self.object.__covariant__:
+            attrs.append("covariant=True")
+        if self.object.__contravariant__:
+            attrs.append("contravariant=True")
+
+        content = StringList([_('alias of TypeVar(%s)') % ", ".join(attrs)], source='')
+        super().add_content(content)
+
+
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for methods (normal, static and class).
@@ -1675,8 +1765,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         pass
 
     def format_signature(self, **kwargs: Any) -> str:
-        sig = super().format_signature(**kwargs)
-        sigs = [sig]
+        sigs = []
+        if self.analyzer and '.'.join(self.objpath) in self.analyzer.overloads:
+            # Use signatures for overloaded methods instead of the implementation method.
+            overloaded = True
+        else:
+            overloaded = False
+            sig = super().format_signature(**kwargs)
+            sigs.append(sig)
 
         meth = self.parent.__dict__.get(self.objpath[-1])
         if inspect.is_singledispatch_method(meth):
@@ -1692,12 +1788,27 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     documenter.object = func
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
+        if overloaded:
+            for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                if not inspect.isstaticmethod(self.object, cls=self.parent,
+                                              name=self.object_name):
+                    parameters = list(overload.parameters.values())
+                    overload = overload.replace(parameters=parameters[1:])
+                sig = stringify_signature(overload, **kwargs)
+                sigs.append(sig)
 
         return "\n".join(sigs)
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
-        sig = inspect.signature(func)
+        try:
+            sig = inspect.signature(func)
+        except TypeError as exc:
+            logger.warning(__("Failed to get a method signature for %s: %s"),
+                           self.fullname, exc)
+            return
+        except ValueError:
+            return
         if len(sig.parameters) == 1:
             return
 
@@ -1945,6 +2056,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(DataDeclarationDocumenter)
     app.add_autodocumenter(GenericAliasDocumenter)
+    app.add_autodocumenter(TypeVarDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)

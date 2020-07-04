@@ -9,6 +9,7 @@
 """
 
 import _testcapi
+import ast
 import datetime
 import functools
 import sys
@@ -348,6 +349,38 @@ def test_signature_from_str_positionaly_only_args():
 def test_signature_from_str_invalid():
     with pytest.raises(SyntaxError):
         inspect.signature_from_str('')
+
+
+def test_signature_from_ast():
+    signature = 'def func(a, b, *args, c=0, d="blah", **kwargs): pass'
+    tree = ast.parse(signature)
+    sig = inspect.signature_from_ast(tree.body[0])
+    assert list(sig.parameters.keys()) == ['a', 'b', 'args', 'c', 'd', 'kwargs']
+    assert sig.parameters['a'].name == 'a'
+    assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['a'].default == Parameter.empty
+    assert sig.parameters['a'].annotation == Parameter.empty
+    assert sig.parameters['b'].name == 'b'
+    assert sig.parameters['b'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['b'].default == Parameter.empty
+    assert sig.parameters['b'].annotation == Parameter.empty
+    assert sig.parameters['args'].name == 'args'
+    assert sig.parameters['args'].kind == Parameter.VAR_POSITIONAL
+    assert sig.parameters['args'].default == Parameter.empty
+    assert sig.parameters['args'].annotation == Parameter.empty
+    assert sig.parameters['c'].name == 'c'
+    assert sig.parameters['c'].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters['c'].default == '0'
+    assert sig.parameters['c'].annotation == Parameter.empty
+    assert sig.parameters['d'].name == 'd'
+    assert sig.parameters['d'].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters['d'].default == "'blah'"
+    assert sig.parameters['d'].annotation == Parameter.empty
+    assert sig.parameters['kwargs'].name == 'kwargs'
+    assert sig.parameters['kwargs'].kind == Parameter.VAR_KEYWORD
+    assert sig.parameters['kwargs'].default == Parameter.empty
+    assert sig.parameters['kwargs'].annotation == Parameter.empty
+    assert sig.return_annotation == Parameter.empty
 
 
 def test_safe_getattr_with_default():

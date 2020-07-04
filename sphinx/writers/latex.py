@@ -1974,7 +1974,8 @@ class LaTeXTranslator(SphinxTranslator):
         #       mainly, %, #, {, } and \ need escaping via a \ escape
         # in \href, the tilde is allowed and must be represented literally
         return self.encode(text).replace('\\textasciitilde{}', '~').\
-            replace('\\sphinxhyphen{}', '-')
+            replace('\\sphinxhyphen{}', '-').\
+            replace('\\textquotesingle{}', "'")
 
     def visit_Text(self, node: Text) -> None:
         text = self.encode(node.astext())

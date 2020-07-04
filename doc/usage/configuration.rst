@@ -2388,6 +2388,32 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_request_headers
+
+   A dictionary that maps baseurls to HTTP request headers.
+
+   The key is a URL base string like ``"https://sphinx-doc.org/"``.  To specify
+   headers for other hosts, ``"*"`` can be used.  It matches all hosts only when
+   the URL does not match other settings.
+
+   The value is a dictionary that maps header name to its value.
+
+   Example:
+
+   .. code-block:: python
+
+      linkcheck_request_headers = {
+          "https://sphinx-doc.org/": {
+              "Accept": "text/html",
+              "Accept-Encoding": "utf-8",
+          },
+          "*": {
+              "Accept": "text/html,application/xhtml+xml",
+          }
+      }
+
+   .. versionadded:: 3.1
+
 .. confval:: linkcheck_retries
 
    The number of times the linkcheck builder will attempt to check a URL before

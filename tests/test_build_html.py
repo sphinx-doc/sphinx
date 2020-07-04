@@ -331,6 +331,8 @@ def test_html4_output(app, status, warning):
          'create-auth-token'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-arg']/code/span",
          'arg'),
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-j']/code/span",
+         '-j'),
         (".//a[@class='reference internal'][@href='#cmdoption-hg-arg-commit']/code/span",
          'hg'),
         (".//a[@class='reference internal'][@href='#cmdoption-hg-arg-commit']/code/span",
