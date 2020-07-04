@@ -13,6 +13,8 @@ import sys
 
 import pytest
 
+from sphinx.testing import restructuredtext
+
 from test_ext_autodoc import do_autodoc
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
@@ -632,6 +634,12 @@ def test_autodoc_typehints_description(app):
             '      Tuple[int, int]\n'
             in context)
 
+
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': "description"})
+def test_autodoc_typehints_description_for_invalid_node(app):
+    text = ".. py:function:: hello; world"
+    restructuredtext.parse(app, text)  # raises no error
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

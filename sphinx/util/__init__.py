@@ -615,26 +615,16 @@ def split_full_qualified_name(name: str) -> Tuple[str, str]:
               Therefore you need to mock 3rd party modules if needed before
               calling this function.
     """
-    from sphinx.util import inspect
-
     parts = name.split('.')
     for i, part in enumerate(parts, 1):
         try:
             modname = ".".join(parts[:i])
-            module = import_module(modname)
-
-            # check the module has a member named as attrname
-            #
-            # Note: This is needed to detect the attribute having the same name
-            #       as the module.
-            #       ref: https://github.com/sphinx-doc/sphinx/issues/7812
-            attrname = parts[i]
-            if hasattr(module, attrname):
-                value = inspect.safe_getattr(module, attrname)
-                if not inspect.ismodule(value):
-                    return ".".join(parts[:i]), ".".join(parts[i:])
+            import_module(modname)
         except ImportError:
-            return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            if parts[:i - 1]:
+                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            else:
+                return None, ".".join(parts)
         except IndexError:
             pass
 

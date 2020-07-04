@@ -1,14 +1,10 @@
-name: Lint source code
+name: Build document
 
 on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        tool: [docslint, flake8, mypy, twine]
 
     steps:
     - uses: actions/checkout@v2
@@ -17,6 +13,9 @@ jobs:
       with:
         python-version: 3.6
     - name: Install dependencies
-      run:  pip install -U tox
+      run:  |
+        sudo apt update
+        sudo apt install -y graphviz
+        pip install -U tox
     - name: Run Tox
-      run:  tox -e ${{ matrix.tool }}
+      run:  tox -e docs

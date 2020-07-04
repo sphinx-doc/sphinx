@@ -53,7 +53,16 @@ Features added
 Bugs fixed
 ----------
 
-* #7811: sphinx.util.inspect causes circular import problem
+* #7844: autodoc: Failed to detect module when relative module name given
+* #7856: autodoc: AttributeError is raised when non-class object is given to
+  the autoclass directive
+* #7850: autodoc: KeyError is raised for invalid mark up when autodoc_typehints
+  is 'description'
+* #7812: autodoc: crashed if the target name matches to both an attribute and
+  module that are same name
+* #7812: autosummary: generates broken stub files if the target code contains
+  an attribute and module that are same name
+* #7806: viewcode: Failed to resolve viewcode references on 3rd party builders
 
 Testing
 --------
