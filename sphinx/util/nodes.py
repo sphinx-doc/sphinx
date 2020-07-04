@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domain import IndexEntry
     from sphinx.environment import BuildEnvironment
-    from sphinx.utils.tags import Tags
+    from sphinx.util.tags import Tags
 
 logger = logging.getLogger(__name__)
 

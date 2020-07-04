@@ -584,12 +584,13 @@ class GoogleDocstring:
                 lines.append('.. attribute:: ' + _name)
                 if self._opt and 'noindex' in self._opt:
                     lines.append('   :noindex:')
-                if _type:
-                    lines.extend(self._indent([':type: %s' % _type], 3))
                 lines.append('')
 
                 fields = self._format_field('', '', _desc)
                 lines.extend(self._indent(fields, 3))
+                if _type:
+                    lines.append('')
+                    lines.extend(self._indent([':type: %s' % _type], 3))
                 lines.append('')
         if self._config.napoleon_use_ivar:
             lines.append('')

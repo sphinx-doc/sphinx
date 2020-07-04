@@ -36,6 +36,33 @@ Bugs fixed
 Testing
 --------
 
+Release 3.1.1 (released Jun 14, 2020)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #7808: napoleon: a type for attribute are represented as typed field
+
+Features added
+--------------
+
+* #7807: autodoc: Show detailed warning when type_comment is mismatched with its
+  signature
+
+Bugs fixed
+----------
+
+* #7808: autodoc: Warnings raised on variable and attribute type annotations
+* #7802: autodoc: EOFError is raised on parallel build
+* #7821: autodoc: TypeError is raised for overloaded C-ext function
+* #7805: autodoc: an object which descriptors returns is unexpectedly documented
+* #7807: autodoc: wrong signature is shown for the function using contextmanager
+* #7812: autosummary: generates broken stub files if the target code contains
+  an attribute and module that are same name
+* #7808: napoleon: Warnings raised on variable and attribute type annotations
+* #7811: sphinx.util.inspect causes circular import problem
+
 Release 3.1.0 (released Jun 08, 2020)
 =====================================
 
@@ -193,9 +220,6 @@ Bugs fixed
   in global scope, e.g., ``.A.B``.
 * #7763: C and C++, don't crash during display stringification of unary
   expressions and fold expressions.
-
-Release 3.0.5 (in development)
-==============================
 
 Release 3.0.4 (released May 27, 2020)
 =====================================
