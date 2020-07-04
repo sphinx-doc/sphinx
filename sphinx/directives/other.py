@@ -7,7 +7,7 @@
 """
 
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 from typing import cast
 
 from docutils import nodes
@@ -85,62 +85,67 @@ class TocTree(SphinxDirective):
         ret.append(wrappernode)
         return ret
 
-    def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
-        suffixes = self.config.source_suffix
+    def _parse_one_entry(self,
+                         all_docnames: Set[str],
+                         toctree: addnodes.toctree,
+                         ret: List[Node],
+                         entry: str) -> None:
+        # look for explicit titles ("Some Title <document>")
+        explicit = explicit_title_re.match(entry)
+        if (toctree['glob'] and glob_re.match(entry) and
+                not explicit and not url_re.match(entry)):
+            patname = docname_join(self.env.docname, entry)
+            docnames = sorted(patfilter(all_docnames, patname))
+            for docname in docnames:
+                all_docnames.remove(docname)  # don't include it again
+                toctree['entries'].append((None, docname))
+                toctree['includefiles'].append(docname)
+            if not docnames:
+                ret.append(self.state.document.reporter.warning(
+                    'toctree glob pattern %r didn\'t match any documents'
+                    % entry, line=self.lineno))
+        else:
+            if explicit:
+                ref = explicit.group(2)
+                title = explicit.group(1)
+                docname = ref
+            else:
+                ref = docname = entry
+                title = None
+            # remove suffixes (backwards compatibility)
+            for suffix in self.config.source_suffix:
+                if docname.endswith(suffix):
+                    docname = docname[:-len(suffix)]
+                    break
+            # absolutize filenames
+            docname = docname_join(self.env.docname, docname)
+            if url_re.match(ref) or ref == 'self':
+                toctree['entries'].append((title, ref))
+            elif docname not in self.env.found_docs:
+                excluded = Matcher(self.config.exclude_patterns)
+                if excluded(self.env.doc2path(docname, None)):
+                    message = 'toctree contains reference to excluded document %r'
+                else:
+                    message = 'toctree contains reference to nonexisting document %r'
 
+                ret.append(self.state.document.reporter.warning(message % docname,
+                                                                line=self.lineno))
+                self.env.note_reread()
+            else:
+                all_docnames.discard(docname)
+                toctree['entries'].append((title, docname))
+                toctree['includefiles'].append(docname)
+
+    def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
         # glob target documents
         all_docnames = self.env.found_docs.copy()
         all_docnames.remove(self.env.docname)  # remove current document
 
         ret = []  # type: List[Node]
-        excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
                 continue
-            # look for explicit titles ("Some Title <document>")
-            explicit = explicit_title_re.match(entry)
-            if (toctree['glob'] and glob_re.match(entry) and
-                    not explicit and not url_re.match(entry)):
-                patname = docname_join(self.env.docname, entry)
-                docnames = sorted(patfilter(all_docnames, patname))
-                for docname in docnames:
-                    all_docnames.remove(docname)  # don't include it again
-                    toctree['entries'].append((None, docname))
-                    toctree['includefiles'].append(docname)
-                if not docnames:
-                    ret.append(self.state.document.reporter.warning(
-                        'toctree glob pattern %r didn\'t match any documents'
-                        % entry, line=self.lineno))
-            else:
-                if explicit:
-                    ref = explicit.group(2)
-                    title = explicit.group(1)
-                    docname = ref
-                else:
-                    ref = docname = entry
-                    title = None
-                # remove suffixes (backwards compatibility)
-                for suffix in suffixes:
-                    if docname.endswith(suffix):
-                        docname = docname[:-len(suffix)]
-                        break
-                # absolutize filenames
-                docname = docname_join(self.env.docname, docname)
-                if url_re.match(ref) or ref == 'self':
-                    toctree['entries'].append((title, ref))
-                elif docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, None)):
-                        message = 'toctree contains reference to excluded document %r'
-                    else:
-                        message = 'toctree contains reference to nonexisting document %r'
-
-                    ret.append(self.state.document.reporter.warning(message % docname,
-                                                                    line=self.lineno))
-                    self.env.note_reread()
-                else:
-                    all_docnames.discard(docname)
-                    toctree['entries'].append((title, docname))
-                    toctree['includefiles'].append(docname)
+            self._parse_one_entry(all_docnames, toctree, ret, entry)
 
         # entries contains all entries (self references, external links etc.)
         if 'reversed' in self.options:

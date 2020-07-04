@@ -125,7 +125,9 @@ class TocTree:
             for (title, ref) in refs:
                 try:
                     refdoc = None
-                    if url_re.match(ref):
+                    if isinstance(ref, nodes.Element):
+                        toc = ref
+                    elif url_re.match(ref):
                         if title is None:
                             title = ref
                         reference = nodes.reference('', '', internal=False,
@@ -260,7 +262,8 @@ class TocTree:
         # set the target paths in the toctrees (they are not known at TOC
         # generation time)
         for refnode in newnode.traverse(nodes.reference):
-            if not url_re.match(refnode['refuri']):
+            if refnode.get('anchorname', None) is not None and \
+               not url_re.match(refnode['refuri']):
                 refnode['refuri'] = builder.get_relative_uri(
                     docname, refnode['refuri']) + refnode['anchorname']
         return newnode
