@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #7650: autodoc: the signature of base function will be shown for decorated
+  functions, not a signature of decorator
+
 Deprecated
 ----------
 
@@ -23,6 +26,8 @@ Bugs fixed
   is 'description'
 * #7812: autodoc: crashed if the target name matches to both an attribute and
   module that are same name
+* #7650: autodoc: function signature becomes ``(*args, **kwargs)`` if the
+  function is decorated by generic decorator
 * #7812: autosummary: generates broken stub files if the target code contains
   an attribute and module that are same name
 * #7806: viewcode: Failed to resolve viewcode references on 3rd party builders
