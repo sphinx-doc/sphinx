@@ -9,6 +9,7 @@
 """
 
 import builtins
+import contextlib
 import enum
 import inspect
 import re
@@ -18,7 +19,7 @@ import typing
 import warnings
 from functools import partial, partialmethod
 from inspect import (  # NOQA
-    Parameter, isclass, ismethod, ismethoddescriptor
+    Parameter, isclass, ismethod, ismethoddescriptor, ismodule
 )
 from io import StringIO
 from typing import Any, Callable
@@ -321,7 +322,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)
-    except Exception:
+    except Exception as exc:
         # sometimes accessing a property raises an exception (e.g.
         # NotImplementedError), so let's try to read the attribute directly
         try:
@@ -336,7 +337,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         if defargs:
             return defargs[0]
 
-        raise AttributeError(name)
+        raise AttributeError(name) from exc
 
 
 def object_description(object: Any) -> str:
@@ -368,8 +369,8 @@ def object_description(object: Any) -> str:
                                                  for x in sorted_values)
     try:
         s = repr(object)
-    except Exception:
-        raise ValueError
+    except Exception as exc:
+        raise ValueError from exc
     # Strip non-deterministic memory addresses such as
     # ``<__main__.A at 0x7f68cb685710>``
     s = memory_address_re.sub('', s)
@@ -404,6 +405,17 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     return getattr(builtins, name, None) is cls
 
 
+def _should_unwrap(subject: Callable) -> bool:
+    """Check the function should be unwrapped on getting signature."""
+    if (safe_getattr(subject, '__globals__', None) and
+            subject.__globals__.get('__name__') == 'contextlib' and  # type: ignore
+            subject.__globals__.get('__file__') == contextlib.__file__):  # type: ignore
+        # contextmanger should be unwrapped
+        return True
+
+    return False
+
+
 def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False
               ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
@@ -414,7 +426,10 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
     """
     try:
         try:
-            signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
+            if _should_unwrap(subject):
+                signature = inspect.signature(subject)
+            else:
+                signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
         except ValueError:
             # follow built-in wrappers up (ex. functools.lru_cache)
             signature = inspect.signature(subject)
@@ -510,10 +525,14 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 def signature_from_str(signature: str) -> inspect.Signature:
     """Create a Signature object from string."""
     module = ast.parse('def func' + signature + ': pass')
-    definition = cast(ast.FunctionDef, module.body[0])  # type: ignore
+    function = cast(ast.FunctionDef, module.body[0])  # type: ignore
 
-    # parameters
-    args = definition.args
+    return signature_from_ast(function)
+
+
+def signature_from_ast(node: ast.FunctionDef) -> inspect.Signature:
+    """Create a Signature object from AST *node*."""
+    args = node.args
     defaults = list(args.defaults)
     params = []
     if hasattr(args, "posonlyargs"):
@@ -563,7 +582,7 @@ def signature_from_str(signature: str) -> inspect.Signature:
         params.append(Parameter(args.kwarg.arg, Parameter.VAR_KEYWORD,
                                 annotation=annotation))
 
-    return_annotation = ast_unparse(definition.returns) or Parameter.empty
+    return_annotation = ast_unparse(node.returns) or Parameter.empty
 
     return inspect.Signature(params, return_annotation=return_annotation)
 

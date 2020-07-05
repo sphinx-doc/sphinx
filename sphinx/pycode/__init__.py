@@ -11,6 +11,7 @@
 import re
 import tokenize
 from importlib import import_module
+from inspect import Signature
 from io import StringIO
 from os import path
 from typing import Any, Dict, IO, List, Tuple, Optional
@@ -34,7 +35,7 @@ class ModuleAnalyzer:
         try:
             mod = import_module(modname)
         except Exception as err:
-            raise PycodeError('error importing %r' % modname, err)
+            raise PycodeError('error importing %r' % modname, err) from err
         loader = getattr(mod, '__loader__', None)
         filename = getattr(mod, '__file__', None)
         if loader and getattr(loader, 'get_source', None):
@@ -51,7 +52,7 @@ class ModuleAnalyzer:
             try:
                 filename = loader.get_filename(modname)
             except ImportError as err:
-                raise PycodeError('error getting filename for %r' % modname, err)
+                raise PycodeError('error getting filename for %r' % modname, err) from err
         if filename is None:
             # all methods for getting filename failed, so raise...
             raise PycodeError('no source found for module %r' % modname)
@@ -89,7 +90,7 @@ class ModuleAnalyzer:
             if '.egg' + path.sep in filename:
                 obj = cls.cache['file', filename] = cls.for_egg(filename, modname)
             else:
-                raise PycodeError('error opening %r' % filename, err)
+                raise PycodeError('error opening %r' % filename, err) from err
         return obj
 
     @classmethod
@@ -101,7 +102,7 @@ class ModuleAnalyzer:
                 code = egg.read(relpath).decode()
                 return cls.for_string(code, modname, filename)
         except Exception as exc:
-            raise PycodeError('error opening %r' % filename, exc)
+            raise PycodeError('error opening %r' % filename, exc) from exc
 
     @classmethod
     def for_module(cls, modname: str) -> "ModuleAnalyzer":
@@ -134,6 +135,7 @@ class ModuleAnalyzer:
         self.annotations = None  # type: Dict[Tuple[str, str], str]
         self.attr_docs = None    # type: Dict[Tuple[str, str], List[str]]
         self.finals = None       # type: List[str]
+        self.overloads = None    # type: Dict[str, List[Signature]]
         self.tagorder = None     # type: Dict[str, int]
         self.tags = None         # type: Dict[str, Tuple[str, int, int]]
 
@@ -152,10 +154,11 @@ class ModuleAnalyzer:
 
             self.annotations = parser.annotations
             self.finals = parser.finals
+            self.overloads = parser.overloads
             self.tags = parser.definitions
             self.tagorder = parser.deforders
         except Exception as exc:
-            raise PycodeError('parsing %r failed: %r' % (self.srcname, exc))
+            raise PycodeError('parsing %r failed: %r' % (self.srcname, exc)) from exc
 
     def find_attr_docs(self) -> Dict[Tuple[str, str], List[str]]:
         """Find class and module-level attributes and their documentation."""

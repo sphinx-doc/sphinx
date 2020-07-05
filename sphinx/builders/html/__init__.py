@@ -135,7 +135,7 @@ class BuildInfo:
             build_info.tags_hash = lines[3].split()[1].strip()
             return build_info
         except Exception as exc:
-            raise ValueError(__('build info file is broken: %r') % exc)
+            raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(self, config: Config = None, tags: Tags = None, config_categories: List[str] = []) -> None:  # NOQA
         self.config_hash = ''
@@ -1010,7 +1010,7 @@ class StandaloneHTMLBuilder(Builder):
             return
         except Exception as exc:
             raise ThemeError(__("An error happened in rendering the page %s.\nReason: %r") %
-                             (pagename, exc))
+                             (pagename, exc)) from exc
 
         if not outfilename:
             outfilename = self.get_outfilename(pagename)

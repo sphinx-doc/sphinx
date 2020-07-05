@@ -84,6 +84,7 @@ class BuildDoc(Command):
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
         ('pdb', None, 'Start pdb on exception'),
+        ('verbosity', 'v', 'increase verbosity (can be repeated)'),
         ('nitpicky', 'n', 'nit-picky mode, warn about all missing references'),
         ('keep-going', None, 'With -W, keep going when getting warnings'),
     ]
@@ -189,7 +190,7 @@ class BuildDoc(Command):
                                  builder, confoverrides, status_stream,
                                  freshenv=self.fresh_env,
                                  warningiserror=self.warning_is_error,
-                                 keep_going=self.keep_going)
+                                 verbosity=self.verbosity, keep_going=self.keep_going)
                     app.build(force_all=self.all_files)
                     if app.statuscode:
                         raise DistutilsExecError(
@@ -197,7 +198,7 @@ class BuildDoc(Command):
             except Exception as exc:
                 handle_exception(app, self, exc, sys.stderr)
                 if not self.pdb:
-                    raise SystemExit(1)
+                    raise SystemExit(1) from exc
 
             if not self.link_index:
                 continue

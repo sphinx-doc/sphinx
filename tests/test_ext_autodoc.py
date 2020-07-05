@@ -121,15 +121,16 @@ def test_parse_name(app):
     verify('class', 'Base', ('test_ext_autodoc', ['Base'], None, None))
 
     # for members
-    directive.env.ref_context['py:module'] = 'foo'
-    verify('method', 'util.SphinxTestApp.cleanup',
-           ('foo', ['util', 'SphinxTestApp', 'cleanup'], None, None))
-    directive.env.ref_context['py:module'] = 'util'
+    directive.env.ref_context['py:module'] = 'sphinx.testing.util'
+    verify('method', 'SphinxTestApp.cleanup',
+           ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None))
+    directive.env.ref_context['py:module'] = 'sphinx.testing.util'
     directive.env.ref_context['py:class'] = 'Foo'
     directive.env.temp_data['autodoc:class'] = 'SphinxTestApp'
-    verify('method', 'cleanup', ('util', ['SphinxTestApp', 'cleanup'], None, None))
+    verify('method', 'cleanup',
+           ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None))
     verify('method', 'SphinxTestApp.cleanup',
-           ('util', ['SphinxTestApp', 'cleanup'], None, None))
+           ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None))
 
 
 def test_format_signature(app):
@@ -800,14 +801,14 @@ def test_autodoc_inner_class(app):
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
     assert list(actual) == [
         '',
-        '.. py:class:: Outer.Inner()',
-        '   :module: target',
+        '.. py:class:: Inner()',
+        '   :module: target.Outer',
         '',
         '   Foo',
         '',
         '',
-        '   .. py:method:: Outer.Inner.meth()',
-        '      :module: target',
+        '   .. py:method:: Inner.meth()',
+        '      :module: target.Outer',
         '',
         '      Foo',
         '',
@@ -1266,7 +1267,7 @@ def test_automethod_for_decorated(app):
     actual = do_autodoc(app, 'method', 'target.decorator.Bar.meth')
     assert list(actual) == [
         '',
-        '.. py:method:: Bar.meth()',
+        '.. py:method:: Bar.meth(name=None, age=None)',
         '   :module: target.decorator',
         '',
     ]
@@ -1431,7 +1432,7 @@ def test_coroutine(app):
     actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
     assert list(actual) == [
         '',
-        '.. py:function:: sync_func(*args, **kwargs)',
+        '.. py:function:: sync_func()',
         '   :module: target.coroutine',
         '',
     ]
@@ -1618,6 +1619,46 @@ def test_autodoc_GenericAlias(app):
         ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_TypeVar(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.typevar', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typevar',
+        '',
+        '',
+        '.. py:data:: T1',
+        '   :module: target.typevar',
+        '',
+        '   T1',
+        '',
+        "   alias of TypeVar('T1')",
+        '',
+        '.. py:data:: T3',
+        '   :module: target.typevar',
+        '',
+        '   T3',
+        '',
+        "   alias of TypeVar('T3', int, str)",
+        '',
+        '.. py:data:: T4',
+        '   :module: target.typevar',
+        '',
+        '   T4',
+        '',
+        "   alias of TypeVar('T4', covariant=True)",
+        '',
+        '.. py:data:: T5',
+        '   :module: target.typevar',
+        '',
+        '   T5',
+        '',
+        "   alias of TypeVar('T5', contravariant=True)",
+    ]
+
+
 @pytest.mark.skipif(sys.version_info < (3, 9), reason='py39+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_Annotated(app):
@@ -1787,6 +1828,97 @@ def test_final(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.overload', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload',
+        '',
+        '',
+        '.. py:class:: Bar(x: int, y: int)',
+        '              Bar(x: str, y: str)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Baz(x: int, y: int)',
+        '              Baz(x: str, y: str)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Foo(x: int, y: int)',
+        '              Foo(x: str, y: str)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Math()',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Math.sum(x: int, y: int) -> int',
+        '                  Math.sum(x: float, y: float) -> float',
+        '                  Math.sum(x: str, y: str) -> str',
+        '      :module: target.overload',
+        '',
+        '      docstring',
+        '',
+        '',
+        '.. py:function:: sum(x: int, y: int) -> int',
+        '                 sum(x: float, y: float) -> float',
+        '                 sum(x: str, y: str) -> str',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_pymodule_for_ModuleLevelDocumenter(app):
+    app.env.ref_context['py:module'] = 'target.classes'
+    actual = do_autodoc(app, 'class', 'Foo')
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.classes',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_pymodule_for_ClassLevelDocumenter(app):
+    app.env.ref_context['py:module'] = 'target.methods'
+    actual = do_autodoc(app, 'method', 'Base.meth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Base.meth()',
+        '   :module: target.methods',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_pyclass_for_ClassLevelDocumenter(app):
+    app.env.ref_context['py:module'] = 'target.methods'
+    app.env.ref_context['py:class'] = 'Base'
+    actual = do_autodoc(app, 'method', 'meth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Base.meth()',
+        '   :module: target.methods',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('dummy', testroot='ext-autodoc')
 def test_autodoc(app, status, warning):
     app.builder.build_all()
@@ -1805,3 +1937,26 @@ my_name
 
 alias of bug2437.autodoc_dummy_foo.Foo"""
     assert warning.getvalue() == ''
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_name_conflict(app):
+    actual = do_autodoc(app, 'class', 'target.name_conflict.foo')
+    assert list(actual) == [
+        '',
+        '.. py:class:: foo()',
+        '   :module: target.name_conflict',
+        '',
+        '   docstring of target.name_conflict::foo.',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'class', 'target.name_conflict.foo.bar')
+    assert list(actual) == [
+        '',
+        '.. py:class:: bar()',
+        '   :module: target.name_conflict.foo',
+        '',
+        '   docstring of target.name_conflict.foo::bar.',
+        '',
+    ]

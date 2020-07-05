@@ -36,8 +36,124 @@ Bugs fixed
 Testing
 --------
 
-Release 3.1.0 (in development)
+Release 3.2.0 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+* #7853: C and C++, support parameterized GNU style attributes.
+* #7888: napoleon: Add aliases Warn and Raise.
+* C, added :rst:dir:`c:alias` directive for inserting copies
+  of existing declarations.
+* #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
+  Update the documentation to better reflect the relationship between this option
+  and the ``:noindex:`` option.
+
+Bugs fixed
+----------
+
+* #7886: autodoc: TypeError is raised on mocking generic-typed classes
+* #7839: autosummary: cannot handle umlauts in function names
+* #7865: autosummary: Failed to extract summary line when abbreviations found
+* #7866: autosummary: Failed to extract correct summary line when docstring
+  contains a hyperlink target
+* #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
+* #7846: html theme: XML-invalid files were generated
+* #7869: :rst:role:`abbr` role without an explanation will show the explanation
+  from the previous abbr role
+* C and C++, removed ``noindex`` directive option as it did
+  nothing.
+
+Testing
+--------
+
+Release 3.1.3 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 3.1.2 (released Jul 05, 2020)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #7650: autodoc: the signature of base function will be shown for decorated
+  functions, not a signature of decorator
+
+Bugs fixed
+----------
+
+* #7844: autodoc: Failed to detect module when relative module name given
+* #7856: autodoc: AttributeError is raised when non-class object is given to
+  the autoclass directive
+* #7850: autodoc: KeyError is raised for invalid mark up when autodoc_typehints
+  is 'description'
+* #7812: autodoc: crashed if the target name matches to both an attribute and
+  module that are same name
+* #7650: autodoc: function signature becomes ``(*args, **kwargs)`` if the
+  function is decorated by generic decorator
+* #7812: autosummary: generates broken stub files if the target code contains
+  an attribute and module that are same name
+* #7806: viewcode: Failed to resolve viewcode references on 3rd party builders
+* #7838: html theme: List items have extra vertical space
+* #7878: html theme: Undesired interaction between "overflow" and "float"
+
+Release 3.1.1 (released Jun 14, 2020)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #7808: napoleon: a type for attribute are represented as typed field
+
+Features added
+--------------
+
+* #7807: autodoc: Show detailed warning when type_comment is mismatched with its
+  signature
+
+Bugs fixed
+----------
+
+* #7808: autodoc: Warnings raised on variable and attribute type annotations
+* #7802: autodoc: EOFError is raised on parallel build
+* #7821: autodoc: TypeError is raised for overloaded C-ext function
+* #7805: autodoc: an object which descriptors returns is unexpectedly documented
+* #7807: autodoc: wrong signature is shown for the function using contextmanager
+* #7812: autosummary: generates broken stub files if the target code contains
+  an attribute and module that are same name
+* #7808: napoleon: Warnings raised on variable and attribute type annotations
+* #7811: sphinx.util.inspect causes circular import problem
+
+Release 3.1.0 (released Jun 08, 2020)
+=====================================
 
 Dependencies
 ------------
@@ -89,6 +205,8 @@ Features added
   builtin base classes
 * #2106: autodoc: Support multiple signatures on docstring
 * #4422: autodoc: Support GenericAlias in Python 3.7 or above
+* #3610: autodoc: Support overloaded functions
+* #7722: autodoc: Support TypeVar
 * #7466: autosummary: headings in generated documents are not translated
 * #7490: autosummary: Add ``:caption:`` option to autosummary directive to set a
   caption to the toctree
@@ -99,7 +217,8 @@ Features added
   variables for custom templates
 * #7530: html: Support nested <kbd> elements
 * #7481: html theme: Add right margin to footnote/citation labels
-* #7482: html theme: CSS spacing for code blocks with captions and line numbers
+* #7482, #7717: html theme: CSS spacing for code blocks with captions and line
+  numbers
 * #7443: html theme: Add new options :confval:`globaltoc_collapse` and
   :confval:`globaltoc_includehidden` to control the behavior of globaltoc in
   sidebar
@@ -111,6 +230,8 @@ Features added
 * #7542: html theme: Make admonition/topic/sidebar scrollable
 * #7543: html theme: Add top and bottom margins to tables
 * #7695: html theme: Add viewport meta tag for basic theme
+* #7721: html theme: classic: default codetextcolor/codebgcolor doesn't override
+  Pygments 
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
 * #7294: C++, parse expressions with user-defined literals.
@@ -118,8 +239,13 @@ Features added
 * #7143: py domain: Add ``:final:`` option to :rst:dir:`py:class:`,
   :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
 * #7596: py domain: Change a type annotation for variables to a hyperlink
+* #7770: std domain: :rst:dir:`option` directive support arguments in the form
+  of ``foo[=bar]``
 * #7582: napoleon: a type for attribute are represented like type annotation
 * #7734: napoleon: overescaped trailing underscore on attribute
+* #7247: linkcheck: Add :confval:`linkcheck_request_headers` to send custom HTTP
+  headers for specific host
+* #7792: setuptools: Support ``--verbosity`` option
 * #7683: Add ``allowed_exceptions`` parameter to ``Sphinx.emit()`` to allow
   handlers to raise specified exceptions
 * #7295: C++, parse (trailing) requires clauses.
@@ -151,6 +277,7 @@ Bugs fixed
 * #7668: autodoc: wrong retann value is passed to a handler of
   autodoc-proccess-signature
 * #7711: autodoc: fails with ValueError when processing numpy objects
+* #7791: autodoc: TypeError is raised on documenting singledispatch function
 * #7551: autosummary: a nested class is indexed as non-nested class
 * #7661: autosummary: autosummary directive emits warnings twices if failed to
   import the target module
@@ -159,8 +286,12 @@ Bugs fixed
 * #7671: autosummary: The location of import failure warning is missing
 * #7535: sphinx-autogen: crashes when custom template uses inheritance
 * #7536: sphinx-autogen: crashes when template uses i18n feature
+* #7781: sphinx-build: Wrong error message when outdir is not directory
 * #7653: sphinx-quickstart: Fix multiple directory creation for nested relpath
 * #2785: html: Bad alignment of equation links
+* #7718: html theme: some themes does not respect background color of Pygments
+  style (agogo, haiku, nature, pyramid, scrolls, sphinxdoc and traditional)
+* #7544: html theme: inconsistent padding in admonitions
 * #7581: napoleon: bad parsing of inline code in attribute docstrings
 * #7628: imgconverter: runs imagemagick once unnecessary for builders not
   supporting images
@@ -168,37 +299,16 @@ Bugs fixed
 * #7646: handle errors on event handlers
 * #4187: LaTeX: EN DASH disappears from PDF bookmarks in Japanese documents
 * #7701: LaTeX: Anonymous indirect hyperlink target causes duplicated labels
+* #7723: LaTeX: pdflatex crashed when URL contains a single quote
 * #7756: py domain: The default value for positional only argument is not shown
+* #7760: coverage: Add :confval:`coverage_show_missing_items` to show coverage
+  result to console
 * C++, fix rendering and xrefs in nested names explicitly starting
   in global scope, e.g., ``::A::B``.
 * C, fix rendering and xrefs in nested names explicitly starting
   in global scope, e.g., ``.A.B``.
 * #7763: C and C++, don't crash during display stringification of unary
   expressions and fold expressions.
-
-Testing
---------
-
-Release 3.0.5 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 3.0.4 (released May 27, 2020)
 =====================================

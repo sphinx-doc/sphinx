@@ -14,8 +14,11 @@ import pytest
 
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
+from sphinx.addnodes import desc
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
+from sphinx.testing import restructuredtext
+from sphinx.testing.util import assert_node
 
 
 def parse(name, string):
@@ -896,6 +899,8 @@ def test_attributes():
     check('member', '__attribute__(()) int f', {1: 'f__i', 2: '1f'})
     check('member', '__attribute__((a)) int f', {1: 'f__i', 2: '1f'})
     check('member', '__attribute__((a, b)) int f', {1: 'f__i', 2: '1f'})
+    check('member', '__attribute__((optimize(3))) int f', {1: 'f__i', 2: '1f'})
+    check('member', '__attribute__((format(printf, 1, 2))) int f', {1: 'f__i', 2: '1f'})
     # style: user-defined id
     check('member', 'id_attr int f', {1: 'f__i', 2: '1f'})
     # style: user-defined paren
@@ -1204,3 +1209,13 @@ not found in `{test}`
     assert any_role.classes == cpp_any_role.classes, expect
     assert any_role.classes == expr_role.content_classes['a'], expect
     assert any_role.classes == texpr_role.content_classes['a'], expect
+
+
+def test_noindexentry(app):
+    text = (".. cpp:function:: void f()\n"
+            ".. cpp:function:: void g()\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])

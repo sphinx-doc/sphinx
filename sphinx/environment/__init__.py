@@ -376,7 +376,8 @@ class BuildEnvironment:
                         if catalog.domain == domain:
                             self.dependencies[docname].add(catalog.mo_path)
         except OSError as exc:
-            raise DocumentError(__('Failed to scan documents in %s: %r') % (self.srcdir, exc))
+            raise DocumentError(__('Failed to scan documents in %s: %r') %
+                                (self.srcdir, exc)) from exc
 
     def get_outdated_files(self, config_changed: bool) -> Tuple[Set[str], Set[str], Set[str]]:
         """Return (added, changed, removed) sets."""
@@ -501,8 +502,8 @@ class BuildEnvironment:
         """
         try:
             return self.domains[domainname]
-        except KeyError:
-            raise ExtensionError(__('Domain %r is not registered') % domainname)
+        except KeyError as exc:
+            raise ExtensionError(__('Domain %r is not registered') % domainname) from exc
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 

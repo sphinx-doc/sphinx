@@ -632,7 +632,6 @@ th {
 pre {
     font-family: monospace;
     padding: 5px;
-    color: #00008b;
     border-left: none;
     border-right: none;
 }

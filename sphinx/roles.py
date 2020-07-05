@@ -331,14 +331,15 @@ class Abbreviation(SphinxRole):
     abbr_re = re.compile(r'\((.*)\)$', re.S)
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
+        options = self.options.copy()
         matched = self.abbr_re.search(self.text)
         if matched:
             text = self.text[:matched.start()].strip()
-            self.options['explanation'] = matched.group(1)
+            options['explanation'] = matched.group(1)
         else:
             text = self.text
 
-        return [nodes.abbreviation(self.rawtext, text, **self.options)], []
+        return [nodes.abbreviation(self.rawtext, text, **options)], []
 
 
 specific_docroles = {

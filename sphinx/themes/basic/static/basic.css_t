@@ -15,6 +15,12 @@ div.clearer {
     clear: both;
 }
 
+div.section::after {
+    display: block;
+    content: '';
+    clear: left;
+}
+
 /* -- relbar ---------------------------------------------------------------- */
 
 div.related {
@@ -316,7 +322,7 @@ img.align-default, .figure.align-default {
 div.sidebar {
     margin: 0 0 0.5em 1em;
     border: 1px solid #ddb;
-    padding: 7px 7px 0 7px;
+    padding: 7px;
     background-color: #ffe;
     width: 40%;
     float: right;
@@ -328,17 +334,16 @@ p.sidebar-title {
     font-weight: bold;
 }
 
-div.admonition, div.topic, pre, div[class|="highlight"] {
-    clear: both;
+div.admonition, div.topic, blockquote {
+    clear: left;
 }
 
 /* -- topics ---------------------------------------------------------------- */
 
 div.topic {
     border: 1px solid #ccc;
-    padding: 7px 7px 0 7px;
+    padding: 7px;
     margin: 10px 0 10px 0;
-    overflow-x: auto;
 }
 
 p.topic-title {
@@ -353,15 +358,10 @@ div.admonition {
     margin-top: 10px;
     margin-bottom: 10px;
     padding: 7px;
-    overflow-x: auto;
 }
 
 div.admonition dt {
     font-weight: bold;
-}
-
-div.admonition dl {
-    margin-bottom: 0;
 }
 
 p.admonition-title {
@@ -372,6 +372,23 @@ p.admonition-title {
 div.body p.centered {
     text-align: center;
     margin-top: 25px;
+}
+
+/* -- content of sidebars/topics/admonitions -------------------------------- */
+
+div.sidebar > :last-child,
+div.topic > :last-child,
+div.admonition > :last-child {
+    margin-bottom: 0;
+}
+
+div.sidebar::after,
+div.topic::after,
+div.admonition::after,
+blockquote::after {
+    display: block;
+    content: '';
+    clear: both;
 }
 
 /* -- tables ---------------------------------------------------------------- */
@@ -426,13 +443,13 @@ table.citation td {
     border-bottom: none;
 }
 
-th > p:first-child,
-td > p:first-child {
+th > :first-child,
+td > :first-child {
     margin-top: 0px;
 }
 
-th > p:last-child,
-td > p:last-child {
+th > :last-child,
+td > :last-child {
     margin-bottom: 0px;
 }
 
@@ -478,6 +495,10 @@ table.field-list td, table.field-list th {
 
 /* -- hlist styles ---------------------------------------------------------- */
 
+table.hlist {
+    margin: 1em 0;
+}
+
 table.hlist td {
     vertical-align: top;
 }
@@ -505,12 +526,31 @@ ol.upperroman {
     list-style: upper-roman;
 }
 
-li > p:first-child {
+:not(li) > ol > li:first-child > :first-child,
+:not(li) > ul > li:first-child > :first-child {
     margin-top: 0px;
 }
 
-li > p:last-child {
+:not(li) > ol > li:last-child > :last-child,
+:not(li) > ul > li:last-child > :last-child {
     margin-bottom: 0px;
+}
+
+ol.simple ol p,
+ol.simple ul p,
+ul.simple ol p,
+ul.simple ul p {
+    margin-top: 0;
+}
+
+ol.simple > li:not(:first-child) > p,
+ul.simple > li:not(:first-child) > p {
+    margin-top: 0;
+}
+
+ol.simple p,
+ul.simple p {
+    margin-bottom: 0;
 }
 
 dl.footnote > dt,
@@ -557,7 +597,7 @@ dl {
     margin-bottom: 15px;
 }
 
-dd > p:first-child {
+dd > :first-child {
     margin-top: 0px;
 }
 
@@ -569,6 +609,11 @@ dd {
     margin-top: 3px;
     margin-bottom: 10px;
     margin-left: 30px;
+}
+
+dl > dd:last-child,
+dl > dd:last-child > :last-child {
+    margin-bottom: 0;
 }
 
 dt:target, span.highlighted {
@@ -648,11 +693,19 @@ pre {
     overflow-y: hidden;  /* fixes display issues on Chrome browsers */
 }
 
+pre, div[class|="highlight"] {
+    clear: both;
+}
+
 span.pre {
     -moz-hyphens: none;
     -ms-hyphens: none;
     -webkit-hyphens: none;
     hyphens: none;
+}
+
+div[class^="highlight-"] {
+    margin: 1em 0;
 }
 
 td.linenos pre {
@@ -663,7 +716,6 @@ td.linenos pre {
 
 table.highlighttable {
     display: block;
-    margin: 1em 0;
 }
 
 table.highlighttable tbody {
@@ -680,7 +732,7 @@ table.highlighttable td {
 }
 
 table.highlighttable td.linenos {
-    padding: 0 0.5em;
+    padding-right: 0.5em;
 }
 
 table.highlighttable td.code {
@@ -692,11 +744,12 @@ table.highlighttable td.code {
     display: block;
 }
 
+div.highlight pre,
 table.highlighttable pre {
     margin: 0;
 }
 
-div.code-block-caption + div > table.highlighttable {
+div.code-block-caption + div {
     margin-top: 0;
 }
 
@@ -708,10 +761,6 @@ div.code-block-caption {
 
 div.code-block-caption code {
     background-color: transparent;
-}
-
-div.code-block-caption + div > div.highlight > pre {
-    margin-top: 0;
 }
 
 table.highlighttable td.linenos,

@@ -226,7 +226,8 @@ class ModuleScanner:
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
                                  imported_members: bool, app: Any,
-                                 recursive: bool, context: Dict) -> str:
+                                 recursive: bool, context: Dict,
+                                 modname: str = None, qualname: str = None) -> str:
     doc = get_documenter(app, obj, parent)
 
     def skip_member(obj: Any, name: str, objtype: str) -> bool:
@@ -315,7 +316,9 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         ns['attributes'], ns['all_attributes'] = \
             get_members(obj, {'attribute', 'property'})
 
-    modname, qualname = split_full_qualified_name(name)
+    if modname is None or qualname is None:
+        modname, qualname = split_full_qualified_name(name)
+
     if doc.objtype in ('method', 'attribute', 'property'):
         ns['class'] = qualname.rsplit(".", 1)[0]
 
@@ -342,7 +345,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                               suffix: str = '.rst', base_path: str = None,
                               builder: Builder = None, template_dir: str = None,
                               imported_members: bool = False, app: Any = None,
-                              overwrite: bool = True) -> None:
+                              overwrite: bool = True, encoding: str = 'utf-8') -> None:
     if builder:
         warnings.warn('builder argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx50Warning, stacklevel=2)
@@ -382,7 +385,8 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         ensuredir(path)
 
         try:
-            name, obj, parent, mod_name = import_by_name(entry.name)
+            name, obj, parent, modname = import_by_name(entry.name)
+            qualname = name.replace(modname + ".", "")
         except ImportError as e:
             logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
             continue
@@ -392,21 +396,22 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
             context.update(app.config.autosummary_context)
 
         content = generate_autosummary_content(name, obj, parent, template, entry.template,
-                                               imported_members, app, entry.recursive, context)
+                                               imported_members, app, entry.recursive, context,
+                                               modname, qualname)
 
         filename = os.path.join(path, name + suffix)
         if os.path.isfile(filename):
-            with open(filename) as f:
+            with open(filename, encoding=encoding) as f:
                 old_content = f.read()
 
             if content == old_content:
                 continue
             elif overwrite:  # content has changed
-                with open(filename, 'w') as f:
+                with open(filename, 'w', encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)
         else:
-            with open(filename, 'w') as f:
+            with open(filename, 'w', encoding=encoding) as f:
                 f.write(content)
             new_files.append(filename)
 

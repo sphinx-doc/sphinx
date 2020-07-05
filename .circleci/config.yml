@@ -9,6 +9,6 @@ jobs:
       - run: /python3.6/bin/pip install -U pip setuptools
       - run: /python3.6/bin/pip install -U .[test]
       - run: mkdir -p test-reports/pytest
-      - run: make test PYTHON=/python3.6/bin/python TEST=--junitxml=test-reports/pytest/results.xml
+      - run: make test PYTHON=/python3.6/bin/python TEST="--junitxml=test-reports/pytest/results.xml -vv"
       - store_test_results:
           path: test-reports

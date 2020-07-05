@@ -70,7 +70,7 @@ class ImagemagickConverter(ImageConverter):
         except CalledProcessError as exc:
             raise ExtensionError(__('convert exited with error:\n'
                                     '[stderr]\n%r\n[stdout]\n%r') %
-                                 (exc.stderr, exc.stdout))
+                                 (exc.stderr, exc.stdout)) from exc
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

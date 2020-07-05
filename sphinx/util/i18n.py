@@ -238,7 +238,7 @@ def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> s
     try:
         return filename_format.format(**d)
     except KeyError as exc:
-        raise SphinxError('Invalid figure_language_filename: %r' % exc)
+        raise SphinxError('Invalid figure_language_filename: %r' % exc) from exc
 
 
 def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:

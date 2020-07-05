@@ -115,6 +115,7 @@ All of the following section headers are supported:
     * ``Parameters``
     * ``Return`` *(alias of Returns)*
     * ``Returns``
+    * ``Raise`` *(alias of Raises)*
     * ``Raises``
     * ``References``
     * ``See Also``
@@ -122,6 +123,7 @@ All of the following section headers are supported:
     * ``Todo``
     * ``Warning``
     * ``Warnings`` *(alias of Warning)*
+    * ``Warn`` *(alias of Warns)*
     * ``Warns``
     * ``Yield`` *(alias of Yields)*
     * ``Yields``

@@ -158,6 +158,7 @@ class GoogleDocstring:
                 'parameters': self._parse_parameters_section,
                 'return': self._parse_returns_section,
                 'returns': self._parse_returns_section,
+                'raise': self._parse_raises_section,
                 'raises': self._parse_raises_section,
                 'references': self._parse_references_section,
                 'see also': self._parse_see_also_section,
@@ -165,6 +166,7 @@ class GoogleDocstring:
                 'todo': partial(self._parse_admonition, 'todo'),
                 'warning': partial(self._parse_admonition, 'warning'),
                 'warnings': partial(self._parse_admonition, 'warning'),
+                'warn': self._parse_warns_section,
                 'warns': self._parse_warns_section,
                 'yield': self._parse_yields_section,
                 'yields': self._parse_yields_section,
@@ -584,12 +586,13 @@ class GoogleDocstring:
                 lines.append('.. attribute:: ' + _name)
                 if self._opt and 'noindex' in self._opt:
                     lines.append('   :noindex:')
-                if _type:
-                    lines.extend(self._indent([':type: %s' % _type], 3))
                 lines.append('')
 
                 fields = self._format_field('', '', _desc)
                 lines.extend(self._indent(fields, 3))
+                if _type:
+                    lines.append('')
+                    lines.extend(self._indent([':type: %s' % _type], 3))
                 lines.append('')
         if self._config.napoleon_use_ivar:
             lines.append('')
