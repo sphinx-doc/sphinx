@@ -16,6 +16,7 @@ from typing import cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
+from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.addnodes import pending_xref
@@ -3023,10 +3024,7 @@ class CObject(ObjectDescription):
     ]
 
     option_spec = {
-        # have a dummy option to ensure proper errors on options,
-        # otherwise the option is taken as a continuation of the
-        # argument
-        'dummy': None
+        'noindexentry': directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
@@ -3098,8 +3096,9 @@ class CObject(ObjectDescription):
             if name not in domain.objects:
                 domain.objects[name] = (domain.env.docname, newestId, self.objtype)
 
-        indexText = self.get_index_text(name)
-        self.indexnode['entries'].append(('single', indexText, newestId, '', None))
+        if 'noindexentry' not in self.options:
+            indexText = self.get_index_text(name)
+            self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 
     @property
     def object_type(self) -> str:

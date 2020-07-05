@@ -230,7 +230,7 @@ where they come from.  The list items are composed of the nodes from the
 ``todo`` entry and docutils nodes created on the fly: a paragraph for each
 entry, containing text that gives the location, and a link (reference node
 containing an italic node) with the backreference. The reference URI is built
-by :meth:`sphinx.builders.Builder.get_relative_uri`` which creates a suitable
+by :meth:`sphinx.builders.Builder.get_relative_uri` which creates a suitable
 URI depending on the used builder, and appending the todo node's (the target's)
 ID as the anchor name.
 

@@ -6625,6 +6625,7 @@ class CPPObject(ObjectDescription):
     ]
 
     option_spec = {
+        'noindexentry': directives.flag,
         'tparam-line-spec': directives.flag,
     }
 
@@ -6701,7 +6702,7 @@ class CPPObject(ObjectDescription):
             if decl.objectType == 'concept':
                 isInConcept = True
                 break
-        if not isInConcept:
+        if not isInConcept and 'noindexentry' not in self.options:
             strippedName = name
             for prefix in self.env.config.cpp_index_common_prefix:
                 if name.startswith(prefix):

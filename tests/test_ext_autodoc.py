@@ -1267,7 +1267,7 @@ def test_automethod_for_decorated(app):
     actual = do_autodoc(app, 'method', 'target.decorator.Bar.meth')
     assert list(actual) == [
         '',
-        '.. py:method:: Bar.meth()',
+        '.. py:method:: Bar.meth(name=None, age=None)',
         '   :module: target.decorator',
         '',
     ]
@@ -1432,7 +1432,7 @@ def test_coroutine(app):
     actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
     assert list(actual) == [
         '',
-        '.. py:function:: sync_func(*args, **kwargs)',
+        '.. py:function:: sync_func()',
         '   :module: target.coroutine',
         '',
     ]
