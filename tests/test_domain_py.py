@@ -799,3 +799,19 @@ def test_modindex_common_prefix(app):
     )
 
 
+def test_noindexentry(app):
+    text = (".. py:function:: f()\n"
+            ".. py:function:: g()\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('pair', 'built-in function; f()', 'f', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])
+
+    text = (".. py:class:: f\n"
+            ".. py:class:: g\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (built-in class)', 'f', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])

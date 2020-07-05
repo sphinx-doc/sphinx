@@ -317,6 +317,7 @@ class PyObject(ObjectDescription):
     """
     option_spec = {
         'noindex': directives.flag,
+        'noindexentry': directives.flag,
         'module': directives.unchanged,
         'annotation': directives.unchanged,
     }
@@ -459,9 +460,10 @@ class PyObject(ObjectDescription):
         domain = cast(PythonDomain, self.env.get_domain('py'))
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
-        indextext = self.get_index_text(modname, name_cls)
-        if indextext:
-            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
+        if 'noindexentry' not in self.options:
+            indextext = self.get_index_text(modname, name_cls)
+            if indextext:
+                self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def before_content(self) -> None:
         """Handle object nesting before content
@@ -576,16 +578,17 @@ class PyFunction(PyObject):
     def add_target_and_index(self, name_cls: Tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         super().add_target_and_index(name_cls, sig, signode)
-        modname = self.options.get('module', self.env.ref_context.get('py:module'))
-        node_id = signode['ids'][0]
+        if 'noindexentry' not in self.options:
+            modname = self.options.get('module', self.env.ref_context.get('py:module'))
+            node_id = signode['ids'][0]
 
-        name, cls = name_cls
-        if modname:
-            text = _('%s() (in module %s)') % (name, modname)
-            self.indexnode['entries'].append(('single', text, node_id, '', None))
-        else:
-            text = '%s; %s()' % (pairindextypes['builtin'], name)
-            self.indexnode['entries'].append(('pair', text, node_id, '', None))
+            name, cls = name_cls
+            if modname:
+                text = _('%s() (in module %s)') % (name, modname)
+                self.indexnode['entries'].append(('single', text, node_id, '', None))
+            else:
+                text = '%s; %s()' % (pairindextypes['builtin'], name)
+                self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         # add index in own add_target_and_index() instead.

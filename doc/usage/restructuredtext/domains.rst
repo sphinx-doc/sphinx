@@ -42,9 +42,22 @@ Basic Markup
 Most domains provide a number of :dfn:`object description directives`, used to
 describe specific objects provided by modules.  Each directive requires one or
 more signatures to provide basic information about what is being described, and
-the content should be the description.  The basic version makes entries in the
-general index; if no index entry is desired, you can give the directive option
-flag ``:noindex:``.  An example using a Python domain directive::
+the content should be the description.  A domain will typically keep an
+internal index of all entites to aid cross-referencing. Typically it will
+also add entries in the shown general index.
+If you want to suppress the addition of an entry in the shown index, you can
+give the directive option flag ``:noindexentry:``.
+If you want to typeset an object description, without even making it available
+for cross-referencing, you can give the directive option flag ``:noindex:``
+(which implies ``:noindexentry:``).
+Though, note that not every directive en every domain may support these
+options.
+
+.. versionadded:: 3.2
+   The directive option ``noindexentry`` in the Python, C, C++, and Javascript
+   domains.
+
+An example using a Python domain directive::
 
    .. py:function:: spam(eggs)
                     ham(eggs)
@@ -1073,6 +1086,7 @@ Options
 
 Some directives support options:
 
+- ``:noindexentry:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 

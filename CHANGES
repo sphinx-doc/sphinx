@@ -17,6 +17,9 @@ Features added
 * #7888: napoleon: Add aliases Warn and Raise.
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
+* #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
+  Update the documentation to better reflect the relationship between this option
+  and the ``:noindex:`` option.
 
 Bugs fixed
 ----------
