@@ -32,6 +32,7 @@ Bugs fixed
   an attribute and module that are same name
 * #7806: viewcode: Failed to resolve viewcode references on 3rd party builders
 * #7838: html theme: List items have extra vertical space
+* #7878: html theme: Undesired interaction between "overflow" and "float"
 
 Testing
 --------
