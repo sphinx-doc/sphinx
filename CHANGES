@@ -1,20 +1,11 @@
-Release 3.1.2 (in development)
-==============================
-
-Dependencies
-------------
+Release 3.1.2 (released Jul 05, 2020)
+=====================================
 
 Incompatible changes
 --------------------
 
 * #7650: autodoc: the signature of base function will be shown for decorated
   functions, not a signature of decorator
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -33,9 +24,6 @@ Bugs fixed
 * #7806: viewcode: Failed to resolve viewcode references on 3rd party builders
 * #7838: html theme: List items have extra vertical space
 * #7878: html theme: Undesired interaction between "overflow" and "float"
-
-Testing
---------
 
 Release 3.1.1 (released Jun 14, 2020)
 =====================================
