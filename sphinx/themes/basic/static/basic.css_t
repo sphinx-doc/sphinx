@@ -513,28 +513,31 @@ ol.upperroman {
     list-style: upper-roman;
 }
 
-ol > li:first-child > :first-child,
-ul > li:first-child > :first-child {
+:not(li) > ol > li:first-child > :first-child,
+:not(li) > ul > li:first-child > :first-child {
     margin-top: 0px;
 }
 
-ol ol > li:first-child > :first-child,
-ol ul > li:first-child > :first-child,
-ul ol > li:first-child > :first-child,
-ul ul > li:first-child > :first-child {
-    margin-top: revert;
-}
-
-ol > li:last-child > :last-child,
-ul > li:last-child > :last-child {
+:not(li) > ol > li:last-child > :last-child,
+:not(li) > ul > li:last-child > :last-child {
     margin-bottom: 0px;
 }
 
-ol ol > li:last-child > :last-child,
-ol ul > li:last-child > :last-child,
-ul ol > li:last-child > :last-child,
-ul ul > li:last-child > :last-child {
-    margin-bottom: revert;
+ol.simple ol p,
+ol.simple ul p,
+ul.simple ol p,
+ul.simple ul p {
+    margin-top: 0;
+}
+
+ol.simple > li:not(:first-child) > p,
+ul.simple > li:not(:first-child) > p {
+    margin-top: 0;
+}
+
+ol.simple p,
+ul.simple p {
+    margin-bottom: 0;
 }
 
 dl.footnote > dt,

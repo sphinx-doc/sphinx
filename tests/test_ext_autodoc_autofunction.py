@@ -98,7 +98,7 @@ def test_decorated(app):
     actual = do_autodoc(app, 'function', 'target.decorator.foo')
     assert list(actual) == [
         '',
-        '.. py:function:: foo()',
+        '.. py:function:: foo(name=None, age=None)',
         '   :module: target.decorator',
         '',
     ]

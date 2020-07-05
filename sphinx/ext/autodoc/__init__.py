@@ -1157,10 +1157,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         try:
             self.env.app.emit('autodoc-before-process-signature', self.object, False)
-            if inspect.is_singledispatch_function(self.object):
-                sig = inspect.signature(self.object, follow_wrapped=True)
-            else:
-                sig = inspect.signature(self.object)
+            sig = inspect.signature(self.object, follow_wrapped=True)
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
             logger.warning(__("Failed to get a function signature for %s: %s"),
@@ -1740,13 +1737,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     sig = inspect.signature(self.object, bound_method=False)
                 else:
                     self.env.app.emit('autodoc-before-process-signature', self.object, True)
-
-                    meth = self.parent.__dict__.get(self.objpath[-1], None)
-                    if meth and inspect.is_singledispatch_method(meth):
-                        sig = inspect.signature(self.object, bound_method=True,
-                                                follow_wrapped=True)
-                    else:
-                        sig = inspect.signature(self.object, bound_method=True)
+                    sig = inspect.signature(self.object, bound_method=True,
+                                            follow_wrapped=True)
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
             logger.warning(__("Failed to get a method signature for %s: %s"),
