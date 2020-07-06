@@ -32,7 +32,7 @@ def test_append_epilog(app):
 
     assert list(content.xitems()) == [('dummy.rst', 0, 'hello Sphinx world'),
                                       ('dummy.rst', 1, 'Sphinx is a document generator'),
-                                      ('<generated>', 0, ''),
+                                      ('dummy.rst', 2, ''),
                                       ('<rst_epilog>', 0, 'this is rst_epilog'),
                                       ('<rst_epilog>', 1, 'good-bye reST!')]
 
