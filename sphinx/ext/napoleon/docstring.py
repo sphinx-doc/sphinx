@@ -920,9 +920,9 @@ def _convert_numpy_type_spec(_type, translations={}):
     )
 
     converters = {
-        "literal": lambda x: f"``{x}``",
+        "literal": lambda x: "``{x}``".format(x=x),
         "obj": lambda x: convert_obj(x, translations, default_translation),
-        "control": lambda x: f"*{x}*",
+        "control": lambda x: "*{x}*".format(x=x),
         "delimiter": lambda x: x,
         "reference": lambda x: x,
     }
