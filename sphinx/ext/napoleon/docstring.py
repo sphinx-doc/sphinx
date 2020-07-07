@@ -798,7 +798,6 @@ def _recombine_sets(tokens):
     def takewhile_set(tokens):
         open_braces = 0
         previous_token = None
-        print("combining set:", tokens)
         while True:
             try:
                 token = tokens.popleft()
