@@ -74,6 +74,7 @@ class DummyApplication:
         self.warningiserror = False
 
         self.config.add('autosummary_context', {}, True, None)
+        self.config.add('autosummary_filename_map', {}, True, None)
         self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
