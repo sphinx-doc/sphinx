@@ -28,7 +28,7 @@ import sys
 import warnings
 from gettext import NullTranslations
 from os import path
-from typing import Any, Callable, Dict, List, NamedTuple, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Set, Tuple, Type, Union
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -393,6 +393,14 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     # keep track of new files
     new_files = []
 
+    if app:
+        filename_map = app.config.autosummary_filename_map
+        if not isinstance(filename_map, Mapping):
+            raise TypeError('autosummary_filename_map should be a mapping from '
+                            'strings to strings')
+    else:
+        filename_map = {}
+
     # write
     for entry in sorted(set(items), key=str):
         if entry.path is None:
@@ -418,7 +426,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                                                imported_members, app, entry.recursive, context,
                                                modname, qualname)
 
-        filename = os.path.join(path, name + suffix)
+        filename = os.path.join(path, filename_map.get(name, name) + suffix)
         if os.path.isfile(filename):
             with open(filename, encoding=encoding) as f:
                 old_content = f.read()

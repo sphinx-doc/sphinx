@@ -195,6 +195,15 @@ also use these config values:
 
    .. versionadded:: 2.1
 
+.. confval:: autosummary_filename_map
+
+   A dict mapping object names to filenames. This is necessary to avoid
+   filename conflicts where multiple objects have names that are
+   indistinguishable when case is ignored, on file systems where filenames
+   are case-insensitive.
+
+   .. versionadded:: 3.2
+
 
 Customizing templates
 ---------------------

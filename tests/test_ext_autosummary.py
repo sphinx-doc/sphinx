@@ -386,6 +386,22 @@ def test_autosummary_recursive(app, status, warning):
     assert 'package.package.module' in content
 
 
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
+                    confoverrides={'autosummary_filename_map':
+                                   {"package": "package_mangled",
+                                    "package.package": "package_package_mangled"}})
+def test_autosummary_filename_map(app, status, warning):
+    app.build()
+
+    assert (app.srcdir / 'generated' / 'package_mangled.rst').exists()
+    assert not (app.srcdir / 'generated' / 'package.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.module.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.module_importfail.rst').exists() is False
+    assert (app.srcdir / 'generated' / 'package_package_mangled.rst').exists()
+    assert not (app.srcdir / 'generated' / 'package.package.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.package.module.rst').exists()
+
+
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.builder.build_all()
