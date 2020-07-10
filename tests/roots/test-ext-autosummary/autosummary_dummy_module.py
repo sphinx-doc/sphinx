@@ -1,8 +1,11 @@
-from os import *  # NOQA
+from os import path  # NOQA
 from typing import Union
 
 
 class Foo:
+    class Bar:
+        pass
+
     def __init__(self):
         pass
 
@@ -14,5 +17,25 @@ class Foo:
         pass
 
 
-def bar(x: Union[int, str], y: int = 1):
+class _Baz:
     pass
+
+
+def bar(x: Union[int, str], y: int = 1) -> None:
+    pass
+
+
+def _quux():
+    pass
+
+
+class Exc(Exception):
+    pass
+
+
+class _Exc(Exception):
+    pass
+
+
+#: a module-level attribute
+qux = 2

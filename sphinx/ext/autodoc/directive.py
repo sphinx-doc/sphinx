@@ -6,27 +6,21 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
+from typing import Any, Callable, Dict, List, Set, Type
 
 from docutils import nodes
-from docutils.parsers.rst.states import Struct
+from docutils.nodes import Element, Node
+from docutils.parsers.rst.states import RSTState
 from docutils.statemachine import StringList
-from docutils.utils import assemble_option_dict
+from docutils.utils import Reporter, assemble_option_dict
 
-from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.ext.autodoc import Options, get_documenters
+from sphinx.config import Config
+from sphinx.environment import BuildEnvironment
+from sphinx.ext.autodoc import Documenter, Options
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
 
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, List, Set, Type  # NOQA
-    from docutils.parsers.rst.state import RSTState  # NOQA
-    from docutils.utils import Reporter  # NOQA
-    from sphinx.config import Config  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.ext.autodoc import Documenter  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -41,45 +35,33 @@ AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
 class DummyOptionSpec(dict):
     """An option_spec allows any options."""
 
-    def __bool__(self):
-        # type: () -> bool
+    def __bool__(self) -> bool:
         """Behaves like some options are defined."""
         return True
 
-    def __getitem__(self, key):
-        # type: (str) -> Callable[[str], str]
+    def __getitem__(self, key: str) -> Callable[[str], str]:
         return lambda x: x
 
 
 class DocumenterBridge:
     """A parameters container for Documenters."""
 
-    def __init__(self, env, reporter, options, lineno, state=None):
-        # type: (BuildEnvironment, Reporter, Options, int, Any) -> None
+    def __init__(self, env: BuildEnvironment, reporter: Reporter, options: Options,
+                 lineno: int, state: Any) -> None:
         self.env = env
         self.reporter = reporter
         self.genopt = options
         self.lineno = lineno
         self.filename_set = set()  # type: Set[str]
         self.result = StringList()
+        self.state = state
 
-        if state:
-            self.state = state
-        else:
-            # create fake object for self.state.document.settings.tab_width
-            warnings.warn('DocumenterBridge requires a state object on instantiation.',
-                          RemovedInSphinx40Warning)
-            settings = Struct(tab_width=8)
-            document = Struct(settings=settings)
-            self.state = Struct(document=document)
-
-    def warn(self, msg):
-        # type: (str) -> None
+    def warn(self, msg: str) -> None:
         logger.warning(msg, location=(self.env.docname, self.lineno))
 
 
-def process_documenter_options(documenter, config, options):
-    # type: (Type[Documenter], Config, Dict) -> Options
+def process_documenter_options(documenter: "Type[Documenter]", config: Config, options: Dict
+                               ) -> Options:
     """Recognize options of Documenter from user input."""
     for name in AUTODOC_DEFAULT_OPTIONS:
         if name not in documenter.option_spec:
@@ -92,12 +74,12 @@ def process_documenter_options(documenter, config, options):
     return Options(assemble_option_dict(options.items(), documenter.option_spec))
 
 
-def parse_generated_content(state, content, documenter):
-    # type: (RSTState, StringList, Documenter) -> List[nodes.Node]
+def parse_generated_content(state: RSTState, content: StringList, documenter: Documenter
+                            ) -> List[Node]:
     """Parse a generated content by Documenter."""
     with switch_source_input(state, content):
         if documenter.titles_allowed:
-            node = nodes.section()  # type: nodes.Element
+            node = nodes.section()  # type: Element
             # necessary so that the child nodes get the right source/line set
             node.document = state.document
             nested_parse_with_titles(state, content, node)
@@ -121,8 +103,7 @@ class AutodocDirective(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = True
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         reporter = self.state.document.reporter
 
         try:
@@ -133,7 +114,7 @@ class AutodocDirective(SphinxDirective):
 
         # look up target Documenter
         objtype = self.name[4:]  # strip prefix (auto-).
-        doccls = get_documenters(self.env.app)[objtype]
+        doccls = self.env.app.registry.documenters[objtype]
 
         # process the options with the selected documenter's option_spec
         try:
@@ -141,7 +122,7 @@ class AutodocDirective(SphinxDirective):
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
             logger.error('An option to %s is either unknown or has an invalid value: %s' %
-                         (self.name, exc), location=(source, lineno))
+                         (self.name, exc), location=(self.env.docname, lineno))
             return []
 
         # generate the output

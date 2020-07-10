@@ -4,17 +4,19 @@
 
     Simple requests package loader
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 import warnings
 from contextlib import contextmanager
-from typing import Generator, Union
+from typing import Any, Generator, Union
 from urllib.parse import urlsplit
 
 import requests
 
+import sphinx
 from sphinx.config import Config
 
 try:
@@ -52,7 +54,7 @@ def is_ssl_error(exc: Exception) -> bool:
 
 
 @contextmanager
-def ignore_insecure_warning(**kwargs) -> Generator[None, None, None]:
+def ignore_insecure_warning(**kwargs: Any) -> Generator[None, None, None]:
     with warnings.catch_warnings():
         if not kwargs.get('verify') and InsecureRequestWarning:
             # ignore InsecureRequestWarning if verify=False
@@ -82,27 +84,44 @@ def _get_tls_cacert(url: str, config: Config) -> Union[str, bool]:
         return certs.get(hostname, True)
 
 
-def get(url: str, **kwargs) -> requests.Response:
+def _get_user_agent(config: Config) -> str:
+    if config.user_agent:
+        return config.user_agent
+    else:
+        return ' '.join([
+            'Sphinx/%s' % sphinx.__version__,
+            'requests/%s' % requests.__version__,
+            'python/%s' % '.'.join(map(str, sys.version_info[:3])),
+        ])
+
+
+def get(url: str, **kwargs: Any) -> requests.Response:
     """Sends a GET request like requests.get().
 
     This sets up User-Agent header and TLS verification automatically."""
-    kwargs.setdefault('headers', dict(useragent_header))
+    headers = kwargs.setdefault('headers', {})
     config = kwargs.pop('config', None)
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
+        headers.setdefault('User-Agent', _get_user_agent(config))
+    else:
+        headers.setdefault('User-Agent', useragent_header[0][1])
 
     with ignore_insecure_warning(**kwargs):
         return requests.get(url, **kwargs)
 
 
-def head(url: str, **kwargs) -> requests.Response:
+def head(url: str, **kwargs: Any) -> requests.Response:
     """Sends a HEAD request like requests.head().
 
     This sets up User-Agent header and TLS verification automatically."""
-    kwargs.setdefault('headers', dict(useragent_header))
+    headers = kwargs.setdefault('headers', {})
     config = kwargs.pop('config', None)
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
+        headers.setdefault('User-Agent', _get_user_agent(config))
+    else:
+        headers.setdefault('User-Agent', useragent_header[0][1])
 
     with ignore_insecure_warning(**kwargs):
         return requests.get(url, **kwargs)

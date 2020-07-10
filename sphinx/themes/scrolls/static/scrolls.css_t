@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- scrolls theme.
  *
- * :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -188,7 +188,7 @@ a:hover {
 }
 
 pre {
-    background: #ededed url(metal.png);
+    background-image: url(metal.png);
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
     padding: 5px;

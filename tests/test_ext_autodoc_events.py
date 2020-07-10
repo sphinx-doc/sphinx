@@ -4,14 +4,14 @@
 
     Test the autodoc extension.  This tests mainly for autodoc events
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
 
 from sphinx.ext.autodoc import between, cut_lines
-from test_autodoc import do_autodoc
+from test_ext_autodoc import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -44,7 +44,7 @@ def test_cut_lines(app):
         '   :module: target.process_docstring',
         '',
         '   second line',
-        '   '
+        '',
     ]
 
 
@@ -60,7 +60,7 @@ def test_between(app):
         '   :module: target.process_docstring',
         '',
         '   second line',
-        '   '
+        '',
     ]
 
 
@@ -77,5 +77,5 @@ def test_between_exclude(app):
         '',
         '   first line',
         '   third line',
-        '   '
+        '',
     ]

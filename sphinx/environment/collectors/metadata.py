@@ -4,37 +4,32 @@
 
     The metadata collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import List, cast
+from typing import Any, Dict, List, Set
+from typing import cast
 
 from docutils import nodes
 
+from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
-
-if False:
-    # For type annotation
-    from typing import Dict, Set  # NOQA
-    from sphinx.sphinx import Sphinx  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 class MetadataCollector(EnvironmentCollector):
     """metadata collector for sphinx.environment."""
 
-    def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, str) -> None
+    def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.metadata.pop(docname, None)
 
-    def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
+    def merge_other(self, app: Sphinx, env: BuildEnvironment,
+                    docnames: Set[str], other: BuildEnvironment) -> None:
         for docname in docnames:
             env.metadata[docname] = other.metadata[docname]
 
-    def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.document) -> None
+    def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process the docinfo part of the doctree as metadata.
 
         Keep processing minimal -- just return what docutils says.
@@ -67,8 +62,7 @@ class MetadataCollector(EnvironmentCollector):
             doctree.pop(0)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_env_collector(MetadataCollector)
 
     return {

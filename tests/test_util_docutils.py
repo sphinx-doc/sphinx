@@ -4,7 +4,7 @@
 
     Tests util.utils functions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,9 @@ import os
 
 from docutils import nodes
 
-from sphinx.util.docutils import SphinxFileOutput, docutils_namespace, register_node
+from sphinx.util.docutils import (
+    SphinxFileOutput, SphinxTranslator, docutils_namespace, new_document, register_node
+)
 
 
 def test_register_node():
@@ -61,3 +63,34 @@ def test_SphinxFileOutput(tmpdir):
     # overrite it again (content changed)
     output.write(content + "; content change")
     assert os.stat(filename).st_mtime != 0  # updated
+
+
+def test_SphinxTranslator(app):
+    class CustomNode(nodes.inline):
+        pass
+
+    class MyTranslator(SphinxTranslator):
+        def __init__(self, *args):
+            self.called = []
+            super().__init__(*args)
+
+        def visit_document(self, node):
+            pass
+
+        def depart_document(self, node):
+            pass
+
+        def visit_inline(self, node):
+            self.called.append('visit_inline')
+
+        def depart_inline(self, node):
+            self.called.append('depart_inline')
+
+    document = new_document('')
+    document += CustomNode()
+
+    translator = MyTranslator(document, app.builder)
+    document.walkabout(translator)
+
+    # MyTranslator does not have visit_CustomNode. But it calls visit_inline instead.
+    assert translator.called == ['visit_inline', 'depart_inline']

@@ -5,7 +5,7 @@
  * Sphinx stylesheet -- sphinxdoc theme.  Originally created by
  * Armin Ronacher for Werkzeug.
  *
- * :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -35,6 +35,11 @@ div.document {
     text-align: left;
     background-image: url(contents.png);
     background-repeat: repeat-x;
+}
+
+div.documentwrapper {
+    float: left;
+    width: 100%;
 }
 
 div.bodywrapper {
@@ -86,7 +91,6 @@ div.sphinxsidebarwrapper {
 }
 
 div.sphinxsidebar {
-    margin: 0;
     padding: 0.5em 15px 15px 0;
     width: calc({{ theme_sidebarwidth|todim }} - 20px);
     float: right;
@@ -243,7 +247,6 @@ pre {
     line-height: 120%;
     padding: 0.5em;
     border: 1px solid #ccc;
-    background-color: #f8f8f8;
 }
 
 pre a {

@@ -127,6 +127,7 @@ div.sphinxsidebar {
     float: right;
     font-size: 1em;
     text-align: left;
+    max-height: 0px;
 }
 
 div.sphinxsidebar .logo {
@@ -297,6 +298,11 @@ a.headerlink {
 a.headerlink:hover {
     background-color: #ccc;
     color: white!important;
+}
+
+/* avoid font-size when :mod: role in headings */
+h1 code, h2 code, h3 code, h4 code {
+    font-size: inherit;
 }
 
 cite, code, tt {

@@ -1,6 +1,6 @@
-language: python
-sudo: false
+os: linux
 dist: xenial
+language: python
 cache: pip
 
 env:
@@ -9,32 +9,27 @@ env:
     - SKIP_LATEX_BUILD=1
     - IS_PYTHON=true
 
-matrix:
+jobs:
   include:
-    - python: '3.5'
-      env:
-        - TOXENV=du12
     - python: '3.6'
       env:
-        - TOXENV=du13
+        - TOXENV=du14
     - python: '3.7'
       env:
-        - TOXENV=py37
+        - TOXENV=du15
+    - python: '3.8'
+      env:
+        - TOXENV=du16
         - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
+    - python: '3.9-dev'
+      env:
+        - TOXENV=py39
     - python: 'nightly'
-      env: TOXENV=py38
-    - python: '3.6'
-      env: TOXENV=docs
-    - python: '3.6'
-      env: TOXENV=docslint
-    - python: '3.6'
-      env: TOXENV=mypy
-    - python: '3.6'
-      env: TOXENV=flake8
+      env:
+        - TOXENV=py310
 
     - language: node_js
-      node_js:
-        - 10.7
+      node_js: '10.7'
       env: IS_PYTHON=false
       services: xvfb
 
@@ -44,7 +39,7 @@ install:
   - if [ $IS_PYTHON = false ]; then npm install; fi
 
 script:
-  - if [ $IS_PYTHON = true ]; then tox -- -v; fi
+  - if [ $IS_PYTHON = true ]; then tox -- -vv; fi
   - if [ $IS_PYTHON = false ]; then npm test; fi
 
 after_success:

@@ -5,7 +5,7 @@
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,28 +13,28 @@ import doctest
 import re
 import sys
 import time
-import warnings
 from io import StringIO
 from os import path
+from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
+from docutils.nodes import Element, Node, TextElement
 from docutils.parsers.rst import directives
 from packaging.specifiers import SpecifierSet, InvalidSpecifier
 from packaging.version import Version
 
 import sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple, Type  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+
 
 logger = logging.getLogger(__name__)
 
@@ -42,15 +42,7 @@ blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
 
 
-def doctest_encode(text, encoding):
-    # type: (str, str) -> str
-    warnings.warn('doctest_encode() is deprecated.',
-                  RemovedInSphinx40Warning)
-    return text
-
-
-def is_allowed_version(spec, version):
-    # type: (str, str) -> bool
+def is_allowed_version(spec: str, version: str) -> bool:
     """Check `spec` satisfies `version` or not.
 
     This obeys PEP-440 specifiers:
@@ -80,8 +72,7 @@ class TestDirective(SphinxDirective):
     optional_arguments = 1
     final_argument_whitespace = True
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         # use ordinary docutils nodes for test code: they get special attributes
         # so that our builder recognizes them, and the other builders are happy.
         code = '\n'.join(self.content)
@@ -95,7 +86,7 @@ class TestDirective(SphinxDirective):
                 if not test:
                     test = code
                 code = doctestopt_re.sub('', code)
-        nodetype = nodes.literal_block  # type: Type[nodes.TextElement]
+        nodetype = nodes.literal_block  # type: Type[TextElement]
         if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
             nodetype = nodes.comment
         if self.arguments:
@@ -194,15 +185,13 @@ parser = doctest.DocTestParser()
 # helper classes
 
 class TestGroup:
-    def __init__(self, name):
-        # type: (str) -> None
+    def __init__(self, name: str) -> None:
         self.name = name
         self.setup = []     # type: List[TestCode]
         self.tests = []     # type: List[List[TestCode]]
         self.cleanup = []   # type: List[TestCode]
 
-    def add_code(self, code, prepend=False):
-        # type: (TestCode, bool) -> None
+    def add_code(self, code: "TestCode", prepend: bool = False) -> None:
         if code.type == 'testsetup':
             if prepend:
                 self.setup.insert(0, code)
@@ -220,30 +209,28 @@ class TestGroup:
         else:
             raise RuntimeError(__('invalid TestCode type'))
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return 'TestGroup(name=%r, setup=%r, cleanup=%r, tests=%r)' % (
             self.name, self.setup, self.cleanup, self.tests)
 
 
 class TestCode:
-    def __init__(self, code, type, filename, lineno, options=None):
-        # type: (str, str, Optional[str], int, Optional[Dict]) -> None
+    def __init__(self, code: str, type: str, filename: str,
+                 lineno: int, options: Dict = None) -> None:
         self.code = code
         self.type = type
         self.filename = filename
         self.lineno = lineno
         self.options = options or {}
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return 'TestCode(%r, %r, filename=%r, lineno=%r, options=%r)' % (
             self.code, self.type, self.filename, self.lineno, self.options)
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
-    def summarize(self, out, verbose=None):  # type: ignore
-        # type: (Callable, bool) -> Tuple[int, int]
+    def summarize(self, out: Callable, verbose: bool = None  # type: ignore
+                  ) -> Tuple[int, int]:
         string_io = StringIO()
         old_stdout = sys.stdout
         sys.stdout = string_io
@@ -254,9 +241,8 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
         out(string_io.getvalue())
         return res
 
-    def _DocTestRunner__patched_linecache_getlines(self, filename,
-                                                   module_globals=None):
-        # type: (str, Any) -> Any
+    def _DocTestRunner__patched_linecache_getlines(self, filename: str,
+                                                   module_globals: Any = None) -> Any:
         # this is overridden from DocTestRunner adding the try-except below
         m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(filename)  # type: ignore
         if m and m.group('name') == self.test.name:
@@ -282,8 +268,7 @@ class DocTestBuilder(Builder):
     epilog = __('Testing of doctests in the sources finished, look at the '
                 'results in %(outdir)s/output.txt.')
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         # default options
         self.opt = self.config.doctest_default_flags
 
@@ -312,33 +297,27 @@ class DocTestBuilder(Builder):
                             '==================================%s\n') %
                            (date, '=' * len(date)))
 
-    def _out(self, text):
-        # type: (str) -> None
+    def _out(self, text: str) -> None:
         logger.info(text, nonl=True)
         self.outfile.write(text)
 
-    def _warn_out(self, text):
-        # type: (str) -> None
+    def _warn_out(self, text: str) -> None:
         if self.app.quiet or self.app.warningiserror:
             logger.warning(text)
         else:
             logger.info(text, nonl=True)
         self.outfile.write(text)
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
 
-    def get_outdated_docs(self):
-        # type: () -> Set[str]
+    def get_outdated_docs(self) -> Set[str]:
         return self.env.found_docs
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         # write executive summary
-        def s(v):
-            # type: (int) -> str
-            return v != 1 and 's' or ''
+        def s(v: int) -> str:
+            return 's' if v != 1 else ''
         repl = (self.total_tries, s(self.total_tries),
                 self.total_failures, s(self.total_failures),
                 self.setup_failures, s(self.setup_failures),
@@ -356,8 +335,8 @@ Doctest summary
         if self.total_failures or self.setup_failures or self.cleanup_failures:
             self.app.statuscode = 1
 
-    def write(self, build_docnames, updated_docnames, method='update'):
-        # type: (Iterable[str], Sequence[str], str) -> None
+    def write(self, build_docnames: Iterable[str], updated_docnames: Sequence[str],
+              method: str = 'update') -> None:
         if build_docnames is None:
             build_docnames = sorted(self.env.all_docs)
 
@@ -367,8 +346,7 @@ Doctest summary
             doctree = self.env.get_doctree(docname)
             self.test_doc(docname, doctree)
 
-    def get_filename_for_node(self, node, docname):
-        # type: (nodes.Node, str) -> str
+    def get_filename_for_node(self, node: Node, docname: str) -> str:
         """Try to get the file which actually contains the doctest, not the
         filename of the document it's included in."""
         try:
@@ -379,8 +357,7 @@ Doctest summary
         return filename
 
     @staticmethod
-    def get_line_number(node):
-        # type: (nodes.Node) -> Optional[int]
+    def get_line_number(node: Node) -> int:
         """Get the real line number or admit we don't know."""
         # TODO:  Work out how to store or calculate real (file-relative)
         #       line numbers for doctest blocks in docstrings.
@@ -395,8 +372,7 @@ Doctest summary
             return node.line - 1
         return None
 
-    def skipped(self, node):
-        # type: (nodes.Element) -> bool
+    def skipped(self, node: Element) -> bool:
         if 'skipif' not in node:
             return False
         else:
@@ -409,8 +385,7 @@ Doctest summary
                 exec(self.config.doctest_global_cleanup, context)
             return should_skip
 
-    def test_doc(self, docname, doctree):
-        # type: (str, nodes.Node) -> None
+    def test_doc(self, docname: str, doctree: Node) -> None:
         groups = {}  # type: Dict[str, TestGroup]
         add_to_all_groups = []
         self.setup_runner = SphinxDocTestRunner(verbose=False,
@@ -424,17 +399,15 @@ Doctest summary
         self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore
 
         if self.config.doctest_test_doctest_blocks:
-            def condition(node):
-                # type: (nodes.Node) -> bool
+            def condition(node: Node) -> bool:
                 return (isinstance(node, (nodes.literal_block, nodes.comment)) and
                         'testnodetype' in node) or \
                     isinstance(node, nodes.doctest_block)
         else:
-            def condition(node):
-                # type: (nodes.Node) -> bool
+            def condition(node: Node) -> bool:
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
-        for node in doctree.traverse(condition):  # type: nodes.Element
+        for node in doctree.traverse(condition):  # type: Element
             if self.skipped(node):
                 continue
 
@@ -490,16 +463,13 @@ Doctest summary
             self.cleanup_failures += res_f
             self.cleanup_tries += res_t
 
-    def compile(self, code, name, type, flags, dont_inherit):
-        # type: (str, str, str, Any, bool) -> Any
+    def compile(self, code: str, name: str, type: str, flags: Any, dont_inherit: bool) -> Any:
         return compile(code, name, self.type, flags, dont_inherit)
 
-    def test_group(self, group):
-        # type: (TestGroup) -> None
+    def test_group(self, group: TestGroup) -> None:
         ns = {}  # type: Dict
 
-        def run_setup_cleanup(runner, testcodes, what):
-            # type: (Any, List[TestCode], Any) -> bool
+        def run_setup_cleanup(runner: Any, testcodes: List[TestCode], what: Any) -> bool:
             examples = []
             for testcode in testcodes:
                 example = doctest.Example(testcode.code, '', lineno=testcode.lineno)
@@ -528,7 +498,7 @@ Doctest summary
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
                 try:
-                    test = parser.get_doctest(code[0].code, {}, group.name,  # type: ignore
+                    test = parser.get_doctest(code[0].code, {}, group.name,
                                               code[0].filename, code[0].lineno)
                 except Exception:
                     logger.warning(__('ignoring invalid doctest code: %r'), code[0].code,
@@ -544,8 +514,8 @@ Doctest summary
                 self.type = 'single'  # as for ordinary doctests
             else:
                 # testcode and output separate
-                output = code[1] and code[1].code or ''
-                options = code[1] and code[1].options or {}
+                output = code[1].code if code[1] else ''
+                options = code[1].options if code[1] else {}
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
@@ -568,8 +538,7 @@ Doctest summary
         run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_directive('testsetup', TestsetupDirective)
     app.add_directive('testcleanup', TestcleanupDirective)
     app.add_directive('doctest', DoctestDirective)

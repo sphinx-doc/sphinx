@@ -3,6 +3,7 @@ include LICENSE
 include AUTHORS
 include CHANGES
 include CHANGES.old
+include CODE_OF_CONDUCT
 include CONTRIBUTING.rst
 include EXAMPLES
 

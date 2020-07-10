@@ -57,7 +57,7 @@ Once configured, call this by calling the relevant command on ``setup.py``::
 Options for setuptools integration
 ----------------------------------
 
-.. confval:: fresh-env
+.. setuptools-confval:: fresh-env
 
    A boolean that determines whether the saved environment should be discarded
    on build. Default is false.
@@ -68,7 +68,7 @@ Options for setuptools integration
 
       $ python setup.py build_sphinx -E
 
-.. confval:: all-files
+.. setuptools-confval:: all-files
 
    A boolean that determines whether all files should be built from scratch.
    Default is false.
@@ -79,7 +79,7 @@ Options for setuptools integration
 
       $ python setup.py build_sphinx -a
 
-.. confval:: source-dir
+.. setuptools-confval:: source-dir
 
    The target source directory. This can be relative to the ``setup.py`` or
    ``setup.cfg`` file, or it can be absolute.  It defaults to ``./doc`` or
@@ -92,12 +92,12 @@ Options for setuptools integration
 
       $ python setup.py build_sphinx -s $SOURCE_DIR
 
-.. confval:: build-dir
+.. setuptools-confval:: build-dir
 
    The target build directory. This can be relative to the ``setup.py`` or
    ``setup.cfg`` file, or it can be absolute. Default is ``./build/sphinx``.
 
-.. confval:: config-dir
+.. setuptools-confval:: config-dir
 
    Location of the configuration directory. This can be relative to the
    ``setup.py`` or ``setup.cfg`` file, or it can be absolute. Default is to use
@@ -111,7 +111,7 @@ Options for setuptools integration
 
    .. versionadded:: 1.0
 
-.. confval:: builder
+.. setuptools-confval:: builder
 
    The builder or list of builders to use. Default is ``html``.
 
@@ -124,7 +124,7 @@ Options for setuptools integration
    .. versionchanged:: 1.6
       This can now be a comma- or space-separated list of builders
 
-.. confval:: warning-is-error
+.. setuptools-confval:: warning-is-error
 
    A boolean that ensures Sphinx warnings will result in a failed build.
    Default is false.
@@ -137,32 +137,32 @@ Options for setuptools integration
 
    .. versionadded:: 1.5
 
-.. confval:: project
+.. setuptools-confval:: project
 
    The documented project's name. Default is ``''``.
 
    .. versionadded:: 1.0
 
-.. confval:: version
+.. setuptools-confval:: version
 
    The short X.Y version. Default is ``''``.
 
    .. versionadded:: 1.0
 
-.. confval:: release
+.. setuptools-confval:: release
 
    The full version, including alpha/beta/rc tags. Default is ``''``.
 
    .. versionadded:: 1.0
 
-.. confval:: today
+.. setuptools-confval:: today
 
    How to format the current date, used as the replacement for ``|today|``.
    Default is ``''``.
 
    .. versionadded:: 1.0
 
-.. confval:: link-index
+.. setuptools-confval:: link-index
 
    A boolean that ensures index.html will be linked to the master doc. Default
    is false.
@@ -175,13 +175,13 @@ Options for setuptools integration
 
    .. versionadded:: 1.0
 
-.. confval:: copyright
+.. setuptools-confval:: copyright
 
    The copyright string. Default is ``''``.
 
    .. versionadded:: 1.3
 
-.. confval:: nitpicky
+.. setuptools-confval:: nitpicky
 
    Run in nit-picky mode.  Currently, this generates warnings for all missing
    references.  See the config value :confval:`nitpick_ignore` for a way to
@@ -189,7 +189,7 @@ Options for setuptools integration
 
    .. versionadded:: 1.8
 
-.. confval:: pdb
+.. setuptools-confval:: pdb
 
    A boolean to configure ``pdb`` on exception. Default is false.
 

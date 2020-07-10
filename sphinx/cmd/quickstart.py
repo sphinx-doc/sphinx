@@ -4,20 +4,18 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import argparse
 import locale
 import os
-import re
 import sys
 import time
-import warnings
 from collections import OrderedDict
 from os import path
-from typing import Any, Callable, Dict, List, Pattern, Union
+from typing import Any, Callable, Dict, List, Union
 
 # try to import readline, unix specific enhancement
 try:
@@ -35,15 +33,10 @@ from docutils.utils import column_width
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util.console import (  # type: ignore
-    colorize, bold, red, turquoise, nocolor, color_terminal
-)
+from sphinx.util.console import colorize, bold, red, nocolor, color_terminal  # type: ignore
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
-
-TERM_ENCODING = getattr(sys.stdin, 'encoding', None)  # RemovedInSphinx40Warning
 
 EXTENSIONS = OrderedDict([
     ('autodoc', __('automatically insert docstrings from modules')),
@@ -135,30 +128,6 @@ def ok(x: str) -> str:
     return x
 
 
-def term_decode(text: Union[bytes, str]) -> str:
-    warnings.warn('term_decode() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-
-    if isinstance(text, str):
-        return text
-
-    # Use the known encoding, if possible
-    if TERM_ENCODING:
-        return text.decode(TERM_ENCODING)
-
-    # If ascii is safe, use it with no warning
-    if text.decode('ascii', 'replace').encode('ascii', 'replace') == text:
-        return text.decode('ascii')
-
-    print(turquoise(__('* Note: non-ASCII characters entered '
-                       'and terminal encoding unknown -- assuming '
-                       'UTF-8 or Latin-1.')))
-    try:
-        return text.decode()
-    except UnicodeDecodeError:
-        return text.decode('latin1')
-
-
 def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = nonempty) -> Union[str, bool]:  # NOQA
     while True:
         if default is not None:
@@ -182,13 +151,6 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
             continue
         break
     return x
-
-
-def convert_python_source(source: str, rex: Pattern = re.compile(r"[uU]('.*?')")) -> str:
-    # remove Unicode literal prefixes
-    warnings.warn('convert_python_source() is deprecated.',
-                  RemovedInSphinx40Warning)
-    return rex.sub('\\1', source)
 
 
 class QuickstartRenderer(SphinxRenderer):
@@ -275,7 +237,7 @@ def ask_user(d: Dict) -> None:
         print(__('Sphinx has the notion of a "version" and a "release" for the\n'
                  'software. Each version can have multiple releases. For example, for\n'
                  'Python the version is something like 2.5 or 3.0, while the release is\n'
-                 'something like 2.5.1 or 3.0a1.  If you don\'t need this dual structure,\n'
+                 'something like 2.5.1 or 3.0a1. If you don\'t need this dual structure,\n'
                  'just set both to the same value.'))
         d['version'] = do_prompt(__('Project version'), '', allow_empty)
     if 'release' not in d:
@@ -296,7 +258,7 @@ def ask_user(d: Dict) -> None:
     if 'suffix' not in d:
         print()
         print(__('The file name suffix for source files. Commonly, this is either ".txt"\n'
-                 'or ".rst".  Only files with this suffix are considered documents.'))
+                 'or ".rst". Only files with this suffix are considered documents.'))
         d['suffix'] = do_prompt(__('Source file suffix'), '.rst', suffix)
 
     if 'master' not in d:
@@ -357,9 +319,10 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     d.setdefault('extensions', [])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
 
+    d["path"] = os.path.abspath(d['path'])
     ensuredir(d['path'])
 
-    srcdir = d['sep'] and path.join(d['path'], 'source') or d['path']
+    srcdir = path.join(d['path'], 'source') if d['sep'] else d['path']
 
     ensuredir(srcdir)
     if d['sep']:
@@ -405,15 +368,15 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
         batchfile_template = 'quickstart/make.bat_t'
 
     if d['makefile'] is True:
-        d['rsrcdir'] = d['sep'] and 'source' or '.'
-        d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
+        d['rsrcdir'] = 'source' if d['sep'] else '.'
+        d['rbuilddir'] = 'build' if d['sep'] else d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
         write_file(path.join(d['path'], 'Makefile'),
                    template.render(makefile_template, d), '\n')
 
     if d['batchfile'] is True:
-        d['rsrcdir'] = d['sep'] and 'source' or '.'
-        d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
+        d['rsrcdir'] = 'source' if d['sep'] else '.'
+        d['rbuilddir'] = 'build' if d['sep'] else d['dot'] + 'build'
         write_file(path.join(d['path'], 'make.bat'),
                    template.render(batchfile_template, d), '\r\n')
 

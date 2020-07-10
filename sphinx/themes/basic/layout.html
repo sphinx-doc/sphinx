@@ -4,7 +4,7 @@
 
     Master layout template for Sphinx themes.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- block doctype -%}{%- if html5_doctype %}
@@ -32,16 +32,17 @@
       <ul>
         {%- for rellink in rellinks %}
         <li class="right" {% if loop.first %}style="margin-right: 10px"{% endif %}>
-          <a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags|e }}"
+          <a href="{{ pathto(rellink[0])|e }}" title="{{ rellink[1]|striptags|e }}"
              {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a>
           {%- if not loop.first %}{{ reldelim2 }}{% endif %}</li>
         {%- endfor %}
         {%- block rootrellink %}
-        <li class="nav-item nav-item-0"><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a>{{ reldelim1 }}</li>
+        <li class="nav-item nav-item-0"><a href="{{ pathto(master_doc)|e }}">{{ shorttitle|e }}</a>{{ reldelim1 }}</li>
         {%- endblock %}
         {%- for parent in parents %}
           <li class="nav-item nav-item-{{ loop.index }}"><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a>{{ reldelim1 }}</li>
         {%- endfor %}
+        <li class="nav-item nav-item-this"><a href="{{ link|e }}">{{ title }}</a></li>
         {%- block relbaritems %} {% endblock %}
       </ul>
     </div>
@@ -53,8 +54,8 @@
         <div class="sphinxsidebarwrapper">
           {%- block sidebarlogo %}
           {%- if logo %}
-            <p class="logo"><a href="{{ pathto(master_doc) }}">
-              <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
+            <p class="logo"><a href="{{ pathto(master_doc)|e }}">
+              <img class="logo" src="{{ pathto('_static/' + logo, 1)|e }}" alt="Logo"/>
             </a></p>
           {%- endif %}
           {%- endblock %}
@@ -87,20 +88,20 @@
 {%- endmacro %}
 
 {%- macro script() %}
-    <script type="text/javascript" id="documentation_options" data-url_root="{{ pathto('', 1) }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
+    <script id="documentation_options" data-url_root="{{ pathto('', 1) }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
     {%- for js in script_files %}
     {{ js_tag(js) }}
     {%- endfor %}
 {%- endmacro %}
 
 {%- macro css() %}
-    <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
+    <link rel="stylesheet" href="{{ pathto('_static/' + style, 1)|e }}" type="text/css" />
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
     {%- for css in css_files %}
       {%- if css|attr("filename") %}
     {{ css_tag(css) }}
       {%- else %}
-    <link rel="stylesheet" href="{{ pathto(css, 1) }}" type="text/css" />
+    <link rel="stylesheet" href="{{ pathto(css, 1)|e }}" type="text/css" />
       {%- endif %}
     {%- endfor %}
 {%- endmacro %}
@@ -108,7 +109,7 @@
 {%- if html_tag %}
 {{ html_tag }}
 {%- else %}
-<html xmlns="http://www.w3.org/1999/xhtml"{% if language is not none %} lang="{{ language }}"{% endif %}>
+<html{% if not html5_doctype %} xmlns="http://www.w3.org/1999/xhtml"{% endif %}{% if language is not none %} lang="{{ language }}"{% endif %}>
 {%- endif %}
   <head>
     {%- if not html5_doctype and not skip_ua_compatible %}
@@ -119,6 +120,7 @@
     {%- else %}
     <meta http-equiv="Content-Type" content="text/html; charset={{ encoding }}" />
     {%- endif %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {{- metatags }}
     {%- block htmltitle %}
     <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
@@ -131,7 +133,7 @@
     {{- script() }}
     {%- endblock %}
     {%- if pageurl %}
-    <link rel="canonical" href="{{ pageurl }}" />
+    <link rel="canonical" href="{{ pageurl|e }}" />
     {%- endif %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"
@@ -139,7 +141,7 @@
           href="{{ pathto('_static/opensearch.xml', 1) }}"/>
     {%- endif %}
     {%- if favicon %}
-    <link rel="shortcut icon" href="{{ pathto('_static/' + favicon, 1) }}"/>
+    <link rel="shortcut icon" href="{{ pathto('_static/' + favicon, 1)|e }}"/>
     {%- endif %}
     {%- endif %}
 {%- block linktags %}
@@ -180,6 +182,7 @@
       {%- endif %}
           <div class="body" role="main">
             {% block body %} {% endblock %}
+            <div class="clearer"></div>
           </div>
       {%- if render_sidebar %}
         </div>
@@ -207,7 +210,7 @@
       {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
     {%- endif %}
     {%- if show_sphinx %}
-      {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+      {% trans sphinx_version=sphinx_version|e %}Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
     {%- endif %}
     </div>
 {%- endblock %}

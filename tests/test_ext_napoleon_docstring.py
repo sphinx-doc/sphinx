@@ -5,7 +5,7 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -78,15 +78,17 @@ class InlineAttributeTest(BaseDocstringTest):
 
     def test_class_data_member(self):
         config = Config()
-        docstring = """data member description:
+        docstring = dedent("""\
+        data member description:
 
-- a: b
-"""
+        - a: b
+        """)
         actual = str(GoogleDocstring(docstring, config=config, app=None,
                      what='attribute', name='some_data', obj=0))
-        expected = """data member description:
+        expected = dedent("""\
+        data member description:
 
-- a: b"""
+        - a: b""")
 
         self.assertEqual(expected, actual)
 
@@ -95,10 +97,30 @@ class InlineAttributeTest(BaseDocstringTest):
         docstring = """b: data member description with :ref:`reference`"""
         actual = str(GoogleDocstring(docstring, config=config, app=None,
                      what='attribute', name='some_data', obj=0))
-        expected = """data member description with :ref:`reference`
+        expected = dedent("""\
+        data member description with :ref:`reference`
 
-:type: b"""
+        :type: b""")
+        self.assertEqual(expected, actual)
 
+    def test_class_data_member_inline_no_type(self):
+        config = Config()
+        docstring = """data with ``a : in code`` and :ref:`reference` and no type"""
+        actual = str(GoogleDocstring(docstring, config=config, app=None,
+                     what='attribute', name='some_data', obj=0))
+        expected = """data with ``a : in code`` and :ref:`reference` and no type"""
+
+        self.assertEqual(expected, actual)
+
+    def test_class_data_member_inline_ref_in_type(self):
+        config = Config()
+        docstring = """:class:`int`: data member description"""
+        actual = str(GoogleDocstring(docstring, config=config, app=None,
+                     what='attribute', name='some_data', obj=0))
+        expected = dedent("""\
+        data member description
+
+        :type: :class:`int`""")
         self.assertEqual(expected, actual)
 
 
@@ -479,6 +501,8 @@ Raises:
         If the dimensions couldn't be parsed.
     `InvalidArgumentsError`
         If the arguments are invalid.
+    :exc:`~ValueError`
+        If the arguments are wrong.
 
 """, """
 Example Function
@@ -488,6 +512,7 @@ Example Function
 :raises AttributeError: errors for missing attributes.
 :raises ~InvalidDimensionsError: If the dimensions couldn't be parsed.
 :raises InvalidArgumentsError: If the arguments are invalid.
+:raises ~ValueError: If the arguments are wrong.
 """),
                       ################################
                       ("""
@@ -1017,6 +1042,34 @@ Sooper Warning:
             actual = str(GoogleDocstring(docstring, testConfig))
             self.assertEqual(expected, actual)
 
+    def test_noindex(self):
+        docstring = """
+Attributes:
+    arg
+        description
+
+Methods:
+    func(i, j)
+        description
+"""
+
+        expected = """
+.. attribute:: arg
+   :noindex:
+
+   description
+
+.. method:: func(i, j)
+   :noindex:
+
+   
+   description
+"""
+        config = Config()
+        actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
+                                     options={'noindex': True}))
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
@@ -1351,11 +1404,32 @@ arg_ : type
 """
 
         expected = """
+:ivar arg_: some description
+:vartype arg_: type
+"""
+
+        config = Config(napoleon_use_ivar=True)
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "class"))
+
+        self.assertEqual(expected, actual)
+
+    def test_underscore_in_attribute_strip_signature_backslash(self):
+        docstring = """
+Attributes
+----------
+
+arg_ : type
+    some description
+"""
+
+        expected = """
 :ivar arg\\_: some description
 :vartype arg\\_: type
 """
 
         config = Config(napoleon_use_ivar=True)
+        config.strip_signature_backslash = True
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "class"))
 

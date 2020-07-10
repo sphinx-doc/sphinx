@@ -4,40 +4,39 @@
 
     Index entries adapters for sphinx.environment.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import bisect
+
 import re
 import unicodedata
 from itertools import groupby
+from typing import Any, Dict, Pattern, List, Tuple
+from typing import cast
 
+from sphinx.builders import Builder
+from sphinx.domains.index import IndexDomain
+from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import split_into, logging
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, Pattern, List, Tuple  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
 class IndexEntries:
-    def __init__(self, env):
-        # type: (BuildEnvironment) -> None
+    def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
 
-    def create_index(self, builder, group_entries=True,
-                     _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
-        # type: (Builder, bool, Pattern) -> List[Tuple[str, List[Tuple[str, Any]]]]
+    def create_index(self, builder: Builder, group_entries: bool = True,
+                     _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
+                     ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
         """Create the real index from the collected index entries."""
         new = {}  # type: Dict[str, List]
 
-        def add_entry(word, subword, main, link=True, dic=new, key=None):
-            # type: (str, str, str, bool, Dict, str) -> None
+        def add_entry(word: str, subword: str, main: str, link: bool = True,
+                      dic: Dict = new, key: str = None) -> None:
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
@@ -53,10 +52,10 @@ class IndexEntries:
                 except NoUri:
                     pass
                 else:
-                    # maintain links in sorted/deterministic order
-                    bisect.insort(entry[0], (main, uri))
+                    entry[0].append((main, uri))
 
-        for fn, entries in self.env.indexentries.items():
+        domain = cast(IndexDomain, self.env.get_domain('index'))
+        for fn, entries in domain.entries.items():
             # new entry types must be listed in directives/other.py!
             for type, value, tid, main, index_key in entries:
                 try:
@@ -89,10 +88,19 @@ class IndexEntries:
                 except ValueError as err:
                     logger.warning(str(err), location=fn)
 
+        # sort the index entries for same keyword.
+        def keyfunc0(entry: Tuple[str, str]) -> Tuple[bool, str]:
+            main, uri = entry
+            return (not main, uri)  # show main entries at first
+
+        for indexentry in new.values():
+            indexentry[0].sort(key=keyfunc0)
+            for subentry in indexentry[1].values():
+                subentry[0].sort(key=keyfunc0)  # type: ignore
+
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
-        def keyfunc(entry):
-            # type: (Tuple[str, List]) -> Tuple[str, str]
+        def keyfunc(entry: Tuple[str, List]) -> Tuple[str, str]:
             key, (void, void, category_key) = entry
             if category_key:
                 # using specified category key to sort
@@ -137,12 +145,21 @@ class IndexEntries:
                 oldsubitems = subitems
                 i += 1
 
+        # sort the sub-index entries
+        def keyfunc2(entry: Tuple[str, List]) -> str:
+            key = unicodedata.normalize('NFD', entry[0].lower())
+            if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
+                key = key[1:]
+            if key[0:1].isalpha() or key.startswith('_'):
+                key = chr(127) + key
+            return key
+
         # group the entries by letter
-        def keyfunc2(item):
-            # type: (Tuple[str, List]) -> str
+        def keyfunc3(item: Tuple[str, List]) -> str:
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
-            v[1] = sorted((si, se) for (si, (se, void, void)) in v[1].items())
+            v[1] = sorted(((si, se) for (si, (se, void, void)) in v[1].items()),
+                          key=keyfunc2)
             if v[2] is None:
                 # now calculate the key
                 if k.startswith('\N{RIGHT-TO-LEFT MARK}'):
@@ -156,4 +173,4 @@ class IndexEntries:
             else:
                 return v[2]
         return [(key_, list(group))
-                for (key_, group) in groupby(newlist, keyfunc2)]
+                for (key_, group) in groupby(newlist, keyfunc3)]

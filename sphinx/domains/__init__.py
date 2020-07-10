@@ -5,12 +5,13 @@
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import copy
 from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Type, Union
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -22,8 +23,7 @@ from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.typing import RoleFunction
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
@@ -47,7 +47,7 @@ class ObjType:
         'searchprio': 1,
     }
 
-    def __init__(self, lname: str, *roles, **attrs) -> None:
+    def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
         self.lname = lname
         self.roles = roles                      # type: Tuple
         self.attrs = self.known_attrs.copy()    # type: Dict
@@ -69,6 +69,9 @@ class Index:
     a domain, subclass Index, overriding the three name attributes:
 
     * `name` is an identifier used for generating file names.
+      It is also used for a hyperlink target for the index. Therefore, users can
+      refer the index page using ``ref`` role and a string which is combined
+      domain name and ``name`` attribute (ex. ``:ref:`py-modindex```).
     * `localname` is the section title for the index.
     * `shortname` is a short name for the index, for use in the relation bar in
       HTML output.  Can be empty to disable entries in the relation bar.
@@ -76,6 +79,11 @@ class Index:
     and providing a :meth:`generate()` method.  Then, add the index class to
     your domain's `indices` list.  Extensions can add indices to existing
     domains using :meth:`~sphinx.application.Sphinx.add_index_to_domain()`.
+
+    .. versionchanged:: 3.0
+
+       Index pages can be referred by domain name and index name via
+       :rst:role:`ref` role.
     """
 
     name = None  # type: str
@@ -217,6 +225,17 @@ class Domain:
             self._type2role[name] = obj.roles[0] if obj.roles else ''
         self.objtypes_for_role = self._role2type.get    # type: Callable[[str], List[str]]
         self.role_for_objtype = self._type2role.get     # type: Callable[[str], str]
+
+    def setup(self) -> None:
+        """Set up domain object."""
+        from sphinx.domains.std import StandardDomain
+
+        # Add special hyperlink target for index pages (ex. py-modindex)
+        std = cast(StandardDomain, self.env.get_domain('std'))
+        for index in self.indices:
+            if index.name and index.localname:
+                docname = "%s-%s" % (self.name, index.name)
+                std.note_hyperlink_target(docname, docname, '', index.localname)
 
     def add_object_type(self, name: str, objtype: ObjType) -> None:
         """Add an object type."""

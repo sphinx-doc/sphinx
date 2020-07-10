@@ -15,20 +15,19 @@
     namespace of the project configuration (that is, all variables from
     ``conf.py`` are available.)
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict, List
+
 from docutils import nodes
+from docutils.nodes import Node
 
 import sphinx
+from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 class ifconfig(nodes.Element):
@@ -43,8 +42,7 @@ class IfConfig(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {}  # type: Dict
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         node = ifconfig()
         node.document = self.state.document
         self.set_source_info(node)
@@ -53,8 +51,7 @@ class IfConfig(SphinxDirective):
         return [node]
 
 
-def process_ifconfig_nodes(app, doctree, docname):
-    # type: (Sphinx, nodes.document, str) -> None
+def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -> None:
     ns = {confval.name: confval.value for confval in app.config}
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
@@ -76,8 +73,7 @@ def process_ifconfig_nodes(app, doctree, docname):
                 node.replace_self(node.children)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_node(ifconfig)
     app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)

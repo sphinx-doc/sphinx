@@ -189,8 +189,8 @@ Referencing downloadable files
 
    When you use this role, the referenced file is automatically marked for
    inclusion in the output when building (obviously, for HTML output only).
-   All downloadable files are put into the ``_downloads`` subdirectory of the
-   output directory; duplicate filenames are handled.
+   All downloadable files are put into a ``_downloads/<unique hash>/``
+   subdirectory of the output directory; duplicate filenames are handled.
 
    An example::
 

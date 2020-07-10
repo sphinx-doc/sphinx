@@ -10,7 +10,7 @@
     Copyright 2008 Société des arts technologiques (SAT),
     https://sat.qc.ca/
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,22 +19,18 @@ import glob
 import locale
 import os
 import sys
-import warnings
+from copy import copy
 from fnmatch import fnmatch
+from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
+from typing import Any, List, Tuple
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
-
-if False:
-    # For type annotation
-    from typing import Any, List, Tuple  # NOQA
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -47,99 +43,90 @@ else:
         'show-inheritance',
     ]
 
-INITPY = '__init__.py'
-PY_SUFFIXES = {'.py', '.pyx'}
+PY_SUFFIXES = ('.py', '.pyx') + tuple(EXTENSION_SUFFIXES)
 
 template_dir = path.join(package_dir, 'templates', 'apidoc')
 
 
-def makename(package, module):
-    # type: (str, str) -> str
-    """Join package and module with a dot."""
-    warnings.warn('makename() is deprecated.',
-                  RemovedInSphinx40Warning)
-    # Both package and module can be None/empty.
-    if package:
-        name = package
-        if module:
-            name += '.' + module
+def is_initpy(filename: str) -> bool:
+    """Check *filename* is __init__ file or not."""
+    basename = path.basename(filename)
+    for suffix in sorted(PY_SUFFIXES, key=len, reverse=True):
+        if basename == '__init__' + suffix:
+            return True
     else:
-        name = module
-    return name
+        return False
 
 
-def module_join(*modnames):
-    # type: (*str) -> str
+def module_join(*modnames: str) -> str:
     """Join module names with dots."""
     return '.'.join(filter(None, modnames))
 
 
-def write_file(name, text, opts):
-    # type: (str, str, Any) -> None
+def is_packagedir(dirname: str = None, files: List[str] = None) -> bool:
+    """Check given *files* contains __init__ file."""
+    if files is None and dirname is None:
+        return False
+
+    if files is None:
+        files = os.listdir(dirname)
+    return any(f for f in files if is_initpy(f))
+
+
+def write_file(name: str, text: str, opts: Any) -> None:
     """Write the output file for module/package <name>."""
+    quiet = getattr(opts, 'quiet', None)
+
     fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
     if opts.dryrun:
-        print(__('Would create file %s.') % fname)
+        if not quiet:
+            print(__('Would create file %s.') % fname)
         return
     if not opts.force and path.isfile(fname):
-        print(__('File %s already exists, skipping.') % fname)
+        if not quiet:
+            print(__('File %s already exists, skipping.') % fname)
     else:
-        print(__('Creating file %s.') % fname)
+        if not quiet:
+            print(__('Creating file %s.') % fname)
         with FileAvoidWrite(fname) as f:
             f.write(text)
 
 
-def format_heading(level, text, escape=True):
-    # type: (int, str, bool) -> str
-    """Create a heading of <level> [1, 2 or 3 supported]."""
-    warnings.warn('format_warning() is deprecated.',
-                  RemovedInSphinx40Warning)
-    if escape:
-        text = rst.escape(text)
-    underlining = ['=', '-', '~', ][level - 1] * len(text)
-    return '%s\n%s\n\n' % (text, underlining)
-
-
-def format_directive(module, package=None):
-    # type: (str, str) -> str
-    """Create the automodule directive and add the options."""
-    warnings.warn('format_directive() is deprecated.',
-                  RemovedInSphinx40Warning)
-    directive = '.. automodule:: %s\n' % module_join(package, module)
-    for option in OPTIONS:
-        directive += '    :%s:\n' % option
-    return directive
-
-
-def create_module_file(package, basename, opts, user_template_dir=None):
-    # type: (str, str, Any, str) -> None
+def create_module_file(package: str, basename: str, opts: Any,
+                       user_template_dir: str = None) -> None:
     """Build the text of the file and write the file."""
+    options = copy(OPTIONS)
+    if opts.includeprivate and 'private-members' not in options:
+        options.append('private-members')
+
     qualname = module_join(package, basename)
     context = {
         'show_headings': not opts.noheadings,
         'basename': basename,
         'qualname': qualname,
-        'automodule_options': OPTIONS,
+        'automodule_options': options,
     }
     text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst_t', context)
     write_file(qualname, text, opts)
 
 
-def create_package_file(root, master_package, subroot, py_files, opts, subs,
-                        is_namespace, excludes=[], user_template_dir=None):
-    # type: (str, str, str, List[str], Any, List[str], bool, List[str], str) -> None
+def create_package_file(root: str, master_package: str, subroot: str, py_files: List[str],
+                        opts: Any, subs: List[str], is_namespace: bool,
+                        excludes: List[str] = [], user_template_dir: str = None) -> None:
     """Build the text of the file and write the file."""
-    # build a list of sub packages (directories containing an INITPY file)
-    subpackages = [sub for sub in subs if not
-                   shall_skip(path.join(root, sub, INITPY), opts, excludes)]
+    # build a list of sub packages (directories containing an __init__ file)
     subpackages = [module_join(master_package, subroot, pkgname)
-                   for pkgname in subpackages]
+                   for pkgname in subs
+                   if not is_skipped_package(path.join(root, pkgname), opts, excludes)]
     # build a list of sub modules
-    submodules = [path.splitext(sub)[0] for sub in py_files
+    submodules = [sub.split('.')[0] for sub in py_files
                   if not is_skipped_module(path.join(root, sub), opts, excludes) and
-                  sub != INITPY]
+                  not is_initpy(sub)]
     submodules = [module_join(master_package, subroot, modname)
                   for modname in submodules]
+    options = copy(OPTIONS)
+    if opts.includeprivate and 'private-members' not in options:
+        options.append('private-members')
 
     pkgname = module_join(master_package, subroot)
     context = {
@@ -149,8 +136,9 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs,
         'is_namespace': is_namespace,
         'modulefirst': opts.modulefirst,
         'separatemodules': opts.separatemodules,
-        'automodule_options': OPTIONS,
+        'automodule_options': options,
         'show_headings': not opts.noheadings,
+        'maxdepth': opts.maxdepth,
     }
     text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
     write_file(pkgname, text, opts)
@@ -160,8 +148,8 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs,
             create_module_file(None, submodule, opts, user_template_dir)
 
 
-def create_modules_toc_file(modules, opts, name='modules', user_template_dir=None):
-    # type: (List[str], Any, str, str) -> None
+def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules',
+                            user_template_dir: str = None) -> None:
     """Create the module's index."""
     modules.sort()
     prev_module = ''
@@ -181,35 +169,26 @@ def create_modules_toc_file(modules, opts, name='modules', user_template_dir=Non
     write_file(name, text, opts)
 
 
-def shall_skip(module, opts, excludes=[]):
-    # type: (str, Any, List[str]) -> bool
+def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> bool:
     """Check if we want to skip this module."""
-    # skip if the file doesn't exist and not using implicit namespaces
-    if not opts.implicit_namespaces and not path.exists(module):
+    if not path.isdir(dirname):
+        return False
+
+    files = glob.glob(path.join(dirname, '*.py'))
+    regular_package = any(f for f in files if is_initpy(f))
+    if not regular_package and not opts.implicit_namespaces:
+        # *dirname* is not both a regular package and an implicit namespace pacage
         return True
 
-    # Are we a package (here defined as __init__.py, not the folder in itself)
-    if os.path.basename(module) == INITPY:
-        # Yes, check if we have any non-excluded modules at all here
-        all_skipped = True
-        basemodule = path.dirname(module)
-        for submodule in glob.glob(path.join(basemodule, '*.py')):
-            if not is_excluded(path.join(basemodule, submodule), excludes):
-                # There's a non-excluded module here, we won't skip
-                all_skipped = False
-        if all_skipped:
-            return True
-
-    # skip if it has a "private" name and this is selected
-    filename = path.basename(module)
-    if filename != '__init__.py' and filename.startswith('_') and \
-       not opts.includeprivate:
+    # Check there is some showable module inside package
+    if all(is_excluded(path.join(dirname, f), excludes) for f in files):
+        # all submodules are excluded
         return True
-    return False
+    else:
+        return False
 
 
-def is_skipped_module(filename, opts, excludes):
-    # type: (str, Any, List[str]) -> bool
+def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
     """Check if we want to skip this module."""
     if not path.exists(filename):
         # skip if the file doesn't exist
@@ -221,8 +200,8 @@ def is_skipped_module(filename, opts, excludes):
         return False
 
 
-def recurse_tree(rootpath, excludes, opts, user_template_dir=None):
-    # type: (str, List[str], Any, str) -> List[str]
+def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
+                 user_template_dir: str = None) -> List[str]:
     """
     Look for every file in the directory tree and create the corresponding
     ReST files.
@@ -232,7 +211,7 @@ def recurse_tree(rootpath, excludes, opts, user_template_dir=None):
     implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
 
     # check if the base directory is a package and get its name
-    if INITPY in os.listdir(rootpath) or implicit_namespaces:
+    if is_packagedir(rootpath) or implicit_namespaces:
         root_package = rootpath.split(path.sep)[-1]
     else:
         # otherwise, the base is a directory with packages
@@ -242,13 +221,15 @@ def recurse_tree(rootpath, excludes, opts, user_template_dir=None):
     for root, subs, files in os.walk(rootpath, followlinks=followlinks):
         # document only Python module files (that aren't excluded)
         py_files = sorted(f for f in files
-                          if path.splitext(f)[1] in PY_SUFFIXES and
+                          if f.endswith(PY_SUFFIXES) and
                           not is_excluded(path.join(root, f), excludes))
-        is_pkg = INITPY in py_files
-        is_namespace = INITPY not in py_files and implicit_namespaces
+        is_pkg = is_packagedir(None, py_files)
+        is_namespace = not is_pkg and implicit_namespaces
         if is_pkg:
-            py_files.remove(INITPY)
-            py_files.insert(0, INITPY)
+            for f in py_files[:]:
+                if is_initpy(f):
+                    py_files.remove(f)
+                    py_files.insert(0, f)
         elif root != rootpath:
             # only accept non-package at toplevel unless using implicit namespaces
             if not implicit_namespaces:
@@ -265,7 +246,7 @@ def recurse_tree(rootpath, excludes, opts, user_template_dir=None):
 
         if is_pkg or is_namespace:
             # we are in a package with something to document
-            if subs or len(py_files) > 1 or not shall_skip(path.join(root, INITPY), opts):
+            if subs or len(py_files) > 1 or not is_skipped_package(root, opts):
                 subpackage = root[len(rootpath):].lstrip(path.sep).\
                     replace(path.sep, '.')
                 # if this is not a namespace or
@@ -280,15 +261,14 @@ def recurse_tree(rootpath, excludes, opts, user_template_dir=None):
             assert root == rootpath and root_package is None
             for py_file in py_files:
                 if not is_skipped_module(path.join(rootpath, py_file), opts, excludes):
-                    module = path.splitext(py_file)[0]
+                    module = py_file.split('.')[0]
                     create_module_file(root_package, module, opts, user_template_dir)
                     toplevels.append(module)
 
     return toplevels
 
 
-def is_excluded(root, excludes):
-    # type: (str, List[str]) -> bool
+def is_excluded(root: str, excludes: List[str]) -> bool:
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
@@ -300,8 +280,7 @@ def is_excluded(root, excludes):
     return False
 
 
-def get_parser():
-    # type: () -> argparse.ArgumentParser
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
               '[EXCLUDE_PATTERN, ...]',
@@ -327,6 +306,8 @@ Note: By default this script will not overwrite already created files."""))
     parser.add_argument('-o', '--output-dir', action='store', dest='destdir',
                         required=True,
                         help=__('directory to place all output'))
+    parser.add_argument('-q', action='store_true', dest='quiet',
+                        help=__('no output on stdout, just warnings on stderr'))
     parser.add_argument('-d', '--maxdepth', action='store', dest='maxdepth',
                         type=int, default=4,
                         help=__('maximum depth of submodules to show in the TOC '
@@ -396,8 +377,7 @@ Note: By default this script will not overwrite already created files."""))
     return parser
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
+def main(argv: List[str] = sys.argv[1:]) -> int:
     """Parse and check the command line arguments."""
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
@@ -455,6 +435,8 @@ def main(argv=sys.argv[1:]):
         }
         if args.extensions:
             d['extensions'].extend(args.extensions)
+        if args.quiet:
+            d['quiet'] = True
 
         for ext in d['extensions'][:]:
             if ',' in ext:

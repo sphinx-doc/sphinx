@@ -10,8 +10,8 @@ import sphinx
 with open('README.rst') as f:
     long_desc = f.read()
 
-if sys.version_info < (3, 5):
-    print('ERROR: Sphinx requires at least Python 3.5 to run.')
+if sys.version_info < (3, 6):
+    print('ERROR: Sphinx requires at least Python 3.6 to run.')
     sys.exit(1)
 
 install_requires = [
@@ -23,9 +23,9 @@ install_requires = [
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.12',
+    'docutils>=0.14',
     'snowballstemmer>=1.1',
-    'babel>=1.3,!=2.0',
+    'babel>=1.3',
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests>=2.5.0',
@@ -41,14 +41,18 @@ extras_require = {
     'docs': [
         'sphinxcontrib-websupport',
     ],
+    'lint': [
+        'flake8>=3.5.0',
+        'flake8-import-order',
+        'mypy>=0.780',
+        'docutils-stubs',
+    ],
     'test': [
         'pytest',
         'pytest-cov',
         'html5lib',
-        'flake8>=3.5.0',
-        'flake8-import-order',
-        'mypy>=0.711',
-        'docutils-stubs',
+        'typed_ast',  # for py35-37
+        'cython',
     ],
 }
 
@@ -135,7 +139,7 @@ else:
                                                  domain + '.js'))
 
             for js_file, (locale, po_file) in zip(js_files, po_files):
-                with open(po_file) as infile:
+                with open(po_file, encoding='utf8') as infile:
                     catalog = read_po(infile, locale)
 
                 if catalog.fuzzy and not self.use_fuzzy:
@@ -153,13 +157,13 @@ else:
                             msgid = msgid[0]
                         jscatalog[msgid] = message.string
 
-                with open(js_file, 'wt') as outfile:
+                with open(js_file, 'wt', encoding='utf8') as outfile:
                     outfile.write('Documentation.addTranslations(')
                     dump({
                         'messages': jscatalog,
                         'plural_expr': catalog.plural_expr,
                         'locale': str(catalog.locale)
-                    }, outfile, sort_keys=True)
+                    }, outfile, sort_keys=True, indent=4)
                     outfile.write(');')
 
     cmdclass['compile_catalog'] = compile_catalog_plusjs
@@ -176,6 +180,10 @@ setup(
     description='Python documentation generator',
     long_description=long_desc,
     long_description_content_type='text/x-rst',
+    project_urls={
+        "Code": "https://github.com/sphinx-doc/sphinx",
+        "Issue tracker": "https://github.com/sphinx-doc/sphinx/issues",
+    },
     zip_safe=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -191,9 +199,9 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Setuptools Plugin',
@@ -216,6 +224,9 @@ setup(
     ],
     platforms='any',
     packages=find_packages(exclude=['tests', 'utils']),
+    package_data = {
+        'sphinx': ['py.typed'],
+    },
     include_package_data=True,
     entry_points={
         'console_scripts': [
@@ -228,7 +239,7 @@ setup(
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
     },
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     install_requires=install_requires,
     extras_require=extras_require,
     cmdclass=cmdclass,

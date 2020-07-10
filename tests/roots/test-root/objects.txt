@@ -107,15 +107,15 @@ Referring to :func:`nothing <>`.
 C items
 =======
 
-.. c:function:: Sphinx_DoSomething()
+.. c:function:: void Sphinx_DoSomething()
 
-.. c:member:: SphinxStruct.member
+.. c:member:: int SphinxStruct.member
 
 .. c:macro:: SPHINX_USE_PYTHON
 
 .. c:type:: SphinxType
 
-.. c:var:: sphinx_global
+.. c:var:: int sphinx_global
 
 
 Javascript items
@@ -180,7 +180,9 @@ Others
 
 .. option:: arg
 
-Link to :option:`perl +p`, :option:`--ObjC++`, :option:`--plugin.option`, :option:`create-auth-token` and :option:`arg`
+.. option:: -j[=N]
+
+Link to :option:`perl +p`, :option:`--ObjC++`, :option:`--plugin.option`, :option:`create-auth-token`, :option:`arg` and :option:`-j`
 
 .. program:: hg
 

@@ -4,30 +4,26 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import contextlib
-import errno
 import filecmp
 import os
 import re
 import shutil
 import sys
-import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Tuple, Type
+from typing import Any, Generator, Iterator, List, Optional, Type
 
-from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.testing.path import path as Path
+try:
+    # for ALT Linux (#6712)
+    from sphinx.testing.path import path as Path
+except ImportError:
+    Path = None  # type: ignore
 
-# Errnos that we need.
-EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
-ENOENT = getattr(errno, 'ENOENT', 0)  # RemovedInSphinx40Warning
-EPIPE = getattr(errno, 'EPIPE', 0)    # RemovedInSphinx40Warning
-EINVAL = getattr(errno, 'EINVAL', 0)  # RemovedInSphinx40Warning
 
 # SEP separates path elements in the canonical file names
 #
@@ -50,8 +46,8 @@ def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split(SEP)
-    t2 = to.split(SEP)
+    b2 = base.split('#')[0].split(SEP)
+    t2 = to.split('#')[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:
@@ -72,13 +68,6 @@ def relative_uri(base: str, to: str) -> str:
 def ensuredir(path: str) -> None:
     """Ensure that a path exists."""
     os.makedirs(path, exist_ok=True)
-
-
-def walk(top: str, topdown: bool = True, followlinks: bool = False) -> Iterator[Tuple[str, List[str], List[str]]]:  # NOQA
-    warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
-                  'Please use os.walk() instead.',
-                  RemovedInSphinx40Warning)
-    return os.walk(top, topdown=topdown, followlinks=followlinks)
 
 
 def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
@@ -152,25 +141,18 @@ fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
 def abspath(pathdir: str) -> str:
-    if isinstance(pathdir, Path):
+    if Path is not None and isinstance(pathdir, Path):
         return pathdir.abspath()
     else:
         pathdir = path.abspath(pathdir)
         if isinstance(pathdir, bytes):
             try:
                 pathdir = pathdir.decode(fs_encoding)
-            except UnicodeDecodeError:
+            except UnicodeDecodeError as exc:
                 raise UnicodeDecodeError('multibyte filename not supported on '
                                          'this filesystem encoding '
-                                         '(%r)' % fs_encoding)
+                                         '(%r)' % fs_encoding) from exc
         return pathdir
-
-
-def getcwd() -> str:
-    warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
-                  'Please use os.getcwd() instead.',
-                  RemovedInSphinx40Warning)
-    return os.getcwd()
 
 
 @contextlib.contextmanager
@@ -197,7 +179,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: StringIO
+        self._io = None  # type: Optional[StringIO]
 
     def write(self, data: str) -> None:
         if not self._io:
@@ -226,7 +208,7 @@ class FileAvoidWrite:
     def __enter__(self) -> "FileAvoidWrite":
         return self
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
         self.close()
         return True
 

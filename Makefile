@@ -31,6 +31,7 @@ clean-backupfiles:
 clean-generated:
 	find . -name '.DS_Store' -exec rm -f {} +
 	rm -rf Sphinx.egg-info/
+	rm -rf dist/
 	rm -rf doc/_build/
 	rm -f sphinx/pycode/*.pickle
 	rm -f utils/*3.py*
@@ -49,7 +50,7 @@ clean-buildfiles:
 
 .PHONY: clean-mypyfiles
 clean-mypyfiles:
-	rm -rf .mypy_cache/
+	find . -name '.mypy_cache' -exec rm -rf {} +
 
 .PHONY: style-check
 style-check:
@@ -82,6 +83,6 @@ build:
 .PHONY: docs
 docs:
 ifndef target
-	$(info You need to give a provide a target variable, e.g. `make docs target=html`.)
+	$(info You need to provide a target variable, e.g. `make docs target=html`.)
 endif
 	$(MAKE) -C doc $(target)

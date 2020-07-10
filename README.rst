@@ -26,6 +26,10 @@
    :target: https://codecov.io/gh/sphinx-doc/sphinx
    :alt: Code Coverage Status (Codecov)
 
+.. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
+   :target: https://opensource.org/licenses/BSD-3-Clause
+   :alt: BSD 3 Clause
+
 Sphinx is a tool that makes it easy to create intelligent and beautiful
 documentation for Python projects (or other documents consisting of multiple
 reStructuredText sources), written by Georg Brandl.  It was originally created
@@ -72,7 +76,7 @@ If you wish to install `Sphinx` for development purposes, refer to `the
 contributors guide`__.
 
 __ https://pypi.org/project/Sphinx/
-__ http://www.sphinx-doc.org/en/master/devguide.html
+__ http://www.sphinx-doc.org/en/master/internals/contributing.html
 
 Documentation
 =============
@@ -90,6 +94,10 @@ Get in touch
 .. _on GitHub: https://github.com/sphinx-doc/sphinx
 .. _mailing list: https://groups.google.com/forum/#!forum/sphinx-users
 
+Please adhere to our `code of conduct`__.
+
+__ http://www.sphinx-doc.org/en/master/code_of_conduct.html
+
 Testing
 =======
 
@@ -102,14 +110,14 @@ For information on running tests locally, refer to `the contributors guide`__.
 __ https://travis-ci.org/sphinx-doc/sphinx
 __ https://ci.appveyor.com/project/sphinxdoc/sphinx
 __ https://circleci.com/gh/sphinx-doc/sphinx
-__ http://www.sphinx-doc.org/en/master/devguide.html
+__ http://www.sphinx-doc.org/en/master/internals/contributing.html
 
 Contributing
 ============
 
 Refer to `the contributors guide`__.
 
-__ http://www.sphinx-doc.org/en/master/devguide.html
+__ http://www.sphinx-doc.org/en/master/internals/contributing.html
 
 Release signatures
 ==================

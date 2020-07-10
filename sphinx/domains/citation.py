@@ -4,12 +4,12 @@
 
     The citation domain.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from typing import Any, Dict, List, Set, Tuple
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -21,8 +21,7 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.nodes import copy_source_info, make_refnode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -112,7 +111,7 @@ class CitationDefinitionTransform(SphinxTransform):
     """Mark citation definition labels as not smartquoted."""
     default_priority = 619
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
         for node in self.document.traverse(nodes.citation):
             # register citation node to domain
@@ -131,7 +130,7 @@ class CitationReferenceTransform(SphinxTransform):
     """
     default_priority = 619
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
         for node in self.document.traverse(nodes.citation_reference):
             target = node.astext()

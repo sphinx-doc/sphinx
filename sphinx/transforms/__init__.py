@@ -4,13 +4,16 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+from typing import Any, Dict, Generator, List, Tuple
+from typing import TYPE_CHECKING
 
 from docutils import nodes
+from docutils.nodes import Element, Node, Text
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.universal import SmartQuotes
@@ -18,20 +21,18 @@ from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.config import Config
 from sphinx.locale import _, __
+from sphinx.util import docutils
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, Generator, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
-    from sphinx.domain.std import StandardDomain  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.domain.std import StandardDomain
+    from sphinx.environment import BuildEnvironment
 
 
 logger = logging.getLogger(__name__)
@@ -51,20 +52,17 @@ class SphinxTransform(Transform):
     """
 
     @property
-    def app(self):
-        # type: () -> Sphinx
+    def app(self) -> "Sphinx":
         """Reference to the :class:`.Sphinx` object."""
         return self.env.app
 
     @property
-    def env(self):
-        # type: () -> BuildEnvironment
+    def env(self) -> "BuildEnvironment":
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.document.settings.env
 
     @property
-    def config(self):
-        # type: () -> Config
+    def config(self) -> Config:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
@@ -77,12 +75,10 @@ class SphinxTransformer(Transformer):
     document = None  # type: nodes.document
     env = None  # type: BuildEnvironment
 
-    def set_environment(self, env):
-        # type: (BuildEnvironment) -> None
+    def set_environment(self, env: "BuildEnvironment") -> None:
         self.env = env
 
-    def apply_transforms(self):
-        # type: () -> None
+    def apply_transforms(self) -> None:
         if isinstance(self.document, nodes.document):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
@@ -108,8 +104,7 @@ class DefaultSubstitutions(SphinxTransform):
     # run before the default Substitutions
     default_priority = 210
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         # only handle those not otherwise defined in the document
         to_handle = default_substitutions - set(self.document.substitution_defs)
         for ref in self.document.traverse(nodes.substitution_reference):
@@ -132,8 +127,7 @@ class MoveModuleTargets(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.target):
             if not node['ids']:
                 continue
@@ -151,8 +145,7 @@ class HandleCodeBlocks(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         # move doctest blocks out of blockquotes
         for node in self.document.traverse(nodes.block_quote):
             if all(isinstance(child, nodes.doctest_block) for child
@@ -176,12 +169,13 @@ class AutoNumbering(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         domain = self.env.get_domain('std')  # type: StandardDomain
 
         for node in self.document.traverse(nodes.Element):
-            if domain.is_enumerable_node(node) and domain.get_numfig_title(node) is not None:
+            if (domain.is_enumerable_node(node) and
+                    domain.get_numfig_title(node) is not None and
+                    node['ids'] == []):
                 self.document.note_implicit_target(node)
 
 
@@ -191,8 +185,7 @@ class SortIds(SphinxTransform):
     """
     default_priority = 261
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.section):
             if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
@@ -213,9 +206,8 @@ class ApplySourceWorkaround(SphinxTransform):
     """
     default_priority = 10
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
-        for node in self.document.traverse():  # type: nodes.Node
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.traverse():  # type: Node
             if isinstance(node, (nodes.TextElement, nodes.image)):
                 apply_source_workaround(node)
 
@@ -226,8 +218,7 @@ class AutoIndexUpgrader(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.index):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
                 msg = __('4 column based index found. '
@@ -244,18 +235,16 @@ class ExtraTranslatableNodes(SphinxTransform):
     """
     default_priority = 10
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         targets = self.config.gettext_additional_targets
         target_nodes = [v for k, v in TRANSLATABLE_NODES.items() if k in targets]
         if not target_nodes:
             return
 
-        def is_translatable_node(node):
-            # type: (nodes.Node) -> bool
+        def is_translatable_node(node: Node) -> bool:
             return isinstance(node, tuple(target_nodes))
 
-        for node in self.document.traverse(is_translatable_node):  # type: nodes.Element
+        for node in self.document.traverse(is_translatable_node):  # type: Element
             node['translatable'] = True
 
 
@@ -265,8 +254,7 @@ class UnreferencedFootnotesDetector(SphinxTransform):
     """
     default_priority = 200
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.footnotes:
             if node['names'] == []:
                 # footnote having duplicated number.  It is already warned at parser.
@@ -283,16 +271,24 @@ class UnreferencedFootnotesDetector(SphinxTransform):
                                location=node)
 
 
+class DoctestTransform(SphinxTransform):
+    """Set "doctest" style to each doctest_block node"""
+    default_priority = 500
+
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.traverse(nodes.doctest_block):
+            node['classes'].append('doctest')
+
+
 class FigureAligner(SphinxTransform):
     """
     Align figures to center by default.
     """
     default_priority = 700
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.table, nodes.figure)
-        for node in self.document.traverse(matcher):  # type: nodes.Element
+        for node in self.document.traverse(matcher):  # type: Element
             node.setdefault('align', 'default')
 
 
@@ -300,9 +296,8 @@ class FilterSystemMessages(SphinxTransform):
     """Filter system messages from a doctree."""
     default_priority = 999
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
-        filterlevel = self.config.keep_warnings and 2 or 5
+    def apply(self, **kwargs: Any) -> None:
+        filterlevel = 2 if self.config.keep_warnings else 5
         for node in self.document.traverse(nodes.system_message):
             if node['level'] < filterlevel:
                 logger.debug('%s [filtered system message]', node.astext())
@@ -316,8 +311,7 @@ class SphinxContentsFilter(ContentsFilter):
     """
     visit_pending_xref = ContentsFilter.ignore_node_but_process_children
 
-    def visit_image(self, node):
-        # type: (nodes.image) -> None
+    def visit_image(self, node: nodes.image) -> None:
         raise nodes.SkipNode
 
 
@@ -329,8 +323,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     """
     default_priority = 750
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         if not self.is_available():
             return
 
@@ -339,8 +332,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
         super().apply()
 
-    def is_available(self):
-        # type: () -> bool
+    def is_available(self) -> bool:
         builders = self.config.smartquotes_excludes.get('builders', [])
         languages = self.config.smartquotes_excludes.get('languages', [])
 
@@ -365,24 +357,28 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         else:
             return False
 
-    def get_tokens(self, txtnodes):
-        # type: (List[nodes.Text]) -> Generator[Tuple[str, str], None, None]
+    def get_tokens(self, txtnodes: List[Text]) -> Generator[Tuple[str, str], None, None]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
-
-        texttype = {True: 'literal',  # "literal" text is not changed:
-                    False: 'plain'}
         for txtnode in txtnodes:
-            notsmartquotable = not is_smartquotable(txtnode)
-            yield (texttype[notsmartquotable], txtnode.astext())
+            if is_smartquotable(txtnode):
+                if docutils.__version_info__ >= (0, 16):
+                    # SmartQuotes uses backslash escapes instead of null-escapes
+                    text = re.sub(r'(?<=\x00)([-\\\'".`])', r'\\\1', str(txtnode))
+                else:
+                    text = txtnode.astext()
+
+                yield ('plain', text)
+            else:
+                # skip smart quotes
+                yield ('literal', txtnode.astext())
 
 
 class DoctreeReadEvent(SphinxTransform):
     """Emit :event:`doctree-read` event."""
     default_priority = 880
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         self.app.emit('doctree-read', self.document)
 
 
@@ -390,8 +386,7 @@ class ManpageLink(SphinxTransform):
     """Find manpage section numbers and names"""
     default_priority = 999
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.manpage):
             manpage = ' '.join([str(x) for x in node.children
                                 if isinstance(x, nodes.Text)])
@@ -405,26 +400,14 @@ class ManpageLink(SphinxTransform):
             node.attributes.update(info)
 
 
-from sphinx.domains.citation import (  # NOQA
-    CitationDefinitionTransform, CitationReferenceTransform
-)
-
-deprecated_alias('sphinx.transforms',
-                 {
-                     'CitationReferences': CitationReferenceTransform,
-                     'SmartQuotesSkipper': CitationDefinitionTransform,
-                 },
-                 RemovedInSphinx40Warning)
-
-
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
     app.add_transform(DefaultSubstitutions)
     app.add_transform(MoveModuleTargets)
     app.add_transform(HandleCodeBlocks)
     app.add_transform(SortIds)
+    app.add_transform(DoctestTransform)
     app.add_transform(FigureAligner)
     app.add_transform(AutoNumbering)
     app.add_transform(AutoIndexUpgrader)

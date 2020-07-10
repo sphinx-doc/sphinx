@@ -82,6 +82,13 @@ It adds these directives:
 
       .. versionadded:: 1.6
 
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separeted by spaces
+
+      The class name of the graph.
+
+      .. versionadded:: 2.4
+
 
 .. rst:directive:: graph
 
@@ -131,6 +138,13 @@ It adds these directives:
 
       .. versionadded:: 1.6
 
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separeted by spaces
+
+      The class name of the graph.
+
+      .. versionadded:: 2.4
+
 
 .. rst:directive:: digraph
 
@@ -175,6 +189,13 @@ It adds these directives:
       :type: text
 
       .. versionadded:: 1.6
+
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separeted by spaces
+
+      The class name of the graph.
+
+      .. versionadded:: 2.4
 
 
 There are also these config values:

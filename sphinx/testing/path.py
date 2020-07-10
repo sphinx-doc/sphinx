@@ -2,17 +2,18 @@
     sphinx.testing.path
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import builtins
 import os
 import shutil
 import sys
+import warnings
+from typing import Any, Callable, IO, List
 
-if False:
-    # For type annotation
-    import builtins  # NOQA
-    from typing import Any, Callable, IO, List  # NOQA
+from sphinx.deprecation import RemovedInSphinx50Warning
 
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
@@ -24,61 +25,52 @@ class path(str):
     """
 
     @property
-    def parent(self):
-        # type: () -> path
+    def parent(self) -> "path":
         """
         The name of the directory the file or directory is in.
         """
         return self.__class__(os.path.dirname(self))
 
-    def basename(self):
-        # type: () -> str
+    def basename(self) -> str:
         return os.path.basename(self)
 
-    def abspath(self):
-        # type: () -> path
+    def abspath(self) -> "path":
         """
         Returns the absolute path.
         """
         return self.__class__(os.path.abspath(self))
 
-    def isabs(self):
-        # type: () -> bool
+    def isabs(self) -> bool:
         """
         Returns ``True`` if the path is absolute.
         """
         return os.path.isabs(self)
 
-    def isdir(self):
-        # type: () -> bool
+    def isdir(self) -> bool:
         """
         Returns ``True`` if the path is a directory.
         """
         return os.path.isdir(self)
 
-    def isfile(self):
-        # type: () -> bool
+    def isfile(self) -> bool:
         """
         Returns ``True`` if the path is a file.
         """
         return os.path.isfile(self)
 
-    def islink(self):
-        # type: () -> bool
+    def islink(self) -> bool:
         """
         Returns ``True`` if the path is a symbolic link.
         """
         return os.path.islink(self)
 
-    def ismount(self):
-        # type: () -> bool
+    def ismount(self) -> bool:
         """
         Returns ``True`` if the path is a mount point.
         """
         return os.path.ismount(self)
 
-    def rmtree(self, ignore_errors=False, onerror=None):
-        # type: (bool, Callable) -> None
+    def rmtree(self, ignore_errors: bool = False, onerror: Callable = None) -> None:
         """
         Removes the file or directory and any files or directories it may
         contain.
@@ -96,8 +88,7 @@ class path(str):
         """
         shutil.rmtree(self, ignore_errors=ignore_errors, onerror=onerror)
 
-    def copytree(self, destination, symlinks=False):
-        # type: (str, bool) -> None
+    def copytree(self, destination: str, symlinks: bool = False) -> None:
         """
         Recursively copy a directory to the given `destination`. If the given
         `destination` does not exist it will be created.
@@ -109,8 +100,7 @@ class path(str):
         """
         shutil.copytree(self, destination, symlinks=symlinks)
 
-    def movetree(self, destination):
-        # type: (str) -> None
+    def movetree(self, destination: str) -> None:
         """
         Recursively move the file or directory to the given `destination`
         similar to the  Unix "mv" command.
@@ -122,54 +112,62 @@ class path(str):
 
     move = movetree
 
-    def unlink(self):
-        # type: () -> None
+    def unlink(self) -> None:
         """
         Removes a file.
         """
         os.unlink(self)
 
-    def stat(self):
-        # type: () -> Any
+    def stat(self) -> Any:
         """
         Returns a stat of the file.
         """
         return os.stat(self)
 
-    def utime(self, arg):
-        # type: (Any) -> None
+    def utime(self, arg: Any) -> None:
         os.utime(self, arg)
 
-    def open(self, mode='r', **kwargs):
-        # type: (str, Any) -> IO
+    def open(self, mode: str = 'r', **kwargs: Any) -> IO:
         return open(self, mode, **kwargs)
 
-    def write_text(self, text, encoding='utf-8', **kwargs):
-        # type: (str, str, Any) -> None
+    def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
         """
         Writes the given `text` to the file.
         """
         with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
-    def text(self, encoding='utf-8', **kwargs):
-        # type: (str, Any) -> str
+    def text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
+        """
+        Returns the text in the file.
+        """
+        warnings.warn('Path.text() is deprecated.  Please use read_text() instead.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.read_text(encoding, **kwargs)
+
+    def read_text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
         """
         Returns the text in the file.
         """
         with open(self, encoding=encoding, **kwargs) as f:
             return f.read()
 
-    def bytes(self):
-        # type: () -> builtins.bytes
+    def bytes(self) -> builtins.bytes:
+        """
+        Returns the bytes in the file.
+        """
+        warnings.warn('Path.bytes() is deprecated.  Please use read_bytes() instead.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.read_bytes()
+
+    def read_bytes(self) -> builtins.bytes:
         """
         Returns the bytes in the file.
         """
         with open(self, mode='rb') as f:
             return f.read()
 
-    def write_bytes(self, bytes, append=False):
-        # type: (str, bool) -> None
+    def write_bytes(self, bytes: str, append: bool = False) -> None:
         """
         Writes the given `bytes` to the file.
 
@@ -183,41 +181,35 @@ class path(str):
         with open(self, mode=mode) as f:
             f.write(bytes)
 
-    def exists(self):
-        # type: () -> bool
+    def exists(self) -> bool:
         """
         Returns ``True`` if the path exist.
         """
         return os.path.exists(self)
 
-    def lexists(self):
-        # type: () -> bool
+    def lexists(self) -> bool:
         """
         Returns ``True`` if the path exists unless it is a broken symbolic
         link.
         """
         return os.path.lexists(self)
 
-    def makedirs(self, mode=0o777, exist_ok=False):
-        # type: (int, bool) -> None
+    def makedirs(self, mode: int = 0o777, exist_ok: bool = False) -> None:
         """
         Recursively create directories.
         """
         os.makedirs(self, mode, exist_ok=exist_ok)
 
-    def joinpath(self, *args):
-        # type: (Any) -> path
+    def joinpath(self, *args: Any) -> "path":
         """
         Joins the path with the argument given and returns the result.
         """
         return self.__class__(os.path.join(self, *map(self.__class__, args)))
 
-    def listdir(self):
-        # type: () -> List[str]
+    def listdir(self) -> List[str]:
         return os.listdir(self)
 
     __div__ = __truediv__ = joinpath
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         return '%s(%s)' % (self.__class__.__name__, super().__repr__())

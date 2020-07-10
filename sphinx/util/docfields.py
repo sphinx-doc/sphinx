@@ -5,23 +5,20 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from typing import Any, Dict, List, Tuple, Type, Union
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.util.typing import TextlikeNode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.directive import ObjectDescription
 
@@ -65,7 +62,7 @@ class Field:
         self.bodyrolename = bodyrolename
 
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
+                  innernode: "Type[TextlikeNode]" = addnodes.literal_emphasis,
                   contnode: Node = None, env: "BuildEnvironment" = None) -> Node:
         if not rolename:
             return contnode or innernode(target, target)
@@ -77,7 +74,7 @@ class Field:
         return refnode
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
-                   innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
+                   innernode: "Type[TextlikeNode]" = addnodes.literal_emphasis,
                    contnode: Node = None, env: "BuildEnvironment" = None) -> List[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode, env)]
 
@@ -217,20 +214,8 @@ class DocFieldTransformer:
 
     def __init__(self, directive: "ObjectDescription") -> None:
         self.directive = directive
-        self.typemap = directive.get_field_type_map()
 
-    def preprocess_fieldtypes(self, types: List[Field]) -> Dict[str, Tuple[Field, bool]]:
-        warnings.warn('DocFieldTransformer.preprocess_fieldtypes() is deprecated.',
-                      RemovedInSphinx40Warning)
-        typemap = {}
-        for fieldtype in types:
-            for name in fieldtype.names:
-                typemap[name] = fieldtype, False
-            if fieldtype.is_typed:
-                typed_field = cast(TypedField, fieldtype)
-                for name in typed_field.typenames:
-                    typemap[name] = typed_field, True
-        return typemap
+        self.typemap = directive.get_field_type_map()
 
     def transform_all(self, node: addnodes.desc_content) -> None:
         """Transform all field list children of a node."""

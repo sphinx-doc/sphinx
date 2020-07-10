@@ -4,7 +4,7 @@
 
     Test the search index builder.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -41,7 +41,7 @@ def setup_module():
 
 
 def jsload(path):
-    searchindex = path.text()
+    searchindex = path.read_text()
     assert searchindex.startswith('Search.setIndex(')
     assert searchindex.endswith(')')
 
@@ -98,7 +98,7 @@ def test_meta_keys_are_handled_for_language_de(app, status, warning):
 @pytest.mark.sphinx(testroot='search')
 def test_stemmer_does_not_remove_short_words(app, status, warning):
     app.builder.build_all()
-    searchindex = (app.outdir / 'searchindex.js').text()
+    searchindex = (app.outdir / 'searchindex.js').read_text()
     assert 'zfs' in searchindex
 
 
@@ -112,11 +112,11 @@ def test_stemmer(app, status, warning):
 
 @pytest.mark.sphinx(testroot='search')
 def test_term_in_heading_and_section(app, status, warning):
-    searchindex = (app.outdir / 'searchindex.js').text()
+    searchindex = (app.outdir / 'searchindex.js').read_text()
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert 'textinhead:1' in searchindex
+    assert 'textinhead:2' in searchindex
     assert 'textinhead:0' in searchindex
 
 
@@ -247,8 +247,18 @@ def test_IndexBuilder_lookup():
 def test_search_index_gen_zh(app, status, warning):
     app.builder.build_all()
     # jsdump fails if search language is 'zh'; hence we just get the text:
-    searchindex = (app.outdir / 'searchindex.js').text()
+    searchindex = (app.outdir / 'searchindex.js').read_text()
     assert 'chinesetest ' not in searchindex
     assert 'chinesetest' in searchindex
     assert 'chinesetesttwo' in searchindex
     assert 'cas' in searchindex
+
+
+@pytest.mark.sphinx(testroot='search')
+def test_nosearch(app):
+    app.build()
+    index = jsload(app.outdir / 'searchindex.js')
+    assert index['docnames'] == ['index', 'nosearch', 'tocitem']
+    assert 'latex' not in index['terms']
+    assert 'zfs' in index['terms']
+    assert index['terms']['zfs'] == 0  # zfs on nosearch.rst is not registered to index

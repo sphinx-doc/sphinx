@@ -4,19 +4,25 @@
 
     Input/Output files
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import codecs
-from typing import Any
+from typing import Any, List, Type
+from typing import TYPE_CHECKING
 
+from docutils import nodes
 from docutils.core import Publisher
-from docutils.io import FileInput, NullOutput
+from docutils.frontend import Values
+from docutils.io import FileInput, Input, NullOutput
+from docutils.parsers import Parser
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
+from docutils.transforms import Transform
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
+from sphinx.environment import BuildEnvironment
 from sphinx.transforms import (
     AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
 )
@@ -24,21 +30,13 @@ from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
 from sphinx.transforms.references import SphinxDomains
-from sphinx.util import logging
+from sphinx.util import logging, get_filetype
 from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
-if False:
-    # For type annotation
-    from typing import Dict, List, Tuple, Type  # NOQA
-    from docutils import nodes  # NOQA
-    from docutils.frontend import Values  # NOQA
-    from docutils.io import Input  # NOQA
-    from docutils.parsers import Parser  # NOQA
-    from docutils.transforms import Transform  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 
 logger = logging.getLogger(__name__)
@@ -53,14 +51,20 @@ class SphinxBaseReader(standalone.Reader):
 
     transforms = []  # type: List[Type[Transform]]
 
-    def __init__(self, app, *args, **kwargs):
-        # type: (Sphinx, Any, Any) -> None
-        self.app = app
-        self.env = app.env
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        from sphinx.application import Sphinx
+        if len(args) > 0 and isinstance(args[0], Sphinx):
+            self._app = args[0]
+            self._env = self._app.env
+            args = args[1:]
+
         super().__init__(*args, **kwargs)
 
-    def get_transforms(self):
-        # type: () -> List[Type[Transform]]
+    def setup(self, app: "Sphinx") -> None:
+        self._app = app      # hold application object only for compatibility
+        self._env = app.env
+
+    def get_transforms(self) -> List["Type[Transform]"]:
         transforms = super().get_transforms() + self.transforms
 
         # remove transforms which is not needed for Sphinx
@@ -71,8 +75,7 @@ class SphinxBaseReader(standalone.Reader):
 
         return transforms
 
-    def new_document(self):
-        # type: () -> nodes.document
+    def new_document(self) -> nodes.document:
         """Creates a new document object which having a special reporter object good
         for logging.
         """
@@ -80,7 +83,7 @@ class SphinxBaseReader(standalone.Reader):
 
         # substitute transformer
         document.transformer = SphinxTransformer(document)
-        document.transformer.set_environment(self.env)
+        document.transformer.set_environment(self.settings.env)
 
         # substitute reporter
         reporter = document.reporter
@@ -94,29 +97,26 @@ class SphinxStandaloneReader(SphinxBaseReader):
     A basic document reader for Sphinx.
     """
 
-    def __init__(self, app, *args, **kwargs):
-        # type: (Sphinx, Any, Any) -> None
+    def setup(self, app: "Sphinx") -> None:
         self.transforms = self.transforms + app.registry.get_transforms()
-        super().__init__(app, *args, **kwargs)
+        super().setup(app)
 
-    def read(self, source, parser, settings):
-        # type: (Input, Parser, Values) -> nodes.document
+    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:
         self.source = source
         if not self.parser:
             self.parser = parser
         self.settings = settings
-        self.input = self.read_source()
+        self.input = self.read_source(settings.env)
         self.parse()
         return self.document
 
-    def read_source(self):
-        # type: () -> str
+    def read_source(self, env: BuildEnvironment) -> str:
         """Read content from source and do post-process."""
         content = self.source.read()
 
         # emit "source-read" event
         arg = [content]
-        self.app.emit('source-read', self.env.docname, arg)
+        env.events.emit('source-read', env.docname, arg)
         return arg[0]
 
 
@@ -129,8 +129,9 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    def __init__(self, app, *args, **kwargs):
-        # type: (Sphinx, Any, Any) -> None
+    def setup(self, app: "Sphinx") -> None:
+        super().setup(app)
+
         self.transforms = self.transforms + app.registry.get_transforms()
         unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
                   AutoIndexUpgrader, FigureAligner, SphinxDomains, DoctreeReadEvent,
@@ -139,55 +140,36 @@ class SphinxI18nReader(SphinxBaseReader):
             if transform in self.transforms:
                 self.transforms.remove(transform)
 
-        super().__init__(app, *args, **kwargs)
-
 
 class SphinxDummyWriter(UnfilteredWriter):
     """Dummy writer module used for generating doctree."""
 
     supported = ('html',)  # needed to keep "meta" nodes
 
-    def translate(self):
-        # type: () -> None
+    def translate(self) -> None:
         pass
 
 
-def SphinxDummySourceClass(source, *args, **kwargs):
-    # type: (Any, Any, Any) -> Any
+def SphinxDummySourceClass(source: Any, *args: Any, **kwargs: Any) -> Any:
     """Bypass source object as is to cheat Publisher."""
     return source
 
 
 class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
 
 
-class FiletypeNotFoundError(Exception):
-    pass
-
-
-def get_filetype(source_suffix, filename):
-    # type: (Dict[str, str], str) -> str
-    for suffix, filetype in source_suffix.items():
-        if filename.endswith(suffix):
-            # If default filetype (None), considered as restructuredtext.
-            return filetype or 'restructuredtext'
-    else:
-        raise FiletypeNotFoundError
-
-
-def read_doc(app, env, filename):
-    # type: (Sphinx, BuildEnvironment, str) -> nodes.document
+def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.document:
     """Parse a document and convert to doctree."""
     # set up error_handler for the target document
     error_handler = UnicodeDecodeErrorHandler(env.docname)
     codecs.register_error('sphinx', error_handler)  # type: ignore
 
-    reader = SphinxStandaloneReader(app)
+    reader = SphinxStandaloneReader()
+    reader.setup(app)
     filetype = get_filetype(app.config.source_suffix, filename)
     parser = app.registry.create_source_parser(app, filetype)
     if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
@@ -203,10 +185,10 @@ def read_doc(app, env, filename):
         # Sphinx-1.8 style
         source = input_class(app, env, source=None, source_path=filename,  # type: ignore
                              encoding=env.config.source_encoding)
-        pub = Publisher(reader=reader,  # type: ignore
+        pub = Publisher(reader=reader,
                         parser=parser,
                         writer=SphinxDummyWriter(),
-                        source_class=SphinxDummySourceClass,
+                        source_class=SphinxDummySourceClass,  # type: ignore
                         destination=NullOutput())
         pub.process_programmatic_settings(None, env.settings, None)
         pub.set_source(source, filename)

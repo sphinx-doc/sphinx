@@ -25,6 +25,7 @@ Other contributors, listed alphabetically, are:
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
 * Marco Buttu -- doctest extension (pyversion option)
+* Nathan Damon -- bugfix in validation of static paths in html builders
 * Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
@@ -35,7 +36,7 @@ Other contributors, listed alphabetically, are:
 * Hernan Grecco -- search improvements
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
-* Zac Hatfield-Dodds -- doctest reporting improvements
+* Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
 * Doug Hellmann -- graphviz improvements
 * Tim Hoffmann -- theme improvements
 * Antti Kaihola -- doctest extension (skipif option)
@@ -63,6 +64,7 @@ Other contributors, listed alphabetically, are:
 * \T. Powers -- HTML output improvements
 * Jeppe Pihl -- literalinclude improvements
 * Rob Ruana -- napoleon extension
+* Vince Salvino -- JavaScript search improvements
 * Stefan Seefeld -- toctree improvements
 * Gregory Szorc -- performance improvements
 * Taku Shimizu -- epub3 builder
@@ -83,6 +85,7 @@ Other contributors, listed alphabetically, are:
 * Daniel Pizetta -- inheritance diagram improvements
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Adrián Chaves (Gallaecio) -- coverage builder improvements
+* Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
 
 Many thanks for all contributions!
 

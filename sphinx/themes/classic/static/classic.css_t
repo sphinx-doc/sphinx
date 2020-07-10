@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- classic theme.
  *
- * :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -292,7 +292,7 @@ code {
     font-size: 0.95em;
 }
 
-th {
+th, dl.field-list > dt {
     background-color: #ede;
 }
 

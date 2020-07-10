@@ -7,7 +7,7 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,6 +16,7 @@ import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError
 from io import StringIO
+from typing import TYPE_CHECKING
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
@@ -23,9 +24,8 @@ from sphinx.util.console import nocolor, color_terminal
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
+if TYPE_CHECKING:
+    from typing import Any, Dict
 
 
 class BuildDoc(Command):
@@ -84,6 +84,7 @@ class BuildDoc(Command):
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
         ('pdb', None, 'Start pdb on exception'),
+        ('verbosity', 'v', 'increase verbosity (can be repeated)'),
         ('nitpicky', 'n', 'nit-picky mode, warn about all missing references'),
         ('keep-going', None, 'With -W, keep going when getting warnings'),
     ]
@@ -189,7 +190,7 @@ class BuildDoc(Command):
                                  builder, confoverrides, status_stream,
                                  freshenv=self.fresh_env,
                                  warningiserror=self.warning_is_error,
-                                 keep_going=self.keep_going)
+                                 verbosity=self.verbosity, keep_going=self.keep_going)
                     app.build(force_all=self.all_files)
                     if app.statuscode:
                         raise DistutilsExecError(
@@ -197,7 +198,7 @@ class BuildDoc(Command):
             except Exception as exc:
                 handle_exception(app, self, exc, sys.stderr)
                 if not self.pdb:
-                    raise SystemExit(1)
+                    raise SystemExit(1) from exc
 
             if not self.link_index:
                 continue

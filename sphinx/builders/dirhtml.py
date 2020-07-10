@@ -4,12 +4,12 @@
 
     Directory HTML builders.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
-from typing import Any, Dict, Set
+from typing import Any, Dict
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -44,10 +44,6 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
                                     'index' + self.out_suffix)
 
         return outfilename
-
-    def prepare_writing(self, docnames: Set[str]) -> None:
-        super().prepare_writing(docnames)
-        self.globalcontext['no_search_suffix'] = True
 
 
 # for compatibility

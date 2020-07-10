@@ -48,6 +48,12 @@ tables of contents.  The ``toctree`` directive is the central element.
    to the source directory.  A numeric ``maxdepth`` option may be given to
    indicate the depth of the tree; by default, all levels are included. [#]_
 
+   The representation of "TOC tree" is changed in each output format.  The
+   builders that output multiple files (ex. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   LaTeX, man page, etc.) replace it with the content of the documents on the
+   TOC tree.
+
    Consider this example (taken from the Python docs' library reference index)::
 
       .. toctree::
@@ -441,7 +447,7 @@ If highlighting with the selected language fails (i.e. Pygments emits an
    want to ensure consistent highlighting, you should fix your version of
    Pygments.
 
-__ http://pygments.org/docs/lexers/
+__ http://pygments.org/docs/lexers
 
 .. rst:directive:: .. highlight:: language
 
@@ -453,21 +459,29 @@ __ http://pygments.org/docs/lexers/
    As discussed previously, *language* can be any lexer alias supported by
    Pygments.
 
-   **Additional options**
+   .. rubric:: options
 
-   Pygments can generate line numbers for code blocks.  To enable this, use the
-   ``linenothreshold`` option. ::
+   .. rst:directive:option:: linenothreshold: threshold
+      :type: number (optional)
 
-      .. highlight:: python
-         :linenothreshold: 5
+      Enable to generate line numbers for code blocks.
 
-   This will produce line numbers for all code blocks longer than five lines.
+      This option takes an optional number as threshold parameter.  If any
+      threshold given, the directive will produce line numbers only for the code
+      blocks longer than N lines.  If not given, line numbers will be produced
+      for all of code blocks.
 
-   To ignore minor errors on highlighting, you can specifiy ``:force:`` option.
+      Example::
 
-   .. versionchanged:: 2.1
+         .. highlight:: python
+            :linenothreshold: 5
 
-      ``:force:`` option.
+   .. rst:directive:option:: force
+      :type: no value
+
+      If given, minor errors on highlighting are ignored.
+
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. code-block:: [language]
 
@@ -483,72 +497,98 @@ __ http://pygments.org/docs/lexers/
    :rst:dir:`highlight` directive will be used.  If not set,
    :confval:`highlight_language` will be used.
 
-   **Additional options**
-
-   Pygments can generate line numbers for code blocks. To enable this for, use
-   the ``linenos`` flag option. ::
-
-      .. code-block:: ruby
-         :linenos:
-
-         Some more Ruby code.
-
-   The first line number can be selected with the ``lineno-start`` option.  If
-   present, ``linenos`` flag is automatically activated::
-
-      .. code-block:: ruby
-         :lineno-start: 10
-
-         Some more Ruby code, with line numbering starting at 10.
-
-   Additionally, an ``emphasize-lines`` option can be given to have Pygments
-   emphasize particular lines::
-
-    .. code-block:: python
-       :emphasize-lines: 3,5
-
-       def some_function():
-           interesting = False
-           print 'This line is highlighted.'
-           print 'This one is not...'
-           print '...but this one is.'
-
-   A ``caption`` option can be given to show that name before the code block.
-   A ``name`` option can be provided implicit target name that can be
-   referenced by using :rst:role:`ref`.  For example::
-
-     .. code-block:: python
-        :caption: this.py
-        :name: this-py
-
-        print 'Explicit is better than implicit.'
-
-   A ``dedent`` option can be given to strip indentation characters from the
-   code block. For example::
-
-      .. code-block:: ruby
-         :dedent: 4
-
-             some ruby code
-
-   A ``force`` option can ignore minor errors on highlighting.
-
-   .. versionchanged:: 1.1
-      The ``emphasize-lines`` option has been added.
-
-   .. versionchanged:: 1.3
-      The ``lineno-start``, ``caption``, ``name`` and ``dedent`` options have
-      been added.
-
-   .. versionchanged:: 1.6.6
-      LaTeX supports the ``emphasize-lines`` option.
-
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.
 
-   .. versionchanged:: 2.1
+   .. rubric:: options
 
-      ``:force:`` option has been added.
+   .. rst:directive:option:: linenos
+      :type: no value
+
+      Enable to generate line numbers for the code block::
+
+         .. code-block:: ruby
+            :linenos:
+
+            Some more Ruby code.
+
+   .. rst:directive:option:: lineno-start: number
+      :type: number
+
+      Set the first line number of the code block.  If present, ``linenos``
+      option is also automatically activated::
+
+         .. code-block:: ruby
+            :lineno-start: 10
+
+            Some more Ruby code, with line numbering starting at 10.
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: emphasize-lines: line numbers
+      :type: comma separated numbers
+
+      Emphasize particular lines of the code block::
+
+       .. code-block:: python
+          :emphasize-lines: 3,5
+
+          def some_function():
+              interesting = False
+              print 'This line is highlighted.'
+              print 'This one is not...'
+              print '...but this one is.'
+
+      .. versionadded:: 1.1
+      .. versionchanged:: 1.6.6
+         LaTeX supports the ``emphasize-lines`` option.
+
+   .. rst:directive:option: force
+      :type: no value
+
+      Ignore minor errors on highlighting
+
+      .. versionchanged:: 2.1
+
+   .. rst:directive:option:: caption: caption of code block
+      :type: text
+
+      Set a caption to the code block.
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.  For example::
+
+        .. code-block:: python
+           :caption: this.py
+           :name: this-py
+
+           print 'Explicit is better than implicit.'
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: dedent: number
+      :type: number
+
+      Strip indentation characters from the code block. For example::
+
+         .. code-block:: ruby
+            :dedent: 4
+
+                some ruby code
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: force
+      :type: no value
+
+      If given, minor errors on highlighting are ignored.
+
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. literalinclude:: filename
 
@@ -840,6 +880,19 @@ mainly contained in information units, such as the language reference.
    .. versionchanged:: 1.1
       Added ``see`` and ``seealso`` types, as well as marking main entries.
 
+   .. rubric:: options
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.  For example::
+
+        .. index:: Python
+           :name: py-index
+
+   .. versionadded:: 3.0
+
 .. rst:role:: index
 
    While the :rst:dir:`index` directive is a block-level markup and links to the
@@ -1017,7 +1070,7 @@ this reason, the following directive exists:
       cells.
 
       Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``,
-      ``Y{f}`` and tabulary's columns.
+      ``\Y{f}`` and tabulary's columns.
 
    .. note::
 
@@ -1105,7 +1158,7 @@ derived forms), but provides enough to allow context-free grammars to be
 displayed in a way that causes uses of a symbol to be rendered as hyperlinks to
 the definition of the symbol.  There is this directive:
 
-.. rst:directive:: .. productionlist:: [name]
+.. rst:directive:: .. productionlist:: [productionGroup]
 
    This directive is used to enclose a group of productions.  Each production
    is given on a single line and consists of a name, separated by a colon from
@@ -1113,16 +1166,24 @@ the definition of the symbol.  There is this directive:
    continuation line must begin with a colon placed at the same column as in
    the first line.
 
-   The argument to :rst:dir:`productionlist` serves to distinguish different
-   sets of production lists that belong to different grammars.
+   The *productionGroup* argument to :rst:dir:`productionlist` serves to
+   distinguish different sets of production lists that belong to different
+   grammars.  Multiple production lists with the same *productionGroup* thus
+   define rules in the same scope.
 
    Blank lines are not allowed within ``productionlist`` directive arguments.
 
    The definition can contain token names which are marked as interpreted text
-   (e.g. ``sum ::= `integer` "+" `integer```) -- this generates
+   (e.g. "``sum ::= `integer` "+" `integer```") -- this generates
    cross-references to the productions of these tokens.  Outside of the
    production list, you can reference to token productions using
    :rst:role:`token`.
+   However, if you have given a *productionGroup* argument you must prefix the
+   token name in the cross-reference with the group name and a colon,
+   e.g., "``myGroup:sum``" instead of just "``sum``".
+   If the group should not be shown in the title of the link either
+   an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
+   or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
 
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.

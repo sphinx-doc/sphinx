@@ -14,7 +14,8 @@ Sphinx is a maintained by a group of volunteers.  We value every contribution!
 * There is also the #sphinx-doc IRC channel on `freenode
   <https://freenode.net/>`_.
 
-For more about our development process and methods, see the :doc:`devguide`.
+For more about our development process and methods, refer to
+:doc:`/internals/index`.
 
 Extensions
 ==========
@@ -36,6 +37,7 @@ This is the current list of contributed extensions in that repository:
 - astah: embed diagram by using astah
 - autoanysrc: Gather reST documentation from any source files
 - autorun: Execute code in a ``runblock`` directive
+- beamer_: A builder for Beamer (LaTeX) output.
 - blockdiag: embed block diagrams by using blockdiag_
 - cacoo: embed diagram from Cacoo
 - cf3domain: a domain for CFEngine 3 policies
@@ -148,3 +150,4 @@ started with writing your own extensions.
 .. _domaintools: https://bitbucket.org/klorenz/sphinxcontrib-domaintools
 .. _restbuilder: https://pypi.org/project/sphinxcontrib-restbuilder/
 .. _Lasso: http://www.lassosoft.com/
+.. _beamer: https://pypi.org/project/sphinxcontrib-beamer/

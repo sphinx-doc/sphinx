@@ -4,7 +4,7 @@
 
     Test the sphinx.quickstart module.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -193,7 +193,7 @@ def test_generated_files_eol(tempdir):
     qs.generate(d)
 
     def assert_eol(filename, eol):
-        content = filename.bytes().decode()
+        content = filename.read_bytes().decode()
         assert all([l[-len(eol):] == eol for l in content.splitlines(True)])
 
     assert_eol(tempdir / 'make.bat', '\r\n')

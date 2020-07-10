@@ -4,7 +4,7 @@
 
     Test sphinx.ext.inheritance_diagram extension.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -132,13 +132,21 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.A', 'dummy.test.A', [], None),
         ]
 
+    # inheritance diagram involving a base class nested within another class
+    for cls in graphs['diagram_w_nested_classes'].class_info:
+        assert cls in [
+            ('dummy.test_nested.A', 'dummy.test_nested.A', [], None),
+            ('dummy.test_nested.C', 'dummy.test_nested.C', ['dummy.test_nested.A.B'], None),
+            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', [], None)
+        ]
+
 
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_png_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
 
     pattern = ('<div class="figure align-default" id="id1">\n'
                '<div class="graphviz">'
@@ -155,7 +163,7 @@ def test_inheritance_diagram_png_html(app, status, warning):
 def test_inheritance_diagram_svg_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
 
     pattern = ('<div class="figure align-default" id="id1">\n'
                '<div class="graphviz">'
@@ -173,7 +181,7 @@ def test_inheritance_diagram_svg_html(app, status, warning):
 def test_inheritance_diagram_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'python.tex').text()
+    content = (app.outdir / 'python.tex').read_text()
 
     pattern = ('\\\\begin{figure}\\[htbp]\n\\\\centering\n\\\\capstart\n\n'
                '\\\\sphinxincludegraphics\\[\\]{inheritance-\\w+.pdf}\n'
@@ -195,7 +203,7 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
     assert ('test.Bar', 'test.Bar', ['alias.Foo'], None) in aliased_graph
     assert ('alias.Foo', 'alias.Foo', [], None) in aliased_graph
 
-    content = (app.outdir / 'index.html').text()
+    content = (app.outdir / 'index.html').read_text()
 
     pattern = ('<div class="figure align-default" id="id1">\n'
                '<div class="graphviz">'

@@ -4,13 +4,17 @@
 
     Templates utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
-from typing import Dict, List, Union
+from functools import partial
+from os import path
+from typing import Callable, Dict, List, Tuple, Union
 
+from jinja2 import TemplateNotFound
+from jinja2.environment import Environment
 from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
 
@@ -24,7 +28,7 @@ class BaseRenderer:
     def __init__(self, loader: BaseLoader = None) -> None:
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
         self.env.filters['repr'] = repr
-        self.env.install_gettext_translations(get_translator())  # type: ignore
+        self.env.install_gettext_translations(get_translator())
 
     def render(self, template_name: str, context: Dict) -> str:
         return self.env.get_template(template_name).render(context)
@@ -63,14 +67,15 @@ class SphinxRenderer(FileRenderer):
 
 
 class LaTeXRenderer(SphinxRenderer):
-    def __init__(self, template_path: str = None) -> None:
+    def __init__(self, template_path: str = None, latex_engine: str = None) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates', 'latex')
         super().__init__(template_path)
 
         # use texescape as escape filter
-        self.env.filters['e'] = texescape.escape
-        self.env.filters['escape'] = texescape.escape
+        escape = partial(texescape.escape, latex_engine=latex_engine)
+        self.env.filters['e'] = escape
+        self.env.filters['escape'] = escape
         self.env.filters['eabbr'] = texescape.escape_abbr
 
         # use JSP/eRuby like tagging instead because curly bracket; the default
@@ -92,3 +97,36 @@ class ReSTRenderer(SphinxRenderer):
         self.env.filters['e'] = rst.escape
         self.env.filters['escape'] = rst.escape
         self.env.filters['heading'] = rst.heading
+
+
+class SphinxTemplateLoader(BaseLoader):
+    """A loader supporting template inheritance"""
+
+    def __init__(self, confdir: str, templates_paths: List[str],
+                 system_templates_paths: List[str]) -> None:
+        self.loaders = []
+        self.sysloaders = []
+
+        for templates_path in templates_paths:
+            loader = SphinxFileSystemLoader(path.join(confdir, templates_path))
+            self.loaders.append(loader)
+
+        for templates_path in system_templates_paths:
+            loader = SphinxFileSystemLoader(templates_path)
+            self.loaders.append(loader)
+            self.sysloaders.append(loader)
+
+    def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
+        if template.startswith('!'):
+            # search a template from ``system_templates_paths``
+            loaders = self.sysloaders
+            template = template[1:]
+        else:
+            loaders = self.loaders
+
+        for loader in loaders:
+            try:
+                return loader.get_source(environment, template)
+            except TemplateNotFound:
+                pass
+        raise TemplateNotFound(template)

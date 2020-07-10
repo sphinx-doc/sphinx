@@ -4,33 +4,30 @@
 
     Add links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import traceback
+from typing import Any, Dict, Iterable, Iterator, Set, Tuple
 
 from docutils import nodes
+from docutils.nodes import Element, Node
 
 import sphinx
 from sphinx import addnodes
+from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, Iterable, Iterator, Set, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
-def _get_full_modname(app, modname, attribute):
-    # type: (Sphinx, str, str) -> str
+def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str:
     try:
         return get_full_modname(modname, attribute)
     except AttributeError:
@@ -48,8 +45,7 @@ def _get_full_modname(app, modname, attribute):
         return None
 
 
-def doctree_read(app, doctree):
-    # type: (Sphinx, nodes.Node) -> None
+def doctree_read(app: Sphinx, doctree: Node) -> None:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore
@@ -58,20 +54,20 @@ def doctree_read(app, doctree):
     if app.builder.name.startswith("epub") and not env.config.viewcode_enable_epub:
         return
 
-    def has_tag(modname, fullname, docname, refname):
+    def has_tag(modname: str, fullname: str, docname: str, refname: str) -> bool:
         entry = env._viewcode_modules.get(modname, None)  # type: ignore
         if entry is False:
-            return
+            return False
 
         code_tags = app.emit_firstresult('viewcode-find-source', modname)
         if code_tags is None:
             try:
                 analyzer = ModuleAnalyzer.for_module(modname)
+                analyzer.find_tags()
             except Exception:
                 env._viewcode_modules[modname] = False  # type: ignore
-                return
+                return False
 
-            analyzer.find_tags()
             code = analyzer.code
             tags = analyzer.tags
         else:
@@ -84,6 +80,8 @@ def doctree_read(app, doctree):
         if fullname in tags:
             used[fullname] = docname
             return True
+
+        return False
 
     for objnode in doctree.traverse(addnodes.desc):
         if objnode.get('domain') != 'py':
@@ -120,8 +118,8 @@ def doctree_read(app, doctree):
             signode += onlynode
 
 
-def env_merge_info(app, env, docnames, other):
-    # type: (Sphinx, BuildEnvironment, Iterable[str], BuildEnvironment) -> None
+def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
+                   other: BuildEnvironment) -> None:
     if not hasattr(other, '_viewcode_modules'):
         return
     # create a _viewcode_modules dict on the main environment
@@ -131,8 +129,8 @@ def env_merge_info(app, env, docnames, other):
     env._viewcode_modules.update(other._viewcode_modules)  # type: ignore
 
 
-def missing_reference(app, env, node, contnode):
-    # type: (Sphinx, BuildEnvironment, nodes.Element, nodes.Node) -> nodes.Node
+def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnode: Node
+                      ) -> Node:
     # resolve our "viewcode" reference nodes -- they need special treatment
     if node['reftype'] == 'viewcode':
         return make_refnode(app.builder, node['refdoc'], node['reftarget'],
@@ -141,8 +139,7 @@ def missing_reference(app, env, node, contnode):
     return None
 
 
-def collect_pages(app):
-    # type: (Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]
+def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
@@ -236,8 +233,7 @@ def collect_pages(app):
     yield ('_modules/index', context, 'page.html')
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)
