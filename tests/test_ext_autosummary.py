@@ -386,10 +386,7 @@ def test_autosummary_recursive(app, status, warning):
     assert 'package.package.module' in content
 
 
-@pytest.mark.sphinx('dummy', testroot='ext-autosummary-filename-map',
-                    confoverrides={'autosummary_filename_map':
-                                   {"autosummary_dummy_module": "module_mangled",
-                                    "autosummary_dummy_module.bar": "bar"}})
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-filename-map')
 def test_autosummary_filename_map(app, status, warning):
     app.build()
 

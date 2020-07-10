@@ -12,4 +12,3 @@
    autosummary_dummy_module.Foo.Bar
    autosummary_dummy_module.bar
    autosummary_dummy_module.qux
-   autosummary_importfail
