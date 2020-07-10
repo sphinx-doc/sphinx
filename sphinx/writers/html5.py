@@ -194,9 +194,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_versionmodified(self, node: Element) -> None:
         self.body.append('</div>\n')
 
-    def depart_viewcode_source(self, node):
-        pass
-
     # overwritten
     def visit_reference(self, node: Element) -> None:
         atts = {'class': 'reference'}
