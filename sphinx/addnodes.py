@@ -307,10 +307,6 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-class viewcode_source(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for the link text for a source link."""
-
-
 def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
     app.add_node(toctree)

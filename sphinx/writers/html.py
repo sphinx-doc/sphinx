@@ -95,9 +95,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.permalink_text = self.encode(self.permalink_text)
         if self.config.html_add_permalinks_html:
             self.permalink_text = self.config.html_add_permalinks_html
-        self.viewcode_source = getattr(self.config, 'viewcode_source_html', None)
-        if not self.viewcode_source:
-            self.viewcode_source = '<span class="viewcode-link">%s</span>' % _('[source]')
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0

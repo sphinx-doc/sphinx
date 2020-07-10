@@ -73,12 +73,6 @@ Configuration
       `epubcheck <https://github.com/IDPF/epubcheck>`_'s score
       becomes worse even if the reader supports.
 
-.. confval:: viewcode_source_html
-
-   Can be set to the HTML code for the link to the source code. If this is not
-   specified it defaults to ``'<span class="viewcode-link">[source]</span>'``
-   (with ``[source]`` getting localized).
-
 .. event:: viewcode-find-source (app, modname)
 
    .. versionadded:: 1.8
