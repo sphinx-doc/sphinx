@@ -509,7 +509,6 @@ def test_package_file(tempdir):
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n"
                        "\n"
-                       "\n"
                        "Module contents\n"
                        "---------------\n"
                        "\n"
@@ -595,8 +594,7 @@ def test_package_file_module_first(tempdir):
                        ".. automodule:: testpkg.example\n"
                        "   :members:\n"
                        "   :undoc-members:\n"
-                       "   :show-inheritance:\n"
-                       "\n")
+                       "   :show-inheritance:\n")
 
 
 def test_package_file_without_submodules(tempdir):
@@ -639,5 +637,4 @@ def test_namespace_package_file(tempdir):
                        ".. automodule:: testpkg.example\n"
                        "   :members:\n"
                        "   :undoc-members:\n"
-                       "   :show-inheritance:\n"
-                       "\n")
+                       "   :show-inheritance:\n")
