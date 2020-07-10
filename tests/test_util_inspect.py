@@ -130,7 +130,7 @@ def test_signature_partialmethod():
 
 def test_signature_annotations():
     from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                                  f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, Node)
+                                  f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, Node)
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -213,6 +213,10 @@ def test_signature_annotations():
     # annotations for variadic and keyword parameters
     sig = inspect.signature(f19)
     assert stringify_signature(sig) == '(*args: int, **kwargs: str)'
+
+    # default value is inspect.Signature.empty
+    sig = inspect.signature(f21)
+    assert stringify_signature(sig) == "(arg1='whatever', arg2)"
 
     # type hints by string
     sig = inspect.signature(Node.children)
