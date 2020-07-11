@@ -879,6 +879,12 @@ class NumpyDocstring(GoogleDocstring):
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
 
+    def _get_location(self):
+        filepath = self._obj.__code__.co_filename
+        name = self._name
+
+        return "{}: docstring of {}:".format(filepath, name)
+
     def _escape_args_and_kwargs(self, name: str) -> str:
         func = super()._escape_args_and_kwargs
 
@@ -894,8 +900,7 @@ class NumpyDocstring(GoogleDocstring):
             is_args = check_args(args)
             is_kwargs = check_kwargs(kwargs)
 
-            location_name = "docstring of {}".format(self._name)
-            location = ":".join([self._obj.__code__.co_filename, location_name, ""])
+            location = self._get_location()
             if check_args(kwargs) or check_kwargs(args):
                 logger.warning(
                     __("wrong order of *args and **kwargs: %s"),
