@@ -77,18 +77,24 @@ ModuleEntry = NamedTuple('ModuleEntry', [('docname', str),
                                          ('deprecated', bool)])
 
 
-def type_to_xref(text: str) -> addnodes.pending_xref:
+def type_to_xref(text: str, env: BuildEnvironment = None) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if text == 'None':
         reftype = 'obj'
     else:
         reftype = 'class'
 
+    if env:
+        kwargs = {'py:module': env.ref_context.get('py:module'),
+                  'py:class': env.ref_context.get('py:class')}
+    else:
+        kwargs = {}
+
     return pending_xref('', nodes.Text(text),
-                        refdomain='py', reftype=reftype, reftarget=text)
+                        refdomain='py', reftype=reftype, reftarget=text, **kwargs)
 
 
-def _parse_annotation(annotation: str) -> List[Node]:
+def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Node]:
     """Parse type annotation."""
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
@@ -130,18 +136,22 @@ def _parse_annotation(annotation: str) -> List[Node]:
         else:
             raise SyntaxError  # unsupported syntax
 
+    if env is None:
+        warnings.warn("The env parameter for _parse_annotation becomes required now.",
+                      RemovedInSphinx50Warning, stacklevel=2)
+
     try:
         tree = ast_parse(annotation)
         result = unparse(tree)
         for i, node in enumerate(result):
             if isinstance(node, nodes.Text):
-                result[i] = type_to_xref(str(node))
+                result[i] = type_to_xref(str(node), env)
         return result
     except SyntaxError:
-        return [type_to_xref(annotation)]
+        return [type_to_xref(annotation, env)]
 
 
-def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
+def _parse_arglist(arglist: str, env: BuildEnvironment = None) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     sig = signature_from_str('(%s)' % arglist)
@@ -167,7 +177,7 @@ def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
             node += addnodes.desc_sig_name('', param.name)
 
         if param.annotation is not param.empty:
-            children = _parse_annotation(param.annotation)
+            children = _parse_annotation(param.annotation, env)
             node += addnodes.desc_sig_punctuation('', ':')
             node += nodes.Text(' ')
             node += addnodes.desc_sig_name('', '', *children)  # type: ignore
@@ -415,7 +425,7 @@ class PyObject(ObjectDescription):
         signode += addnodes.desc_name(name, name)
         if arglist:
             try:
-                signode += _parse_arglist(arglist)
+                signode += _parse_arglist(arglist, self.env)
             except SyntaxError:
                 # fallback to parse arglist original parser.
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
@@ -430,7 +440,7 @@ class PyObject(ObjectDescription):
                 signode += addnodes.desc_parameterlist()
 
         if retann:
-            children = _parse_annotation(retann)
+            children = _parse_annotation(retann, self.env)
             signode += addnodes.desc_returns(retann, '', *children)
 
         anno = self.options.get('annotation')
@@ -626,7 +636,7 @@ class PyVariable(PyObject):
 
         typ = self.options.get('type')
         if typ:
-            annotations = _parse_annotation(typ)
+            annotations = _parse_annotation(typ, self.env)
             signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), *annotations)
 
         value = self.options.get('value')
@@ -872,7 +882,7 @@ class PyAttribute(PyObject):
 
         typ = self.options.get('type')
         if typ:
-            annotations = _parse_annotation(typ)
+            annotations = _parse_annotation(typ, self.env)
             signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), *annotations)
 
         value = self.options.get('value')

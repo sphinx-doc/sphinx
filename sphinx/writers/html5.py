@@ -397,6 +397,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         else:
             opts = {}
 
+        if linenos and self.builder.config.html_codeblock_linenos_style:
+            linenos = self.builder.config.html_codeblock_linenos_style
+
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
             location=(self.builder.current_docname, node.line), **highlight_args
