@@ -885,10 +885,24 @@ class NumpyDocstring(GoogleDocstring):
         if ", " in name:
             args, kwargs, *rest = name.split(", ")
 
-            is_args = args[:1] == "*" and len([c for c in args if c == "*"]) == 1
-            is_kwargs = kwargs[:2] == "**" and len([c for c in kwargs if c == "*"]) == 2
+            def check_args(s):
+                return s[:1] == "*" and len([c for c in s if c == "*"]) == 1
 
-            if is_args or is_kwargs and not (is_args and is_kwargs):
+            def check_kwargs(s):
+                return s[:2] == "**" and len([c for c in s if c == "*"]) == 2
+
+            is_args = check_args(args)
+            is_kwargs = check_kwargs(kwargs)
+
+            location_name = "docstring of {}".format(self._name)
+            location = ":".join([self._obj.__code__.co_filename, location_name, ""])
+            if check_args(kwargs) or check_kwargs(args):
+                logger.warning(
+                    __("wrong order of *args and **kwargs: %s"),
+                    name,
+                    location=location,
+                )
+            elif is_args or is_kwargs and not (is_args and is_kwargs):
                 name_ = args if is_args else kwargs
                 other = "*args" if not is_args else "**kwargs"
                 logger.warning(
@@ -896,7 +910,7 @@ class NumpyDocstring(GoogleDocstring):
                     name_,
                     other,
                     name,
-                    location=None,
+                    location=location,
                 )
             elif is_args and is_kwargs and rest:
                 logger.warning(
@@ -904,7 +918,7 @@ class NumpyDocstring(GoogleDocstring):
                     args,
                     kwargs,
                     name,
-                    location=None,
+                    location=location,
                 )
             return ", ".join([func(args), func(kwargs)])
 
