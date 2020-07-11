@@ -35,16 +35,15 @@ Submodules
 ----------
 {% if separatemodules %}
 {{ toctree(submodules) }}
-{% endif %}
-{%- if not separatemodules %}
+{% else %}
 {%- for submodule in submodules %}
 {% if show_headings %}
 {{- [submodule, "module"] | join(" ") | e | heading(2) }}
 {% endif %}
 {{ automodule(submodule, automodule_options) }}
 {% endfor %}
-{%- endif -%}
-{% endif %}
+{%- endif %}
+{%- endif %}
 
 {%- if not modulefirst and not is_namespace %}
 Module contents

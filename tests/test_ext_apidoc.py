@@ -121,7 +121,6 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
 
     with open(outdir / 'a.b.c.rst') as f:
         rst = f.read()
-
         assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.c.d\n" in rst
 
     with open(outdir / 'a.b.e.rst') as f:
