@@ -23,6 +23,8 @@ Incompatible changes
   section
 * #7996: manpage: Make a section directory on build manpage by default (see
   :confval:`man_make_section_directory`)
+* #7849: html: Change the default setting of
+  :confval:`html_codeblock_linenos_style` to ``'inline'``
 * #8380: html search: search results are wrapped with ``<p>`` instead of
   ``<div>``
 * html theme: Move a script tag for documentation_options.js in
@@ -38,6 +40,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* :confval:`html_codeblock_linenos_style`
 * ``favicon`` and ``logo`` variable in HTML templates
 * ``sphinx.directives.patches.CSVTable``
 * ``sphinx.directives.patches.ListTable``
