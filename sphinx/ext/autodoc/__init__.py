@@ -33,7 +33,9 @@ from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect
 from sphinx.util import logging
 from sphinx.util.docstrings import extract_metadata, prepare_docstring
-from sphinx.util.inspect import getdoc, object_description, safe_getattr, stringify_signature
+from sphinx.util.inspect import (
+    evaluate_signature, getdoc, object_description, safe_getattr, stringify_signature
+)
 from sphinx.util.typing import stringify as stringify_typehint
 
 if False:
@@ -1204,7 +1206,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
         if overloaded:
+            __globals__ = safe_getattr(self.object, '__globals__', {})
             for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                overload = evaluate_signature(overload, __globals__)
                 sig = stringify_signature(overload, **kwargs)
                 sigs.append(sig)
 
@@ -1403,7 +1407,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         sigs = []
         if overloaded:
             # Use signatures for overloaded methods instead of the implementation method.
+            method = safe_getattr(self._signature_class, self._signature_method_name, None)
+            __globals__ = safe_getattr(method, '__globals__', {})
             for overload in self.analyzer.overloads.get(qualname):
+                overload = evaluate_signature(overload, __globals__)
+
                 parameters = list(overload.parameters.values())
                 overload = overload.replace(parameters=parameters[1:],
                                             return_annotation=Parameter.empty)
@@ -1796,7 +1804,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
         if overloaded:
+            __globals__ = safe_getattr(self.object, '__globals__', {})
             for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                overload = evaluate_signature(overload, __globals__)
                 if not inspect.isstaticmethod(self.object, cls=self.parent,
                                               name=self.object_name):
                     parameters = list(overload.parameters.values())

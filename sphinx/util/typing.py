@@ -16,6 +16,21 @@ from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
 
+if sys.version_info > (3, 7):
+    from typing import ForwardRef
+else:
+    from typing import _ForwardRef  # type: ignore
+
+    class ForwardRef:
+        """A pseudo ForwardRef class for py35 and py36."""
+        def __init__(self, arg: Any, is_argument: bool = True) -> None:
+            self.arg = arg
+
+        def _evaluate(self, globalns: Dict, localns: Dict) -> Any:
+            ref = _ForwardRef(self.arg)
+            return ref._eval_type(globalns, localns)
+
+
 # An entry of Directive.option_spec
 DirectiveOption = Callable[[str], Any]
 

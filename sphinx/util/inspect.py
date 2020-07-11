@@ -22,13 +22,14 @@ from inspect import (  # NOQA
     Parameter, isclass, ismethod, ismethoddescriptor, ismodule
 )
 from io import StringIO
-from typing import Any, Callable, Mapping, List, Optional, Tuple
+from typing import Any, Callable, Dict, Mapping, List, Optional, Tuple
 from typing import cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py35-37
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
+from sphinx.util.typing import ForwardRef
 from sphinx.util.typing import stringify as stringify_annotation
 
 if sys.version_info > (3, 7):
@@ -485,6 +486,46 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
                 parameters.pop(0)
 
     return inspect.Signature(parameters, return_annotation=return_annotation)
+
+
+def evaluate_signature(sig: inspect.Signature, globalns: Dict = None, localns: Dict = None
+                       ) -> inspect.Signature:
+    """Evaluate unresolved type annotations in a signature object."""
+    def evaluate(annotation: Any, globalns: Dict, localns: Dict) -> Any:
+        """Evaluate unresolved type annotation."""
+        try:
+            if isinstance(annotation, str):
+                ref = ForwardRef(annotation, True)
+                annotation = ref._evaluate(globalns, localns)
+
+                if isinstance(annotation, ForwardRef):
+                    annotation = annotation._evaluate(globalns, localns)
+                elif isinstance(annotation, str):
+                    # might be a ForwardRef'ed annotation in overloaded functions
+                    ref = ForwardRef(annotation, True)
+                    annotation = ref._evaluate(globalns, localns)
+        except (NameError, TypeError):
+            # failed to evaluate type. skipped.
+            pass
+
+        return annotation
+
+    if globalns is None:
+        globalns = {}
+    if localns is None:
+        localns = globalns
+
+    parameters = list(sig.parameters.values())
+    for i, param in enumerate(parameters):
+        if param.annotation:
+            annotation = evaluate(param.annotation, globalns, localns)
+            parameters[i] = param.replace(annotation=annotation)
+
+    return_annotation = sig.return_annotation
+    if return_annotation:
+        return_annotation = evaluate(return_annotation, globalns, localns)
+
+    return sig.replace(parameters=parameters, return_annotation=return_annotation)
 
 
 def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
