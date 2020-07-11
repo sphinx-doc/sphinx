@@ -35,6 +35,7 @@ Bugs fixed
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
 * #7846: html theme: XML-invalid files were generated
 * #7894: gettext: Wrong source info is shown when using rst_epilog
+* #7691: linkcheck: HEAD requests are not used for checking
 * #7928: py domain: failed to resolve a type annotation for the attribute
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
