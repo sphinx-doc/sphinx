@@ -26,7 +26,7 @@ from docutils.utils import relative_path
 from sphinx import package_dir, __display_version__
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.config import Config
+from sphinx.config import Config, ENUM
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -1221,6 +1221,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
+    app.add_config_value('html_codeblock_linenos_style', 'table', 'html',
+                         ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
 
