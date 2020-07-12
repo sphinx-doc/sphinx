@@ -1,3 +1,4 @@
+from inspect import Signature
 from numbers import Integral
 from typing import Any, Dict, List, TypeVar, Union, Callable, Tuple, Optional
 
@@ -99,6 +100,9 @@ def f19(*args: int, **kwargs: str):
 def f20() -> Optional[Union[int, str]]:
     pass
 
+
+def f21(arg1='whatever', arg2=Signature.empty):
+    pass
 
 
 class Node:
