@@ -791,8 +791,8 @@ class GoogleDocstring:
         return lines
 
 
-def _recombine_sets(tokens):
-    tokens = collections.deque(tokens)
+def _recombine_set_tokens(tokens: List[str]) -> List[str]:
+    token_queue = collections.deque(tokens)
     keywords = ("optional", "default")
 
     def takewhile_set(tokens):
@@ -841,10 +841,10 @@ def _recombine_sets(tokens):
             else:
                 yield token
 
-    return list(combine_set(tokens))
+    return list(combine_set(token_queue))
 
 
-def _tokenize_type_spec(spec):
+def _tokenize_type_spec(spec: str) -> List[str]:
     tokens = list(
         item
         for item in _token_regex.split(spec)
@@ -853,7 +853,7 @@ def _tokenize_type_spec(spec):
     return tokens
 
 
-def _token_type(token):
+def _token_type(token: str, location: str = None) -> str:
     if token.startswith(" ") or token.endswith(" "):
         type_ = "delimiter"
     elif (
@@ -867,28 +867,28 @@ def _token_type(token):
         logger.warning(
             __("invalid value set (missing closing brace): %s"),
             token,
-            location=None,
+            location=location,
         )
         type_ = "literal"
     elif token.endswith("}"):
         logger.warning(
             __("invalid value set (missing opening brace): %s"),
             token,
-            location=None,
+            location=location,
         )
         type_ = "literal"
     elif token.startswith("'") or token.startswith('"'):
         logger.warning(
             __("malformed string literal (missing closing quote): %s"),
             token,
-            location=None,
+            location=location,
         )
         type_ = "literal"
     elif token.endswith("'") or token.endswith('"'):
         logger.warning(
             __("malformed string literal (missing opening quote): %s"),
             token,
-            location=None,
+            location=location,
         )
         type_ = "literal"
     elif token in ("optional", "default"):
@@ -901,7 +901,7 @@ def _token_type(token):
     return type_
 
 
-def _convert_numpy_type_spec(_type, translations={}):
+def _convert_numpy_type_spec(_type: str, location: str = None, translations: dict = {}) -> str:
     def convert_obj(obj, translations, default_translation):
         # use :class: (the default) only if obj is not a standard singleton (None, True, False)
         if obj in ("None", "True", "False") and default_translation == ":class:`%s`":
@@ -910,9 +910,9 @@ def _convert_numpy_type_spec(_type, translations={}):
         return translations.get(obj, default_translation % obj)
 
     tokens = _tokenize_type_spec(_type)
-    combined_tokens = _recombine_sets(tokens)
+    combined_tokens = _recombine_set_tokens(tokens)
     types = [
-        (token, _token_type(token))
+        (token, _token_type(token, location))
         for token in combined_tokens
     ]
 
@@ -1035,6 +1035,16 @@ class NumpyDocstring(GoogleDocstring):
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
 
+    def _get_location(self) -> str:
+        filepath = inspect.getfile(self._obj) if self._obj is not None else ""
+        name = self._name
+        line = ""
+
+        if filepath is None and name is None:
+            return None
+
+        return ":".join([filepath, "docstring of %s" % name, line])
+
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
         line = next(self._line_iter)
@@ -1046,6 +1056,7 @@ class NumpyDocstring(GoogleDocstring):
         _name = self._escape_args_and_kwargs(_name)
         _type = _convert_numpy_type_spec(
             _type,
+            location=self._get_location(),
             translations=self._config.napoleon_type_aliases or {},
         )
 

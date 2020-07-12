@@ -20,7 +20,7 @@ from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.ext.napoleon.docstring import (
     _tokenize_type_spec,
-    _recombine_sets,
+    _recombine_set_tokens,
     _convert_numpy_type_spec,
     _token_type
 )
@@ -2051,7 +2051,7 @@ definition_after_normal_text : int
             actual = _tokenize_type_spec(type_spec)
             self.assertEqual(expected, actual)
 
-    def test_recombine_sets(self):
+    def test_recombine_set_tokens(self):
         type_tokens = (
             ["{", "1", ", ", "2", "}"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
@@ -2075,10 +2075,10 @@ definition_after_normal_text : int
         )
 
         for tokens_, expected in zip(tokens, combined_tokens):
-            actual = _recombine_sets(tokens_)
+            actual = _recombine_set_tokens(tokens_)
             self.assertEqual(expected, actual)
 
-    def test_recombine_sets_invalid(self):
+    def test_recombine_set_tokens_invalid(self):
         type_tokens = (
             ["{", "1", ", ", "2"],
             ['"F"', ", ", '"C"', ", ", '"N"', "}"],
@@ -2102,7 +2102,7 @@ definition_after_normal_text : int
         )
 
         for tokens_, expected in zip(tokens, combined_tokens):
-            actual = _recombine_sets(tokens_)
+            actual = _recombine_set_tokens(tokens_)
             self.assertEqual(expected, actual)
 
     def test_convert_numpy_type_spec(self):
