@@ -9,7 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 from collections import namedtuple
+from contextlib import contextmanager
 from inspect import cleandoc
 from textwrap import dedent
 from unittest import TestCase, mock
@@ -1068,7 +1070,7 @@ Methods:
 .. method:: func(i, j)
    :noindex:
 
-   
+
    description
 """
         config = Config()
@@ -2005,21 +2007,6 @@ definition_after_normal_text : int
             actual = _token_type(token)
             self.assertEqual(expected, actual)
 
-    def test_token_type_invalid(self):
-        tokens = (
-            "{1, 2",
-            "}",
-            "'abc",
-            "def'",
-            '"ghi',
-            'jkl"',
-        )
-        for token in tokens:
-            # TODO: check for the warning
-            _token_type(token)
-
-        assert False
-
     def test_tokenize_type_spec(self):
         types = (
             "str",
@@ -2219,3 +2206,38 @@ Do as you please
 :kwtype gotham_is_yours: None
 """
         self.assertEqual(expected, actual)
+
+@contextmanager
+def warns(warning, match):
+    match_re = re.compile(match)
+    try:
+        yield warning
+    finally:
+        raw_warnings = warning.getvalue()
+        warnings = [w for w in raw_warnings.split("\n") if w.strip()]
+
+        assert len(warnings) == 1 and all(match_re.match(w) for w in warnings)
+        warning.truncate(0)
+
+
+class TestNumpyDocstring:
+    def test_token_type_invalid(self, warning):
+        tokens = (
+            "{1, 2",
+            "}",
+            "'abc",
+            "def'",
+            '"ghi',
+            'jkl"',
+        )
+        errors = (
+            r".+: invalid value set \(missing closing brace\):",
+            r".+: invalid value set \(missing opening brace\):",
+            r".+: malformed string literal \(missing closing quote\):",
+            r".+: malformed string literal \(missing opening quote\):",
+            r".+: malformed string literal \(missing closing quote\):",
+            r".+: malformed string literal \(missing opening quote\):",
+        )
+        for token, error in zip(tokens, errors):
+            with warns(warning, match=error):
+                _token_type(token)
