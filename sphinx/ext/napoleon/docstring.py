@@ -904,10 +904,10 @@ def _token_type(token):
 def _convert_numpy_type_spec(_type, translations={}):
     def convert_obj(obj, translations, default_translation):
         # use :class: (the default) only if obj is not a standard singleton (None, True, False)
-        if obj in ("None", "True", "False") and default_translation == ":class:`{}`":
-            default_translation = ":obj:`{}`"
+        if obj in ("None", "True", "False") and default_translation == ":class:`%s`":
+            default_translation = ":obj:`%s`"
 
-        return translations.get(obj, default_translation.format(obj))
+        return translations.get(obj, default_translation % obj)
 
     tokens = _tokenize_type_spec(_type)
     combined_tokens = _recombine_sets(tokens)
@@ -918,15 +918,15 @@ def _convert_numpy_type_spec(_type, translations={}):
 
     # don't use the object role if it's not necessary
     default_translation = (
-        ":class:`{}`"
+        ":class:`%s`"
         if not all(type_ == "obj" for _, type_ in types)
-        else "{}"
+        else "%s"
     )
 
     converters = {
-        "literal": lambda x: "``{x}``".format(x=x),
+        "literal": lambda x: "``%s``" % x,
         "obj": lambda x: convert_obj(x, translations, default_translation),
-        "control": lambda x: "*{x}*".format(x=x),
+        "control": lambda x: "*%s*" % x,
         "delimiter": lambda x: x,
         "reference": lambda x: x,
     }
