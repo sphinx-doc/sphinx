@@ -14,8 +14,36 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 from docutils.nodes import Element
 
+from sphinx.util import docutils
+
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+
+
+class document(nodes.document):
+    """The document root element patched by Sphinx.
+
+    This fixes that document.set_id() does not support a node having multiple node Ids.
+    see https://sourceforge.net/p/docutils/patches/167/
+
+    .. important:: This is only for Sphinx internal use.  Please don't use this
+                   in your extensions.  It will be removed without deprecation period.
+    """
+
+    def set_id(self, node: Element, msgnode: Element = None,
+               suggested_prefix: str = '') -> str:
+        if docutils.__version_info__ >= (0, 16):
+            ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
+        else:
+            ret = super().set_id(node, msgnode)
+
+        if docutils.__version_info__ < (0, 17):
+            # register other node IDs forcedly
+            for node_id in node['ids']:
+                if node_id not in self.ids:
+                    self.ids[node_id] = node
+
+        return ret
 
 
 class translatable(nodes.Node):

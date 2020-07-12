@@ -925,6 +925,15 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.8
 
+.. confval:: html_codeblock_linenos_style
+
+   The style of line numbers for code-blocks.
+
+   * ``'table'`` -- display line numbers using ``<table>`` tag (default)
+   * ``'inline'`` -- display line numbers using ``<span>`` tag
+
+   .. versionadded:: 3.2
+
 .. confval:: html_context
 
    A dictionary of values to pass into the template engine's context for all

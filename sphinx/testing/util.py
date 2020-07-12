@@ -7,6 +7,7 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import functools
 import os
 import re
 import sys
@@ -186,3 +187,13 @@ def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:
 
 def strip_escseq(text: str) -> str:
     return re.sub('\x1b.*?m', '', text)
+
+
+def simple_decorator(f):
+    """
+    A simple decorator that does nothing, for tests to use.
+    """
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+    return wrapper
