@@ -880,8 +880,11 @@ class NumpyDocstring(GoogleDocstring):
         super().__init__(docstring, config, app, what, name, obj, options)
 
     def _get_location(self):
-        filepath = self._obj.__code__.co_filename
+        filepath = self._obj.__code__.co_filename if self._obj is not None else None
         name = self._name
+
+        if filepath is None and name is None:
+            return None
 
         return "{}: docstring of {}:".format(filepath, name)
 
