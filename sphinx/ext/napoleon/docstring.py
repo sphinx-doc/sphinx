@@ -879,8 +879,8 @@ class NumpyDocstring(GoogleDocstring):
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
 
-    def _get_location(self):
-        filepath = self._obj.__code__.co_filename if self._obj is not None else None
+    def _get_location(self) -> str:
+        filepath = inspect.getfile(self._obj) if self._obj is not None else None
         name = self._name
 
         if filepath is None and name is None:
