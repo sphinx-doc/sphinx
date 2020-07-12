@@ -2153,8 +2153,7 @@ definition_after_normal_text : int
             self.assertEqual(expected, actual)
 
     def test_parameter_types(self):
-        import textwrap
-        docstring = textwrap.dedent("""\
+        docstring = dedent("""\
             Parameters
             ----------
             param1 : DataFrame
@@ -2168,17 +2167,17 @@ definition_after_normal_text : int
             param5 : {"F", "C", "N"}, optional
                 a optional parameter with fixed values
         """)
-        expected = textwrap.dedent("""\
-        :param param1: the data to work on
-        :type param1: DataFrame
-        :param param2: a parameter with different types
-        :type param2: :obj:`int` or :obj:`float` or :obj:`None`
-        :param param3: a optional mapping
-        :type param3: :term:`dict-like <mapping>`, *optional*
-        :param param4: a optional parameter with different types
-        :type param4: :obj:`int` or :obj:`float` or :obj:`None`, *optional*
-        :param param5: a optional parameter with fixed values
-        :type param5: ``{"F", "C", "N"}``, *optional*
+        expected = dedent("""\
+            :param param1: the data to work on
+            :type param1: DataFrame
+            :param param2: a parameter with different types
+            :type param2: :obj:`int` or :obj:`float` or :obj:`None`
+            :param param3: a optional mapping
+            :type param3: :term:`dict-like <mapping>`, *optional*
+            :param param4: a optional parameter with different types
+            :type param4: :obj:`int` or :obj:`float` or :obj:`None`, *optional*
+            :param param5: a optional parameter with fixed values
+            :type param5: ``{"F", "C", "N"}``, *optional*
         """)
         translations = {
             "dict-like": ":term:`dict-like <mapping>`",
