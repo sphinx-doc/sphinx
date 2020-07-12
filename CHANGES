@@ -31,6 +31,7 @@ Bugs fixed
 * #7886: autodoc: TypeError is raised on mocking generic-typed classes
 * #7935: autodoc: function signature is not shown when the function has a
   parameter having ``inspect._empty`` as its default value
+* #7901: autodoc: type annotations for overloaded functions are not resolved
 * #7839: autosummary: cannot handle umlauts in function names
 * #7865: autosummary: Failed to extract summary line when abbreviations found
 * #7866: autosummary: Failed to extract correct summary line when docstring

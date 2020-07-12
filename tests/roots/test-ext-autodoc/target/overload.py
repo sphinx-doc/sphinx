@@ -7,7 +7,7 @@ def sum(x: int, y: int) -> int:
 
 
 @overload
-def sum(x: float, y: float) -> float:
+def sum(x: "float", y: "float") -> "float":
     ...
 
 
@@ -29,7 +29,7 @@ class Math:
         ...
 
     @overload
-    def sum(self, x: float, y: float) -> float:
+    def sum(self, x: "float", y: "float") -> "float":
         ...
 
     @overload
@@ -49,7 +49,7 @@ class Foo:
         ...
 
     @overload
-    def __new__(cls, x: str, y: str) -> "Foo":
+    def __new__(cls, x: "str", y: "str") -> "Foo":
         ...
 
     def __new__(cls, x, y):
@@ -64,7 +64,7 @@ class Bar:
         ...
 
     @overload
-    def __init__(cls, x: str, y: str) -> None:
+    def __init__(cls, x: "str", y: "str") -> "None":
         ...
 
     def __init__(cls, x, y):
@@ -77,7 +77,7 @@ class Meta(type):
         ...
 
     @overload
-    def __call__(cls, x: str, y: str) -> Any:
+    def __call__(cls, x: "str", y: "str") -> "Any":
         ...
 
     def __call__(cls, x, y):
