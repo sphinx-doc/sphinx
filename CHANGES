@@ -13,10 +13,14 @@ Deprecated
 Features added
 --------------
 
+* #7849: html: Add :confval:`html_codeblock_linenos_style` to change the style
+  of line numbers for code-blocks
 * #7853: C and C++, support parameterized GNU style attributes.
 * #7888: napoleon: Add aliases Warn and Raise.
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
+* #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
+  the behavior of globaltoc in sidebar
 * #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
   Update the documentation to better reflect the relationship between this option
   and the ``:noindex:`` option.
@@ -25,6 +29,8 @@ Bugs fixed
 ----------
 
 * #7886: autodoc: TypeError is raised on mocking generic-typed classes
+* #7935: autodoc: function signature is not shown when the function has a
+  parameter having ``inspect._empty`` as its default value
 * #7901: autodoc: type annotations for overloaded functions are not resolved
 * #7839: autosummary: cannot handle umlauts in function names
 * #7865: autosummary: Failed to extract summary line when abbreviations found
@@ -34,6 +40,8 @@ Bugs fixed
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
 * #7846: html theme: XML-invalid files were generated
 * #7894: gettext: Wrong source info is shown when using rst_epilog
+* #7691: linkcheck: HEAD requests are not used for checking
+* #7928: py domain: failed to resolve a type annotation for the attribute
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
 * C and C++, removed ``noindex`` directive option as it did

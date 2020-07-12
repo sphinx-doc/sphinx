@@ -485,7 +485,13 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
             if len(parameters) > 0:
                 parameters.pop(0)
 
-    return inspect.Signature(parameters, return_annotation=return_annotation)
+    # To allow to create signature object correctly for pure python functions,
+    # pass an internal parameter __validate_parameters__=False to Signature
+    #
+    # For example, this helps a function having a default value `inspect._empty`.
+    # refs: https://github.com/sphinx-doc/sphinx/issues/7935
+    return inspect.Signature(parameters, return_annotation=return_annotation,  # type: ignore
+                             __validate_parameters__=False)
 
 
 def evaluate_signature(sig: inspect.Signature, globalns: Dict = None, localns: Dict = None
