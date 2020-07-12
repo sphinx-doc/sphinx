@@ -172,6 +172,12 @@ These themes are:
 
     .. versionadded:: 3.1
 
+  - **globaltoc_maxdepth** (int): The maximum depth of the toctree in
+    ``globaltoc.html`` (see :confval:`html_sidebars`).  Set it to -1 to allow
+    unlimited depth. Defaults to the max depth selected in the toctree directive.
+
+    .. versionadded:: 3.2
+
 **alabaster**
   `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally
