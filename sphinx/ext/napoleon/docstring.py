@@ -903,6 +903,10 @@ def _token_type(token):
 
 def _convert_numpy_type_spec(_type, translations={}):
     def convert_obj(obj, translations, default_translation):
+        # use :class: (the default) only if obj is not a standard singleton (None, True, False)
+        if obj in (None, True, False) and default_translation == ":class:`{}`":
+            default_translation = ":obj:`{}`"
+
         return translations.get(obj, default_translation.format(obj))
 
     tokens = _tokenize_type_spec(_type)
@@ -914,7 +918,7 @@ def _convert_numpy_type_spec(_type, translations={}):
 
     # don't use the object role if it's not necessary
     default_translation = (
-        ":obj:`{}`"
+        ":class:`{}`"
         if not all(type_ == "obj" for _, type_ in types)
         else "{}"
     )
