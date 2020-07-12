@@ -2126,8 +2126,8 @@ definition_after_normal_text : int
 
         converted_types = (
             "",
-            ":obj:`str`",
-            ":obj:`int` or :obj:`float` or :obj:`None`",
+            ":class:`str`",
+            ":class:`int` or :class:`float` or :obj:`None`",
             '``{"F", "C", "N"}``',
             "``{'F', 'C', 'N'}``",
         )
@@ -2171,11 +2171,11 @@ definition_after_normal_text : int
             :param param1: the data to work on
             :type param1: DataFrame
             :param param2: a parameter with different types
-            :type param2: :obj:`int` or :obj:`float` or :obj:`None`
+            :type param2: :class:`int` or :class:`float` or :obj:`None`
             :param param3: a optional mapping
             :type param3: :term:`dict-like <mapping>`, *optional*
             :param param4: a optional parameter with different types
-            :type param4: :obj:`int` or :obj:`float` or :obj:`None`, *optional*
+            :type param4: :class:`int` or :class:`float` or :obj:`None`, *optional*
             :param param5: a optional parameter with fixed values
             :type param5: ``{"F", "C", "N"}``, *optional*
         """)
