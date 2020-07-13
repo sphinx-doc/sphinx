@@ -883,7 +883,7 @@ class NumpyDocstring(GoogleDocstring):
         filepath = inspect.getfile(self._obj) if self._obj is not None else None
         name = self._name
 
-        if filepath is None and name is None:
+        if filepath is None and not name:
             return None
 
         return "{}: docstring of {}:".format(filepath, name)

@@ -9,10 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 from collections import namedtuple
+from contextlib import contextmanager
 from inspect import cleandoc
 from textwrap import dedent
 from unittest import TestCase, mock
+
+import pytest
 
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
@@ -2003,3 +2007,44 @@ Do as you please
 :kwtype gotham_is_yours: None
 """
         self.assertEqual(expected, actual)
+
+
+@contextmanager
+def warns(warning, match):
+    match_re = re.compile(match)
+    try:
+        yield warning
+    finally:
+        raw_warnings = warning.getvalue()
+        warnings = [w for w in raw_warnings.split("\n") if w.strip()]
+
+        assert len(warnings) == 1 and all(match_re.match(w) for w in warnings)
+
+
+class TestNumpyDocstring:
+    @pytest.mark.parametrize(
+        ["spec", "pattern"],
+        (
+            pytest.param("*args, *kwargs", ".+: can only combine parameters of form", id="two args"),
+            pytest.param("**args, **kwargs", ".+: can only combine parameters of form", id="two kwargs"),
+            pytest.param(
+                "*args, **kwargs, other_parameter",
+                ".+: cannot combine .+ and .+ with more parameters",
+                id="more parameters",
+            ),
+            pytest.param("**kwargs, *args", r".+: wrong order of .+ and .+", id="swapped parameters"),
+        )
+    )
+    def test_invalid_combined_args_and_kwargs(self, spec, pattern, app, warning):
+        docstring = dedent(
+            """\
+            Parameters
+            ----------
+            {}
+                variable args list and arbitrary keyword arguments
+            """
+        ).format(spec)
+        config = Config()
+
+        with warns(warning, match=pattern):
+            str(NumpyDocstring(docstring, config, app, "method"))
