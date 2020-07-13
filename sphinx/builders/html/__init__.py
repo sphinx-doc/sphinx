@@ -15,6 +15,7 @@ import sys
 import warnings
 from os import path
 from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
+from urllib.parse import quote
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -947,7 +948,7 @@ class StandaloneHTMLBuilder(Builder):
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
-        return docname + self.link_suffix
+        return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
                     outfilename: str = None, event_arg: Any = None) -> None:
