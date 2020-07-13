@@ -904,13 +904,13 @@ class NumpyDocstring(GoogleDocstring):
             is_kwargs = check_kwargs(kwargs)
 
             location = self._get_location()
-            if check_args(kwargs) or check_kwargs(args):
+            if (not is_args and check_args(kwargs)) and (not is_kwargs and check_kwargs(args)):
                 logger.warning(
                     __("wrong order of *args and **kwargs: %s"),
                     name,
                     location=location,
                 )
-            elif is_args or is_kwargs and not (is_args and is_kwargs):
+            elif (is_args or is_kwargs) and not (is_args and is_kwargs):
                 name_ = args if is_args else kwargs
                 other = "*args" if not is_args else "**kwargs"
                 logger.warning(
