@@ -44,10 +44,13 @@ class _ModuleWrapper:
 
     def __getattr__(self, name: str) -> Any:
         if name in self._objects:
-            warnings.warn("%s.%s is deprecated. Check CHANGES for Sphinx "
-                          "API modifications." % (self._modname, name),
-                          self._warning, stacklevel=3)
-            return self._objects[name]
+            obj = self._objects[name]
+            warnings.warn(
+                "The alias '{}.{}' is deprecated, use '{}.{}' instead. Check CHANGES for "
+                "Sphinx API modifications.".format(
+                    self._modname, name, obj.__module__, obj.__name__),
+                self._warning, stacklevel=3)
+            return obj
 
         return getattr(self._module, name)
 
