@@ -175,7 +175,7 @@ also use these config values:
 
 .. confval:: autosummary_generate_overwrite
 
-   If true, autosummary already overwrites stub files by generated contents.
+   If true, autosummary overwrites existing files by generated stub pages.
    Defaults to true (enabled).
 
    .. versionadded:: 3.0
