@@ -303,6 +303,7 @@ class Autosummary(SphinxDirective):
             except ImportError:
                 logger.warning(__('autosummary: failed to import %s'), name,
                                location=self.get_source_info())
+                items.append((display_name, '', '', name))
                 continue
 
             self.bridge.result = StringList()  # initialize for each documenter
