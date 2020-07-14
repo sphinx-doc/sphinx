@@ -2008,70 +2008,39 @@ definition_after_normal_text : int
             self.assertEqual(expected, actual)
 
     def test_tokenize_type_spec(self):
-        types = (
+        specs = (
             "str",
-            "int or float or None",
+            "int or float or None, optional",
             '{"F", "C", "N"}',
-            "{'F', 'C', 'N'}",
+            "{'F', 'C', 'N'}, default: 'F'",
             '"ma{icious"',
             r"'with \'quotes\''",
         )
-        modifiers = (
-            "",
-            "optional",
-            "default: None",
-        )
 
-        type_tokens = (
+        tokens = (
             ["str"],
-            ["int", " or ", "float", " or ", "None"],
+            ["int", " or ", "float", " or ", "None", ", ", "optional"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
-            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}"],
+            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "'F'"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],
         )
-        modifier_tokens = (
-            [],
-            ["optional"],
-            ["default", ": ", "None"],
-        )
 
-        type_specs = tuple(
-            ", ".join([type_, modifier]) if modifier else type_
-            for type_ in types
-            for modifier in modifiers
-        )
-        tokens = tuple(
-            tokens_ + ([", "] + modifier_tokens_ if modifier_tokens_ else [])
-            for tokens_ in type_tokens
-            for modifier_tokens_ in modifier_tokens
-        )
-
-        for type_spec, expected in zip(type_specs, tokens):
-            actual = _tokenize_type_spec(type_spec)
+        for spec, expected in zip(specs, tokens):
+            actual = _tokenize_type_spec(spec)
             self.assertEqual(expected, actual)
 
     def test_recombine_set_tokens(self):
-        type_tokens = (
+        tokens = (
             ["{", "1", ", ", "2", "}"],
-            ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
-            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}"],
-        )
-        modifier_tokens = (
-            [],
-            ["optional"],
-            ["default", ": ", "None"],
-        )
-        tokens = tuple(
-            type_tokens_ + ([", "] + modifier_tokens_ if modifier_tokens_ else [])
-            for type_tokens_ in type_tokens
-            for modifier_tokens_ in modifier_tokens
+            ["{", '"F"', ", ", '"C"', ", ", '"N"', "}", ", ", "optional"],
+            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "None"],
         )
 
-        combined_tokens = tuple(
-            ["".join(type_tokens_)] + ([", "] + modifier_tokens_ if modifier_tokens_ else [])
-            for type_tokens_ in type_tokens
-            for modifier_tokens_ in modifier_tokens
+        combined_tokens = (
+            ["{1, 2}"],
+            ['{"F", "C", "N"}', ", ", "optional"],
+            ["{'F', 'C', 'N'}", ", ", "default", ": ", "None"],
         )
 
         for tokens_, expected in zip(tokens, combined_tokens):
@@ -2079,26 +2048,15 @@ definition_after_normal_text : int
             self.assertEqual(expected, actual)
 
     def test_recombine_set_tokens_invalid(self):
-        type_tokens = (
+        tokens = (
             ["{", "1", ", ", "2"],
-            ['"F"', ", ", '"C"', ", ", '"N"', "}"],
+            ['"F"', ", ", '"C"', ", ", '"N"', "}", ", ", "optional"],
+            ["{", "1", ", ", "2", ", ", "default", ": ", "None"],
         )
-        modifier_tokens = (
-            [],
-            ["optional"],
-            ["default", ": ", "None"],
-        )
-        tokens = tuple(
-            type_tokens_ + ([", "] + modifier_tokens_ if modifier_tokens_ else [])
-            for type_tokens_ in type_tokens
-            for modifier_tokens_ in modifier_tokens
-        )
-
-        combined_tokens = tuple(
-            (["".join(type_tokens_)] if "{" in type_tokens_ else type_tokens_)
-            + ([", "] + modifier_tokens_ if modifier_tokens_ else [])
-            for type_tokens_ in type_tokens
-            for modifier_tokens_ in modifier_tokens
+        combined_tokens = (
+            ["{1, 2"],
+            ['"F"', ", ", '"C"', ", ", '"N"', "}", ", ", "optional"],
+            ["{1, 2", ", ", "default", ": ", "None"],
         )
 
         for tokens_, expected in zip(tokens, combined_tokens):
@@ -2106,50 +2064,26 @@ definition_after_normal_text : int
             self.assertEqual(expected, actual)
 
     def test_convert_numpy_type_spec(self):
-        types = (
-            "",
-            "str",
-            "int or float or None",
-            '{"F", "C", "N"}',
-            "{'F', 'C', 'N'}",
-        )
-        modifiers = (
+        specs = (
             "",
             "optional",
-            "default: None",
-        )
-        type_specs = tuple(
-            ", ".join(part for part in (type_, modifier) if part)
-            for type_ in types
-            for modifier in modifiers
+            "str, optional",
+            "int or float or None, default: None",
+            '{"F", "C", "N"}',
+            "{'F', 'C', 'N'}, default: 'N'",
         )
 
-        converted_types = (
-            "",
-            ":class:`str`",
-            ":class:`int` or :class:`float` or :obj:`None`",
-            '``{"F", "C", "N"}``',
-            "``{'F', 'C', 'N'}``",
-        )
-        converted_modifiers = (
+        converted = (
             "",
             "*optional*",
-            "*default*: :obj:`None`",
-        )
-        converted = tuple(
-            ", ".join(part for part in (converted_type, converted_modifier) if part)
-            if converted_modifier
-            else (
-                type_
-                if ("{" not in type_ and "or" not in type_)
-                else converted_type
-            )
-            for converted_type, type_ in zip(converted_types, types)
-            for converted_modifier in converted_modifiers
+            ":class:`str`, *optional*",
+            ":class:`int` or :class:`float` or :obj:`None`, *default*: :obj:`None`",
+            '``{"F", "C", "N"}``',
+            "``{'F', 'C', 'N'}``, *default*: ``'N'``",
         )
 
-        for type_, expected in zip(type_specs, converted):
-            actual = _convert_numpy_type_spec(type_)
+        for spec, expected in zip(specs, converted):
+            actual = _convert_numpy_type_spec(spec)
             self.assertEqual(expected, actual)
 
     def test_parameter_types(self):
