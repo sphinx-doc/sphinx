@@ -23,9 +23,14 @@ from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
 deprecated_alias('sphinx.builders.applehelp',
                  {
-                     'AppleHelpCodeSigningFailed': AppleHelpCodeSigningFailed,
-                     'AppleHelpIndexerFailed': AppleHelpIndexerFailed,
-                     'AppleHelpBuilder': AppleHelpBuilder,
+                     'AppleHelpCodeSigningFailed': (
+                         'sphinxcontrib.applehelp.AppleHelpCodeSigningFailed',
+                         AppleHelpCodeSigningFailed),
+                     'AppleHelpIndexerFailed': (
+                         'sphinxcontrib.applehelp.AppleHelpIndexerFailed',
+                         AppleHelpIndexerFailed),
+                     'AppleHelpBuilder': (
+                         'sphinxcontrib.applehelp.AppleHelpBuilder', AppleHelpBuilder),
                  },
                  RemovedInSphinx40Warning)
 

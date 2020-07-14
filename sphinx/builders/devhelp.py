@@ -21,7 +21,8 @@ from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
 deprecated_alias('sphinx.builders.devhelp',
                  {
-                     'DevhelpBuilder': DevhelpBuilder,
+                     'DevhelpBuilder': (
+                         'sphinxcontrib.devhelp.DevhelpBuilder', DevhelpBuilder),
                  },
                  RemovedInSphinx40Warning)
 

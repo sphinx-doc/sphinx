@@ -280,29 +280,32 @@ from sphinx.domains.index import IndexDirective  # noqa
 
 deprecated_alias('sphinx.directives',
                  {
-                     'Highlight': Highlight,
-                     'CodeBlock': CodeBlock,
-                     'LiteralInclude': LiteralInclude,
-                     'TocTree': TocTree,
-                     'Author': Author,
-                     'Index': IndexDirective,
-                     'VersionChange': VersionChange,
-                     'SeeAlso': SeeAlso,
-                     'TabularColumns': TabularColumns,
-                     'Centered': Centered,
-                     'Acks': Acks,
-                     'HList': HList,
-                     'Only': Only,
-                     'Include': Include,
-                     'Class': Class,
-                     'Figure': Figure,
-                     'Meta': Meta,
+                     'Highlight': ('sphinx.directives.code.Highlight', Highlight),
+                     'CodeBlock': ('sphinx.directives.code.CodeBlock', CodeBlock),
+                     'LiteralInclude': (
+                         'sphinx.directives.code.LiteralInclude', LiteralInclude),
+                     'TocTree': ('sphinx.directives.other.TocTree', TocTree),
+                     'Author': ('sphinx.directives.other.Author', Author),
+                     'Index': ('sphinx.directives.other.IndexDirective', IndexDirective),
+                     'VersionChange': ('sphinx.directives.other.VersionChange', VersionChange),
+                     'SeeAlso': ('sphinx.directives.other.SeeAlso', SeeAlso),
+                     'TabularColumns': (
+                         'sphinx.directives.other.TabularColumns', TabularColumns),
+                     'Centered': ('sphinx.directives.other.Centered', Centered),
+                     'Acks': ('sphinx.directives.other.Acks', Acks),
+                     'HList': ('sphinx.directives.other.HList', HList),
+                     'Only': ('sphinx.directives.other.Only', Only),
+                     'Include': ('sphinx.directives.other.Include', Include),
+                     'Class': ('sphinx.directives.other.Class', Class),
+                     'Figure': ('sphinx.directives.patches.Figure', Figure),
+                     'Meta': ('sphinx.directives.patches.Meta', Meta),
                  },
                  RemovedInSphinx40Warning)
 
 deprecated_alias('sphinx.directives',
                  {
-                     'DescDirective': ObjectDescription,
+                     'DescDirective': (
+                         'sphinx.directives.ObjectDescription', ObjectDescription),
                  },
                  RemovedInSphinx50Warning)
 

@@ -49,7 +49,8 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
 # for compatibility
 deprecated_alias('sphinx.builders.html',
                  {
-                     'DirectoryHTMLBuilder': DirectoryHTMLBuilder,
+                     'DirectoryHTMLBuilder': (
+                         'sphinx.builders.dirhtml.DirectoryHTMLBuilder', DirectoryHTMLBuilder),
                  },
                  RemovedInSphinx40Warning)
 

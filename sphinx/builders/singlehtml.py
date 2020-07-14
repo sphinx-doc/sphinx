@@ -191,7 +191,9 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 # for compatibility
 deprecated_alias('sphinx.builders.html',
                  {
-                     'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
+                     'SingleFileHTMLBuilder': (
+                         'sphinx.builders.singlehtml.SingleFileHTMLBuilder',
+                         SingleFileHTMLBuilder),
                  },
                  RemovedInSphinx40Warning)
 

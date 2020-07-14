@@ -407,8 +407,12 @@ from sphinx.domains.citation import (  # NOQA
 
 deprecated_alias('sphinx.transforms',
                  {
-                     'CitationReferences': CitationReferenceTransform,
-                     'SmartQuotesSkipper': CitationDefinitionTransform,
+                     'CitationReferences': (
+                         'sphinx.domains.citation.CitationReferenceTransform',
+                         CitationReferenceTransform),
+                     'SmartQuotesSkipper': (
+                         'sphinx.domains.citation.CitationDefinitionTransform',
+                         CitationDefinitionTransform),
                  },
                  RemovedInSphinx40Warning)
 

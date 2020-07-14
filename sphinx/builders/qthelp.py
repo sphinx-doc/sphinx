@@ -20,8 +20,8 @@ from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
 deprecated_alias('sphinx.builders.qthelp',
                  {
-                     'render_file': render_file,
-                     'QtHelpBuilder': QtHelpBuilder,
+                     'render_file': ('sphinxcontrib.qthelp.render_file', render_file),
+                     'QtHelpBuilder': ('sphinxcontrib.qthelp.QtHelpBuilder', QtHelpBuilder),
                  },
                  RemovedInSphinx40Warning)
 

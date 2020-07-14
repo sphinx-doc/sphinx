@@ -366,7 +366,7 @@ from sphinx.domains.index import IndexDirective  # NOQA
 
 deprecated_alias('sphinx.directives.other',
                  {
-                     'Index': IndexDirective,
+                     'Index': ('sphinx.domains.index.IndexDirective', IndexDirective),
                  },
                  RemovedInSphinx40Warning)
 

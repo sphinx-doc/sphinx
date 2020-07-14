@@ -226,7 +226,8 @@ def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.docum
 
 deprecated_alias('sphinx.io',
                  {
-                     'FiletypeNotFoundError': FiletypeNotFoundError,
-                     'get_filetype': get_filetype,
+                     'FiletypeNotFoundError': (
+                         'sphinx.errors.FiletypeNotFoundError', FiletypeNotFoundError),
+                     'get_filetype': ('sphinx.util.get_filetype', get_filetype),
                  },
                  RemovedInSphinx40Warning)
