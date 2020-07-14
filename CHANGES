@@ -10,6 +10,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* C, parsing of pre-v3 style type directives and roles, along with the options
+  :confval:`c_allow_pre_v3` and :confval:`c_warn_on_allowed_pre_v3`.
+
 Features added
 --------------
 
@@ -24,6 +27,12 @@ Features added
 * #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
   Update the documentation to better reflect the relationship between this option
   and the ``:noindex:`` option.
+* #7899: C, add possibility of parsing of some pre-v3 style type directives and
+  roles and try to convert them to equivalent v3 directives/roles.
+  Set the new option :confval:`c_allow_pre_v3` to ``True`` to enable this.
+  The warnings printed from this functionality can be suppressed by setting
+  :confval:`c_warn_on_allowed_pre_v3`` to ``True``.
+  The functionality is immediately deprecated.
 
 Bugs fixed
 ----------
