@@ -16,6 +16,7 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
+from natsort import natsorted
 
 from sphinx import addnodes
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
@@ -100,7 +101,7 @@ class TocTree(SphinxDirective):
             if (toctree['glob'] and glob_re.match(entry) and
                     not explicit and not url_re.match(entry)):
                 patname = docname_join(self.env.docname, entry)
-                docnames = sorted(patfilter(all_docnames, patname))
+                docnames = natsorted(patfilter(all_docnames, patname))
                 for docname in docnames:
                     all_docnames.remove(docname)  # don't include it again
                     toctree['entries'].append((None, docname))

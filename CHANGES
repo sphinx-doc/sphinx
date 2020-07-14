@@ -4,6 +4,7 @@ Release 4.0.0 (in development)
 Dependencies
 ------------
 
+* Add ``natsort`` package
 * Drop python 3.5 support
 * Drop docutils 0.12 and 0.13 support
 
@@ -12,6 +13,8 @@ Incompatible changes
 
 * #4826: py domain: The structure of python objects is changed.  A boolean value
   is added to indicate that the python object is canonical one
+* #3828: ``:glob:`` option for toctree directive now uses natural sorting
+  instead of lexicographical sorting
 
 Deprecated
 ----------

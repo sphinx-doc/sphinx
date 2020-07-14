@@ -91,7 +91,7 @@ def test_process_doc(app):
 @pytest.mark.sphinx('dummy', testroot='toctree-glob')
 def test_glob(app):
     includefiles = ['foo', 'bar/index', 'bar/bar_1', 'bar/bar_2',
-                    'bar/bar_3', 'baz', 'qux/index']
+                    'bar/bar_3', 'bar/bar_10', 'baz', 'qux/index']
 
     app.build()
 
@@ -111,8 +111,8 @@ def test_glob(app):
                 glob=True, hidden=False, titlesonly=False,
                 maxdepth=-1, numbered=0, includefiles=includefiles,
                 entries=[(None, 'foo'), (None, 'bar/index'), (None, 'bar/bar_1'),
-                         (None, 'bar/bar_2'), (None, 'bar/bar_3'), (None, 'baz'),
-                         (None, 'qux/index'),
+                         (None, 'bar/bar_2'), (None, 'bar/bar_3'), (None, 'bar/bar_10'),
+                         (None, 'baz'), (None, 'qux/index'),
                          ('hyperref', 'https://sphinx-doc.org/?q=sphinx')])
     assert_node(toctree[0][1][1],
                 [list_item, ([compact_paragraph, reference, "reversed order"],
@@ -120,9 +120,9 @@ def test_glob(app):
     assert_node(toctree[0][1][1][1][0], addnodes.toctree, caption=None,
                 glob=True, hidden=False, titlesonly=False,
                 maxdepth=-1, numbered=0, includefiles=list(reversed(includefiles)),
-                entries=[(None, 'qux/index'), (None, 'baz'), (None, 'bar/bar_3'),
-                         (None, 'bar/bar_2'), (None, 'bar/bar_1'), (None, 'bar/index'),
-                         (None, 'foo')])
+                entries=[(None, 'qux/index'), (None, 'baz'), (None, 'bar/bar_10'),
+                         (None, 'bar/bar_3'), (None, 'bar/bar_2'), (None, 'bar/bar_1'),
+                         (None, 'bar/index'), (None, 'foo')])
 
     # other collections
     assert app.env.toc_num_entries['index'] == 3

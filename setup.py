@@ -31,6 +31,7 @@ install_requires = [
     'requests>=2.5.0',
     'setuptools',
     'packaging',
+    'natsort',
 ]
 
 extras_require = {

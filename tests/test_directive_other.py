@@ -73,14 +73,18 @@ def test_toctree_glob(app):
     text = (".. toctree::\n"
             "   :glob:\n"
             "\n"
-            "   *\n")
+            "   *\n"
+            "   bar/*\n")
 
     app.env.find_files(app.config, app.builder)
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(doctree[0][0],
-                entries=[(None, 'baz'), (None, 'foo'), (None, 'quux')],
-                includefiles=['baz', 'foo', 'quux'])
+                entries=[(None, 'baz'), (None, 'foo'), (None, 'quux'), (None, 'bar/bar_1'),
+                         (None, 'bar/bar_2'), (None, 'bar/bar_3'), (None, 'bar/bar_10'),
+                         (None, 'bar/index')],
+                includefiles=['baz', 'foo', 'quux', 'bar/bar_1', 'bar/bar_2',
+                              'bar/bar_3', 'bar/bar_10', 'bar/index'])
 
     # give both docname and glob (case1)
     text = (".. toctree::\n"
