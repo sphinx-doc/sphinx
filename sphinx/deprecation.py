@@ -40,6 +40,10 @@ class _ModuleWrapperDeprecatedAlias:
     def __init__(self, module: Any, modname: str,
                  aliases: Dict[str, Tuple[str, object]],
                  warning: "Type[Warning]") -> None:
+        if not all(isinstance(v, tuple) for v in aliases.values()):
+            raise TypeError('deprecated_alias expects aliases to be a dict mapping: '
+                            'name -> tuple[canonical name, object]')
+
         self._module = module
         self._modname = modname
         self._aliases = aliases
