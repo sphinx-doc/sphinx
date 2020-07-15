@@ -112,6 +112,9 @@ class ASTIdentifier(ASTBaseBase):
         assert len(identifier) != 0
         self.identifier = identifier
 
+    def __eq__(self, other: Any) -> bool:
+        return type(other) is ASTIdentifier and self.identifier == other.identifier
+
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'
 
