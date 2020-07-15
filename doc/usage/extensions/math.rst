@@ -140,6 +140,10 @@ are built:
 .. module:: sphinx.ext.mathjax
    :synopsis: Render math using JavaScript via MathJax.
 
+.. warning::
+   Version 4.0 changes the version of MathJax used to version 3. You may need to
+   to override ``mathjax_path`` or change your configuration options.
+
 .. versionadded:: 1.1
 
 This extension puts math as-is into the HTML files.  The JavaScript package
@@ -161,12 +165,12 @@ Sphinx but is set to automatically include it from a third-party site.
    MathJax.
 
    The default is the ``https://`` URL that loads the JS files from the
-   `cdnjs`__ Content Delivery Network. See the `MathJax Getting Started
+   `jsdelivr`__ Content Delivery Network. See the `MathJax Getting Started
    page`__ for details. If you want MathJax to be available offline or
    without including resources from a third-party site, you have to
    download it and set this value to a different path.
 
-   __ https://cdnjs.com
+   __ https://www.jsdelivr.com/
 
    __ https://docs.mathjax.org/en/latest/start.html
 
