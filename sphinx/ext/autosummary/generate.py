@@ -28,7 +28,7 @@ import sys
 import warnings
 from gettext import NullTranslations
 from os import path
-from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, NamedTuple, Set, Tuple, Union
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
