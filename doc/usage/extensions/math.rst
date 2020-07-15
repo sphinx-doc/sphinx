@@ -142,7 +142,7 @@ are built:
 
 .. warning::
    Version 4.0 changes the version of MathJax used to version 3. You may need to
-   to override ``mathjax_path`` or change your configuration options.
+   override ``mathjax_path`` or change your configuration options.
 
 .. versionadded:: 1.1
 
