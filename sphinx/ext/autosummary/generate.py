@@ -396,9 +396,6 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
 
     if app:
         filename_map = app.config.autosummary_filename_map
-        if not isinstance(filename_map, Mapping):
-            raise TypeError('autosummary_filename_map should be a mapping from '
-                            'strings to strings')
     else:
         filename_map = {}
 

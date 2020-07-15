@@ -396,6 +396,9 @@ def test_autosummary_filename_map(app, status, warning):
     assert not (app.srcdir / 'generated' / 'autosummary_dummy_module.bar.rst').exists()
     assert (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').exists()
 
+    html_warnings = app._warning.getvalue()
+    assert html_warnings == ''
+
 
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
