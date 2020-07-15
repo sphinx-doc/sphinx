@@ -626,6 +626,10 @@ class Documenter:
             if safe_getattr(member, '__sphinx_mock__', False):
                 # mocked module or object
                 pass
+            elif (self.options.exclude_members not in (None, ALL) and
+                  membername in self.options.exclude_members):
+                # remove members given by exclude-members
+                keep = False
             elif want_all and membername.startswith('__') and \
                     membername.endswith('__') and len(membername) > 4:
                 # special __methods__
@@ -694,16 +698,6 @@ class Documenter:
             self.options.members is ALL
         # find out which members are documentable
         members_check_module, members = self.get_object_members(want_all)
-
-        # remove members given by exclude-members
-        if self.options.exclude_members:
-            members = [
-                (membername, member) for (membername, member) in members
-                if (
-                    self.options.exclude_members is ALL or
-                    membername not in self.options.exclude_members
-                )
-            ]
 
         # document non-skipped members
         memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
