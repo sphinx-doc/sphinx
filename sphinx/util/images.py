@@ -31,9 +31,11 @@ mime_suffixes = OrderedDict([
     ('.ai', 'application/illustrator'),
 ])
 
-DataURI = NamedTuple('DataURI', [('mimetype', str),
-                                 ('charset', str),
-                                 ('data', bytes)])
+
+class DataURI(NamedTuple):
+    mimetype: str
+    charset: str
+    data: bytes
 
 
 def get_image_size(filename: str) -> Optional[Tuple[int, int]]:
