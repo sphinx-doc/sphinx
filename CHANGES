@@ -22,6 +22,7 @@ Features added
 * #7888: napoleon: Add aliases Warn and Raise.
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
+* #7745: html: inventory is broken if the docname contains a space
 * #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
   the behavior of globaltoc in sidebar
 * #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
