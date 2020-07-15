@@ -80,6 +80,9 @@ Features added
 Bugs fixed
 ----------
 
+* C, don't deepcopy the entire symbol table and make a mess every time an
+  enumerator is handled.
+
 Testing
 --------
 
