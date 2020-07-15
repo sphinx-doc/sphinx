@@ -1530,7 +1530,6 @@ class Symbol:
         self.parent = None
 
     def clear_doc(self, docname: str) -> None:
-        newChildren = []  # type: List[Symbol]
         for sChild in self._children:
             sChild.clear_doc(docname)
             if sChild.declaration and sChild.docname == docname:
@@ -1542,8 +1541,6 @@ class Symbol:
                     sChild.siblingBelow.siblingAbove = sChild.siblingAbove
                 sChild.siblingAbove = None
                 sChild.siblingBelow = None
-            newChildren.append(sChild)
-        self._children = newChildren
 
     def get_all_symbols(self) -> Iterator["Symbol"]:
         yield self
