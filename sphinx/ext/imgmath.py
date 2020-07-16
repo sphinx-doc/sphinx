@@ -26,7 +26,7 @@ from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_attribute
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, sha1
@@ -370,13 +370,13 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     raise nodes.SkipNode
 
 
-deprecated_attribute('sphinx.ext.imgmath',
-                     {
-                         'DOC_BODY': DOC_BODY,
-                         'DOC_BODY_PREVIEW': DOC_BODY_PREVIEW,
-                         'DOC_HEAD': DOC_HEAD,
-                     },
-                     RemovedInSphinx40Warning)
+deprecated_alias('sphinx.ext.imgmath',
+                 {
+                     'DOC_BODY': DOC_BODY,
+                     'DOC_BODY_PREVIEW': DOC_BODY_PREVIEW,
+                     'DOC_HEAD': DOC_HEAD,
+                 },
+                 RemovedInSphinx40Warning)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

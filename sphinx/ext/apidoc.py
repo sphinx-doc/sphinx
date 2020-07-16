@@ -29,7 +29,7 @@ from typing import Any, List, Tuple
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_attribute
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import __
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
@@ -516,11 +516,11 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
     return 0
 
 
-deprecated_attribute('sphinx.ext.apidoc',
-                     {
-                         'INITPY': '__init__.py',
-                     },
-                     RemovedInSphinx40Warning)
+deprecated_alias('sphinx.ext.apidoc',
+                 {
+                     'INITPY': '__init__.py',
+                 },
+                 RemovedInSphinx40Warning)
 
 
 # So program can be started with "python -m sphinx.apidoc ..."

@@ -11,7 +11,7 @@
 import sys
 import warnings
 from importlib import import_module
-from typing import Any, Dict, Tuple
+from typing import Any, Dict
 
 if False:
     # For type annotation
@@ -29,62 +29,39 @@ class RemovedInSphinx50Warning(PendingDeprecationWarning):
 RemovedInNextVersionWarning = RemovedInSphinx40Warning
 
 
-def deprecated_alias(modname: str, objects: Dict[str, Tuple[str, object]],
-                     warning: "Type[Warning]") -> None:
+def deprecated_alias(modname: str, objects: Dict[str, object],
+                     warning: "Type[Warning]", names: Dict[str, str] = None) -> None:
     module = import_module(modname)
-    sys.modules[modname] = _ModuleWrapperDeprecatedAlias(  # type: ignore
-        module, modname, objects, warning)
+    sys.modules[modname] = _ModuleWrapper(  # type: ignore
+        module, modname, objects, warning, names)
 
 
-class _ModuleWrapperDeprecatedAlias:
-    def __init__(self, module: Any, modname: str,
-                 aliases: Dict[str, Tuple[str, object]],
-                 warning: "Type[Warning]") -> None:
-        if not all(isinstance(v, tuple) for v in aliases.values()):
-            raise TypeError('deprecated_alias expects aliases to be a dict mapping: '
-                            'name -> tuple[canonical name, object]')
-
-        self._module = module
-        self._modname = modname
-        self._aliases = aliases
-        self._warning = warning
-
-    def __getattr__(self, name: str) -> Any:
-        if name in self._aliases:
-            canonical_name, obj = self._aliases[name]
-            warnings.warn(
-                "The alias '{}.{}' is deprecated, use '{}' instead. Check CHANGES for "
-                "Sphinx API modifications.".format(self._modname, name, canonical_name),
-                self._warning, stacklevel=3)
-            return obj
-
-        return getattr(self._module, name)
-
-
-def deprecated_attribute(modname: str, objects: Dict[str, object],
-                         warning: "Type[Warning]") -> None:
-    module = import_module(modname)
-    sys.modules[modname] = _ModuleWrapperDeprecatedAttr(  # type: ignore
-        module, modname, objects, warning)
-
-
-class _ModuleWrapperDeprecatedAttr:
+class _ModuleWrapper:
     def __init__(self, module: Any, modname: str,
                  objects: Dict[str, object],
-                 warning: "Type[Warning]") -> None:
+                 warning: "Type[Warning]",
+                 names: Dict[str, str]) -> None:
         self._module = module
         self._modname = modname
         self._objects = objects
         self._warning = warning
+        self._names = names
 
     def __getattr__(self, name: str) -> Any:
-        if name in self._objects:
+        if name not in self._objects:
+            return getattr(self._module, name)
+
+        canonical_name = self._names.get(name, None)
+        if canonical_name is not None:
+            warnings.warn(
+                "The alias '{}.{}' is deprecated, use '{}' instead. Check CHANGES for "
+                "Sphinx API modifications.".format(self._modname, name, canonical_name),
+                self._warning, stacklevel=3)
+        else:
             warnings.warn("{}.{} is deprecated. Check CHANGES for Sphinx "
                           "API modifications.".format(self._modname, name),
                           self._warning, stacklevel=3)
-            return self._objects[name]
-
-        return getattr(self._module, name)
+        return self._objects[name]
 
 
 class DeprecatedDict(dict):

@@ -280,34 +280,53 @@ from sphinx.domains.index import IndexDirective  # noqa
 
 deprecated_alias('sphinx.directives',
                  {
-                     'Highlight': ('sphinx.directives.code.Highlight', Highlight),
-                     'CodeBlock': ('sphinx.directives.code.CodeBlock', CodeBlock),
-                     'LiteralInclude': (
-                         'sphinx.directives.code.LiteralInclude', LiteralInclude),
-                     'TocTree': ('sphinx.directives.other.TocTree', TocTree),
-                     'Author': ('sphinx.directives.other.Author', Author),
-                     'Index': ('sphinx.directives.other.IndexDirective', IndexDirective),
-                     'VersionChange': ('sphinx.directives.other.VersionChange', VersionChange),
-                     'SeeAlso': ('sphinx.directives.other.SeeAlso', SeeAlso),
-                     'TabularColumns': (
-                         'sphinx.directives.other.TabularColumns', TabularColumns),
-                     'Centered': ('sphinx.directives.other.Centered', Centered),
-                     'Acks': ('sphinx.directives.other.Acks', Acks),
-                     'HList': ('sphinx.directives.other.HList', HList),
-                     'Only': ('sphinx.directives.other.Only', Only),
-                     'Include': ('sphinx.directives.other.Include', Include),
-                     'Class': ('sphinx.directives.other.Class', Class),
-                     'Figure': ('sphinx.directives.patches.Figure', Figure),
-                     'Meta': ('sphinx.directives.patches.Meta', Meta),
+                     'Highlight': Highlight,
+                     'CodeBlock': CodeBlock,
+                     'LiteralInclude': LiteralInclude,
+                     'TocTree': TocTree,
+                     'Author': Author,
+                     'Index': IndexDirective,
+                     'VersionChange': VersionChange,
+                     'SeeAlso': SeeAlso,
+                     'TabularColumns': TabularColumns,
+                     'Centered': Centered,
+                     'Acks': Acks,
+                     'HList': HList,
+                     'Only': Only,
+                     'Include': Include,
+                     'Class': Class,
+                     'Figure': Figure,
+                     'Meta': Meta,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'Highlight': 'sphinx.directives.code.Highlight',
+                     'CodeBlock': 'sphinx.directives.code.CodeBlock',
+                     'LiteralInclude': 'sphinx.directives.code.LiteralInclude',
+                     'TocTree': 'sphinx.directives.other.TocTree',
+                     'Author': 'sphinx.directives.other.Author',
+                     'Index': 'sphinx.directives.other.IndexDirective',
+                     'VersionChange': 'sphinx.directives.other.VersionChange',
+                     'SeeAlso': 'sphinx.directives.other.SeeAlso',
+                     'TabularColumns': 'sphinx.directives.other.TabularColumns',
+                     'Centered': 'sphinx.directives.other.Centered',
+                     'Acks': 'sphinx.directives.other.Acks',
+                     'HList': 'sphinx.directives.other.HList',
+                     'Only': 'sphinx.directives.other.Only',
+                     'Include': 'sphinx.directives.other.Include',
+                     'Class': 'sphinx.directives.other.Class',
+                     'Figure': 'sphinx.directives.patches.Figure',
+                     'Meta': 'sphinx.directives.patches.Meta',
+                 })
 
 deprecated_alias('sphinx.directives',
                  {
-                     'DescDirective': (
-                         'sphinx.directives.ObjectDescription', ObjectDescription),
+                     'DescDirective': ObjectDescription,
                  },
-                 RemovedInSphinx50Warning)
+                 RemovedInSphinx50Warning,
+                 {
+                     'DescDirective': 'sphinx.directives.ObjectDescription',
+                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

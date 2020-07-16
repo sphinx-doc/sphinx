@@ -22,16 +22,19 @@ from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
 deprecated_alias('sphinx.builders.htmlhelp',
                  {
-                     'chm_locales': ('sphinxcontrib.htmlhelp.chm_locales', chm_locales),
-                     'chm_htmlescape': (
-                         'sphinxcontrib.htmlhelp.chm_htmlescape', chm_htmlescape),
-                     'HTMLHelpBuilder': (
-                         'sphinxcontrib.htmlhelp.HTMLHelpBuilder', HTMLHelpBuilder),
-                     'default_htmlhelp_basename': (
-                         'sphinxcontrib.htmlhelp.default_htmlhelp_basename',
-                         default_htmlhelp_basename),
+                     'chm_locales': chm_locales,
+                     'chm_htmlescape': chm_htmlescape,
+                     'HTMLHelpBuilder':  HTMLHelpBuilder,
+                     'default_htmlhelp_basename': default_htmlhelp_basename,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'chm_locales': 'sphinxcontrib.htmlhelp.chm_locales',
+                     'chm_htmlescape': 'sphinxcontrib.htmlhelp.chm_htmlescape',
+                     'HTMLHelpBuilder': 'sphinxcontrib.htmlhelp.HTMLHelpBuilder',
+                     'default_htmlhelp_basename':
+                     'sphinxcontrib.htmlhelp.default_htmlhelp_basename',
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

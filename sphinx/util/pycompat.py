@@ -15,8 +15,7 @@ import textwrap
 import warnings
 from typing import Any, Callable
 
-from sphinx.deprecation import (
-    RemovedInSphinx40Warning, deprecated_alias, deprecated_attribute)
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import terminal_safe
@@ -92,13 +91,20 @@ def execfile_(filepath: str, _globals: Any, open: Callable = open) -> None:
 
 deprecated_alias('sphinx.util.pycompat',
                  {
-                     'NoneType': ('sphinx.util.typing.NoneType', NoneType),
-                     'TextIOWrapper': ('io.TextIOWrapper', io.TextIOWrapper),
-                     'htmlescape': ('html.escape', html.escape),
-                     'indent': ('textwrap.indent', textwrap.indent),
-                     'terminal_safe': ('sphinx.util.console.terminal_safe', terminal_safe),
-                     'sys_encoding': ('sys.getdefaultencoding', sys.getdefaultencoding()),
+                     'NoneType': NoneType,
+                     'TextIOWrapper': io.TextIOWrapper,
+                     'htmlescape': html.escape,
+                     'indent': textwrap.indent,
+                     'terminal_safe': terminal_safe,
+                     'sys_encoding': sys.getdefaultencoding(),
+                     'u': '',
                  },
-                 RemovedInSphinx40Warning)
-
-deprecated_attribute('sphinx.util.pycompat', {'u': ''}, RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'NoneType': 'sphinx.util.typing.NoneType',
+                     'TextIOWrapper': 'io.TextIOWrapper',
+                     'htmlescape': 'html.escape',
+                     'indent': 'textwrap.indent',
+                     'terminal_safe': 'sphinx.util.console.terminal_safe',
+                     'sys_encoding': 'sys.getdefaultencoding',
+                 })

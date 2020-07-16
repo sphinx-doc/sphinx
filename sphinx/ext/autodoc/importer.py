@@ -188,10 +188,17 @@ from sphinx.ext.autodoc.mock import (  # NOQA
 
 deprecated_alias('sphinx.ext.autodoc.importer',
                  {
-                     '_MockModule': ('sphinx.ext.autodoc.mock._MockModule', _MockModule),
-                     '_MockObject': ('sphinx.ext.autodoc.mock._MockObject', _MockObject),
-                     'MockFinder': ('sphinx.ext.autodoc.mock.MockFinder', MockFinder),
-                     'MockLoader': ('sphinx.ext.autodoc.mock.MockLoader', MockLoader),
-                     'mock': ('sphinx.ext.autodoc.mock.mock', mock),
+                     '_MockModule': _MockModule,
+                     '_MockObject': _MockObject,
+                     'MockFinder': MockFinder,
+                     'MockLoader': MockLoader,
+                     'mock': mock,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     '_MockModule': 'sphinx.ext.autodoc.mock._MockModule',
+                     '_MockObject': 'sphinx.ext.autodoc.mock._MockObject',
+                     'MockFinder': 'sphinx.ext.autodoc.mock.MockFinder',
+                     'MockLoader': 'sphinx.ext.autodoc.mock.MockLoader',
+                     'mock': 'sphinx.ext.autodoc.mock.mock',
+                 })

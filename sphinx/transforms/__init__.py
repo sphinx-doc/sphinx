@@ -407,14 +407,16 @@ from sphinx.domains.citation import (  # NOQA
 
 deprecated_alias('sphinx.transforms',
                  {
-                     'CitationReferences': (
-                         'sphinx.domains.citation.CitationReferenceTransform',
-                         CitationReferenceTransform),
-                     'SmartQuotesSkipper': (
-                         'sphinx.domains.citation.CitationDefinitionTransform',
-                         CitationDefinitionTransform),
+                     'CitationReferences': CitationReferenceTransform,
+                     'SmartQuotesSkipper': CitationDefinitionTransform,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'CitationReferences':
+                     'sphinx.domains.citation.CitationReferenceTransform',
+                     'SmartQuotesSkipper':
+                     'sphinx.domains.citation.CitationDefinitionTransform',
+                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

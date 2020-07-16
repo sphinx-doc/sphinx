@@ -21,10 +21,12 @@ from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
 deprecated_alias('sphinx.builders.devhelp',
                  {
-                     'DevhelpBuilder': (
-                         'sphinxcontrib.devhelp.DevhelpBuilder', DevhelpBuilder),
+                     'DevhelpBuilder': DevhelpBuilder,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'DevhelpBuilder': 'sphinxcontrib.devhelp.DevhelpBuilder'
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

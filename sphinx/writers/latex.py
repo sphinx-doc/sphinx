@@ -2131,30 +2131,33 @@ from sphinx.builders.latex.util import ExtBabel  # NOQA
 
 deprecated_alias('sphinx.writers.latex',
                  {
-                     'ADDITIONAL_SETTINGS': (
-                         'sphinx.builders.latex.constants.ADDITIONAL_SETTINGS',
-                         constants.ADDITIONAL_SETTINGS),
-                     'DEFAULT_SETTINGS': (
-                         'sphinx.builders.latex.constants.DEFAULT_SETTINGS',
-                         constants.DEFAULT_SETTINGS),
-                     'LUALATEX_DEFAULT_FONTPKG': (
-                         'sphinx.builders.latex.constants.LUALATEX_DEFAULT_FONTPKG',
-                         constants.LUALATEX_DEFAULT_FONTPKG),
-                     'PDFLATEX_DEFAULT_FONTPKG': (
-                         'sphinx.builders.latex.constants.PDFLATEX_DEFAULT_FONTPKG',
-                         constants.PDFLATEX_DEFAULT_FONTPKG),
-                     'SHORTHANDOFF': (
-                         'sphinx.builders.latex.constants.SHORTHANDOFF',
-                         constants.SHORTHANDOFF),
-                     'XELATEX_DEFAULT_FONTPKG': (
-                         'sphinx.builders.latex.constants.XELATEX_DEFAULT_FONTPKG',
-                         constants.XELATEX_DEFAULT_FONTPKG),
-                     'XELATEX_GREEK_DEFAULT_FONTPKG': (
-                         'sphinx.builders.latex.constants.XELATEX_GREEK_DEFAULT_FONTPKG',
-                         constants.XELATEX_GREEK_DEFAULT_FONTPKG),
-                     'ExtBabel': ('sphinx.builders.latex.util.ExtBabel', ExtBabel),
+                     'ADDITIONAL_SETTINGS': constants.ADDITIONAL_SETTINGS,
+                     'DEFAULT_SETTINGS': constants.DEFAULT_SETTINGS,
+                     'LUALATEX_DEFAULT_FONTPKG': constants.LUALATEX_DEFAULT_FONTPKG,
+                     'PDFLATEX_DEFAULT_FONTPKG': constants.PDFLATEX_DEFAULT_FONTPKG,
+                     'SHORTHANDOFF': constants.SHORTHANDOFF,
+                     'XELATEX_DEFAULT_FONTPKG': constants.XELATEX_DEFAULT_FONTPKG,
+                     'XELATEX_GREEK_DEFAULT_FONTPKG': constants.XELATEX_GREEK_DEFAULT_FONTPKG,
+                     'ExtBabel': ExtBabel,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'ADDITIONAL_SETTINGS':
+                     'sphinx.builders.latex.constants.ADDITIONAL_SETTINGS',
+                     'DEFAULT_SETTINGS':
+                     'sphinx.builders.latex.constants.DEFAULT_SETTINGS',
+                     'LUALATEX_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.LUALATEX_DEFAULT_FONTPKG',
+                     'PDFLATEX_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.PDFLATEX_DEFAULT_FONTPKG',
+                     'SHORTHANDOFF':
+                     'sphinx.builders.latex.constants.SHORTHANDOFF',
+                     'XELATEX_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.XELATEX_DEFAULT_FONTPKG',
+                     'XELATEX_GREEK_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.XELATEX_GREEK_DEFAULT_FONTPKG',
+                     'ExtBabel': 'sphinx.builders.latex.util.ExtBabel',
+                 })
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433

@@ -191,11 +191,13 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 # for compatibility
 deprecated_alias('sphinx.builders.html',
                  {
-                     'SingleFileHTMLBuilder': (
-                         'sphinx.builders.singlehtml.SingleFileHTMLBuilder',
-                         SingleFileHTMLBuilder),
+                     'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'SingleFileHTMLBuilder':
+                     'sphinx.builders.singlehtml.SingleFileHTMLBuilder',
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

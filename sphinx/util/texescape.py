@@ -11,7 +11,7 @@
 import re
 from typing import Dict
 
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_attribute
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
 
 tex_replacements = [
@@ -109,12 +109,12 @@ _tex_hlescape_map = {}  # type: Dict[int, str]
 _tex_hlescape_map_without_unicode = {}  # type: Dict[int, str]
 
 
-deprecated_attribute('sphinx.util.texescape',
-                     {
-                         'tex_escape_map': _tex_escape_map,
-                         'tex_hl_escape_map_new': _tex_hlescape_map,
-                     },
-                     RemovedInSphinx40Warning)
+deprecated_alias('sphinx.util.texescape',
+                 {
+                     'tex_escape_map': _tex_escape_map,
+                     'tex_hl_escape_map_new': _tex_hlescape_map,
+                 },
+                 RemovedInSphinx40Warning)
 
 
 def escape(s: str, latex_engine: str = None) -> str:
