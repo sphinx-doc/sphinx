@@ -3782,6 +3782,16 @@ class Symbol:
     debug_lookup = False  # overridden by the corresponding config value
     debug_show_tree = False  # overridden by the corresponding config value
 
+    def __copy__(self):
+        assert False  # shouldn't happen
+
+    def __deepcopy__(self, memo):
+        if self.parent:
+            assert False  # shouldn't happen
+        else:
+            # the domain base class makes a copy of the initial data, which is fine
+            return Symbol(None, None, None, None, None, None)
+
     @staticmethod
     def debug_print(*args: Any) -> None:
         print(Symbol.debug_indent_string * Symbol.debug_indent, end="")

@@ -112,6 +112,9 @@ class ASTIdentifier(ASTBaseBase):
         assert len(identifier) != 0
         self.identifier = identifier
 
+    def __eq__(self, other: Any) -> bool:
+        return type(other) is ASTIdentifier and self.identifier == other.identifier
+
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'
 
@@ -1336,6 +1339,10 @@ class ASTDeclaration(ASTBaseBase):
         # set by CObject._add_enumerator_to_parent
         self.enumeratorScopedSymbol = None  # type: Symbol
 
+    def clone(self) -> "ASTDeclaration":
+        return ASTDeclaration(self.objectType, self.directiveType,
+                              self.declaration.clone(), self.semicolon)
+
     @property
     def name(self) -> ASTNestedName:
         return self.declaration.name
@@ -1425,6 +1432,16 @@ class Symbol:
     debug_lookup = False
     debug_show_tree = False
 
+    def __copy__(self):
+        assert False  # shouldn't happen
+
+    def __deepcopy__(self, memo):
+        if self.parent:
+            assert False  # shouldn't happen
+        else:
+            # the domain base class makes a copy of the initial data, which is fine
+            return Symbol(None, None, None, None)
+
     @staticmethod
     def debug_print(*args: Any) -> None:
         print(Symbol.debug_indent_string * Symbol.debug_indent, end="")
@@ -1513,7 +1530,6 @@ class Symbol:
         self.parent = None
 
     def clear_doc(self, docname: str) -> None:
-        newChildren = []  # type: List[Symbol]
         for sChild in self._children:
             sChild.clear_doc(docname)
             if sChild.declaration and sChild.docname == docname:
@@ -1525,8 +1541,6 @@ class Symbol:
                     sChild.siblingBelow.siblingAbove = sChild.siblingAbove
                 sChild.siblingAbove = None
                 sChild.siblingBelow = None
-            newChildren.append(sChild)
-        self._children = newChildren
 
     def get_all_symbols(self) -> Iterator["Symbol"]:
         yield self
