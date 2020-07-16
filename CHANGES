@@ -48,6 +48,7 @@ Bugs fixed
 * #7865: autosummary: Failed to extract summary line when abbreviations found
 * #7866: autosummary: Failed to extract correct summary line when docstring
   contains a hyperlink target
+* #7469: autosummary: "Module attributes" header is not translatable
 * #7940: apidoc: An extra newline is generated at the end of the rst file if a
   module has submodules 
 * #4258: napoleon: decorated special methods are not shown
