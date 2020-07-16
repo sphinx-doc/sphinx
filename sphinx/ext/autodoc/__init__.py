@@ -336,7 +336,7 @@ class Documenter:
                         ('.' + '.'.join(self.objpath) if self.objpath else '')
         return True
 
-    def import_object(self) -> bool:
+    def import_object(self, raiseerror: bool = False) -> bool:
         """Import the object given by *self.modname* and *self.objpath* and set
         it as *self.object*.
 
@@ -350,9 +350,12 @@ class Documenter:
                 self.module, self.parent, self.object_name, self.object = ret
                 return True
             except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return False
+                if raiseerror:
+                    raise
+                else:
+                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                    self.env.note_reread()
+                    return False
 
     def get_real_modname(self) -> str:
         """Get the real module name of an object to document.
@@ -892,7 +895,7 @@ class ModuleDocumenter(Documenter):
                            type='autodoc')
         return ret
 
-    def import_object(self) -> Any:
+    def import_object(self, raiseerror: bool = False) -> bool:
         def is_valid_module_all(__all__: Any) -> bool:
             """Check the given *__all__* is valid for a module."""
             if (isinstance(__all__, (list, tuple)) and
@@ -901,7 +904,7 @@ class ModuleDocumenter(Documenter):
             else:
                 return False
 
-        ret = super().import_object()
+        ret = super().import_object(raiseerror)
 
         if not self.options.ignore_module_all:
             __all__ = getattr(self.object, '__all__', None)
@@ -1297,8 +1300,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                             ) -> bool:
         return isinstance(member, type)
 
-    def import_object(self) -> Any:
-        ret = super().import_object()
+    def import_object(self, raiseerror: bool = False) -> bool:
+        ret = super().import_object(raiseerror)
         # if the class is documented under another name, document it
         # as data/attribute
         if ret:
@@ -1612,7 +1615,7 @@ class DataDeclarationDocumenter(DataDocumenter):
                 isattr and
                 member is INSTANCEATTR)
 
-    def import_object(self) -> bool:
+    def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as a data
         self.objtype = 'data'
@@ -1711,8 +1714,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         return inspect.isroutine(member) and \
             not isinstance(parent, ModuleDocumenter)
 
-    def import_object(self) -> Any:
-        ret = super().import_object()
+    def import_object(self, raiseerror: bool = False) -> bool:
+        ret = super().import_object(raiseerror)
         if not ret:
             return ret
 
@@ -1879,15 +1882,42 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     def document_members(self, all_members: bool = False) -> None:
         pass
 
-    def import_object(self) -> Any:
-        ret = super().import_object()
-        if inspect.isenumattribute(self.object):
-            self.object = self.object.value
-        if inspect.isattributedescriptor(self.object):
-            self._datadescriptor = True
-        else:
-            # if it's not a data descriptor
-            self._datadescriptor = False
+    def isinstanceattribute(self) -> bool:
+        """Check the subject is an instance attribute."""
+        try:
+            analyzer = ModuleAnalyzer.for_module(self.modname)
+            attr_docs = analyzer.find_attr_docs()
+            if self.objpath:
+                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                if key in attr_docs:
+                    return True
+
+            return False
+        except PycodeError:
+            return False
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        try:
+            ret = super().import_object(raiseerror=True)
+            if inspect.isenumattribute(self.object):
+                self.object = self.object.value
+            if inspect.isattributedescriptor(self.object):
+                self._datadescriptor = True
+            else:
+                # if it's not a data descriptor
+                self._datadescriptor = False
+        except ImportError as exc:
+            if self.isinstanceattribute():
+                self.object = INSTANCEATTR
+                self._datadescriptor = False
+                ret = True
+            elif raiseerror:
+                raise
+            else:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                ret = False
+
         return ret
 
     def get_real_modname(self) -> str:
@@ -1994,7 +2024,7 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
                 isattr and
                 member is INSTANCEATTR)
 
-    def import_object(self) -> bool:
+    def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
@@ -2025,7 +2055,7 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
         """This documents only SLOTSATTR members."""
         return member is SLOTSATTR
 
-    def import_object(self) -> Any:
+    def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
@@ -2039,9 +2069,12 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
                 self.module, _, _, self.parent = ret
                 return True
             except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return False
+                if raiseerror:
+                    raise
+                else:
+                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                    self.env.note_reread()
+                    return False
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""

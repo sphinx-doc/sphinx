@@ -1047,7 +1047,7 @@ def test_class_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_instance_attributes(app):
+def test_autoclass_instance_attributes(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.InstAttCls', options)
     assert list(actual) == [
@@ -1116,6 +1116,19 @@ def test_instance_attributes(app):
         '      :module: target',
         '',
         '      Doc comment for instance attribute InstAttCls.ia1',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_instance_attributes(app):
+    actual = do_autodoc(app, 'attribute', 'target.InstAttCls.ia1')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: InstAttCls.ia1',
+        '   :module: target',
+        '',
+        '   Doc comment for instance attribute InstAttCls.ia1',
         ''
     ]
 
