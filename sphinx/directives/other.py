@@ -368,7 +368,10 @@ deprecated_alias('sphinx.directives.other',
                  {
                      'Index': IndexDirective,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'Index': 'sphinx.domains.index.IndexDirective',
+                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

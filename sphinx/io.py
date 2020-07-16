@@ -229,4 +229,8 @@ deprecated_alias('sphinx.io',
                      'FiletypeNotFoundError': FiletypeNotFoundError,
                      'get_filetype': get_filetype,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'FiletypeNotFoundError': 'sphinx.errors.FiletypeNotFoundError',
+                     'get_filetype': 'sphinx.util.get_filetype',
+                 })

@@ -99,4 +99,12 @@ deprecated_alias('sphinx.util.pycompat',
                      'sys_encoding': sys.getdefaultencoding(),
                      'u': '',
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'NoneType': 'sphinx.util.typing.NoneType',
+                     'TextIOWrapper': 'io.TextIOWrapper',
+                     'htmlescape': 'html.escape',
+                     'indent': 'textwrap.indent',
+                     'terminal_safe': 'sphinx.util.console.terminal_safe',
+                     'sys_encoding': 'sys.getdefaultencoding',
+                 })

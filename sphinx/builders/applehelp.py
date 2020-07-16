@@ -27,7 +27,14 @@ deprecated_alias('sphinx.builders.applehelp',
                      'AppleHelpIndexerFailed': AppleHelpIndexerFailed,
                      'AppleHelpBuilder': AppleHelpBuilder,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'AppleHelpCodeSigningFailed':
+                     'sphinxcontrib.applehelp.AppleHelpCodeSigningFailed',
+                     'AppleHelpIndexerFailed':
+                     'sphinxcontrib.applehelp.AppleHelpIndexerFailed',
+                     'AppleHelpBuilder': 'sphinxcontrib.applehelp.AppleHelpBuilder',
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

@@ -410,7 +410,13 @@ deprecated_alias('sphinx.transforms',
                      'CitationReferences': CitationReferenceTransform,
                      'SmartQuotesSkipper': CitationDefinitionTransform,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'CitationReferences':
+                     'sphinx.domains.citation.CitationReferenceTransform',
+                     'SmartQuotesSkipper':
+                     'sphinx.domains.citation.CitationDefinitionTransform',
+                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
