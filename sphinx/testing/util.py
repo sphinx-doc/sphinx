@@ -99,8 +99,8 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
-    _status = None  # type: StringIO
-    _warning = None  # type: StringIO
+    _status: StringIO = None
+    _warning: StringIO = None
 
     def __init__(self, buildername: str = 'html', srcdir: path = None, freshenv: bool = False,
                  confoverrides: Dict = None, status: IO = None, warning: IO = None,

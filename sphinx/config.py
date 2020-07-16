@@ -14,7 +14,7 @@ import types
 from collections import OrderedDict
 from os import getenv, path
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, NamedTuple,
-                    Set, Tuple, Union)
+                    Optional, Set, Tuple, Union)
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -88,7 +88,7 @@ class Config:
     # If you add a value here, don't forget to include it in the
     # quickstart.py file template as well as in the docs!
 
-    config_values = {
+    config_values: Dict[str, Tuple] = {
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
@@ -146,20 +146,20 @@ class Config:
         'smartquotes_excludes': ({'languages': ['ja'],
                                   'builders': ['man', 'text']},
                                  'env', []),
-    }  # type: Dict[str, Tuple]
+    }
 
     def __init__(self, config: Dict[str, Any] = {}, overrides: Dict[str, Any] = {}) -> None:
         self.overrides = dict(overrides)
         self.values = Config.config_values.copy()
         self._raw_config = config
-        self.setup = config.get('setup', None)  # type: Callable
+        self.setup: Optional[Callable] = config.get('setup', None)
 
         if 'extensions' in self.overrides:
             if isinstance(self.overrides['extensions'], str):
                 config['extensions'] = self.overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = self.overrides.pop('extensions')
-        self.extensions = config.get('extensions', [])  # type: List[str]
+        self.extensions: List[str] = config.get('extensions', [])
 
     @classmethod
     def read(cls, confdir: str, overrides: Dict = None, tags: Tags = None) -> "Config":
@@ -311,7 +311,7 @@ class Config:
 
 def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
     """Evaluate a config file."""
-    namespace = {}  # type: Dict[str, Any]
+    namespace: Dict[str, Any] = {}
     namespace['__file__'] = filename
     namespace['tags'] = tags
 

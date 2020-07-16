@@ -104,7 +104,7 @@ class toctree(nodes.General, nodes.Element, translatable):
             self['caption'] = translated_message
 
     def extract_original_messages(self) -> List[str]:
-        messages = []  # type: List[str]
+        messages: List[str] = []
 
         # toctree entries
         messages.extend(self.get('rawentries', []))
@@ -209,7 +209,7 @@ class desc_content(nodes.General, nodes.Element):
 
 class desc_sig_element(nodes.inline):
     """Common parent class of nodes for inline text of a signature."""
-    classes = []  # type: List[str]
+    classes: List[str] = []
 
     def __init__(self, rawsource: str = '', text: str = '',
                  *children: Element, **attributes: Any) -> None:

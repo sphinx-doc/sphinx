@@ -87,7 +87,7 @@ class TestDirective(SphinxDirective):
                 if not test:
                     test = code
                 code = doctestopt_re.sub('', code)
-        nodetype = nodes.literal_block  # type: Type[TextElement]
+        nodetype: Type[TextElement] = nodes.literal_block
         if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
             nodetype = nodes.comment
         if self.arguments:
@@ -202,9 +202,9 @@ parser = doctest.DocTestParser()
 class TestGroup:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.setup = []     # type: List[TestCode]
-        self.tests = []     # type: List[List[TestCode]]
-        self.cleanup = []   # type: List[TestCode]
+        self.setup: List[TestCode] = []
+        self.tests: List[List[TestCode]] = []
+        self.cleanup: List[TestCode] = []
 
     def add_code(self, code: "TestCode", prepend: bool = False) -> None:
         if code.type == 'testsetup':
@@ -392,7 +392,7 @@ Doctest summary
             return False
         else:
             condition = node['skipif']
-            context = {}  # type: Dict[str, Any]
+            context: Dict[str, Any] = {}
             if self.config.doctest_global_setup:
                 exec(self.config.doctest_global_setup, context)
             should_skip = eval(condition, context)
@@ -401,7 +401,7 @@ Doctest summary
             return should_skip
 
     def test_doc(self, docname: str, doctree: Node) -> None:
-        groups = {}  # type: Dict[str, TestGroup]
+        groups: Dict[str, TestGroup] = {}
         add_to_all_groups = []
         self.setup_runner = SphinxDocTestRunner(verbose=False,
                                                 optionflags=self.opt)
@@ -482,7 +482,7 @@ Doctest summary
         return compile(code, name, self.type, flags, dont_inherit)
 
     def test_group(self, group: TestGroup) -> None:
-        ns = {}  # type: Dict
+        ns: Dict = {}
 
         def run_setup_cleanup(runner: Any, testcodes: List[TestCode], what: Any) -> bool:
             examples = []

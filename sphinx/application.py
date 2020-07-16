@@ -140,12 +140,12 @@ class Sphinx:
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False) -> None:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
-        self.extensions = {}                    # type: Dict[str, Extension]
-        self.builder = None                     # type: Builder
-        self.env = None                         # type: BuildEnvironment
-        self.project = None                     # type: Project
+        self.extensions: Dict[str, Extension] = {}
+        self.builder: Builder = None
+        self.env: BuildEnvironment = None
+        self.project: Project = None
         self.registry = SphinxComponentRegistry()
-        self.html_themes = {}                   # type: Dict[str, str]
+        self.html_themes: Dict[str, str] = {}
 
         # validate provided directories
         self.srcdir = abspath(srcdir)
@@ -173,14 +173,14 @@ class Sphinx:
         self.parallel = parallel
 
         if status is None:
-            self._status = StringIO()      # type: IO
+            self._status: IO = StringIO()
             self.quiet = True
         else:
             self._status = status
             self.quiet = False
 
         if warning is None:
-            self._warning = StringIO()     # type: IO
+            self._warning: IO = StringIO()
         else:
             self._warning = warning
         self._warncount = 0
@@ -195,7 +195,7 @@ class Sphinx:
 
         # keep last few messages for traceback
         # This will be filled by sphinx.util.logging.LastMessagesWriter
-        self.messagelog = deque(maxlen=10)  # type: deque
+        self.messagelog: deque = deque(maxlen=10)
 
         # say hello to the world
         logger.info(bold(__('Running Sphinx v%s') % sphinx.__display_version__))
@@ -292,7 +292,7 @@ class Sphinx:
                 if catalog.domain == 'sphinx' and catalog.is_outdated():
                     catalog.write_mo(self.config.language)
 
-            locale_dirs = list(repo.locale_dirs)  # type: List[Optional[str]]
+            locale_dirs: List[Optional[str]] = list(repo.locale_dirs)
             locale_dirs += [None]
             locale_dirs += [path.join(package_dir, 'locale')]
 

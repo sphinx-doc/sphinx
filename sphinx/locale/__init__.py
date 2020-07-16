@@ -103,7 +103,7 @@ class _TranslationProxy(UserString):
             return '<%s broken>' % self.__class__.__name__
 
 
-translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
+translators: Dict[Tuple[str, str], NullTranslations] = defaultdict(NullTranslations)
 
 
 def init(locale_dirs: List[Optional[str]], language: Optional[str],
@@ -123,7 +123,7 @@ def init(locale_dirs: List[Optional[str]], language: Optional[str],
 
     if language and '_' in language:
         # for language having country code (like "de_AT")
-        languages = [language, language.split('_')[0]]  # type: Optional[List[str]]
+        languages: Optional[List[str]] = [language, language.split('_')[0]]
     elif language:
         languages = [language]
     else:
@@ -262,7 +262,7 @@ admonitionlabels = {
 }
 
 # Moved to sphinx.directives.other (will be overriden later)
-versionlabels = {}  # type: Dict[str, str]
+versionlabels: Dict[str, str] = {}
 
 # Moved to sphinx.domains.python (will be overriden later)
-pairindextypes = {}  # type: Dict[str, str]
+pairindextypes: Dict[str, str] = {}

@@ -46,7 +46,7 @@ class SphinxBaseReader(standalone.Reader):
     This replaces reporter by Sphinx's on generating document.
     """
 
-    transforms = []  # type: List[Type[Transform]]
+    transforms: List[Type[Transform]] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         from sphinx.application import Sphinx
