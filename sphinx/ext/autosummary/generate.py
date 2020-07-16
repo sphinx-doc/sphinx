@@ -76,10 +76,11 @@ class DummyApplication:
         pass
 
 
-AutosummaryEntry = NamedTuple('AutosummaryEntry', [('name', str),
-                                                   ('path', str),
-                                                   ('template', str),
-                                                   ('recursive', bool)])
+class AutosummaryEntry(NamedTuple):
+    name: str
+    path: str
+    template: str
+    recursive: bool
 
 
 def setup_documenters(app: Any) -> None:
