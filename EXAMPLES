@@ -382,6 +382,7 @@ Homepages and other non-documentation sites
 * `Pylearn2 <http://www.deeplearning.net/software/pylearn2/>`__ (sphinxdoc, customized)
 * `PyXLL <https://www.pyxll.com/>`__ (sphinx_bootstrap_theme, customized)
 * `SciPy Cookbook <https://scipy-cookbook.readthedocs.io/>`__ (sphinx_rtd_theme)
+* `Tech writer at work blog <https://blog.documatt.com/>`__ (custom theme)
 * `The Wine Cellar Book <https://www.thewinecellarbook.com/doc/en/>`__ (sphinxdoc)
 * `Thomas Cokelaer's Python, Sphinx and reStructuredText tutorials <https://thomas-cokelaer.info/tutorials/>`__ (standard)
 * `UC Berkeley ME233 Advanced Control Systems II course <https://berkeley-me233.github.io/>`__ (sphinxdoc)
