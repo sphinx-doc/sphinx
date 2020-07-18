@@ -242,6 +242,7 @@ def is_translatable(node: Node) -> bool:
 LITERAL_TYPE_NODES = (
     nodes.literal_block,
     nodes.doctest_block,
+    nodes.math_block,
     nodes.raw,
 )
 IMAGE_TYPE_NODES = (
