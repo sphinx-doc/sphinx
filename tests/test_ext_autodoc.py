@@ -1973,3 +1973,48 @@ def test_name_conflict(app):
         '   docstring of target.name_conflict.foo::bar.',
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_name_mangling(app):
+    options = {"members": None,
+               "undoc-members": None,
+               "private-members": None}
+    actual = do_autodoc(app, 'module', 'target.name_mangling', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.name_mangling',
+        '',
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.name_mangling',
+        '',
+        '',
+        '   .. py:attribute:: Bar._Baz__email',
+        '      :module: target.name_mangling',
+        '      :value: None',
+        '',
+        '      a member having mangled-like name',
+        '',
+        '',
+        '   .. py:attribute:: Bar.__address',
+        '      :module: target.name_mangling',
+        '      :value: None',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.name_mangling',
+        '',
+        '',
+        '   .. py:attribute:: Foo.__age',
+        '      :module: target.name_mangling',
+        '      :value: None',
+        '',
+        '',
+        '   .. py:attribute:: Foo.__name',
+        '      :module: target.name_mangling',
+        '      :value: None',
+        '',
+        '      name of Foo',
+        '',
+    ]
