@@ -3,6 +3,8 @@ jobs:
   build:
     docker:
       - image: sphinxdoc/docker-ci
+        environment:
+          DO_EPUBCHECK: 1
     working_directory: /sphinx
     steps:
       - checkout
