@@ -391,6 +391,6 @@ def test_run_epubcheck(app):
             subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
                            stdout=PIPE, stderr=PIPE, check=True)
         except CalledProcessError as exc:
-            print(exc.stdout)
-            print(exc.stderr)
+            print(exc.stdout.decode('utf-8'))
+            print(exc.stderr.decode('utf-8'))
             assert False, 'epubcheck exited with return code %s' % exc.returncode
