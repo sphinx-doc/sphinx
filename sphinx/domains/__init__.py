@@ -54,13 +54,14 @@ class ObjType:
         self.attrs.update(attrs)
 
 
-IndexEntry = NamedTuple('IndexEntry', [('name', str),
-                                       ('subtype', int),
-                                       ('docname', str),
-                                       ('anchor', str),
-                                       ('extra', str),
-                                       ('qualifier', str),
-                                       ('descr', str)])
+class IndexEntry(NamedTuple):
+    name: str
+    subtype: int
+    docname: str
+    anchor: str
+    extra: str
+    qualifier: str
+    descr: str
 
 
 class Index:

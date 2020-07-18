@@ -63,15 +63,20 @@ pairindextypes = {
     'builtin':   _('built-in function'),
 }
 
-ObjectEntry = NamedTuple('ObjectEntry', [('docname', str),
-                                         ('node_id', str),
-                                         ('objtype', str),
-                                         ('canonical', bool)])
-ModuleEntry = NamedTuple('ModuleEntry', [('docname', str),
-                                         ('node_id', str),
-                                         ('synopsis', str),
-                                         ('platform', str),
-                                         ('deprecated', bool)])
+
+class ObjectEntry(NamedTuple):
+    docname: str
+    node_id: str
+    objtype: str
+    canonical: bool
+
+
+class ModuleEntry(NamedTuple):
+    docname: str
+    node_id: str
+    synopsis: str
+    platform: str
+    deprecated: bool
 
 
 def type_to_xref(text: str) -> addnodes.pending_xref:

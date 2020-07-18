@@ -21,9 +21,10 @@ from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
 
 
-HighlightSetting = NamedTuple('HighlightSetting', [('language', str),
-                                                   ('force', bool),
-                                                   ('lineno_threshold', int)])
+class HighlightSetting(NamedTuple):
+    language: str
+    force: bool
+    lineno_threshold: int
 
 
 class HighlightLanguageTransform(SphinxTransform):
