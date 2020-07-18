@@ -237,6 +237,10 @@ class Locale(SphinxTransform):
                 node.details['nodes'][0]['content'] = msgstr
                 continue
 
+            if isinstance(node, nodes.image) and node.get('alt') == msg:
+                node['alt'] = msgstr
+                continue
+
             # Avoid "Literal block expected; none found." warnings.
             # If msgstr ends with '::' then it cause warning message at
             # parser.parse() processing.
@@ -440,8 +444,9 @@ class Locale(SphinxTransform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 node.rawsource = node.astext()
 
-            if isinstance(node, IMAGE_TYPE_NODES):
-                node.update_all_atts(patch)
+            if isinstance(node, nodes.image) and node.get('alt') != msg:
+                node['uri'] = patch['uri']
+                continue  # do not mark translated
 
             node['translated'] = True  # to avoid double translation
 
