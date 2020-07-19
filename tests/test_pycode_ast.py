@@ -55,8 +55,8 @@ from sphinx.pycode import ast
     ("- a", "- a"),                             # USub
     ("(1, 2, 3)", "1, 2, 3"),                   # Tuple
     ("()", "()"),                               # Tuple (empty)
-    ("(1 + 2) * 3", "(1 + 2) * 3")              # understand operator precedence
-    ("(1, 2) + (3, 4)", "(1, 2) + (3, 4)")      # understand operator precedence
+    ("(1 + 2) * 3", "(1 + 2) * 3"),             # understand operator precedence
+    ("(1, 2) + (3, 4)", "(1, 2) + (3, 4)"),     # understand operator precedence
 ])
 def test_unparse(source, expected):
     module = ast.parse(source)
