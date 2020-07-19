@@ -27,7 +27,7 @@ def register_application_for_autosummary(app: "Sphinx") -> None:
     """Register application object to autosummary module.
 
     Since Sphinx-1.7, documenters and attrgetters are registered into
-    applicaiton object.  As a result, the arguments of
+    application object.  As a result, the arguments of
     ``get_documenter()`` has been changed.  To keep compatibility,
     this handler registers application object to the module.
     """

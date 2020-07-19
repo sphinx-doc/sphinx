@@ -63,7 +63,7 @@ hvor         | where
 eller        | or
 hvad         | what
 skal         | must/shall etc.
-selv         | myself/youself/herself/ourselves etc., even
+selv         | myself/yourself/herself/ourselves etc., even
 her          | here
 alle         | all/everyone/everybody etc.
 vil          | will (verb)

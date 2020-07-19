@@ -328,7 +328,7 @@ def get_full_modname(modname: str, attribute: str) -> str:
         return None
     module = import_module(modname)
 
-    # Allow an attribute to have multiple parts and incidentially allow
+    # Allow an attribute to have multiple parts and incidentally allow
     # repeated .s in the attribute.
     value = module
     for attr in attribute.split('.'):
