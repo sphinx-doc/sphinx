@@ -387,11 +387,11 @@ class BuildEnvironment:
                 # add catalog mo file dependency
                 repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
                                          self.config.language, self.config.source_encoding)
+                mo_paths = {c.domain: c.mo_path for c in repo.catalogs}
                 for docname in self.found_docs:
                     domain = docname_to_domain(docname, self.config.gettext_compact)
-                    for catalog in repo.catalogs:
-                        if catalog.domain == domain:
-                            self.dependencies[docname].add(catalog.mo_path)
+                    if domain in mo_paths:
+                        self.dependencies[docname].add(mo_paths[domain])
         except OSError as exc:
             raise DocumentError(__('Failed to scan documents in %s: %r') %
                                 (self.srcdir, exc)) from exc
