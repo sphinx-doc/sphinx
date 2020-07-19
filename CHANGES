@@ -66,6 +66,7 @@ Bugs fixed
 * C and C++, removed ``noindex`` directive option as it did
   nothing.
 * #7619: Duplicated node IDs are generated if node has multiple IDs
+* #2050: Symbols sections are appeared twice in the index page
 
 Testing
 --------
