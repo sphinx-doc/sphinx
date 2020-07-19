@@ -10,6 +10,9 @@
 
 import sys
 from typing import Dict, List, Type, Optional
+from enum import IntEnum, auto
+from contextlib import AbstractContextManager
+from collections import namedtuple
 
 if sys.version_info > (3, 8):
     import ast
@@ -20,6 +23,139 @@ else:
     except ImportError:
         import ast  # type: ignore
 
+class _NTBase:
+
+    __slots__ = ()
+
+    def from_raw(cls, raw):
+        if not raw:
+            return None
+        elif isinstance(raw, cls):
+            return raw
+        elif isinstance(raw, str):
+            return cls.from_string(raw)
+        else:
+            if hasattr(raw, 'items'):
+                return cls(**raw)
+            try:
+                args = tuple(raw)
+            except TypeError:
+                pass
+            else:
+                return cls(*args)
+        raise NotImplementedError
+
+    def from_string(cls, value):
+        """Return a new instance based on the given string."""
+        raise NotImplementedError
+
+    @classmethod
+    def _make(cls, iterable):  # The default _make() is not subclass-friendly.
+        return cls.__new__(cls, *iterable)
+
+    # XXX Always validate?
+    #def __init__(self, *args, **kwargs):
+    #    self.validate()
+
+    # XXX The default __repr__() is not subclass-friendly (where the name changes).
+    #def __repr__(self):
+    #    _, _, sig = super().__repr__().partition('(')
+    #    return f'{self.__class__.__name__}({sig}'
+
+    # To make sorting work with None:
+    def __lt__(self, other):
+        try:
+            return super().__lt__(other)
+        except TypeError:
+            if None in self:
+                return True
+            elif None in other:
+                return False
+            else:
+                raise
+
+    def validate(self):
+        return
+
+    # XXX Always validate?
+    #def _replace(self, **kwargs):
+    #    obj = super()._replace(**kwargs)
+    #    obj.validate()
+    #    return obj
+
+class PreprocessorDirective(_NTBase):
+    """The base class for directives."""
+
+    __slots__ = ()
+
+    KINDS = frozenset([
+            'include',
+            'pragma',
+            'error', 'warning',
+            'define', 'undef',
+            'if', 'ifdef', 'ifndef', 'elseif', 'else', 'endif',
+            '__FILE__', '__DATE__', '__LINE__', '__TIME__', '__TIMESTAMP__',
+            ])
+
+    @property
+    def text(self):
+        return ' '.join(v for v in self[1:] if v and v.strip()) or None
+
+    def validate(self):
+        """Fail if the object is invalid (i.e. init with bad data)."""
+        super().validate()
+
+        if not self.kind:
+            raise TypeError('missing kind')
+        elif self.kind not in self.KINDS:
+            raise ValueError
+
+        # text can be anything, including None.
+
+
+class Constant(PreprocessorDirective,
+               namedtuple('Constant', 'kind name value')):
+    """A single "constant" directive ("define")."""
+
+    __slots__ = ()
+
+    def __new__(cls, name, value=None):
+        self = super().__new__(
+                cls,
+                'define',
+                name=_coerce_str(name) or None,
+                value=_coerce_str(value) or None,
+                )
+        return self
+
+    def validate(self):
+        """Fail if the object is invalid (i.e. init with bad data)."""
+        super().validate()
+
+        if not self.name:
+            raise TypeError('missing name')
+        elif not IDENTIFIER_RE.match(self.name):
+            raise ValueError(f'name must be identifier, got {self.name!r}')
+
+        # value can be anything, including None
+
+class nullcontext(AbstractContextManager):
+    """Context manager that does no additional processing.
+    Used as a stand-in for a normal context manager, when a particular
+    block of code is only sometimes used with a normal context manager:
+    cm = optional_cm if condition else nullcontext()
+    with cm:
+        # Perform operation, using optional_cm if condition is True
+    """
+
+    def __init__(self, enter_result=None):
+        self.enter_result = enter_result
+
+    def __enter__(self):
+        return self.enter_result
+
+    def __exit__(self, *excinfo):
+        pass
 
 OPERATORS = {
     ast.Add: "+",
@@ -43,6 +179,38 @@ OPERATORS = {
     ast.USub: "-",
 }  # type: Dict[Type[ast.AST], str]
 
+# Large float and imaginary literals get turned into infinities in the AST.
+# We unparse those infinities to INFSTR.
+_INFSTR = "1e" + repr(sys.float_info.max_10_exp + 1)
+
+class _Precedence(IntEnum):
+    """Precedence table that originated from python grammar."""
+
+    TUPLE = auto()
+    YIELD = auto()           # 'yield', 'yield from'
+    TEST = auto()            # 'if'-'else', 'lambda'
+    OR = auto()              # 'or'
+    AND = auto()             # 'and'
+    NOT = auto()             # 'not'
+    CMP = auto()             # '<', '>', '==', '>=', '<=', '!=',
+                             # 'in', 'not in', 'is', 'is not'
+    EXPR = auto()
+    BOR = EXPR               # '|'
+    BXOR = auto()            # '^'
+    BAND = auto()            # '&'
+    SHIFT = auto()           # '<<', '>>'
+    ARITH = auto()           # '+', '-'
+    TERM = auto()            # '*', '@', '/', '%', '//'
+    FACTOR = auto()          # unary '+', '-', '~'
+    POWER = auto()           # '**'
+    AWAIT = auto()           # 'await'
+    ATOM = auto()
+
+    def next(self):
+        try:
+            return self.__class__(self + 1)
+        except ValueError:
+            return self
 
 def parse(code: str, mode: str = 'exec') -> "ast.AST":
     """Parse the *code* using built-in ast or typed_ast.
@@ -126,7 +294,6 @@ class _UnparseVisitor(ast.NodeVisitor):
         self._buffer.clear()
         return value
 
-    @contextmanager
     def block(self, *, extra = None):
         """A context manager for preparing the source for blocks. It adds
         the character':', increases the indentation on enter and decreases
@@ -140,7 +307,6 @@ class _UnparseVisitor(ast.NodeVisitor):
         yield
         self._indent -= 1
 
-    @contextmanager
     def delimit(self, start, end):
         """A context manager for preparing the source for expressions. It adds
         *start* to the buffer and enters, after exit it adds *end*."""
@@ -201,7 +367,8 @@ class _UnparseVisitor(ast.NodeVisitor):
         return "".join(self._source)
 
     def _write_docstring_and_traverse_body(self, node):
-        if (docstring := self.get_raw_docstring(node)):
+        docstring = self.get_raw_docstring(node)
+        if (docstring):
             self._write_docstring(docstring)
             self.traverse(node.body[1:])
         else:
@@ -254,7 +421,8 @@ class _UnparseVisitor(ast.NodeVisitor):
             self.traverse(target)
             self.write(" = ")
         self.traverse(node.value)
-        if type_comment := self.get_type_comment(node):
+        type_comment = self.get_type_comment(node)
+        if type_comment:
             self.write(type_comment)
 
     def visit_AugAssign(self, node):
