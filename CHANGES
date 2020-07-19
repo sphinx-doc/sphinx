@@ -12,6 +12,7 @@ Incompatible changes
 
 * #4826: py domain: The structure of python objects is changed.  A boolean value
   is added to indicate that the python object is canonical one
+* #7784: i18n: The msgid for alt text of image is changed
 
 Deprecated
 ----------
@@ -28,6 +29,8 @@ Features added
 
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined
+* #7784: i18n: The alt text for image is translated by default (without
+  :confval:`gettext_additional_targets` setting)
 * #7830: Add debug logs for change detection of sources and templates
 
 Bugs fixed

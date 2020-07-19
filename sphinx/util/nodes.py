@@ -197,6 +197,10 @@ def is_translatable(node: Node) -> bool:
     if isinstance(node, addnodes.translatable):
         return True
 
+    # image node marked as translatable or having alt text
+    if isinstance(node, nodes.image) and (node.get('translatable') or node.get('alt')):
+        return True
+
     if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore
         # inline node must not be translated if 'translatable' is not set
         return False
@@ -222,9 +226,6 @@ def is_translatable(node: Node) -> bool:
             logger.debug('[i18n] SKIP %r because orphan node: %s',
                          get_full_module_name(node), repr_domxml(node))
             return False
-        return True
-
-    if isinstance(node, nodes.image) and node.get('translatable'):
         return True
 
     if isinstance(node, addnodes.meta):
@@ -259,10 +260,13 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
             msg = node.rawsource
             if not msg:
                 msg = node.astext()
-        elif isinstance(node, IMAGE_TYPE_NODES):
-            msg = '.. image:: %s' % node['uri']
+        elif isinstance(node, nodes.image):
             if node.get('alt'):
-                msg += '\n   :alt: %s' % node['alt']
+                yield node, node['alt']
+            if node.get('translatable'):
+                msg = '.. image:: %s' % node['uri']
+            else:
+                msg = None
         elif isinstance(node, META_TYPE_NODES):
             msg = node.rawcontent
         elif isinstance(node, nodes.pending) and is_pending_meta(node):
