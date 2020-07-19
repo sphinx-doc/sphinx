@@ -10,7 +10,9 @@
 
 import sys
 from numbers import Integral
-from typing import Any, Dict, List, TypeVar, Union, Callable, Tuple, Optional, Generic
+from typing import (
+    Any, Dict, Generator, List, TypeVar, Union, Callable, Tuple, Optional, Generic
+)
 
 import pytest
 
@@ -48,6 +50,7 @@ def test_stringify_type_hints_containers():
     assert stringify(Tuple[str, ...]) == "Tuple[str, ...]"
     assert stringify(List[Dict[str, Tuple]]) == "List[Dict[str, Tuple]]"
     assert stringify(MyList[Tuple[int, int]]) == "test_util_typing.MyList[Tuple[int, int]]"
+    assert stringify(Generator[None, None, None]) == "Generator[None, None, None]"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')

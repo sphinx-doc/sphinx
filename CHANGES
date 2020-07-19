@@ -46,6 +46,7 @@ Bugs fixed
 * #7901: autodoc: type annotations for overloaded functions are not resolved
 * #904: autodoc: An instance attribute cause a crash of autofunction directive
 * #1362: autodoc: ``private-members`` option does not work for class attributes
+* #7983: autodoc: Generator type annotation is wrongly rendered in py36
 * #7839: autosummary: cannot handle umlauts in function names
 * #7865: autosummary: Failed to extract summary line when abbreviations found
 * #7866: autosummary: Failed to extract correct summary line when docstring
