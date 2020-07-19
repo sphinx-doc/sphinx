@@ -208,17 +208,17 @@ def test_autosummary_generate_content_for_module(app):
     assert template.render.call_args[0][0] == 'module'
 
     context = template.render.call_args[0][1]
-    assert context['members'] == ['Exc', 'Foo', '_Baz', '_Exc', '__builtins__',
-                                  '__cached__', '__doc__', '__file__', '__name__',
-                                  '__package__', '_quux', 'bar', 'qux']
+    assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'Exc', 'Foo', '_Baz', '_Exc',
+                                  '__builtins__', '__cached__', '__doc__', '__file__',
+                                  '__name__', '__package__', '_quux', 'bar', 'qux']
     assert context['functions'] == ['bar']
     assert context['all_functions'] == ['_quux', 'bar']
     assert context['classes'] == ['Foo']
     assert context['all_classes'] == ['Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
-    assert context['attributes'] == ['qux']
-    assert context['all_attributes'] == ['qux']
+    assert context['attributes'] == ['CONSTANT1', 'qux']
+    assert context['all_attributes'] == ['CONSTANT1', 'qux']
     assert context['fullname'] == 'autosummary_dummy_module'
     assert context['module'] == 'autosummary_dummy_module'
     assert context['objname'] == ''
@@ -239,8 +239,9 @@ def test_autosummary_generate_content_for_module_skipped(app):
     generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
                                  template, None, False, app, False, {})
     context = template.render.call_args[0][1]
-    assert context['members'] == ['_Baz', '_Exc', '__builtins__', '__cached__', '__doc__',
-                                  '__file__', '__name__', '__package__', '_quux', 'qux']
+    assert context['members'] == ['CONSTANT1', 'CONSTANT2', '_Baz', '_Exc', '__builtins__',
+                                  '__cached__', '__doc__', '__file__', '__name__',
+                                  '__package__', '_quux', 'qux']
     assert context['functions'] == []
     assert context['classes'] == []
     assert context['exceptions'] == []
@@ -256,18 +257,18 @@ def test_autosummary_generate_content_for_module_imported_members(app):
     assert template.render.call_args[0][0] == 'module'
 
     context = template.render.call_args[0][1]
-    assert context['members'] == ['Exc', 'Foo', 'Union', '_Baz', '_Exc', '__builtins__',
-                                  '__cached__', '__doc__', '__file__', '__loader__',
-                                  '__name__', '__package__', '__spec__', '_quux',
-                                  'bar', 'path', 'qux']
+    assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'Exc', 'Foo', 'Union', '_Baz',
+                                  '_Exc', '__builtins__', '__cached__', '__doc__',
+                                  '__file__', '__loader__', '__name__', '__package__',
+                                  '__spec__', '_quux', 'bar', 'path', 'qux']
     assert context['functions'] == ['bar']
     assert context['all_functions'] == ['_quux', 'bar']
     assert context['classes'] == ['Foo']
     assert context['all_classes'] == ['Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
-    assert context['attributes'] == ['qux']
-    assert context['all_attributes'] == ['qux']
+    assert context['attributes'] == ['CONSTANT1', 'qux']
+    assert context['all_attributes'] == ['CONSTANT1', 'qux']
     assert context['fullname'] == 'autosummary_dummy_module'
     assert context['module'] == 'autosummary_dummy_module'
     assert context['objname'] == ''
@@ -307,6 +308,11 @@ def test_autosummary_generate(app, status, warning):
             '   \n'
             '      Foo\n'
             '   \n' in module)
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      CONSTANT1\n'
+            '      qux\n'
+            '   \n' in module)
 
     Foo = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').read_text()
     assert '.. automethod:: __init__' in Foo
@@ -317,6 +323,8 @@ def test_autosummary_generate(app, status, warning):
             '   \n' in Foo)
     assert ('   .. autosummary::\n'
             '   \n'
+            '      ~Foo.CONSTANT3\n'
+            '      ~Foo.CONSTANT4\n'
             '      ~Foo.baz\n'
             '   \n' in Foo)
 
