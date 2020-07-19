@@ -801,13 +801,16 @@ documentation on :ref:`intl` for details.
    :literal-block: literal blocks (``::`` annotation and ``code-block`` directive)
    :doctest-block: doctest block
    :raw: raw content
-   :image: image/figure uri and alt
+   :image: image/figure uri
 
    For example: ``gettext_additional_targets = ['literal-block', 'image']``.
 
    The default is ``[]``.
 
    .. versionadded:: 1.3
+   .. versionchanged:: 4.0
+
+      The alt text for image is translated by default.
 
 .. confval:: figure_language_filename
 
