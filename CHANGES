@@ -613,7 +613,7 @@ Release 2.4.1 (released Feb 11, 2020)
 Bugs fixed
 ----------
 
-* #7120: html: crashed when on scaling SVG images which have float dimentions
+* #7120: html: crashed when on scaling SVG images which have float dimensions
 * #7126: autodoc: TypeError: 'getset_descriptor' object is not iterable
 
 Release 2.4.0 (released Feb 09, 2020)
@@ -759,7 +759,7 @@ Features added
 * #6548: html: Use favicon for OpenSearch if available
 * #6729: html theme: agogo theme now supports ``rightsidebar`` option
 * #6780: Add PEP-561 Support
-* #6762: latex: Allow to load additonal LaTeX packages via ``extrapackages`` key
+* #6762: latex: Allow to load additional LaTeX packages via ``extrapackages`` key
   of :confval:`latex_elements`
 * #1331: Add new config variable: :confval:`user_agent`
 * #6000: LaTeX: have backslash also be an inline literal word wrap break

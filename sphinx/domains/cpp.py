@@ -141,7 +141,7 @@ T = TypeVar('T')
             visibility storage-class-specifier function-specifier "friend"
             "constexpr" "volatile" "const" trailing-type-specifier
             # where trailing-type-specifier can no be cv-qualifier
-        # Inside e.g., template paramters a strict subset is used
+        # Inside e.g., template parameters a strict subset is used
         # (see type-specifier-seq)
         trailing-type-specifier ->
               simple-type-specifier ->

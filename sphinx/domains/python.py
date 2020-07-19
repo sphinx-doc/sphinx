@@ -480,7 +480,7 @@ class PyObject(ObjectDescription):
 
         :py:class:`PyObject` represents Python language constructs. For
         constructs that are nestable, such as a Python classes, this method will
-        build up a stack of the nesting heirarchy so that it can be later
+        build up a stack of the nesting hierarchy so that it can be later
         de-nested correctly, in :py:meth:`after_content`.
 
         For constructs that aren't nestable, the stack is bypassed, and instead

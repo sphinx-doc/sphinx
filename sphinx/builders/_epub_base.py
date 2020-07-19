@@ -388,7 +388,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return ext in VECTOR_GRAPHICS_EXTENSIONS
 
     def copy_image_files_pil(self) -> None:
-        """Copy images using Pillow, the Python Imaging Libary.
+        """Copy images using Pillow, the Python Imaging Library.
         The method tries to read and write the files with Pillow, converting
         the format and resizing the image if necessary/possible.
         """

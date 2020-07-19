@@ -74,7 +74,7 @@ class Table:
 
     Cell spanning on multiple rows or multiple columns (having a
     colspan or rowspan greater than one) are automatically referenced
-    by all the table cells they covers. This is a usefull
+    by all the table cells they covers. This is a useful
     representation as we can simply check ``if self[x, y] is self[x,
     y+1]`` to recognize a rowspan.
 

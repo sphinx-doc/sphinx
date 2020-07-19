@@ -3508,7 +3508,7 @@ class CXRefRole(XRefRole):
                                   config=self.env.config)
         try:
             parser.parse_xref_object()
-            # it suceeded, so let it through
+            # it succeeded, so let it through
             return super().run()
         except DefinitionError as eOrig:
             # try as if it was an c:expr

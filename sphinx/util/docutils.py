@@ -497,7 +497,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     """Return a new empty document object.  This is an alternative of docutils'.
 
     This is a simple wrapper for ``docutils.utils.new_document()``.  It
-    caches the result of docutils' and use it on second call for instanciation.
+    caches the result of docutils' and use it on second call for instantiation.
     This makes an instantiation of document nodes much faster.
     """
     global __document_cache__
