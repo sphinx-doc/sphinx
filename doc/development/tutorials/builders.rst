@@ -6,7 +6,7 @@ Discover builders by entry point
 
 .. versionadded:: 1.6
 
-:term:`Builder` extensions can be discovered by means of `entry points`_ so
+:term:`builder` extensions can be discovered by means of `entry points`_ so
 that they do not have to be listed in the :confval:`extensions` configuration
 value.
 
