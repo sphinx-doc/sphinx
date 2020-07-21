@@ -2013,6 +2013,7 @@ definition_after_normal_text : int
             "int or float or None, optional",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'F'",
+            "{'F', 'C', 'N or C'}, default 'F'",
             '"ma{icious"',
             r"'with \'quotes\''",
         )
@@ -2022,6 +2023,7 @@ definition_after_normal_text : int
             ["int", " or ", "float", " or ", "None", ", ", "optional"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "'F'"],
+            ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],
         )

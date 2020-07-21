@@ -845,10 +845,17 @@ def _recombine_set_tokens(tokens: List[str]) -> List[str]:
 
 
 def _tokenize_type_spec(spec: str) -> List[str]:
+    def postprocess(item):
+        if item.startswith("default"):
+            return [item[:7], item[7:]]
+        else:
+            return [item]
+
     tokens = list(
         item
-        for item in _token_regex.split(spec)
-        if item is not None and item.strip()
+        for raw_token in _token_regex.split(spec)
+        for item in postprocess(raw_token)
+        if item
     )
     return tokens
 
