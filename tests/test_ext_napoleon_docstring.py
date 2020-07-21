@@ -2066,6 +2066,10 @@ definition_after_normal_text : int
             self.assertEqual(expected, actual)
 
     def test_convert_numpy_type_spec(self):
+        translations = {
+            "DataFrame": "pandas.DataFrame",
+        }
+
         specs = (
             "",
             "optional",
@@ -2073,6 +2077,7 @@ definition_after_normal_text : int
             "int or float or None, default: None",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'N'",
+            "DataFrame, optional",
         )
 
         converted = (
@@ -2082,10 +2087,11 @@ definition_after_normal_text : int
             ":class:`int` or :class:`float` or :obj:`None`, *default*: :obj:`None`",
             '``{"F", "C", "N"}``',
             "``{'F', 'C', 'N'}``, *default*: ``'N'``",
+            ":class:`pandas.DataFrame`, *optional*",
         )
 
         for spec, expected in zip(specs, converted):
-            actual = _convert_numpy_type_spec(spec)
+            actual = _convert_numpy_type_spec(spec, translations=translations)
             self.assertEqual(expected, actual)
 
     def test_parameter_types(self):

@@ -910,11 +910,16 @@ def _token_type(token: str, location: str = None) -> str:
 
 def _convert_numpy_type_spec(_type: str, location: str = None, translations: dict = {}) -> str:
     def convert_obj(obj, translations, default_translation):
+        translation = translations.get(obj, obj)
+
         # use :class: (the default) only if obj is not a standard singleton (None, True, False)
-        if obj in ("None", "True", "False") and default_translation == ":class:`%s`":
+        if translation in ("None", "True", "False") and default_translation == ":class:`%s`":
             default_translation = ":obj:`%s`"
 
-        return translations.get(obj, default_translation % obj)
+        if _xref_regex.match(translation) is None:
+            translation = default_translation % translation
+
+        return translation
 
     tokens = _tokenize_type_spec(_type)
     combined_tokens = _recombine_set_tokens(tokens)
