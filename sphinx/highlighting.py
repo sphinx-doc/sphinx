@@ -10,7 +10,7 @@
 
 from functools import partial
 from importlib import import_module
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -60,7 +60,7 @@ class PygmentsBridge:
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest: str = 'html', stylename: str = 'sphinx',
+    def __init__(self, dest: str = 'html', stylename: Union[str,Style] = 'sphinx',
                  latex_engine: str = None) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
@@ -73,7 +73,7 @@ class PygmentsBridge:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
 
-    def get_style(self, stylename: str) -> Style:
+    def get_style(self, stylename: Union[str,Style] ) -> Style:
         if stylename is None or stylename == 'sphinx':
             return SphinxStyle
         elif stylename == 'none':
@@ -81,6 +81,10 @@ class PygmentsBridge:
         elif '.' in stylename:
             module, stylename = stylename.rsplit('.', 1)
             return getattr(import_module(module), stylename)
+        # check if a custom Style object is provided by the user
+        # (this way they can just define one in their conf.py)
+        elif isinstance(stylename, Style):
+            return stylename
         else:
             return get_style_by_name(stylename)
 
