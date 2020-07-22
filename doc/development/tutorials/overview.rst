@@ -19,7 +19,7 @@ use the :meth:`Sphinx.setup_extension` method. This will
 activate another extension at run-time, ensuring that you have access to its
 functionality.
 
-For example, the following code activates the "recommonmark" extension:
+For example, the following code activates the ``recommonmark`` extension:
 
 .. code-block:: python
 

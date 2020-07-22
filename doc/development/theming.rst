@@ -231,6 +231,7 @@ function as a callback for :event:`html-page-context`.
             return "Your string is %s" % mystring
         # Add it to the page's context
         context['my_func'] = my_func
+
     # Your extension's setup function
     def setup(app):
         app.connect("html-page-context", setup_my_func)
@@ -244,7 +245,7 @@ Now, you will have access to this function in jinja like so:
    </div>
 
 
-Inject javsacript based on user configuration
+Inject JavaScript based on user configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If your extension makes use of JavaScript, it can be useful to allow users
@@ -257,15 +258,34 @@ configuration.
 
 First, you may append ``_t`` to the end of any static files included with your
 extension. This will cause Sphinx to process these files with the templating
-engine, allowing you to embed variables and control behavior. See
-:ref:`theming-static-templates` for more information.
+engine, allowing you to embed variables and control behavior.
+
+For example, the following JavaScript structure:
+
+.. code-block:: bash
+
+   mymodule/
+   ├── _static
+   │   └── myjsfile.js_t
+   └── mymodule.py
+
+Will result in the following static file placed in your HTML's build output:
+
+.. code-block:: bash
+
+   _build/
+   └── html
+       └── _static
+           └── myjsfile.js
+
+See :ref:`theming-static-templates` for more information.
 
 Second, you may use the :meth:`Sphinx.add_js_file` method without pointing it
 to a file. Normally, this method is used to insert a new JavaScript file
 into your site. However, if you do *not* pass a file path, but instead pass
 a string to the "body" argument, then this text will be inserted as JavaScript
 into your site's head. This allows you to insert variables into your project's
-javascript from Python.
+JavaScript from Python.
 
 For example, the following code will read in a user-configured value and then
 insert this value as a JavaScript variable, which your extension's JavaScript

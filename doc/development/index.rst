@@ -11,3 +11,10 @@ wish to use Sphinx with existing extensions, refer to :doc:`/usage/index`.
    :maxdepth: 2
 
    tutorials/index
+   builders
+
+.. toctree::
+   :caption: Theming
+   :maxdepth: 2
+
+   theming
