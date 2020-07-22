@@ -10,6 +10,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.writers.texinfo.TexinfoWriter.desc``
 * C, parsing of pre-v3 style type directives and roles, along with the options
   :confval:`c_allow_pre_v3` and :confval:`c_warn_on_allowed_pre_v3`.
 
@@ -62,6 +63,7 @@ Bugs fixed
 * #7928: py domain: failed to resolve a type annotation for the attribute
 * #7968: i18n: The content of ``math`` directive is interpreted as reST on
   translation
+* #7993: texinfo: TypeError is raised for nested object descriptions
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
 * C and C++, removed ``noindex`` directive option as it did
