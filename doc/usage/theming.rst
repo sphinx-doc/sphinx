@@ -22,7 +22,7 @@ Themes
 
    This section provides information about using pre-existing HTML themes. If
    you wish to create your own theme, refer to
-   :doc:`/development/tutorials/theming-dev`.
+   :doc:`/development/theming`.
 
 Sphinx supports changing the appearance of its HTML output via *themes*.  A
 theme is a collection of HTML templates, stylesheet(s) and other static files.
@@ -81,7 +81,7 @@ zipfile-based theme::
     html_theme = "dotted"
 
 For more information on the design of themes, including information about
-writing your own themes, refer to :doc:`/development/tutorials/theming-dev`.
+writing your own themes, refer to :doc:`/development/theming`.
 
 .. _builtin-themes:
 
