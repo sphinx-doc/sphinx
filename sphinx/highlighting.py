@@ -60,7 +60,7 @@ class PygmentsBridge:
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest: str = 'html', stylename: Union[str,Style] = 'sphinx',
+    def __init__(self, dest: str = 'html', stylename: Union[str, Style] = 'sphinx',
                  latex_engine: str = None) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
@@ -73,7 +73,7 @@ class PygmentsBridge:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
 
-    def get_style(self, stylename: Union[str,Style] ) -> Style:
+    def get_style(self, stylename: Union[str, Style]) -> Style:
         if stylename is None or stylename == 'sphinx':
             return SphinxStyle
         elif stylename == 'none':
