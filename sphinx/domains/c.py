@@ -1200,13 +1200,17 @@ class ASTTypeWithInit(ASTBase):
 
 
 class ASTMacroParameter(ASTBase):
-    def __init__(self, arg: ASTNestedName, ellipsis: bool = False) -> None:
+    def __init__(self, arg: ASTNestedName, ellipsis: bool = False,
+                 variadic: bool = False) -> None:
         self.arg = arg
         self.ellipsis = ellipsis
+        self.variadic = variadic
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.ellipsis:
             return '...'
+        elif self.variadic:
+            return transform(self.arg) + '...'
         else:
             return transform(self.arg)
 
@@ -1215,6 +1219,9 @@ class ASTMacroParameter(ASTBase):
         verify_description_mode(mode)
         if self.ellipsis:
             signode += nodes.Text('...')
+        elif self.variadic:
+            name = str(self)
+            signode += nodes.emphasis(name, name)
         else:
             self.arg.describe_signature(signode, mode, env, symbol=symbol)
 
@@ -2915,9 +2922,14 @@ class DefinitionParser(BaseParser):
             if not self.match(identifier_re):
                 self.fail("Expected identifier in macro parameters.")
             nn = ASTNestedName([ASTIdentifier(self.matched_text)], rooted=False)
-            arg = ASTMacroParameter(nn)
-            args.append(arg)
             self.skip_ws()
+            if self.skip_string_and_ws('...'):
+                args.append(ASTMacroParameter(nn, False, True))
+                self.skip_ws()
+                if not self.skip_string(')'):
+                    self.fail('Expected ")" after "..." in macro parameters.')
+                break
+            args.append(ASTMacroParameter(nn))
             if self.skip_string_and_ws(','):
                 continue
             elif self.skip_string_and_ws(')'):
