@@ -252,7 +252,9 @@ class Autosummary(SphinxDirective):
             tree_prefix = self.options['toctree'].strip()
             docnames = []
             excluded = Matcher(self.config.exclude_patterns)
+            filename_map = self.config.autosummary_filename_map
             for name, sig, summary, real_name in items:
+                real_name = filename_map.get(real_name, real_name)
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
@@ -785,6 +787,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_role('autolink', AutoLink())
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_context', {}, True)
+    app.add_config_value('autosummary_filename_map', {}, 'html')
     app.add_config_value('autosummary_generate', [], True, [bool])
     app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',

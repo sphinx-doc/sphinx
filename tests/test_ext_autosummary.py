@@ -394,6 +394,20 @@ def test_autosummary_recursive(app, status, warning):
     assert 'package.package.module' in content
 
 
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-filename-map')
+def test_autosummary_filename_map(app, status, warning):
+    app.build()
+
+    assert (app.srcdir / 'generated' / 'module_mangled.rst').exists()
+    assert not (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').exists()
+    assert (app.srcdir / 'generated' / 'bar.rst').exists()
+    assert not (app.srcdir / 'generated' / 'autosummary_dummy_module.bar.rst').exists()
+    assert (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').exists()
+
+    html_warnings = app._warning.getvalue()
+    assert html_warnings == ''
+
+
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.builder.build_all()
