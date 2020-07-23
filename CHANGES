@@ -17,6 +17,8 @@ Features added
 --------------
 
 * #2076: autodoc: Allow overriding of exclude-members in skip-member function
+* #2024: autosummary: Add :confval:`autosummary_filename_map` to avoid conflict
+  of filenames between two object with different case
 * #7849: html: Add :confval:`html_codeblock_linenos_style` to change the style
   of line numbers for code-blocks
 * #7853: C and C++, support parameterized GNU style attributes.
