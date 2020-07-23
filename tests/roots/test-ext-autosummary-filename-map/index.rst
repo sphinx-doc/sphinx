@@ -1,8 +1,4 @@
 
-:autolink:`autosummary_dummy_module.Foo`
-
-:autolink:`autosummary_importfail`
-
 .. autosummary::
    :toctree: generated
    :caption: An autosummary
