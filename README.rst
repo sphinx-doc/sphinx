@@ -30,6 +30,10 @@
    :target: https://opensource.org/licenses/BSD-3-Clause
    :alt: BSD 3 Clause
 
+.. image:: https://codetriage.com/sphinx-doc/sphinx/badges/users.svg
+   :target: https://codetriage.com/sphinx-doc/sphinx
+   :alt: Open Source Helpers badge
+
 Sphinx is a tool that makes it easy to create intelligent and beautiful
 documentation for Python projects (or other documents consisting of multiple
 reStructuredText sources), written by Georg Brandl.  It was originally created

@@ -15,6 +15,7 @@ import sys
 from datetime import datetime
 from os import path
 from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple, Type
+from urllib.parse import quote
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -881,6 +882,8 @@ class StandaloneHTMLBuilder(Builder):
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = False
+        if kwargs.get('maxdepth') == '':
+            kwargs.pop('maxdepth')
         return self.render_partial(TocTree(self.env).get_toctree_for(
             docname, self, collapse, **kwargs))['fragment']
 
@@ -940,7 +943,7 @@ class StandaloneHTMLBuilder(Builder):
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
-        return docname + self.link_suffix
+        return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
                     outfilename: str = None, event_arg: Any = None) -> None:

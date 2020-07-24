@@ -51,36 +51,69 @@ Incompatible changes
 Deprecated
 ----------
 
+* C, parsing of pre-v3 style type directives and roles, along with the options
+  :confval:`c_allow_pre_v3` and :confval:`c_warn_on_allowed_pre_v3`.
+
 Features added
 --------------
 
+* #2076: autodoc: Allow overriding of exclude-members in skip-member function
+* #2024: autosummary: Add :confval:`autosummary_filename_map` to avoid conflict
+  of filenames between two object with different case
 * #7849: html: Add :confval:`html_codeblock_linenos_style` to change the style
   of line numbers for code-blocks
 * #7853: C and C++, support parameterized GNU style attributes.
 * #7888: napoleon: Add aliases Warn and Raise.
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
+* #7745: html: inventory is broken if the docname contains a space
+* #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
+  the behavior of globaltoc in sidebar
+* #7840: i18n: Optimize the dependencies check on bootstrap
+* #5208: linkcheck: Support checks for local links
+* #5090: setuptools: Link verbosity to distutils' -v and -q option
 * #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
   Update the documentation to better reflect the relationship between this option
   and the ``:noindex:`` option.
+* #7899: C, add possibility of parsing of some pre-v3 style type directives and
+  roles and try to convert them to equivalent v3 directives/roles.
+  Set the new option :confval:`c_allow_pre_v3` to ``True`` to enable this.
+  The warnings printed from this functionality can be suppressed by setting
+  :confval:`c_warn_on_allowed_pre_v3`` to ``True``.
+  The functionality is immediately deprecated.
 
 Bugs fixed
 ----------
 
 * #7886: autodoc: TypeError is raised on mocking generic-typed classes
+* #7935: autodoc: function signature is not shown when the function has a
+  parameter having ``inspect._empty`` as its default value
+* #7901: autodoc: type annotations for overloaded functions are not resolved
+* #904: autodoc: An instance attribute cause a crash of autofunction directive
+* #1362: autodoc: ``private-members`` option does not work for class attributes
+* #7983: autodoc: Generator type annotation is wrongly rendered in py36
 * #7839: autosummary: cannot handle umlauts in function names
 * #7865: autosummary: Failed to extract summary line when abbreviations found
 * #7866: autosummary: Failed to extract correct summary line when docstring
   contains a hyperlink target
+* #7469: autosummary: "Module attributes" header is not translatable
+* #7940: apidoc: An extra newline is generated at the end of the rst file if a
+  module has submodules 
 * #4258: napoleon: decorated special methods are not shown
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
 * #7846: html theme: XML-invalid files were generated
 * #7894: gettext: Wrong source info is shown when using rst_epilog
+* #7691: linkcheck: HEAD requests are not used for checking
+* #4888: i18n: Failed to add an explicit title to ``:ref:`` role on translation
+* #7928: py domain: failed to resolve a type annotation for the attribute
+* #7968: i18n: The content of ``math`` directive is interpreted as reST on
+  translation
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
 * C and C++, removed ``noindex`` directive option as it did
   nothing.
 * #7619: Duplicated node IDs are generated if node has multiple IDs
+* #2050: Symbols sections are appeared twice in the index page
 
 Testing
 --------
@@ -102,6 +135,9 @@ Features added
 
 Bugs fixed
 ----------
+
+* C, don't deepcopy the entire symbol table and make a mess every time an
+  enumerator is handled.
 
 Testing
 --------
@@ -626,7 +662,7 @@ Release 2.4.1 (released Feb 11, 2020)
 Bugs fixed
 ----------
 
-* #7120: html: crashed when on scaling SVG images which have float dimentions
+* #7120: html: crashed when on scaling SVG images which have float dimensions
 * #7126: autodoc: TypeError: 'getset_descriptor' object is not iterable
 
 Release 2.4.0 (released Feb 09, 2020)
@@ -772,7 +808,7 @@ Features added
 * #6548: html: Use favicon for OpenSearch if available
 * #6729: html theme: agogo theme now supports ``rightsidebar`` option
 * #6780: Add PEP-561 Support
-* #6762: latex: Allow to load additonal LaTeX packages via ``extrapackages`` key
+* #6762: latex: Allow to load additional LaTeX packages via ``extrapackages`` key
   of :confval:`latex_elements`
 * #1331: Add new config variable: :confval:`user_agent`
 * #6000: LaTeX: have backslash also be an inline literal word wrap break

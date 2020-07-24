@@ -268,7 +268,10 @@ deprecated_alias('sphinx.directives',
                  {
                      'DescDirective': ObjectDescription,
                  },
-                 RemovedInSphinx50Warning)
+                 RemovedInSphinx50Warning,
+                 {
+                     'DescDirective': 'sphinx.directives.ObjectDescription',
+                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

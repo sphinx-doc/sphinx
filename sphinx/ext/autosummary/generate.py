@@ -70,6 +70,7 @@ class DummyApplication:
         self.warningiserror = False
 
         self.config.add('autosummary_context', {}, True, None)
+        self.config.add('autosummary_filename_map', {}, True, None)
         self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
@@ -375,6 +376,11 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     # keep track of new files
     new_files = []
 
+    if app:
+        filename_map = app.config.autosummary_filename_map
+    else:
+        filename_map = {}
+
     # write
     for entry in sorted(set(items), key=str):
         if entry.path is None:
@@ -400,7 +406,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                                                imported_members, app, entry.recursive, context,
                                                modname, qualname)
 
-        filename = os.path.join(path, name + suffix)
+        filename = os.path.join(path, filename_map.get(name, name) + suffix)
         if os.path.isfile(filename):
             with open(filename, encoding=encoding) as f:
                 old_content = f.read()

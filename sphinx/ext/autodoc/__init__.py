@@ -34,7 +34,9 @@ from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect
 from sphinx.util import logging
 from sphinx.util.docstrings import extract_metadata, prepare_docstring
-from sphinx.util.inspect import getdoc, object_description, safe_getattr, stringify_signature
+from sphinx.util.inspect import (
+    evaluate_signature, getdoc, object_description, safe_getattr, stringify_signature
+)
 from sphinx.util.typing import stringify as stringify_typehint
 
 if TYPE_CHECKING:
@@ -333,7 +335,7 @@ class Documenter:
                         ('.' + '.'.join(self.objpath) if self.objpath else '')
         return True
 
-    def import_object(self) -> bool:
+    def import_object(self, raiseerror: bool = False) -> bool:
         """Import the object given by *self.modname* and *self.objpath* and set
         it as *self.object*.
 
@@ -347,9 +349,12 @@ class Documenter:
                 self.module, self.parent, self.object_name, self.object = ret
                 return True
             except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return False
+                if raiseerror:
+                    raise
+                else:
+                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                    self.env.note_reread()
+                    return False
 
     def get_real_modname(self) -> str:
         """Get the real module name of an object to document.
@@ -619,6 +624,10 @@ class Documenter:
             if safe_getattr(member, '__sphinx_mock__', False):
                 # mocked module or object
                 pass
+            elif (self.options.exclude_members not in (None, ALL) and
+                  membername in self.options.exclude_members):
+                # remove members given by exclude-members
+                keep = False
             elif want_all and membername.startswith('__') and \
                     membername.endswith('__') and len(membername) > 4:
                 # special __methods__
@@ -687,16 +696,6 @@ class Documenter:
             self.options.members is ALL
         # find out which members are documentable
         members_check_module, members = self.get_object_members(want_all)
-
-        # remove members given by exclude-members
-        if self.options.exclude_members:
-            members = [
-                (membername, member) for (membername, member) in members
-                if (
-                    self.options.exclude_members is ALL or
-                    membername not in self.options.exclude_members
-                )
-            ]
 
         # document non-skipped members
         memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
@@ -885,7 +884,7 @@ class ModuleDocumenter(Documenter):
                            type='autodoc')
         return ret
 
-    def import_object(self) -> Any:
+    def import_object(self, raiseerror: bool = False) -> bool:
         def is_valid_module_all(__all__: Any) -> bool:
             """Check the given *__all__* is valid for a module."""
             if (isinstance(__all__, (list, tuple)) and
@@ -894,7 +893,7 @@ class ModuleDocumenter(Documenter):
             else:
                 return False
 
-        ret = super().import_object()
+        ret = super().import_object(raiseerror)
 
         if not self.options.ignore_module_all:
             __all__ = getattr(self.object, '__all__', None)
@@ -1190,7 +1189,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
         if overloaded:
+            __globals__ = safe_getattr(self.object, '__globals__', {})
             for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                overload = evaluate_signature(overload, __globals__)
                 sig = stringify_signature(overload, **kwargs)
                 sigs.append(sig)
 
@@ -1279,8 +1280,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                             ) -> bool:
         return isinstance(member, type)
 
-    def import_object(self) -> Any:
-        ret = super().import_object()
+    def import_object(self, raiseerror: bool = False) -> bool:
+        ret = super().import_object(raiseerror)
         # if the class is documented under another name, document it
         # as data/attribute
         if ret:
@@ -1389,7 +1390,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         sigs = []
         if overloaded:
             # Use signatures for overloaded methods instead of the implementation method.
+            method = safe_getattr(self._signature_class, self._signature_method_name, None)
+            __globals__ = safe_getattr(method, '__globals__', {})
             for overload in self.analyzer.overloads.get(qualname):
+                overload = evaluate_signature(overload, __globals__)
+
                 parameters = list(overload.parameters.values())
                 overload = overload.replace(parameters=parameters[1:],
                                             return_annotation=Parameter.empty)
@@ -1586,7 +1591,7 @@ class DataDeclarationDocumenter(DataDocumenter):
                 isattr and
                 member is INSTANCEATTR)
 
-    def import_object(self) -> bool:
+    def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as a data
         self.objtype = 'data'
@@ -1685,8 +1690,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         return inspect.isroutine(member) and \
             not isinstance(parent, ModuleDocumenter)
 
-    def import_object(self) -> Any:
-        ret = super().import_object()
+    def import_object(self, raiseerror: bool = False) -> bool:
+        ret = super().import_object(raiseerror)
         if not ret:
             return ret
 
@@ -1778,7 +1783,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
         if overloaded:
+            __globals__ = safe_getattr(self.object, '__globals__', {})
             for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                overload = evaluate_signature(overload, __globals__)
                 if not inspect.isstaticmethod(self.object, cls=self.parent,
                                               name=self.object_name):
                     parameters = list(overload.parameters.values())
@@ -1851,15 +1858,42 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     def document_members(self, all_members: bool = False) -> None:
         pass
 
-    def import_object(self) -> Any:
-        ret = super().import_object()
-        if inspect.isenumattribute(self.object):
-            self.object = self.object.value
-        if inspect.isattributedescriptor(self.object):
-            self._datadescriptor = True
-        else:
-            # if it's not a data descriptor
-            self._datadescriptor = False
+    def isinstanceattribute(self) -> bool:
+        """Check the subject is an instance attribute."""
+        try:
+            analyzer = ModuleAnalyzer.for_module(self.modname)
+            attr_docs = analyzer.find_attr_docs()
+            if self.objpath:
+                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                if key in attr_docs:
+                    return True
+
+            return False
+        except PycodeError:
+            return False
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        try:
+            ret = super().import_object(raiseerror=True)
+            if inspect.isenumattribute(self.object):
+                self.object = self.object.value
+            if inspect.isattributedescriptor(self.object):
+                self._datadescriptor = True
+            else:
+                # if it's not a data descriptor
+                self._datadescriptor = False
+        except ImportError as exc:
+            if self.isinstanceattribute():
+                self.object = INSTANCEATTR
+                self._datadescriptor = False
+                ret = True
+            elif raiseerror:
+                raise
+            else:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                ret = False
+
         return ret
 
     def get_real_modname(self) -> str:
@@ -1966,7 +2000,7 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
                 isattr and
                 member is INSTANCEATTR)
 
-    def import_object(self) -> bool:
+    def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
@@ -1997,7 +2031,7 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
         """This documents only SLOTSATTR members."""
         return member is SLOTSATTR
 
-    def import_object(self) -> Any:
+    def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
@@ -2011,9 +2045,12 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
                 self.module, _, _, self.parent = ret
                 return True
             except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return False
+                if raiseerror:
+                    raise
+                else:
+                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                    self.env.note_reread()
+                    return False
 
     def get_doc(self, ignore: int = None) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""

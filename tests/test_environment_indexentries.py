@@ -25,12 +25,14 @@ def test_create_single_index(app):
             ".. index:: ёлка\n"
             ".. index:: ‏תירבע‎\n"
             ".. index:: 9-symbol\n"
-            ".. index:: &-symbol\n")
+            ".. index:: &-symbol\n"
+            ".. index:: £100\n")
     restructuredtext.parse(app, text)
     index = IndexEntries(app.env).create_index(app.builder)
     assert len(index) == 6
     assert index[0] == ('Symbols', [('&-symbol', [[('', '#index-9')], [], None]),
-                                    ('9-symbol', [[('', '#index-8')], [], None])])
+                                    ('9-symbol', [[('', '#index-8')], [], None]),
+                                    ('£100', [[('', '#index-10')], [], None])])
     assert index[1] == ('D', [('docutils', [[('', '#index-0')], [], None])])
     assert index[2] == ('P', [('pip', [[], [('install', [('', '#index-2')]),
                                             ('upgrade', [('', '#index-3')])], None]),
