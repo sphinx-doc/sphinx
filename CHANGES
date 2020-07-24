@@ -30,6 +30,7 @@ Features added
   the behavior of globaltoc in sidebar
 * #7840: i18n: Optimize the dependencies check on bootstrap
 * #5208: linkcheck: Support checks for local links
+* #5090: setuptools: Link verbosity to distutils' -v and -q option
 * #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
   Update the documentation to better reflect the relationship between this option
   and the ``:noindex:`` option.
