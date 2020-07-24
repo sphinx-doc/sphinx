@@ -1,44 +1,42 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.osutil
     ~~~~~~~~~~~~~~~~~~
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import contextlib
 import errno
 import filecmp
-import locale
 import os
 import re
 import shutil
 import sys
-import time
 import warnings
-from io import BytesIO, StringIO
+from io import StringIO
 from os import path
+from typing import Any, Generator, Iterator, List, Optional, Tuple
 
-from six import PY2, PY3, text_type
+from sphinx.deprecation import RemovedInSphinx40Warning
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+try:
+    # for ALT Linux (#6712)
+    from sphinx.testing.path import path as Path
+except ImportError:
+    Path = None  # type: ignore
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, List, Tuple, Union  # NOQA
+    from typing import Type  # for python3.5.1
 
 # Errnos that we need.
-EEXIST = getattr(errno, 'EEXIST', 0)
-ENOENT = getattr(errno, 'ENOENT', 0)
-EPIPE = getattr(errno, 'EPIPE', 0)
-EINVAL = getattr(errno, 'EINVAL', 0)
-
-if PY3:
-    unicode = str  # special alias for static typing...
+EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
+ENOENT = getattr(errno, 'ENOENT', 0)  # RemovedInSphinx40Warning
+EPIPE = getattr(errno, 'EPIPE', 0)    # RemovedInSphinx40Warning
+EINVAL = getattr(errno, 'EINVAL', 0)  # RemovedInSphinx40Warning
 
 # SEP separates path elements in the canonical file names
 #
@@ -48,24 +46,21 @@ if PY3:
 SEP = "/"
 
 
-def os_path(canonicalpath):
-    # type: (unicode) -> unicode
+def os_path(canonicalpath: str) -> str:
     return canonicalpath.replace(SEP, path.sep)
 
 
-def canon_path(nativepath):
-    # type: (unicode) -> unicode
+def canon_path(nativepath: str) -> str:
     """Return path in OS-independent form"""
     return nativepath.replace(path.sep, SEP)
 
 
-def relative_uri(base, to):
-    # type: (unicode, unicode) -> unicode
+def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split(SEP)
-    t2 = to.split(SEP)
+    b2 = base.split('#')[0].split(SEP)
+    t2 = to.split('#')[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:
@@ -83,66 +78,30 @@ def relative_uri(base, to):
     return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
-def ensuredir(path):
-    # type: (unicode) -> None
+def ensuredir(path: str) -> None:
     """Ensure that a path exists."""
-    try:
-        os.makedirs(path)
-    except OSError as err:
-        # 0 for Jython/Win32
-        if err.errno not in [0, EEXIST]:
-            raise
+    os.makedirs(path, exist_ok=True)
 
 
-# This function is same as os.walk of Python2.7 except a customization
-# that check UnicodeError.
-# The customization obstacle to replace the function with the os.walk.
-def walk(top, topdown=True, followlinks=False):
-    # type: (unicode, bool, bool) -> Iterator[Tuple[unicode, List[unicode], List[unicode]]]
-    """Backport of os.walk from 2.6, where the *followlinks* argument was
-    added.
-    """
-    names = os.listdir(top)
-
-    dirs, nondirs = [], []
-    for name in names:
-        try:
-            fullpath = path.join(top, name)
-        except UnicodeError:
-            print('%s:: ERROR: non-ASCII filename not supported on this '
-                  'filesystem encoding %r, skipped.' % (name, fs_encoding),
-                  file=sys.stderr)
-            continue
-        if path.isdir(fullpath):
-            dirs.append(name)
-        else:
-            nondirs.append(name)
-
-    if topdown:
-        yield top, dirs, nondirs
-    for name in dirs:
-        fullpath = path.join(top, name)
-        if followlinks or not path.islink(fullpath):
-            for x in walk(fullpath, topdown, followlinks):
-                yield x
-    if not topdown:
-        yield top, dirs, nondirs
+def walk(top: str, topdown: bool = True, followlinks: bool = False) -> Iterator[Tuple[str, List[str], List[str]]]:  # NOQA
+    warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
+                  'Please use os.walk() instead.',
+                  RemovedInSphinx40Warning, stacklevel=2)
+    return os.walk(top, topdown=topdown, followlinks=followlinks)
 
 
-def mtimes_of_files(dirnames, suffix):
-    # type: (List[unicode], unicode) -> Iterator[float]
+def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
     for dirname in dirnames:
         for root, dirs, files in os.walk(dirname):
             for sfile in files:
                 if sfile.endswith(suffix):
                     try:
                         yield path.getmtime(path.join(root, sfile))
-                    except EnvironmentError:
+                    except OSError:
                         pass
 
 
-def movefile(source, dest):
-    # type: (unicode, unicode) -> None
+def movefile(source: str, dest: str) -> None:
     """Move a file, removing the destination if it exists."""
     if os.path.exists(dest):
         try:
@@ -152,16 +111,14 @@ def movefile(source, dest):
     os.rename(source, dest)
 
 
-def copytimes(source, dest):
-    # type: (unicode, unicode) -> None
+def copytimes(source: str, dest: str) -> None:
     """Copy a file's modification times."""
     st = os.stat(source)
     if hasattr(os, 'utime'):
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
-def copyfile(source, dest):
-    # type: (unicode, unicode) -> None
+def copyfile(source: str, dest: str) -> None:
     """Copy a file and its modification times, if possible.
 
     Note: ``copyfile`` skips copying if the file has not been changed"""
@@ -175,43 +132,18 @@ def copyfile(source, dest):
 
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
+project_suffix_re = re.compile(' Documentation$')
 
 
-def make_filename(string):
-    # type: (str) -> unicode
+def make_filename(string: str) -> str:
     return no_fn_re.sub('', string) or 'sphinx'
 
 
-def ustrftime(format, *args):
-    # type: (unicode, Any) -> unicode
-    """[DEPRECATED] strftime for unicode strings."""
-    warnings.warn('sphinx.util.osutil.ustrtime is deprecated for removal',
-                  RemovedInSphinx30Warning)
-
-    if not args:
-        # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
-        # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
-        source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
-        if source_date_epoch is not None:
-            time_struct = time.gmtime(float(source_date_epoch))
-            args = [time_struct]  # type: ignore
-    if PY2:
-        # if a locale is set, the time strings are encoded in the encoding
-        # given by LC_TIME; if that is available, use it
-        enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
-        return time.strftime(text_type(format).encode(enc), *args).decode(enc)
-    else:  # Py3
-        # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
-        # https://bugs.python.org/issue8304
-        try:
-            return time.strftime(format, *args)
-        except UnicodeEncodeError:
-            r = time.strftime(format.encode('unicode-escape').decode(), *args)
-            return r.encode().decode('unicode-escape')
+def make_filename_from_project(project: str) -> str:
+    return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def relpath(path, start=os.curdir):
-    # type: (unicode, unicode) -> unicode
+def relpath(path: str, start: str = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -225,33 +157,34 @@ def relpath(path, start=os.curdir):
 
 
 safe_relpath = relpath  # for compatibility
-fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()  # type: unicode
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-def abspath(pathdir):
-    # type: (unicode) -> unicode
-    pathdir = path.abspath(pathdir)
-    if isinstance(pathdir, bytes):
-        try:
-            pathdir = pathdir.decode(fs_encoding)
-        except UnicodeDecodeError:
-            raise UnicodeDecodeError('multibyte filename not supported on '
-                                     'this filesystem encoding '
-                                     '(%r)' % fs_encoding)
-    return pathdir
+def abspath(pathdir: str) -> str:
+    if Path is not None and isinstance(pathdir, Path):
+        return pathdir.abspath()
+    else:
+        pathdir = path.abspath(pathdir)
+        if isinstance(pathdir, bytes):
+            try:
+                pathdir = pathdir.decode(fs_encoding)
+            except UnicodeDecodeError as exc:
+                raise UnicodeDecodeError('multibyte filename not supported on '
+                                         'this filesystem encoding '
+                                         '(%r)' % fs_encoding) from exc
+        return pathdir
 
 
-def getcwd():
-    # type: () -> unicode
-    if hasattr(os, 'getcwdu'):
-        return os.getcwdu()
+def getcwd() -> str:
+    warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
+                  'Please use os.getcwd() instead.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     return os.getcwd()
 
 
 @contextlib.contextmanager
-def cd(target_dir):
-    # type: (unicode) -> Iterator[None]
-    cwd = getcwd()
+def cd(target_dir: str) -> Generator[None, None, None]:
+    cwd = os.getcwd()
     try:
         os.chdir(target_dir)
         yield
@@ -259,7 +192,7 @@ def cd(target_dir):
         os.chdir(cwd)
 
 
-class FileAvoidWrite(object):
+class FileAvoidWrite:
     """File-like object that buffers output and only writes if content changed.
 
     Use this class like when writing to a file to avoid touching the original
@@ -271,23 +204,16 @@ class FileAvoidWrite(object):
 
     Objects can be used as context managers.
     """
-    def __init__(self, path):
-        # type: (unicode) -> None
+    def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: Union[StringIO, BytesIO]
+        self._io = None  # type: Optional[StringIO]
 
-    def write(self, data):
-        # type: (Union[str, unicode]) -> None
+    def write(self, data: str) -> None:
         if not self._io:
-            if isinstance(data, text_type):
-                self._io = StringIO()
-            else:
-                self._io = BytesIO()
+            self._io = StringIO()
+        self._io.write(data)
 
-        self._io.write(data)  # type: ignore
-
-    def close(self):
-        # type: () -> None
+    def close(self) -> None:
         """Stop accepting writes and write file, if needed."""
         if not self._io:
             raise Exception('FileAvoidWrite does not support empty files.')
@@ -295,35 +221,25 @@ class FileAvoidWrite(object):
         buf = self.getvalue()
         self._io.close()
 
-        r_mode = 'r'
-        w_mode = 'w'
-        if isinstance(self._io, BytesIO):
-            r_mode = 'rb'
-            w_mode = 'wb'
-
-        old_content = None
-
         try:
-            with open(self._path, r_mode) as old_f:
+            with open(self._path) as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
-        except IOError:
+        except OSError:
             pass
 
-        with open(self._path, w_mode) as f:
+        with open(self._path, 'w') as f:
             f.write(buf)
 
-    def __enter__(self):
-        # type: () -> FileAvoidWrite
+    def __enter__(self) -> "FileAvoidWrite":
         return self
 
-    def __exit__(self, type, value, traceback):
-        # type: (unicode, unicode, unicode) -> None
+    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
         self.close()
+        return True
 
-    def __getattr__(self, name):
-        # type: (str) -> Any
+    def __getattr__(self, name: str) -> Any:
         # Proxy to _io instance.
         if not self._io:
             raise Exception('Must write to FileAvoidWrite before other '
@@ -332,8 +248,7 @@ class FileAvoidWrite(object):
         return getattr(self._io, name)
 
 
-def rmtree(path):
-    # type: (unicode) -> None
+def rmtree(path: str) -> None:
     if os.path.isdir(path):
         shutil.rmtree(path)
     else:

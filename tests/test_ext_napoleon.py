@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_napoleon
     ~~~~~~~~~~~~~
@@ -6,16 +5,16 @@
     Tests for :mod:`sphinx.ext.napoleon.__init__` module.
 
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 from collections import namedtuple
-from unittest import TestCase
-
-import mock
+from unittest import TestCase, mock
 
 from sphinx.application import Sphinx
+from sphinx.testing.util import simple_decorator
 from sphinx.ext.napoleon import _process_docstring, _skip_member, Config, setup
 
 
@@ -37,7 +36,7 @@ def __special_undoc__():
     pass
 
 
-class SampleClass(object):
+class SampleClass:
     def _private_doc(self):
         """SampleClass._private_doc.DOCSTRING"""
         pass
@@ -50,6 +49,11 @@ class SampleClass(object):
         pass
 
     def __special_undoc__(self):
+        pass
+
+    @simple_decorator
+    def __decorated_func__(self):
+        """doc"""
         pass
 
 
@@ -132,16 +136,25 @@ class SkipMemberTest(TestCase):
             self.assertEqual(None, _skip_member(app, what, member, obj, skip,
                                                 mock.Mock()))
         else:
-            self.assertFalse(_skip_member(app, what, member, obj, skip,
-                                          mock.Mock()))
+            self.assertIs(_skip_member(app, what, member, obj, skip,
+                                       mock.Mock()), False)
         setattr(app.config, config_name, False)
         self.assertEqual(None, _skip_member(app, what, member, obj, skip,
                                             mock.Mock()))
 
     def test_namedtuple(self):
-        self.assertSkip('class', '_asdict',
-                        SampleNamedTuple._asdict, False,
-                        'napoleon_include_private_with_doc')
+        if sys.version_info < (3, 7):
+            self.assertSkip('class', '_asdict',
+                            SampleNamedTuple._asdict, False,
+                            'napoleon_include_private_with_doc')
+        else:
+            # Since python 3.7, namedtuple._asdict() has not been documented
+            # because there is no way to check the method is a member of the
+            # namedtuple class.  This testcase confirms only it does not
+            # raise an error on building document (refs: #1455)
+            self.assertSkip('class', '_asdict',
+                            SampleNamedTuple._asdict, True,
+                            'napoleon_include_private_with_doc')
 
     def test_class_private_doc(self):
         self.assertSkip('class', '_private_doc',
@@ -161,6 +174,11 @@ class SkipMemberTest(TestCase):
     def test_class_special_undoc(self):
         self.assertSkip('class', '__special_undoc__',
                         SampleClass.__special_undoc__, True,
+                        'napoleon_include_special_with_doc')
+
+    def test_class_decorated_doc(self):
+        self.assertSkip('class', '__decorated_func__',
+                        SampleClass.__decorated_func__, False,
                         'napoleon_include_special_with_doc')
 
     def test_exception_private_doc(self):

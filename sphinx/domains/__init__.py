@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.domains
     ~~~~~~~~~~~~~~
@@ -6,29 +5,32 @@
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import copy
+from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Union
+from typing import cast
 
-from six import iteritems
+from docutils import nodes
+from docutils.nodes import Element, Node, system_message
+from docutils.parsers.rst.states import Inliner
 
+from sphinx.addnodes import pending_xref
 from sphinx.errors import SphinxError
 from sphinx.locale import _
+from sphinx.roles import XRefRole
+from sphinx.util.typing import RoleFunction
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
-    from docutils import nodes  # NOQA
-    from docutils.parsers.rst.states import Inliner  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.roles import XRefRole  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from typing import Type  # for python3.5.1
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
 
 
-class ObjType(object):
+class ObjType:
     """
     An ObjType is the description for a type of object that a domain can
     document.  In the object_types attribute of Domain subclasses, object type
@@ -47,20 +49,31 @@ class ObjType(object):
         'searchprio': 1,
     }
 
-    def __init__(self, lname, *roles, **attrs):
-        # type: (unicode, Any, Any) -> None
-        self.lname = lname                      # type: unicode
+    def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
+        self.lname = lname
         self.roles = roles                      # type: Tuple
         self.attrs = self.known_attrs.copy()    # type: Dict
         self.attrs.update(attrs)
 
 
-class Index(object):
+IndexEntry = NamedTuple('IndexEntry', [('name', str),
+                                       ('subtype', int),
+                                       ('docname', str),
+                                       ('anchor', str),
+                                       ('extra', str),
+                                       ('qualifier', str),
+                                       ('descr', str)])
+
+
+class Index:
     """
     An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
 
     * `name` is an identifier used for generating file names.
+      It is also used for a hyperlink target for the index. Therefore, users can
+      refer the index page using ``ref`` role and a string which is combined
+      domain name and ``name`` attribute (ex. ``:ref:`py-modindex```).
     * `localname` is the section title for the index.
     * `shortname` is a short name for the index, for use in the relation bar in
       HTML output.  Can be empty to disable entries in the relation bar.
@@ -68,52 +81,78 @@ class Index(object):
     and providing a :meth:`generate()` method.  Then, add the index class to
     your domain's `indices` list.  Extensions can add indices to existing
     domains using :meth:`~sphinx.application.Sphinx.add_index_to_domain()`.
+
+    .. versionchanged:: 3.0
+
+       Index pages can be referred by domain name and index name via
+       :rst:role:`ref` role.
     """
 
-    name = None  # type: unicode
-    localname = None  # type: unicode
-    shortname = None  # type: unicode
+    name = None  # type: str
+    localname = None  # type: str
+    shortname = None  # type: str
 
-    def __init__(self, domain):
-        # type: (Domain) -> None
+    def __init__(self, domain: "Domain") -> None:
         if self.name is None or self.localname is None:
             raise SphinxError('Index subclass %s has no valid name or localname'
                               % self.__class__.__name__)
         self.domain = domain
 
-    def generate(self, docnames=None):
-        # type: (Iterable[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
-        """Return entries for the index given by *name*.  If *docnames* is
-        given, restrict to entries referring to these docnames.
+    def generate(self, docnames: Iterable[str] = None
+                 ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
+        """Get entries for the index.
 
-        The return value is a tuple of ``(content, collapse)``, where *collapse*
-        is a boolean that determines if sub-entries should start collapsed (for
-        output formats that support collapsing sub-entries).
+        If ``docnames`` is given, restrict to entries referring to these
+        docnames.
 
-        *content* is a sequence of ``(letter, entries)`` tuples, where *letter*
-        is the "heading" for the given *entries*, usually the starting letter.
+        The return value is a tuple of ``(content, collapse)``:
 
-        *entries* is a sequence of single entries, where a single entry is a
-        sequence ``[name, subtype, docname, anchor, extra, qualifier, descr]``.
-        The items in this sequence have the following meaning:
+        ``collapse``
+          A boolean that determines if sub-entries should start collapsed (for
+          output formats that support collapsing sub-entries).
 
-        - `name` -- the name of the index entry to be displayed
-        - `subtype` -- sub-entry related type:
-          0 -- normal entry
-          1 -- entry with sub-entries
-          2 -- sub-entry
-        - `docname` -- docname where the entry is located
-        - `anchor` -- anchor for the entry within `docname`
-        - `extra` -- extra info for the entry
-        - `qualifier` -- qualifier for the description
-        - `descr` -- description for the entry
+        ``content``:
+          A sequence of ``(letter, entries)`` tuples, where ``letter`` is the
+          "heading" for the given ``entries``, usually the starting letter, and
+          ``entries`` is a sequence of single entries. Each entry is a sequence
+          ``[name, subtype, docname, anchor, extra, qualifier, descr]``. The
+          items in this sequence have the following meaning:
 
-        Qualifier and description are not rendered e.g. in LaTeX output.
+          ``name``
+            The name of the index entry to be displayed.
+
+          ``subtype``
+            The sub-entry related type. One of:
+
+            ``0``
+              A normal entry.
+            ``1``
+              An entry with sub-entries.
+            ``2``
+              A sub-entry.
+
+          ``docname``
+            *docname* where the entry is located.
+
+          ``anchor``
+            Anchor for the entry within ``docname``
+
+          ``extra``
+            Extra info for the entry.
+
+          ``qualifier``
+            Qualifier for the description.
+
+          ``descr``
+            Description for the entry.
+
+        Qualifier and description are not rendered for some output formats such
+        as LaTeX.
         """
         raise NotImplementedError
 
 
-class Domain(object):
+class Domain:
     """
     A Domain is meant to be a group of "object" description directives for
     objects of a similar nature, and corresponding roles to create references to
@@ -132,7 +171,7 @@ class Domain(object):
     build process starts, every active domain is instantiated and given the
     environment object; the `domaindata` dict must then either be nonexistent or
     a dictionary whose 'version' key is equal to the domain class'
-    :attr:`data_version` attribute.  Otherwise, `IOError` is raised and the
+    :attr:`data_version` attribute.  Otherwise, `OSError` is raised and the
     pickled environment is discarded.
     """
 
@@ -141,17 +180,17 @@ class Domain(object):
     #: domain label: longer, more descriptive (used in messages)
     label = ''
     #: type (usually directive) name -> ObjType instance
-    object_types = {}       # type: Dict[unicode, ObjType]
+    object_types = {}       # type: Dict[str, ObjType]
     #: directive name -> directive class
-    directives = {}         # type: Dict[unicode, Any]
+    directives = {}         # type: Dict[str, Any]
     #: role name -> role callable
-    roles = {}              # type: Dict[unicode, Union[RoleFunction, XRefRole]]
+    roles = {}              # type: Dict[str, Union[RoleFunction, XRefRole]]
     #: a list of Index subclasses
     indices = []            # type: List[Type[Index]]
     #: role name -> a warning message if reference is missing
-    dangling_warnings = {}  # type: Dict[unicode, unicode]
+    dangling_warnings = {}  # type: Dict[str, str]
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes = {}   # type: Dict[nodes.Node, Tuple[unicode, Callable]]
+    enumerable_nodes = {}   # type: Dict[Type[Node], Tuple[str, Callable]]
 
     #: data value for a fresh environment
     initial_data = {}       # type: Dict
@@ -160,13 +199,12 @@ class Domain(object):
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
-    def __init__(self, env):
-        # type: (BuildEnvironment) -> None
+    def __init__(self, env: "BuildEnvironment") -> None:
         self.env = env              # type: BuildEnvironment
-        self._role_cache = {}       # type: Dict[unicode, Callable]
-        self._directive_cache = {}  # type: Dict[unicode, Callable]
-        self._role2type = {}        # type: Dict[unicode, List[unicode]]
-        self._type2role = {}        # type: Dict[unicode, unicode]
+        self._role_cache = {}       # type: Dict[str, Callable]
+        self._directive_cache = {}  # type: Dict[str, Callable]
+        self._role2type = {}        # type: Dict[str, List[str]]
+        self._type2role = {}        # type: Dict[str, str]
 
         # convert class variables to instance one (to enhance through API)
         self.object_types = dict(self.object_types)
@@ -182,16 +220,26 @@ class Domain(object):
         else:
             self.data = env.domaindata[self.name]
             if self.data['version'] != self.data_version:
-                raise IOError('data of %r domain out of date' % self.label)
-        for name, obj in iteritems(self.object_types):
+                raise OSError('data of %r domain out of date' % self.label)
+        for name, obj in self.object_types.items():
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
-        self.objtypes_for_role = self._role2type.get    # type: Callable[[unicode], List[unicode]]  # NOQA
-        self.role_for_objtype = self._type2role.get     # type: Callable[[unicode], unicode]
+        self.objtypes_for_role = self._role2type.get    # type: Callable[[str], List[str]]
+        self.role_for_objtype = self._type2role.get     # type: Callable[[str], str]
 
-    def add_object_type(self, name, objtype):
-        # type: (unicode, ObjType) -> None
+    def setup(self) -> None:
+        """Set up domain object."""
+        from sphinx.domains.std import StandardDomain
+
+        # Add special hyperlink target for index pages (ex. py-modindex)
+        std = cast(StandardDomain, self.env.get_domain('std'))
+        for index in self.indices:
+            if index.name and index.localname:
+                docname = "%s-%s" % (self.name, index.name)
+                std.note_hyperlink_target(docname, docname, '', index.localname)
+
+    def add_object_type(self, name: str, objtype: ObjType) -> None:
         """Add an object type."""
         self.object_types[name] = objtype
         if objtype.roles:
@@ -202,8 +250,7 @@ class Domain(object):
         for role in objtype.roles:
             self._role2type.setdefault(role, []).append(name)
 
-    def role(self, name):
-        # type: (unicode) -> Callable
+    def role(self, name: str) -> RoleFunction:
         """Return a role adapter function that always gives the registered
         role its full name ('domain:name') as the first argument.
         """
@@ -213,15 +260,15 @@ class Domain(object):
             return None
         fullname = '%s:%s' % (self.name, name)
 
-        def role_adapter(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> nodes.Node  # NOQA
+        def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
+                         inliner: Inliner, options: Dict = {}, content: List[str] = []
+                         ) -> Tuple[List[Node], List[system_message]]:
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
         return role_adapter
 
-    def directive(self, name):
-        # type: (unicode) -> Callable
+    def directive(self, name: str) -> Callable:
         """Return a directive adapter class that always gives the registered
         directive its full name ('domain:name') as ``self.name``.
         """
@@ -233,22 +280,19 @@ class Domain(object):
         BaseDirective = self.directives[name]
 
         class DirectiveAdapter(BaseDirective):  # type: ignore
-            def run(self):
-                # type: () -> List[nodes.Node]
+            def run(self) -> List[Node]:
                 self.name = fullname
-                return BaseDirective.run(self)
+                return super().run()
         self._directive_cache[name] = DirectiveAdapter
         return DirectiveAdapter
 
     # methods that should be overwritten
 
-    def clear_doc(self, docname):
-        # type: (unicode) -> None
+    def clear_doc(self, docname: str) -> None:
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
-    def merge_domaindata(self, docnames, otherdata):
-        # type: (List[unicode], Dict) -> None
+    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """
@@ -256,26 +300,24 @@ class Domain(object):
                                   'to be able to do parallel builds!' %
                                   self.__class__)
 
-    def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+    def process_doc(self, env: "BuildEnvironment", docname: str,
+                    document: nodes.document) -> None:
         """Process a document after it is read by the environment."""
         pass
 
-    def check_consistency(self):
-        # type: () -> None
+    def check_consistency(self) -> None:
         """Do consistency checks (**experimental**)."""
         pass
 
-    def process_field_xref(self, pnode):
-        # type: (nodes.Node) -> None
+    def process_field_xref(self, pnode: pending_xref) -> None:
         """Process a pending xref created in a doc field.
         For example, attach information about the current scope.
         """
         pass
 
-    def resolve_xref(self, env, fromdocname, builder,
-                     typ, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+    def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
+                     typ: str, target: str, node: pending_xref, contnode: Element
+                     ) -> Element:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -291,8 +333,9 @@ class Domain(object):
         """
         pass
 
-    def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[Tuple[unicode, nodes.Node]]  # NOQA
+    def resolve_any_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
+                         target: str, node: pending_xref, contnode: Element
+                         ) -> List[Tuple[str, Element]]:
         """Resolve the pending_xref *node* with the given *target*.
 
         The reference comes from an "any" or similar role, which means that we
@@ -308,40 +351,52 @@ class Domain(object):
         """
         raise NotImplementedError
 
-    def get_objects(self):
-        # type: () -> Iterable[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
-        """Return an iterable of "object descriptions", which are tuples with
-        five items:
+    def get_objects(self) -> Iterable[Tuple[str, str, str, str, str, int]]:
+        """Return an iterable of "object descriptions".
 
-        * `name`     -- fully qualified name
-        * `dispname` -- name to display when searching/linking
-        * `type`     -- object type, a key in ``self.object_types``
-        * `docname`  -- the document where it is to be found
-        * `anchor`   -- the anchor name for the object
-        * `priority` -- how "important" the object is (determines placement
-          in search results)
+        Object descriptions are tuples with six items:
 
-          - 1: default priority (placed before full-text matches)
-          - 0: object is important (placed before default-priority objects)
-          - 2: object is unimportant (placed after full-text matches)
-          - -1: object should not show up in search at all
+        ``name``
+          Fully qualified name.
+
+        ``dispname``
+          Name to display when searching/linking.
+
+        ``type``
+          Object type, a key in ``self.object_types``.
+
+        ``docname``
+          The document where it is to be found.
+
+        ``anchor``
+          The anchor name for the object.
+
+        ``priority``
+          How "important" the object is (determines placement in search
+          results). One of:
+
+          ``1``
+            Default priority (placed before full-text matches).
+          ``0``
+            Object is important (placed before default-priority objects).
+          ``2``
+            Object is unimportant (placed after full-text matches).
+          ``-1``
+            Object should not show up in search at all.
         """
         return []
 
-    def get_type_name(self, type, primary=False):
-        # type: (ObjType, bool) -> unicode
+    def get_type_name(self, type: ObjType, primary: bool = False) -> str:
         """Return full name for given ObjType."""
         if primary:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
 
-    def get_enumerable_node_type(self, node):
-        # type: (nodes.Node) -> unicode
+    def get_enumerable_node_type(self, node: Node) -> str:
         """Get type of enumerable nodes (experimental)."""
         enum_node_type, _ = self.enumerable_nodes.get(node.__class__, (None, None))
         return enum_node_type
 
-    def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> unicode
+    def get_full_qualified_name(self, node: Element) -> str:
         """Return full qualified name for given node."""
         return None

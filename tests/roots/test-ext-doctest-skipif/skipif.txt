@@ -1,0 +1,81 @@
+Testing the doctest extension's `:skipif:` option
+=================================================
+
+testsetup
+---------
+
+.. testsetup:: group-skipif
+   :skipif: record('testsetup', ':skipif:', True) != 'this will be True'
+
+   record('testsetup', 'body', True)
+
+.. testsetup:: group-skipif
+   :skipif: record('testsetup', ':skipif:', False) == 'this will be False'
+
+   record('testsetup', 'body', False)
+
+
+doctest
+-------
+.. doctest:: group-skipif
+   :skipif: record('doctest', ':skipif:', True) != 'this will be True'
+
+   >>> print(record('doctest', 'body', True))
+   The test is skipped, and this expected text is ignored
+
+
+.. doctest::
+   :skipif: record('doctest', ':skipif:', False) == 'this will be False'
+
+   >>> print(record('doctest', 'body', False))
+   Recorded doctest body False
+
+
+testcode and testoutput
+-----------------------
+
+testcode skipped
+~~~~~~~~~~~~~~~~
+
+.. testcode:: group-skipif
+   :skipif: record('testcode', ':skipif:', True) != 'this will be True'
+
+   print(record('testcode', 'body', True))
+
+.. testoutput:: group-skipif
+   :skipif: record('testoutput-1', ':skipif:', True) != 'this will be True'
+
+   The previous testcode is skipped, and the :skipif: condition is True,
+   so this testoutput is ignored
+
+testcode executed
+~~~~~~~~~~~~~~~~~
+
+.. testcode:: group-skipif
+   :skipif: record('testcode', ':skipif:', False) == 'this will be False'
+
+   print(record('testcode', 'body', False))
+
+.. testoutput:: group-skipif
+   :skipif: record('testoutput-2', ':skipif:', False) == 'this will be False'
+
+   Recorded testcode body False
+
+.. testoutput:: group-skipif
+   :skipif: record('testoutput-2', ':skipif:', True) != 'this will be True'
+
+   The :skipif: condition is False, so this testoutput is ignored
+
+
+testcleanup
+-----------
+
+.. testcleanup:: group-skipif
+   :skipif: record('testcleanup', ':skipif:', True) != 'this will be True'
+
+   record('testcleanup', 'body', True)
+
+.. testcleanup:: group-skipif
+   :skipif: record('testcleanup', ':skipif:', False) == 'this will be False'
+
+   record('testcleanup', 'body', False)

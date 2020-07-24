@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.locale
     ~~~~~~~~~~~~~
@@ -11,23 +10,14 @@
 
 import gettext
 import locale
-import warnings
-from collections import defaultdict
+from collections import UserString, defaultdict
 from gettext import NullTranslations
-
-from six import text_type
-from six.moves import UserString
-
-from sphinx.deprecation import RemovedInSphinx30Warning
-
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
-class _TranslationProxy(UserString, object):
+class _TranslationProxy(UserString):
     """
-    Class for proxy strings from gettext translations.  This is a helper for the
+    Class for proxy strings from gettext translations. This is a helper for the
     lazy_* functions from this module.
 
     The proxy implementation attempts to be as complete as possible, so that
@@ -36,36 +26,30 @@ class _TranslationProxy(UserString, object):
     This inherits from UserString because some docutils versions use UserString
     for their Text nodes, which then checks its argument for being either a
     basestring or UserString, otherwise calls str() -- not unicode() -- on it.
-    This also inherits from object to make the __new__ method work.
     """
     __slots__ = ('_func', '_args')
 
-    def __new__(cls, func, *args):
-        # type: (Callable, unicode) -> object
+    def __new__(cls, func: Callable, *args: str) -> object:  # type: ignore
         if not args:
             # not called with "function" and "arguments", but a plain string
-            return text_type(func)
-        return object.__new__(cls)  # type: ignore
+            return str(func)
+        return object.__new__(cls)
 
-    def __getnewargs__(self):
-        # type: () -> Tuple
+    def __getnewargs__(self) -> Tuple[str]:
         return (self._func,) + self._args  # type: ignore
 
-    def __init__(self, func, *args):
-        # type: (Callable, unicode) -> None
+    def __init__(self, func: Callable, *args: str) -> None:
         self._func = func
         self._args = args
 
     @property
-    def data(self):
-        # type: () -> unicode
+    def data(self) -> str:  # type: ignore
         return self._func(*self._args)
 
     # replace function from UserString; it instantiates a self.__class__
     # for the encoding result
 
-    def encode(self, encoding=None, errors=None):
-        # type: (unicode, unicode) -> str
+    def encode(self, encoding: str = None, errors: str = None) -> bytes:  # type: ignore
         if encoding:
             if errors:
                 return self.data.encode(encoding, errors)
@@ -74,142 +58,60 @@ class _TranslationProxy(UserString, object):
         else:
             return self.data.encode()
 
-    def __contains__(self, key):
-        # type: (Any) -> bool
-        return key in self.data
+    def __dir__(self) -> List[str]:
+        return dir(str)
 
-    def __bool__(self):
-        # type: () -> bool
-        return bool(self.data)
-    __nonzero__ = __bool__  # for python2 compatibility
-
-    def __dir__(self):
-        # type: () -> List[str]
-        return dir(text_type)
-
-    def __iter__(self):
-        # type: () -> Iterator[unicode]
-        return iter(self.data)
-
-    def __len__(self):
-        # type: () -> int
-        return len(self.data)
-
-    def __str__(self):
-        # type: () -> str
+    def __str__(self) -> str:
         return str(self.data)
 
-    def __unicode__(self):
-        # type: () -> unicode
-        return text_type(self.data)
-
-    def __add__(self, other):
-        # type: (unicode) -> unicode
+    def __add__(self, other: str) -> str:  # type: ignore
         return self.data + other
 
-    def __radd__(self, other):
-        # type: (unicode) -> unicode
+    def __radd__(self, other: str) -> str:
         return other + self.data
 
-    def __mod__(self, other):
-        # type: (unicode) -> unicode
+    def __mod__(self, other: str) -> str:  # type: ignore
         return self.data % other
 
-    def __rmod__(self, other):
-        # type: (unicode) -> unicode
+    def __rmod__(self, other: str) -> str:
         return other % self.data
 
-    def __mul__(self, other):
-        # type: (Any) -> unicode
+    def __mul__(self, other: Any) -> str:  # type: ignore
         return self.data * other
 
-    def __rmul__(self, other):
-        # type: (Any) -> unicode
+    def __rmul__(self, other: Any) -> str:
         return other * self.data
 
-    def __lt__(self, other):
-        # type: (unicode) -> bool
-        return self.data < other
-
-    def __le__(self, other):
-        # type: (unicode) -> bool
-        return self.data <= other
-
-    def __eq__(self, other):
-        # type: (Any) -> bool
-        return self.data == other
-
-    def __ne__(self, other):
-        # type: (Any) -> bool
-        return self.data != other
-
-    def __gt__(self, other):
-        # type: (unicode) -> bool
-        return self.data > other
-
-    def __ge__(self, other):
-        # type: (unicode) -> bool
-        return self.data >= other
-
-    def __getattr__(self, name):
-        # type: (unicode) -> Any
+    def __getattr__(self, name: str) -> Any:
         if name == '__members__':
             return self.__dir__()
         return getattr(self.data, name)
 
-    def __getstate__(self):
-        # type: () -> Tuple[Callable, Tuple[unicode, ...]]
+    def __getstate__(self) -> Tuple[Callable, Tuple[str, ...]]:
         return self._func, self._args
 
-    def __setstate__(self, tup):
-        # type: (Tuple[Callable, Tuple[unicode]]) -> None
+    def __setstate__(self, tup: Tuple[Callable, Tuple[str]]) -> None:
         self._func, self._args = tup
 
-    def __getitem__(self, key):
-        # type: (Any) -> unicode
-        return self.data[key]
-
-    def __copy__(self):
-        # type: () -> _TranslationProxy
+    def __copy__(self) -> "_TranslationProxy":
         return self
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         try:
-            return 'i' + repr(text_type(self.data))
+            return 'i' + repr(str(self.data))
         except Exception:
             return '<%s broken>' % self.__class__.__name__
 
 
-def mygettext(string):
-    # type: (unicode) -> unicode
-    """Used instead of _ when creating TranslationProxies, because _ is
-    not bound yet at that time.
-    """
-    warnings.warn('sphinx.locale.mygettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning)
-    return _(string)
+translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
 
 
-def lazy_gettext(string):
-    # type: (unicode) -> unicode
-    """A lazy version of `gettext`."""
-    # if isinstance(string, _TranslationProxy):
-    #     return string
-    warnings.warn('sphinx.locale.laxy_gettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning)
-    return _TranslationProxy(mygettext, string)  # type: ignore
-
-
-translators = defaultdict(NullTranslations)  # type: Dict[Tuple[unicode, unicode], NullTranslations]  # NOQA
-
-
-def init(locale_dirs, language, catalog='sphinx', namespace='general'):
-    # type: (List[unicode], unicode, unicode, unicode) -> Tuple[NullTranslations, bool]
+def init(locale_dirs: List[str], language: str,
+         catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
-    least a NullTranslations catalog set in `translators`.  If called multiple
+    least a NullTranslations catalog set in `translators`. If called multiple
     times or if several ``.mo`` files are found, their contents are merged
-    together (thus making ``init`` reentrable).
+    together (thus making ``init`` reentrant).
     """
     global translators
     translator = translators.get((namespace, catalog))
@@ -228,8 +130,7 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     # loading
     for dir_ in locale_dirs:
         try:
-            trans = gettext.translation(catalog, localedir=dir_,  # type: ignore
-                                        languages=languages)
+            trans = gettext.translation(catalog, localedir=dir_, languages=languages)
             if translator is None:
                 translator = trans
             else:
@@ -242,20 +143,37 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
         translator = NullTranslations()
         has_translation = False
     translators[(namespace, catalog)] = translator
-    if hasattr(translator, 'ugettext'):
-        translator.gettext = translator.ugettext  # type: ignore
     return translator, has_translation
 
 
-def init_console(locale_dir, catalog):
-    # type: (unicode, unicode) -> Tuple[NullTranslations, bool]
+def setlocale(category: int, value: Union[str, Iterable[str]] = None) -> None:
+    """Update locale settings.
+
+    This does not throw any exception even if update fails.
+    This is workaround for Python's bug.
+
+    For more details:
+
+    * https://github.com/sphinx-doc/sphinx/issues/5724
+    * https://bugs.python.org/issue18378#msg215215
+
+    .. note:: Only for internal use.  Please don't call this method from extensions.
+              This will be removed in future.
+    """
+    try:
+        locale.setlocale(category, value)
+    except locale.Error:
+        pass
+
+
+def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
     """
     try:
         # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)
+        language, _ = locale.getlocale(locale.LC_MESSAGES)  # type: Tuple[Optional[str], Any]
     except AttributeError:
         # LC_MESSAGES is not always defined. Fallback to the default language
         # in case it is not.
@@ -263,26 +181,23 @@ def init_console(locale_dir, catalog):
     return init([locale_dir], language, catalog, 'console')
 
 
-def get_translator(catalog='sphinx', namespace='general'):
-    # type: (unicode, unicode) -> NullTranslations
+def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
     return translators[(namespace, catalog)]
 
 
-def is_translator_registered(catalog='sphinx', namespace='general'):
-    # type: (unicode, unicode) -> bool
+def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:
     return (namespace, catalog) in translators
 
 
-def _lazy_translate(catalog, namespace, message):
-    # type: (unicode, unicode, unicode) -> unicode
+def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
     """Used instead of _ when creating TranslationProxy, because _ is
     not bound yet at that time.
     """
     translator = get_translator(catalog, namespace)
-    return translator.gettext(message)  # type: ignore
+    return translator.gettext(message)
 
 
-def get_translation(catalog, namespace='general'):
+def get_translation(catalog: str, namespace: str = 'general') -> Callable:
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the
@@ -291,32 +206,32 @@ def get_translation(catalog, namespace='general'):
         import os
         from sphinx.locale import get_translation
 
-        _ = get_translation(__name__)
+        MESSAGE_CATALOG_NAME = 'myextension'  # name of *.pot, *.po and *.mo files
+        _ = get_translation(MESSAGE_CATALOG_NAME)
         text = _('Hello Sphinx!')
 
 
         def setup(app):
             package_dir = path.abspath(path.dirname(__file__))
             locale_dir = os.path.join(package_dir, 'locales')
-            app.add_message_catalog(__name__, locale_dir)
+            app.add_message_catalog(MESSAGE_CATALOG_NAME, locale_dir)
 
     With this code, sphinx searches a message catalog from
-    ``${package_dir}/locales/${language}/LC_MESSAGES/${__name__}.mo``
+    ``${package_dir}/locales/${language}/LC_MESSAGES/myextension.mo``.
     The :confval:`language` is used for the searching.
 
     .. versionadded:: 1.8
     """
-    def gettext(message, *args):
-        # type: (unicode, *Any) -> unicode
+    def gettext(message: str, *args: Any) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
             return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore  # NOQA
         else:
             translator = get_translator(catalog, namespace)
             if len(args) <= 1:
-                return translator.gettext(message)  # type: ignore
+                return translator.gettext(message)
             else:  # support pluralization
-                return translator.ngettext(message, args[0], args[1])  # type: ignore
+                return translator.ngettext(message, args[0], args[1])
 
     return gettext
 
@@ -328,12 +243,6 @@ _ = get_translation('sphinx')
 #: Translation function for console messages
 #: This function follows locale setting (`LC_ALL`, `LC_MESSAGES` and so on).
 __ = get_translation('sphinx', 'console')
-
-
-def l_(*args):
-    warnings.warn('sphinx.locale.l_() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning)
-    return _(*args)
 
 
 # labels
@@ -348,10 +257,10 @@ admonitionlabels = {
     'seealso':   _('See also'),
     'tip':       _('Tip'),
     'warning':   _('Warning'),
-}  # type: Dict[unicode, unicode]
+}
 
-# Moved to sphinx.directives.other (will be overrided later)
-versionlabels = {}  # type: Dict[unicode, unicode]
+# Moved to sphinx.directives.other (will be overriden later)
+versionlabels = {}  # type: Dict[str, str]
 
-# Moved to sphinx.domains.python (will be overrided later)
-pairindextypes = {}  # type: Dict[unicode, unicode]
+# Moved to sphinx.domains.python (will be overriden later)
+pairindextypes = {}  # type: Dict[str, str]

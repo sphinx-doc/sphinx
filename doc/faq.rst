@@ -20,7 +20,7 @@ How do I...
    the :rst:dir:`toctree` directive where you want to start numbering.
 
 ... customize the look of the built HTML files?
-   Use themes, see :doc:`theming`.
+   Use themes, see :doc:`/usage/theming`.
 
 ... add global substitutions or includes?
    Add them in the :confval:`rst_prolog` or :confval:`rst_epilog` config value.
@@ -30,15 +30,12 @@ How do I...
    ``sidebartoc`` block.
 
 ... write my own extension?
-   See the :ref:`extension tutorial <exttut>`.
+   See the :doc:`/development/tutorials/index`.
 
 ... convert from my existing docs using MoinMoin markup?
    The easiest way is to convert to xhtml, then convert `xhtml to reST`_.
    You'll still need to mark up classes and such, but the headings and code
    examples come through cleanly.
-
-... create HTML slides from Sphinx documents?
-   See the "Hieroglyph" package at https://github.com/nyergler/hieroglyph.
 
 For many more extensions and other contributed stuff, see the sphinx-contrib_
 repository.
@@ -51,12 +48,10 @@ Using Sphinx with...
 --------------------
 
 Read the Docs
-    https://readthedocs.org is a documentation hosting service based around
-    Sphinx. They will host sphinx documentation, along with supporting a number
-    of other features including version support, PDF generation, and more. The
-    `Getting Started
-    <https://read-the-docs.readthedocs.io/en/latest/getting_started.html>`_
-    guide is a good place to start.
+    `Read the Docs <https://readthedocs.org>`_ is a documentation hosting
+    service based around Sphinx.  They will host sphinx documentation, along
+    with supporting a number of other features including version support, PDF
+    generation, and more. The `Getting Started`_ guide is a good place to start.
 
 Epydoc
    There's a third-party extension providing an `api role`_ which refers to
@@ -77,24 +72,24 @@ PyPI
    https://pythonhosted.org/.
 
 GitHub Pages
-   Directories starting with underscores are ignored by default which breaks
-   static files in Sphinx.  GitHub's preprocessor can be `disabled
-   <https://github.com/blog/572-bypassing-jekyll-on-github-pages>`_ to support
-   Sphinx HTML output properly.
+   Please add :py:mod:`sphinx.ext.githubpages` to your project.  It allows you
+   to publish your document in GitHub Pages.  It generates helper files for
+   GitHub Pages on building HTML document automatically.
 
 MediaWiki
-   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by Kevin Dunn.
+   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by
+   Kevin Dunn.
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
 
-   .. code-block:: html+django
+   .. code-block:: html+jinja
 
       {% extends "!layout.html" %}
 
       {%- block extrahead %}
       {{ super() }}
-      <script type="text/javascript">
+      <script>
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'XXX account number XXX']);
         _gaq.push(['_trackPageview']);
@@ -106,7 +101,7 @@ Google Analytics
       <div class="footer">This page uses <a href="https://analytics.google.com/">
       Google Analytics</a> to collect statistics. You can disable it by blocking
       the JavaScript coming from www.google-analytics.com.
-      <script type="text/javascript">
+      <script>
         (function() {
           var ga = document.createElement('script');
           ga.src = ('https:' == document.location.protocol ?
@@ -119,8 +114,75 @@ Google Analytics
       {% endblock %}
 
 
+Google Search
+   To replace Sphinx's built-in search function with Google Search, proceed as
+   follows:
+
+   1. Go to https://cse.google.com/cse/all to create the Google Search code
+      snippet.
+
+   2. Copy the code snippet and paste it into ``_templates/searchbox.html`` in
+      your Sphinx project:
+
+      .. code-block:: html+jinja
+
+         <div>
+            <h3>{{ _('Quick search') }}</h3>
+            <script>
+               (function() {
+                  var cx = '......';
+                  var gcse = document.createElement('script');
+                  gcse.async = true;
+                  gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+                  var s = document.getElementsByTagName('script')[0];
+                  s.parentNode.insertBefore(gcse, s);
+               })();
+            </script>
+           <gcse:search></gcse:search>
+         </div>
+
+   3. Add ``searchbox.html`` to the :confval:`html_sidebars` configuration value.
+
+.. _Getting Started: https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html
 .. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
+
+
+Sphinx vs. Docutils
+-------------------
+
+tl;dr: *docutils* converts reStructuredText to multiple output formats. Sphinx
+builds upon docutils to allow construction of cross-referenced and indexed
+bodies of documentation.
+
+`docutils`__ is a text processing system for converting plain text
+documentation into other, richer formats. As noted in the `docutils
+documentation`__, docutils uses *readers* to read a document, *parsers* for
+parsing plain text formats into an internal tree representation made up of
+different types of *nodes*, and *writers* to output this tree in various
+document formats.  docutils provides parsers for one plain text format -
+`reStructuredText`__ - though other, *out-of-tree* parsers have been
+implemented including Sphinx's :doc:`Markdown parser </usage/markdown>`. On the
+other hand, it provides writers for many different formats including HTML,
+LaTeX, man pages, Open Document Format and XML.
+
+docutils exposes all of its functionality through a variety of `front-end
+tools`__, such as ``rst2html``, ``rst2odt`` and ``rst2xml``. Crucially though,
+all of these tools, and docutils itself, are concerned with individual
+documents.  They don't support concepts such as cross-referencing, indexing of
+documents, or the construction of a document hierarchy (typically manifesting
+in a table of contents).
+
+Sphinx builds upon docutils by harnessing docutils' readers and parsers and
+providing its own :doc:`/usage/builders/index`. As a result, Sphinx wraps some
+of the *writers* provided by docutils. This allows Sphinx to provide many
+features that would simply not be possible with docutils, such as those
+outlined above.
+
+__ http://docutils.sourceforge.io/
+__ http://docutils.sourceforge.io/docs/dev/hacking.html
+__ http://docutils.sourceforge.io/rst.html
+__ http://docutils.sourceforge.net/docs/user/tools.html
 
 
 .. _epub-faq:
@@ -205,7 +267,7 @@ The following list gives some hints for the creation of epub files:
 .. _Epubcheck: https://github.com/IDPF/epubcheck
 .. _Calibre: https://calibre-ebook.com/
 .. _FBreader: https://fbreader.org/
-.. _Bookworm: http://www.oreilly.com/bookworm/index.html
+.. _Bookworm: https://www.oreilly.com/bookworm/index.html
 .. _kindlegen: https://www.amazon.com/gp/feature.html?docId=1000765211
 
 .. _texinfo-faq:

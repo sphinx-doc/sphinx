@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.smartypants
     ~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,110 +24,106 @@
     See the LICENSE file and the original docutils code for details.
 
 """
-from __future__ import absolute_import, unicode_literals
 
 import re
+from typing import Generator, Iterable, Tuple
 
 from docutils.utils import smartquotes
 
 from sphinx.util.docutils import __version_info__ as docutils_version
 
-if False:  # For type annotation
-    from typing import Iterable, Iterator, Tuple  # NOQA
 
-
-langquotes = {'af':           u'“”‘’',
-              'af-x-altquot': u'„”‚’',
-              'bg':           u'„“‚‘',  # Bulgarian, https://bg.wikipedia.org/wiki/Кавички
-              'ca':           u'«»“”',
-              'ca-x-altquot': u'“”‘’',
-              'cs':           u'„“‚‘',
-              'cs-x-altquot': u'»«›‹',
-              'da':           u'»«›‹',
-              'da-x-altquot': u'„“‚‘',
-              # 'da-x-altquot2': u'””’’',
-              'de':           u'„“‚‘',
-              'de-x-altquot': u'»«›‹',
-              'de-ch':        u'«»‹›',
-              'el':           u'«»“”',
-              'en':           u'“”‘’',
-              'en-uk-x-altquot': u'‘’“”',  # Attention: " → ‘ and ' → “ !
-              'eo':           u'“”‘’',
-              'es':           u'«»“”',
-              'es-x-altquot': u'“”‘’',
-              'et':           u'„“‚‘',  # no secondary quote listed in
-              'et-x-altquot': u'«»‹›',  # the sources above (wikipedia.org)
-              'eu':           u'«»‹›',
-              'fi':           u'””’’',
-              'fi-x-altquot': u'»»››',
-              'fr':           (u'« ', u' »', u'“', u'”'),  # full no-break space
-              'fr-x-altquot': (u'« ', u' »', u'“', u'”'),  # narrow no-break space
-              'fr-ch':        u'«»‹›',
-              'fr-ch-x-altquot': (u'« ',  u' »', u'‹ ', u' ›'),  # narrow no-break space
+langquotes = {'af':           '“”‘’',
+              'af-x-altquot': '„”‚’',
+              'bg':           '„“‚‘',  # Bulgarian, https://bg.wikipedia.org/wiki/Кавички
+              'ca':           '«»“”',
+              'ca-x-altquot': '“”‘’',
+              'cs':           '„“‚‘',
+              'cs-x-altquot': '»«›‹',
+              'da':           '»«›‹',
+              'da-x-altquot': '„“‚‘',
+              # 'da-x-altquot2': '””’’',
+              'de':           '„“‚‘',
+              'de-x-altquot': '»«›‹',
+              'de-ch':        '«»‹›',
+              'el':           '«»“”',
+              'en':           '“”‘’',
+              'en-uk-x-altquot': '‘’“”',  # Attention: " → ‘ and ' → “ !
+              'eo':           '“”‘’',
+              'es':           '«»“”',
+              'es-x-altquot': '“”‘’',
+              'et':           '„“‚‘',  # no secondary quote listed in
+              'et-x-altquot': '«»‹›',  # the sources above (wikipedia.org)
+              'eu':           '«»‹›',
+              'fi':           '””’’',
+              'fi-x-altquot': '»»››',
+              'fr':           ('« ', ' »', '“', '”'),  # full no-break space
+              'fr-x-altquot': ('« ', ' »', '“', '”'),  # narrow no-break space
+              'fr-ch':        '«»‹›',
+              'fr-ch-x-altquot': ('« ',  ' »', '‹ ', ' ›'),  # narrow no-break space
               # http://typoguide.ch/
-              'gl':           u'«»“”',
-              'he':           u'”“»«',  # Hebrew is RTL, test position:
-              'he-x-altquot': u'„”‚’',  # low quotation marks are opening.
-              # 'he-x-altquot': u'“„‘‚',  # RTL: low quotation marks opening
-              'hr':           u'„”‘’',  # https://hrvatska-tipografija.com/polunavodnici/
-              'hr-x-altquot': u'»«›‹',
-              'hsb':          u'„“‚‘',
-              'hsb-x-altquot': u'»«›‹',
-              'hu':           u'„”«»',
-              'is':           u'„“‚‘',
-              'it':           u'«»“”',
-              'it-ch':        u'«»‹›',
-              'it-x-altquot': u'“”‘’',
-              # 'it-x-altquot2': u'“„‘‚',  # [7] in headlines
-              'ja':           u'「」『』',
-              'lt':           u'„“‚‘',
-              'lv':           u'„“‚‘',
-              'mk':           u'„“‚‘',  # Macedonian,
+              'gl':           '«»“”',
+              'he':           '”“»«',  # Hebrew is RTL, test position:
+              'he-x-altquot': '„”‚’',  # low quotation marks are opening.
+              # 'he-x-altquot': '“„‘‚',  # RTL: low quotation marks opening
+              'hr':           '„”‘’',  # https://hrvatska-tipografija.com/polunavodnici/
+              'hr-x-altquot': '»«›‹',
+              'hsb':          '„“‚‘',
+              'hsb-x-altquot': '»«›‹',
+              'hu':           '„”«»',
+              'is':           '„“‚‘',
+              'it':           '«»“”',
+              'it-ch':        '«»‹›',
+              'it-x-altquot': '“”‘’',
+              # 'it-x-altquot2': '“„‘‚',  # [7] in headlines
+              'ja':           '「」『』',
+              'lt':           '„“‚‘',
+              'lv':           '„“‚‘',
+              'mk':           '„“‚‘',  # Macedonian,
               # https://mk.wikipedia.org/wiki/Правопис_и_правоговор_на_македонскиот_јазик
-              'nl':           u'“”‘’',
-              'nl-x-altquot': u'„”‚’',
-              # 'nl-x-altquot2': u'””’’',
-              'nb':           u'«»’’',  # Norsk bokmål (canonical form 'no')
-              'nn':           u'«»’’',  # Nynorsk [10]
-              'nn-x-altquot': u'«»‘’',  # [8], [10]
-              # 'nn-x-altquot2': u'«»«»',  # [9], [10]
-              # 'nn-x-altquot3': u'„“‚‘',  # [10]
-              'no':           u'«»’’',  # Norsk bokmål [10]
-              'no-x-altquot': u'«»‘’',  # [8], [10]
-              # 'no-x-altquot2': u'«»«»',  # [9], [10]
-              # 'no-x-altquot3': u'„“‚‘',  # [10]
-              'pl':           u'„”«»',
-              'pl-x-altquot': u'«»‚’',
-              # 'pl-x-altquot2': u'„”‚’',
+              'nl':           '“”‘’',
+              'nl-x-altquot': '„”‚’',
+              # 'nl-x-altquot2': '””’’',
+              'nb':           '«»’’',  # Norsk bokmål (canonical form 'no')
+              'nn':           '«»’’',  # Nynorsk [10]
+              'nn-x-altquot': '«»‘’',  # [8], [10]
+              # 'nn-x-altquot2': '«»«»',  # [9], [10]
+              # 'nn-x-altquot3': '„“‚‘',  # [10]
+              'no':           '«»’’',  # Norsk bokmål [10]
+              'no-x-altquot': '«»‘’',  # [8], [10]
+              # 'no-x-altquot2': '«»«»',  # [9], [10]
+              # 'no-x-altquot3': '„“‚‘',  # [10]
+              'pl':           '„”«»',
+              'pl-x-altquot': '«»‚’',
+              # 'pl-x-altquot2': '„”‚’',
               # https://pl.wikipedia.org/wiki/Cudzys%C5%82%C3%B3w
-              'pt':           u'«»“”',
-              'pt-br':        u'“”‘’',
-              'ro':           u'„”«»',
-              'ru':           u'«»„“',
-              'sh':           u'„”‚’',  # Serbo-Croatian
-              'sh-x-altquot': u'»«›‹',
-              'sk':           u'„“‚‘',  # Slovak
-              'sk-x-altquot': u'»«›‹',
-              'sl':           u'„“‚‘',  # Slovenian
-              'sl-x-altquot': u'»«›‹',
-              'sq':           u'«»‹›',  # Albanian
-              'sq-x-altquot': u'“„‘‚',
-              'sr':           u'„”’’',
-              'sr-x-altquot': u'»«›‹',
-              'sv':           u'””’’',
-              'sv-x-altquot': u'»»››',
-              'tr':           u'“”‘’',
-              'tr-x-altquot': u'«»‹›',
-              # 'tr-x-altquot2': u'“„‘‚',  # [7] antiquated?
-              'uk':           u'«»„“',
-              'uk-x-altquot': u'„“‚‘',
-              'zh-cn':        u'“”‘’',
-              'zh-tw':        u'「」『』',
+              'pt':           '«»“”',
+              'pt-br':        '“”‘’',
+              'ro':           '„”«»',
+              'ru':           '«»„“',
+              'sh':           '„”‚’',  # Serbo-Croatian
+              'sh-x-altquot': '»«›‹',
+              'sk':           '„“‚‘',  # Slovak
+              'sk-x-altquot': '»«›‹',
+              'sl':           '„“‚‘',  # Slovenian
+              'sl-x-altquot': '»«›‹',
+              'sq':           '«»‹›',  # Albanian
+              'sq-x-altquot': '“„‘‚',
+              'sr':           '„”’’',
+              'sr-x-altquot': '»«›‹',
+              'sv':           '””’’',
+              'sv-x-altquot': '»»››',
+              'tr':           '“”‘’',
+              'tr-x-altquot': '«»‹›',
+              # 'tr-x-altquot2': '“„‘‚',  # [7] antiquated?
+              'uk':           '«»„“',
+              'uk-x-altquot': '„“‚‘',
+              'zh-cn':        '“”‘’',
+              'zh-tw':        '「」『』',
               }
 
 
-def educateQuotes(text, language='en'):
-    # type: (unicode, unicode) -> unicode
+def educateQuotes(text: str, language: str = 'en') -> str:
     """
     Parameter:  - text string (unicode or bytes).
                 - language (`BCP 47` language tag.)
@@ -142,7 +137,7 @@ def educateQuotes(text, language='en'):
     try:
         apostrophe = smart.apostrophe
     except Exception:
-        apostrophe = u'’'
+        apostrophe = '’'
 
     # oldtext = text
     punct_class = r"""[!"#\$\%'()*+,-.\/:;<=>?\@\[\\\]\^_`{|}~]"""
@@ -160,7 +155,7 @@ def educateQuotes(text, language='en'):
 
     # Special case for decade abbreviations (the '80s):
     if language.startswith('en'):  # TODO similar cases in other languages?
-        text = re.sub(r"""'(?=\d{2}s)""", apostrophe, text, re.UNICODE)
+        text = re.sub(r"""'(?=\d{2}s)""", apostrophe, text, flags=re.UNICODE)
 
     close_class = r"""[^\ \t\r\n\[\{\(\-]"""
     dec_dashes = r"""&#8211;|&#8212;"""
@@ -242,8 +237,10 @@ def educateQuotes(text, language='en'):
     return text
 
 
-def educate_tokens(text_tokens, attr=smartquotes.default_smartypants_attr, language='en'):
-    # type: (Iterable[Tuple[str, unicode]], unicode, unicode) -> Iterator
+def educate_tokens(text_tokens: Iterable[Tuple[str, str]],
+                   attr: str = smartquotes.default_smartypants_attr,
+                   language: str = 'en'
+                   ) -> Generator[str, None, None]:
     """Return iterator that "educates" the items of `text_tokens`.
 
     This is modified to intercept the ``attr='2'`` as it was used by the

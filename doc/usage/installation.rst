@@ -12,10 +12,13 @@ Installing Sphinx
 Overview
 --------
 
-Sphinx is written in `Python`__ and supports both Python 2.7 and Python 3.3+.
-We recommend the latter.
+Sphinx is written in `Python`__ and supports Python 3.5+. It builds upon the
+shoulders of many third-party libraries such as `Docutils`__ and `Jinja`__,
+which are installed when Sphinx is installed.
 
-__ http://docs.python-guide.org/en/latest/
+__ https://docs.python-guide.org/
+__ https://docutils.sourceforge.io/
+__ https://jinja.palletsprojects.com/
 
 
 Linux
@@ -24,8 +27,7 @@ Linux
 Debian/Ubuntu
 ~~~~~~~~~~~~~
 
-Install either ``python3-sphinx`` (Python 3) or ``python-sphinx`` (Python 2)
-using :command:`apt-get`:
+Install either ``python3-sphinx`` using :command:`apt-get`:
 
 ::
 
@@ -73,28 +75,27 @@ Homebrew
 
 For more information, refer to the `package overview`__.
 
-__ http://formulae.brew.sh/formula/sphinx-doc
+__ https://formulae.brew.sh/formula/sphinx-doc
 
 MacPorts
 ~~~~~~~~
 
-Install either ``python36-sphinx`` (Python 3) or ``python27-sphinx`` (Python 2)
-using :command:`port`:
+Install either ``python3x-sphinx`` using :command:`port`:
 
 ::
 
-   $ sudo port install py36-sphinx
+   $ sudo port install py38-sphinx
 
 To set up the executable paths, use the ``port select`` command:
 
 ::
 
-   $ sudo port select --set python python36
-   $ sudo port select --set sphinx py36-sphinx
+   $ sudo port select --set python python38
+   $ sudo port select --set sphinx py38-sphinx
 
 For more information, refer to the `package overview`__.
 
-__ https://www.macports.org/ports.php?by=library&substr=py36-sphinx
+__ https://www.macports.org/ports.php?by=library&substr=py38-sphinx
 
 Anaconda
 ~~~~~~~~
@@ -109,21 +110,20 @@ Windows
 .. todo:: Could we start packaging this?
 
 Most Windows users do not have Python installed by default, so we begin with
-the installation of Python itself.  If you are unsure, open the *Command
-Prompt* (:kbd:`⊞Win-r` and type :command:`cmd`).  Once the command prompt is
-open, type :command:`python --version` and press Enter.  If Python is
-available, you will see the version of Python printed to the screen.  If you do
-not have Python installed, refer to the `Hitchhikers Guide to Python's`__
-Python on Windows installation guides. You can install either `Python 3`__ or
-`Python 2.7`__. Python 3 is recommended.
+the installation of Python itself.  To check if you already have Python
+installed, open the *Command Prompt* (:kbd:`⊞Win-r` and type :command:`cmd`).
+Once the command prompt is open, type :command:`python --version` and press
+Enter.  If Python is installed, you will see the version of Python printed to
+the screen.  If you do not have Python installed, refer to the `Hitchhikers
+Guide to Python's`__ Python on Windows installation guides. You must install
+`Python 3`__.
 
 Once Python is installed, you can install Sphinx using :command:`pip`.  Refer
 to the :ref:`pip installation instructions <install-pypi>` below for more
 information.
 
-__ http://docs.python-guide.org/en/latest/
-__ http://docs.python-guide.org/en/latest/starting/install3/win/
-__ http://docs.python-guide.org/en/latest/starting/install/win/
+__ https://docs.python-guide.org/
+__ https://docs.python-guide.org/starting/install3/win/
 
 
 .. _install-pypi:
@@ -161,6 +161,37 @@ the ``--pre`` flag.
 ::
 
    $ pip install -U --pre sphinx
+
+
+Docker
+------
+
+Docker images for Sphinx are published on the `Docker Hub <https://hub.docker.com/>`_. There are two kind of images:
+
+- `sphinxdoc/sphinx <https://hub.docker.com/repository/docker/sphinxdoc/sphinx>`_
+- `sphinxdoc/sphinx-latexpdf <https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf>`_
+
+Former one is used for standard usage of Sphinx, and latter one is mainly used for PDF builds using LaTeX. 
+Please choose one for your purpose.
+
+.. note::
+
+   sphinxdoc/sphinx-latexpdf contains TeXLive packages. So the image is very large (over 2GB!).
+
+.. hint::
+
+   When using docker images, please use ``docker run`` command to invoke sphinx commands.  For example,
+   you can use following command to create a Sphinx project::
+
+      $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
+
+   And you can following command this to build HTML document::
+
+      $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make html
+
+For more details, please read `README file`__ of docker images.
+
+.. __: https://hub.docker.com/repository/docker/sphinxdoc/sphinx
 
 
 Installation from source

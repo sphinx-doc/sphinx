@@ -1,22 +1,22 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.transforms.compact_bullet_list
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict, List
+from typing import cast
+
 from docutils import nodes
+from docutils.nodes import Node
 
 from sphinx import addnodes
+from sphinx.application import Sphinx
 from sphinx.transforms import SphinxTransform
-
-if False:
-    # For type annotation
-    from typing import List  # NOQA
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):
@@ -26,17 +26,14 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
     single reference in it.
     """
 
-    def default_visit(self, node):
-        # type: (nodes.Node) -> None
+    def default_visit(self, node: Node) -> None:
         raise nodes.NodeFound
 
-    def visit_bullet_list(self, node):
-        # type: (nodes.Node) -> None
+    def visit_bullet_list(self, node: nodes.bullet_list) -> None:
         pass
 
-    def visit_list_item(self, node):
-        # type: (nodes.Node) -> None
-        children = []  # type: List[nodes.Node]
+    def visit_list_item(self, node: nodes.list_item) -> None:
+        children = []  # type: List[Node]
         for child in node.children:
             if not isinstance(child, nodes.Invisible):
                 children.append(child)
@@ -51,8 +48,7 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
             raise nodes.NodeFound
         raise nodes.SkipChildren
 
-    def invisible_visit(self, node):
-        # type: (nodes.Node) -> None
+    def invisible_visit(self, node: Node) -> None:
         """Invisible nodes should be ignored."""
         pass
 
@@ -65,13 +61,11 @@ class RefOnlyBulletListTransform(SphinxTransform):
     """
     default_priority = 100
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs: Any) -> None:
         if self.config.html_compact_lists:
             return
 
-        def check_refonly_list(node):
-            # type: (nodes.Node) -> bool
+        def check_refonly_list(node: Node) -> bool:
             """Check for list with only references in it."""
             visitor = RefOnlyListChecker(self.document)
             try:
@@ -84,8 +78,18 @@ class RefOnlyBulletListTransform(SphinxTransform):
         for node in self.document.traverse(nodes.bullet_list):
             if check_refonly_list(node):
                 for item in node.traverse(nodes.list_item):
-                    para = item[0]
-                    ref = para[0]
+                    para = cast(nodes.paragraph, item[0])
+                    ref = cast(nodes.reference, para[0])
                     compact_para = addnodes.compact_paragraph()
                     compact_para += ref
                     item.replace(para, compact_para)
+
+
+def setup(app: Sphinx) -> Dict[str, Any]:
+    app.add_transform(RefOnlyBulletListTransform)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

@@ -1,20 +1,19 @@
-# -*- coding: utf-8 -*-
 """
     test_search
     ~~~~~~~~~~~
 
     Test the search index builder.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from io import BytesIO
 from collections import namedtuple
 
 import pytest
 from docutils import frontend, utils
 from docutils.parsers import rst
-from six import BytesIO
 
 from sphinx.search import IndexBuilder
 from sphinx.util import jsdump
@@ -22,7 +21,7 @@ from sphinx.util import jsdump
 DummyEnvironment = namedtuple('DummyEnvironment', ['version', 'domains'])
 
 
-class DummyDomain(object):
+class DummyDomain:
     def __init__(self, data):
         self.data = data
         self.object_types = {}
@@ -42,10 +41,11 @@ def setup_module():
 
 
 def jsload(path):
-    searchindex = path.text()
+    searchindex = path.read_text()
     assert searchindex.startswith('Search.setIndex(')
+    assert searchindex.endswith(')')
 
-    return jsdump.loads(searchindex[16:-2])
+    return jsdump.loads(searchindex[16:-1])
 
 
 def is_registered_term(index, keyword):
@@ -65,10 +65,7 @@ test that non-comments are indexed: fermion
 @pytest.mark.sphinx(testroot='ext-viewcode')
 def test_objects_are_escaped(app, status, warning):
     app.builder.build_all()
-    searchindex = (app.outdir / 'searchindex.js').text()
-    assert searchindex.startswith('Search.setIndex(')
-
-    index = jsdump.loads(searchindex[16:-2])
+    index = jsload(app.outdir / 'searchindex.js')
     assert 'n::Array&lt;T, d&gt;' in index.get('objects').get('')  # n::Array<T,d> is escaped
 
 
@@ -101,7 +98,7 @@ def test_meta_keys_are_handled_for_language_de(app, status, warning):
 @pytest.mark.sphinx(testroot='search')
 def test_stemmer_does_not_remove_short_words(app, status, warning):
     app.builder.build_all()
-    searchindex = (app.outdir / 'searchindex.js').text()
+    searchindex = (app.outdir / 'searchindex.js').read_text()
     assert 'zfs' in searchindex
 
 
@@ -115,11 +112,11 @@ def test_stemmer(app, status, warning):
 
 @pytest.mark.sphinx(testroot='search')
 def test_term_in_heading_and_section(app, status, warning):
-    searchindex = (app.outdir / 'searchindex.js').text()
+    searchindex = (app.outdir / 'searchindex.js').read_text()
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert 'textinhead:1' in searchindex
+    assert 'textinhead:2' in searchindex
     assert 'textinhead:0' in searchindex
 
 
@@ -161,7 +158,7 @@ def test_IndexBuilder():
         'docnames': ('docname', 'docname2'),
         'envversion': '1.0',
         'filenames': ['filename', 'filename2'],
-        'objects': {'': {'objname': (0, 0, 1, '#anchor')}},
+        'objects': {'': {'objdispname': (0, 0, 1, '#anchor')}},
         'objnames': {0: ('dummy', 'objtype', 'objtype')},
         'objtypes': {0: 'dummy:objtype'},
         'terms': {'comment': [0, 1],
@@ -240,3 +237,28 @@ def test_IndexBuilder_lookup():
     # zh_CN
     index = IndexBuilder(env, 'zh_CN', {}, None)
     assert index.lang.lang == 'zh'
+
+
+@pytest.mark.sphinx(
+    testroot='search',
+    confoverrides={'html_search_language': 'zh'},
+    srcdir='search_zh'
+)
+def test_search_index_gen_zh(app, status, warning):
+    app.builder.build_all()
+    # jsdump fails if search language is 'zh'; hence we just get the text:
+    searchindex = (app.outdir / 'searchindex.js').read_text()
+    assert 'chinesetest ' not in searchindex
+    assert 'chinesetest' in searchindex
+    assert 'chinesetesttwo' in searchindex
+    assert 'cas' in searchindex
+
+
+@pytest.mark.sphinx(testroot='search')
+def test_nosearch(app):
+    app.build()
+    index = jsload(app.outdir / 'searchindex.js')
+    assert index['docnames'] == ['index', 'nosearch', 'tocitem']
+    assert 'latex' not in index['terms']
+    assert 'zfs' in index['terms']
+    assert index['terms']['zfs'] == 0  # zfs on nosearch.rst is not registered to index

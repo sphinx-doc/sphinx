@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- nature theme.
  *
- * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -184,10 +184,6 @@ div.admonition p.admonition-title + p {
     display: inline;
 }
 
-div.highlight{
-    background-color: white;
-}
-
 div.note {
     background-color: #eee;
     border: 1px solid #ccc;
@@ -217,8 +213,6 @@ p.admonition-title:after {
  
 pre {
     padding: 10px;
-    background-color: White;
-    color: #222;
     line-height: 1.2em;
     border: 1px solid #C6C9CB;
     font-size: 1.1em;

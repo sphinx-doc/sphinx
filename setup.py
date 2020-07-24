@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 from distutils import log
@@ -11,23 +10,27 @@ import sphinx
 with open('README.rst') as f:
     long_desc = f.read()
 
-if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 4):
-    print('ERROR: Sphinx requires at least Python 2.7 or 3.4 to run.')
+if sys.version_info < (3, 5):
+    print('ERROR: Sphinx requires at least Python 3.5 to run.')
     sys.exit(1)
 
 install_requires = [
-    'six>=1.5',
+    'sphinxcontrib-applehelp',
+    'sphinxcontrib-devhelp',
+    'sphinxcontrib-jsmath',
+    'sphinxcontrib-htmlhelp',
+    'sphinxcontrib-serializinghtml',
+    'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.11',
+    'docutils>=0.12',
     'snowballstemmer>=1.1',
-    'babel>=1.3,!=2.0',
+    'babel>=1.3',
     'alabaster>=0.7,<0.8',
     'imagesize',
-    'requests>=2.0.0',
+    'requests>=2.5.0',
     'setuptools',
     'packaging',
-    'sphinxcontrib-websupport',
 ]
 
 extras_require = {
@@ -35,27 +38,21 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
-    ':python_version<"3.5"': [
-        'typing'
+    'docs': [
+        'sphinxcontrib-websupport',
     ],
-    'websupport': [
-        'sqlalchemy>=0.9',
-        'whoosh>=2.0',
+    'lint': [
+        'flake8>=3.5.0',
+        'flake8-import-order',
+        'mypy>=0.780',
+        'docutils-stubs',
     ],
     'test': [
-        'mock',
         'pytest',
         'pytest-cov',
         'html5lib',
-        'flake8>=3.5.0',
-        'flake8-import-order',
-    ],
-    'test:python_version<"3"': [
-        'enum34',
-    ],
-    'test:python_version>="3"': [
-        'mypy',
-        'typed_ast',
+        'typed_ast',  # for py35-37
+        'cython',
     ],
 }
 
@@ -65,7 +62,7 @@ extras_require = {
 cmdclass = {}
 
 
-class Tee(object):
+class Tee:
     def __init__(self, stream):
         self.stream = stream
         self.buffer = StringIO()
@@ -142,7 +139,7 @@ else:
                                                  domain + '.js'))
 
             for js_file, (locale, po_file) in zip(js_files, po_files):
-                with open(po_file, 'r') as infile:
+                with open(po_file, encoding='utf8') as infile:
                     catalog = read_po(infile, locale)
 
                 if catalog.fuzzy and not self.use_fuzzy:
@@ -160,13 +157,13 @@ else:
                             msgid = msgid[0]
                         jscatalog[msgid] = message.string
 
-                with open(js_file, 'wt') as outfile:
+                with open(js_file, 'wt', encoding='utf8') as outfile:
                     outfile.write('Documentation.addTranslations(')
-                    dump(dict(
-                        messages=jscatalog,
-                        plural_expr=catalog.plural_expr,
-                        locale=str(catalog.locale)
-                    ), outfile, sort_keys=True)
+                    dump({
+                        'messages': jscatalog,
+                        'plural_expr': catalog.plural_expr,
+                        'locale': str(catalog.locale)
+                    }, outfile, sort_keys=True, indent=4)
                     outfile.write(');')
 
     cmdclass['compile_catalog'] = compile_catalog_plusjs
@@ -182,6 +179,11 @@ setup(
     author_email='georg@python.org',
     description='Python documentation generator',
     long_description=long_desc,
+    long_description_content_type='text/x-rst',
+    project_urls={
+        "Code": "https://github.com/sphinx-doc/sphinx",
+        "Issue tracker": "https://github.com/sphinx-doc/sphinx/issues",
+    },
     zip_safe=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -195,12 +197,12 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Setuptools Plugin',
@@ -223,6 +225,9 @@ setup(
     ],
     platforms='any',
     packages=find_packages(exclude=['tests', 'utils']),
+    package_data = {
+        'sphinx': ['py.typed'],
+    },
     include_package_data=True,
     entry_points={
         'console_scripts': [
@@ -235,7 +240,7 @@ setup(
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
     },
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    python_requires=">=3.5",
     install_requires=install_requires,
     extras_require=extras_require,
     cmdclass=cmdclass,

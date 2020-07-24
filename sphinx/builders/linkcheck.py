@@ -1,89 +1,79 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.linkcheck
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     The CheckExternalLinksBuilder class.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
+import json
+import queue
 import re
 import socket
 import threading
+from html.parser import HTMLParser
 from os import path
+from typing import Any, Dict, List, Set, Tuple
+from urllib.parse import unquote, urlparse
 
 from docutils import nodes
+from docutils.nodes import Node
 from requests.exceptions import HTTPError
-from six.moves import queue, html_parser
-from six.moves.urllib.parse import unquote
 
-# 2015-06-25 barry@python.org.  This exception was deprecated in Python 3.3 and
-# removed in Python 3.5, however for backward compatibility reasons, we're not
-# going to just remove it.  If it doesn't exist, define an exception that will
-# never be caught but leaves the code in check_anchor() intact.
-try:
-    from six.moves.html_parser import HTMLParseError  # type: ignore
-except ImportError:
-    class HTMLParseError(Exception):  # type: ignore
-        pass
-
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
-    purple, red, darkgreen, darkgray, darkred, turquoise
+    purple, red, darkgreen, darkgray, turquoise
 )
+from sphinx.util.nodes import get_node_line
 from sphinx.util.requests import is_ssl_error
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.requests.requests import Response  # NOQA
 
 
 logger = logging.getLogger(__name__)
 
+uri_re = re.compile('[a-z]+://')
 
-class AnchorCheckParser(html_parser.HTMLParser):
+
+DEFAULT_REQUEST_HEADERS = {
+    'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
+}
+
+
+class AnchorCheckParser(HTMLParser):
     """Specialized HTML parser that looks for a specific anchor."""
 
-    def __init__(self, search_anchor):
-        # type: (unicode) -> None
-        html_parser.HTMLParser.__init__(self)
+    def __init__(self, search_anchor: str) -> None:
+        super().__init__()
 
         self.search_anchor = search_anchor
         self.found = False
 
-    def handle_starttag(self, tag, attrs):
-        # type: (Any, Any) -> None
+    def handle_starttag(self, tag: Any, attrs: Any) -> None:
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
                 break
 
 
-def check_anchor(response, anchor):
-    # type: (Response, unicode) -> bool
+def check_anchor(response: requests.requests.Response, anchor: str) -> bool:
     """Reads HTML data from a response object `response` searching for `anchor`.
     Returns True if anchor was found, False otherwise.
     """
     parser = AnchorCheckParser(anchor)
-    try:
-        # Read file in chunks. If we find a matching anchor, we break
-        # the loop early in hopes not to have to download the whole thing.
-        for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
-            parser.feed(chunk)
-            if parser.found:
-                break
-        parser.close()
-    except HTMLParseError:
-        # HTMLParser is usually pretty good with sloppy HTML, but it tends to
-        # choke on EOF. But we're done then anyway.
-        pass
+    # Read file in chunks. If we find a matching anchor, we break
+    # the loop early in hopes not to have to download the whole thing.
+    for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
+        if isinstance(chunk, bytes):    # requests failed to decode
+            chunk = chunk.decode()      # manually try to decode it
+
+        parser.feed(chunk)
+        if parser.found:
+            break
+    parser.close()
     return parser.found
 
 
@@ -95,18 +85,21 @@ class CheckExternalLinksBuilder(Builder):
     epilog = __('Look for any errors in the above output or in '
                 '%(outdir)s/output.txt')
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
         self.anchors_ignore = [re.compile(x)
                                for x in self.app.config.linkcheck_anchors_ignore]
-        self.good = set()       # type: Set[unicode]
-        self.broken = {}        # type: Dict[unicode, unicode]
-        self.redirected = {}    # type: Dict[unicode, Tuple[unicode, int]]
+        self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
+                     in self.app.config.linkcheck_auth]
+        self.good = set()       # type: Set[str]
+        self.broken = {}        # type: Dict[str, str]
+        self.redirected = {}    # type: Dict[str, Tuple[str, int]]
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
         # create output file
         open(path.join(self.outdir, 'output.txt'), 'w').close()
+        # create JSON output file
+        open(path.join(self.outdir, 'output.json'), 'w').close()
 
         # create queues and worker threads
         self.wqueue = queue.Queue()  # type: queue.Queue
@@ -118,16 +111,29 @@ class CheckExternalLinksBuilder(Builder):
             thread.start()
             self.workers.append(thread)
 
-    def check_thread(self):
-        # type: () -> None
-        kwargs = {}
+    def check_thread(self) -> None:
+        kwargs = {
+            'allow_redirects': True,
+        }  # type: Dict
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
-        kwargs['allow_redirects'] = True
+        def get_request_headers() -> Dict:
+            url = urlparse(uri)
+            candidates = ["%s://%s" % (url.scheme, url.netloc),
+                          "%s://%s/" % (url.scheme, url.netloc),
+                          uri,
+                          "*"]
 
-        def check_uri():
-            # type: () -> Tuple[unicode, unicode, int]
+            for u in candidates:
+                if u in self.config.linkcheck_request_headers:
+                    headers = dict(DEFAULT_REQUEST_HEADERS)
+                    headers.update(self.config.linkcheck_request_headers[u])
+                    return headers
+
+            return {}
+
+        def check_uri() -> Tuple[str, str, int]:
             # split off anchor
             if '#' in uri:
                 req_url, anchor = uri.split('#', 1)
@@ -145,11 +151,21 @@ class CheckExternalLinksBuilder(Builder):
             except UnicodeError:
                 req_url = encode_uri(req_url)
 
+            # Get auth info, if any
+            for pattern, auth_info in self.auth:
+                if pattern.match(uri):
+                    break
+            else:
+                auth_info = None
+
+            # update request headers for the URL
+            kwargs['headers'] = get_request_headers()
+
             try:
                 if anchor and self.app.config.linkcheck_anchors:
                     # Read the whole document and see if #anchor exists
                     response = requests.get(req_url, stream=True, config=self.app.config,
-                                            **kwargs)
+                                            auth=auth_info, **kwargs)
                     found = check_anchor(response, unquote(anchor))
 
                     if not found:
@@ -158,18 +174,22 @@ class CheckExternalLinksBuilder(Builder):
                     try:
                         # try a HEAD request first, which should be easier on
                         # the server and the network
-                        response = requests.head(req_url, config=self.app.config, **kwargs)
+                        response = requests.head(req_url, config=self.app.config,
+                                                 auth=auth_info, **kwargs)
                         response.raise_for_status()
-                    except HTTPError as err:
+                    except HTTPError:
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
                         response = requests.get(req_url, stream=True, config=self.app.config,
-                                                **kwargs)
+                                                auth=auth_info, **kwargs)
                         response.raise_for_status()
             except HTTPError as err:
                 if err.response.status_code == 401:
                     # We'll take "Unauthorized" as working.
                     return 'working', ' - unauthorized', 0
+                elif err.response.status_code == 503:
+                    # We'll take "Service Unavailable" as ignored.
+                    return 'ignored', str(err), 0
                 else:
                     return 'broken', str(err), 0
             except Exception as err:
@@ -190,13 +210,23 @@ class CheckExternalLinksBuilder(Builder):
                 else:
                     return 'redirected', new_url, 0
 
-        def check():
-            # type: () -> Tuple[unicode, unicode, int]
+        def check() -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
-            if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
+            if len(uri) == 0 or uri.startswith(('#', 'mailto:')):
                 return 'unchecked', '', 0
             elif not uri.startswith(('http:', 'https:')):
-                return 'local', '', 0
+                if uri_re.match(uri):
+                    # non supported URI schemes (ex. ftp)
+                    return 'unchecked', '', 0
+                else:
+                    if path.exists(path.join(self.srcdir, uri)):
+                        return 'working', '', 0
+                    else:
+                        for rex in self.to_ignore:
+                            if rex.match(uri):
+                                return 'ignored', '', 0
+                        else:
+                            return 'broken', '', 0
             elif uri in self.good:
                 return 'working', 'old', 0
             elif uri in self.broken:
@@ -229,72 +259,89 @@ class CheckExternalLinksBuilder(Builder):
             status, info, code = check()
             self.rqueue.put((uri, docname, lineno, status, info, code))
 
-    def process_result(self, result):
-        # type: (Tuple[unicode, unicode, int, unicode, unicode, int]) -> None
+    def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
         uri, docname, lineno, status, info, code = result
+
+        filename = self.env.doc2path(docname, None)
+        linkstat = dict(filename=filename, lineno=lineno,
+                        status=status, code=code, uri=uri,
+                        info=info)
         if status == 'unchecked':
+            self.write_linkstat(linkstat)
             return
         if status == 'working' and info == 'old':
+            self.write_linkstat(linkstat)
             return
         if lineno:
-            logger.info('(line %4d) ', lineno, nonl=1)
+            logger.info('(line %4d) ', lineno, nonl=True)
         if status == 'ignored':
             if info:
                 logger.info(darkgray('-ignored- ') + uri + ': ' + info)
             else:
                 logger.info(darkgray('-ignored- ') + uri)
+            self.write_linkstat(linkstat)
         elif status == 'local':
             logger.info(darkgray('-local-   ') + uri)
-            self.write_entry('local', docname, lineno, uri)
+            self.write_entry('local', docname, filename, lineno, uri)
+            self.write_linkstat(linkstat)
         elif status == 'working':
             logger.info(darkgreen('ok        ') + uri + info)
+            self.write_linkstat(linkstat)
         elif status == 'broken':
-            self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
                 logger.warning(__('broken link: %s (%s)'), uri, info,
-                               location=(self.env.doc2path(docname), lineno))
+                               location=(filename, lineno))
             else:
                 logger.info(red('broken    ') + uri + red(' - ' + info))
+            self.write_entry('broken', docname, filename, lineno, uri + ': ' + info)
+            self.write_linkstat(linkstat)
         elif status == 'redirected':
-            text, color = {
-                301: ('permanently', darkred),
-                302: ('with Found', purple),
-                303: ('with See Other', purple),
-                307: ('temporarily', turquoise),
-                0:   ('with unknown code', purple),
-            }[code]
-            self.write_entry('redirected ' + text, docname, lineno,
-                             uri + ' to ' + info)
+            try:
+                text, color = {
+                    301: ('permanently', purple),
+                    302: ('with Found', purple),
+                    303: ('with See Other', purple),
+                    307: ('temporarily', turquoise),
+                    308: ('permanently', purple),
+                }[code]
+            except KeyError:
+                text, color = ('with unknown code', purple)
+            linkstat['text'] = text
             logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
+            self.write_entry('redirected ' + text, docname, filename,
+                             lineno, uri + ' to ' + info)
+            self.write_linkstat(linkstat)
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
 
-    def get_outdated_docs(self):
-        # type: () -> Set[unicode]
+    def get_outdated_docs(self) -> Set[str]:
         return self.env.found_docs
 
-    def prepare_writing(self, docnames):
-        # type: (nodes.Node) -> None
+    def prepare_writing(self, docnames: Set[str]) -> None:
         return
 
-    def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+    def write_doc(self, docname: str, doctree: Node) -> None:
         logger.info('')
         n = 0
-        for node in doctree.traverse(nodes.reference):
-            if 'refuri' not in node:
+
+        # reference nodes
+        for refnode in doctree.traverse(nodes.reference):
+            if 'refuri' not in refnode:
                 continue
-            uri = node['refuri']
-            lineno = None
-            while lineno is None:
-                node = node.parent
-                if node is None:
-                    break
-                lineno = node.line
+            uri = refnode['refuri']
+            lineno = get_node_line(refnode)
             self.wqueue.put((uri, docname, lineno), False)
             n += 1
+
+        # image nodes
+        for imgnode in doctree.traverse(nodes.image):
+            uri = imgnode['candidates'].get('?')
+            if uri and '://' in uri:
+                lineno = get_node_line(imgnode)
+                self.wqueue.put((uri, docname, lineno), False)
+                n += 1
+
         done = 0
         while done < n:
             self.process_result(self.rqueue.get())
@@ -303,23 +350,27 @@ class CheckExternalLinksBuilder(Builder):
         if self.broken:
             self.app.statuscode = 1
 
-    def write_entry(self, what, docname, line, uri):
-        # type: (unicode, unicode, int, unicode) -> None
-        with codecs.open(path.join(self.outdir, 'output.txt'), 'a', 'utf-8') as output:  # type: ignore  # NOQA
-            output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
-                                               line, what, uri))
+    def write_entry(self, what: str, docname: str, filename: str, line: int,
+                    uri: str) -> None:
+        with open(path.join(self.outdir, 'output.txt'), 'a') as output:
+            output.write("%s:%s: [%s] %s\n" % (filename, line, what, uri))
 
-    def finish(self):
-        # type: () -> None
+    def write_linkstat(self, data: dict) -> None:
+        with open(path.join(self.outdir, 'output.json'), 'a') as output:
+            output.write(json.dumps(data))
+            output.write('\n')
+
+    def finish(self) -> None:
         for worker in self.workers:
             self.wqueue.put((None, None, None), False)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(CheckExternalLinksBuilder)
 
     app.add_config_value('linkcheck_ignore', [], None)
+    app.add_config_value('linkcheck_auth', [], None)
+    app.add_config_value('linkcheck_request_headers', {}, None)
     app.add_config_value('linkcheck_retries', 1, None)
     app.add_config_value('linkcheck_timeout', None, None, [int])
     app.add_config_value('linkcheck_workers', 5, None)

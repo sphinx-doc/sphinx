@@ -1,4 +1,4 @@
-"""
+r"""
 
     Test with a class diagram like this::
 

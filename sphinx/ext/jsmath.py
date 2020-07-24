@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.jsmath
     ~~~~~~~~~~~~~~~~~
@@ -6,75 +5,32 @@
     Set up everything for use of JSMath to display math in HTML
     via JavaScript.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from docutils import nodes
+import warnings
+from typing import Any, Dict
+
+from sphinxcontrib.jsmath import (  # NOQA
+    html_visit_math,
+    html_visit_displaymath,
+    install_jsmath,
+)
 
 import sphinx
-from sphinx.errors import ExtensionError
-from sphinx.ext.mathbase import get_node_equation_number
-from sphinx.ext.mathbase import setup_math as mathbase_setup
-from sphinx.locale import _
-
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+from sphinx.application import Sphinx
+from sphinx.deprecation import RemovedInSphinx40Warning
 
 
-def html_visit_math(self, node):
-    # type: (nodes.NodeVisitor, nodes.Node) -> None
-    self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
-    self.body.append(self.encode(node.astext()) + '</span>')
-    raise nodes.SkipNode
+def setup(app: Sphinx) -> Dict[str, Any]:
+    warnings.warn('sphinx.ext.jsmath has been moved to sphinxcontrib-jsmath.',
+                  RemovedInSphinx40Warning)
 
+    app.setup_extension('sphinxcontrib.jsmath')
 
-def html_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, nodes.Node) -> None
-    if node['nowrap']:
-        self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
-        self.body.append(self.encode(node.astext()))
-        self.body.append('</div>')
-        raise nodes.SkipNode
-    for i, part in enumerate(node.astext().split('\n\n')):
-        part = self.encode(part)
-        if i == 0:
-            # necessary to e.g. set the id property correctly
-            if node['number']:
-                number = get_node_equation_number(self, node)
-                self.body.append('<span class="eqno">(%s)' % number)
-                self.add_permalink_ref(node, _('Permalink to this equation'))
-                self.body.append('</span>')
-            self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
-        else:
-            # but only once!
-            self.body.append('<div class="math">')
-        if '&' in part or '\\\\' in part:
-            self.body.append('\\begin{split}' + part + '\\end{split}')
-        else:
-            self.body.append(part)
-        self.body.append('</div>\n')
-    raise nodes.SkipNode
-
-
-def builder_inited(app):
-    # type: (Sphinx) -> None
-    if not app.config.jsmath_path:
-        raise ExtensionError('jsmath_path config value must be set for the '
-                             'jsmath extension to work')
-    if app.builder.format == 'html':
-        app.builder.add_js_file(app.config.jsmath_path)  # type: ignore
-
-
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
-    try:
-        mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
-    except ExtensionError:
-        raise ExtensionError('sphinx.ext.jsmath: other math package is already loaded')
-
-    app.add_config_value('jsmath_path', '', False)
-    app.connect('builder-inited', builder_inited)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

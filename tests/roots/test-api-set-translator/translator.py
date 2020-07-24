@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sphinx.writers.html import HTMLTranslator
 
 

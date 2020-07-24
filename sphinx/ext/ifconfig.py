@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.ifconfig
     ~~~~~~~~~~~~~~~~~~~
@@ -16,20 +15,19 @@
     namespace of the project configuration (that is, all variables from
     ``conf.py`` are available.)
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict, List
+
 from docutils import nodes
+from docutils.nodes import Node
 
 import sphinx
+from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import set_source_info
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+from sphinx.util.nodes import nested_parse_with_titles
 
 
 class ifconfig(nodes.Element):
@@ -44,20 +42,17 @@ class IfConfig(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {}  # type: Dict
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         node = ifconfig()
         node.document = self.state.document
-        set_source_info(self, node)
+        self.set_source_info(node)
         node['expr'] = self.arguments[0]
-        self.state.nested_parse(self.content, self.content_offset,
-                                node, match_titles=1)
+        nested_parse_with_titles(self.state, self.content, node)
         return [node]
 
 
-def process_ifconfig_nodes(app, doctree, docname):
-    # type: (Sphinx, nodes.Node, unicode) -> None
-    ns = dict((confval.name, confval.value) for confval in app.config)
+def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -> None:
+    ns = {confval.name: confval.value for confval in app.config}
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
     for node in doctree.traverse(ifconfig):
@@ -67,7 +62,7 @@ def process_ifconfig_nodes(app, doctree, docname):
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
             msg = ''.join(format_exception_only(err.__class__, err))
-            newnode = doctree.reporter.error('Exception occured in '
+            newnode = doctree.reporter.error('Exception occurred in '
                                              'ifconfig expression: \n%s' %
                                              msg, base_node=node)
             node.replace_self(newnode)
@@ -78,8 +73,7 @@ def process_ifconfig_nodes(app, doctree, docname):
                 node.replace_self(node.children)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_node(ifconfig)
     app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)

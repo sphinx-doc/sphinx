@@ -40,9 +40,7 @@ Important points to note:
   contain the file name extension.
 
 * Since :file:`conf.py` is read as a Python file, the usual rules apply for
-  encodings and Unicode support: declare the encoding using an encoding cookie
-  (a comment like ``# -*- coding: utf-8 -*-``) and use Unicode string literals
-  when you include non-ASCII characters in configuration values.
+  encodings and Unicode support.
 
 * The contents of the config namespace are pickled (so that Sphinx can find out
   when configuration changes), so it may not contain unpickleable values --
@@ -60,13 +58,44 @@ Important points to note:
   created *after* the builder is initialized.
 
 
+Project information
+-------------------
+
+.. confval:: project
+
+   The documented project's name.
+
+.. confval:: author
+
+   The author name(s) of the document.  The default value is ``'unknown'``.
+
+.. confval:: copyright
+
+   A copyright statement in the style ``'2008, Author Name'``.
+
+.. confval:: version
+
+   The major project version, used as the replacement for ``|version|``.  For
+   example, for the Python documentation, this may be something like ``2.6``.
+
+.. confval:: release
+
+   The full project version, used as the replacement for ``|release|`` and
+   e.g. in the HTML templates.  For example, for the Python documentation, this
+   may be something like ``2.6.0rc1``.
+
+   If you don't need the separation provided between :confval:`version` and
+   :confval:`release`, just set them both to the same value.
+
+
 General configuration
 ---------------------
 
 .. confval:: extensions
 
-   A list of strings that are module names of :ref:`extensions`. These can be
-   extensions coming with Sphinx (named ``sphinx.ext.*``) or custom ones.
+   A list of strings that are module names of :doc:`extensions
+   <extensions/index>`. These can be extensions coming with Sphinx (named
+   ``sphinx.ext.*``) or custom ones.
 
    Note that you can extend :data:`sys.path` within the conf file if your
    extensions live in another directory -- but make sure you use absolute paths.
@@ -88,7 +117,7 @@ General configuration
 .. confval:: source_suffix
 
    The file extensions of source files.  Sphinx considers the files with this
-   suffix as sources.  This value can be a dictionary mapping file extensions
+   suffix as sources.  The value can be a dictionary mapping file extensions
    to file types.  For example::
 
       source_suffix = {
@@ -97,15 +126,16 @@ General configuration
           '.md': 'markdown',
       }
 
-   By default, Sphinx only supports ``'restrcturedtext'`` file type.  You can
+   By default, Sphinx only supports ``'restructuredtext'`` file type.  You can
    add a new file type using source parser extensions.  Please read a document
-   of the extension to know what file type the extension supports.
+   of the extension to know which file type the extension supports.
 
-   This also allows a list of file extensions.  In that case, Sphinx conciders
-   that all they are ``'restructuredtext'``.  Default is
-   ``{'.rst': 'restructuredtext'}``.
+   The value may also be a list of file extensions: then Sphinx will consider
+   that they all map to the ``'restructuredtext'`` file type.
 
-   .. note:: file extensions have to start with dot (like ``.rst``).
+   Default is ``{'.rst': 'restructuredtext'}``.
+
+   .. note:: file extensions have to start with a dot (e.g. ``.rst``).
 
    .. versionchanged:: 1.3
       Can now be a list of extensions.
@@ -142,13 +172,16 @@ General configuration
    .. versionadded:: 1.3
 
    .. deprecated:: 1.8
-      Now Sphinx provides an API :meth:`Sphinx.add_source_parser` to register
+      Now Sphinx provides an API :meth:`.Sphinx.add_source_parser` to register
       a source parser.  Please use it instead.
 
 .. confval:: master_doc
 
    The document name of the "master" document, that is, the document that
-   contains the root :rst:dir:`toctree` directive.  Default is ``'contents'``.
+   contains the root :rst:dir:`toctree` directive.  Default is ``'index'``.
+
+   .. versionchanged:: 2.0
+      The default is changed to ``'index'`` from ``'contents'``.
 
 .. confval:: exclude_patterns
 
@@ -263,25 +296,27 @@ General configuration
 
    Sphinx supports following warning types:
 
-   * app.add_node
-   * app.add_directive
-   * app.add_role
-   * app.add_generic_role
-   * app.add_source_parser
-   * download.not_readable
-   * image.not_readable
-   * ref.term
-   * ref.ref
-   * ref.numref
-   * ref.keyword
-   * ref.option
-   * ref.citation
-   * ref.footnote
-   * ref.doc
-   * ref.python
-   * misc.highlighting_failure
-   * toc.secnum
-   * epub.unknown_project_files
+   * ``app.add_node``
+   * ``app.add_directive``
+   * ``app.add_role``
+   * ``app.add_generic_role``
+   * ``app.add_source_parser``
+   * ``download.not_readable``
+   * ``image.not_readable``
+   * ``ref.term``
+   * ``ref.ref``
+   * ``ref.numref``
+   * ``ref.keyword``
+   * ``ref.option``
+   * ``ref.citation``
+   * ``ref.footnote``
+   * ``ref.doc``
+   * ``ref.python``
+   * ``misc.highlighting_failure``
+   * ``toc.circular``
+   * ``toc.secnum``
+   * ``epub.unknown_project_files``
+   * ``autosectionlabel.*``
 
    You can choose from these types.
 
@@ -300,6 +335,10 @@ General configuration
    .. versionchanged:: 1.6
 
       Added ``ref.footnote``
+
+   .. versionchanged:: 2.1
+
+      Added ``autosectionlabel.*``
 
 .. confval:: needs_sphinx
 
@@ -459,7 +498,26 @@ General configuration
       direct usage of :program:`sphinx-build` as it caches
       (in its default usage) the parsed source files in per builder locations.
 
+   .. hint:: An alternative way to effectively deactivate (or customize) the
+      smart quotes for a given builder, for example ``latex``, is to use
+      ``make`` this way:
+
+      .. code-block:: console
+
+         make latex O="-D smartquotes_action="
+
+      This can follow some ``make html`` with no problem, in contrast to the
+      situation from the prior note.  It requires Docutils 0.14 or later.
+
    .. versionadded:: 1.6.6
+
+.. confval:: user_agent
+
+   A User-Agent of Sphinx.  It is used for a header on HTTP access (ex.
+   linkcheck, intersphinx and so on).  Default is ``"Sphinx/X.Y.Z
+   requests/X.Y.Z python/X.Y.Z"``.
+
+   .. versionadded:: 2.3
 
 .. confval:: tls_verify
 
@@ -476,35 +534,12 @@ General configuration
 
    .. versionadded:: 1.5
 
+   .. tip:: Sphinx uses requests_ as a HTTP library internally.
+            Therefore, Sphinx refers a certification file on the
+            directory pointed ``REQUESTS_CA_BUNDLE`` environment
+            variable if ``tls_cacerts`` not set.
 
-Project information
--------------------
-
-.. confval:: project
-
-   The documented project's name.
-
-.. confval:: author
-
-   The author name(s) of the document.  The default value is ``'unknown'``.
-
-.. confval:: copyright
-
-   A copyright statement in the style ``'2008, Author Name'``.
-
-.. confval:: version
-
-   The major project version, used as the replacement for ``|version|``.  For
-   example, for the Python documentation, this may be something like ``2.6``.
-
-.. confval:: release
-
-   The full project version, used as the replacement for ``|release|`` and
-   e.g. in the HTML templates.  For example, for the Python documentation, this
-   may be something like ``2.6.0rc1``.
-
-   If you don't need the separation provided between :confval:`version` and
-   :confval:`release`, just set them both to the same value.
+            .. _requests: https://requests.readthedocs.io/en/master/
 
 .. confval:: today
              today_fmt
@@ -540,7 +575,7 @@ Project information
    A dictionary of options that modify how the lexer specified by
    :confval:`highlight_language` generates highlighted source code. These are
    lexer-specific; for the options understood by each, see the
-   `Pygments documentation <http://pygments.org/docs/lexers/>`_.
+   `Pygments documentation <https://pygments.org/docs/lexers>`_.
 
    .. versionadded:: 1.3
 
@@ -600,6 +635,16 @@ Project information
    .. versionchanged:: 1.1
       Now also removes ``<BLANKLINE>``.
 
+.. confval:: strip_signature_backslash
+
+   Default is ``False``.
+   When backslash stripping is enabled then every occurrence of ``\\`` in a
+   domain directive will be changed to ``\``, even within string literals.
+   This was the behaviour before version 3.0, and setting this variable to
+   ``True`` will reinstate that behaviour.
+
+    .. versionadded:: 3.0
+
 
 .. _intl-options:
 
@@ -615,10 +660,11 @@ documentation on :ref:`intl` for details.
    generated by Sphinx will be in that language.  Also, Sphinx will try to
    substitute individual paragraphs from your documents with the translation
    sets obtained from :confval:`locale_dirs`.  Sphinx will search
-   language-specific figures named by `figure_language_filename` and substitute
-   them for original figures.  In the LaTeX builder, a suitable language will
-   be selected as an option for the *Babel* package.  Default is ``None``,
-   which means that no translation will be done.
+   language-specific figures named by :confval:`figure_language_filename`
+   (e.g. the German version of ``myfigure.png`` will be ``myfigure.de.png``
+   by default setting) and substitute them for original figures.  In the LaTeX
+   builder, a suitable language will be selected as an option for the *Babel*
+   package.  Default is ``None``, which means that no translation will be done.
 
    .. versionadded:: 0.5
 
@@ -628,12 +674,18 @@ documentation on :ref:`intl` for details.
 
    Currently supported languages by Sphinx are:
 
+   * ``ar`` -- Arabic
+   * ``bg`` -- Bulgarian
    * ``bn`` -- Bengali
    * ``ca`` -- Catalan
+   * ``cak`` -- Kaqchikel
    * ``cs`` -- Czech
+   * ``cy`` -- Welsh
    * ``da`` -- Danish
    * ``de`` -- German
+   * ``el`` -- Greek
    * ``en`` -- English
+   * ``eo`` -- Esperanto
    * ``es`` -- Spanish
    * ``et`` -- Estonian
    * ``eu`` -- Basque
@@ -641,6 +693,8 @@ documentation on :ref:`intl` for details.
    * ``fi`` -- Finnish
    * ``fr`` -- French
    * ``he`` -- Hebrew
+   * ``hi`` -- Hindi
+   * ``hi_IN`` -- Hindi (India)
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
    * ``id`` -- Indonesian
@@ -654,15 +708,24 @@ documentation on :ref:`intl` for details.
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
+   * ``pt`` -- Portuguese
    * ``pt_BR`` -- Brazilian Portuguese
    * ``pt_PT`` -- European Portuguese
+   * ``ro`` -- Romanian
    * ``ru`` -- Russian
    * ``si`` -- Sinhala
    * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
+   * ``sq`` -- Albanian
+   * ``sr`` -- Serbian
+   * ``sr@latin`` -- Serbian (Latin)
+   * ``sr_RS`` -- Serbian (Cyrillic)
    * ``sv`` -- Swedish
+   * ``ta`` -- Tamil
+   * ``te`` -- Telugu
    * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
+   * ``ur`` -- Urdu
    * ``vi`` -- Vietnamese
    * ``zh_CN`` -- Simplified Chinese
    * ``zh_TW`` -- Traditional Chinese
@@ -736,7 +799,7 @@ documentation on :ref:`intl` for details.
    i18n additionally. You can specify below names:
 
    :index: index terms
-   :literal-block: literal blocks: ``::`` and ``code-block``.
+   :literal-block: literal blocks (``::`` annotation and ``code-block`` directive)
    :doctest-block: doctest block
    :raw: raw content
    :image: image/figure uri and alt
@@ -772,6 +835,35 @@ documentation on :ref:`intl` for details.
       Added ``{path}`` and ``{basename}`` tokens.
 
 
+.. _math-options:
+
+Options for Math
+----------------
+
+These options influence Math notations.
+
+.. confval:: math_number_all
+
+   Set this option to ``True`` if you want all displayed math to be numbered.
+   The default is ``False``.
+
+.. confval:: math_eqref_format
+
+   A string used for formatting the labels of references to equations.
+   The ``{number}`` place-holder stands for the equation number.
+
+   Example: ``'Eq.{number}'`` gets rendered as, for example, ``Eq.10``.
+
+.. confval:: math_numfig
+
+   If ``True``, displayed math equations are numbered across pages when
+   :confval:`numfig` is enabled.  The :confval:`numfig_secnum_depth` setting
+   is respected.  The :rst:role:`eq`, not :rst:role:`numref`, role
+   must be used to reference equation numbers.  Default is ``True``.
+
+   .. versionadded:: 1.7
+
+
 .. _html-options:
 
 Options for HTML output
@@ -783,7 +875,7 @@ that use Sphinx's HTMLWriter class.
 .. confval:: html_theme
 
    The "theme" that the HTML output should use.  See the :doc:`section about
-   theming </theming>`.  The default is ``'alabaster'``.
+   theming </usage/theming>`.  The default is ``'alabaster'``.
 
    .. versionadded:: 0.6
 
@@ -832,6 +924,17 @@ that use Sphinx's HTMLWriter class.
    The URL which points to the root of the HTML documentation.  It is used to
    indicate the location of document like ``canonical_url``.
 
+   .. versionadded:: 1.8
+
+.. confval:: html_codeblock_linenos_style
+
+   The style of line numbers for code-blocks.
+
+   * ``'table'`` -- display line numbers using ``<table>`` tag (default)
+   * ``'inline'`` -- display line numbers using ``<span>`` tag
+
+   .. versionadded:: 3.2
+
 .. confval:: html_context
 
    A dictionary of values to pass into the template engine's context for all
@@ -873,7 +976,7 @@ that use Sphinx's HTMLWriter class.
 
    Example::
 
-       html_css_files = ['custom.css'
+       html_css_files = ['custom.css',
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
 
@@ -1078,12 +1181,6 @@ that use Sphinx's HTMLWriter class.
    If true, the reST sources are included in the HTML build as
    :file:`_sources/{name}`.  The default is ``True``.
 
-   .. warning::
-
-      If this config value is set to ``False``, the JavaScript search function
-      will only display the titles of matching documents, and no excerpt from
-      the matching contents.
-
 .. confval:: html_show_sourcelink
 
    If true (and :confval:`html_copy_source` is true as well), links to the
@@ -1221,7 +1318,7 @@ that use Sphinx's HTMLWriter class.
 
       :'sphinx.search.ja.DefaultSplitter':
          TinySegmenter algorithm. This is default splitter.
-      :'sphinx.search.ja.MeCabSplitter':
+      :'sphinx.search.ja.MecabSplitter':
          MeCab binding. To use this splitter, 'mecab' python binding or dynamic
          link library ('libmecab.so' for linux, 'libmecab.dll' for windows) is
          required.
@@ -1287,7 +1384,27 @@ that use Sphinx's HTMLWriter class.
    'target' option or scale related options: 'scale', 'width', 'height'.
    The default is ``True``.
 
+   Document authors can this feature manually with giving ``no-scaled-link``
+   class to the image:
+
+   .. code-block:: rst
+
+      .. image:: sphinx.png
+         :scale: 50%
+         :class: no-scaled-link
+
    .. versionadded:: 1.3
+
+   .. versionchanged:: 3.0
+
+      It is disabled for images having ``no-scaled-link`` class
+
+.. confval:: html_math_renderer
+
+   The name of math_renderer extension for HTML output.  The default is
+   ``'mathjax'``.
+
+   .. versionadded:: 1.8
 
 .. confval:: html_experimental_html5_writer
 
@@ -1295,6 +1412,22 @@ that use Sphinx's HTMLWriter class.
    newer.  Default is ``False``.
 
    .. versionadded:: 1.6
+
+   .. deprecated:: 2.0
+
+.. confval:: html4_writer
+
+   Output is processed with HTML4 writer.  Default is ``False``.
+
+Options for Single HTML output
+-------------------------------
+
+.. confval:: singlehtml_sidebars
+
+   Custom sidebar templates, must be a dictionary that maps document names to
+   template names.  And it only allows a key named `'index'`.  All other keys
+   are ignored.  For more information, refer to :confval:`html_sidebars`.  By
+   default, it is same as :confval:`html_sidebars`.
 
 
 .. _htmlhelp-options:
@@ -1305,6 +1438,19 @@ Options for HTML help output
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
+
+.. confval:: htmlhelp_file_suffix
+
+   This is the file name suffix for generated HTML help files.  The
+   default is ``".html"``.
+
+   .. versionadded:: 2.0
+
+.. confval:: htmlhelp_link_suffix
+
+   Suffix for generated links to HTML files.  The default is ``".html"``.
+
+   .. versionadded:: 2.0
 
 
 .. _applehelp-options:
@@ -1503,7 +1649,11 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 .. confval:: epub_title
 
    The title of the document.  It defaults to the :confval:`html_title` option
-   but can be set independently for epub creation.
+   but can be set independently for epub creation.  It defaults to the
+   :confval:`project` option.
+
+   .. versionchanged:: 2.0
+      It defaults to the ``project`` option.
 
 .. confval:: epub_description
 
@@ -1657,9 +1807,9 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    This flag determines if sphinx should try to fix image formats that are not
    supported by some epub readers.  At the moment palette images with a small
-   color table are upgraded.  You need the Python Image Library (Pillow the
-   successor of the PIL) installed to use this option.  The default value is
-   ``False`` because the automatic conversion may lose information.
+   color table are upgraded.  You need Pillow, the Python Image Library,
+   installed to use this option.  The default value is ``False`` because the
+   automatic conversion may lose information.
 
    .. versionadded:: 1.2
 
@@ -1726,8 +1876,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 Options for LaTeX output
 ------------------------
 
-These options influence LaTeX output. Refer to :doc:`/latex` for more
-information.
+These options influence LaTeX output.
 
 .. confval:: latex_engine
 
@@ -1738,58 +1887,80 @@ information.
    * ``'xelatex'`` -- XeLaTeX
    * ``'lualatex'`` -- LuaLaTeX
    * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
+   * ``'uplatex'`` -- upLaTeX (experimental)
 
-   PDFLaTeX's support for Unicode characters covers those from the document
-   language (the LaTeX ``babel`` and ``inputenc`` packages map them to glyph
-   slots in the document font, at various encodings allowing each only 256
-   characters; Sphinx uses by default (except for Cyrillic languages) the
-   ``times`` package), but stray characters from other scripts or special
-   symbols may require adding extra LaTeX packages or macros to the LaTeX
-   preamble.
+   ``'pdflatex'``\ 's support for Unicode characters is limited.
 
-   If your project uses such extra Unicode characters, switching the engine to
-   XeLaTeX or LuaLaTeX often provides a quick fix. They only work with UTF-8
-   encoded sources and can (in fact, should) use OpenType fonts, either from
-   the system or the TeX install tree. Recent LaTeX releases will default with
-   these engines to the Latin Modern OpenType font, which has good coverage of
-   Latin and Cyrillic scripts (it is provided by standard LaTeX installation),
-   and Sphinx does not modify this default. Refer to the documentation of the
-   LaTeX ``polyglossia`` package to see how to instruct LaTeX to use some
-   other OpenType font if Unicode coverage proves insufficient (or use
-   directly ``\setmainfont`` et. al. as in :ref:`this example <latex-basic>`.)
+   .. note::
+
+      2.0 adds to ``'pdflatex'`` support in Latin language document of
+      occasional Cyrillic or Greek letters or words.  This is not automatic,
+      see the discussion of the :confval:`latex_elements` ``'fontenc'`` key.
+
+   If your project uses Unicode characters, setting the engine to
+   ``'xelatex'`` or ``'lualatex'`` and making sure to use an OpenType font
+   with wide-enough glyph coverage is often easier than trying to make
+   ``'pdflatex'`` work with the extra Unicode characters.  Since Sphinx 2.0
+   the default is the GNU FreeFont which covers well Latin, Cyrillic and
+   Greek.
+
+   .. versionchanged:: 2.1.0
+
+      Use ``xelatex`` (and LaTeX package ``xeCJK``) by default for Chinese
+      documents.
+
+   .. versionchanged:: 2.2.1
+
+      Use ``xelatex`` by default for Greek documents.
+
+   .. versionchanged:: 2.3
+
+      Add ``uplatex`` support.
+
+   Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
+   LaTeX requires some extra configuration to support Unicode literals in
+   :rst:dir:`math`: the only comprehensive solution (as far as we know) is to
+   use ``'xelatex'`` or ``'lualatex'`` *and* to add
+   ``r'\usepackage{unicode-math}'`` (e.g. via the :confval:`latex_elements`
+   ``'preamble'`` key).  You may prefer
+   ``r'\usepackage[math-style=literal]{unicode-math}'`` to keep a Unicode
+   literal such as ``α`` (U+03B1) for example as is in output, rather than
+   being rendered as :math:`\alpha`.
 
 .. confval:: latex_documents
 
    This value determines how to group the document tree into LaTeX source files.
    It must be a list of tuples ``(startdocname, targetname, title, author,
-   documentclass, toctree_only)``, where the items are:
+   theme, toctree_only)``, where the items are:
 
-   * *startdocname*: document name that is the "root" of the LaTeX file.  All
-     documents referenced by it in TOC trees will be included in the LaTeX file
-     too.  (If you want only one LaTeX file, use your :confval:`master_doc`
-     here.)
-   * *targetname*: file name of the LaTeX file in the output directory.
-   * *title*: LaTeX document title.  Can be empty to use the title of the
-     *startdoc*.  This is inserted as LaTeX markup, so special characters like a
+   *startdocname*
+     String that specifies the :term:`document name` of the LaTeX file's master
+     document.  All documents referenced by the *startdoc* document in TOC trees
+     will be included in the LaTeX file.  (If you want to use the default master
+     document for your LaTeX build, provide your :confval:`master_doc` here.)
+
+   *targetname*
+     File name of the LaTeX file in the output directory.
+
+   *title*
+     LaTeX document title.  Can be empty to use the title of the *startdoc*
+     document.  This is inserted as LaTeX markup, so special characters like a
      backslash or ampersand must be represented by the proper LaTeX commands if
      they are to be inserted literally.
-   * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
-     for *title* applies.  Use ``\\and`` to separate multiple authors, as in:
-     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach
-     LaTeX).
-   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided
-     by Sphinx and based on ``'report'``, resp. ``'article'``; Japanese
-     documents use ``'jsbook'``, resp. ``'jreport'``.) "howto" (non-Japanese)
-     documents will not get appendices. Also they have a simpler title page.
-     Other document classes can be given. Independently of the document class,
-     the "sphinx" package is always loaded in order to define Sphinx's custom
-     LaTeX commands.
 
-   * *toctree_only*: Must be ``True`` or ``False``.  If true, the *startdoc*
-     document itself is not included in the output, only the documents
-     referenced by it via TOC trees.  With this option, you can put extra stuff
-     in the master document that shows up in the HTML, but not the LaTeX
-     output.
+   *author*
+     Author for the LaTeX document.  The same LaTeX markup caveat as for *title*
+     applies.  Use ``\\and`` to separate multiple authors, as in:
+     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
+
+   *theme*
+     LaTeX theme.  See :confval:`latex_theme`.
+
+   *toctree_only*
+     Must be ``True`` or ``False``.  If true, the *startdoc* document itself is
+     not included in the output, only the documents referenced by it via TOC
+     trees.  With this option, you can put extra stuff in the master document
+     that shows up in the HTML, but not the LaTeX output.
 
    .. versionadded:: 1.2
       In the past including your own document class required you to prepend the
@@ -1871,270 +2042,42 @@ information.
 
    .. versionadded:: 1.6
 
+.. confval:: latex_use_xindy
+
+   If ``True``, the PDF build from the LaTeX files created by Sphinx
+   will use :program:`xindy` (doc__) rather than :program:`makeindex`
+   for preparing the index of general terms (from :rst:dir:`index`
+   usage).  This means that words with UTF-8 characters will get
+   ordered correctly for the :confval:`language`.
+
+   __ http://xindy.sourceforge.net/
+
+   - This option is ignored if :confval:`latex_engine` is ``'platex'``
+     (Japanese documents; :program:`mendex` replaces :program:`makeindex`
+     then).
+
+   - The default is ``True`` for ``'xelatex'`` or ``'lualatex'`` as
+     :program:`makeindex`, if any indexed term starts with a non-ascii
+     character, creates ``.ind`` files containing invalid bytes for
+     UTF-8 encoding. With ``'lualatex'`` this then breaks the PDF
+     build.
+
+   - The default is ``False`` for ``'pdflatex'`` but ``True`` is
+     recommended for non-English documents as soon as some indexed
+     terms use non-ascii characters from the language script.
+
+   Sphinx adds to :program:`xindy` base distribution some dedicated support
+   for using ``'pdflatex'`` engine with Cyrillic scripts.  And whether with
+   ``'pdflatex'`` or Unicode engines, Cyrillic documents handle correctly the
+   indexing of Latin names, even with diacritics.
+
+   .. versionadded:: 1.8
+
 .. confval:: latex_elements
 
    .. versionadded:: 0.5
 
-   A dictionary that contains LaTeX snippets that override those Sphinx usually
-   puts into the generated ``.tex`` files.
-
-   Keep in mind that backslashes must be doubled in Python string literals to
-   avoid interpretation as escape sequences.
-
-   * Keys that you may want to override include:
-
-     ``'papersize'``
-        Paper size option of the document class (``'a4paper'`` or
-        ``'letterpaper'``), default ``'letterpaper'``.
-
-     ``'pointsize'``
-        Point size option of the document class (``'10pt'``, ``'11pt'`` or
-        ``'12pt'``), default ``'10pt'``.
-
-     ``'pxunit'``
-        the value of the ``px`` when used in image attributes ``width`` and
-        ``height``. The default value is ``'0.75bp'`` which achieves
-        ``96px=1in`` (in TeX ``1in = 72bp = 72.27pt``.) To obtain for
-        example ``100px=1in`` use ``'0.01in'`` or ``'0.7227pt'`` (the latter
-        leads to TeX computing a more precise value, due to the smaller unit
-        used in the specification); for ``72px=1in``, simply use ``'1bp'``; for
-        ``90px=1in``, use ``'0.8bp'`` or ``'0.803pt'``.
-
-        .. versionadded:: 1.5
-
-     ``'sphinxsetup'``
-        A comma separated list of ``key=value`` package options for the Sphinx
-        LaTeX style, default empty. See :doc:`/latex`.
-
-        .. versionadded:: 1.5
-
-     ``'passoptionstopackages'``
-        A string which will be positioned early in the preamble, designed to
-        contain ``\\PassOptionsToPackage{options}{foo}`` commands. Default empty.
-
-        .. versionadded:: 1.4
-
-     ``'babel'``
-        "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
-        suitable document language string is passed as class option, and
-        ``english`` is used if no language.) For Japanese documents, the
-        default is the empty string.
-
-        .. versionchanged:: 1.5
-           For :confval:`latex_engine` set to ``'xelatex'``, the default
-           is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
-        .. versionchanged:: 1.6
-           ``'lualatex'`` uses same default setting as ``'xelatex'``
-
-     ``'fontpkg'``
-        Font package inclusion, default ``'\\usepackage{times}'`` (which uses
-        Times for text, Helvetica for sans serif and Courier for code-blocks).
-
-        .. hint::
-
-           Courier is much wider than Times, and Sphinx emits LaTeX command
-           ``\small`` in code-blocks to compensate.  Since ``1.5`` this is not
-           hard-coded anymore: ``\fvset{fontsize=auto}`` can be added to
-           preamble to not change font size in code-blocks.  Since ``1.8`` a
-           separate ``'fvset'`` key is provided for this.
-
-        .. versionchanged:: 1.2
-           Defaults to ``''`` when the :confval:`language` uses the Cyrillic
-           script.
-        .. versionchanged:: 1.5
-           Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
-        .. versionchanged:: 1.6
-           Defaults to ``''`` also with ``'lualatex'``.
-        .. versionchanged:: 1.8
-           ``'xelatex'`` and ``'lualatex'`` do ``\fvset{fontsize=auto}``.
-     ``'fncychap'``
-        Inclusion of the "fncychap" package (which makes fancy chapter titles),
-        default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
-        (this option is slightly customized by Sphinx),
-        ``'\\usepackage[Sonny]{fncychap}'`` for internationalized docs (because
-        the "Bjarne" style uses numbers spelled out in English).  Other
-        "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
-        "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
-
-     ``'preamble'``
-        Additional preamble content, default empty. See :doc:`/latex`.
-
-     ``'atendofbody'``
-        Additional document content (right before the indices), default empty.
-
-        .. versionadded:: 1.5
-
-     ``'figure_align'``
-        Latex figure float alignment, default 'htbp' (here, top, bottom, page).
-        Whenever an image doesn't fit into the current page, it will be
-        'floated' into the next page but may be preceded by any other text.
-        If you don't like this behavior, use 'H' which will disable floating
-        and position figures strictly in the order they appear in the source.
-
-        .. versionadded:: 1.3
-
-     ``'footer'``
-        Additional footer content (before the indices), default empty.
-
-        .. deprecated:: 1.5
-           Use ``'atendofbody'`` key instead.
-
-   * Keys that don't need to be overridden unless in special cases are:
-
-     ``'extraclassoptions'``
-        The default is the empty string. Example: ``'extraclassoptions':
-        'openany'`` will allow chapters (for documents of the ``'manual'``
-        type) to start on any page.
-
-        .. versionadded:: 1.2
-        .. versionchanged:: 1.6
-           Added this documentation.
-
-     ``'maxlistdepth'``
-        LaTeX allows by default at most 6 levels for nesting list and
-        quote-like environments, with at most 4 enumerated lists, and 4 bullet
-        lists. Setting this key for example to ``'10'`` (as a string) will
-        allow up to 10 nested levels (of all sorts). Leaving it to the empty
-        string means to obey the LaTeX default.
-
-        .. warning::
-
-           - Using this key may prove incompatible with some LaTeX packages
-             or special document classes which do their own list customization.
-
-           - The key setting is silently *ignored* if ``\usepackage{enumitem}``
-             is executed inside the document preamble. Use then rather the
-             dedicated commands of this LaTeX package.
-
-        .. versionadded:: 1.5
-
-     ``'inputenc'``
-        "inputenc" package inclusion, defaults to
-        ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
-        Otherwise empty.
-
-        .. versionchanged:: 1.4.3
-           Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
-           compilers.
-
-     ``'cmappkg'``
-        "cmap" package inclusion, default ``'\\usepackage{cmap}'``.
-
-        .. versionadded:: 1.2
-
-     ``'fontenc'``
-        "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
-
-        .. versionchanged:: 1.5
-           Defaults to ``'\\usepackage{fontspec}'`` when
-           :confval:`latex_engine` is ``'xelatex'``.
-        .. versionchanged:: 1.6
-           ``'lualatex'`` also uses ``fontspec`` per default.
-
-     ``'geometry'``
-        "geometry" package inclusion, the default definition is:
-
-          ``'\\usepackage{geometry}'``
-
-        with an additional ``[dvipdfm]`` for Japanese documents.
-        The Sphinx LaTeX style file executes:
-
-          ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
-
-        which can be customized via corresponding :ref:`'sphinxsetup' options
-        <latexsphinxsetup>`.
-
-        .. versionadded:: 1.5
-
-        .. versionchanged:: 1.5.2
-           ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
-
-        .. versionadded:: 1.5.3
-           The :ref:`'sphinxsetup' keys for the margins
-           <latexsphinxsetuphmargin>`.
-
-        .. versionchanged:: 1.5.3
-           The location in the LaTeX file has been moved to after
-           ``\usepackage{sphinx}`` and ``\sphinxsetup{..}``, hence also after
-           insertion of ``'fontpkg'`` key. This is in order to handle the paper
-           layout options in a special way for Japanese documents: the text
-           width will be set to an integer multiple of the *zenkaku* width, and
-           the text height to an integer multiple of the baseline. See the
-           :ref:`hmargin <latexsphinxsetuphmargin>` documentation for more.
-
-     ``'hyperref'``
-        "hyperref" package inclusion; also loads package "hypcap" and issues
-        ``\urlstyle{same}``. This is done after :file:`sphinx.sty` file is
-        loaded and before executing the contents of ``'preamble'`` key.
-
-        .. attention::
-
-           Loading of packages "hyperref" and "hypcap" is mandatory.
-
-        .. versionadded:: 1.5
-           Previously this was done from inside :file:`sphinx.sty`.
-
-     ``'maketitle'``
-        "maketitle" call, default ``'\\maketitle'`` (but it has been
-        redefined by the Sphinx ``manual`` and ``howto`` classes.) Override
-        if you want to generate a differently-styled title page.
-
-     ``'releasename'``
-        value that prefixes ``'release'`` element on title page, default
-        ``'Release'``. As for *title* and *author* used in the tuples of
-        :confval:`latex_documents`, it is inserted as LaTeX markup.
-
-     ``'tableofcontents'``
-        "tableofcontents" call, default ``'\\sphinxtableofcontents'`` (it is a
-        wrapper of unmodified ``\tableofcontents``, which may itself be
-        customized by user loaded packages.)
-        Override if
-        you want to generate a different table of contents or put content
-        between the title page and the TOC.
-
-        .. versionchanged:: 1.5
-           Previously the meaning of ``\tableofcontents`` itself was modified
-           by Sphinx. This created an incompatibility with dedicated packages
-           modifying it also such as "tocloft" or "etoc".
-
-     ``'transition'``
-        Commands used to display transitions, default
-        ``'\n\n\\bigskip\\hrule\\bigskip\n\n'``.  Override if you want to
-        display transitions differently.
-
-        .. versionadded:: 1.2
-        .. versionchanged:: 1.6
-           Remove unneeded ``{}`` after ``\\hrule``.
-
-     ``'printindex'``
-        "printindex" call, the last thing in the file, default
-        ``'\\printindex'``.  Override if you want to generate the index
-        differently or append some content after the index. For example
-        ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
-        index is full of long entries.
-
-     ``'fvset'``
-        Customization of ``fancyvrb`` LaTeX package. Defaults to
-        ``'\\fvset{fontsize=\\small}'``, because default font (Courier) used in
-        code-blocks is wider and taller than default text font (Times).
-
-        For ``'xelatex'`` and ``'lualatex'``, defaults to
-        ``'\\fvset{fontsize=auto}'``, because the default fonts are part of
-        one unified typeface family (Latin Modern OpenType).
-
-        .. versionadded:: 1.8
-
-   * Keys that are set by other options and therefore should not be overridden
-     are:
-
-     ``'docclass'``
-     ``'classoptions'``
-     ``'title'``
-     ``'date'``
-     ``'release'``
-     ``'author'``
-     ``'logo'``
-     ``'makeindex'``
+   Its :ref:`documentation <latex_elements_confval>` has moved to :doc:`/latex`.
 
 .. confval:: latex_docclass
 
@@ -2165,6 +2108,40 @@ information.
    .. versionchanged:: 1.2
       This overrides the files which is provided from Sphinx such as
       ``sphinx.sty``.
+
+.. confval:: latex_theme
+
+   The "theme" that the LaTeX output should use.  It is a collection of settings
+   for LaTeX output (ex. document class, top level sectioning unit and so on).
+
+   As a built-in LaTeX themes, ``manual`` and ``howto`` are bundled.
+
+   ``manual``
+     A LaTeX theme for writing a manual.  It imports the ``report`` document
+     class (Japanese documents use ``jsbook``).
+
+   ``howto``
+     A LaTeX theme for writing an article.  It imports the ``article`` document
+     class (Japanese documents use ``jreport`` rather).  :confval:`latex_appendices`
+     is available only for this theme.
+
+   It defaults to ``'manual'``.
+
+   .. versionadded:: 3.0
+
+.. confval:: latex_theme_options
+
+   A dictionary of options that influence the look and feel of the selected
+   theme.
+
+   .. versionadded:: 3.1
+
+.. confval:: latex_theme_path
+
+   A list of paths that contain custom LaTeX themes as subdirectories.  Relative
+   paths are taken as relative to the configuration directory.
+
+   .. versionadded:: 3.0
 
 
 .. _text-options:
@@ -2226,9 +2203,11 @@ These options influence manual page output.
    section)``, where the items are:
 
    *startdocname*
-     Document name that is the "root" of the manual page.  All documents
-     referenced by it in TOC trees will be included in the manual file too.
-     (If you want one master manual page, use your :confval:`master_doc` here.)
+     String that specifies the :term:`document name` of the manual page's master
+     document. All documents referenced by the *startdoc* document in TOC trees
+     will be included in the manual file.  (If you want to use the default
+     master document for your manual pages build, use your :confval:`master_doc`
+     here.)
 
    *name*
      Name of the manual page.  This should be a short string without spaces or
@@ -2271,17 +2250,19 @@ These options influence Texinfo output.
    are:
 
    *startdocname*
-     Document name that is the "root" of the Texinfo file.  All documents
-     referenced by it in TOC trees will be included in the Texinfo file too.
-     (If you want only one Texinfo file, use your :confval:`master_doc` here.)
+     String that specifies the :term:`document name` of the the Texinfo file's
+     master document.  All documents referenced by the *startdoc* document in
+     TOC trees will be included in the Texinfo file.  (If you want to use the
+     default master document for your Texinfo build, provide your
+     :confval:`master_doc` here.)
 
    *targetname*
      File name (no extension) of the Texinfo file in the output directory.
 
    *title*
-     Texinfo document title.  Can be empty to use the title of the *startdoc*.
-     Inserted as Texinfo markup, so special characters like ``@`` and ``{}``
-     will need to be escaped to be inserted literally.
+     Texinfo document title.  Can be empty to use the title of the *startdoc*
+     document.  Inserted as Texinfo markup, so special characters like ``@`` and
+     ``{}`` will need to be escaped to be inserted literally.
 
    *author*
      Author for the Texinfo document.  Inserted as Texinfo markup.  Use ``@*``
@@ -2419,6 +2400,32 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_request_headers
+
+   A dictionary that maps baseurls to HTTP request headers.
+
+   The key is a URL base string like ``"https://sphinx-doc.org/"``.  To specify
+   headers for other hosts, ``"*"`` can be used.  It matches all hosts only when
+   the URL does not match other settings.
+
+   The value is a dictionary that maps header name to its value.
+
+   Example:
+
+   .. code-block:: python
+
+      linkcheck_request_headers = {
+          "https://sphinx-doc.org/": {
+              "Accept": "text/html",
+              "Accept-Encoding": "utf-8",
+          },
+          "*": {
+              "Accept": "text/html,application/xhtml+xml",
+          }
+      }
+
+   .. versionadded:: 3.1
+
 .. confval:: linkcheck_retries
 
    The number of times the linkcheck builder will attempt to check a URL before
@@ -2450,14 +2457,51 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_anchors_ignore
 
-   A list of regular expressions that match URIs that should skip checking
-   the validity of anchors in links. This allows skipping entire sites, where
-   anchors are used to control dynamic pages, or just specific anchors within
-   a page, where JavaScript is used to add anchors dynamically, or use the
-   fragment as part of to trigger an internal REST request. Default is
-   ``["/#!"]``.
+   A list of regular expressions that match anchors Sphinx should skip when
+   checking the validity of anchors in links. This allows skipping anchors that
+   a website's JavaScript adds to control dynamic pages or when triggering an
+   internal REST request. Default is ``["^!"]``.
+
+   .. note::
+
+      If you want to ignore anchors of a specific page or of pages that match a
+      specific pattern (but still check occurrences of the same page(s) that
+      don't have anchors), use :confval:`linkcheck_ignore` instead, for example
+      as follows::
+
+         linkcheck_ignore = [
+            'http://www.sphinx-doc.org/en/1.7/intro.html#'
+         ]
 
    .. versionadded:: 1.5
+
+.. confval:: linkcheck_auth
+
+   Pass authentication information when doing a ``linkcheck`` build.
+
+   A list of ``(regex_pattern, auth_info)`` tuples where the items are:
+
+   *regex_pattern*
+     A regular expression that matches a URI.
+   *auth_info*
+     Authentication information to use for that URI. The value can be anything
+     that is understood by the ``requests`` library (see `requests
+     Authentication <requests-auth>`_ for details).
+
+     .. _requests-auth: https://requests.readthedocs.io/en/master/user/authentication/
+
+   The ``linkcheck`` builder will use the first matching ``auth_info`` value
+   it can find in the :confval:`linkcheck_auth` list, so values earlier in the
+   list have higher priority.
+
+   Example::
+
+      linkcheck_auth = [
+        ('https://foo\.yourcompany\.com/.+', ('johndoe', 'secret')),
+        ('https://.+\.yourcompany\.com/.+', HTTPDigestAuth(...)),
+      ]
+
+   .. versionadded:: 2.3
 
 
 Options for the XML builder
@@ -2477,6 +2521,47 @@ Options for the XML builder
        these all don't match slashes.  A double star ``**`` can be used to
        match any sequence of characters *including* slashes.
 
+
+.. _c-config:
+
+Options for the C domain
+------------------------
+
+.. confval:: c_id_attributes
+
+   A list of strings that the parser additionally should accept as attributes.
+   This can for example be used when attributes have been ``#define`` d for
+   portability.
+
+   .. versionadded:: 3.0
+
+.. confval:: c_paren_attributes
+
+   A list of strings that the parser additionally should accept as attributes
+   with one argument.  That is, if ``my_align_as`` is in the list, then
+   ``my_align_as(X)`` is parsed as an attribute for all strings ``X`` that have
+   balanced braces (``()``, ``[]``, and ``{}``).  This can for example be used
+   when attributes have been ``#define`` d for portability.
+
+   .. versionadded:: 3.0
+
+.. confval:: c_allow_pre_v3
+
+   A boolean (default ``False``) controlling whether to parse and try to
+   convert pre-v3 style type directives and type roles.
+
+   .. versionadded:: 3.2
+   .. deprecated:: 3.2
+      Use the directives and roles added in v3.
+
+.. confval:: c_warn_on_allowed_pre_v3
+
+   A boolean (default ``True``) controlling whether to warn when a pre-v3
+   style type directive/role is parsed and converted.
+
+   .. versionadded:: 3.2
+   .. deprecated:: 3.2
+      Use the directives and roles added in v3.
 
 .. _cpp-config:
 
@@ -2503,7 +2588,7 @@ Options for the C++ domain
    A list of strings that the parser additionally should accept as attributes
    with one argument.  That is, if ``my_align_as`` is in the list, then
    ``my_align_as(X)`` is parsed as an attribute for all strings ``X`` that have
-   balanced brances (``()``, ``[]``, and ``{}``).  This can for example be used
+   balanced braces (``()``, ``[]``, and ``{}``).  This can for example be used
    when attributes have been ``#define`` d for portability.
 
    .. versionadded:: 1.5

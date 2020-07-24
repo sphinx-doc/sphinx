@@ -1,45 +1,41 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.theming
     ~~~~~~~~~~~~~~
 
     Theming support for HTML builders.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import configparser
 import os
 import shutil
 import tempfile
-import warnings
 from os import path
+from typing import Any, Dict, List
 from zipfile import ZipFile
 
 import pkg_resources
-from six import string_types, iteritems
-from six.moves import configparser
 
 from sphinx import package_dir
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir
 
-logger = logging.getLogger(__name__)
-
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+    from sphinx.application import Sphinx
+
+
+logger = logging.getLogger(__name__)
 
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
 
 
-def extract_zip(filename, targetdir):
-    # type: (unicode, unicode) -> None
+def extract_zip(filename: str, targetdir: str) -> None:
     """Extract zip file to target directory."""
     ensuredir(targetdir)
 
@@ -53,13 +49,12 @@ def extract_zip(filename, targetdir):
                 fp.write(archive.read(name))
 
 
-class Theme(object):
+class Theme:
     """A Theme is a set of HTML templates and configurations.
 
     This class supports both theme directory and theme archive (zipped theme)."""
 
-    def __init__(self, name, theme_path, factory):
-        # type: (unicode, unicode, HTMLThemeFactory) -> None
+    def __init__(self, name: str, theme_path: str, factory: "HTMLThemeFactory") -> None:
         self.name = name
         self.base = None
         self.rootdir = None
@@ -75,24 +70,23 @@ class Theme(object):
             extract_zip(theme_path, self.themedir)
 
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(self.themedir, THEMECONF))  # type: ignore
+        self.config.read(path.join(self.themedir, THEMECONF))
 
         try:
             inherit = self.config.get('theme', 'inherit')
-        except configparser.NoSectionError:
-            raise ThemeError(__('theme %r doesn\'t have "theme" setting') % name)
-        except configparser.NoOptionError:
-            raise ThemeError(__('theme %r doesn\'t have "inherit" setting') % name)
+        except configparser.NoSectionError as exc:
+            raise ThemeError(__('theme %r doesn\'t have "theme" setting') % name) from exc
+        except configparser.NoOptionError as exc:
+            raise ThemeError(__('theme %r doesn\'t have "inherit" setting') % name) from exc
 
         if inherit != 'none':
             try:
                 self.base = factory.create(inherit)
-            except ThemeError:
+            except ThemeError as exc:
                 raise ThemeError(__('no theme named %r found, inherited by %r') %
-                                 (inherit, name))
+                                 (inherit, name)) from exc
 
-    def get_theme_dirs(self):
-        # type: () -> List[unicode]
+    def get_theme_dirs(self) -> List[str]:
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
@@ -101,25 +95,23 @@ class Theme(object):
         else:
             return [self.themedir] + self.base.get_theme_dirs()
 
-    def get_config(self, section, name, default=NODEFAULT):
-        # type: (unicode, unicode, Any) -> Any
+    def get_config(self, section: str, name: str, default: Any = NODEFAULT) -> Any:
         """Return the value for a theme configuration setting, searching the
         base theme chain.
         """
         try:
-            return self.config.get(section, name)  # type: ignore
-        except (configparser.NoOptionError, configparser.NoSectionError):
+            return self.config.get(section, name)
+        except (configparser.NoOptionError, configparser.NoSectionError) as exc:
             if self.base:
                 return self.base.get_config(section, name, default)
 
             if default is NODEFAULT:
                 raise ThemeError(__('setting %s.%s occurs in none of the '
-                                    'searched theme configs') % (section, name))
+                                    'searched theme configs') % (section, name)) from exc
             else:
                 return default
 
-    def get_options(self, overrides={}):
-        # type: (Dict[unicode, Any]) -> Dict[unicode, Any]
+    def get_options(self, overrides: Dict[str, Any] = {}) -> Dict[str, Any]:
         """Return a dictionary of theme options and their values."""
         if self.base:
             options = self.base.get_options()
@@ -131,7 +123,7 @@ class Theme(object):
         except configparser.NoSectionError:
             pass
 
-        for option, value in iteritems(overrides):
+        for option, value in overrides.items():
             if option not in options:
                 logger.warning(__('unsupported theme option %r given') % option)
             else:
@@ -139,8 +131,7 @@ class Theme(object):
 
         return options
 
-    def cleanup(self):
-        # type: () -> None
+    def cleanup(self) -> None:
         """Remove temporary directories."""
         if self.rootdir:
             try:
@@ -151,8 +142,7 @@ class Theme(object):
             self.base.cleanup()
 
 
-def is_archived_theme(filename):
-    # type: (unicode) -> bool
+def is_archived_theme(filename: str) -> bool:
     """Check the specified file is an archived theme file or not."""
     try:
         with ZipFile(filename) as f:
@@ -161,35 +151,31 @@ def is_archived_theme(filename):
         return False
 
 
-class HTMLThemeFactory(object):
+class HTMLThemeFactory:
     """A factory class for HTML Themes."""
 
-    def __init__(self, app):
-        # type: (Sphinx) -> None
+    def __init__(self, app: "Sphinx") -> None:
         self.app = app
         self.themes = app.html_themes
         self.load_builtin_themes()
         if getattr(app.config, 'html_theme_path', None):
             self.load_additional_themes(app.config.html_theme_path)
 
-    def load_builtin_themes(self):
-        # type: () -> None
+    def load_builtin_themes(self) -> None:
         """Load built-in themes."""
         themes = self.find_themes(path.join(package_dir, 'themes'))
-        for name, theme in iteritems(themes):
+        for name, theme in themes.items():
             self.themes[name] = theme
 
-    def load_additional_themes(self, theme_paths):
-        # type: (unicode) -> None
+    def load_additional_themes(self, theme_paths: str) -> None:
         """Load additional themes placed at specified directories."""
         for theme_path in theme_paths:
             abs_theme_path = path.abspath(path.join(self.app.confdir, theme_path))
             themes = self.find_themes(abs_theme_path)
-            for name, theme in iteritems(themes):
+            for name, theme in themes.items():
                 self.themes[name] = theme
 
-    def load_extra_theme(self, name):
-        # type: (unicode) -> None
+    def load_extra_theme(self, name: str) -> None:
         """Try to load a theme having specifed name."""
         if name == 'alabaster':
             self.load_alabaster_theme()
@@ -198,14 +184,12 @@ class HTMLThemeFactory(object):
         else:
             self.load_external_theme(name)
 
-    def load_alabaster_theme(self):
-        # type: () -> None
+    def load_alabaster_theme(self) -> None:
         """Load alabaster theme."""
         import alabaster
         self.themes['alabaster'] = path.join(alabaster.get_path(), 'alabaster')
 
-    def load_sphinx_rtd_theme(self):
-        # type: () -> None
+    def load_sphinx_rtd_theme(self) -> None:
         """Load sphinx_rtd_theme theme (if exists)."""
         try:
             import sphinx_rtd_theme
@@ -214,8 +198,7 @@ class HTMLThemeFactory(object):
         except ImportError:
             pass
 
-    def load_external_theme(self, name):
-        # type: (unicode) -> None
+    def load_external_theme(self, name: str) -> None:
         """Try to load a theme using entry_points.
 
         Sphinx refers to ``sphinx_themes`` entry_points.
@@ -229,29 +212,9 @@ class HTMLThemeFactory(object):
         except StopIteration:
             pass
 
-        # look up for old styled entry_points
-        for entry_point in pkg_resources.iter_entry_points('sphinx_themes'):
-            target = entry_point.load()
-            if callable(target):
-                themedir = target()
-                if not isinstance(themedir, string_types):
-                    logger.warning(__('Theme extension %r does not respond correctly.') %
-                                   entry_point.module_name)
-            else:
-                themedir = target
-
-            themes = self.find_themes(themedir)
-            for entry, theme in iteritems(themes):
-                if name == entry:
-                    warnings.warn('``sphinx_themes`` entry point is now deprecated. '
-                                  'Please use ``sphinx.html_themes`` instead.',
-                                  RemovedInSphinx20Warning)
-                    self.themes[name] = theme
-
-    def find_themes(self, theme_path):
-        # type: (unicode) -> Dict[unicode, unicode]
+    def find_themes(self, theme_path: str) -> Dict[str, str]:
         """Search themes from specified directory."""
-        themes = {}  # type: Dict[unicode, unicode]
+        themes = {}  # type: Dict[str, str]
         if not path.isdir(theme_path):
             return themes
 
@@ -270,8 +233,7 @@ class HTMLThemeFactory(object):
 
         return themes
 
-    def create(self, name):
-        # type: (unicode) -> Theme
+    def create(self, name: str) -> Theme:
         """Create an instance of theme."""
         if name not in self.themes:
             self.load_extra_theme(name)

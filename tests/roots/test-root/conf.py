@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 
@@ -11,14 +9,15 @@ from sphinx import addnodes
 
 sys.path.append(os.path.abspath('.'))
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
-              'sphinx.ext.coverage', 'sphinx.ext.extlinks']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.todo',
+              'sphinx.ext.coverage',
+              'sphinx.ext.extlinks']
 
 jsmath_path = 'dummy.js'
 
 templates_path = ['_templates']
 
-master_doc = 'contents'
 source_suffix = ['.txt', '.add', '.foo']
 
 project = 'Sphinx <Tests>'
@@ -37,47 +36,17 @@ rst_epilog = '.. |subst| replace:: global substitution'
 
 html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
                         'customsb.html', 'searchbox.html'],
-                 'contents': ['contentssb.html', 'localtoc.html',
-                              'globaltoc.html']}
-html_style = 'default.css'
+                 'index': ['contentssb.html', 'localtoc.html', 'globaltoc.html']}
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
-htmlhelp_basename = 'SphinxTestsdoc'
-
-applehelp_bundle_id = 'org.sphinx-doc.Sphinx.help'
-applehelp_disable_external_tools = True
-
-latex_documents = [
-    ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-     'Georg Brandl \\and someone else', 'manual'),
-]
-
 latex_additional_files = ['svgimg.svg']
-
-texinfo_documents = [
-    ('contents', 'SphinxTests', 'Sphinx Tests',
-     'Georg Brandl \\and someone else', 'Sphinx Testing', 'Miscellaneous'),
-]
-
-man_pages = [
-    ('contents', 'SphinxTests', 'Sphinx Tests Documentation',
-     'Georg Brandl and someone else', 1),
-]
 
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
 extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
             'pyurl': ('http://python.org/%s', None)}
-
-autodoc_mock_imports = [
-    'missing_module',
-    'missing_package1',
-    'missing_package2',
-    'missing_package3',
-    'sphinx.missing_module4',
-]
 
 # modify tags from conf.py
 tags.add('confpytag')  # NOQA

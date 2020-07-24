@@ -1,23 +1,23 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.requests
     ~~~~~~~~~~~~~~~~~~~~
 
     Simple requests package loader
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import absolute_import
-
+import sys
 import warnings
 from contextlib import contextmanager
+from typing import Any, Generator, Union
+from urllib.parse import urlsplit
 
-import pkg_resources
 import requests
-from six import string_types
-from six.moves.urllib.parse import urlsplit
+
+import sphinx
+from sphinx.config import Config
 
 try:
     from requests.packages.urllib3.exceptions import SSLError
@@ -34,58 +34,14 @@ except ImportError:
         from urllib3.exceptions import InsecureRequestWarning  # type: ignore
     except ImportError:
         # for requests < 2.4.0
-        InsecureRequestWarning = None
+        InsecureRequestWarning = None  # type: ignore
 
-try:
-    from requests.packages.urllib3.exceptions import InsecurePlatformWarning
-except ImportError:
-    try:
-        # for Debian-jessie
-        from urllib3.exceptions import InsecurePlatformWarning  # type: ignore
-    except ImportError:
-        # for requests < 2.4.0
-        InsecurePlatformWarning = None
-
-# try to load requests[security] (but only if SSL is available)
-try:
-    import ssl
-except ImportError:
-    pass
-else:
-    try:
-        pkg_resources.require(['requests[security]'])
-    except (pkg_resources.DistributionNotFound,
-            pkg_resources.VersionConflict):
-        if not getattr(ssl, 'HAS_SNI', False):
-            # don't complain on each url processed about the SSL issue
-            if InsecurePlatformWarning:
-                requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
-            warnings.warn(
-                'Some links may return broken results due to being unable to '
-                'check the Server Name Indication (SNI) in the returned SSL cert '
-                'against the hostname in the url requested. Recommended to '
-                'install "requests[security]" as a dependency or upgrade to '
-                'a python version with SNI support (Python 3 and Python 2.7.9+).'
-            )
-    except pkg_resources.UnknownExtra:
-        warnings.warn(
-            'Some links may return broken results due to being unable to '
-            'check the Server Name Indication (SNI) in the returned SSL cert '
-            'against the hostname in the url requested. Recommended to '
-            'install requests-2.4.1+.'
-        )
-
-if False:
-    # For type annotation
-    from typing import Any, Generator, Union  # NOQA
-    from sphinx.config import Config  # NOQA
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
 
 
-def is_ssl_error(exc):
-    # type: (Exception) -> bool
+def is_ssl_error(exc: Exception) -> bool:
     """Check an exception is SSLError."""
     if isinstance(exc, SSLError):
         return True
@@ -98,8 +54,7 @@ def is_ssl_error(exc):
 
 
 @contextmanager
-def ignore_insecure_warning(**kwargs):
-    # type: (Any) -> Generator
+def ignore_insecure_warning(**kwargs: Any) -> Generator[None, None, None]:
     with warnings.catch_warnings():
         if not kwargs.get('verify') and InsecureRequestWarning:
             # ignore InsecureRequestWarning if verify=False
@@ -107,8 +62,7 @@ def ignore_insecure_warning(**kwargs):
         yield
 
 
-def _get_tls_cacert(url, config):
-    # type: (unicode, Config) -> Union[str, bool]
+def _get_tls_cacert(url: str, config: Config) -> Union[str, bool]:
     """Get additional CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.
@@ -120,7 +74,7 @@ def _get_tls_cacert(url, config):
     certs = getattr(config, 'tls_cacerts', None)
     if not certs:
         return True
-    elif isinstance(certs, (string_types, tuple)):
+    elif isinstance(certs, (str, tuple)):
         return certs  # type: ignore
     else:
         hostname = urlsplit(url)[1]
@@ -130,29 +84,44 @@ def _get_tls_cacert(url, config):
         return certs.get(hostname, True)
 
 
-def get(url, **kwargs):
-    # type: (unicode, Any) -> requests.Response
+def _get_user_agent(config: Config) -> str:
+    if config.user_agent:
+        return config.user_agent
+    else:
+        return ' '.join([
+            'Sphinx/%s' % sphinx.__version__,
+            'requests/%s' % requests.__version__,
+            'python/%s' % '.'.join(map(str, sys.version_info[:3])),
+        ])
+
+
+def get(url: str, **kwargs: Any) -> requests.Response:
     """Sends a GET request like requests.get().
 
     This sets up User-Agent header and TLS verification automatically."""
-    kwargs.setdefault('headers', dict(useragent_header))
+    headers = kwargs.setdefault('headers', {})
     config = kwargs.pop('config', None)
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
+        headers.setdefault('User-Agent', _get_user_agent(config))
+    else:
+        headers.setdefault('User-Agent', useragent_header[0][1])
 
     with ignore_insecure_warning(**kwargs):
         return requests.get(url, **kwargs)
 
 
-def head(url, **kwargs):
-    # type: (unicode, Any) -> requests.Response
+def head(url: str, **kwargs: Any) -> requests.Response:
     """Sends a HEAD request like requests.head().
 
     This sets up User-Agent header and TLS verification automatically."""
-    kwargs.setdefault('headers', dict(useragent_header))
+    headers = kwargs.setdefault('headers', {})
     config = kwargs.pop('config', None)
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
+        headers.setdefault('User-Agent', _get_user_agent(config))
+    else:
+        headers.setdefault('User-Agent', useragent_header[0][1])
 
     with ignore_insecure_warning(**kwargs):
-        return requests.get(url, **kwargs)
+        return requests.head(url, **kwargs)

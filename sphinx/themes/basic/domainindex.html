@@ -4,7 +4,7 @@
 
     Template for domain indices (module index, ...).
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "layout.html" %}
@@ -12,7 +12,7 @@
 {% block extrahead %}
 {{ super() }}
 {% if not embedded and collapse_index %}
-    <script type="text/javascript">
+    <script>
       DOCUMENTATION_OPTIONS.COLLAPSE_INDEX = true;
     </script>
 {% endif %}
@@ -43,7 +43,7 @@
               id="toggle-{{ groupid.next() }}" style="display: none" alt="-" />
            {%- endif %}</td>
        <td>{% if grouptype == 2 %}&#160;&#160;&#160;{% endif %}
-       {% if page %}<a href="{{ pathto(page) }}#{{ anchor }}">{% endif -%}
+       {% if page %}<a href="{{ pathto(page)|e }}#{{ anchor }}">{% endif -%}
        <code class="xref">{{ name|e }}</code>
        {%- if page %}</a>{% endif %}
      {%- if extra %} <em>({{ extra|e }})</em>{% endif -%}

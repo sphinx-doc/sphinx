@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.setup_command
     ~~~~~~~~~~~~~~~~~~~~
@@ -8,27 +7,25 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
 import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError
-
-from six import StringIO, string_types
+from io import StringIO
 
 from sphinx.application import Sphinx
-from sphinx.cmdline import handle_exception
+from sphinx.cmd.build import handle_exception
 from sphinx.util.console import nocolor, color_terminal
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
 if False:
     # For type annotation
-    from typing import Any, List, Tuple  # NOQA
+    from typing import Any, Dict  # NOQA
 
 
 class BuildDoc(Command):
@@ -87,30 +84,35 @@ class BuildDoc(Command):
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
         ('pdb', None, 'Start pdb on exception'),
+        ('verbosity', 'v', 'increase verbosity (can be repeated)'),
+        ('nitpicky', 'n', 'nit-picky mode, warn about all missing references'),
+        ('keep-going', None, 'With -W, keep going when getting warnings'),
     ]
     boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
-                       'link-index']
+                       'link-index', 'nitpicky']
 
     def initialize_options(self):
         # type: () -> None
         self.fresh_env = self.all_files = False
         self.pdb = False
-        self.source_dir = self.build_dir = None  # type: unicode
+        self.source_dir = self.build_dir = None  # type: str
         self.builder = 'html'
         self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
         self.today = ''
-        self.config_dir = None  # type: unicode
+        self.config_dir = None  # type: str
         self.link_index = False
         self.copyright = ''
         # Link verbosity to distutils' (which uses 1 by default).
         self.verbosity = self.distribution.verbose - 1
         self.traceback = False
+        self.nitpicky = False
+        self.keep_going = False
 
     def _guess_source_dir(self):
-        # type: () -> unicode
+        # type: () -> str
         for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
@@ -123,12 +125,12 @@ class BuildDoc(Command):
     # unicode, causing finalize_options to fail if invoked again. Workaround
     # for https://bugs.python.org/issue19570
     def _ensure_stringlike(self, option, what, default=None):
-        # type: (unicode, unicode, Any) -> Any
+        # type: (str, str, Any) -> Any
         val = getattr(self, option)
         if val is None:
             setattr(self, option, default)
             return default
-        elif not isinstance(val, string_types):
+        elif not isinstance(val, str):
             raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
                                        % (option, what, val))
         return val
@@ -154,7 +156,7 @@ class BuildDoc(Command):
 
         self.builder_target_dirs = [
             (builder, os.path.join(self.build_dir, builder))
-            for builder in self.builder]  # type: List[Tuple[str, unicode]]
+            for builder in self.builder]
 
     def run(self):
         # type: () -> None
@@ -164,7 +166,7 @@ class BuildDoc(Command):
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides = {}
+        confoverrides = {}  # type: Dict[str, Any]
         if self.project:
             confoverrides['project'] = self.project
         if self.version:
@@ -175,6 +177,8 @@ class BuildDoc(Command):
             confoverrides['today'] = self.today
         if self.copyright:
             confoverrides['copyright'] = self.copyright
+        if self.nitpicky:
+            confoverrides['nitpicky'] = self.nitpicky
 
         for builder, builder_target_dir in self.builder_target_dirs:
             app = None
@@ -187,7 +191,7 @@ class BuildDoc(Command):
                                  builder, confoverrides, status_stream,
                                  freshenv=self.fresh_env,
                                  warningiserror=self.warning_is_error,
-                                 verbosity=self.verbosity)
+                                 verbosity=self.verbosity, keep_going=self.keep_going)
                     app.build(force_all=self.all_files)
                     if app.statuscode:
                         raise DistutilsExecError(
@@ -195,7 +199,7 @@ class BuildDoc(Command):
             except Exception as exc:
                 handle_exception(app, self, exc, sys.stderr)
                 if not self.pdb:
-                    raise SystemExit(1)
+                    raise SystemExit(1) from exc
 
             if not self.link_index:
                 continue

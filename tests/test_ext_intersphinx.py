@@ -1,19 +1,18 @@
-# -*- coding: utf-8 -*-
 """
     test_intersphinx
     ~~~~~~~~~~~~~~~~
 
     Test the intersphinx extension.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import unittest
 from io import BytesIO
+from unittest import mock
 
-import mock
 import pytest
 import requests
 from docutils import nodes
@@ -21,7 +20,7 @@ from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import (
-    load_mappings, missing_reference, _strip_basic_auth,
+    load_mappings, missing_reference, normalize_intersphinx_mapping, _strip_basic_auth,
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME, inspect_main
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
@@ -47,7 +46,7 @@ def reference_check(app, *args, **kwds):
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
 def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):
     intersphinx_setup(app)
-    _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
+    _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode()
 
     # same uri and inv, not redirected
     _read_from_url().url = 'http://hostname/' + INVENTORY_FILENAME
@@ -100,6 +99,7 @@ def test_missing_reference(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     inv = app.env.intersphinx_inventory
 
@@ -175,6 +175,7 @@ def test_missing_reference_pydomain(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -189,6 +190,12 @@ def test_missing_reference_pydomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'func()'
 
+    # py:attr context helps to search objects
+    kwargs = {'py:module': 'module1'}
+    node, contnode = fake_node('py', 'attr', 'Foo.bar', 'Foo.bar', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'Foo.bar'
+
 
 def test_missing_reference_stddomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
@@ -199,6 +206,7 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -230,10 +238,11 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build()
-    html = (app.outdir / 'index.html').text()
+    html = (app.outdir / 'index.html').read_text()
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
             ' title="(in foo v2.0)">'
@@ -256,6 +265,7 @@ def test_missing_reference_jsdomain(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -281,6 +291,7 @@ def test_inventory_not_having_version(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     rn = reference_check(app, 'py', 'mod', 'module1', 'foo')
@@ -308,6 +319,7 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
 
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert warning.getvalue().count('\n') == 1
 
@@ -321,6 +333,7 @@ def test_load_mappings_fallback(tempdir, app, status, warning):
     app.config.intersphinx_mapping = {
         'fallback': ('https://docs.python.org/py3k/', '/invalid/inventory/path'),
     }
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert "failed to reach any of the inventories" in warning.getvalue()
 
@@ -336,6 +349,7 @@ def test_load_mappings_fallback(tempdir, app, status, warning):
         'fallback': ('https://docs.python.org/py3k/', ('/invalid/inventory/path',
                                                        inv_file)),
     }
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert "encountered some issues with some of the inventories" in status.getvalue()
     assert "" == warning.getvalue()

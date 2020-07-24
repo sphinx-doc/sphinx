@@ -14,6 +14,7 @@ Other co-maintainers:
 * Takeshi Komiya <@tk0miya>
 * Jean-François Burnol <@jfbu>
 * Yoshiki Shibukawa <@shibu_jp>
+* Timotheus Kampik - <@TimKam>
 
 Other contributors, listed alphabetically, are:
 
@@ -24,6 +25,7 @@ Other contributors, listed alphabetically, are:
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
 * Marco Buttu -- doctest extension (pyversion option)
+* Nathan Damon -- bugfix in validation of static paths in html builders
 * Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
@@ -34,15 +36,16 @@ Other contributors, listed alphabetically, are:
 * Hernan Grecco -- search improvements
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
-* Zac Hatfield-Dodds -- doctest reporting improvements
+* Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
 * Doug Hellmann -- graphviz improvements
 * Tim Hoffmann -- theme improvements
-* Timotheus Kampik - JS theme & search enhancements
+* Antti Kaihola -- doctest extension (skipif option)
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
 * Chris Lamb -- reproducibility fixes
 * Thomas Lamb -- linkcheck builder
 * Łukasz Langa -- partial support for autodoc
+* Martin Larralde -- additional napoleon admonitions
 * Ian Lee -- quickstart improvements
 * Robert Lehmann -- gettext builder (GSOC project)
 * Dan MacKinlay -- metadata fixes
@@ -55,17 +58,20 @@ Other contributors, listed alphabetically, are:
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Bruce Mitchener -- Minor epub improvement
 * Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
+* Julien Palard -- Colspan and rowspan in text builder
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
 * \T. Powers -- HTML output improvements
 * Jeppe Pihl -- literalinclude improvements
 * Rob Ruana -- napoleon extension
+* Vince Salvino -- JavaScript search improvements
 * Stefan Seefeld -- toctree improvements
 * Gregory Szorc -- performance improvements
 * Taku Shimizu -- epub3 builder
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Filip Vavera -- napoleon todo directive
 * Pauli Virtanen -- autodoc improvements, autosummary extension
+* Eric N. Vander Weele -- autodoc improvements
 * Stefan van der Walt -- autosummary extension
 * Thomas Waldmann -- apidoc module fixes
 * John Waltman -- Texinfo builder
@@ -77,6 +83,9 @@ Other contributors, listed alphabetically, are:
 * Hong Xu -- svg support in imgmath extension and various bug fixes
 * Stephen Finucane -- setup command improvements and documentation
 * Daniel Pizetta -- inheritance diagram improvements
+* KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
+* Adrián Chaves (Gallaecio) -- coverage builder improvements
+* Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
 
 Many thanks for all contributions!
 

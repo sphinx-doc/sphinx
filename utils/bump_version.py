@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import argparse
 import os
@@ -84,7 +82,7 @@ def processing(message):
         print('done')
 
 
-class Changes(object):
+class Changes:
     def __init__(self, path):
         self.path = path
         self.fetch_version()
@@ -116,7 +114,7 @@ class Changes(object):
             f.truncate(0)
             f.write(heading + '\n')
             f.write('=' * len(heading) + '\n')
-            f.write(body)
+            f.write(self.filter_empty_sections(body))
 
     def add_release(self, version_info):
         if version_info[-2:] in (('beta', 0), ('final', 0)):
@@ -143,6 +141,9 @@ class Changes(object):
             f.write(tmpl)
             f.write('\n')
             f.write(body)
+
+    def filter_empty_sections(self, body):
+        return re.sub('^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.M)
 
 
 def parse_options(argv):

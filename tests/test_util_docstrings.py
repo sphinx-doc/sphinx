@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_util_docstrings
     ~~~~~~~~~~~~~~~~~~~~
@@ -9,7 +8,34 @@
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
+from sphinx.util.docstrings import (
+    extract_metadata, prepare_docstring, prepare_commentdoc
+)
+
+
+def test_extract_metadata():
+    metadata = extract_metadata(":meta foo: bar\n"
+                                ":meta baz:\n")
+    assert metadata == {'foo': 'bar', 'baz': ''}
+
+    # field_list like text following just after paragaph is not a field_list
+    metadata = extract_metadata("blah blah blah\n"
+                                ":meta foo: bar\n"
+                                ":meta baz:\n")
+    assert metadata == {}
+
+    # field_list like text following after blank line is a field_list
+    metadata = extract_metadata("blah blah blah\n"
+                                "\n"
+                                ":meta foo: bar\n"
+                                ":meta baz:\n")
+    assert metadata == {'foo': 'bar', 'baz': ''}
+
+    # non field_list item breaks field_list
+    metadata = extract_metadata(":meta foo: bar\n"
+                                "blah blah blah\n"
+                                ":meta baz:\n")
+    assert metadata == {'foo': 'bar'}
 
 
 def test_prepare_docstring():
@@ -32,16 +58,6 @@ def test_prepare_docstring():
              "",
              "  Ut enim ad minim veniam, quis nostrud exercitation",
              "    ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-             ""])
-    assert (prepare_docstring(docstring, 5) ==
-            ["multiline docstring",
-             "",
-             "Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
-             "sed do eiusmod tempor incididunt ut labore et dolore magna",
-             "aliqua::",
-             "",
-             "Ut enim ad minim veniam, quis nostrud exercitation",
-             "  ullamco laboris nisi ut aliquip ex ea commodo consequat.",
              ""])
 
     docstring = """

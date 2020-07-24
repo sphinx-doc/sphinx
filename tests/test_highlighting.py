@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
 """
     test_highlighting
     ~~~~~~~~~~~~~~~~~
 
     Test the Pygments highlighting bridge.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import mock
+from unittest import mock
+
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer
 from pygments.token import Text, Name
@@ -40,7 +40,7 @@ class ComplainOnUnhighlighted(PygmentsBridge):
 
 
 def test_add_lexer(app, status, warning):
-    app.add_lexer('test', MyLexer())
+    app.add_lexer('test', MyLexer)
 
     bridge = PygmentsBridge('html')
     ret = bridge.highlight_block('ab', 'test')
@@ -72,16 +72,6 @@ def test_set_formatter():
         bridge = PygmentsBridge('html')
         ret = bridge.highlight_block('foo\n', 'python')
         assert ret == 'foo\n'
-    finally:
-        PygmentsBridge.html_formatter = HtmlFormatter
-
-
-def test_trim_doctest_flags():
-    PygmentsBridge.html_formatter = MyFormatter
-    try:
-        bridge = PygmentsBridge('html', trim_doctest_flags=True)
-        ret = bridge.highlight_block('>>> 1+2 # doctest: SKIP\n3\n', 'pycon')
-        assert ret == '>>> 1+2 \n3\n'
     finally:
         PygmentsBridge.html_formatter = HtmlFormatter
 

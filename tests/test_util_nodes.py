@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
 """
     test_util_nodes
     ~~~~~~~~~~~~~~~
 
     Tests uti.nodes functions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from textwrap import dedent
+from typing import Any
 
 import pytest
 from docutils import frontend
@@ -17,7 +17,9 @@ from docutils.parsers import rst
 from docutils.utils import new_document
 
 from sphinx.transforms import ApplySourceWorkaround
-from sphinx.util.nodes import extract_messages, clean_astext
+from sphinx.util.nodes import (
+    NodeMatcher, extract_messages, clean_astext, make_id, split_explicit_title
+)
 
 
 def _transform(doctree):
@@ -27,6 +29,7 @@ def _transform(doctree):
 def create_new_document():
     settings = frontend.OptionParser(
         components=(rst.Parser,)).get_default_values()
+    settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document
 
@@ -48,6 +51,42 @@ def assert_node_count(messages, node_type, expect_count):
     assert count == expect_count, (
         "Count of %r in the %r is %d instead of %d"
         % (node_type, node_list, count, expect_count))
+
+
+def test_NodeMatcher():
+    doctree = nodes.document(None, None)
+    doctree += nodes.paragraph('', 'Hello')
+    doctree += nodes.paragraph('', 'Sphinx', block=1)
+    doctree += nodes.paragraph('', 'World', block=2)
+    doctree += nodes.literal_block('', 'blah blah blah', block=3)
+
+    # search by node class
+    matcher = NodeMatcher(nodes.paragraph)
+    assert len(doctree.traverse(matcher)) == 3
+
+    # search by multiple node classes
+    matcher = NodeMatcher(nodes.paragraph, nodes.literal_block)
+    assert len(doctree.traverse(matcher)) == 4
+
+    # search by node attribute
+    matcher = NodeMatcher(block=1)
+    assert len(doctree.traverse(matcher)) == 1
+
+    # search by node attribute (Any)
+    matcher = NodeMatcher(block=Any)
+    assert len(doctree.traverse(matcher)) == 3
+
+    # search by both class and attribute
+    matcher = NodeMatcher(nodes.paragraph, block=Any)
+    assert len(doctree.traverse(matcher)) == 2
+
+    # mismatched
+    matcher = NodeMatcher(nodes.title)
+    assert len(doctree.traverse(matcher)) == 0
+
+    # search with Any does not match to Text node
+    matcher = NodeMatcher(blah=Any)
+    assert len(doctree.traverse(matcher)) == 0
 
 
 @pytest.mark.parametrize(
@@ -142,3 +181,51 @@ def test_clean_astext():
     node = nodes.paragraph(text='hello world')
     node += nodes.raw('', 'raw text', format='html')
     assert 'hello world' == clean_astext(node)
+
+
+@pytest.mark.parametrize(
+    'prefix, term, expected',
+    [
+        ('', '', 'id0'),
+        ('term', '', 'term-0'),
+        ('term', 'Sphinx', 'term-Sphinx'),
+        ('', 'io.StringIO', 'io.StringIO'),   # contains a dot
+        ('', 'sphinx.setup_command', 'sphinx.setup_command'),  # contains a dot & underscore
+        ('', '_io.StringIO', 'io.StringIO'),  # starts with underscore
+        ('', 'ｓｐｈｉｎｘ', 'sphinx'),  # alphabets in unicode fullwidth characters
+        ('', '悠好', 'id0'),  # multibytes text (in Chinese)
+        ('', 'Hello=悠好=こんにちは', 'Hello'),  # alphabets and multibytes text
+        ('', 'fünf', 'funf'),  # latin1 (umlaut)
+        ('', '0sphinx', 'sphinx'),  # starts with number
+        ('', 'sphinx-', 'sphinx'),  # ends with hyphen
+    ])
+def test_make_id(app, prefix, term, expected):
+    document = create_new_document()
+    assert make_id(app.env, document, prefix, term) == expected
+
+
+def test_make_id_already_registered(app):
+    document = create_new_document()
+    document.ids['term-Sphinx'] = True  # register "term-Sphinx" manually
+    assert make_id(app.env, document, 'term', 'Sphinx') == 'term-0'
+
+
+def test_make_id_sequential(app):
+    document = create_new_document()
+    document.ids['term-0'] = True
+    assert make_id(app.env, document, 'term') == 'term-1'
+
+
+@pytest.mark.parametrize(
+    'title, expected',
+    [
+        # implicit
+        ('hello', (False, 'hello', 'hello')),
+        # explicit
+        ('hello <world>', (True, 'hello', 'world')),
+        # explicit (title having angle brackets)
+        ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
+    ]
+)
+def test_split_explicit_target(title, expected):
+    assert expected == split_explicit_title(title)

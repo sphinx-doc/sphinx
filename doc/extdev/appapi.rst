@@ -45,7 +45,6 @@ package.
 
 .. automethod:: Sphinx.add_enumerable_node(node, figtype, title_getter=None, \*\*kwds)
 
-.. method:: Sphinx.add_directive(name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive(name, directiveclass)
 
 .. automethod:: Sphinx.add_role(name, role)
@@ -54,9 +53,6 @@ package.
 
 .. automethod:: Sphinx.add_domain(domain)
 
-.. automethod:: Sphinx.override_domain(domain)
-
-.. method:: Sphinx.add_directive_to_domain(domain, name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive_to_domain(domain, name, directiveclass)
 
 .. automethod:: Sphinx.add_role_to_domain(domain, name, role)
@@ -93,6 +89,8 @@ package.
 
 .. automethod:: Sphinx.add_html_theme(name, theme_path)
 
+.. automethod:: Sphinx.add_html_math_renderer(name, inline_renderers, block_renderers)
+
 .. automethod:: Sphinx.add_message_catalog(catalog, locale_dir)
 
 .. automethod:: Sphinx.is_parallel_allowed(typ)
@@ -107,42 +105,21 @@ Emitting events
 ---------------
 
 .. class:: Sphinx
+   :noindex:
 
    .. automethod:: emit(event, \*arguments)
 
    .. automethod:: emit_firstresult(event, \*arguments)
 
 
-Producing messages / logging
-----------------------------
-
-The application object also provides support for emitting leveled messages.
-
-.. note::
-
-   There is no "error" call: in Sphinx, errors are defined as things that stop
-   the build; just raise an exception (:exc:`sphinx.errors.SphinxError` or a
-   custom subclass) to do that.
-
-.. deprecated:: 1.6
-
-   Please use :ref:`logging-api` instead.
-
-.. automethod:: Sphinx.warn
-
-.. automethod:: Sphinx.info
-
-.. automethod:: Sphinx.verbose
-
-.. automethod:: Sphinx.debug
-
-.. automethod:: Sphinx.debug2
-
-
 Sphinx runtime information
 --------------------------
 
 The application object also provides runtime information as attributes.
+
+.. attribute:: Sphinx.project
+
+   Target project.  See :class:`.Project`.
 
 .. attribute:: Sphinx.srcdir
 
@@ -167,9 +144,9 @@ Sphinx core events
 ------------------
 
 These events are known to the core.  The arguments shown are given to the
-registered event handlers.  Use :meth:`.connect` in an extension's ``setup``
-function (note that ``conf.py`` can also have a ``setup`` function) to connect
-handlers to the events.  Example:
+registered event handlers.  Use :meth:`.Sphinx.connect` in an extension's
+``setup`` function (note that ``conf.py`` can also have a ``setup`` function) to
+connect handlers to the events.  Example:
 
 .. code-block:: python
 
@@ -179,6 +156,40 @@ handlers to the events.  Example:
    def setup(app):
        app.connect('source-read', source_read_handler)
 
+
+Below is an overview of each event that happens during a build. In the list
+below, we include the event name, its callback parameters, and the input and output
+type for that event::
+
+   1. event.config-inited(app,config)
+   2. event.builder-inited(app)
+   3. event.env-get-outdated(app, env, added, changed, removed)
+   4. event.env-before-read-docs(app, env, docnames)
+
+   for docname in docnames:
+      5.  event.env-purge-doc(app, env, docname)
+      if doc changed and not removed:
+         6. source-read(app, docname, source)
+         7. run source parsers: text -> docutils.document (parsers can be added with the app.add_source_parser() API)
+         8. apply transforms (by priority): docutils.document -> docutils.document
+            - event.doctree-read(app, doctree) is called in the middly of transforms,
+              transforms come before/after this event depending on their priority.
+   9. (if running in parallel mode, for each process) event.env-merged-info(app, env, docnames, other)
+   10. event.env-updated(app, env)
+   11. event.env-get-updated(app, env)
+   11. event.env-check-consistency(app, env)
+
+   # For builders that output a single page, they are first joined into a single doctree before post-transforms/doctree-resolved
+   for docname in docnames:
+      12. apply post-transforms (by priority): docutils.document -> docutils.document
+      13. event.doctree-resolved(app, doctree, docname)
+          - (for any reference node that fails to resolve) event.missing-reference(env, node, contnode)
+
+   14. Generate output files
+
+   15. event.build-finished(app, exception)
+
+Here is a more detailed list of these events.
 
 .. event:: builder-inited (app)
 
@@ -238,6 +249,14 @@ handlers to the events.  Example:
 
    .. versionadded:: 0.5
 
+.. event:: object-description-transform (app, domain, objtype, contentnode)
+
+   Emitted when an object description directive has run.  The *domain* and
+   *objtype* arguments are strings indicating object description of the object.
+   And *contentnode* is a content for the object.  It can be modified in-place.
+
+   .. versionadded:: 2.4
+
 .. event:: doctree-read (app, doctree)
 
    Emitted when a doctree has been parsed and read by the environment, and is
@@ -245,11 +264,15 @@ handlers to the events.  Example:
 
 .. event:: missing-reference (app, env, node, contnode)
 
-   Emitted when a cross-reference to a Python module or object cannot be
-   resolved.  If the event handler can resolve the reference, it should return a
+   Emitted when a cross-reference to an object cannot be resolved.
+   If the event handler can resolve the reference, it should return a
    new docutils node to be inserted in the document tree in place of the node
    *node*.  Usually this node is a :class:`reference` node containing *contnode*
    as a child.
+   If the handler can not resolve the cross-reference,
+   it can either return ``None`` to let other handlers try,
+   or raise :class:`NoUri` to prevent other handlers in trying and suppress
+   a warning about this cross-reference being unresolved.
 
    :param env: The build environment (``app.builder.env``).
    :param node: The :class:`pending_xref` node to be resolved.  Its attributes
@@ -281,11 +304,6 @@ handlers to the events.  Example:
    *other* is the environment object from the subprocess, *env* is the
    environment from the main process.  *docnames* is a set of document names
    that have been read in the subprocess.
-
-   For a sample of how to deal with this event, look at the standard
-   ``sphinx.ext.todo`` extension.  The implementation is often similar to that
-   of :event:`env-purge-doc`, only that information is not removed, but added to
-   the main environment from the other environment.
 
    .. versionadded:: 1.3
 

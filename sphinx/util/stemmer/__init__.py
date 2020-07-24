@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.stemmer
     ~~~~~~~~~~~~~~~~~~~
 
     Word stemming utilities for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,33 +17,28 @@ except ImportError:
     PYSTEMMER = False
 
 
-class BaseStemmer(object):
-    def stem(self, word):
-        # type: (unicode) -> unicode
+class BaseStemmer:
+    def stem(self, word: str) -> str:
         raise NotImplementedError()
 
 
 class PyStemmer(BaseStemmer):
-    def __init__(self):
-        # type: () -> None
+    def __init__(self) -> None:
         self.stemmer = _PyStemmer('porter')
 
-    def stem(self, word):
-        # type: (unicode) -> unicode
+    def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word)
 
 
-class StandardStemmer(BaseStemmer, PorterStemmer):  # type: ignore
+class StandardStemmer(PorterStemmer, BaseStemmer):
     """All those porter stemmer implementations look hideous;
     make at least the stem method nicer.
     """
-    def stem(self, word):  # type: ignore
-        # type: (unicode) -> unicode
-        return PorterStemmer.stem(self, word, 0, len(word) - 1)
+    def stem(self, word: str) -> str:  # type: ignore
+        return super().stem(word, 0, len(word) - 1)
 
 
-def get_stemmer():
-    # type: () -> BaseStemmer
+def get_stemmer() -> BaseStemmer:
     if PYSTEMMER:
         return PyStemmer()
     else:

@@ -1,34 +1,37 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.domains.javascript
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     The JavaScript domain.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict, Iterator, List, Tuple
+from typing import cast
+
 from docutils import nodes
+from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.addnodes import desc_signature, pending_xref
+from sphinx.application import Sphinx
+from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.domains.python import _pseudo_parse_arglist
-from sphinx.locale import _
+from sphinx.environment import BuildEnvironment
+from sphinx.locale import _, __
 from sphinx.roles import XRefRole
+from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import make_refnode
+from sphinx.util.nodes import make_id, make_refnode
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription):
@@ -40,14 +43,18 @@ class JSObject(ObjectDescription):
     has_arguments = False
 
     #: what is displayed right before the documentation entry
-    display_prefix = None  # type: unicode
+    display_prefix = None  # type: str
 
     #: If ``allow_nesting`` is ``True``, the object prefixes will be accumulated
     #: based on directive nesting
     allow_nesting = False
 
-    def handle_signature(self, sig, signode):
-        # type: (unicode, addnodes.desc_signature) -> Tuple[unicode, unicode]
+    option_spec = {
+        'noindex': directives.flag,
+        'noindexentry': directives.flag,
+    }
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         """Breaks down construct signatures
 
         Parses out prefix and argument list from construct definition. The
@@ -100,32 +107,30 @@ class JSObject(ObjectDescription):
                 _pseudo_parse_arglist(signode, arglist)
         return fullname, prefix
 
-    def add_target_and_index(self, name_obj, sig, signode):
-        # type: (Tuple[unicode, unicode], unicode, addnodes.desc_signature) -> None
+    def add_target_and_index(self, name_obj: Tuple[str, str], sig: str,
+                             signode: desc_signature) -> None:
         mod_name = self.env.ref_context.get('js:module')
-        fullname = (mod_name and mod_name + '.' or '') + name_obj[0]
-        if fullname not in self.state.document.ids:
-            signode['names'].append(fullname)
-            signode['ids'].append(fullname.replace('$', '_S_'))
-            signode['first'] = not self.names
-            self.state.document.note_explicit_target(signode)
-            objects = self.env.domaindata['js']['objects']
-            if fullname in objects:
-                self.state_machine.reporter.warning(
-                    'duplicate object description of %s, ' % fullname +
-                    'other instance in ' +
-                    self.env.doc2path(objects[fullname][0]),
-                    line=self.lineno)
-            objects[fullname] = self.env.docname, self.objtype
+        fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
+        node_id = make_id(self.env, self.state.document, '', fullname)
+        signode['ids'].append(node_id)
 
-        indextext = self.get_index_text(mod_name, name_obj)
-        if indextext:
-            self.indexnode['entries'].append(('single', indextext,
-                                              fullname.replace('$', '_S_'),
-                                              '', None))
+        # Assign old styled node_id not to break old hyperlinks (if possible)
+        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+        old_node_id = self.make_old_id(fullname)
+        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
+            signode['ids'].append(old_node_id)
 
-    def get_index_text(self, objectname, name_obj):
-        # type: (unicode, Tuple[unicode, unicode]) -> unicode
+        self.state.document.note_explicit_target(signode)
+
+        domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+        domain.note_object(fullname, self.objtype, node_id, location=signode)
+
+        if 'noindexentry' not in self.options:
+            indextext = self.get_index_text(mod_name, name_obj)
+            if indextext:
+                self.indexnode['entries'].append(('single', indextext, node_id, '', None))
+
+    def get_index_text(self, objectname: str, name_obj: Tuple[str, str]) -> str:
         name, obj = name_obj
         if self.objtype == 'function':
             if not obj:
@@ -139,13 +144,12 @@ class JSObject(ObjectDescription):
             return _('%s (%s attribute)') % (name, obj)
         return ''
 
-    def before_content(self):
-        # type: () -> None
+    def before_content(self) -> None:
         """Handle object nesting before content
 
         :py:class:`JSObject` represents JavaScript language constructs. For
         constructs that are nestable, this method will build up a stack of the
-        nesting heirarchy so that it can be later de-nested correctly, in
+        nesting hierarchy so that it can be later de-nested correctly, in
         :py:meth:`after_content`.
 
         For constructs that aren't nestable, the stack is bypassed, and instead
@@ -176,8 +180,7 @@ class JSObject(ObjectDescription):
                 objects = self.env.ref_context.setdefault('js:objects', [])
                 objects.append(prefix)
 
-    def after_content(self):
-        # type: () -> None
+    def after_content(self) -> None:
         """Handle object de-nesting after content
 
         If this class is a nestable object, removing the last nested class prefix
@@ -195,6 +198,14 @@ class JSObject(ObjectDescription):
                 pass
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
+
+    def make_old_id(self, fullname: str) -> str:
+        """Generate old styled node_id for JS objects.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return fullname.replace('$', '_S_')
 
 
 class JSCallable(JSObject):
@@ -248,31 +259,48 @@ class JSModule(SphinxDirective):
         'noindex': directives.flag
     }
 
-    def run(self):
-        # type: () -> List[nodes.Node]
+    def run(self) -> List[Node]:
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
-        ret = []
+        ret = []  # type: List[Node]
         if not noindex:
-            self.env.domaindata['js']['modules'][mod_name] = self.env.docname
+            domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+
+            node_id = make_id(self.env, self.state.document, 'module', mod_name)
+            domain.note_module(mod_name, node_id)
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
-            self.env.domaindata['js']['objects'][mod_name] = (self.env.docname, 'module')
-            targetnode = nodes.target('', '', ids=['module-' + mod_name],
-                                      ismod=True)
-            self.state.document.note_explicit_target(targetnode)
-            ret.append(targetnode)
+            domain.note_object(mod_name, 'module', node_id,
+                               location=(self.env.docname, self.lineno))
+
+            target = nodes.target('', '', ids=[node_id], ismod=True)
+
+            # Assign old styled node_id not to break old hyperlinks (if possible)
+            # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
+            old_node_id = self.make_old_id(mod_name)
+            if old_node_id not in self.state.document.ids and old_node_id not in target['ids']:
+                target['ids'].append(old_node_id)
+
+            self.state.document.note_explicit_target(target)
+            ret.append(target)
             indextext = _('%s (module)') % mod_name
-            inode = addnodes.index(entries=[('single', indextext,
-                                             'module-' + mod_name, '', None)])
+            inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
         return ret
 
+    def make_old_id(self, modname: str) -> str:
+        """Generate old styled node_id for JS modules.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return 'module-' + modname
+
 
 class JSXRefRole(XRefRole):
-    def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+    def process_link(self, env: BuildEnvironment, refnode: Element,
+                     has_explicit_title: bool, title: str, target: str) -> Tuple[str, str]:
         # basically what sphinx.domains.python.PyXRefRole does
         refnode['js:object'] = env.ref_context.get('js:object')
         refnode['js:module'] = env.ref_context.get('js:module')
@@ -320,34 +348,50 @@ class JavaScriptDomain(Domain):
         'mod':   JSXRefRole(),
     }
     initial_data = {
-        'objects': {},  # fullname -> docname, objtype
-        'modules': {},  # mod_name -> docname
-    }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, unicode]]]
+        'objects': {},  # fullname -> docname, node_id, objtype
+        'modules': {},  # modname  -> docname, node_id
+    }  # type: Dict[str, Dict[str, Tuple[str, str]]]
 
-    def clear_doc(self, docname):
-        # type: (unicode) -> None
-        for fullname, (pkg_docname, _l) in list(self.data['objects'].items()):
-            if pkg_docname == docname:
-                del self.data['objects'][fullname]
-        for mod_name, pkg_docname in list(self.data['modules'].items()):
-            if pkg_docname == docname:
-                del self.data['modules'][mod_name]
+    @property
+    def objects(self) -> Dict[str, Tuple[str, str, str]]:
+        return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
 
-    def merge_domaindata(self, docnames, otherdata):
-        # type: (List[unicode], Dict) -> None
+    def note_object(self, fullname: str, objtype: str, node_id: str,
+                    location: Any = None) -> None:
+        if fullname in self.objects:
+            docname = self.objects[fullname][0]
+            logger.warning(__('duplicate %s description of %s, other %s in %s'),
+                           objtype, fullname, objtype, docname, location=location)
+        self.objects[fullname] = (self.env.docname, node_id, objtype)
+
+    @property
+    def modules(self) -> Dict[str, Tuple[str, str]]:
+        return self.data.setdefault('modules', {})  # modname -> docname, node_id
+
+    def note_module(self, modname: str, node_id: str) -> None:
+        self.modules[modname] = (self.env.docname, node_id)
+
+    def clear_doc(self, docname: str) -> None:
+        for fullname, (pkg_docname, node_id, _l) in list(self.objects.items()):
+            if pkg_docname == docname:
+                del self.objects[fullname]
+        for modname, (pkg_docname, node_id) in list(self.modules.items()):
+            if pkg_docname == docname:
+                del self.modules[modname]
+
+    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         # XXX check duplicates
-        for fullname, (fn, objtype) in otherdata['objects'].items():
+        for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                self.data['objects'][fullname] = (fn, objtype)
-        for mod_name, pkg_docname in otherdata['modules'].items():
+                self.objects[fullname] = (fn, node_id, objtype)
+        for mod_name, (pkg_docname, node_id) in otherdata['modules'].items():
             if pkg_docname in docnames:
-                self.data['modules'][mod_name] = pkg_docname
+                self.modules[mod_name] = (pkg_docname, node_id)
 
-    def find_obj(self, env, mod_name, prefix, name, typ, searchorder=0):
-        # type: (BuildEnvironment, unicode, unicode, unicode, unicode, int) -> Tuple[unicode, Tuple[unicode, unicode]]  # NOQA
+    def find_obj(self, env: BuildEnvironment, mod_name: str, prefix: str, name: str,
+                 typ: str, searchorder: int = 0) -> Tuple[str, Tuple[str, str, str]]:
         if name[-2:] == '()':
             name = name[:-2]
-        objects = self.data['objects']
 
         searches = []
         if mod_name and prefix:
@@ -363,43 +407,38 @@ class JavaScriptDomain(Domain):
 
         newname = None
         for search_name in searches:
-            if search_name in objects:
+            if search_name in self.objects:
                 newname = search_name
 
-        return newname, objects.get(newname)
+        return newname, self.objects.get(newname)
 
-    def resolve_xref(self, env, fromdocname, builder, typ, target, node,
-                     contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                     typ: str, target: str, node: pending_xref, contnode: Element
+                     ) -> Element:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
-        searchorder = node.hasattr('refspecific') and 1 or 0
+        searchorder = 1 if node.hasattr('refspecific') else 0
         name, obj = self.find_obj(env, mod_name, prefix, target, typ, searchorder)
         if not obj:
             return None
-        return make_refnode(builder, fromdocname, obj[0],
-                            name.replace('$', '_S_'), contnode, name)
+        return make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name)
 
-    def resolve_any_xref(self, env, fromdocname, builder, target, node,
-                         contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[Tuple[unicode, nodes.Node]]  # NOQA
+    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                         target: str, node: pending_xref, contnode: Element
+                         ) -> List[Tuple[str, Element]]:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
         if not obj:
             return []
-        return [('js:' + self.role_for_objtype(obj[1]),
-                 make_refnode(builder, fromdocname, obj[0],
-                              name.replace('$', '_S_'), contnode, name))]
+        return [('js:' + self.role_for_objtype(obj[2]),
+                 make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name))]
 
-    def get_objects(self):
-        # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
-        for refname, (docname, type) in list(self.data['objects'].items()):
-            yield refname, refname, type, docname, \
-                refname.replace('$', '_S_'), 1
+    def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
+        for refname, (docname, node_id, typ) in list(self.objects.items()):
+            yield refname, refname, typ, docname, node_id, 1
 
-    def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> unicode
+    def get_full_qualified_name(self, node: Element) -> str:
         modname = node.get('js:module')
         prefix = node.get('js:object')
         target = node.get('reftarget')
@@ -409,13 +448,12 @@ class JavaScriptDomain(Domain):
             return '.'.join(filter(None, [modname, prefix, target]))
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(JavaScriptDomain)
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

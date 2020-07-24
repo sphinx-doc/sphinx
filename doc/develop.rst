@@ -14,7 +14,8 @@ Sphinx is a maintained by a group of volunteers.  We value every contribution!
 * There is also the #sphinx-doc IRC channel on `freenode
   <https://freenode.net/>`_.
 
-For more about our development process and methods, see the :doc:`devguide`.
+For more about our development process and methods, refer to
+:doc:`/internals/index`.
 
 Extensions
 ==========
@@ -31,10 +32,12 @@ This is the current list of contributed extensions in that repository:
 - actdiag: embed activity diagrams by using actdiag_
 - adadomain: an extension for Ada support (Sphinx 1.0 needed)
 - ansi: parse ANSI color sequences inside documents
-- argdoc: automatically generate documentation for command-line arguments, descriptions, and help text
+- argdoc: automatically generate documentation for command-line arguments,
+  descriptions and help text
 - astah: embed diagram by using astah
 - autoanysrc: Gather reST documentation from any source files
 - autorun: Execute code in a ``runblock`` directive
+- beamer_: A builder for Beamer (LaTeX) output.
 - blockdiag: embed block diagrams by using blockdiag_
 - cacoo: embed diagram from Cacoo
 - cf3domain: a domain for CFEngine 3 policies
@@ -45,7 +48,8 @@ This is the current list of contributed extensions in that repository:
 - coffeedomain: a domain for (auto)documenting CoffeeScript source code
 - context: a builder for ConTeXt
 - disqus: embed Disqus comments in documents
-- documentedlist: converts a Python list to a table in the generated documentation
+- documentedlist: converts a Python list to a table in the generated
+  documentation
 - doxylink: Link to external Doxygen-generated HTML documentation
 - domaintools_: A tool for easy domain creation
 - email: obfuscate email addresses
@@ -64,7 +68,8 @@ This is the current list of contributed extensions in that repository:
 - imgur: embed Imgur images, albums, and metadata in documents
 - inlinesyntaxhighlight_: inline syntax highlighting
 - lassodomain: a domain for documenting Lasso_ source code
-- libreoffice: an extension to include any drawing supported by LibreOffice (e.g. odg, vsd, ...)
+- libreoffice: an extension to include any drawing supported by LibreOffice
+  (e.g. odg, vsd, ...)
 - lilypond: an extension inserting music scripts from Lilypond_ in PNG format
 - makedomain_: a domain for `GNU Make`_
 - matlabdomain: document MATLAB_ code
@@ -74,7 +79,8 @@ This is the current list of contributed extensions in that repository:
 - nicovideo: embed videos from nicovideo
 - nwdiag: embed network diagrams by using nwdiag_
 - omegat: support tools to collaborate with OmegaT_ (Sphinx 1.1 needed)
-- osaka: convert standard Japanese doc to Osaka dialect (this is a joke extension)
+- osaka: convert standard Japanese doc to Osaka dialect (this is a joke
+  extension)
 - paverutils: an alternate integration of Sphinx with Paver_
 - phpdomain: an extension for PHP support
 - plantuml: embed UML diagram by using PlantUML_
@@ -94,14 +100,15 @@ This is the current list of contributed extensions in that repository:
 - sword: an extension inserting Bible verses from Sword_
 - tikz: draw pictures with the `TikZ/PGF LaTeX package`_
 - traclinks: create TracLinks_ to a Trac_ instance from within Sphinx
-- versioning: Sphinx extension that allows building versioned docs for self-hosting
+- versioning: Sphinx extension that allows building versioned docs for
+  self-hosting
 - whooshindex: whoosh indexer extension
 - youtube: embed videos from YouTube_
 - zopeext: provide an ``autointerface`` directive for using `Zope interfaces`_
 
 
-See the :ref:`extension tutorial <exttut>` on getting started with writing your
-own extensions.
+See the :doc:`extension tutorials <../development/tutorials/index>` on getting
+started with writing your own extensions.
 
 
 .. _aafigure: https://launchpad.net/aafigure
@@ -127,7 +134,7 @@ own extensions.
 .. _NumPy style: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 .. _hyphenator: https://github.com/mnater/hyphenator
 .. _exceltable: https://pythonhosted.org/sphinxcontrib-exceltable/
-.. _YouTube: http://www.youtube.com/
+.. _YouTube: https://www.youtube.com/
 .. _ClearQuest: https://www.ibm.com/us-en/marketplace/rational-clearquest
 .. _Zope interfaces: https://zopeinterface.readthedocs.io/en/latest/README.html
 .. _slideshare: https://www.slideshare.net/
@@ -143,3 +150,4 @@ own extensions.
 .. _domaintools: https://bitbucket.org/klorenz/sphinxcontrib-domaintools
 .. _restbuilder: https://pypi.org/project/sphinxcontrib-restbuilder/
 .. _Lasso: http://www.lassosoft.com/
+.. _beamer: https://pypi.org/project/sphinxcontrib-beamer/

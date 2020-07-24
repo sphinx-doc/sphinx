@@ -1,16 +1,16 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.png
     ~~~~~~~~~~~~~~~
 
     PNG image manipulation helpers.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import binascii
 import struct
+from typing import Optional
 
 
 LEN_IEND = 12
@@ -21,8 +21,7 @@ DEPTH_CHUNK_START = b'tEXtDepth\x00'
 IEND_CHUNK = b'\x00\x00\x00\x00IEND\xAE\x42\x60\x82'
 
 
-def read_png_depth(filename):
-    # type: (unicode) -> int
+def read_png_depth(filename: str) -> Optional[int]:
     """Read the special tEXt chunk indicating the depth from a PNG file."""
     with open(filename, 'rb') as f:
         f.seek(- (LEN_IEND + LEN_DEPTH), 2)
@@ -34,8 +33,7 @@ def read_png_depth(filename):
             return struct.unpack('!i', depthchunk[14:18])[0]
 
 
-def write_png_depth(filename, depth):
-    # type: (unicode, int) -> None
+def write_png_depth(filename: str, depth: int) -> None:
     """Write the special tEXt chunk indicating the depth to a PNG file.
 
     The chunk is placed immediately before the special IEND chunk.

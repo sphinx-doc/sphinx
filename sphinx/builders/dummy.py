@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.dummy
     ~~~~~~~~~~~~~~~~~~~~~
@@ -9,15 +8,13 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Any, Dict, Set
 
+from docutils.nodes import Node
+
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, Set  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 
 class DummyBuilder(Builder):
@@ -26,33 +23,26 @@ class DummyBuilder(Builder):
 
     allow_parallel = True
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         pass
 
-    def get_outdated_docs(self):
-        # type: () -> Set[unicode]
+    def get_outdated_docs(self) -> Set[str]:
         return self.env.found_docs
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames):
-        # type: (Set[unicode]) -> None
+    def prepare_writing(self, docnames: Set[str]) -> None:
         pass
 
-    def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+    def write_doc(self, docname: str, doctree: Node) -> None:
         pass
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         pass
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(DummyBuilder)
 
     return {

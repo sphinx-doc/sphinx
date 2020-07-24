@@ -15,33 +15,44 @@ parsing the `CommonMark`__ Markdown flavor.
 __ https://daringfireball.net/projects/markdown/
 __ https://recommonmark.readthedocs.io/en/latest/index.html
 __ https://github.com/rtfd/CommonMark-py
-__ http://commonmark.org/
+__ https://commonmark.org/
 
 Configuration
 -------------
 
 To configure your Sphinx project for Markdown support, proceed as follows:
 
-#. Install *recommonmark*::
+#. Install the Markdown parser *recommonmark*::
 
-      pip install recommonmark
+      pip install --upgrade recommonmark
 
-#. Add the Markdown parser to the ``source_parsers`` configuration variable in
-   your Sphinx configuration file::
+   .. note::
 
-      source_parsers = {
-         '.md': 'recommonmark.parser.CommonMarkParser',
+      The configuration as explained here requires recommonmark version
+      0.5.0 or later.
+
+#. Add *recommonmark* to the
+   :confval:`list of configured extensions <extensions>`::
+
+      extensions = ['recommonmark']
+
+   .. versionchanged:: 1.8
+      Version 1.8 deprecates and version 3.0 removes the ``source_parsers``
+      configuration variable that was used by older *recommonmark* versions.
+
+#. If you want to use Markdown files with extensions other than ``.md``, adjust
+   the :confval:`source_suffix` variable.  The following example configures
+   Sphinx to parse all files with the extensions ``.md`` and ``.txt`` as
+   Markdown::
+
+      source_suffix = {
+          '.rst': 'restructuredtext',
+          '.txt': 'markdown',
+          '.md': 'markdown',
       }
 
-   You can replace ``.md`` with a filename extension of your choice.
-
-#. Add the Markdown filename extension to the  ``source_suffix`` configuration
-   variable::
-
-      source_suffix = ['.rst', '.md']
-
 #. You can further configure *recommonmark* to allow custom syntax that
-   standard *CommonMark* doesn't support. Read more in the `recommonmark
+   standard *CommonMark* doesn't support.  Read more in the `recommonmark
    documentation`__.
 
 __ https://recommonmark.readthedocs.io/en/latest/auto_structify.html

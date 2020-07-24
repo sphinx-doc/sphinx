@@ -28,4 +28,4 @@ This is inline math: :math:`a^2 + b^2 = c^2`.
 
    a + 1 < b
 
-Referencing equation :eq:`foo`.
+Referencing equation :eq:`foo` and :math:numref:`foo`.

@@ -1,30 +1,25 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.text
     ~~~~~~~~~~~~~~~~~~~~
 
     Plain-text Sphinx builder.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 from os import path
+from typing import Any, Dict, Iterator, Set, Tuple
 
 from docutils.io import StringOutput
+from docutils.nodes import Node
 
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.text import TextWriter, TextTranslator
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, Iterator, Set, Tuple  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -38,21 +33,18 @@ class TextBuilder(Builder):
     allow_parallel = True
     default_translator_class = TextTranslator
 
-    current_docname = None  # type: unicode
+    current_docname = None  # type: str
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         # section numbers for headings in the currently visited document
-        self.secnumbers = {}  # type: Dict[unicode, Tuple[int, ...]]
+        self.secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
 
-    def get_outdated_docs(self):
-        # type: () -> Iterator[unicode]
+    def get_outdated_docs(self) -> Iterator[str]:
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = self.env.doc2path(docname, self.outdir,
-                                           self.out_suffix)
+            targetname = path.join(self.outdir, docname + self.out_suffix)
             try:
                 targetmtime = path.getmtime(targetname)
             except Exception:
@@ -61,20 +53,17 @@ class TextBuilder(Builder):
                 srcmtime = path.getmtime(self.env.doc2path(docname))
                 if srcmtime > targetmtime:
                     yield docname
-            except EnvironmentError:
+            except OSError:
                 # source doesn't exist anymore
                 pass
 
-    def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+    def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames):
-        # type: (Set[unicode]) -> None
+    def prepare_writing(self, docnames: Set[str]) -> None:
         self.writer = TextWriter(self)
 
-    def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+    def write_doc(self, docname: str, doctree: Node) -> None:
         self.current_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
@@ -82,18 +71,16 @@ class TextBuilder(Builder):
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         try:
-            with codecs.open(outfilename, 'w', 'utf-8') as f:  # type: ignore
+            with open(outfilename, 'w', encoding='utf-8') as f:
                 f.write(self.writer.output)
-        except (IOError, OSError) as err:
+        except OSError as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         pass
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(TextBuilder)
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')

@@ -1,37 +1,56 @@
-# -*- coding: utf-8 -*-
 """
     test_util
     ~~~~~~~~~~~~~~~
 
     Tests util functions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import pytest
-from mock import patch
+import os
+import tempfile
+from unittest.mock import patch
 
+import pytest
+
+import sphinx
+from sphinx.errors import ExtensionError, PycodeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (
-    display_chunk, encode_uri, parselinenos, status_iterator, xmlname_checker
+    SkipProgressMessage, display_chunk, encode_uri, ensuredir,
+    import_object, parselinenos, progress_message, status_iterator, xmlname_checker
 )
 from sphinx.util import logging
 
 
 def test_encode_uri():
-    expected = (u'https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0_'
-                u'%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F_'
-                u'%D0%B1%D0%B0%D0%B7%D0%B0%D0%BC%D0%B8_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85')
-    uri = (u'https://ru.wikipedia.org/wiki'
-           u'/Система_управления_базами_данных')
-    assert expected, encode_uri(uri)
+    expected = ('https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0_'
+                '%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F_'
+                '%D0%B1%D0%B0%D0%B7%D0%B0%D0%BC%D0%B8_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85')
+    uri = ('https://ru.wikipedia.org/wiki'
+           '/Система_управления_базами_данных')
+    assert expected == encode_uri(uri)
 
-    expected = (u'https://github.com/search?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+is%3A'
-                u'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
-    uri = (u'https://github.com/search?utf8=✓&q=is%3Aissue+is%3Aopen+is%3A'
-           u'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
-    assert expected, encode_uri(uri)
+    expected = ('https://github.com/search?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+is%3A'
+                'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
+    uri = ('https://github.com/search?utf8=✓&q=is%3Aissue+is%3Aopen+is%3A'
+           'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
+    assert expected == encode_uri(uri)
+
+
+def test_ensuredir():
+    with tempfile.TemporaryDirectory() as tmp_path:
+        # Does not raise an exception for an existing directory.
+        ensuredir(tmp_path)
+
+        path = os.path.join(tmp_path, 'a', 'b', 'c')
+        ensuredir(path)
+        assert os.path.isdir(path)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        with pytest.raises(OSError):
+            ensuredir(tmp.name)
 
 
 def test_display_chunk():
@@ -40,6 +59,26 @@ def test_display_chunk():
     assert display_chunk(['hello', 'sphinx', 'world']) == 'hello .. world'
     assert display_chunk(('hello',)) == 'hello'
     assert display_chunk(('hello', 'sphinx', 'world')) == 'hello .. world'
+
+
+def test_import_object():
+    module = import_object('sphinx')
+    assert module.__name__ == 'sphinx'
+
+    module = import_object('sphinx.application')
+    assert module.__name__ == 'sphinx.application'
+
+    obj = import_object('sphinx.application.Sphinx')
+    assert obj.__name__ == 'Sphinx'
+
+    with pytest.raises(ExtensionError) as exc:
+        import_object('sphinx.unknown_module')
+    assert exc.value.args[0] == 'Could not import sphinx.unknown_module'
+
+    with pytest.raises(ExtensionError) as exc:
+        import_object('sphinx.unknown_module', 'my extension')
+    assert exc.value.args[0] == ('Could not import sphinx.unknown_module '
+                                 '(needed for my extension)')
 
 
 @pytest.mark.sphinx('dummy')
@@ -92,6 +131,44 @@ def test_parselinenos():
         parselinenos('-', 10)
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
+
+
+def test_progress_message(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    # standard case
+    with progress_message('testing'):
+        logger.info('blah ', nonl=True)
+
+    output = strip_escseq(status.getvalue())
+    assert 'testing... blah done\n' in output
+
+    # skipping case
+    with progress_message('testing'):
+        raise SkipProgressMessage('Reason: %s', 'error')
+
+    output = strip_escseq(status.getvalue())
+    assert 'testing... skipped\nReason: error\n' in output
+
+    # error case
+    try:
+        with progress_message('testing'):
+            raise
+    except Exception:
+        pass
+
+    output = strip_escseq(status.getvalue())
+    assert 'testing... failed\n' in output
+
+    # decorator
+    @progress_message('testing')
+    def func():
+        logger.info('in func ', nonl=True)
+
+    func()
+    output = strip_escseq(status.getvalue())
+    assert 'testing... in func done\n' in output
 
 
 def test_xmlname_check():

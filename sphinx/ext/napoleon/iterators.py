@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.napoleon.iterators
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -7,18 +6,15 @@
     A collection of helpful iterators.
 
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import collections
-
-if False:
-    # For type annotation
-    from typing import Any, Iterable  # NOQA
+from typing import Any, Iterable, Optional
 
 
-class peek_iter(object):
+class peek_iter:
     """An iterator object that supports peeking ahead.
 
     Parameters
@@ -51,8 +47,7 @@ class peek_iter(object):
         be set to a new object instance: ``object()``.
 
     """
-    def __init__(self, *args):
-        # type: (Any) -> None
+    def __init__(self, *args: Any) -> None:
         """__init__(o, sentinel=None)"""
         self._iterable = iter(*args)        # type: Iterable
         self._cache = collections.deque()   # type: collections.deque
@@ -61,18 +56,13 @@ class peek_iter(object):
         else:
             self.sentinel = object()
 
-    def __iter__(self):
-        # type: () -> peek_iter
+    def __iter__(self) -> "peek_iter":
         return self
 
-    def __next__(self, n=None):
-        # type: (int) -> Any
-        # note: prevent 2to3 to transform self.next() in next(self) which
-        # causes an infinite loop !
-        return getattr(self, 'next')(n)
+    def __next__(self, n: int = None) -> Any:
+        return self.next(n)
 
-    def _fillcache(self, n):
-        # type: (int) -> None
+    def _fillcache(self, n: Optional[int]) -> None:
         """Cache `n` items. If `n` is 0 or None, then 1 item is cached."""
         if not n:
             n = 1
@@ -83,8 +73,7 @@ class peek_iter(object):
             while len(self._cache) < n:
                 self._cache.append(self.sentinel)
 
-    def has_next(self):
-        # type: () -> bool
+    def has_next(self) -> bool:
         """Determine if iterator is exhausted.
 
         Returns
@@ -99,8 +88,7 @@ class peek_iter(object):
         """
         return self.peek() != self.sentinel
 
-    def next(self, n=None):
-        # type: (int) -> Any
+    def next(self, n: int = None) -> Any:
         """Get the next item or `n` items of the iterator.
 
         Parameters
@@ -135,8 +123,7 @@ class peek_iter(object):
             result = [self._cache.popleft() for i in range(n)]
         return result
 
-    def peek(self, n=None):
-        # type: (int) -> Any
+    def peek(self, n: Optional[int] = None) -> Any:
         """Preview the next item or `n` items of the iterator.
 
         The iterator is not advanced when peek is called.
@@ -219,8 +206,7 @@ class modify_iter(peek_iter):
     "whitespace."
 
     """
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """__init__(o, sentinel=None, modifier=lambda x: x)"""
         if 'modifier' in kwargs:
             self.modifier = kwargs['modifier']
@@ -232,10 +218,9 @@ class modify_iter(peek_iter):
         if not callable(self.modifier):
             raise TypeError('modify_iter(o, modifier): '
                             'modifier must be callable')
-        super(modify_iter, self).__init__(*args)
+        super().__init__(*args)
 
-    def _fillcache(self, n):
-        # type: (int) -> None
+    def _fillcache(self, n: Optional[int]) -> None:
         """Cache `n` modified items. If `n` is 0 or None, 1 item is cached.
 
         Each item returned by the iterator is passed through the

@@ -36,8 +36,8 @@ tables of contents.  The ``toctree`` directive is the central element.
 
 .. note::
 
-   For local tables of contents, use the standard reST :dudir:`contents
-   directive <table-of-contents>`.
+   To create table of contents for current document (.rst file), use the
+   standard reST :dudir:`contents directive <table-of-contents>`.
 
 .. rst:directive:: toctree
 
@@ -47,6 +47,12 @@ tables of contents.  The ``toctree`` directive is the central element.
    relative to the document the directive occurs in, absolute names are relative
    to the source directory.  A numeric ``maxdepth`` option may be given to
    indicate the depth of the tree; by default, all levels are included. [#]_
+
+   The representation of "TOC tree" is changed in each output format.  The
+   builders that output multiple files (ex. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   LaTeX, man page, etc.) replace it with the content of the documents on the
+   TOC tree.
 
    Consider this example (taken from the Python docs' library reference index)::
 
@@ -441,7 +447,7 @@ If highlighting with the selected language fails (i.e. Pygments emits an
    want to ensure consistent highlighting, you should fix your version of
    Pygments.
 
-__ http://pygments.org/docs/lexers/
+__ http://pygments.org/docs/lexers
 
 .. rst:directive:: .. highlight:: language
 
@@ -453,17 +459,31 @@ __ http://pygments.org/docs/lexers/
    As discussed previously, *language* can be any lexer alias supported by
    Pygments.
 
-   **Additional options**
+   .. rubric:: options
 
-   Pygments can generate line numbers for code blocks.  To enable this, use the
-   ``linenothreshold`` option. ::
+   .. rst:directive:option:: linenothreshold: threshold
+      :type: number (optional)
 
-      .. highlight:: python
-         :linenothreshold: 5
+      Enable to generate line numbers for code blocks.
 
-   This will produce line numbers for all code blocks longer than five lines.
+      This option takes an optional number as threshold parameter.  If any
+      threshold given, the directive will produce line numbers only for the code
+      blocks longer than N lines.  If not given, line numbers will be produced
+      for all of code blocks.
 
-.. rst:directive:: .. code-block:: language
+      Example::
+
+         .. highlight:: python
+            :linenothreshold: 5
+
+   .. rst:directive:option:: force
+      :type: no value
+
+      If given, minor errors on highlighting are ignored.
+
+      .. versionadded:: 2.1
+
+.. rst:directive:: .. code-block:: [language]
 
    Example::
 
@@ -471,67 +491,104 @@ __ http://pygments.org/docs/lexers/
 
          Some Ruby code.
 
-   The directive's alias name :rst:dir:`sourcecode` works as well.  As with
-   :rst:dir:`highlight`\ 's ``language`` option, ``language`` can be any lexer
-   alias supported by Pygments.
+   The directive's alias name :rst:dir:`sourcecode` works as well.  This
+   directive takes a language name as an argument.  It can be any lexer alias
+   supported by Pygments.  If it is not given, the setting of
+   :rst:dir:`highlight` directive will be used.  If not set,
+   :confval:`highlight_language` will be used.
 
-   **Additional options**
+   .. versionchanged:: 2.0
+      The ``language`` argument becomes optional.
 
-   Pygments can generate line numbers for code blocks. To enable this for, use
-   the ``linenos`` flag option. ::
+   .. rubric:: options
 
-      .. code-block:: ruby
-         :linenos:
+   .. rst:directive:option:: linenos
+      :type: no value
 
-         Some more Ruby code.
+      Enable to generate line numbers for the code block::
 
-   The first line number can be selected with the ``lineno-start`` option.  If
-   present, ``linenos`` flag is automatically activated::
+         .. code-block:: ruby
+            :linenos:
 
-      .. code-block:: ruby
-         :lineno-start: 10
+            Some more Ruby code.
 
-         Some more Ruby code, with line numbering starting at 10.
+   .. rst:directive:option:: lineno-start: number
+      :type: number
 
-   Additionally, an ``emphasize-lines`` option can be given to have Pygments
-   emphasize particular lines::
+      Set the first line number of the code block.  If present, ``linenos``
+      option is also automatically activated::
 
-    .. code-block:: python
-       :emphasize-lines: 3,5
+         .. code-block:: ruby
+            :lineno-start: 10
 
-       def some_function():
-           interesting = False
-           print 'This line is highlighted.'
-           print 'This one is not...'
-           print '...but this one is.'
+            Some more Ruby code, with line numbering starting at 10.
 
-   A ``caption`` option can be given to show that name before the code block.
-   A ``name`` option can be provided implicit target name that can be
-   referenced by using :rst:role:`ref`.  For example::
+      .. versionadded:: 1.3
 
-     .. code-block:: python
-        :caption: this.py
-        :name: this-py
+   .. rst:directive:option:: emphasize-lines: line numbers
+      :type: comma separated numbers
 
-        print 'Explicit is better than implicit.'
+      Emphasize particular lines of the code block::
 
-   A ``dedent`` option can be given to strip indentation characters from the
-   code block. For example::
+       .. code-block:: python
+          :emphasize-lines: 3,5
 
-      .. code-block:: ruby
-         :dedent: 4
+          def some_function():
+              interesting = False
+              print 'This line is highlighted.'
+              print 'This one is not...'
+              print '...but this one is.'
 
-             some ruby code
+      .. versionadded:: 1.1
+      .. versionchanged:: 1.6.6
+         LaTeX supports the ``emphasize-lines`` option.
 
-  .. versionchanged:: 1.1
-     The ``emphasize-lines`` option has been added.
+   .. rst:directive:option: force
+      :type: no value
 
-  .. versionchanged:: 1.3
-     The ``lineno-start``, ``caption``, ``name`` and ``dedent`` options have
-     been added.
+      Ignore minor errors on highlighting
 
-  .. versionchanged:: 1.6.6
-     LaTeX supports the ``emphasize-lines`` option.
+      .. versionchanged:: 2.1
+
+   .. rst:directive:option:: caption: caption of code block
+      :type: text
+
+      Set a caption to the code block.
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.  For example::
+
+        .. code-block:: python
+           :caption: this.py
+           :name: this-py
+
+           print 'Explicit is better than implicit.'
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: dedent: number
+      :type: number
+
+      Strip indentation characters from the code block. For example::
+
+         .. code-block:: ruby
+            :dedent: 4
+
+                some ruby code
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: force
+      :type: no value
+
+      If given, minor errors on highlighting are ignored.
+
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. literalinclude:: filename
 
@@ -625,6 +682,8 @@ __ http://pygments.org/docs/lexers/
    This shows the diff between ``example.py`` and ``example.py.orig`` with
    unified diff format.
 
+   A ``force`` option can ignore minor errors on highlighting.
+
    .. versionchanged:: 0.4.3
       Added the ``encoding`` option.
 
@@ -646,6 +705,9 @@ __ http://pygments.org/docs/lexers/
       With both ``start-after`` and ``lines`` in use, the first line as per
       ``start-after`` is considered to be with line number ``1`` for ``lines``.
 
+   .. versionchanged:: 2.1
+      Added the ``force`` option.
+
 .. _glossary-directive:
 
 Glossary
@@ -654,7 +716,7 @@ Glossary
 .. rst:directive:: .. glossary::
 
    This directive must contain a reST definition-list-like markup with terms and
-   definitions.  The definitions will then be referencable with the
+   definitions.  The definitions will then be referenceable with the
    :rst:role:`term` role.  Example::
 
       .. glossary::
@@ -681,8 +743,8 @@ Glossary
 
    (When the glossary is sorted, the first term determines the sort order.)
 
-   If you want to specify "grouping key" for general index entries, you can put a "key"
-   as "term : key". For example::
+   If you want to specify "grouping key" for general index entries, you can put
+   a "key" as "term : key". For example::
 
       .. glossary::
 
@@ -692,12 +754,12 @@ Glossary
 
    Note that "key" is used for grouping key as is.
    The "key" isn't normalized; key "A" and "a" become different groups.
-   The whole characters in "key" is used instead of a first character; it is used for
-   "Combining Character Sequence" and "Surrogate Pairs" grouping key.
+   The whole characters in "key" is used instead of a first character; it is
+   used for "Combining Character Sequence" and "Surrogate Pairs" grouping key.
 
-   In i18n situation, you can specify "localized term : key" even if original text only
-   have "term" part. In this case, translated "localized term" will be categorized in
-   "key" group.
+   In i18n situation, you can specify "localized term : key" even if original
+   text only have "term" part. In this case, translated "localized term" will be
+   categorized in "key" group.
 
    .. versionadded:: 0.6
       You can now give the glossary directive a ``:sorted:`` flag that will
@@ -817,6 +879,19 @@ mainly contained in information units, such as the language reference.
 
    .. versionchanged:: 1.1
       Added ``see`` and ``seealso`` types, as well as marking main entries.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.  For example::
+
+        .. index:: Python
+           :name: py-index
+
+   .. versionadded:: 3.0
 
 .. rst:role:: index
 
@@ -953,16 +1028,16 @@ this reason, the following directive exists:
    .. warning::
 
       Tables with more than 30 rows are rendered using ``longtable``, not
-      ``tabulary``, in order to allow pagebreaks. The ``L``, ``R``, ... specifiers
-      do not work for these tables.
+      ``tabulary``, in order to allow pagebreaks. The ``L``, ``R``, ...
+      specifiers do not work for these tables.
 
       Tables that contain list-like elements such as object descriptions,
       blockquotes or any kind of lists cannot be set out of the box with
-      ``tabulary``. They are therefore set with the standard LaTeX ``tabular`` (or
-      ``longtable``) environment if you don't give a ``tabularcolumns`` directive.
-      If you do, the table will be set with ``tabulary`` but you must use the
-      ``p{width}`` construct (or Sphinx's ``\X`` and ``\Y`` specifiers described
-      below) for the columns containing these elements.
+      ``tabulary``. They are therefore set with the standard LaTeX ``tabular``
+      (or ``longtable``) environment if you don't give a ``tabularcolumns``
+      directive.  If you do, the table will be set with ``tabulary`` but you
+      must use the ``p{width}`` construct (or Sphinx's ``\X`` and ``\Y``
+      specifiers described below) for the columns containing these elements.
 
       Literal blocks do not work with ``tabulary`` at all, so tables containing
       a literal block are always set with ``tabular``. The verbatim environment
@@ -991,10 +1066,11 @@ this reason, the following directive exists:
    .. versionchanged:: 1.6
 
       Merged cells from complex grid tables (either multi-row, multi-column, or
-      both) now allow blockquotes, lists, literal blocks, ... as do regular cells.
+      both) now allow blockquotes, lists, literal blocks, ... as do regular
+      cells.
 
-      Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``, ``Y{f}``
-      and tabulary's columns.
+      Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``,
+      ``\Y{f}`` and tabulary's columns.
 
    .. note::
 
@@ -1005,9 +1081,72 @@ this reason, the following directive exists:
 Math
 ----
 
-.. todo:: Move this in here.
+The input language for mathematics is LaTeX markup.  This is the de-facto
+standard for plain-text math notation and has the added advantage that no
+further translation is necessary when building LaTeX output.
 
-See :ref:`math-support`.
+Keep in mind that when you put math markup in **Python docstrings** read by
+:mod:`autodoc <sphinx.ext.autodoc>`, you either have to double all backslashes,
+or use Python raw strings (``r"raw"``).
+
+.. rst:directive:: math
+
+   Directive for displayed math (math that takes the whole line for itself).
+
+   The directive supports multiple equations, which should be separated by a
+   blank line::
+
+      .. math::
+
+         (a + b)^2 = a^2 + 2ab + b^2
+
+         (a - b)^2 = a^2 - 2ab + b^2
+
+   In addition, each single equation is set within a ``split`` environment,
+   which means that you can have multiple aligned lines in an equation,
+   aligned at ``&`` and separated by ``\\``::
+
+      .. math::
+
+         (a + b)^2  &=  (a + b)(a + b) \\
+                    &=  a^2 + 2ab + b^2
+
+   For more details, look into the documentation of the `AmSMath LaTeX
+   package`_.
+
+   When the math is only one line of text, it can also be given as a directive
+   argument::
+
+      .. math:: (a + b)^2 = a^2 + 2ab + b^2
+
+   Normally, equations are not numbered.  If you want your equation to get a
+   number, use the ``label`` option.  When given, it selects an internal label
+   for the equation, by which it can be cross-referenced, and causes an equation
+   number to be issued.  See :rst:role:`eq` for an example.  The numbering
+   style depends on the output format.
+
+   There is also an option ``nowrap`` that prevents any wrapping of the given
+   math in a math environment.  When you give this option, you must make sure
+   yourself that the math is properly set up.  For example::
+
+      .. math::
+         :nowrap:
+
+         \begin{eqnarray}
+            y    & = & ax^2 + bx + c \\
+            f(x) & = & x^2 + 2xy + y^2
+         \end{eqnarray}
+
+.. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
+
+.. seealso::
+
+   :ref:`math-support`
+      Rendering options for math with HTML builders.
+
+   :confval:`latex_engine`
+      Explains how to configure LaTeX builder to support Unicode literals in
+      math mark-up.
 
 
 Grammar production displays
@@ -1019,7 +1158,7 @@ derived forms), but provides enough to allow context-free grammars to be
 displayed in a way that causes uses of a symbol to be rendered as hyperlinks to
 the definition of the symbol.  There is this directive:
 
-.. rst:directive:: .. productionlist:: [name]
+.. rst:directive:: .. productionlist:: [productionGroup]
 
    This directive is used to enclose a group of productions.  Each production
    is given on a single line and consists of a name, separated by a colon from
@@ -1027,16 +1166,24 @@ the definition of the symbol.  There is this directive:
    continuation line must begin with a colon placed at the same column as in
    the first line.
 
-   The argument to :rst:dir:`productionlist` serves to distinguish different
-   sets of production lists that belong to different grammars.
+   The *productionGroup* argument to :rst:dir:`productionlist` serves to
+   distinguish different sets of production lists that belong to different
+   grammars.  Multiple production lists with the same *productionGroup* thus
+   define rules in the same scope.
 
    Blank lines are not allowed within ``productionlist`` directive arguments.
 
    The definition can contain token names which are marked as interpreted text
-   (e.g. ``sum ::= `integer` "+" `integer```) -- this generates
+   (e.g. "``sum ::= `integer` "+" `integer```") -- this generates
    cross-references to the productions of these tokens.  Outside of the
    production list, you can reference to token productions using
    :rst:role:`token`.
+   However, if you have given a *productionGroup* argument you must prefix the
+   token name in the cross-reference with the group name and a colon,
+   e.g., "``myGroup:sum``" instead of just "``sum``".
+   If the group should not be shown in the title of the link either
+   an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
+   or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
 
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.

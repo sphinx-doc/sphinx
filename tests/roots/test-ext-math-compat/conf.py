@@ -1,20 +1,18 @@
-# -*- coding: utf-8 -*-
-
+from docutils import nodes
 from docutils.parsers.rst import Directive
 
-from sphinx.ext.mathbase import math, displaymath
-
-master_doc = 'index'
 extensions = ['sphinx.ext.mathjax']
 
 
 def my_math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
-    return [math(latex='E = mc^2')], []
+    text = 'E = mc^2'
+    return [nodes.math(text, text)], []
 
 
 class MyMathDirective(Directive):
     def run(self):
-        return [displaymath(latex='E = mc^2')]
+        text = 'E = mc^2'
+        return [nodes.math_block(text, text)]
 
 
 def setup(app):

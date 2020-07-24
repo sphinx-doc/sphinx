@@ -39,6 +39,11 @@ div.document {
     -webkit-box-shadow: 2px 2px 5px #000;
 }
 
+div.documentwrapper {
+    float: left;
+    width: 100%;
+}
+
 div.bodywrapper {
     margin: 0 0 0 240px;
     border-left: 1px solid #ccc;
@@ -51,8 +56,12 @@ div.body {
 
 {%- if theme_rightsidebar|tobool %}
 div.bodywrapper {
-    margin: 0 240px 0 0;
+    margin: 0 calc({{ theme_sidebarwidth|todim }} + 30px) 0 0;
     border-right: 1px solid #ccc;
+}
+{%- else %}
+div.bodywrapper {
+    margin: 0 0 0 calc({{ theme_sidebarwidth|todim }} + 30px);
 }
 {%- endif %}
 
@@ -101,9 +110,8 @@ div.sphinxsidebarwrapper {
 }
 
 div.sphinxsidebar {
-    margin: 0;
     padding: 0.5em 12px 12px 12px;
-    width: 210px;
+    width: {{ theme_sidebarwidth|todim }};
     {%- if theme_rightsidebar|tobool %}
     float: right;
     {%- endif %}
@@ -408,6 +416,15 @@ p.versionchanged span.versionmodified {
     margin-right: 0.2em;
     padding: 0.1em;
     background-color: #DCE6A0;
+}
+
+dl.field-list > dt {
+    color: white;
+    background-color: #82A0BE;
+}
+
+dl.field-list > dd {
+    background-color: #f7f7f7;
 }
 
 /* -- table styles ---------------------------------------------------------- */

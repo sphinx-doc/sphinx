@@ -1,22 +1,19 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.search.en
     ~~~~~~~~~~~~~~~~
 
     English search language: includes the JS porter stemmer.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from typing import Dict
 
 from sphinx.search import SearchLanguage
 from sphinx.util.stemmer import get_stemmer
 
-if False:
-    # For type annotation
-    from typing import Dict  # NOQA
-
-english_stopwords = set(u"""
+english_stopwords = set("""
 a  and  are  as  at
 be  but  by
 for
@@ -221,10 +218,8 @@ class SearchEnglish(SearchLanguage):
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
 
-    def init(self, options):
-        # type: (Dict) -> None
+    def init(self, options: Dict) -> None:
         self.stemmer = get_stemmer()
 
-    def stem(self, word):
-        # type: (unicode) -> unicode
+    def stem(self, word: str) -> str:
         return self.stemmer.stem(word.lower())

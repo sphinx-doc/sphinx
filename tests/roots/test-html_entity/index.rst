@@ -7,7 +7,7 @@ Empty cell
 ----------
 
 .. list-table::
-   :header-rows: 1
+
    - * un
      *
      * trois

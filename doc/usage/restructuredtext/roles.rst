@@ -62,7 +62,7 @@ Cross-referencing anything
      by :rst:role:`doc`, :rst:role:`ref` or :rst:role:`option`.
 
      Custom objects added to the standard domain by extensions (see
-     :meth:`Sphinx.add_object_type`) are also searched.
+     :meth:`.Sphinx.add_object_type`) are also searched.
 
    * Then, it looks for objects (targets) in all loaded domains.  It is up to
      the domains how specific a match must be.  For example, in the Python
@@ -189,8 +189,8 @@ Referencing downloadable files
 
    When you use this role, the referenced file is automatically marked for
    inclusion in the output when building (obviously, for HTML output only).
-   All downloadable files are put into the ``_downloads`` subdirectory of the
-   output directory; duplicate filenames are handled.
+   All downloadable files are put into a ``_downloads/<unique hash>/``
+   subdirectory of the output directory; duplicate filenames are handled.
 
    An example::
 
@@ -275,6 +275,20 @@ The following role creates a cross-reference to a term in a
 
    If you use a term that's not explained in a glossary, you'll get a warning
    during build.
+
+
+Math
+----
+
+.. rst:role:: math
+
+   Role for inline math.  Use like this::
+
+      Since Pythagoras, we know that :math:`a^2 + b^2 = c^2`.
+
+.. rst:role:: eq
+
+   Same as :rst:role:`math:numref`.
 
 
 Other semantic markup

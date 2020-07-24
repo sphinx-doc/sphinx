@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.application
     ~~~~~~~~~~~~~~~~~~
@@ -7,80 +6,81 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
+import pickle
+import platform
 import sys
 import warnings
 from collections import deque
-from inspect import isclass
+from io import StringIO
 from os import path
+from typing import Any, Callable, Dict, IO, List, Tuple, Union
 
-from docutils.parsers.rst import Directive, directives, roles
-from six import itervalues
-from six.moves import cPickle as pickle
-from six.moves import cStringIO
+from docutils import nodes
+from docutils.nodes import Element, TextElement
+from docutils.parsers.rst import Directive, roles
+from docutils.transforms import Transform
+from pygments.lexer import Lexer
 
 import sphinx
 from sphinx import package_dir, locale
-from sphinx.config import Config, check_unicode
-from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
-from sphinx.deprecation import (
-    RemovedInSphinx20Warning, RemovedInSphinx30Warning, RemovedInSphinx40Warning
-)
+from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
+from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
+from sphinx.extension import Extension
+from sphinx.highlighting import lexer_classes, lexers
 from sphinx.locale import __
+from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
+from sphinx.roles import XRefRole
+from sphinx.theming import Theme
 from sphinx.util import docutils
-from sphinx.util import import_object
 from sphinx.util import logging
-from sphinx.util import pycompat  # noqa: F401
+from sphinx.util import progress_message
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.docutils import directive_helper
-from sphinx.util.i18n import find_catalog_source_files
+from sphinx.util.i18n import CatalogRepository
+from sphinx.util.logging import prefixed_warnings
 from sphinx.util.osutil import abspath, ensuredir, relpath
 from sphinx.util.tags import Tags
+from sphinx.util.typing import RoleFunction, TitleGetter
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
-    from docutils import nodes  # NOQA
-    from docutils.parsers import Parser  # NOQA
-    from docutils.transforms import Transform  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.domains import Domain, Index  # NOQA
-    from sphinx.environment.collectors import EnvironmentCollector  # NOQA
-    from sphinx.extension import Extension  # NOQA
-    from sphinx.roles import XRefRole  # NOQA
-    from sphinx.theming import Theme  # NOQA
-    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
+    from docutils.nodes import Node  # NOQA
+    from typing import Type  # for python3.5.1
+    from sphinx.builders import Builder
+
 
 builtin_extensions = (
-    'sphinx.builders.applehelp',
+    'sphinx.addnodes',
     'sphinx.builders.changes',
     'sphinx.builders.epub3',
-    'sphinx.builders.devhelp',
+    'sphinx.builders.dirhtml',
     'sphinx.builders.dummy',
     'sphinx.builders.gettext',
     'sphinx.builders.html',
-    'sphinx.builders.htmlhelp',
     'sphinx.builders.latex',
     'sphinx.builders.linkcheck',
     'sphinx.builders.manpage',
-    'sphinx.builders.qthelp',
+    'sphinx.builders.singlehtml',
     'sphinx.builders.texinfo',
     'sphinx.builders.text',
-    'sphinx.builders.websupport',
     'sphinx.builders.xml',
     'sphinx.config',
     'sphinx.domains.c',
+    'sphinx.domains.changeset',
+    'sphinx.domains.citation',
     'sphinx.domains.cpp',
+    'sphinx.domains.index',
     'sphinx.domains.javascript',
     'sphinx.domains.math',
     'sphinx.domains.python',
@@ -91,32 +91,41 @@ builtin_extensions = (
     'sphinx.directives.other',
     'sphinx.directives.patches',
     'sphinx.extension',
-    'sphinx.io',
     'sphinx.parsers',
     'sphinx.registry',
     'sphinx.roles',
+    'sphinx.transforms',
+    'sphinx.transforms.compact_bullet_list',
+    'sphinx.transforms.i18n',
+    'sphinx.transforms.references',
     'sphinx.transforms.post_transforms',
+    'sphinx.transforms.post_transforms.code',
     'sphinx.transforms.post_transforms.images',
-    'sphinx.transforms.post_transforms.compat',
     'sphinx.util.compat',
+    'sphinx.versioning',
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',
     'sphinx.environment.collectors.asset',
     'sphinx.environment.collectors.metadata',
     'sphinx.environment.collectors.title',
     'sphinx.environment.collectors.toctree',
-    'sphinx.environment.collectors.indexentries',
+    # 1st party extensions
+    'sphinxcontrib.applehelp',
+    'sphinxcontrib.devhelp',
+    'sphinxcontrib.htmlhelp',
+    'sphinxcontrib.serializinghtml',
+    'sphinxcontrib.qthelp',
     # Strictly, alabaster theme is not a builtin extension,
     # but it is loaded automatically to use it as default theme.
     'alabaster',
-)  # type: Tuple[unicode, ...]
+)
 
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
 logger = logging.getLogger(__name__)
 
 
-class Sphinx(object):
+class Sphinx:
     """The main application class and extensibility interface.
 
     :ivar srcdir: Directory containing source.
@@ -125,24 +134,24 @@ class Sphinx(object):
     :ivar outdir: Directory for storing build documents.
     """
 
-    def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
-                 confoverrides=None, status=sys.stdout, warning=sys.stderr,
-                 freshenv=False, warningiserror=False, tags=None, verbosity=0,
-                 parallel=0):
-        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
+    def __init__(self, srcdir: str, confdir: str, outdir: str, doctreedir: str,
+                 buildername: str, confoverrides: Dict = None,
+                 status: IO = sys.stdout, warning: IO = sys.stderr,
+                 freshenv: bool = False, warningiserror: bool = False, tags: List[str] = None,
+                 verbosity: int = 0, parallel: int = 0, keep_going: bool = False) -> None:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
-        self.extensions = {}                    # type: Dict[unicode, Extension]
-        self._setting_up_extension = ['?']      # type: List[unicode]
+        self.extensions = {}                    # type: Dict[str, Extension]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
+        self.project = None                     # type: Project
         self.registry = SphinxComponentRegistry()
-        self.html_themes = {}                   # type: Dict[unicode, unicode]
+        self.html_themes = {}                   # type: Dict[str, str]
 
         # validate provided directories
-        self.srcdir = abspath(srcdir)           # type: unicode
-        self.outdir = abspath(outdir)           # type: unicode
-        self.doctreedir = abspath(doctreedir)   # type: unicode
+        self.srcdir = abspath(srcdir)
+        self.outdir = abspath(outdir)
+        self.doctreedir = abspath(doctreedir)
         self.confdir = confdir
         if self.confdir:  # confdir is optional
             self.confdir = abspath(self.confdir)
@@ -154,6 +163,10 @@ class Sphinx(object):
             raise ApplicationError(__('Cannot find source directory (%s)') %
                                    self.srcdir)
 
+        if path.exists(self.outdir) and not path.isdir(self.outdir):
+            raise ApplicationError(__('Output directory (%s) is not a directory') %
+                                   self.outdir)
+
         if self.srcdir == self.outdir:
             raise ApplicationError(__('Source directory and destination '
                                       'directory cannot be identical'))
@@ -161,21 +174,25 @@ class Sphinx(object):
         self.parallel = parallel
 
         if status is None:
-            self._status = cStringIO()      # type: IO
+            self._status = StringIO()      # type: IO
             self.quiet = True
         else:
             self._status = status
             self.quiet = False
 
         if warning is None:
-            self._warning = cStringIO()     # type: IO
+            self._warning = StringIO()     # type: IO
         else:
             self._warning = warning
         self._warncount = 0
-        self.warningiserror = warningiserror
+        self.keep_going = warningiserror and keep_going
+        if self.keep_going:
+            self.warningiserror = False
+        else:
+            self.warningiserror = warningiserror
         logging.setup(self, self._status, self._warning)
 
-        self.events = EventManager()
+        self.events = EventManager(self)
 
         # keep last few messages for traceback
         # This will be filled by sphinx.util.logging.LastMessagesWriter
@@ -183,6 +200,12 @@ class Sphinx(object):
 
         # say hello to the world
         logger.info(bold(__('Running Sphinx v%s') % sphinx.__display_version__))
+
+        # notice for parallel build on macOS and py38+
+        if sys.version_info > (3, 8) and platform.system() == 'Darwin' and parallel > 1:
+            logger.info(bold(__("For security reason, parallel mode is disabled on macOS and "
+                                "python3.8 and above. For more details, please read "
+                                "https://github.com/sphinx-doc/sphinx/issues/6803")))
 
         # status code for command-line application
         self.statuscode = 0
@@ -193,7 +216,6 @@ class Sphinx(object):
             self.config = Config({}, confoverrides or {})
         else:
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
-            check_unicode(self.config)
 
         # initialize some limited config variables before initialize i18n and loading
         # extensions
@@ -225,30 +247,28 @@ class Sphinx(object):
         self.preload_builder(buildername)
 
         if not path.isdir(outdir):
-            logger.info(__('making output directory...'))
-            ensuredir(outdir)
+            with progress_message(__('making output directory')):
+                ensuredir(outdir)
 
         # the config file itself can be an extension
         if self.config.setup:
-            self._setting_up_extension = ['conf.py']
-            if callable(self.config.setup):
-                self.config.setup(self)
-            else:
-                raise ConfigError(
-                    __("'setup' as currently defined in conf.py isn't a Python callable. "
-                       "Please modify its definition to make it a callable function. This is "
-                       "needed for conf.py to behave as a Sphinx extension.")
-                )
+            prefix = __('while setting up extension %s:') % "conf.py"
+            with prefixed_warnings(prefix):
+                if callable(self.config.setup):
+                    self.config.setup(self)
+                else:
+                    raise ConfigError(
+                        __("'setup' as currently defined in conf.py isn't a Python callable. "
+                           "Please modify its definition to make it a callable function. "
+                           "This is needed for conf.py to behave as a Sphinx extension.")
+                    )
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
-        self.emit('config-inited', self.config)
+        self.events.emit('config-inited', self.config)
 
-        # check primary_domain if requested
-        primary_domain = self.config.primary_domain
-        if primary_domain and not self.registry.has_domain(primary_domain):
-            logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
-
+        # create the project
+        self.project = Project(self.srcdir, self.config.source_suffix)
         # create the builder
         self.builder = self.create_builder(buildername)
         # set up the build environment
@@ -256,34 +276,32 @@ class Sphinx(object):
         # set up the builder
         self._init_builder()
 
-    def _init_i18n(self):
-        # type: () -> None
+    def _init_i18n(self) -> None:
         """Load translated strings from the configured localedirs if enabled in
         the configuration.
         """
-        if self.config.language is not None:
+        if self.config.language is None:
+            self.translator, has_translation = locale.init([], None)
+        else:
             logger.info(bold(__('loading translations [%s]... ') % self.config.language),
                         nonl=True)
-            user_locale_dirs = [
-                path.join(self.srcdir, x) for x in self.config.locale_dirs]
+
             # compile mo files if sphinx.po file in user locale directories are updated
-            for catinfo in find_catalog_source_files(
-                    user_locale_dirs, self.config.language, domains=['sphinx'],
-                    charset=self.config.source_encoding):
-                catinfo.write_mo(self.config.language)
-            locale_dirs = [None, path.join(package_dir, 'locale')] + user_locale_dirs  # type: ignore  # NOQA
-        else:
-            locale_dirs = []
-        self.translator, has_translation = locale.init(locale_dirs, self.config.language)  # type: ignore  # NOQA
-        if self.config.language is not None:
+            repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                     self.config.language, self.config.source_encoding)
+            for catalog in repo.catalogs:
+                if catalog.domain == 'sphinx' and catalog.is_outdated():
+                    catalog.write_mo(self.config.language)
+
+            locale_dirs = [None, path.join(package_dir, 'locale')] + list(repo.locale_dirs)
+            self.translator, has_translation = locale.init(locale_dirs, self.config.language)
             if has_translation or self.config.language == 'en':
                 # "en" never needs to be translated
                 logger.info(__('done'))
             else:
                 logger.info(__('not available for built-in messages'))
 
-    def _init_env(self, freshenv):
-        # type: (bool) -> None
+    def _init_env(self, freshenv: bool) -> None:
         filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
         if freshenv or not os.path.exists(filename):
             self.env = BuildEnvironment()
@@ -291,37 +309,32 @@ class Sphinx(object):
             self.env.find_files(self.config, self.builder)
         else:
             try:
-                logger.info(bold(__('loading pickled environment... ')), nonl=True)
-                with open(filename, 'rb') as f:
-                    self.env = pickle.load(f)
-                    self.env.setup(self)
-                logger.info(__('done'))
+                with progress_message(__('loading pickled environment')):
+                    with open(filename, 'rb') as f:
+                        self.env = pickle.load(f)
+                        self.env.setup(self)
             except Exception as err:
                 logger.info(__('failed: %s'), err)
                 self._init_env(freshenv=True)
 
-    def preload_builder(self, name):
-        # type: (unicode) -> None
+    def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
 
-    def create_builder(self, name):
-        # type: (unicode) -> Builder
+    def create_builder(self, name: str) -> "Builder":
         if name is None:
             logger.info(__('No builder selected, using default: html'))
             name = 'html'
 
         return self.registry.create_builder(self, name)
 
-    def _init_builder(self):
-        # type: () -> None
+    def _init_builder(self) -> None:
         self.builder.set_environment(self.env)
         self.builder.init()
-        self.emit('builder-inited')
+        self.events.emit('builder-inited')
 
     # ---- main "build" method -------------------------------------------------
 
-    def build(self, force_all=False, filenames=None):
-        # type: (bool, List[unicode]) -> None
+    def build(self, force_all: bool = False, filenames: List[str] = None) -> None:
         self.phase = BuildPhase.READING
         try:
             if force_all:
@@ -334,12 +347,24 @@ class Sphinx(object):
                 self.builder.compile_update_catalogs()
                 self.builder.build_update()
 
-            status = (self.statuscode == 0 and
-                      __('succeeded') or __('finished with problems'))
+            if self._warncount and self.keep_going:
+                self.statuscode = 1
+
+            status = (__('succeeded') if self.statuscode == 0
+                      else __('finished with problems'))
             if self._warncount:
-                logger.info(bold(__('build %s, %s warning.',
-                                    'build %s, %s warnings.', self._warncount) %
-                                 (status, self._warncount)))
+                if self.warningiserror:
+                    if self._warncount == 1:
+                        msg = __('build %s, %s warning (with warnings treated as errors).')
+                    else:
+                        msg = __('build %s, %s warnings (with warnings treated as errors).')
+                else:
+                    if self._warncount == 1:
+                        msg = __('build %s, %s warning.')
+                    else:
+                        msg = __('build %s, %s warnings.')
+
+                logger.info(bold(msg % (status, self._warncount)))
             else:
                 logger.info(bold(__('build %s.') % status))
 
@@ -354,82 +379,15 @@ class Sphinx(object):
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
             if path.isfile(envfile):
                 os.unlink(envfile)
-            self.emit('build-finished', err)
+            self.events.emit('build-finished', err)
             raise
         else:
-            self.emit('build-finished', None)
+            self.events.emit('build-finished', None)
         self.builder.cleanup()
-
-    # ---- logging handling ----------------------------------------------------
-    def warn(self, message, location=None, type=None, subtype=None):
-        # type: (unicode, unicode, unicode, unicode) -> None
-        """Emit a warning.
-
-        If *location* is given, it should either be a tuple of (*docname*,
-        *lineno*) or a string describing the location of the warning as well as
-        possible.
-
-        *type* and *subtype* are used to suppress warnings with
-        :confval:`suppress_warnings`.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.warning() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.warning(message, type=type, subtype=subtype, location=location)
-
-    def info(self, message='', nonl=False):
-        # type: (unicode, bool) -> None
-        """Emit an informational message.
-
-        If *nonl* is true, don't emit a newline at the end (which implies that
-        more info output will follow soon.)
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.info() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.info(message, nonl=nonl)
-
-    def verbose(self, message, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        """Emit a verbose informational message.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.verbose() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.verbose(message, *args, **kwargs)
-
-    def debug(self, message, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        """Emit a debug-level informational message.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.debug() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.debug(message, *args, **kwargs)
-
-    def debug2(self, message, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        """Emit a lowlevel debug-level informational message.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.debug2() is now deprecated. Use debug() instead.',
-                      RemovedInSphinx20Warning)
-        logger.debug(message, *args, **kwargs)
 
     # ---- general extensibility interface -------------------------------------
 
-    def setup_extension(self, extname):
-        # type: (unicode) -> None
+    def setup_extension(self, extname: str) -> None:
         """Import and setup a Sphinx extension module.
 
         Load the extension given by the module *name*.  Use this if your
@@ -439,8 +397,7 @@ class Sphinx(object):
         logger.debug('[app] setting up extension: %r', extname)
         self.registry.load_extension(self, extname)
 
-    def require_sphinx(self, version):
-        # type: (unicode) -> None
+    def require_sphinx(self, version: str) -> None:
         """Check the Sphinx version if requested.
 
         Compare *version* (which must be a ``major.minor`` version string, e.g.
@@ -452,68 +409,63 @@ class Sphinx(object):
         if version > sphinx.__display_version__[:3]:
             raise VersionRequirementError(version)
 
-    def import_object(self, objname, source=None):
-        # type: (str, unicode) -> Any
-        """Import an object from a ``module.name`` string.
-
-        .. deprecated:: 1.8
-           Use ``sphinx.util.import_object()`` instead.
-        """
-        warnings.warn('app.import_object() is deprecated. '
-                      'Use sphinx.util.add_object_type() instead.',
-                      RemovedInSphinx30Warning)
-        return import_object(objname, source=None)
-
     # event interface
-    def connect(self, event, callback):
-        # type: (unicode, Callable) -> int
+    def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
         """Register *callback* to be called when *event* is emitted.
 
         For details on available core events and the arguments of callback
         functions, please see :ref:`events`.
 
+        Registered callbacks will be invoked on event in the order of *priority* and
+        registration.  The priority is ascending order.
+
         The method returns a "listener ID" that can be used as an argument to
         :meth:`disconnect`.
+
+        .. versionchanged:: 3.0
+
+           Support *priority*
         """
-        listener_id = self.events.connect(event, callback)
-        logger.debug('[app] connecting event %r: %r [id=%s]', event, callback, listener_id)
+        listener_id = self.events.connect(event, callback, priority)
+        logger.debug('[app] connecting event %r (%d): %r [id=%s]',
+                     event, priority, callback, listener_id)
         return listener_id
 
-    def disconnect(self, listener_id):
-        # type: (int) -> None
+    def disconnect(self, listener_id: int) -> None:
         """Unregister callback by *listener_id*."""
         logger.debug('[app] disconnecting event: [id=%s]', listener_id)
         self.events.disconnect(listener_id)
 
-    def emit(self, event, *args):
-        # type: (unicode, Any) -> List
+    def emit(self, event: str, *args: Any,
+             allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> List:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
         Sphinx events in extensions!
-        """
-        try:
-            logger.debug('[app] emitting event: %r%s', event, repr(args)[:100])
-        except Exception:
-            # not every object likes to be repr()'d (think
-            # random stuff coming via autodoc)
-            pass
-        return self.events.emit(event, self, *args)
 
-    def emit_firstresult(self, event, *args):
-        # type: (unicode, Any) -> Any
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
+        """
+        return self.events.emit(event, *args, allowed_exceptions=allowed_exceptions)
+
+    def emit_firstresult(self, event: str, *args: Any,
+                         allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> Any:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
 
         .. versionadded:: 0.5
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
         """
-        return self.events.emit_firstresult(event, self, *args)
+        return self.events.emit_firstresult(event, *args,
+                                            allowed_exceptions=allowed_exceptions)
 
     # registering addon parts
 
-    def add_builder(self, builder, override=False):
-        # type: (Type[Builder], bool) -> None
+    def add_builder(self, builder: "Type[Builder]", override: bool = False) -> None:
         """Register a new builder.
 
         *builder* must be a class that inherits from
@@ -525,8 +477,8 @@ class Sphinx(object):
         self.registry.add_builder(builder, override=override)
 
     # TODO(stephenfin): Describe 'types' parameter
-    def add_config_value(self, name, default, rebuild, types=()):
-        # type: (unicode, Any, Union[bool, unicode], Any) -> None
+    def add_config_value(self, name: str, default: Any, rebuild: Union[bool, str],
+                         types: Any = ()) -> None:
         """Register a configuration value.
 
         This is necessary for Sphinx to recognize new values and set default
@@ -553,13 +505,12 @@ class Sphinx(object):
            other values.
         """
         logger.debug('[app] adding config value: %r',
-                     (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
+                     (name, default, rebuild) + ((types,) if types else ()))
         if rebuild in (False, True):
-            rebuild = rebuild and 'env' or ''
+            rebuild = 'env' if rebuild else ''
         self.config.add(name, default, rebuild, types)
 
-    def add_event(self, name):
-        # type: (unicode) -> None
+    def add_event(self, name: str) -> None:
         """Register an event called *name*.
 
         This is needed to be able to emit it.
@@ -567,8 +518,8 @@ class Sphinx(object):
         logger.debug('[app] adding event: %r', name)
         self.events.add(name)
 
-    def set_translator(self, name, translator_class, override=False):
-        # type: (unicode, Type[nodes.NodeVisitor], bool) -> None
+    def set_translator(self, name: str, translator_class: "Type[nodes.NodeVisitor]",
+                       override: bool = False) -> None:
         """Register or override a Docutils translator class.
 
         This is used to register a custom output translator or to replace a
@@ -581,8 +532,8 @@ class Sphinx(object):
         """
         self.registry.add_translator(name, translator_class, override=override)
 
-    def add_node(self, node, override=False, **kwds):
-        # type: (nodes.Node, bool, Any) -> None
+    def add_node(self, node: "Type[Element]", override: bool = False,
+                 **kwargs: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class.
 
         This is necessary for Docutils internals.  It may also be used in the
@@ -612,17 +563,17 @@ class Sphinx(object):
         .. versionchanged:: 0.5
            Added the support for keyword arguments giving visit functions.
         """
-        logger.debug('[app] adding node: %r', (node, kwds))
+        logger.debug('[app] adding node: %r', (node, kwargs))
         if not override and docutils.is_node_registered(node):
-            logger.warning(__('while setting up extension %s: node class %r is '
-                              'already registered, its visitors will be overridden'),
-                           self._setting_up_extension, node.__name__,
-                           type='app', subtype='add_node')
+            logger.warning(__('node class %r is already registered, '
+                              'its visitors will be overridden'),
+                           node.__name__, type='app', subtype='add_node')
         docutils.register_node(node)
-        self.registry.add_translation_handlers(node, **kwds)
+        self.registry.add_translation_handlers(node, **kwargs)
 
-    def add_enumerable_node(self, node, figtype, title_getter=None, override=False, **kwds):
-        # type: (nodes.Node, unicode, TitleGetter, bool, Any) -> None
+    def add_enumerable_node(self, node: "Type[Element]", figtype: str,
+                            title_getter: TitleGetter = None, override: bool = False,
+                            **kwargs: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class as a numfig target.
 
         Sphinx numbers the node automatically. And then the users can refer it
@@ -642,43 +593,20 @@ class Sphinx(object):
         a title.
 
         Other keyword arguments are used for node visitor functions. See the
-        :meth:`Sphinx.add_node` for details.
+        :meth:`.Sphinx.add_node` for details.
 
         .. versionadded:: 1.4
         """
         self.registry.add_enumerable_node(node, figtype, title_getter, override=override)
-        self.add_node(node, override=override, **kwds)
+        self.add_node(node, override=override, **kwargs)
 
-    @property
-    def enumerable_nodes(self):
-        # type: () -> Dict[nodes.Node, Tuple[unicode, TitleGetter]]
-        warnings.warn('app.enumerable_nodes() is deprecated. '
-                      'Use app.get_domain("std").enumerable_nodes instead.',
-                      RemovedInSphinx30Warning)
-        return self.registry.enumerable_nodes
-
-    def add_directive(self, name, obj, content=None, arguments=None, override=False, **options):  # NOQA
-        # type: (unicode, Any, bool, Tuple[int, int, bool], bool, Any) -> None
+    def add_directive(self, name: str, cls: "Type[Directive]", override: bool = False) -> None:
         """Register a Docutils directive.
 
-        *name* must be the prospective directive name.  There are two possible
-        ways to write a directive:
-
-        - In the docutils 0.4 style, *obj* is the directive function.
-          *content*, *arguments* and *options* are set as attributes on the
-          function and determine whether the directive has content, arguments
-          and options, respectively.  **This style is deprecated.**
-
-        - In the docutils 0.5 style, *obj* is the directive class.
-          It must already have attributes named *has_content*,
-          *required_arguments*, *optional_arguments*,
-          *final_argument_whitespace* and *option_spec* that correspond to the
-          options for the function way.  See `the Docutils docs
-          <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_
-          for details.
-
-        The directive class must inherit from the class
-        ``docutils.parsers.rst.Directive``.
+        *name* must be the prospective directive name.  *cls* is a directive
+        class which inherits ``docutils.parsers.rst.Directive``.  For more
+        details, see `the Docutils docs
+        <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_ .
 
         For example, the (already existing) :rst:dir:`literalinclude` directive
         would be added like this:
@@ -709,22 +637,14 @@ class Sphinx(object):
         .. versionchanged:: 1.8
            Add *override* keyword.
         """
-        logger.debug('[app] adding directive: %r',
-                     (name, obj, content, arguments, options))
-        if name in directives._directives and not override:
-            logger.warning(__('while setting up extension %s: directive %r is '
-                              'already registered, it will be overridden'),
-                           self._setting_up_extension[-1], name,
-                           type='app', subtype='add_directive')
+        logger.debug('[app] adding directive: %r', (name, cls))
+        if not override and docutils.is_directive_registered(name):
+            logger.warning(__('directive %r is already registered, it will be overridden'),
+                           name, type='app', subtype='add_directive')
 
-        if not isclass(obj) or not issubclass(obj, Directive):
-            directive = directive_helper(obj, content, arguments, **options)
-            directives.register_directive(name, directive)
-        else:
-            directives.register_directive(name, obj)
+        docutils.register_directive(name, cls)
 
-    def add_role(self, name, role, override=False):
-        # type: (unicode, Any, bool) -> None
+    def add_role(self, name: str, role: Any, override: bool = False) -> None:
         """Register a Docutils role.
 
         *name* must be the role name that occurs in the source, *role* the role
@@ -736,15 +656,12 @@ class Sphinx(object):
            Add *override* keyword.
         """
         logger.debug('[app] adding role: %r', (name, role))
-        if name in roles._roles and not override:
-            logger.warning(__('while setting up extension %s: role %r is '
-                              'already registered, it will be overridden'),
-                           self._setting_up_extension[-1], name,
-                           type='app', subtype='add_role')
-        roles.register_local_role(name, role)
+        if not override and docutils.is_role_registered(name):
+            logger.warning(__('role %r is already registered, it will be overridden'),
+                           name, type='app', subtype='add_role')
+        docutils.register_role(name, role)
 
-    def add_generic_role(self, name, nodeclass, override=False):
-        # type: (unicode, Any, bool) -> None
+    def add_generic_role(self, name: str, nodeclass: Any, override: bool = False) -> None:
         """Register a generic Docutils role.
 
         Register a Docutils role that does nothing but wrap its contents in the
@@ -757,16 +674,13 @@ class Sphinx(object):
         # Don't use ``roles.register_generic_role`` because it uses
         # ``register_canonical_role``.
         logger.debug('[app] adding generic role: %r', (name, nodeclass))
-        if name in roles._roles and not override:
-            logger.warning(__('while setting up extension %s: role %r is '
-                              'already registered, it will be overridden'),
-                           self._setting_up_extension[-1], name,
-                           type='app', subtype='add_generic_role')
+        if not override and docutils.is_role_registered(name):
+            logger.warning(__('role %r is already registered, it will be overridden'),
+                           name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
-        roles.register_local_role(name, role)
+        docutils.register_role(name, role)
 
-    def add_domain(self, domain, override=False):
-        # type: (Type[Domain], bool) -> None
+    def add_domain(self, domain: "Type[Domain]", override: bool = False) -> None:
         """Register a domain.
 
         Make the given *domain* (which must be a class; more precisely, a
@@ -778,26 +692,8 @@ class Sphinx(object):
         """
         self.registry.add_domain(domain, override=override)
 
-    def override_domain(self, domain):
-        # type: (Type[Domain]) -> None
-        """Override a registered domain.
-
-        Make the given *domain* class known to Sphinx, assuming that there is
-        already a domain with its ``.name``.  The new domain must be a subclass
-        of the existing one.
-
-        .. versionadded:: 1.0
-        .. deprecated:: 1.8
-           Integrated to :meth:`add_domain`.
-        """
-        warnings.warn('app.override_domain() is deprecated. '
-                      'Use app.add_domain() with override option instead.',
-                      RemovedInSphinx30Warning)
-        self.registry.add_domain(domain, override=True)
-
-    def add_directive_to_domain(self, domain, name, obj, has_content=None, argument_spec=None,
-                                override=False, **option_spec):
-        # type: (unicode, unicode, Any, bool, Any, bool, Any) -> None
+    def add_directive_to_domain(self, domain: str, name: str,
+                                cls: "Type[Directive]", override: bool = False) -> None:
         """Register a Docutils directive in a domain.
 
         Like :meth:`add_directive`, but the directive is added to the domain
@@ -807,12 +703,10 @@ class Sphinx(object):
         .. versionchanged:: 1.8
            Add *override* keyword.
         """
-        self.registry.add_directive_to_domain(domain, name, obj,
-                                              has_content, argument_spec, override=override,
-                                              **option_spec)
+        self.registry.add_directive_to_domain(domain, name, cls, override=override)
 
-    def add_role_to_domain(self, domain, name, role, override=False):
-        # type: (unicode, unicode, Union[RoleFunction, XRefRole], bool) -> None
+    def add_role_to_domain(self, domain: str, name: str, role: Union[RoleFunction, XRefRole],
+                           override: bool = False) -> None:
         """Register a Docutils role in a domain.
 
         Like :meth:`add_role`, but the role is added to the domain named
@@ -824,8 +718,8 @@ class Sphinx(object):
         """
         self.registry.add_role_to_domain(domain, name, role, override=override)
 
-    def add_index_to_domain(self, domain, index, override=False):
-        # type: (unicode, Type[Index], bool) -> None
+    def add_index_to_domain(self, domain: str, index: "Type[Index]", override: bool = False
+                            ) -> None:
         """Register a custom index for a domain.
 
         Add a custom *index* class to the domain named *domain*.  *index* must
@@ -837,10 +731,10 @@ class Sphinx(object):
         """
         self.registry.add_index_to_domain(domain, index)
 
-    def add_object_type(self, directivename, rolename, indextemplate='',
-                        parse_node=None, ref_nodeclass=None, objname='',
-                        doc_field_types=[], override=False):
-        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List, bool) -> None
+    def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
+                        parse_node: Callable = None, ref_nodeclass: "Type[TextElement]" = None,
+                        objname: str = '', doc_field_types: List = [], override: bool = False
+                        ) -> None:
         """Register a new object type.
 
         This method is a very convenient way to add a new :term:`object` type
@@ -850,8 +744,9 @@ class Sphinx(object):
           object.  It will automatically add index entries if *indextemplate*
           is nonempty; if given, it must contain exactly one instance of
           ``%s``.  See the example below for how the template will be
-          interpreted.  * Create a new role (called *rolename*) to
-          cross-reference to these object descriptions.
+          interpreted.
+        - Create a new role (called *rolename*) to cross-reference to these
+          object descriptions.
         - If you provide *parse_node*, it must be a function that takes a
           string and a docutils node, and it must populate the node with
           children parsed from the string.  It must then return the name of the
@@ -893,9 +788,6 @@ class Sphinx(object):
         For the role content, you have the same syntactical possibilities as
         for standard Sphinx roles (see :ref:`xref-syntax`).
 
-        This method is also available under the deprecated alias
-        :meth:`add_description_unit`.
-
         .. versionchanged:: 1.8
            Add *override* keyword.
         """
@@ -903,24 +795,9 @@ class Sphinx(object):
                                       ref_nodeclass, objname, doc_field_types,
                                       override=override)
 
-    def add_description_unit(self, directivename, rolename, indextemplate='',
-                             parse_node=None, ref_nodeclass=None, objname='',
-                             doc_field_types=[]):
-        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
-        """Deprecated alias for :meth:`add_object_type`.
-
-        .. deprecated:: 1.6
-           Use :meth:`add_object_type` instead.
-        """
-        warnings.warn('app.add_description_unit() is now deprecated. '
-                      'Use app.add_object_type() instead.',
-                      RemovedInSphinx20Warning)
-        self.add_object_type(directivename, rolename, indextemplate, parse_node,
-                             ref_nodeclass, objname, doc_field_types)
-
-    def add_crossref_type(self, directivename, rolename, indextemplate='',
-                          ref_nodeclass=None, objname='', override=False):
-        # type: (unicode, unicode, unicode, nodes.Node, unicode, bool) -> None
+    def add_crossref_type(self, directivename: str, rolename: str, indextemplate: str = '',
+                          ref_nodeclass: "Type[TextElement]" = None, objname: str = '',
+                          override: bool = False) -> None:
         """Register a new crossref object type.
 
         This method is very similar to :meth:`add_object_type` except that the
@@ -954,8 +831,7 @@ class Sphinx(object):
                                         indextemplate, ref_nodeclass, objname,
                                         override=override)
 
-    def add_transform(self, transform):
-        # type: (Type[Transform]) -> None
+    def add_transform(self, transform: "Type[Transform]") -> None:
         """Register a Docutils transform to be applied after parsing.
 
         Add the standard docutils :class:`Transform` subclass *transform* to
@@ -988,8 +864,7 @@ class Sphinx(object):
         """  # NOQA
         self.registry.add_transform(transform)
 
-    def add_post_transform(self, transform):
-        # type: (Type[Transform]) -> None
+    def add_post_transform(self, transform: "Type[Transform]") -> None:
         """Register a Docutils transform to be applied before writing.
 
         Add the standard docutils :class:`Transform` subclass *transform* to
@@ -998,30 +873,33 @@ class Sphinx(object):
         """
         self.registry.add_post_transform(transform)
 
-    def add_javascript(self, filename, **kwargs):
-        # type: (unicode, **unicode) -> None
+    def add_javascript(self, filename: str, **kwargs: str) -> None:
         """An alias of :meth:`add_js_file`."""
         warnings.warn('The app.add_javascript() is deprecated. '
                       'Please use app.add_js_file() instead.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         self.add_js_file(filename, **kwargs)
 
-    def add_js_file(self, filename, **kwargs):
-        # type: (unicode, **unicode) -> None
+    def add_js_file(self, filename: str, **kwargs: str) -> None:
         """Register a JavaScript file to include in the HTML output.
 
         Add *filename* to the list of JavaScript files that the default HTML
         template will include.  The filename must be relative to the HTML
-        static path , or a full URI with scheme.  The keyword arguments are
-        also accepted for attributes of ``<script>`` tag.
+        static path , or a full URI with scheme.  If the keyword argument
+        ``body`` is given, its value will be added between the
+        ``<script>`` tags. Extra keyword arguments are included as
+        attributes of the ``<script>`` tag.
 
         Example::
 
             app.add_js_file('example.js')
-            # => <scrtipt src="_static/example.js"></script>
+            # => <script src="_static/example.js"></script>
 
             app.add_js_file('example.js', async="async")
-            # => <scrtipt src="_static/example.js" async="async"></script>
+            # => <script src="_static/example.js" async="async"></script>
+
+            app.add_js_file(None, body="var myVariable = 'foo';")
+            # => <script>var myVariable = 'foo';</script>
 
         .. versionadded:: 0.5
 
@@ -1030,9 +908,10 @@ class Sphinx(object):
            And it allows keyword arguments as attributes of script tag.
         """
         self.registry.add_js_file(filename, **kwargs)
+        if hasattr(self.builder, 'add_js_file'):
+            self.builder.add_js_file(filename, **kwargs)  # type: ignore
 
-    def add_css_file(self, filename, **kwargs):
-        # type: (unicode, **unicode) -> None
+    def add_css_file(self, filename: str, **kwargs: str) -> None:
         """Register a stylesheet to include in the HTML output.
 
         Add *filename* to the list of CSS files that the default HTML template
@@ -1068,15 +947,17 @@ class Sphinx(object):
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, **kwargs)
+        if hasattr(self.builder, 'add_css_file'):
+            self.builder.add_css_file(filename, **kwargs)  # type: ignore
 
-    def add_stylesheet(self, filename, alternate=False, title=None):
-        # type: (unicode, bool, unicode) -> None
+    def add_stylesheet(self, filename: str, alternate: bool = False, title: str = None
+                       ) -> None:
         """An alias of :meth:`add_css_file`."""
         warnings.warn('The app.add_stylesheet() is deprecated. '
                       'Please use app.add_css_file() instead.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
-        attributes = {}  # type: Dict[unicode, unicode]
+        attributes = {}  # type: Dict[str, str]
         if alternate:
             attributes['rel'] = 'alternate stylesheet'
         else:
@@ -1087,13 +968,14 @@ class Sphinx(object):
 
         self.add_css_file(filename, **attributes)
 
-    def add_latex_package(self, packagename, options=None):
-        # type: (unicode, unicode) -> None
+    def add_latex_package(self, packagename: str, options: str = None,
+                          after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
 
         Add *packagename* to the list of packages that LaTeX source code will
         include.  If you provide *options*, it will be taken to `\usepackage`
-        declaration.
+        declaration.  If you set *after_hyperref* truthy, the package will be
+        loaded after ``hyperref`` package.
 
         .. code-block:: python
 
@@ -1103,26 +985,32 @@ class Sphinx(object):
            # => \usepackage[foo,bar]{mypackage}
 
         .. versionadded:: 1.3
-        """
-        self.registry.add_latex_package(packagename, options)
+        .. versionadded:: 3.1
 
-    def add_lexer(self, alias, lexer):
-        # type: (unicode, Any) -> None
+           *after_hyperref* option.
+        """
+        self.registry.add_latex_package(packagename, options, after_hyperref)
+
+    def add_lexer(self, alias: str, lexer: Union[Lexer, "Type[Lexer]"]) -> None:
         """Register a new lexer for source code.
 
-        Use *lexer*, which must be an instance of a Pygments lexer class, to
-        highlight code blocks with the given language *alias*.
+        Use *lexer* to highlight code blocks with the given language *alias*.
 
         .. versionadded:: 0.6
+        .. versionchanged:: 2.1
+           Take a lexer class as an argument.  An instance of lexers are
+           still supported until Sphinx-3.x.
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
-        from sphinx.highlighting import lexers
-        if lexers is None:
-            return
-        lexers[alias] = lexer
+        if isinstance(lexer, Lexer):
+            warnings.warn('app.add_lexer() API changed; '
+                          'Please give lexer class instead instance',
+                          RemovedInSphinx40Warning, stacklevel=2)
+            lexers[alias] = lexer
+        else:
+            lexer_classes[alias] = lexer
 
-    def add_autodocumenter(self, cls):
-        # type: (Any) -> None
+    def add_autodocumenter(self, cls: Any, override: bool = False) -> None:
         """Register a new documenter class for the autodoc extension.
 
         Add *cls* as a new documenter class for the :mod:`sphinx.ext.autodoc`
@@ -1134,14 +1022,16 @@ class Sphinx(object):
         .. todo:: Add real docs for Documenter and subclassing
 
         .. versionadded:: 0.6
+        .. versionchanged:: 2.2
+           Add *override* keyword.
         """
         logger.debug('[app] adding autodocumenter: %r', cls)
         from sphinx.ext.autodoc.directive import AutodocDirective
         self.registry.add_documenter(cls.objtype, cls)
-        self.add_directive('auto' + cls.objtype, AutodocDirective)
+        self.add_directive('auto' + cls.objtype, AutodocDirective, override=override)
 
-    def add_autodoc_attrgetter(self, typ, getter):
-        # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
+    def add_autodoc_attrgetter(self, typ: "Type", getter: Callable[[Any, str, Any], Any]
+                               ) -> None:
         """Register a new ``getattr``-like function for the autodoc extension.
 
         Add *getter*, which must be a function with an interface compatible to
@@ -1155,8 +1045,7 @@ class Sphinx(object):
         logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
         self.registry.add_autodoc_attrgetter(typ, getter)
 
-    def add_search_language(self, cls):
-        # type: (Any) -> None
+    def add_search_language(self, cls: Any) -> None:
         """Register a new language for the HTML search index.
 
         Add *cls*, which must be a subclass of
@@ -1172,8 +1061,7 @@ class Sphinx(object):
         assert issubclass(cls, SearchLanguage)
         languages[cls.lang] = cls
 
-    def add_source_suffix(self, suffix, filetype, override=False):
-        # type: (unicode, unicode, bool) -> None
+    def add_source_suffix(self, suffix: str, filetype: str, override: bool = False) -> None:
         """Register a suffix of source files.
 
         Same as :confval:`source_suffix`.  The users can override this
@@ -1183,8 +1071,7 @@ class Sphinx(object):
         """
         self.registry.add_source_suffix(suffix, filetype, override=override)
 
-    def add_source_parser(self, *args, **kwargs):
-        # type: (Any, Any) -> None
+    def add_source_parser(self, *args: Any, **kwargs: Any) -> None:
         """Register a parser class.
 
         .. versionadded:: 1.4
@@ -1196,8 +1083,7 @@ class Sphinx(object):
         """
         self.registry.add_source_parser(*args, **kwargs)
 
-    def add_env_collector(self, collector):
-        # type: (Type[EnvironmentCollector]) -> None
+    def add_env_collector(self, collector: "Type[EnvironmentCollector]") -> None:
         """Register an environment collector class.
 
         Refer to :ref:`collector-api`.
@@ -1207,8 +1093,7 @@ class Sphinx(object):
         logger.debug('[app] adding environment collector: %r', collector)
         collector().enable(self)
 
-    def add_html_theme(self, name, theme_path):
-        # type: (unicode, unicode) -> None
+    def add_html_theme(self, name: str, theme_path: str) -> None:
         """Register a HTML Theme.
 
         The *name* is a name of theme, and *path* is a full path to the theme
@@ -1219,8 +1104,23 @@ class Sphinx(object):
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.html_themes[name] = theme_path
 
-    def add_message_catalog(self, catalog, locale_dir):
-        # type: (unicode, unicode) -> None
+    def add_html_math_renderer(self, name: str,
+                               inline_renderers: Tuple[Callable, Callable] = None,
+                               block_renderers: Tuple[Callable, Callable] = None) -> None:
+        """Register a math renderer for HTML.
+
+        The *name* is a name of math renderer.  Both *inline_renderers* and
+        *block_renderers* are used as visitor functions for the HTML writer:
+        the former for inline math node (``nodes.math``), the latter for
+        block math node (``nodes.math_block``).  Regarding visitor functions,
+        see :meth:`add_node` for details.
+
+        .. versionadded:: 1.8
+
+        """
+        self.registry.add_html_math_renderer(name, inline_renderers, block_renderers)
+
+    def add_message_catalog(self, catalog: str, locale_dir: str) -> None:
         """Register a message catalog.
 
         The *catalog* is a name of catalog, and *locale_dir* is a base path
@@ -1233,47 +1133,49 @@ class Sphinx(object):
         locale.init_console(locale_dir, catalog)
 
     # ---- other methods -------------------------------------------------
-    def is_parallel_allowed(self, typ):
-        # type: (unicode) -> bool
+    def is_parallel_allowed(self, typ: str) -> bool:
         """Check parallel processing is allowed or not.
 
         ``typ`` is a type of processing; ``'read'`` or ``'write'``.
         """
         if typ == 'read':
             attrname = 'parallel_read_safe'
-            message = __("the %s extension does not declare if it is safe "
-                         "for parallel reading, assuming it isn't - please "
-                         "ask the extension author to check and make it "
-                         "explicit")
+            message_not_declared = __("the %s extension does not declare if it "
+                                      "is safe for parallel reading, assuming "
+                                      "it isn't - please ask the extension author "
+                                      "to check and make it explicit")
+            message_not_safe = __("the %s extension is not safe for parallel reading")
         elif typ == 'write':
             attrname = 'parallel_write_safe'
-            message = __("the %s extension does not declare if it is safe "
-                         "for parallel writing, assuming it isn't - please "
-                         "ask the extension author to check and make it "
-                         "explicit")
+            message_not_declared = __("the %s extension does not declare if it "
+                                      "is safe for parallel writing, assuming "
+                                      "it isn't - please ask the extension author "
+                                      "to check and make it explicit")
+            message_not_safe = __("the %s extension is not safe for parallel writing")
         else:
             raise ValueError('parallel type %s is not supported' % typ)
 
-        for ext in itervalues(self.extensions):
+        for ext in self.extensions.values():
             allowed = getattr(ext, attrname, None)
             if allowed is None:
-                logger.warning(message, ext.name)
+                logger.warning(message_not_declared, ext.name)
                 logger.warning(__('doing serial %s'), typ)
                 return False
             elif not allowed:
+                logger.warning(message_not_safe, ext.name)
+                logger.warning(__('doing serial %s'), typ)
                 return False
 
         return True
 
 
-class TemplateBridge(object):
+class TemplateBridge:
     """
     This class defines the interface for a "template bridge", that is, a class
     that renders templates given a template name and a context.
     """
 
-    def init(self, builder, theme=None, dirs=None):
-        # type: (Builder, Theme, List[unicode]) -> None
+    def init(self, builder: "Builder", theme: Theme = None, dirs: List[str] = None) -> None:
         """Called by the builder to initialize the template system.
 
         *builder* is the builder object; you'll probably want to look at the
@@ -1284,23 +1186,20 @@ class TemplateBridge(object):
         """
         raise NotImplementedError('must be implemented in subclasses')
 
-    def newest_template_mtime(self):
-        # type: () -> float
+    def newest_template_mtime(self) -> float:
         """Called by the builder to determine if output files are outdated
         because of template changes.  Return the mtime of the newest template
         file that was changed.  The default implementation returns ``0``.
         """
         return 0
 
-    def render(self, template, context):
-        # type: (unicode, Dict) -> None
+    def render(self, template: str, context: Dict) -> None:
         """Called by the builder to render a template given as a filename with
         a specified context (a Python dictionary).
         """
         raise NotImplementedError('must be implemented in subclasses')
 
-    def render_string(self, template, context):
-        # type: (unicode, Dict) -> unicode
+    def render_string(self, template: str, context: Dict) -> str:
         """Called by the builder to render a template given as a string with a
         specified context (a Python dictionary).
         """

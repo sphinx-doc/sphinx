@@ -1,30 +1,27 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.matching
     ~~~~~~~~~~~~~~~~~~~~
 
     Pattern-matching utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+from typing import Callable, Dict, Iterable, List, Match, Pattern
 
-if False:
-    # For type annotation
-    from typing import Callable, Dict, List, Match, Pattern  # NOQA
+from sphinx.util.osutil import canon_path
 
 
-def _translate_pattern(pat):
-    # type: (unicode) -> unicode
+def _translate_pattern(pat: str) -> str:
     """Translate a shell-style glob pattern to a regular expression.
 
     Adapted from the fnmatch module, but enhanced so that single stars don't
     match slashes.
     """
     i, n = 0, len(pat)
-    res = ''  # type: unicode
+    res = ''  # type: str
     while i < n:
         c = pat[i]
         i += 1
@@ -63,48 +60,43 @@ def _translate_pattern(pat):
     return res + '$'
 
 
-def compile_matchers(patterns):
-    # type: (List[unicode]) -> List[Callable[[unicode], Match[unicode]]]
+def compile_matchers(patterns: List[str]) -> List[Callable[[str], Match[str]]]:
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
-class Matcher(object):
+class Matcher:
     """A pattern matcher for Multiple shell-style glob patterns.
 
     Note: this modifies the patterns to work with copy_asset().
           For example, "**/index.rst" matches with "index.rst"
     """
 
-    def __init__(self, patterns):
-        # type: (List[unicode]) -> None
+    def __init__(self, patterns: List[str]) -> None:
         expanded = [pat[3:] for pat in patterns if pat.startswith('**/')]
         self.patterns = compile_matchers(patterns + expanded)
 
-    def __call__(self, string):
-        # type: (unicode) -> bool
+    def __call__(self, string: str) -> bool:
         return self.match(string)
 
-    def match(self, string):
-        # type: (unicode) -> bool
+    def match(self, string: str) -> bool:
+        string = canon_path(string)
         return any(pat(string) for pat in self.patterns)
 
 
 DOTFILES = Matcher(['**/.*'])
 
 
-_pat_cache = {}  # type: Dict[unicode, Pattern]
+_pat_cache = {}  # type: Dict[str, Pattern]
 
 
-def patmatch(name, pat):
-    # type: (unicode, unicode) -> Match[unicode]
+def patmatch(name: str, pat: str) -> Match[str]:
     """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     return _pat_cache[pat].match(name)
 
 
-def patfilter(names, pat):
-    # type: (List[unicode], unicode) -> List[unicode]
+def patfilter(names: Iterable[str], pat: str) -> List[str]:
     """Return the subset of the list NAMES that match PAT.
 
     Adapted from fnmatch module.

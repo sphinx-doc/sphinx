@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- pylons theme.
  *
- * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -229,10 +229,6 @@ div.admonition {
     padding: 10px 20px 10px 60px;
 }
 
-div.highlight{
-    background-color: white;
-}
-
 div.note {
     border: 2px solid #7a9eec;
     border-right-style: none;
@@ -286,8 +282,6 @@ p.admonition-title:after {
  
 pre {
     padding: 10px;
-    background-color: #fafafa;
-    color: #222;
     line-height: 1.2em;
     border: 2px solid #C6C9CB;
     font-size: 1.1em;

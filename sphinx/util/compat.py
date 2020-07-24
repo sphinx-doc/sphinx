@@ -1,49 +1,33 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.compat
     ~~~~~~~~~~~~~~~~~~
 
     modules for backward compatibility
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import absolute_import
-
 import sys
 import warnings
+from typing import Any, Dict
 
-from six import string_types, iteritems
+from docutils.utils import get_source_line
 
-from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.util import import_object
+from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
+    from sphinx.application import Sphinx
 
 
-def deprecate_source_parsers(app, config):
-    # type: (Sphinx, Config) -> None
-    if config.source_parsers:
-        warnings.warn('The config variable "source_parsers" is deprecated. '
-                      'Please use app.add_source_parser() API instead.',
-                      RemovedInSphinx30Warning)
-        for suffix, parser in iteritems(config.source_parsers):
-            if isinstance(parser, string_types):
-                parser = import_object(parser, 'source parser')  # type: ignore
-            app.add_source_parser(suffix, parser)
-
-
-def register_application_for_autosummary(app):
-    # type: (Sphinx) -> None
+def register_application_for_autosummary(app: "Sphinx") -> None:
     """Register application object to autosummary module.
 
     Since Sphinx-1.7, documenters and attrgetters are registered into
-    applicaiton object.  As a result, the arguments of
+    application object.  As a result, the arguments of
     ``get_documenter()`` has been changed.  To keep compatibility,
     this handler registers application object to the module.
     """
@@ -52,9 +36,22 @@ def register_application_for_autosummary(app):
         autosummary._app = app
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
-    app.connect('config-inited', deprecate_source_parsers)
+class IndexEntriesMigrator(SphinxTransform):
+    """Migrating indexentries from old style (4columns) to new style (5columns)."""
+    default_priority = 700
+
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.traverse(addnodes.index):
+            for i, entries in enumerate(node['entries']):
+                if len(entries) == 4:
+                    source, line = get_source_line(node)
+                    warnings.warn('An old styled index node found: %r at (%s:%s)' %
+                                  (node, source, line), RemovedInSphinx40Warning, stacklevel=2)
+                    node['entries'][i] = entries + (None,)
+
+
+def setup(app: "Sphinx") -> Dict[str, Any]:
+    app.add_transform(IndexEntriesMigrator)
     app.connect('builder-inited', register_application_for_autosummary)
 
     return {

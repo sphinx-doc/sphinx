@@ -1,28 +1,22 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.napoleon
     ~~~~~~~~~~~~~~~~~~~
 
     Support for NumPy and Google style docstrings.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import sys
+from typing import Any, Dict, List
 
-from six import PY2, iteritems
-
-import sphinx
+from sphinx import __display_version__ as __version__
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List  # NOQA
+from sphinx.util import inspect
 
 
-class Config(object):
+class Config:
     """Sphinx napoleon extension settings in `conf.py`.
 
     Listed below are all the settings used by napoleon and their default
@@ -176,9 +170,9 @@ class Config(object):
 
             .. attribute:: attr1
 
-               *int*
-
                Description of `attr1`
+
+               :type: int
 
     napoleon_use_param : :obj:`bool` (Defaults to True)
         True to use a ``:param:`` role for each function parameter. False to
@@ -272,16 +266,14 @@ class Config(object):
         'napoleon_custom_sections': (None, 'env')
     }
 
-    def __init__(self, **settings):
-        # type: (Any) -> None
-        for name, (default, rebuild) in iteritems(self._config_values):
+    def __init__(self, **settings: Any) -> None:
+        for name, (default, rebuild) in self._config_values.items():
             setattr(self, name, default)
-        for name, value in iteritems(settings):
+        for name, value in settings.items():
             setattr(self, name, value)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     """Sphinx extension setup function.
 
     When the extension is loaded, Sphinx imports this module and executes
@@ -304,7 +296,8 @@ def setup(app):
 
     """
     if not isinstance(app, Sphinx):
-        return  # probably called by tests
+        # probably called by tests
+        return {'version': __version__, 'parallel_read_safe': True}
 
     _patch_python_domain()
 
@@ -312,13 +305,12 @@ def setup(app):
     app.connect('autodoc-process-docstring', _process_docstring)
     app.connect('autodoc-skip-member', _skip_member)
 
-    for name, (default, rebuild) in iteritems(Config._config_values):
+    for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {'version': __version__, 'parallel_read_safe': True}
 
 
-def _patch_python_domain():
-    # type: () -> None
+def _patch_python_domain() -> None:
     try:
         from sphinx.domains.python import PyTypedField
     except ImportError:
@@ -337,8 +329,8 @@ def _patch_python_domain():
                          can_collapse=True))
 
 
-def _process_docstring(app, what, name, obj, options, lines):
-    # type: (Sphinx, unicode, unicode, Any, Any, List[unicode]) -> None
+def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
+                       options: Any, lines: List[str]) -> None:
     """Process the docstring for a given python object.
 
     Called when autodoc has read and processed a docstring. `lines` is a list
@@ -387,8 +379,8 @@ def _process_docstring(app, what, name, obj, options, lines):
     lines[:] = result_lines[:]
 
 
-def _skip_member(app, what, name, obj, skip, options):
-    # type: (Sphinx, unicode, unicode, Any, bool, Any) -> bool
+def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
+                 skip: bool, options: Any) -> bool:
     """Determine if private and special class members are included in docs.
 
     The following settings in conf.py determine if private and special class
@@ -435,34 +427,26 @@ def _skip_member(app, what, name, obj, skip, options):
     if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
         if what == 'class' or what == 'exception':
-            if PY2:
-                cls = getattr(obj, 'im_class', getattr(obj, '__objclass__',
-                              None))
-                cls_is_owner = (cls and hasattr(cls, name) and
-                                name in cls.__dict__)
-            elif sys.version_info >= (3, 3):
-                qualname = getattr(obj, '__qualname__', '')
-                cls_path, _, _ = qualname.rpartition('.')
-                if cls_path:
-                    try:
-                        if '.' in cls_path:
-                            import importlib
-                            import functools
+            qualname = getattr(obj, '__qualname__', '')
+            cls_path, _, _ = qualname.rpartition('.')
+            if cls_path:
+                try:
+                    if '.' in cls_path:
+                        import importlib
+                        import functools
 
-                            mod = importlib.import_module(obj.__module__)
-                            mod_path = cls_path.split('.')
-                            cls = functools.reduce(getattr, mod_path, mod)
-                        else:
-                            cls = obj.__globals__[cls_path]
-                    except Exception:
-                        cls_is_owner = False
+                        mod = importlib.import_module(obj.__module__)
+                        mod_path = cls_path.split('.')
+                        cls = functools.reduce(getattr, mod_path, mod)
                     else:
-                        cls_is_owner = (cls and hasattr(cls, name) and
-                                        name in cls.__dict__)
-                else:
+                        cls = inspect.unwrap(obj).__globals__[cls_path]
+                except Exception:
                     cls_is_owner = False
+                else:
+                    cls_is_owner = (cls and hasattr(cls, name) and  # type: ignore
+                                    name in cls.__dict__)
             else:
-                cls_is_owner = True
+                cls_is_owner = False
 
         if what == 'module' or cls_is_owner:
             is_init = (name == '__init__')
