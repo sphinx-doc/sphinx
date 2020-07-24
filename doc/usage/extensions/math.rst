@@ -142,7 +142,8 @@ are built:
 
 .. warning::
    Version 4.0 changes the version of MathJax used to version 3. You may need to
-   override ``mathjax_path`` or change your configuration options.
+   override ``mathjax_path`` to ``https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML``
+   or update your configuration options for version 3.
 
 .. versionadded:: 1.1
 
@@ -172,7 +173,7 @@ Sphinx but is set to automatically include it from a third-party site.
 
    __ https://www.jsdelivr.com/
 
-   __ https://docs.mathjax.org/en/latest/start.html
+   __ https://www.mathjax.org/#gettingstarted
 
    The path can be absolute or relative; if it is relative, it is relative to
    the ``_static`` directory of the built docs.

@@ -14,7 +14,7 @@ Incompatible changes
   is added to indicate that the python object is canonical one
 * #7425: MathJax: The MathJax was changed from 2 to 3. Users using a custom
   MathJax configuration may have to set the old MathJax path or update their
-  configuration for version 3.
+  configuration for version 3. See :mod:`sphinx.ext.mathjax`.
 
 Deprecated
 ----------
