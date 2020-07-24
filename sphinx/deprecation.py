@@ -29,27 +29,39 @@ class RemovedInSphinx60Warning(PendingDeprecationWarning):
 RemovedInNextVersionWarning = RemovedInSphinx50Warning
 
 
-def deprecated_alias(modname: str, objects: Dict, warning: "Type[Warning]") -> None:
+def deprecated_alias(modname: str, objects: Dict[str, object],
+                     warning: "Type[Warning]", names: Dict[str, str] = None) -> None:
     module = import_module(modname)
-    sys.modules[modname] = _ModuleWrapper(module, modname, objects, warning)  # type: ignore
+    sys.modules[modname] = _ModuleWrapper(  # type: ignore
+        module, modname, objects, warning, names)
 
 
 class _ModuleWrapper:
-    def __init__(self, module: Any, modname: str, objects: Dict, warning: "Type[Warning]"
-                 ) -> None:
+    def __init__(self, module: Any, modname: str,
+                 objects: Dict[str, object],
+                 warning: "Type[Warning]",
+                 names: Dict[str, str]) -> None:
         self._module = module
         self._modname = modname
         self._objects = objects
         self._warning = warning
+        self._names = names
 
     def __getattr__(self, name: str) -> Any:
-        if name in self._objects:
-            warnings.warn("%s.%s is deprecated. Check CHANGES for Sphinx "
-                          "API modifications." % (self._modname, name),
-                          self._warning, stacklevel=3)
-            return self._objects[name]
+        if name not in self._objects:
+            return getattr(self._module, name)
 
-        return getattr(self._module, name)
+        canonical_name = self._names.get(name, None)
+        if canonical_name is not None:
+            warnings.warn(
+                "The alias '{}.{}' is deprecated, use '{}' instead. Check CHANGES for "
+                "Sphinx API modifications.".format(self._modname, name, canonical_name),
+                self._warning, stacklevel=3)
+        else:
+            warnings.warn("{}.{} is deprecated. Check CHANGES for Sphinx "
+                          "API modifications.".format(self._modname, name),
+                          self._warning, stacklevel=3)
+        return self._objects[name]
 
 
 class DeprecatedDict(dict):

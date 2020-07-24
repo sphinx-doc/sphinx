@@ -103,7 +103,6 @@ class ASTBaseBase:
     __hash__ = None  # type: Callable[[], int]
 
     def clone(self) -> Any:
-        """Clone a definition expression node."""
         return deepcopy(self)
 
     def _stringify(self, transform: StringifyTransform) -> str:

@@ -107,7 +107,7 @@ class EventManager:
                 raise
             except Exception as exc:
                 raise ExtensionError(__("Handler %r for event %r threw an exception") %
-                                     (listener.handler, name)) from exc
+                                     (listener.handler, name), exc) from exc
         return results
 
     def emit_firstresult(self, name: str, *args: Any,

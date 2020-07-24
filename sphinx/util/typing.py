@@ -10,10 +10,25 @@
 
 import sys
 import typing
-from typing import Any, Callable, Dict, List, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, Generator, List, Tuple, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
+
+
+if sys.version_info > (3, 7):
+    from typing import ForwardRef
+else:
+    from typing import _ForwardRef  # type: ignore
+
+    class ForwardRef:
+        """A pseudo ForwardRef class for py35 and py36."""
+        def __init__(self, arg: Any, is_argument: bool = True) -> None:
+            self.arg = arg
+
+        def _evaluate(self, globalns: Dict, localns: Dict) -> Any:
+            ref = _ForwardRef(self.arg)
+            return ref._eval_type(globalns, localns)
 
 
 # An entry of Directive.option_spec
@@ -146,6 +161,8 @@ def _stringify_py36(annotation: Any) -> str:
     elif isinstance(annotation, typing.GenericMeta):
         params = None
         if annotation.__args__ is None or len(annotation.__args__) <= 2:  # type: ignore  # NOQA
+            params = annotation.__args__  # type: ignore
+        elif annotation.__origin__ == Generator:  # type: ignore
             params = annotation.__args__  # type: ignore
         else:  # typing.Callable
             args = ', '.join(stringify(arg) for arg

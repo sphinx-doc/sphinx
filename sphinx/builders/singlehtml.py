@@ -193,7 +193,11 @@ deprecated_alias('sphinx.builders.html',
                  {
                      'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'SingleFileHTMLBuilder':
+                     'sphinx.builders.singlehtml.SingleFileHTMLBuilder',
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

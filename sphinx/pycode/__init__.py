@@ -10,6 +10,7 @@
 
 import re
 import tokenize
+from collections import OrderedDict
 from importlib import import_module
 from inspect import Signature
 from io import StringIO
@@ -145,7 +146,7 @@ class ModuleAnalyzer:
             parser = Parser(self.code)
             parser.parse()
 
-            self.attr_docs = {}
+            self.attr_docs = OrderedDict()
             for (scope, comment) in parser.comments.items():
                 if comment:
                     self.attr_docs[scope] = comment.splitlines() + ['']

@@ -1047,7 +1047,7 @@ def test_class_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_instance_attributes(app):
+def test_autoclass_instance_attributes(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.InstAttCls', options)
     assert list(actual) == [
@@ -1116,6 +1116,19 @@ def test_instance_attributes(app):
         '      :module: target',
         '',
         '      Doc comment for instance attribute InstAttCls.ia1',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_instance_attributes(app):
+    actual = do_autodoc(app, 'attribute', 'target.InstAttCls.ia1')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: InstAttCls.ia1',
+        '   :module: target',
+        '',
+        '   Doc comment for instance attribute InstAttCls.ia1',
         ''
     ]
 
@@ -1958,5 +1971,50 @@ def test_name_conflict(app):
         '   :module: target.name_conflict.foo',
         '',
         '   docstring of target.name_conflict.foo::bar.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_name_mangling(app):
+    options = {"members": None,
+               "undoc-members": None,
+               "private-members": None}
+    actual = do_autodoc(app, 'module', 'target.name_mangling', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.name_mangling',
+        '',
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.name_mangling',
+        '',
+        '',
+        '   .. py:attribute:: Bar._Baz__email',
+        '      :module: target.name_mangling',
+        '      :value: None',
+        '',
+        '      a member having mangled-like name',
+        '',
+        '',
+        '   .. py:attribute:: Bar.__address',
+        '      :module: target.name_mangling',
+        '      :value: None',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.name_mangling',
+        '',
+        '',
+        '   .. py:attribute:: Foo.__age',
+        '      :module: target.name_mangling',
+        '      :value: None',
+        '',
+        '',
+        '   .. py:attribute:: Foo.__name',
+        '      :module: target.name_mangling',
+        '      :value: None',
+        '',
+        '      name of Foo',
         '',
     ]

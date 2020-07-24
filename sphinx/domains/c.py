@@ -22,6 +22,7 @@ from sphinx import addnodes
 from sphinx.addnodes import pending_xref
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
@@ -110,6 +111,9 @@ class ASTIdentifier(ASTBaseBase):
         assert identifier is not None
         assert len(identifier) != 0
         self.identifier = identifier
+
+    def __eq__(self, other: Any) -> bool:
+        return type(other) is ASTIdentifier and self.identifier == other.identifier
 
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'
@@ -1335,6 +1339,10 @@ class ASTDeclaration(ASTBaseBase):
         # set by CObject._add_enumerator_to_parent
         self.enumeratorScopedSymbol = None  # type: Symbol
 
+    def clone(self) -> "ASTDeclaration":
+        return ASTDeclaration(self.objectType, self.directiveType,
+                              self.declaration.clone(), self.semicolon)
+
     @property
     def name(self) -> ASTNestedName:
         return self.declaration.name
@@ -1424,6 +1432,16 @@ class Symbol:
     debug_lookup = False
     debug_show_tree = False
 
+    def __copy__(self):
+        assert False  # shouldn't happen
+
+    def __deepcopy__(self, memo):
+        if self.parent:
+            assert False  # shouldn't happen
+        else:
+            # the domain base class makes a copy of the initial data, which is fine
+            return Symbol(None, None, None, None)
+
     @staticmethod
     def debug_print(*args: Any) -> None:
         print(Symbol.debug_indent_string * Symbol.debug_indent, end="")
@@ -1512,7 +1530,6 @@ class Symbol:
         self.parent = None
 
     def clear_doc(self, docname: str) -> None:
-        newChildren = []  # type: List[Symbol]
         for sChild in self._children:
             sChild.clear_doc(docname)
             if sChild.declaration and sChild.docname == docname:
@@ -1524,8 +1541,6 @@ class Symbol:
                     sChild.siblingBelow.siblingAbove = sChild.siblingAbove
                 sChild.siblingAbove = None
                 sChild.siblingBelow = None
-            newChildren.append(sChild)
-        self._children = newChildren
 
     def get_all_symbols(self) -> Iterator["Symbol"]:
         yield self
@@ -2937,6 +2952,23 @@ class DefinitionParser(BaseParser):
             init = ASTInitializer(initVal)
         return ASTEnumerator(name, init)
 
+    def parse_pre_v3_type_definition(self) -> ASTDeclaration:
+        self.skip_ws()
+        declaration = None  # type: Any
+        if self.skip_word('struct'):
+            typ = 'struct'
+            declaration = self._parse_struct()
+        elif self.skip_word('union'):
+            typ = 'union'
+            declaration = self._parse_union()
+        elif self.skip_word('enum'):
+            typ = 'enum'
+            declaration = self._parse_enum()
+        else:
+            self.fail("Could not parse pre-v3 type directive."
+                      " Must start with 'struct', 'union', or 'enum'.")
+        return ASTDeclaration(typ, typ, declaration, False)
+
     def parse_declaration(self, objectType: str, directiveType: str) -> ASTDeclaration:
         if objectType not in ('function', 'member',
                               'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
@@ -3114,6 +3146,9 @@ class CObject(ObjectDescription):
     def parse_definition(self, parser: DefinitionParser) -> ASTDeclaration:
         return parser.parse_declaration(self.object_type, self.objtype)
 
+    def parse_pre_v3_type_definition(self, parser: DefinitionParser) -> ASTDeclaration:
+        return parser.parse_pre_v3_type_definition()
+
     def describe_signature(self, signode: TextElement, ast: Any, options: Dict) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
@@ -3135,8 +3170,27 @@ class CObject(ObjectDescription):
 
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
-            ast = self.parse_definition(parser)
-            parser.assert_end()
+            try:
+                ast = self.parse_definition(parser)
+                parser.assert_end()
+            except DefinitionError as eOrig:
+                if not self.env.config['c_allow_pre_v3']:
+                    raise
+                if self.objtype != 'type':
+                    raise
+                try:
+                    ast = self.parse_pre_v3_type_definition(parser)
+                    parser.assert_end()
+                except DefinitionError:
+                    raise eOrig
+                self.object_type = ast.objectType  # type: ignore
+                if self.env.config['c_warn_on_allowed_pre_v3']:
+                    msg = "{}: Pre-v3 C type directive '.. c:type:: {}' converted to " \
+                          "'.. c:{}:: {}'." \
+                          "\nThe original parsing error was:\n{}"
+                    msg = msg.format(RemovedInSphinx50Warning.__name__,
+                                     sig, ast.objectType, ast, eOrig)
+                    logger.warning(msg, location=signode)
         except DefinitionError as e:
             logger.warning(e, location=signode)
             # It is easier to assume some phony name than handling the error in
@@ -3445,6 +3499,39 @@ class CXRefRole(XRefRole):
                     title = title[dot + 1:]
         return title, target
 
+    def run(self) -> Tuple[List[Node], List[system_message]]:
+        if not self.env.config['c_allow_pre_v3']:
+            return super().run()
+
+        text = self.text.replace('\n', ' ')
+        parser = DefinitionParser(text, location=self.get_source_info(),
+                                  config=self.env.config)
+        try:
+            parser.parse_xref_object()
+            # it succeeded, so let it through
+            return super().run()
+        except DefinitionError as eOrig:
+            # try as if it was an c:expr
+            parser.pos = 0
+            try:
+                ast = parser.parse_expression()
+            except DefinitionError:
+                # that didn't go well, just default back
+                return super().run()
+            classes = ['xref', 'c', 'c-texpr']
+            parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
+            if parentSymbol is None:
+                parentSymbol = self.env.domaindata['c']['root_symbol']
+            signode = nodes.inline(classes=classes)
+            ast.describe_signature(signode, 'markType', self.env, parentSymbol)
+
+            if self.env.config['c_warn_on_allowed_pre_v3']:
+                msg = "{}: Pre-v3 C type role ':c:type:`{}`' converted to ':c:expr:`{}`'."
+                msg += "\nThe original parsing error was:\n{}"
+                msg = msg.format(RemovedInSphinx50Warning.__name__, text, text, eOrig)
+                logger.warning(msg, location=self.get_source_info())
+            return [signode], []
+
 
 class CExprRole(SphinxRole):
     def __init__(self, asCode: bool) -> None:
@@ -3645,6 +3732,9 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
     app.add_post_transform(AliasTransform)
+
+    app.add_config_value("c_allow_pre_v3", False, 'env')
+    app.add_config_value("c_warn_on_allowed_pre_v3", True, 'env')
 
     return {
         'version': 'builtin',
