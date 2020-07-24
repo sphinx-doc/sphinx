@@ -245,6 +245,26 @@ Now, you will have access to this function in jinja like so:
    </div>
 
 
+Add your own static files to the build assets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you are packaging your own build assets with an extension
+(e.g., a CSS or JavaScript file), you need to ensure that they are placed
+in the ``_static/`` folder of HTML outputs. To do so, you may copy them directly
+into a build's ``_static/`` folder at build time, generally via an event hook.
+Here is some sample code to accomplish this:
+
+.. code-block:: python
+
+   def copy_custom_files(app, exc):
+       if app.builder.format == 'html' and not exc:
+           staticdir = path.join(app.builder.outdir, '_static')
+           copy_asset_file('path/to/myextension/_static/myjsfile.js', staticdir)
+
+   def setup(app):
+       app.connect('builder-inited', copy_custom_files)
+
+
 Inject JavaScript based on user configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
