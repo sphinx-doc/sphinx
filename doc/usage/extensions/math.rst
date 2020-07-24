@@ -142,7 +142,7 @@ are built:
 
 .. warning::
    Version 4.0 changes the version of MathJax used to version 3. You may need to
-   override ``mathjax_path`` to ``https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML``
+   override ``mathjax_path`` to ``https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML``
    or update your configuration options for version 3.
 
 .. versionadded:: 1.1
