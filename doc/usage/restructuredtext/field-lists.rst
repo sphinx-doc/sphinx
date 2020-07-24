@@ -9,17 +9,14 @@ fields marked up like this::
 
     :fieldname: Field content
 
-Field lists are :duref:`originally defined in docutils <bibliographic-fields>`
-to show information about a page (such as the document author or date of
-publication).
+Sphinx extends standard docutils behavior for field lists and adds some extra
+functionality that is covered in this section.
 
 .. note::
 
     The values of field lists will be parsed as
     strings. You cannot use Python collections such as lists or dictionaries.
 
-Sphinx treats field lists slightly differently, as explained
-below.
 
 .. _metadata:
 
