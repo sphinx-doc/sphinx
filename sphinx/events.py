@@ -25,9 +25,11 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-EventListener = NamedTuple('EventListener', [('id', int),
-                                             ('handler', Callable),
-                                             ('priority', int)])
+
+class EventListener(NamedTuple):
+    id: int
+    handler: Callable
+    priority: int
 
 
 # List of all known core events. Maps name to arguments description.
