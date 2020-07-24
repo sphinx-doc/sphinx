@@ -106,7 +106,7 @@ class BuildDoc(Command):
         self.link_index = False
         self.copyright = ''
         # Link verbosity to distutils' (which uses 1 by default).
-        self.verbosity = self.distribution.verbose - 1
+        self.verbosity = self.distribution.verbose - 1  # type: ignore
         self.traceback = False
         self.nitpicky = False
         self.keep_going = False
