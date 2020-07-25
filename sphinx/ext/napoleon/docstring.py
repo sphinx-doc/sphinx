@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import collections
 import inspect
 import re
 from functools import partial
@@ -18,12 +19,14 @@ from typing import Any, Callable, Dict, List, Tuple, Union
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
-from sphinx.locale import _
+from sphinx.locale import _, __
+from sphinx.util import logging
+
+logger = logging.getLogger(__name__)
 
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
-
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
@@ -33,11 +36,19 @@ _single_colon_regex = re.compile(r'(?<!:):(?!:)')
 _xref_or_code_regex = re.compile(
     r'((?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)|'
     r'(?:``.+``))')
+_xref_regex = re.compile(
+    r'(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)'
+)
 _bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
 _enumerated_list_regex = re.compile(
     r'^(?P<paren>\()?'
     r'(\d+|#|[ivxlcdm]+|[IVXLCDM]+|[a-zA-Z])'
     r'(?(paren)\)|\.)(\s+\S|\s*$)')
+_token_regex = re.compile(
+    r"(\sor\s|\sof\s|:\s|,\s|[{]|[}]"
+    r'|"(?:\\"|[^"])*"'
+    r"|'(?:\\'|[^'])*')"
+)
 
 
 class GoogleDocstring:
@@ -780,6 +791,165 @@ class GoogleDocstring:
         return lines
 
 
+def _recombine_set_tokens(tokens: List[str]) -> List[str]:
+    token_queue = collections.deque(tokens)
+    keywords = ("optional", "default")
+
+    def takewhile_set(tokens):
+        open_braces = 0
+        previous_token = None
+        while True:
+            try:
+                token = tokens.popleft()
+            except IndexError:
+                break
+
+            if token == ", ":
+                previous_token = token
+                continue
+
+            if token in keywords:
+                tokens.appendleft(token)
+                if previous_token is not None:
+                    tokens.appendleft(previous_token)
+                break
+
+            if previous_token is not None:
+                yield previous_token
+                previous_token = None
+
+            if token == "{":
+                open_braces += 1
+            elif token == "}":
+                open_braces -= 1
+
+            yield token
+
+            if open_braces == 0:
+                break
+
+    def combine_set(tokens):
+        while True:
+            try:
+                token = tokens.popleft()
+            except IndexError:
+                break
+
+            if token == "{":
+                tokens.appendleft("{")
+                yield "".join(takewhile_set(tokens))
+            else:
+                yield token
+
+    return list(combine_set(token_queue))
+
+
+def _tokenize_type_spec(spec: str) -> List[str]:
+    def postprocess(item):
+        if item.startswith("default"):
+            return [item[:7], item[7:]]
+        else:
+            return [item]
+
+    tokens = list(
+        item
+        for raw_token in _token_regex.split(spec)
+        for item in postprocess(raw_token)
+        if item
+    )
+    return tokens
+
+
+def _token_type(token: str, location: str = None) -> str:
+    if token.startswith(" ") or token.endswith(" "):
+        type_ = "delimiter"
+    elif (
+            token.isnumeric() or
+            (token.startswith("{") and token.endswith("}")) or
+            (token.startswith('"') and token.endswith('"')) or
+            (token.startswith("'") and token.endswith("'"))
+    ):
+        type_ = "literal"
+    elif token.startswith("{"):
+        logger.warning(
+            __("invalid value set (missing closing brace): %s"),
+            token,
+            location=location,
+        )
+        type_ = "literal"
+    elif token.endswith("}"):
+        logger.warning(
+            __("invalid value set (missing opening brace): %s"),
+            token,
+            location=location,
+        )
+        type_ = "literal"
+    elif token.startswith("'") or token.startswith('"'):
+        logger.warning(
+            __("malformed string literal (missing closing quote): %s"),
+            token,
+            location=location,
+        )
+        type_ = "literal"
+    elif token.endswith("'") or token.endswith('"'):
+        logger.warning(
+            __("malformed string literal (missing opening quote): %s"),
+            token,
+            location=location,
+        )
+        type_ = "literal"
+    elif token in ("optional", "default"):
+        # default is not a official keyword (yet) but supported by the
+        # reference implementation (numpydoc) and widely used
+        type_ = "control"
+    elif _xref_regex.match(token):
+        type_ = "reference"
+    else:
+        type_ = "obj"
+
+    return type_
+
+
+def _convert_numpy_type_spec(_type: str, location: str = None, translations: dict = {}) -> str:
+    def convert_obj(obj, translations, default_translation):
+        translation = translations.get(obj, obj)
+
+        # use :class: (the default) only if obj is not a standard singleton (None, True, False)
+        if translation in ("None", "True", "False") and default_translation == ":class:`%s`":
+            default_translation = ":obj:`%s`"
+
+        if _xref_regex.match(translation) is None:
+            translation = default_translation % translation
+
+        return translation
+
+    tokens = _tokenize_type_spec(_type)
+    combined_tokens = _recombine_set_tokens(tokens)
+    types = [
+        (token, _token_type(token, location))
+        for token in combined_tokens
+    ]
+
+    # don't use the object role if it's not necessary
+    default_translation = (
+        ":class:`%s`"
+        if not all(type_ == "obj" for _, type_ in types)
+        else "%s"
+    )
+
+    converters = {
+        "literal": lambda x: "``%s``" % x,
+        "obj": lambda x: convert_obj(x, translations, default_translation),
+        "control": lambda x: "*%s*" % x,
+        "delimiter": lambda x: x,
+        "reference": lambda x: x,
+    }
+
+    converted = "".join(converters.get(type_)(token) for token, type_ in types)
+
+    return converted
+
+
 class NumpyDocstring(GoogleDocstring):
     """Convert NumPy style docstrings to reStructuredText.
 
@@ -879,6 +1049,15 @@ class NumpyDocstring(GoogleDocstring):
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
 
+    def _get_location(self) -> str:
+        filepath = inspect.getfile(self._obj) if self._obj is not None else ""
+        name = self._name
+
+        if filepath is None and name is None:
+            return None
+
+        return ":".join([filepath, "docstring of %s" % name])
+
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
         line = next(self._line_iter)
@@ -888,6 +1067,12 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
+        if self._config.napoleon_use_param:
+            _type = _convert_numpy_type_spec(
+                _type,
+                location=self._get_location(),
+                translations=self._config.napoleon_type_aliases or {},
+            )
 
         if prefer_type and not _type:
             _type, _name = _name, _type
