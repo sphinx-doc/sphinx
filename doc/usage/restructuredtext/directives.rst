@@ -656,9 +656,43 @@ __ http://pygments.org/docs/lexers
    string are included. The ``start-at`` and ``end-at`` options behave in a
    similar way, but the lines containing the matched string are included.
 
-   With lines selected using ``start-after`` it is still possible to use
-   ``lines``, the first allowed line having by convention the line number
-   ``1``.
+   ``start-after``/``start-at`` and ``end-before``/``end-at`` can have same string.
+   ``start-after``/``start-at`` filter lines before the line that contains
+   option string (``start-at`` will keep the line). Then ``end-before``/``end-at``
+   filter lines after the line that contains option string (``end-at`` will keep
+   the line and ``end-before`` skip the first line).
+
+   .. note::
+
+      If you want to select only ``[second-section]`` of ini file like the
+      following, you can use ``:start-at: [second-section]`` and 
+      ``:end-before: [third-section]``:
+
+      .. code-block:: ini
+
+         [first-section]
+
+         var_in_first=true
+
+         [second-section]
+
+         var_in_second=true
+
+         [third-section]
+
+         var_in_third=true
+
+      Useful cases of these option is working with tag comments.
+      ``:start-after: [initialized]`` and ``:end-before: [initialized]`` options
+      keep lines between comments:
+
+      .. code-block:: py
+
+         if __name__ == "__main__":
+             # [initialize]
+             app.start(":8000")
+             # [initialize]
+     
 
    When lines have been selected in any of the ways described above, the line
    numbers in ``emphasize-lines`` refer to those selected lines, counted
