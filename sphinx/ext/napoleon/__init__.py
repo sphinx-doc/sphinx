@@ -238,7 +238,8 @@ class Config:
             :returns: *bool* -- True if successful, False otherwise
 
     napoleon_type_aliases : :obj:`dict` (Defaults to None)
-        Add a mapping of strings to string, translating types in numpy style docstrings.
+        Add a mapping of strings to string, translating types in numpy
+        style docstrings. Only works when ``napoleon_use_param = True``.
 
     napoleon_custom_sections : :obj:`list` (Defaults to None)
         Add a list of custom sections to include, expanding the list of parsed sections.
