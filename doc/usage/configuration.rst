@@ -2546,6 +2546,23 @@ Options for the C domain
 
    .. versionadded:: 3.0
 
+.. confval:: c_allow_pre_v3
+
+   A boolean (default ``False``) controlling whether to parse and try to
+   convert pre-v3 style type directives and type roles.
+
+   .. versionadded:: 3.2
+   .. deprecated:: 3.2
+      Use the directives and roles added in v3.
+
+.. confval:: c_warn_on_allowed_pre_v3
+
+   A boolean (default ``True``) controlling whether to warn when a pre-v3
+   style type directive/role is parsed and converted.
+
+   .. versionadded:: 3.2
+   .. deprecated:: 3.2
+      Use the directives and roles added in v3.
 
 .. _cpp-config:
 

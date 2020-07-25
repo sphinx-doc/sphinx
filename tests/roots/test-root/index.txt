@@ -32,14 +32,11 @@ Contents:
    Latest reference <http://sphinx-doc.org/latest/>
    Python <http://python.org/>
 
-   self
-
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
 
 References
 ==========

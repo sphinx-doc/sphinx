@@ -11,13 +11,43 @@
 import importlib
 import traceback
 import warnings
-from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Tuple
+from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tuple
 
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
 from sphinx.util.inspect import isclass, isenumclass, safe_getattr
 
 logger = logging.getLogger(__name__)
+
+
+def mangle(subject: Any, name: str) -> str:
+    """mangle the given name."""
+    try:
+        if isclass(subject) and name.startswith('__') and not name.endswith('__'):
+            return "_%s%s" % (subject.__name__, name)
+    except AttributeError:
+        pass
+
+    return name
+
+
+def unmangle(subject: Any, name: str) -> Optional[str]:
+    """unmangle the given name."""
+    try:
+        if isclass(subject) and not name.endswith('__'):
+            prefix = "_%s__" % subject.__name__
+            if name.startswith(prefix):
+                return name.replace(prefix, "__", 1)
+            else:
+                for cls in subject.__mro__:
+                    prefix = "_%s__" % cls.__name__
+                    if name.startswith(prefix):
+                        # mangled attribute defined in parent class
+                        return None
+    except AttributeError:
+        pass
+
+    return name
 
 
 def import_module(modname: str, warningiserror: bool = False) -> Any:
@@ -67,7 +97,8 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
         for attrname in objpath:
             parent = obj
             logger.debug('[autodoc] getattr(_, %r)', attrname)
-            obj = attrgetter(obj, attrname)
+            mangled_name = mangle(obj, attrname)
+            obj = attrgetter(obj, mangled_name)
             logger.debug('[autodoc] => %r', obj)
             object_name = attrname
         return [module, parent, object_name, obj]
@@ -161,7 +192,8 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
         try:
             value = attrgetter(subject, name)
             directly_defined = name in obj_dict
-            if name not in members:
+            name = unmangle(subject, name)
+            if name and name not in members:
                 members[name] = Attribute(name, directly_defined, value)
         except AttributeError:
             continue
@@ -169,7 +201,8 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     # annotation only member (ex. attr: int)
     if hasattr(subject, '__annotations__') and isinstance(subject.__annotations__, Mapping):
         for name in subject.__annotations__:
-            if name not in members:
+            name = unmangle(subject, name)
+            if name and name not in members:
                 members[name] = Attribute(name, True, INSTANCEATTR)
 
     if analyzer:

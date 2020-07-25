@@ -57,7 +57,7 @@ def prepare_docstring(s: str, ignore: int = None, tabsize: int = 8) -> List[str]
     if ignore is None:
         ignore = 1
     else:
-        warnings.warn("The 'ignore' argument to parepare_docstring() is deprecated.",
+        warnings.warn("The 'ignore' argument to prepare_docstring() is deprecated.",
                       RemovedInSphinx50Warning, stacklevel=2)
 
     lines = s.expandtabs(tabsize).splitlines()

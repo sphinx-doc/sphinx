@@ -121,7 +121,6 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
 
     with open(outdir / 'a.b.c.rst') as f:
         rst = f.read()
-
         assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.c.d\n" in rst
 
     with open(outdir / 'a.b.e.rst') as f:
@@ -509,7 +508,6 @@ def test_package_file(tempdir):
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n"
                        "\n"
-                       "\n"
                        "Module contents\n"
                        "---------------\n"
                        "\n"
@@ -595,8 +593,7 @@ def test_package_file_module_first(tempdir):
                        ".. automodule:: testpkg.example\n"
                        "   :members:\n"
                        "   :undoc-members:\n"
-                       "   :show-inheritance:\n"
-                       "\n")
+                       "   :show-inheritance:\n")
 
 
 def test_package_file_without_submodules(tempdir):
@@ -639,5 +636,4 @@ def test_namespace_package_file(tempdir):
                        ".. automodule:: testpkg.example\n"
                        "   :members:\n"
                        "   :undoc-members:\n"
-                       "   :show-inheritance:\n"
-                       "\n")
+                       "   :show-inheritance:\n")

@@ -36,6 +36,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# The attributes not copied to the translated node
+#
+# * refexplict: For allow to give (or not to give) an explicit title
+#               to the pending_xref on translation
+EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
+
+
 N = TypeVar('N', bound=nodes.Node)
 
 
@@ -429,11 +436,8 @@ class Locale(SphinxTransform):
                 # Copy attributes to keep original node behavior. Especially
                 # copying 'reftarget', 'py:module', 'py:class' are needed.
                 for k, v in xref_reftarget_map.get(key, {}).items():
-                    # Note: This implementation overwrite all attributes.
-                    # if some attributes `k` should not be overwritten,
-                    # you should provide exclude list as:
-                    # `if k not in EXCLUDE_LIST: new[k] = v`
-                    new[k] = v
+                    if k not in EXCLUDED_PENDING_XREF_ATTRIBUTES:
+                        new[k] = v
 
             # update leaves
             for child in patch.children:
