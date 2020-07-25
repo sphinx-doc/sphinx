@@ -23,6 +23,8 @@ Features added
   of line numbers for code-blocks
 * #7853: C and C++, support parameterized GNU style attributes.
 * #7888: napoleon: Add aliases Warn and Raise.
+* #7690: napoleon: parse type strings and make them hyperlinks as possible.  The
+  conversion rule can be updated via :confval:`napoleon_type_aliases`
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
 * #7745: html: inventory is broken if the docname contains a space

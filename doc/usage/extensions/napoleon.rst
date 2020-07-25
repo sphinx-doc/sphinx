@@ -509,3 +509,5 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
        :type arg1: mypackage.CustomType
        :param arg2: Description of `arg2`
        :type arg2: :term:`dict-like <mapping>`
+
+   .. versionadded:: 3.2
