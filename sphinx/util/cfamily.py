@@ -12,7 +12,7 @@ import re
 import warnings
 from copy import deepcopy
 from typing import (
-    Any, Callable, List, Match, Pattern, Tuple, Union
+    Any, Callable, List, Match, Optional, Pattern, Tuple, Union
 )
 
 from docutils import nodes
@@ -110,7 +110,6 @@ class ASTBaseBase:
     __hash__ = None  # type: Callable[[], int]
 
     def clone(self) -> Any:
-        """Clone a definition expression node."""
         return deepcopy(self)
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -148,16 +147,14 @@ class ASTCPPAttribute(ASTAttribute):
 
 
 class ASTGnuAttribute(ASTBaseBase):
-    def __init__(self, name: str, args: Any) -> None:
+    def __init__(self, name: str, args: Optional["ASTBaseParenExprList"]) -> None:
         self.name = name
         self.args = args
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [self.name]
         if self.args:
-            res.append('(')
             res.append(transform(self.args))
-            res.append(')')
         return ''.join(res)
 
 
@@ -211,6 +208,11 @@ class ASTParenAttribute(ASTAttribute):
 
 ################################################################################
 
+class ASTBaseParenExprList(ASTBaseBase):
+    pass
+
+
+################################################################################
 
 class UnsupportedMultiCharacterCharLiteral(Exception):
     @property
@@ -415,11 +417,8 @@ class BaseParser:
             while 1:
                 if self.match(identifier_re):
                     name = self.matched_text
-                    self.skip_ws()
-                    if self.skip_string_and_ws('('):
-                        self.fail('Parameterized GNU style attribute not yet supported.')
-                    attrs.append(ASTGnuAttribute(name, None))
-                    # TODO: parse arguments for the attribute
+                    exprs = self._parse_paren_expression_list()
+                    attrs.append(ASTGnuAttribute(name, exprs))
                 if self.skip_string_and_ws(','):
                     continue
                 elif self.skip_string_and_ws(')'):
@@ -447,3 +446,6 @@ class BaseParser:
             return ASTParenAttribute(id, arg)
 
         return None
+
+    def _parse_paren_expression_list(self) -> ASTBaseParenExprList:
+        raise NotImplementedError

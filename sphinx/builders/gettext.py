@@ -278,7 +278,7 @@ class MessageCatalogBuilder(I18nBuilder):
                     origin = MsgOrigin(template, line)
                     self.catalogs['sphinx'].add(msg, origin)
             except Exception as exc:
-                raise ThemeError('%s: %r' % (template, exc))
+                raise ThemeError('%s: %r' % (template, exc)) from exc
 
     def build(self, docnames: Iterable[str], summary: str = None, method: str = 'update') -> None:  # NOQA
         self._extract_from_template()

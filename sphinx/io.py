@@ -22,6 +22,7 @@ from docutils.transforms import Transform
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
+from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import FiletypeNotFoundError
@@ -96,6 +97,7 @@ class SphinxBaseReader(standalone.Reader):
         for logging.
         """
         document = super().new_document()
+        document.__class__ = addnodes.document  # replace the class with patched version
 
         # substitute transformer
         document.transformer = SphinxTransformer(document)
@@ -227,4 +229,8 @@ deprecated_alias('sphinx.io',
                      'FiletypeNotFoundError': FiletypeNotFoundError,
                      'get_filetype': get_filetype,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'FiletypeNotFoundError': 'sphinx.errors.FiletypeNotFoundError',
+                     'get_filetype': 'sphinx.util.get_filetype',
+                 })

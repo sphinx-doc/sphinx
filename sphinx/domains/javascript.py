@@ -49,6 +49,11 @@ class JSObject(ObjectDescription):
     #: based on directive nesting
     allow_nesting = False
 
+    option_spec = {
+        'noindex': directives.flag,
+        'noindexentry': directives.flag,
+    }
+
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         """Breaks down construct signatures
 
@@ -120,9 +125,10 @@ class JSObject(ObjectDescription):
         domain = cast(JavaScriptDomain, self.env.get_domain('js'))
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
-        indextext = self.get_index_text(mod_name, name_obj)
-        if indextext:
-            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
+        if 'noindexentry' not in self.options:
+            indextext = self.get_index_text(mod_name, name_obj)
+            if indextext:
+                self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def get_index_text(self, objectname: str, name_obj: Tuple[str, str]) -> str:
         name, obj = name_obj
@@ -143,7 +149,7 @@ class JSObject(ObjectDescription):
 
         :py:class:`JSObject` represents JavaScript language constructs. For
         constructs that are nestable, this method will build up a stack of the
-        nesting heirarchy so that it can be later de-nested correctly, in
+        nesting hierarchy so that it can be later de-nested correctly, in
         :py:meth:`after_content`.
 
         For constructs that aren't nestable, the stack is bypassed, and instead

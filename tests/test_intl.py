@@ -956,9 +956,9 @@ def test_xml_role_xref(app):
          'glossary_terms#term-Some-term'])
     assert_elem(
         para2[1],
-        ['LINK TO', 'SAME TYPE LINKS', 'AND',
-         "I18N ROCK'N ROLE XREF", '.'],
-        ['same-type-links', 'i18n-role-xref'])
+        ['LINK TO', 'LABEL', 'AND',
+         'SAME TYPE LINKS', 'AND', 'SAME TYPE LINKS', '.'],
+        ['i18n-role-xref', 'same-type-links', 'same-type-links'])
     assert_elem(
         para2[2],
         ['LINK TO', 'I18N WITH GLOSSARY TERMS', 'AND', 'CONTENTS', '.'],

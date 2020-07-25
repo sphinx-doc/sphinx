@@ -74,7 +74,7 @@ class Table:
 
     Cell spanning on multiple rows or multiple columns (having a
     colspan or rowspan greater than one) are automatically referenced
-    by all the table cells they covers. This is a usefull
+    by all the table cells they covers. This is a useful
     representation as we can simply check ``if self[x, y] is self[x,
     y+1]`` to recognize a rowspan.
 
@@ -223,7 +223,7 @@ class Table:
                 for left, right in zip(out, out[1:])
             ]
             glue.append(tail)
-            return head + "".join(chain(*zip(out, glue)))
+            return head + "".join(chain.from_iterable(zip(out, glue)))
 
         for lineno, line in enumerate(self.lines):
             if self.separator and lineno == self.separator:

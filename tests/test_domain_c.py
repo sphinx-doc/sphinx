@@ -10,6 +10,7 @@
 import pytest
 
 from sphinx import addnodes
+from sphinx.addnodes import desc
 from sphinx.domains.c import DefinitionParser, DefinitionError
 from sphinx.domains.c import _max_id, _id_prefix, Symbol
 from sphinx.testing import restructuredtext
@@ -469,6 +470,8 @@ def test_attributes():
     check('member', '__attribute__(()) int f', {1: 'f'})
     check('member', '__attribute__((a)) int f', {1: 'f'})
     check('member', '__attribute__((a, b)) int f', {1: 'f'})
+    check('member', '__attribute__((optimize(3))) int f', {1: 'f'})
+    check('member', '__attribute__((format(printf, 1, 2))) int f', {1: 'f'})
     # style: user-defined id
     check('member', 'id_attr int f', {1: 'f'})
     # style: user-defined paren
@@ -588,3 +591,13 @@ def test_cvar(app):
     domain = app.env.get_domain('c')
     entry = domain.objects.get('PyClass_Type')
     assert entry == ('index', 'c.PyClass_Type', 'var')
+
+
+def test_noindexentry(app):
+    text = (".. c:function:: void f()\n"
+            ".. c:function:: void g()\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])

@@ -298,13 +298,35 @@ deprecated_alias('sphinx.directives',
                      'Figure': Figure,
                      'Meta': Meta,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'Highlight': 'sphinx.directives.code.Highlight',
+                     'CodeBlock': 'sphinx.directives.code.CodeBlock',
+                     'LiteralInclude': 'sphinx.directives.code.LiteralInclude',
+                     'TocTree': 'sphinx.directives.other.TocTree',
+                     'Author': 'sphinx.directives.other.Author',
+                     'Index': 'sphinx.directives.other.IndexDirective',
+                     'VersionChange': 'sphinx.directives.other.VersionChange',
+                     'SeeAlso': 'sphinx.directives.other.SeeAlso',
+                     'TabularColumns': 'sphinx.directives.other.TabularColumns',
+                     'Centered': 'sphinx.directives.other.Centered',
+                     'Acks': 'sphinx.directives.other.Acks',
+                     'HList': 'sphinx.directives.other.HList',
+                     'Only': 'sphinx.directives.other.Only',
+                     'Include': 'sphinx.directives.other.Include',
+                     'Class': 'sphinx.directives.other.Class',
+                     'Figure': 'sphinx.directives.patches.Figure',
+                     'Meta': 'sphinx.directives.patches.Meta',
+                 })
 
 deprecated_alias('sphinx.directives',
                  {
                      'DescDirective': ObjectDescription,
                  },
-                 RemovedInSphinx50Warning)
+                 RemovedInSphinx50Warning,
+                 {
+                     'DescDirective': 'sphinx.directives.ObjectDescription',
+                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

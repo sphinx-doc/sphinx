@@ -74,6 +74,7 @@ class DummyApplication:
         self.warningiserror = False
 
         self.config.add('autosummary_context', {}, True, None)
+        self.config.add('autosummary_filename_map', {}, True, None)
         self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
@@ -230,7 +231,8 @@ class ModuleScanner:
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
                                  imported_members: bool, app: Any,
-                                 recursive: bool, context: Dict) -> str:
+                                 recursive: bool, context: Dict,
+                                 modname: str = None, qualname: str = None) -> str:
     doc = get_documenter(app, obj, parent)
 
     def skip_member(obj: Any, name: str, objtype: str) -> bool:
@@ -319,7 +321,9 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         ns['attributes'], ns['all_attributes'] = \
             get_members(obj, {'attribute', 'property'})
 
-    modname, qualname = split_full_qualified_name(name)
+    if modname is None or qualname is None:
+        modname, qualname = split_full_qualified_name(name)
+
     if doc.objtype in ('method', 'attribute', 'property'):
         ns['class'] = qualname.rsplit(".", 1)[0]
 
@@ -347,7 +351,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                               info: Callable = None, base_path: str = None,
                               builder: Builder = None, template_dir: str = None,
                               imported_members: bool = False, app: Any = None,
-                              overwrite: bool = True) -> None:
+                              overwrite: bool = True, encoding: str = 'utf-8') -> None:
     if info:
         warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
@@ -390,6 +394,11 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     # keep track of new files
     new_files = []
 
+    if app:
+        filename_map = app.config.autosummary_filename_map
+    else:
+        filename_map = {}
+
     # write
     for entry in sorted(set(items), key=str):
         if entry.path is None:
@@ -401,7 +410,8 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         ensuredir(path)
 
         try:
-            name, obj, parent, mod_name = import_by_name(entry.name)
+            name, obj, parent, modname = import_by_name(entry.name)
+            qualname = name.replace(modname + ".", "")
         except ImportError as e:
             _warn(__('[autosummary] failed to import %r: %s') % (entry.name, e))
             continue
@@ -411,21 +421,22 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
             context.update(app.config.autosummary_context)
 
         content = generate_autosummary_content(name, obj, parent, template, entry.template,
-                                               imported_members, app, entry.recursive, context)
+                                               imported_members, app, entry.recursive, context,
+                                               modname, qualname)
 
-        filename = os.path.join(path, name + suffix)
+        filename = os.path.join(path, filename_map.get(name, name) + suffix)
         if os.path.isfile(filename):
-            with open(filename) as f:
+            with open(filename, encoding=encoding) as f:
                 old_content = f.read()
 
             if content == old_content:
                 continue
             elif overwrite:  # content has changed
-                with open(filename, 'w') as f:
+                with open(filename, 'w', encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)
         else:
-            with open(filename, 'w') as f:
+            with open(filename, 'w', encoding=encoding) as f:
                 f.write(content)
             new_files.append(filename)
 

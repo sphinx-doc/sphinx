@@ -1,4 +1,85 @@
-Release 3.1.1 (in development)
+Release 3.2.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+* C, parsing of pre-v3 style type directives and roles, along with the options
+  :confval:`c_allow_pre_v3` and :confval:`c_warn_on_allowed_pre_v3`.
+
+Features added
+--------------
+
+* #2076: autodoc: Allow overriding of exclude-members in skip-member function
+* #2024: autosummary: Add :confval:`autosummary_filename_map` to avoid conflict
+  of filenames between two object with different case
+* #7849: html: Add :confval:`html_codeblock_linenos_style` to change the style
+  of line numbers for code-blocks
+* #7853: C and C++, support parameterized GNU style attributes.
+* #7888: napoleon: Add aliases Warn and Raise.
+* #7690: napoleon: parse type strings and make them hyperlinks as possible.  The
+  conversion rule can be updated via :confval:`napoleon_type_aliases`
+* C, added :rst:dir:`c:alias` directive for inserting copies
+  of existing declarations.
+* #7745: html: inventory is broken if the docname contains a space
+* #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
+  the behavior of globaltoc in sidebar
+* #7840: i18n: Optimize the dependencies check on bootstrap
+* #5208: linkcheck: Support checks for local links
+* #5090: setuptools: Link verbosity to distutils' -v and -q option
+* #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
+  Update the documentation to better reflect the relationship between this option
+  and the ``:noindex:`` option.
+* #7899: C, add possibility of parsing of some pre-v3 style type directives and
+  roles and try to convert them to equivalent v3 directives/roles.
+  Set the new option :confval:`c_allow_pre_v3` to ``True`` to enable this.
+  The warnings printed from this functionality can be suppressed by setting
+  :confval:`c_warn_on_allowed_pre_v3`` to ``True``.
+  The functionality is immediately deprecated.
+
+Bugs fixed
+----------
+
+* #7886: autodoc: TypeError is raised on mocking generic-typed classes
+* #7935: autodoc: function signature is not shown when the function has a
+  parameter having ``inspect._empty`` as its default value
+* #7901: autodoc: type annotations for overloaded functions are not resolved
+* #904: autodoc: An instance attribute cause a crash of autofunction directive
+* #1362: autodoc: ``private-members`` option does not work for class attributes
+* #7983: autodoc: Generator type annotation is wrongly rendered in py36
+* #7839: autosummary: cannot handle umlauts in function names
+* #7865: autosummary: Failed to extract summary line when abbreviations found
+* #7866: autosummary: Failed to extract correct summary line when docstring
+  contains a hyperlink target
+* #7469: autosummary: "Module attributes" header is not translatable
+* #7940: apidoc: An extra newline is generated at the end of the rst file if a
+  module has submodules 
+* #4258: napoleon: decorated special methods are not shown
+* #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
+* #7846: html theme: XML-invalid files were generated
+* #7894: gettext: Wrong source info is shown when using rst_epilog
+* #7691: linkcheck: HEAD requests are not used for checking
+* #4888: i18n: Failed to add an explicit title to ``:ref:`` role on translation
+* #7928: py domain: failed to resolve a type annotation for the attribute
+* #7968: i18n: The content of ``math`` directive is interpreted as reST on
+  translation
+* #7869: :rst:role:`abbr` role without an explanation will show the explanation
+  from the previous abbr role
+* C and C++, removed ``noindex`` directive option as it did
+  nothing.
+* #7619: Duplicated node IDs are generated if node has multiple IDs
+* #2050: Symbols sections are appeared twice in the index page
+
+Testing
+--------
+
+Release 3.1.3 (in development)
 ==============================
 
 Dependencies
@@ -16,8 +97,65 @@ Features added
 Bugs fixed
 ----------
 
+* C, don't deepcopy the entire symbol table and make a mess every time an
+  enumerator is handled.
+
 Testing
 --------
+
+Release 3.1.2 (released Jul 05, 2020)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #7650: autodoc: the signature of base function will be shown for decorated
+  functions, not a signature of decorator
+
+Bugs fixed
+----------
+
+* #7844: autodoc: Failed to detect module when relative module name given
+* #7856: autodoc: AttributeError is raised when non-class object is given to
+  the autoclass directive
+* #7850: autodoc: KeyError is raised for invalid mark up when autodoc_typehints
+  is 'description'
+* #7812: autodoc: crashed if the target name matches to both an attribute and
+  module that are same name
+* #7650: autodoc: function signature becomes ``(*args, **kwargs)`` if the
+  function is decorated by generic decorator
+* #7812: autosummary: generates broken stub files if the target code contains
+  an attribute and module that are same name
+* #7806: viewcode: Failed to resolve viewcode references on 3rd party builders
+* #7838: html theme: List items have extra vertical space
+* #7878: html theme: Undesired interaction between "overflow" and "float"
+
+Release 3.1.1 (released Jun 14, 2020)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #7808: napoleon: a type for attribute are represented as typed field
+
+Features added
+--------------
+
+* #7807: autodoc: Show detailed warning when type_comment is mismatched with its
+  signature
+
+Bugs fixed
+----------
+
+* #7808: autodoc: Warnings raised on variable and attribute type annotations
+* #7802: autodoc: EOFError is raised on parallel build
+* #7821: autodoc: TypeError is raised for overloaded C-ext function
+* #7805: autodoc: an object which descriptors returns is unexpectedly documented
+* #7807: autodoc: wrong signature is shown for the function using contextmanager
+* #7812: autosummary: generates broken stub files if the target code contains
+  an attribute and module that are same name
+* #7808: napoleon: Warnings raised on variable and attribute type annotations
+* #7811: sphinx.util.inspect causes circular import problem
 
 Release 3.1.0 (released Jun 08, 2020)
 =====================================
@@ -176,9 +314,6 @@ Bugs fixed
   in global scope, e.g., ``.A.B``.
 * #7763: C and C++, don't crash during display stringification of unary
   expressions and fold expressions.
-
-Release 3.0.5 (in development)
-==============================
 
 Release 3.0.4 (released May 27, 2020)
 =====================================
@@ -488,7 +623,7 @@ Release 2.4.1 (released Feb 11, 2020)
 Bugs fixed
 ----------
 
-* #7120: html: crashed when on scaling SVG images which have float dimentions
+* #7120: html: crashed when on scaling SVG images which have float dimensions
 * #7126: autodoc: TypeError: 'getset_descriptor' object is not iterable
 
 Release 2.4.0 (released Feb 09, 2020)
@@ -634,7 +769,7 @@ Features added
 * #6548: html: Use favicon for OpenSearch if available
 * #6729: html theme: agogo theme now supports ``rightsidebar`` option
 * #6780: Add PEP-561 Support
-* #6762: latex: Allow to load additonal LaTeX packages via ``extrapackages`` key
+* #6762: latex: Allow to load additional LaTeX packages via ``extrapackages`` key
   of :confval:`latex_elements`
 * #1331: Add new config variable: :confval:`user_agent`
 * #6000: LaTeX: have backslash also be an inline literal word wrap break

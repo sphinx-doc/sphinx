@@ -83,6 +83,6 @@ build:
 .PHONY: docs
 docs:
 ifndef target
-	$(info You need to give a provide a target variable, e.g. `make docs target=html`.)
+	$(info You need to provide a target variable, e.g. `make docs target=html`.)
 endif
 	$(MAKE) -C doc $(target)

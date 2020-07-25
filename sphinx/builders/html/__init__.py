@@ -15,6 +15,7 @@ import sys
 import warnings
 from os import path
 from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
+from urllib.parse import quote
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -26,7 +27,7 @@ from docutils.utils import relative_path
 from sphinx import package_dir, __display_version__
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.config import Config
+from sphinx.config import Config, ENUM
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -140,7 +141,7 @@ class BuildInfo:
             build_info.tags_hash = lines[3].split()[1].strip()
             return build_info
         except Exception as exc:
-            raise ValueError(__('build info file is broken: %r') % exc)
+            raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(self, config: Config = None, tags: Tags = None, config_categories: List[str] = []) -> None:  # NOQA
         self.config_hash = ''
@@ -886,6 +887,8 @@ class StandaloneHTMLBuilder(Builder):
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = False
+        if kwargs.get('maxdepth') == '':
+            kwargs.pop('maxdepth')
         return self.render_partial(TocTree(self.env).get_toctree_for(
             docname, self, collapse, **kwargs))['fragment']
 
@@ -945,7 +948,7 @@ class StandaloneHTMLBuilder(Builder):
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
-        return docname + self.link_suffix
+        return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
                     outfilename: str = None, event_arg: Any = None) -> None:
@@ -1015,7 +1018,7 @@ class StandaloneHTMLBuilder(Builder):
             return
         except Exception as exc:
             raise ThemeError(__("An error happened in rendering the page %s.\nReason: %r") %
-                             (pagename, exc))
+                             (pagename, exc)) from exc
 
         if not outfilename:
             outfilename = self.get_outfilename(pagename)
@@ -1226,6 +1229,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
+    app.add_config_value('html_codeblock_linenos_style', 'table', 'html',
+                         ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
 

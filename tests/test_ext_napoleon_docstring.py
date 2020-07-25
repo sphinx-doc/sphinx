@@ -20,6 +20,12 @@ import pytest
 
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
+from sphinx.ext.napoleon.docstring import (
+    _tokenize_type_spec,
+    _recombine_set_tokens,
+    _convert_numpy_type_spec,
+    _token_type
+)
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -57,19 +63,22 @@ class NamedtupleSubclassTest(BaseDocstringTest):
 Sample namedtuple subclass
 
 .. attribute:: attr1
-   :type: Arbitrary type
 
    Quick description of attr1
 
+   :type: Arbitrary type
+
 .. attribute:: attr2
-   :type: Another arbitrary type
 
    Quick description of attr2
 
+   :type: Another arbitrary type
+
 .. attribute:: attr3
-   :type: Type
 
    Adds a newline after the type
+
+   :type: Type
 """
 
         self.assertEqual(expected, actual)
@@ -413,9 +422,10 @@ Attributes:
         actual = str(GoogleDocstring(docstring))
         expected = """\
 .. attribute:: in_attr
-   :type: :class:`numpy.ndarray`
 
    super-dooper attribute
+
+   :type: :class:`numpy.ndarray`
 """
         self.assertEqual(expected, actual)
 
@@ -427,9 +437,10 @@ Attributes:
         actual = str(GoogleDocstring(docstring))
         expected = """\
 .. attribute:: in_attr
-   :type: numpy.ndarray
 
    super-dooper attribute
+
+   :type: numpy.ndarray
 """
         self.assertEqual(expected, actual)
 
@@ -1992,6 +2003,154 @@ definition_after_normal_text : int
         actual = str(NumpyDocstring(docstring, config))
         self.assertEqual(expected, actual)
 
+    def test_token_type(self):
+        tokens = (
+            ("1", "literal"),
+            ("'string'", "literal"),
+            ('"another_string"', "literal"),
+            ("{1, 2}", "literal"),
+            ("{'va{ue', 'set'}", "literal"),
+            ("optional", "control"),
+            ("default", "control"),
+            (", ", "delimiter"),
+            (" of ", "delimiter"),
+            (" or ", "delimiter"),
+            (": ", "delimiter"),
+            ("True", "obj"),
+            ("None", "obj"),
+            ("name", "obj"),
+            (":py:class:`Enum`", "reference"),
+        )
+
+        for token, expected in tokens:
+            actual = _token_type(token)
+            self.assertEqual(expected, actual)
+
+    def test_tokenize_type_spec(self):
+        specs = (
+            "str",
+            "int or float or None, optional",
+            '{"F", "C", "N"}',
+            "{'F', 'C', 'N'}, default: 'F'",
+            "{'F', 'C', 'N or C'}, default 'F'",
+            '"ma{icious"',
+            r"'with \'quotes\''",
+        )
+
+        tokens = (
+            ["str"],
+            ["int", " or ", "float", " or ", "None", ", ", "optional"],
+            ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
+            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "'F'"],
+            ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
+            ['"ma{icious"'],
+            [r"'with \'quotes\''"],
+        )
+
+        for spec, expected in zip(specs, tokens):
+            actual = _tokenize_type_spec(spec)
+            self.assertEqual(expected, actual)
+
+    def test_recombine_set_tokens(self):
+        tokens = (
+            ["{", "1", ", ", "2", "}"],
+            ["{", '"F"', ", ", '"C"', ", ", '"N"', "}", ", ", "optional"],
+            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "None"],
+        )
+
+        combined_tokens = (
+            ["{1, 2}"],
+            ['{"F", "C", "N"}', ", ", "optional"],
+            ["{'F', 'C', 'N'}", ", ", "default", ": ", "None"],
+        )
+
+        for tokens_, expected in zip(tokens, combined_tokens):
+            actual = _recombine_set_tokens(tokens_)
+            self.assertEqual(expected, actual)
+
+    def test_recombine_set_tokens_invalid(self):
+        tokens = (
+            ["{", "1", ", ", "2"],
+            ['"F"', ", ", '"C"', ", ", '"N"', "}", ", ", "optional"],
+            ["{", "1", ", ", "2", ", ", "default", ": ", "None"],
+        )
+        combined_tokens = (
+            ["{1, 2"],
+            ['"F"', ", ", '"C"', ", ", '"N"', "}", ", ", "optional"],
+            ["{1, 2", ", ", "default", ": ", "None"],
+        )
+
+        for tokens_, expected in zip(tokens, combined_tokens):
+            actual = _recombine_set_tokens(tokens_)
+            self.assertEqual(expected, actual)
+
+    def test_convert_numpy_type_spec(self):
+        translations = {
+            "DataFrame": "pandas.DataFrame",
+        }
+
+        specs = (
+            "",
+            "optional",
+            "str, optional",
+            "int or float or None, default: None",
+            '{"F", "C", "N"}',
+            "{'F', 'C', 'N'}, default: 'N'",
+            "DataFrame, optional",
+        )
+
+        converted = (
+            "",
+            "*optional*",
+            ":class:`str`, *optional*",
+            ":class:`int` or :class:`float` or :obj:`None`, *default*: :obj:`None`",
+            '``{"F", "C", "N"}``',
+            "``{'F', 'C', 'N'}``, *default*: ``'N'``",
+            ":class:`pandas.DataFrame`, *optional*",
+        )
+
+        for spec, expected in zip(specs, converted):
+            actual = _convert_numpy_type_spec(spec, translations=translations)
+            self.assertEqual(expected, actual)
+
+    def test_parameter_types(self):
+        docstring = dedent("""\
+            Parameters
+            ----------
+            param1 : DataFrame
+                the data to work on
+            param2 : int or float or None
+                a parameter with different types
+            param3 : dict-like, optional
+                a optional mapping
+            param4 : int or float or None, optional
+                a optional parameter with different types
+            param5 : {"F", "C", "N"}, optional
+                a optional parameter with fixed values
+        """)
+        expected = dedent("""\
+            :param param1: the data to work on
+            :type param1: DataFrame
+            :param param2: a parameter with different types
+            :type param2: :class:`int` or :class:`float` or :obj:`None`
+            :param param3: a optional mapping
+            :type param3: :term:`dict-like <mapping>`, *optional*
+            :param param4: a optional parameter with different types
+            :type param4: :class:`int` or :class:`float` or :obj:`None`, *optional*
+            :param param5: a optional parameter with fixed values
+            :type param5: ``{"F", "C", "N"}``, *optional*
+        """)
+        translations = {
+            "dict-like": ":term:`dict-like <mapping>`",
+        }
+        config = Config(
+            napoleon_use_param=True,
+            napoleon_use_rtype=True,
+            napoleon_type_aliases=translations,
+        )
+        actual = str(NumpyDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
     def test_keywords_with_types(self):
         docstring = """\
 Do as you please
@@ -2019,9 +2178,31 @@ def warns(warning, match):
         warnings = [w for w in raw_warnings.split("\n") if w.strip()]
 
         assert len(warnings) == 1 and all(match_re.match(w) for w in warnings)
+        warning.truncate(0)
 
 
 class TestNumpyDocstring:
+    def test_token_type_invalid(self, warning):
+        tokens = (
+            "{1, 2",
+            "}",
+            "'abc",
+            "def'",
+            '"ghi',
+            'jkl"',
+        )
+        errors = (
+            r".+: invalid value set \(missing closing brace\):",
+            r".+: invalid value set \(missing opening brace\):",
+            r".+: malformed string literal \(missing closing quote\):",
+            r".+: malformed string literal \(missing opening quote\):",
+            r".+: malformed string literal \(missing closing quote\):",
+            r".+: malformed string literal \(missing opening quote\):",
+        )
+        for token, error in zip(tokens, errors):
+            with warns(warning, match=error):
+                _token_type(token)
+
     @pytest.mark.parametrize(
         ["spec", "pattern"],
         (

@@ -64,8 +64,8 @@ def compile_latex_document(app, filename='python.tex'):
                     '-output-directory=%s' % app.config.latex_engine,
                     filename]
             subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
-    except OSError:  # most likely the latex executable was not found
-        raise pytest.skip.Exception
+    except OSError as exc:  # most likely the latex executable was not found
+        raise pytest.skip.Exception from exc
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
@@ -1477,7 +1477,7 @@ def test_latex_labels(app, status, warning):
             r'\label{\detokenize{otherdoc:otherdoc}}'
             r'\label{\detokenize{otherdoc::doc}}' in result)
 
-    # Embeded standalone hyperlink reference (refs: #5948)
+    # Embedded standalone hyperlink reference (refs: #5948)
     assert result.count(r'\label{\detokenize{index:section1}}') == 1
 
 
@@ -1545,7 +1545,7 @@ def test_texescape_for_unicode_supported_engine(app, status, warning):
     assert 'superscript: ⁰, ¹' in result
     assert 'subscript: ₀, ₁' in result
 
-    
+
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={'latex_elements': {'extrapackages': r'\usepackage{foo}'}})
 def test_latex_elements_extrapackages(app, status, warning):

@@ -9,6 +9,7 @@
 """
 
 import builtins
+import contextlib
 import enum
 import inspect
 import re
@@ -18,16 +19,17 @@ import typing
 import warnings
 from functools import partial, partialmethod
 from inspect import (  # NOQA
-    Parameter, isclass, ismethod, ismethoddescriptor
+    Parameter, isclass, ismethod, ismethoddescriptor, ismodule
 )
 from io import StringIO
-from typing import Any, Callable, Mapping, List, Optional, Tuple
+from typing import Any, Callable, Dict, Mapping, List, Optional, Tuple
 from typing import cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py35-37
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
+from sphinx.util.typing import ForwardRef
 from sphinx.util.typing import stringify as stringify_annotation
 
 if sys.version_info > (3, 7):
@@ -321,7 +323,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)
-    except Exception:
+    except Exception as exc:
         # sometimes accessing a property raises an exception (e.g.
         # NotImplementedError), so let's try to read the attribute directly
         try:
@@ -336,7 +338,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         if defargs:
             return defargs[0]
 
-        raise AttributeError(name)
+        raise AttributeError(name) from exc
 
 
 def safe_getmembers(object: Any, predicate: Callable[[str], bool] = None,
@@ -385,8 +387,8 @@ def object_description(object: Any) -> str:
                                                  for x in sorted_values)
     try:
         s = repr(object)
-    except Exception:
-        raise ValueError
+    except Exception as exc:
+        raise ValueError from exc
     # Strip non-deterministic memory addresses such as
     # ``<__main__.A at 0x7f68cb685710>``
     s = memory_address_re.sub('', s)
@@ -421,6 +423,17 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     return getattr(builtins, name, None) is cls
 
 
+def _should_unwrap(subject: Callable) -> bool:
+    """Check the function should be unwrapped on getting signature."""
+    if (safe_getattr(subject, '__globals__', None) and
+            subject.__globals__.get('__name__') == 'contextlib' and  # type: ignore
+            subject.__globals__.get('__file__') == contextlib.__file__):  # type: ignore
+        # contextmanger should be unwrapped
+        return True
+
+    return False
+
+
 def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False
               ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
@@ -431,7 +444,10 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
     """
     try:
         try:
-            signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
+            if _should_unwrap(subject):
+                signature = inspect.signature(subject)
+            else:
+                signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
         except ValueError:
             # follow built-in wrappers up (ex. functools.lru_cache)
             signature = inspect.signature(subject)
@@ -469,7 +485,53 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
             if len(parameters) > 0:
                 parameters.pop(0)
 
-    return inspect.Signature(parameters, return_annotation=return_annotation)
+    # To allow to create signature object correctly for pure python functions,
+    # pass an internal parameter __validate_parameters__=False to Signature
+    #
+    # For example, this helps a function having a default value `inspect._empty`.
+    # refs: https://github.com/sphinx-doc/sphinx/issues/7935
+    return inspect.Signature(parameters, return_annotation=return_annotation,  # type: ignore
+                             __validate_parameters__=False)
+
+
+def evaluate_signature(sig: inspect.Signature, globalns: Dict = None, localns: Dict = None
+                       ) -> inspect.Signature:
+    """Evaluate unresolved type annotations in a signature object."""
+    def evaluate(annotation: Any, globalns: Dict, localns: Dict) -> Any:
+        """Evaluate unresolved type annotation."""
+        try:
+            if isinstance(annotation, str):
+                ref = ForwardRef(annotation, True)
+                annotation = ref._evaluate(globalns, localns)
+
+                if isinstance(annotation, ForwardRef):
+                    annotation = annotation._evaluate(globalns, localns)
+                elif isinstance(annotation, str):
+                    # might be a ForwardRef'ed annotation in overloaded functions
+                    ref = ForwardRef(annotation, True)
+                    annotation = ref._evaluate(globalns, localns)
+        except (NameError, TypeError):
+            # failed to evaluate type. skipped.
+            pass
+
+        return annotation
+
+    if globalns is None:
+        globalns = {}
+    if localns is None:
+        localns = globalns
+
+    parameters = list(sig.parameters.values())
+    for i, param in enumerate(parameters):
+        if param.annotation:
+            annotation = evaluate(param.annotation, globalns, localns)
+            parameters[i] = param.replace(annotation=annotation)
+
+    return_annotation = sig.return_annotation
+    if return_annotation:
+        return_annotation = evaluate(return_annotation, globalns, localns)
+
+    return sig.replace(parameters=parameters, return_annotation=return_annotation)
 
 
 def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,

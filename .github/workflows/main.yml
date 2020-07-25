@@ -18,4 +18,4 @@ jobs:
     - name: Install dependencies
       run:  pip install -U tox
     - name: Run Tox
-      run:  tox -e py
+      run:  tox -e py -- -vv

@@ -128,6 +128,9 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
 
             if 'return' not in obj.__annotations__:
                 obj.__annotations__['return'] = type_sig.return_annotation
+    except KeyError as exc:
+        logger.warning(__("Failed to update signature for %r: parameter not found: %s"),
+                       obj, exc)
     except NotImplementedError as exc:  # failed to ast.unparse()
         logger.warning(__("Failed to parse type_comment for %r: %s"), obj, exc)
 

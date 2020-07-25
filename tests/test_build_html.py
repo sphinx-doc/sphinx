@@ -357,7 +357,6 @@ def test_html4_output(app, status, warning):
          "[@class='reference external']", ''),
         (".//li/p/a[@href='genindex.html']/span", 'Index'),
         (".//li/p/a[@href='py-modindex.html']/span", 'Module Index'),
-        (".//li/p/a[@href='search.html']/span", 'Search Page'),
         # custom sidebar only for contents
         (".//h4", 'Contents sidebar'),
         # custom JavaScript
@@ -1575,3 +1574,21 @@ def test_html_scaled_image_link(app):
     assert re.search('\n<img alt="_images/img.png" class="no-scaled-link"'
                      ' src="_images/img.png" style="[^"]+" />',
                      context)
+
+
+@pytest.mark.sphinx('html', testroot='reST-code-block',
+                    confoverrides={'html_codeblock_linenos_style': 'table'})
+def test_html_codeblock_linenos_style_table(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<div class="linenodiv"><pre>1\n2\n3\n4</pre></div>' in content
+
+
+@pytest.mark.sphinx('html', testroot='reST-code-block',
+                    confoverrides={'html_codeblock_linenos_style': 'inline'})
+def test_html_codeblock_linenos_style_inline(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<span class="lineno">1 </span>' in content

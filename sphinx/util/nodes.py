@@ -31,7 +31,7 @@ if False:
     from sphinx.builders import Builder
     from sphinx.domain import IndexEntry
     from sphinx.environment import BuildEnvironment
-    from sphinx.utils.tags import Tags
+    from sphinx.util.tags import Tags
 
 logger = logging.getLogger(__name__)
 
@@ -242,6 +242,7 @@ def is_translatable(node: Node) -> bool:
 LITERAL_TYPE_NODES = (
     nodes.literal_block,
     nodes.doctest_block,
+    nodes.math_block,
     nodes.raw,
 )
 IMAGE_TYPE_NODES = (

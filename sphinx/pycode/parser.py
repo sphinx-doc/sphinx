@@ -12,6 +12,7 @@ import itertools
 import re
 import sys
 import tokenize
+from collections import OrderedDict
 from inspect import Signature
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
@@ -19,7 +20,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from sphinx.pycode.ast import ast  # for py37 or older
 from sphinx.pycode.ast import parse, unparse
-from sphinx.util.inspect import signature_from_ast
 
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
@@ -229,7 +229,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.context = []               # type: List[str]
         self.current_classes = []       # type: List[str]
         self.current_function = None    # type: ast.FunctionDef
-        self.comments = {}              # type: Dict[Tuple[str, str], str]
+        self.comments = OrderedDict()   # type: Dict[Tuple[str, str], str]
         self.annotations = {}           # type: Dict[Tuple[str, str], str]
         self.previous = None            # type: ast.AST
         self.deforders = {}             # type: Dict[str, int]
@@ -262,6 +262,8 @@ class VariableCommentPicker(ast.NodeVisitor):
             self.finals.append(".".join(qualname))
 
     def add_overload_entry(self, func: ast.FunctionDef) -> None:
+        # avoid circular import problem
+        from sphinx.util.inspect import signature_from_ast
         qualname = self.get_qualname_for(func.name)
         if qualname:
             overloads = self.overloads.setdefault(".".join(qualname), [])

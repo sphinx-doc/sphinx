@@ -4,7 +4,7 @@
 
    {% block attributes %}
    {% if attributes %}
-   .. rubric:: Module Attributes
+   .. rubric:: {{ _('Module Attributes') }}
 
    .. autosummary::
    {% for item in attributes %}

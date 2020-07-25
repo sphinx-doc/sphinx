@@ -85,8 +85,8 @@ def test_methoddescriptor(app):
     actual = do_autodoc(app, 'function', 'builtins.int.__add__')
     assert list(actual) == [
         '',
-        '.. py:function:: int.__add__(self, value, /)',
-        '   :module: builtins',
+        '.. py:function:: __add__(self, value, /)',
+        '   :module: builtins.int',
         '',
         '   Return self+value.',
         '',
@@ -98,7 +98,7 @@ def test_decorated(app):
     actual = do_autodoc(app, 'function', 'target.decorator.foo')
     assert list(actual) == [
         '',
-        '.. py:function:: foo()',
+        '.. py:function:: foo(name=None, age=None)',
         '   :module: target.decorator',
         '',
     ]
@@ -144,5 +144,18 @@ def test_wrapped_function(app):
         '   :module: target.wrappedfunction',
         '',
         '   This function is slow.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_wrapped_function_contextmanager(app):
+    actual = do_autodoc(app, 'function', 'target.wrappedfunction.feeling_good')
+    assert list(actual) == [
+        '',
+        '.. py:function:: feeling_good(x: int, y: int) -> Generator',
+        '   :module: target.wrappedfunction',
+        '',
+        "   You'll feel better in this context!",
         '',
     ]
