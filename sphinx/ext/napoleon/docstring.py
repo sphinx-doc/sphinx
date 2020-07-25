@@ -899,6 +899,8 @@ def _token_type(token: str, location: str = None) -> str:
         )
         type_ = "literal"
     elif token in ("optional", "default"):
+        # default is not a official keyword (yet) but supported by the
+        # reference implementation (numpydoc) and widely used
         type_ = "control"
     elif _xref_regex.match(token):
         type_ = "reference"
