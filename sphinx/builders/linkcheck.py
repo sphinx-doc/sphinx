@@ -35,7 +35,7 @@ from sphinx.util.requests import is_ssl_error
 
 logger = logging.getLogger(__name__)
 
-uri_re = re.compile('[a-z]+://')
+uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
 
 
 DEFAULT_REQUEST_HEADERS = {
