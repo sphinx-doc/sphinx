@@ -1050,12 +1050,11 @@ class NumpyDocstring(GoogleDocstring):
     def _get_location(self) -> str:
         filepath = inspect.getfile(self._obj) if self._obj is not None else ""
         name = self._name
-        line = ""
 
         if filepath is None and name is None:
             return None
 
-        return ":".join([filepath, "docstring of %s" % name, line])
+        return ":".join([filepath, "docstring of %s" % name])
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
