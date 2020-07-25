@@ -1402,6 +1402,12 @@ class TexinfoTranslator(SphinxTranslator):
         self.escape_hyphens -= 1
         self.desc_type_name = None
 
+    def visit_desc_signature_line(self, node: Element) -> None:
+        pass
+
+    def depart_desc_signature_line(self, node: Element) -> None:
+        pass
+
     def visit_desc_name(self, node: Element) -> None:
         pass
 

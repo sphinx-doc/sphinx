@@ -64,6 +64,7 @@ Bugs fixed
 * #7968: i18n: The content of ``math`` directive is interpreted as reST on
   translation
 * #7993: texinfo: TypeError is raised for nested object descriptions
+* #7993: texinfo: a warning not supporting desc_signature_line node is shown
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
 * C and C++, removed ``noindex`` directive option as it did
