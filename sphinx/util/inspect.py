@@ -439,8 +439,8 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False
-              ) -> inspect.Signature:
+def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False,
+              type_aliases: Dict = {}) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
@@ -470,7 +470,7 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
 
     try:
         # Update unresolved annotations using ``get_type_hints()``.
-        annotations = typing.get_type_hints(subject)
+        annotations = typing.get_type_hints(subject, None, type_aliases)
         for i, param in enumerate(parameters):
             if isinstance(param.annotation, str) and param.name in annotations:
                 parameters[i] = param.replace(annotation=annotations[param.name])
