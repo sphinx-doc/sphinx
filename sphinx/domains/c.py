@@ -2922,6 +2922,8 @@ class DefinitionParser(BaseParser):
             if not self.match(identifier_re):
                 self.fail("Expected identifier in macro parameters.")
             nn = ASTNestedName([ASTIdentifier(self.matched_text)], rooted=False)
+            # Allow named variadic args:
+            # https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
             self.skip_ws()
             if self.skip_string_and_ws('...'):
                 args.append(ASTMacroParameter(nn, False, True))
