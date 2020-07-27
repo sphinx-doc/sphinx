@@ -3,6 +3,8 @@
 Doctree node classes added by Sphinx
 ====================================
 
+.. note:: This page does not list the complete set of nodes available in sphinx. Please also see the `nodes provided by docutils.nodes <http://epydoc.sourceforge.net/docutils/private/docutils.nodes-module.html>`_
+
 .. module:: sphinx.addnodes
 
 Nodes for domain-specific object descriptions
