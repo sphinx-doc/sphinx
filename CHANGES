@@ -43,6 +43,7 @@ Features added
   The warnings printed from this functionality can be suppressed by setting
   :confval:`c_warn_on_allowed_pre_v3`` to ``True``.
   The functionality is immediately deprecated.
+* #7999: C, add support for named variadic macro arguments.
 
 Bugs fixed
 ----------
