@@ -15,7 +15,6 @@ from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.util import docutils
 
 if False:
     # For type annotation
@@ -34,6 +33,7 @@ class document(nodes.document):
 
     def set_id(self, node: Element, msgnode: Element = None,
                suggested_prefix: str = '') -> str:
+        from sphinx.util import docutils
         if docutils.__version_info__ >= (0, 16):
             ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
         else:
