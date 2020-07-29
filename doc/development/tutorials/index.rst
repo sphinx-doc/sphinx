@@ -5,10 +5,6 @@ Extension tutorials
 
 Refer to the following tutorials to get started with extension development.
 
-.. toctree::
-   :caption: General extension tutorials
-
-   overview
 
 .. toctree::
    :caption: Directive tutorials
