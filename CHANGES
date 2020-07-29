@@ -69,6 +69,8 @@ Bugs fixed
 * #7691: linkcheck: HEAD requests are not used for checking
 * #4888: i18n: Failed to add an explicit title to ``:ref:`` role on translation
 * #7928: py domain: failed to resolve a type annotation for the attribute
+* #7994: std domain: option directive does not generate old node_id compatible
+  with 2.x or older
 * #7968: i18n: The content of ``math`` directive is interpreted as reST on
   translation
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
