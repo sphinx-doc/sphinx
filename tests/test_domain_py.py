@@ -262,6 +262,14 @@ def test_parse_annotation(app):
                           [desc_sig_punctuation, ")"],
                           [desc_sig_punctuation, "]"]))
 
+    doctree = _parse_annotation("Tuple[int, ...]", app.env)
+    assert_node(doctree, ([pending_xref, "Tuple"],
+                          [desc_sig_punctuation, "["],
+                          [pending_xref, "int"],
+                          [desc_sig_punctuation, ", "],
+                          [desc_sig_punctuation, "..."],
+                          [desc_sig_punctuation, "]"]))
+
     doctree = _parse_annotation("Callable[[int, int], int]", app.env)
     assert_node(doctree, ([pending_xref, "Callable"],
                           [desc_sig_punctuation, "["],
@@ -272,6 +280,12 @@ def test_parse_annotation(app):
                           [desc_sig_punctuation, "]"],
                           [desc_sig_punctuation, ", "],
                           [pending_xref, "int"],
+                          [desc_sig_punctuation, "]"]))
+
+    doctree = _parse_annotation("List[None]", app.env)
+    assert_node(doctree, ([pending_xref, "List"],
+                          [desc_sig_punctuation, "["],
+                          [pending_xref, "None"],
                           [desc_sig_punctuation, "]"]))
 
     # None type makes an object-reference (not a class reference)
