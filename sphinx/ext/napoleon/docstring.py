@@ -45,7 +45,8 @@ _enumerated_list_regex = re.compile(
     r'(\d+|#|[ivxlcdm]+|[IVXLCDM]+|[a-zA-Z])'
     r'(?(paren)\)|\.)(\s+\S|\s*$)')
 _token_regex = re.compile(
-    r"(\sor\s|\sof\s|:\s|,\s|[{]|[}]"
+    r"(,\sor\s|\sor\s|\sof\s|:\s|\sto\s|,\sand\s|\sand\s|,\s"
+    r"|[{]|[}]"
     r'|"(?:\\"|[^"])*"'
     r"|'(?:\\'|[^'])*')"
 )

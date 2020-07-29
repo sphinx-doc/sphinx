@@ -2026,6 +2026,7 @@ definition_after_normal_text : int
     def test_tokenize_type_spec(self):
         specs = (
             "str",
+            "int, float, or complex",
             "int or float or None, optional",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'F'",
@@ -2038,6 +2039,7 @@ definition_after_normal_text : int
 
         tokens = (
             ["str"],
+            ["int", ", ", "float", ", or ", "complex"],
             ["int", " or ", "float", " or ", "None", ", ", "optional"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "'F'"],
@@ -2136,6 +2138,8 @@ definition_after_normal_text : int
                 a optional parameter with fixed values
             param6 : int, default None
                 different default format
+            param7 : mapping of hashable to str, optional
+                a optional mapping
         """)
         expected = dedent("""\
             :param param1: the data to work on
@@ -2150,9 +2154,13 @@ definition_after_normal_text : int
             :type param5: ``{"F", "C", "N"}``, *optional*
             :param param6: different default format
             :type param6: :class:`int`, *default* :obj:`None`
+            :param param7: a optional mapping
+            :type param7: :term:`mapping` of :term:`hashable` to :class:`str`, *optional*
         """)
         translations = {
             "dict-like": ":term:`dict-like <mapping>`",
+            "mapping": ":term:`mapping`",
+            "hashable": ":term:`hashable`",
         }
         config = Config(
             napoleon_use_param=True,
