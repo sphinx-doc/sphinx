@@ -847,8 +847,13 @@ def _recombine_set_tokens(tokens: List[str]) -> List[str]:
 
 def _tokenize_type_spec(spec: str) -> List[str]:
     def postprocess(item):
-        if item.startswith("default"):
-            return [item[:7], item[7:]]
+        if item.startswith("default") and item != "default":
+            default = item[:7]
+            other = item[7:].lstrip()
+
+            whitespace = item[7:7 + len(item) - len(default) - len(other)]
+
+            return [default, whitespace, other]
         else:
             return [item]
 

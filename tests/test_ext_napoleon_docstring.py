@@ -2030,6 +2030,8 @@ definition_after_normal_text : int
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'F'",
             "{'F', 'C', 'N or C'}, default 'F'",
+            "int, default: None",
+            "int, default None",
             '"ma{icious"',
             r"'with \'quotes\''",
         )
@@ -2040,6 +2042,8 @@ definition_after_normal_text : int
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "'F'"],
             ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
+            ["int", ", ", "default", ": ", "None"],
+            ["int", ", " , "default", " ", "None"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],
         )
@@ -2053,12 +2057,14 @@ definition_after_normal_text : int
             ["{", "1", ", ", "2", "}"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}", ", ", "optional"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "None"],
+            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", " ", "None"],
         )
 
         combined_tokens = (
             ["{1, 2}"],
             ['{"F", "C", "N"}', ", ", "optional"],
             ["{'F', 'C', 'N'}", ", ", "default", ": ", "None"],
+            ["{'F', 'C', 'N'}", ", ", "default", " ", "None"],
         )
 
         for tokens_, expected in zip(tokens, combined_tokens):
@@ -2091,8 +2097,10 @@ definition_after_normal_text : int
             "optional",
             "str, optional",
             "int or float or None, default: None",
+            "int, default None",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'N'",
+            "{'F', 'C', 'N'}, default 'N'",
             "DataFrame, optional",
         )
 
@@ -2101,8 +2109,10 @@ definition_after_normal_text : int
             "*optional*",
             ":class:`str`, *optional*",
             ":class:`int` or :class:`float` or :obj:`None`, *default*: :obj:`None`",
+            ":class:`int`, *default* :obj:`None`",
             '``{"F", "C", "N"}``',
             "``{'F', 'C', 'N'}``, *default*: ``'N'``",
+            "``{'F', 'C', 'N'}``, *default* ``'N'``",
             ":class:`pandas.DataFrame`, *optional*",
         )
 
@@ -2124,6 +2134,8 @@ definition_after_normal_text : int
                 a optional parameter with different types
             param5 : {"F", "C", "N"}, optional
                 a optional parameter with fixed values
+            param6 : int, default None
+                different default format
         """)
         expected = dedent("""\
             :param param1: the data to work on
@@ -2136,6 +2148,8 @@ definition_after_normal_text : int
             :type param4: :class:`int` or :class:`float` or :obj:`None`, *optional*
             :param param5: a optional parameter with fixed values
             :type param5: ``{"F", "C", "N"}``, *optional*
+            :param param6: different default format
+            :type param6: :class:`int`, *default* :obj:`None`
         """)
         translations = {
             "dict-like": ":term:`dict-like <mapping>`",
