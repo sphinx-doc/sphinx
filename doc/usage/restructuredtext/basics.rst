@@ -288,7 +288,7 @@ Roles
 -----
 
 A role or "custom interpreted text role" (:duref:`ref <roles>`) is an inline
-piece of explicit markup. It signifies that that the enclosed text should be
+piece of explicit markup. It signifies that the enclosed text should be
 interpreted in a specific way.  Sphinx uses this to provide semantic markup and
 cross-referencing of identifiers, as described in the appropriate section.  The
 general syntax is ``:rolename:`content```.
