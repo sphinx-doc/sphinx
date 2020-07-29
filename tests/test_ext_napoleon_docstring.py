@@ -2128,7 +2128,7 @@ definition_after_normal_text : int
             ----------
             param1 : DataFrame
                 the data to work on
-            param2 : int or float or None
+            param2 : int or float or None or ..., optional
                 a parameter with different types
             param3 : dict-like, optional
                 a optional mapping
@@ -2145,7 +2145,7 @@ definition_after_normal_text : int
             :param param1: the data to work on
             :type param1: DataFrame
             :param param2: a parameter with different types
-            :type param2: :class:`int` or :class:`float` or :obj:`None`
+            :type param2: :class:`int` or :class:`float` or :obj:`None` or :obj:`...`, *optional*
             :param param3: a optional mapping
             :type param3: :term:`dict-like <mapping>`, *optional*
             :param param4: a optional parameter with different types
