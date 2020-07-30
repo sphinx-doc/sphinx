@@ -74,6 +74,8 @@ Bugs fixed
   with 2.x or older
 * #7968: i18n: The content of ``math`` directive is interpreted as reST on
   translation
+* #7768: i18n: The ``root`` element for :confval:`figure_language_filename` is
+  not a path that user specifies in the document
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
 * C and C++, removed ``noindex`` directive option as it did
