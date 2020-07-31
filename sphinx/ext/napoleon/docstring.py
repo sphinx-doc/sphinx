@@ -810,6 +810,9 @@ def _recombine_set_tokens(tokens: List[str]) -> List[str]:
                 previous_token = token
                 continue
 
+            if not token.strip():
+                continue
+
             if token in keywords:
                 tokens.appendleft(token)
                 if previous_token is not None:
