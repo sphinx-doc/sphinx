@@ -50,7 +50,7 @@ _token_regex = re.compile(
     r'|"(?:\\"|[^"])*"'
     r"|'(?:\\'|[^'])*')"
 )
-_singletons = ("None", "True", "False", "...", "Ellipsis")
+_singletons = ("None", "True", "False", "Ellipsis")
 
 
 class GoogleDocstring:
@@ -924,6 +924,9 @@ def _convert_numpy_type_spec(_type: str, location: str = None, translations: dic
         # use :class: (the default) only if obj is not a standard singleton
         if translation in _singletons and default_translation == ":class:`%s`":
             default_translation = ":obj:`%s`"
+        elif translation == "..." and default_translation == ":class:`%s`":
+            # allow referencing the builtin ...
+            default_translation = ":obj:`%s <Ellipsis>`"
 
         if _xref_regex.match(translation) is None:
             translation = default_translation % translation

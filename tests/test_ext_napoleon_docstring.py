@@ -2128,7 +2128,7 @@ definition_after_normal_text : int
             ----------
             param1 : DataFrame
                 the data to work on
-            param2 : int or float or None or ..., optional
+            param2 : int or float or None, optional
                 a parameter with different types
             param3 : dict-like, optional
                 a optional mapping
@@ -2140,12 +2140,14 @@ definition_after_normal_text : int
                 different default format
             param7 : mapping of hashable to str, optional
                 a optional mapping
+            param8 : ... or Ellipsis
+                ellipsis
         """)
         expected = dedent("""\
             :param param1: the data to work on
             :type param1: DataFrame
             :param param2: a parameter with different types
-            :type param2: :class:`int` or :class:`float` or :obj:`None` or :obj:`...`, *optional*
+            :type param2: :class:`int` or :class:`float` or :obj:`None`, *optional*
             :param param3: a optional mapping
             :type param3: :term:`dict-like <mapping>`, *optional*
             :param param4: a optional parameter with different types
@@ -2156,6 +2158,8 @@ definition_after_normal_text : int
             :type param6: :class:`int`, *default* :obj:`None`
             :param param7: a optional mapping
             :type param7: :term:`mapping` of :term:`hashable` to :class:`str`, *optional*
+            :param param8: ellipsis
+            :type param8: :obj:`... <Ellipsis>` or :obj:`Ellipsis`
         """)
         translations = {
             "dict-like": ":term:`dict-like <mapping>`",
