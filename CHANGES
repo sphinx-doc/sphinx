@@ -10,6 +10,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.writers.texinfo.TexinfoWriter.desc``
 * C, parsing of pre-v3 style type directives and roles, along with the options
   :confval:`c_allow_pre_v3` and :confval:`c_warn_on_allowed_pre_v3`.
 
@@ -76,6 +77,8 @@ Bugs fixed
   translation
 * #7768: i18n: The ``root`` element for :confval:`figure_language_filename` is
   not a path that user specifies in the document
+* #7993: texinfo: TypeError is raised for nested object descriptions
+* #7993: texinfo: a warning not supporting desc_signature_line node is shown
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
 * C and C++, removed ``noindex`` directive option as it did
