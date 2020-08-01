@@ -67,9 +67,12 @@ Features added
   of line numbers for code-blocks
 * #7853: C and C++, support parameterized GNU style attributes.
 * #7888: napoleon: Add aliases Warn and Raise.
+* #7690: napoleon: parse type strings and make them hyperlinks as possible.  The
+  conversion rule can be updated via :confval:`napoleon_type_aliases`
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
 * #7745: html: inventory is broken if the docname contains a space
+* #7991: html search: Allow searching for numbers
 * #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
   the behavior of globaltoc in sidebar
 * #7840: i18n: Optimize the dependencies check on bootstrap
@@ -84,6 +87,7 @@ Features added
   The warnings printed from this functionality can be suppressed by setting
   :confval:`c_warn_on_allowed_pre_v3`` to ``True``.
   The functionality is immediately deprecated.
+* #7999: C, add support for named variadic macro arguments.
 
 Bugs fixed
 ----------
@@ -109,14 +113,20 @@ Bugs fixed
 * #7691: linkcheck: HEAD requests are not used for checking
 * #4888: i18n: Failed to add an explicit title to ``:ref:`` role on translation
 * #7928: py domain: failed to resolve a type annotation for the attribute
+* #8008: py domain: failed to parse a type annotation containing ellipsis
+* #7994: std domain: option directive does not generate old node_id compatible
+  with 2.x or older
 * #7968: i18n: The content of ``math`` directive is interpreted as reST on
   translation
+* #7768: i18n: The ``root`` element for :confval:`figure_language_filename` is
+  not a path that user specifies in the document
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
 * C and C++, removed ``noindex`` directive option as it did
   nothing.
 * #7619: Duplicated node IDs are generated if node has multiple IDs
 * #2050: Symbols sections are appeared twice in the index page
+* #8017: Fix circular import in sphinx.addnodes
 
 Testing
 --------

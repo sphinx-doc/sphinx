@@ -112,7 +112,7 @@ var Stemmer = function() {
             len(word) == 0 or not (
                 ((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
                 (ord(word[0]) < 256 and (
-                    len(word) < 3 or word in self.stopwords or word.isdigit()
+                    len(word) < 3 or word in self.stopwords
                 ))))
 
 
