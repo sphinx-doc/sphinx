@@ -579,6 +579,8 @@ class Documenter:
                         return True
                     elif name in cls.__dict__:
                         return False
+                    elif name in self.get_attr(cls, '__annotations__', {}):
+                        return False
 
             return False
 
