@@ -10,6 +10,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.autodoc.merge_special_members_option()``
 * ``sphinx.writers.texinfo.TexinfoWriter.desc``
 * C, parsing of pre-v3 style type directives and roles, along with the options
   :confval:`c_allow_pre_v3` and :confval:`c_warn_on_allowed_pre_v3`.
@@ -18,6 +19,8 @@ Features added
 --------------
 
 * #2076: autodoc: Allow overriding of exclude-members in skip-member function
+* #8034: autodoc: ``:private-member:`` can take an explicit list of member names
+  to be documented
 * #2024: autosummary: Add :confval:`autosummary_filename_map` to avoid conflict
   of filenames between two object with different case
 * #7849: html: Add :confval:`html_codeblock_linenos_style` to change the style
