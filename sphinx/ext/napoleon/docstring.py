@@ -871,10 +871,19 @@ def _tokenize_type_spec(spec: str) -> List[str]:
 
 
 def _token_type(token: str, location: str = None) -> str:
+    def is_numeric(token):
+        try:
+            # use complex to make sure every numeric value is detected as literal
+            complex(token)
+        except ValueError:
+            return False
+        else:
+            return True
+
     if token.startswith(" ") or token.endswith(" "):
         type_ = "delimiter"
     elif (
-            token.isnumeric() or
+            is_numeric(token) or
             (token.startswith("{") and token.endswith("}")) or
             (token.startswith('"') and token.endswith('"')) or
             (token.startswith("'") and token.endswith("'"))
