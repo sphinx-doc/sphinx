@@ -10,7 +10,7 @@
 
 import sys
 import typing
-from typing import Any, Callable, Dict, List, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, Generator, List, Tuple, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -163,6 +163,8 @@ def _stringify_py36(annotation: Any) -> str:
         if hasattr(annotation, '__args__'):
             # for Python 3.5.2+
             if annotation.__args__ is None or len(annotation.__args__) <= 2:  # type: ignore  # NOQA
+                params = annotation.__args__  # type: ignore
+            elif annotation.__origin__ == Generator:  # type: ignore
                 params = annotation.__args__  # type: ignore
             else:  # typing.Callable
                 args = ', '.join(stringify(arg) for arg

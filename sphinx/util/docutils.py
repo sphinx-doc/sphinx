@@ -459,7 +459,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         The priority of visitor method is:
 
         1. ``self.visit_{node_class}()``
-        2. ``self.visit_{supre_node_class}()``
+        2. ``self.visit_{super_node_class}()``
         3. ``self.unknown_visit()``
         """
         for node_class in node.__class__.__mro__:

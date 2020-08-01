@@ -296,6 +296,10 @@ def test_macro_definitions():
     check('macro', 'M(arg, ...)', {1: 'M'})
     check('macro', 'M(arg1, arg2, ...)', {1: 'M'})
     check('macro', 'M(arg1, arg2, arg3, ...)', {1: 'M'})
+    # GNU extension
+    check('macro', 'M(arg1, arg2, arg3...)', {1: 'M'})
+    with pytest.raises(DefinitionError):
+        check('macro', 'M(arg1, arg2..., arg3)', {1: 'M'})
 
 
 def test_member_definitions():
