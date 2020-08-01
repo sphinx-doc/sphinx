@@ -2026,6 +2026,7 @@ definition_after_normal_text : int
     def test_tokenize_type_spec(self):
         specs = (
             "str",
+            "defaultdict",
             "int, float, or complex",
             "int or float or None, optional",
             '{"F", "C", "N"}',
@@ -2039,6 +2040,7 @@ definition_after_normal_text : int
 
         tokens = (
             ["str"],
+            ["defaultdict"],
             ["int", ", ", "float", ", or ", "complex"],
             ["int", " or ", "float", " or ", "None", ", ", "optional"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],

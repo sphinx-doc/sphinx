@@ -50,6 +50,9 @@ _token_regex = re.compile(
     r'|"(?:\\"|[^"])*"'
     r"|'(?:\\'|[^'])*')"
 )
+_default_regex = re.compile(
+    r"^default[^_0-9A-Za-z].*$",
+)
 _SINGLETONS = ("None", "True", "False", "Ellipsis")
 
 
@@ -851,7 +854,7 @@ def _recombine_set_tokens(tokens: List[str]) -> List[str]:
 
 def _tokenize_type_spec(spec: str) -> List[str]:
     def postprocess(item):
-        if item.startswith("default") and item != "default":
+        if _default_regex.match(item):
             default = item[:7]
             other = item[7:].lstrip()
 
