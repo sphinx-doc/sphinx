@@ -138,7 +138,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
             return result
         else:
             if sys.version_info >= (3, 6):
-                if isinstance(node, ast.Constant):
+                if isinstance(node, ast.Constant):  # type: ignore
                     if node.value is Ellipsis:
                         return [addnodes.desc_sig_punctuation('', "...")]
                     else:
