@@ -2003,6 +2003,8 @@ definition_after_normal_text : int
     def test_token_type(self):
         tokens = (
             ("1", "literal"),
+            ("-4.6", "literal"),
+            ("2j", "literal"),
             ("'string'", "literal"),
             ('"another_string"', "literal"),
             ("{1, 2}", "literal"),
