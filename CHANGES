@@ -10,6 +10,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.autodoc.members_set_option()``
 * ``sphinx.ext.autodoc.merge_special_members_option()``
 * ``sphinx.writers.texinfo.TexinfoWriter.desc``
 * C, parsing of pre-v3 style type directives and roles, along with the options

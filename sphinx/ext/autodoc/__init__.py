@@ -74,7 +74,15 @@ class _All:
         return True
 
 
+class _Empty:
+    """A special value for :exclude-members: that never matches to any member."""
+
+    def __contains__(self, item: Any) -> bool:
+        return False
+
+
 ALL = _All()
+EMPTY = _Empty()
 UNINITIALIZED_ATTR = object()
 INSTANCEATTR = object()
 SLOTSATTR = object()
@@ -89,8 +97,17 @@ def members_option(arg: Any) -> Union[object, List[str]]:
 
 def members_set_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :members: option to auto directives."""
+    warnings.warn("members_set_option() is deprecated.",
+                  RemovedInSphinx50Warning, stacklevel=2)
     if arg is None:
         return ALL
+    return {x.strip() for x in arg.split(',') if x.strip()}
+
+
+def exclude_members_option(arg: Any) -> Union[object, Set[str]]:
+    """Used to convert the :exclude-members: option."""
+    if arg is None:
+        return EMPTY
     return {x.strip() for x in arg.split(',') if x.strip()}
 
 
@@ -654,8 +671,7 @@ class Documenter:
             if safe_getattr(member, '__sphinx_mock__', False):
                 # mocked module or object
                 pass
-            elif (self.options.exclude_members not in (None, ALL) and
-                  membername in self.options.exclude_members):
+            elif self.options.exclude_members and membername in self.options.exclude_members:
                 # remove members given by exclude-members
                 keep = False
             elif want_all and membername.startswith('__') and \
@@ -890,7 +906,7 @@ class ModuleDocumenter(Documenter):
         'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
-        'member-order': member_order_option, 'exclude-members': members_set_option,
+        'member-order': member_order_option, 'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
         'imported-members': bool_option, 'ignore-module-all': bool_option
     }  # type: Dict[str, Callable]
@@ -1310,7 +1326,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'member-order': member_order_option,
-        'exclude-members': members_set_option,
+        'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
     }  # type: Dict[str, Callable]
 
