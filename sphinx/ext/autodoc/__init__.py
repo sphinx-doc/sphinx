@@ -2020,11 +2020,22 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
                 isattr and
                 member is INSTANCEATTR)
 
+    def import_parent(self) -> Any:
+        try:
+            parent = importlib.import_module(self.modname)
+            for name in self.objpath[:-1]:
+                parent = self.get_attr(parent, name)
+
+            return parent
+        except (ImportError, AttributeError):
+            return None
+
     def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
         self.object = INSTANCEATTR
+        self.parent = self.import_parent()
         self._datadescriptor = False
         return True
 
