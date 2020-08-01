@@ -90,6 +90,8 @@ def test_format_date():
 
 @pytest.mark.xfail(os.name != 'posix', reason="Path separators don't match on windows")
 def test_get_filename_for_language(app):
+    app.env.temp_data['docname'] = 'index'
+
     # language is None
     app.env.config.language = None
     assert app.env.config.language is None
@@ -144,6 +146,17 @@ def test_get_filename_for_language(app):
     app.env.config.figure_language_filename = '{root}.{invalid}{ext}'
     with pytest.raises(SphinxError):
         i18n.get_image_filename_for_language('foo.png', app.env)
+
+    # docpath (for a document in the top of source directory)
+    app.env.config.language = 'en'
+    app.env.config.figure_language_filename = '/{docpath}{language}/{basename}{ext}'
+    assert (i18n.get_image_filename_for_language('foo.png', app.env) ==
+            '/en/foo.png')
+
+    # docpath (for a document in the sub directory)
+    app.env.temp_data['docname'] = 'subdir/index'
+    assert (i18n.get_image_filename_for_language('foo.png', app.env) ==
+            '/subdir/en/foo.png')
 
 
 def test_CatalogRepository(tempdir):
