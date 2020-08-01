@@ -67,7 +67,14 @@ def identity(x: Any) -> Any:
     return x
 
 
-ALL = object()
+class _All:
+    """A special value for :*-members: that matches to any member."""
+
+    def __contains__(self, item: Any) -> bool:
+        return True
+
+
+ALL = _All()
 UNINITIALIZED_ATTR = object()
 INSTANCEATTR = object()
 SLOTSATTR = object()
@@ -654,22 +661,19 @@ class Documenter:
             elif want_all and membername.startswith('__') and \
                     membername.endswith('__') and len(membername) > 4:
                 # special __methods__
-                if self.options.special_members is ALL:
+                if self.options.special_members and membername in self.options.special_members:
                     if membername == '__doc__':
                         keep = False
                     elif is_filtered_inherited_member(membername):
                         keep = False
                     else:
                         keep = has_doc or self.options.undoc_members
-                elif self.options.special_members:
-                    if membername in self.options.special_members:
-                        keep = has_doc or self.options.undoc_members
+                else:
+                    keep = False
             elif (namespace, membername) in attr_docs:
                 if want_all and isprivate:
                     if self.options.private_members is None:
                         keep = False
-                    elif self.options.private_members is ALL:
-                        keep = True
                     else:
                         keep = membername in self.options.private_members
                 else:
@@ -680,8 +684,6 @@ class Documenter:
                 if has_doc or self.options.undoc_members:
                     if self.options.private_members is None:
                         keep = False
-                    elif self.options.private_members is ALL:
-                        keep = True
                     elif is_filtered_inherited_member(membername):
                         keep = False
                     else:
