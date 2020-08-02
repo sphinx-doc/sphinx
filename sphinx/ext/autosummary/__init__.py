@@ -348,7 +348,7 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            doccls = dispatch_get_documenter(self, obj, parent, real_name)
+            doccls = self.dispatch_get_documenter(obj, parent, real_name)
             documenter = doccls(self.bridge, full_name)
             if not documenter.parse_name():
                 logger.warning(__('failed to parse name %s'), real_name,
