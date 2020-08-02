@@ -301,8 +301,8 @@ class Autosummary(SphinxDirective):
     def dispatch_get_documenter(self, obj, parent, real_name):
         app = self.env.app
         documenters = [
-            func(self, real_name)
-            for func in app.custom_get_documenter_funcs
+            func(self, obj, parent, real_name)
+            for func in app.registry.custom_get_documenter_funcs
         ]
         sorted_documenters = sorted(
             [
