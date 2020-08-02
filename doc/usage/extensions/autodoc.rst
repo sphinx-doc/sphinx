@@ -136,9 +136,22 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            :undoc-members:
 
    * "Private" members (that is, those named like ``_private`` or ``__private``)
-     will be included if the ``private-members`` flag option is given.
+     will be included if the ``private-members`` flag option is given::
+
+        .. automodule:: noodle
+           :members:
+           :private-members:
+
+     It can also take an explicit list of member names to be documented as
+     arguments::
+
+        .. automodule:: noodle
+           :members:
+           :private-members: _spicy, _garlickly
 
      .. versionadded:: 1.1
+     .. versionchanged:: 3.2
+        The option can now take arguments.
 
    * autodoc considers a member private if its docstring contains
      ``:meta private:`` in its :ref:`info-field-lists`.
