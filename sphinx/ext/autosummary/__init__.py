@@ -216,26 +216,6 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
         return DataDocumenter
 
 
-def dispatch_get_documenter(autosummary, obj, parent, real_name):
-    app = autosummary.env.app
-    documenters = [
-        func(autosummary, real_name)
-        for func in app.custom_get_documenter_funcs
-    ]
-    sorted_documenters = sorted(
-        [
-            documenter
-            for documenter in documenters
-            if documenter is not NotImplemented
-        ],
-        key=lambda d: d.priority,
-    )
-    if sorted_documenters:
-        return sorted_documenters[-1]
-    else:
-        return get_documenter(app, obj, parent)
-
-
 # -- .. autosummary:: ----------------------------------------------------------
 
 class Autosummary(SphinxDirective):
@@ -304,6 +284,25 @@ class Autosummary(SphinxDirective):
                            location=nodes[-1])
 
         return nodes
+
+    def dispatch_get_documenter(self, obj, parent, real_name):
+        app = self.env.app
+        documenters = [
+            func(self, real_name)
+            for func in app.custom_get_documenter_funcs
+        ]
+        sorted_documenters = sorted(
+            [
+                documenter
+                for documenter in documenters
+                if documenter is not NotImplemented
+            ],
+            key=lambda d: d.priority,
+        )
+        if sorted_documenters:
+            return sorted_documenters[-1]
+        else:
+            return get_documenter(app, obj, parent)
 
     def get_items(self, names: List[str]) -> List[Tuple[str, str, str, str]]:
         """Try to import the given names, and return a list of
