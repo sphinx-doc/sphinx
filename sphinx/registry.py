@@ -61,6 +61,9 @@ class SphinxComponentRegistry:
         #: autodoc documenters; a dict of documenter name -> documenter class
         self.documenters = {}           # type: Dict[str, Type[Documenter]]
 
+        #: autosummary documenter functions
+        self.custom_get_documenter_funcs = []  # type: List[Callable]
+
         #: css_files; a list of tuple of filename and attributes
         self.css_files = []             # type: List[Tuple[str, Dict[str, str]]]
 
@@ -359,6 +362,9 @@ class SphinxComponentRegistry:
     def add_autodoc_attrgetter(self, typ: "Type",
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
         self.autodoc_attrgettrs[typ] = attrgetter
+
+    def add_autosummary_get_documenter(self, func: Callable) -> None:
+        self.custom_get_documenter_funcs.append(func)
 
     def add_css_files(self, filename: str, **attributes: str) -> None:
         self.css_files.append((filename, attributes))
