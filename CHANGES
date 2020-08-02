@@ -86,6 +86,7 @@ Bugs fixed
 * #7619: Duplicated node IDs are generated if node has multiple IDs
 * #2050: Symbols sections are appeared twice in the index page
 * #8017: Fix circular import in sphinx.addnodes
+* #7986: CSS: make "highlight" selector more robust
 
 Testing
 --------
