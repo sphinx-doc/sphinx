@@ -20,6 +20,8 @@ Features added
 * #2076: autodoc: Allow overriding of exclude-members in skip-member function
 * #2024: autosummary: Add :confval:`autosummary_filename_map` to avoid conflict
   of filenames between two object with different case
+* #8011: autosummary: Support instance attributes as a target of autosummary
+  directive
 * #7849: html: Add :confval:`html_codeblock_linenos_style` to change the style
   of line numbers for code-blocks
 * #7853: C and C++, support parameterized GNU style attributes.
@@ -33,6 +35,7 @@ Features added
 * #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
   the behavior of globaltoc in sidebar
 * #7840: i18n: Optimize the dependencies check on bootstrap
+* #7768: i18n: :confval:`figure_language_filename` supports ``docpath`` token
 * #5208: linkcheck: Support checks for local links
 * #5090: setuptools: Link verbosity to distutils' -v and -q option
 * #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
@@ -56,6 +59,10 @@ Bugs fixed
 * #904: autodoc: An instance attribute cause a crash of autofunction directive
 * #1362: autodoc: ``private-members`` option does not work for class attributes
 * #7983: autodoc: Generator type annotation is wrongly rendered in py36
+* #8030: autodoc: An uninitialized annotated instance variable is not documented
+  when ``:inherited-members:`` option given
+* #8032: autodoc: A type hint for the instance variable defined at parent class
+  is not shown in the document of the derived class
 * #7839: autosummary: cannot handle umlauts in function names
 * #7865: autosummary: Failed to extract summary line when abbreviations found
 * #7866: autosummary: Failed to extract correct summary line when docstring
@@ -86,6 +93,9 @@ Bugs fixed
 * #7619: Duplicated node IDs are generated if node has multiple IDs
 * #2050: Symbols sections are appeared twice in the index page
 * #8017: Fix circular import in sphinx.addnodes
+* #7986: CSS: make "highlight" selector more robust
+* #7944: C++, parse non-type template parameters starting with
+  a dependent qualified name.
 
 Testing
 --------
