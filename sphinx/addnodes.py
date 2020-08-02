@@ -14,8 +14,6 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 from docutils.nodes import Element
 
-from sphinx.util import docutils
-
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
@@ -32,6 +30,7 @@ class document(nodes.document):
 
     def set_id(self, node: Element, msgnode: Element = None,
                suggested_prefix: str = '') -> str:
+        from sphinx.util import docutils
         if docutils.__version_info__ >= (0, 16):
             ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
         else:

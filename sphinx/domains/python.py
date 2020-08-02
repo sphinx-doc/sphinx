@@ -11,6 +11,7 @@
 import builtins
 import inspect
 import re
+import sys
 import typing
 import warnings
 from inspect import Parameter
@@ -136,6 +137,19 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
 
             return result
         else:
+            if sys.version_info >= (3, 6):
+                if isinstance(node, ast.Constant):  # type: ignore
+                    if node.value is Ellipsis:
+                        return [addnodes.desc_sig_punctuation('', "...")]
+                    else:
+                        return [nodes.Text(node.value)]
+
+            if sys.version_info < (3, 8):
+                if isinstance(node, ast.Ellipsis):
+                    return [addnodes.desc_sig_punctuation('', "...")]
+                elif isinstance(node, ast.NameConstant):
+                    return [nodes.Text(node.value)]
+
             raise SyntaxError  # unsupported syntax
 
     if env is None:

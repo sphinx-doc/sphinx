@@ -246,8 +246,8 @@ def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:
         return filename
 
     translated = get_image_filename_for_language(filename, env)
-    dirname = path.dirname(env.docname)
-    if path.exists(path.join(env.srcdir, dirname, translated)):
+    _, abspath = env.relfn2path(translated)
+    if path.exists(abspath):
         return translated
     else:
         return filename

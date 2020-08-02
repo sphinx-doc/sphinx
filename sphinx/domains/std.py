@@ -221,6 +221,11 @@ class Cmdoption(ObjectDescription):
             node_id = make_id(self.env, self.state.document, prefix, optname)
             signode['ids'].append(node_id)
 
+            old_node_id = self.make_old_id(prefix, optname)
+            if old_node_id not in self.state.document.ids and \
+               old_node_id not in signode['ids']:
+                signode['ids'].append(old_node_id)
+
         self.state.document.note_explicit_target(signode)
 
         domain = cast(StandardDomain, self.env.get_domain('std'))
@@ -236,6 +241,14 @@ class Cmdoption(ObjectDescription):
         for option in sig.split(', '):
             entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
+
+    def make_old_id(self, prefix: str, optname: str) -> str:
+        """Generate old styled node_id for cmdoption.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return nodes.make_id(prefix + '-' + optname)
 
 
 class Program(SphinxDirective):

@@ -56,6 +56,11 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.utils.smartyquotes``
 
+   * - ``sphinx.writers.texinfo.TexinfoWriter.desc``
+     - 3.2
+     - 5.0
+     - ``sphinx.writers.texinfo.TexinfoWriter.descs``
+
    * - The first argument for
        ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` has been changed
        to Sphinx object

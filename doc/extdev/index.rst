@@ -3,54 +3,41 @@
 Developing extensions for Sphinx
 ================================
 
-Since many projects will need special features in their documentation, Sphinx is
-designed to be extensible on several levels.
+Since many projects will need special features in their documentation, Sphinx
+is designed to be extensible on several levels.
 
-This is what you can do in an extension: First, you can add new
-:term:`builder`\s to support new output formats or actions on the parsed
-documents.  Then, it is possible to register custom reStructuredText roles and
-directives, extending the markup.  And finally, there are so-called "hook
-points" at strategic places throughout the build process, where an extension can
-register a hook and run specialized code.
+Here are a few things you can do in an extension:
 
-An extension is simply a Python module.  When an extension is loaded, Sphinx
-imports this module and executes its ``setup()`` function, which in turn
-notifies Sphinx of everything the extension offers -- see the extension tutorial
-for examples.
+* Add new :term:`builder`\s to support new output formats or actions on the
+  parsed documents.
+* Register custom reStructuredText roles and directives, extending the markup
+  using the :doc:`markupapi`.
+* Add custom code to so-called "hook points" at strategic places throughout the
+  build process, allowing you to register a hook and run specialized code.
+  For example, see the :ref:`events`.
 
-The configuration file itself can be treated as an extension if it contains a
-``setup()`` function.  All other extensions to load must be listed in the
-:confval:`extensions` configuration value.
+An extension is simply a Python module with a ``setup()`` function. A user
+activates the extension by placing the extension's module name
+(or a sub-module) in their :confval:`extensions` configuration value.
 
-Discovery of builders by entry point
-------------------------------------
+When :program:`sphinx-build` is executed, Sphinx will attempt to import each
+module that is listed, and execute ``yourmodule.setup(app)``. This
+function is used to prepare the extension (e.g., by executing Python code),
+linking resources that Sphinx uses in the build process (like CSS or HTML
+files), and notifying Sphinx of everything the extension offers (such
+as directive or role definitions). The ``app`` argument is an instance of
+:class:`.Sphinx` and gives you control over most aspects of the Sphinx build.
 
-.. versionadded:: 1.6
+.. note::
 
-:term:`builder` extensions can be discovered by means of `entry points`_ so
-that they do not have to be listed in the :confval:`extensions` configuration
-value.
+    The configuration file itself can be treated as an extension if it
+    contains a ``setup()`` function.  All other extensions to load must be
+    listed in the :confval:`extensions` configuration value.
 
-Builder extensions should define an entry point in the ``sphinx.builders``
-group. The name of the entry point needs to match your builder's
-:attr:`~.Builder.name` attribute, which is the name passed to the
-:option:`sphinx-build -b` option. The entry point value should equal the
-dotted name of the extension module. Here is an example of how an entry point
-for 'mybuilder' can be defined in the extension's ``setup.py``::
-
-    setup(
-        # ...
-        entry_points={
-            'sphinx.builders': [
-                'mybuilder = my.extension.module',
-            ],
-        }
-    )
-
-Note that it is still necessary to register the builder using
-:meth:`~.Sphinx.add_builder` in the extension's :func:`setup` function.
-
-.. _entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
+The rest of this page describes some high-level aspects of developing
+extensions and various parts of Sphinx's behavior that you can control.
+For some examples of how extensions can be built and used to control different
+parts of Sphinx, see the :ref:`extension-tutorials-index`.
 
 .. _important-objects:
 
@@ -191,6 +178,11 @@ as metadata of the extension.  Metadata keys currently recognized are:
 
 APIs used for writing extensions
 --------------------------------
+
+These sections provide a more complete description of the tools at your
+disposal when developing Sphinx extensions. Some are core to Sphinx
+(such as the :doc:`appapi`) while others trigger specific behavior
+(such as the :doc:`i18n`)
 
 .. toctree::
    :maxdepth: 2
