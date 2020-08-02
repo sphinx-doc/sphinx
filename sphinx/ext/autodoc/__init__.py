@@ -61,6 +61,7 @@ py_ext_sig_re = re.compile(
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
           ''', re.VERBOSE)
+special_member_re = re.compile(r'^__\S+__$')
 
 
 def identity(x: Any) -> Any:
@@ -674,8 +675,7 @@ class Documenter:
             elif self.options.exclude_members and membername in self.options.exclude_members:
                 # remove members given by exclude-members
                 keep = False
-            elif want_all and membername.startswith('__') and \
-                    membername.endswith('__') and len(membername) > 4:
+            elif want_all and special_member_re.match(membername):
                 # special __methods__
                 if self.options.special_members and membername in self.options.special_members:
                     if membername == '__doc__':
