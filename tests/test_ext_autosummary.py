@@ -293,15 +293,17 @@ def test_autosummary_generate(app, status, warning):
                                                                                nodes.row,
                                                                                nodes.row,
                                                                                nodes.row,
+                                                                               nodes.row,
                                                                                nodes.row)])])
     assert_node(doctree[4][0], addnodes.toctree, caption="An autosummary")
 
-    assert len(doctree[3][0][0][2]) == 5
+    assert len(doctree[3][0][0][2]) == 6
     assert doctree[3][0][0][2][0].astext() == 'autosummary_dummy_module\n\n'
     assert doctree[3][0][0][2][1].astext() == 'autosummary_dummy_module.Foo()\n\n'
     assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.Foo.Bar()\n\n'
-    assert doctree[3][0][0][2][3].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
-    assert doctree[3][0][0][2][4].astext() == 'autosummary_dummy_module.qux\n\na module-level attribute'
+    assert doctree[3][0][0][2][3].astext() == 'autosummary_dummy_module.Foo.value\n\ndocstring'
+    assert doctree[3][0][0][2][4].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
+    assert doctree[3][0][0][2][5].astext() == 'autosummary_dummy_module.qux\n\na module-level attribute'
 
     module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
     assert ('   .. autosummary::\n'
@@ -332,6 +334,11 @@ def test_autosummary_generate(app, status, warning):
     assert ('.. currentmodule:: autosummary_dummy_module\n'
             '\n'
             '.. autoclass:: Foo.Bar\n' in FooBar)
+
+    Foo_value = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.value.rst').read_text()
+    assert ('.. currentmodule:: autosummary_dummy_module\n'
+            '\n'
+            '.. autoattribute:: Foo.value' in Foo_value)
 
     qux = (app.srcdir / 'generated' / 'autosummary_dummy_module.qux.rst').read_text()
     assert ('.. currentmodule:: autosummary_dummy_module\n'

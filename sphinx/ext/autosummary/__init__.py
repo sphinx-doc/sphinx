@@ -75,7 +75,7 @@ from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.ext.autodoc import Documenter
+from sphinx.ext.autodoc import Documenter, INSTANCEATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
@@ -285,6 +285,19 @@ class Autosummary(SphinxDirective):
 
         return nodes
 
+    def import_by_name(self, name: str, prefixes: List[str]) -> Tuple[str, Any, Any, str]:
+        with mock(self.config.autosummary_mock_imports):
+            try:
+                return import_by_name(name, prefixes)
+            except ImportError as exc:
+                # check existence of instance attribute
+                try:
+                    return import_ivar_by_name(name, prefixes)
+                except ImportError:
+                    pass
+
+                raise exc  # re-raise ImportError if instance attribute not found
+
     def get_items(self, names: List[str]) -> List[Tuple[str, str, str, str]]:
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
@@ -302,8 +315,7 @@ class Autosummary(SphinxDirective):
                 display_name = name.split('.')[-1]
 
             try:
-                with mock(self.config.autosummary_mock_imports):
-                    real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
+                real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
             except ImportError:
                 logger.warning(__('autosummary: failed to import %s'), name,
                                location=self.get_source_info())
@@ -657,6 +669,23 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
             return sys.modules[modname], None, modname
     except (ValueError, ImportError, AttributeError, KeyError) as e:
         raise ImportError(*e.args) from e
+
+
+def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, Any, str]:
+    """Import an instance variable that has the given *name*, under one of the
+    *prefixes*.  The first name that succeeds is used.
+    """
+    try:
+        name, attr = name.rsplit(".", 1)
+        real_name, obj, parent, modname = import_by_name(name, prefixes)
+        qualname = real_name.replace(modname + ".", "")
+        analyzer = ModuleAnalyzer.for_module(modname)
+        if (qualname, attr) in analyzer.find_attr_docs():
+            return real_name + "." + attr, INSTANCEATTR, obj, modname
+    except (ImportError, ValueError):
+        pass
+
+    raise ImportError
 
 
 # -- :autolink: (smart default role) -------------------------------------------
