@@ -88,6 +88,8 @@ Bugs fixed
 * #2050: Symbols sections are appeared twice in the index page
 * #8017: Fix circular import in sphinx.addnodes
 * #7986: CSS: make "highlight" selector more robust
+* #7944: C++, parse non-type template parameters starting with
+  a dependent qualified name.
 
 Testing
 --------
