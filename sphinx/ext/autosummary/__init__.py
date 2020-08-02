@@ -216,6 +216,26 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
         return DataDocumenter
 
 
+def dispatch_get_documenter(autosummary, obj, parent, real_name):
+    app = autosummary.env.app
+    documenters = [
+        func(autosummary, real_name)
+        for func in app.custom_get_documenter_funcs
+    ]
+    sorted_documenters = sorted(
+        [
+            documenter
+            for documenter in documenters
+            if documenter is not NotImplemented
+        ],
+        key=lambda d: d.priority,
+    )
+    if sorted_documenters:
+        return sorted_documenters[-1]
+    else:
+        return get_documenter(app, obj, parent)
+
+
 # -- .. autosummary:: ----------------------------------------------------------
 
 class Autosummary(SphinxDirective):
@@ -317,7 +337,7 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            doccls = get_documenter(self.env.app, obj, parent)
+            doccls = dispatch_get_documenter(self, obj, parent, real_name)
             documenter = doccls(self.bridge, full_name)
             if not documenter.parse_name():
                 logger.warning(__('failed to parse name %s'), real_name,
