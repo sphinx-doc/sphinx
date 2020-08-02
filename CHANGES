@@ -33,6 +33,7 @@ Features added
 * #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
   the behavior of globaltoc in sidebar
 * #7840: i18n: Optimize the dependencies check on bootstrap
+* #7768: i18n: :confval:`figure_language_filename` supports ``docpath`` token
 * #5208: linkcheck: Support checks for local links
 * #5090: setuptools: Link verbosity to distutils' -v and -q option
 * #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
