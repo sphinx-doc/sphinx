@@ -1176,44 +1176,44 @@ def test_slots(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app):
     options = {"members": None}
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls', options)
+    actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
     assert list(actual) == [
         '',
         '.. py:class:: EnumCls(value)',
-        '   :module: target.enum',
+        '   :module: target.enums',
         '',
         '   this is enum class',
         '',
         '',
         '   .. py:method:: EnumCls.say_goodbye()',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '      :classmethod:',
         '',
         '      a classmethod says good-bye to you.',
         '',
         '',
         '   .. py:method:: EnumCls.say_hello()',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '',
         '      a method says hello to you.',
         '',
         '',
         '   .. py:attribute:: EnumCls.val1',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '      :value: 12',
         '',
         '      doc for val1',
         '',
         '',
         '   .. py:attribute:: EnumCls.val2',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '      :value: 23',
         '',
         '      doc for val2',
         '',
         '',
         '   .. py:attribute:: EnumCls.val3',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '      :value: 34',
         '',
         '      doc for val3',
@@ -1221,11 +1221,11 @@ def test_enum_class(app):
     ]
 
     # checks for an attribute of EnumClass
-    actual = do_autodoc(app, 'attribute', 'target.enum.EnumCls.val1')
+    actual = do_autodoc(app, 'attribute', 'target.enums.EnumCls.val1')
     assert list(actual) == [
         '',
         '.. py:attribute:: EnumCls.val1',
-        '   :module: target.enum',
+        '   :module: target.enums',
         '   :value: 12',
         '',
         '   doc for val1',
