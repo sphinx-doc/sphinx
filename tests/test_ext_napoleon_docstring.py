@@ -1078,6 +1078,22 @@ Methods:
                                      options={'noindex': True}))
         self.assertEqual(expected, actual)
 
+    def test_keywords_with_types(self):
+        docstring = """\
+Do as you please
+
+Keyword Args:
+    gotham_is_yours (None): shall interfere.
+"""
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+Do as you please
+
+:keyword gotham_is_yours: shall interfere.
+:kwtype gotham_is_yours: None
+"""
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
@@ -1987,6 +2003,8 @@ definition_after_normal_text : int
     def test_token_type(self):
         tokens = (
             ("1", "literal"),
+            ("-4.6", "literal"),
+            ("2j", "literal"),
             ("'string'", "literal"),
             ('"another_string"', "literal"),
             ("{1, 2}", "literal"),
@@ -2010,20 +2028,32 @@ definition_after_normal_text : int
     def test_tokenize_type_spec(self):
         specs = (
             "str",
+            "defaultdict",
+            "int, float, or complex",
             "int or float or None, optional",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'F'",
             "{'F', 'C', 'N or C'}, default 'F'",
+            "str, default: 'F or C'",
+            "int, default: None",
+            "int, default None",
+            "int, default :obj:`None`",
             '"ma{icious"',
             r"'with \'quotes\''",
         )
 
         tokens = (
             ["str"],
+            ["defaultdict"],
+            ["int", ", ", "float", ", or ", "complex"],
             ["int", " or ", "float", " or ", "None", ", ", "optional"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "'F'"],
             ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
+            ["str", ", ", "default", ": ", "'F or C'"],
+            ["int", ", ", "default", ": ", "None"],
+            ["int", ", " , "default", " ", "None"],
+            ["int", ", ", "default", " ", ":obj:`None`"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],
         )
@@ -2037,12 +2067,14 @@ definition_after_normal_text : int
             ["{", "1", ", ", "2", "}"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}", ", ", "optional"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "None"],
+            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", " ", "None"],
         )
 
         combined_tokens = (
             ["{1, 2}"],
             ['{"F", "C", "N"}', ", ", "optional"],
             ["{'F', 'C', 'N'}", ", ", "default", ": ", "None"],
+            ["{'F', 'C', 'N'}", ", ", "default", " ", "None"],
         )
 
         for tokens_, expected in zip(tokens, combined_tokens):
@@ -2075,8 +2107,10 @@ definition_after_normal_text : int
             "optional",
             "str, optional",
             "int or float or None, default: None",
+            "int, default None",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'N'",
+            "{'F', 'C', 'N'}, default 'N'",
             "DataFrame, optional",
         )
 
@@ -2085,8 +2119,10 @@ definition_after_normal_text : int
             "*optional*",
             ":class:`str`, *optional*",
             ":class:`int` or :class:`float` or :obj:`None`, *default*: :obj:`None`",
+            ":class:`int`, *default* :obj:`None`",
             '``{"F", "C", "N"}``',
             "``{'F', 'C', 'N'}``, *default*: ``'N'``",
+            "``{'F', 'C', 'N'}``, *default* ``'N'``",
             ":class:`pandas.DataFrame`, *optional*",
         )
 
@@ -2100,7 +2136,7 @@ definition_after_normal_text : int
             ----------
             param1 : DataFrame
                 the data to work on
-            param2 : int or float or None
+            param2 : int or float or None, optional
                 a parameter with different types
             param3 : dict-like, optional
                 a optional mapping
@@ -2108,21 +2144,35 @@ definition_after_normal_text : int
                 a optional parameter with different types
             param5 : {"F", "C", "N"}, optional
                 a optional parameter with fixed values
+            param6 : int, default None
+                different default format
+            param7 : mapping of hashable to str, optional
+                a optional mapping
+            param8 : ... or Ellipsis
+                ellipsis
         """)
         expected = dedent("""\
             :param param1: the data to work on
             :type param1: DataFrame
             :param param2: a parameter with different types
-            :type param2: :class:`int` or :class:`float` or :obj:`None`
+            :type param2: :class:`int` or :class:`float` or :obj:`None`, *optional*
             :param param3: a optional mapping
             :type param3: :term:`dict-like <mapping>`, *optional*
             :param param4: a optional parameter with different types
             :type param4: :class:`int` or :class:`float` or :obj:`None`, *optional*
             :param param5: a optional parameter with fixed values
             :type param5: ``{"F", "C", "N"}``, *optional*
+            :param param6: different default format
+            :type param6: :class:`int`, *default* :obj:`None`
+            :param param7: a optional mapping
+            :type param7: :term:`mapping` of :term:`hashable` to :class:`str`, *optional*
+            :param param8: ellipsis
+            :type param8: :obj:`... <Ellipsis>` or :obj:`Ellipsis`
         """)
         translations = {
             "dict-like": ":term:`dict-like <mapping>`",
+            "mapping": ":term:`mapping`",
+            "hashable": ":term:`hashable`",
         }
         config = Config(
             napoleon_use_param=True,
@@ -2130,22 +2180,6 @@ definition_after_normal_text : int
             napoleon_type_aliases=translations,
         )
         actual = str(NumpyDocstring(docstring, config))
-        self.assertEqual(expected, actual)
-
-    def test_keywords_with_types(self):
-        docstring = """\
-Do as you please
-
-Keyword Args:
-    gotham_is_yours (None): shall interfere.
-"""
-        actual = str(GoogleDocstring(docstring))
-        expected = """\
-Do as you please
-
-:keyword gotham_is_yours: shall interfere.
-:kwtype gotham_is_yours: None
-"""
         self.assertEqual(expected, actual)
 
 @contextmanager

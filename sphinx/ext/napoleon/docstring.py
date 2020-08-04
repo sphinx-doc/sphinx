@@ -37,7 +37,7 @@ _xref_or_code_regex = re.compile(
     r'((?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)|'
     r'(?:``.+``))')
 _xref_regex = re.compile(
-    r'(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)'
+    r'(?:(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:)?`.+?`)'
 )
 _bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
 _enumerated_list_regex = re.compile(
@@ -45,10 +45,15 @@ _enumerated_list_regex = re.compile(
     r'(\d+|#|[ivxlcdm]+|[IVXLCDM]+|[a-zA-Z])'
     r'(?(paren)\)|\.)(\s+\S|\s*$)')
 _token_regex = re.compile(
-    r"(\sor\s|\sof\s|:\s|,\s|[{]|[}]"
+    r"(,\sor\s|\sor\s|\sof\s|:\s|\sto\s|,\sand\s|\sand\s|,\s"
+    r"|[{]|[}]"
     r'|"(?:\\"|[^"])*"'
     r"|'(?:\\'|[^'])*')"
 )
+_default_regex = re.compile(
+    r"^default[^_0-9A-Za-z].*$",
+)
+_SINGLETONS = ("None", "True", "False", "Ellipsis")
 
 
 class GoogleDocstring:
@@ -808,6 +813,9 @@ def _recombine_set_tokens(tokens: List[str]) -> List[str]:
                 previous_token = token
                 continue
 
+            if not token.strip():
+                continue
+
             if token in keywords:
                 tokens.appendleft(token)
                 if previous_token is not None:
@@ -846,8 +854,13 @@ def _recombine_set_tokens(tokens: List[str]) -> List[str]:
 
 def _tokenize_type_spec(spec: str) -> List[str]:
     def postprocess(item):
-        if item.startswith("default"):
-            return [item[:7], item[7:]]
+        if _default_regex.match(item):
+            default = item[:7]
+            # can't be separated by anything other than a single space
+            # for now
+            other = item[8:]
+
+            return [default, " ", other]
         else:
             return [item]
 
@@ -861,10 +874,19 @@ def _tokenize_type_spec(spec: str) -> List[str]:
 
 
 def _token_type(token: str, location: str = None) -> str:
+    def is_numeric(token):
+        try:
+            # use complex to make sure every numeric value is detected as literal
+            complex(token)
+        except ValueError:
+            return False
+        else:
+            return True
+
     if token.startswith(" ") or token.endswith(" "):
         type_ = "delimiter"
     elif (
-            token.isnumeric() or
+            is_numeric(token) or
             (token.startswith("{") and token.endswith("}")) or
             (token.startswith('"') and token.endswith('"')) or
             (token.startswith("'") and token.endswith("'"))
@@ -914,9 +936,12 @@ def _convert_numpy_type_spec(_type: str, location: str = None, translations: dic
     def convert_obj(obj, translations, default_translation):
         translation = translations.get(obj, obj)
 
-        # use :class: (the default) only if obj is not a standard singleton (None, True, False)
-        if translation in ("None", "True", "False") and default_translation == ":class:`%s`":
+        # use :class: (the default) only if obj is not a standard singleton
+        if translation in _SINGLETONS and default_translation == ":class:`%s`":
             default_translation = ":obj:`%s`"
+        elif translation == "..." and default_translation == ":class:`%s`":
+            # allow referencing the builtin ...
+            default_translation = ":obj:`%s <Ellipsis>`"
 
         if _xref_regex.match(translation) is None:
             translation = default_translation % translation
