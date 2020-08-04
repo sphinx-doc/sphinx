@@ -16,7 +16,8 @@ class Foo:
         pass
 
     def __init__(self):
-        pass
+        #: docstring
+        self.value = 1
 
     def bar(self):
         pass

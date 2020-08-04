@@ -6250,23 +6250,18 @@ class DefinitionParser(BaseParser):
 
     # ==========================================================================
 
-    def _parse_template_parameter_list(self) -> ASTTemplateParams:
-        # only: '<' parameter-list '>'
-        # we assume that 'template' has just been parsed
-        templateParams = []  # type: List[ASTTemplateParam]
-        self.skip_ws()
-        if not self.skip_string("<"):
-            self.fail("Expected '<' after 'template'")
-        prevErrors = []
-        while 1:
-            self.skip_ws()
-            if self.skip_word('template'):
-                # declare a tenplate template parameter
-                nestedParams = self._parse_template_parameter_list()
-            else:
-                nestedParams = None
-            self.skip_ws()
+    def _parse_template_paramter(self) -> ASTTemplateParam:
+        if self.skip_word('template'):
+            # declare a tenplate template parameter
+            nestedParams = self._parse_template_parameter_list()
+        else:
+            nestedParams = None
+
+        pos = self.pos
+        try:
+            # Unconstrained type parameter or template type parameter
             key = None
+            self.skip_ws()
             if self.skip_word_and_ws('typename'):
                 key = 'typename'
             elif self.skip_word_and_ws('class'):
@@ -6274,52 +6269,79 @@ class DefinitionParser(BaseParser):
             elif nestedParams:
                 self.fail("Expected 'typename' or 'class' after "
                           "template template parameter list.")
-            if key:
-                # declare a type or template type parameter
-                self.skip_ws()
-                parameterPack = self.skip_string('...')
-                self.skip_ws()
-                if self.match(identifier_re):
-                    identifier = ASTIdentifier(self.matched_text)
-                else:
-                    identifier = None
-                self.skip_ws()
-                if not parameterPack and self.skip_string('='):
-                    default = self._parse_type(named=False, outer=None)
-                else:
-                    default = None
-                data = ASTTemplateKeyParamPackIdDefault(key, identifier,
-                                                        parameterPack, default)
-                if nestedParams:
-                    # template type
-                    templateParams.append(
-                        ASTTemplateParamTemplateType(nestedParams, data))
-                else:
-                    # type
-                    templateParams.append(ASTTemplateParamType(data))
             else:
-                # declare a non-type parameter, or constrained type parameter
-                pos = self.pos
-                try:
-                    param = self._parse_type_with_init('maybe', 'templateParam')
-                    templateParams.append(ASTTemplateParamNonType(param))
-                except DefinitionError as e:
-                    msg = "If non-type template parameter or constrained template parameter"
-                    prevErrors.append((e, msg))
-                    self.pos = pos
+                self.fail("Expected 'typename' or 'class' in tbe "
+                          "beginning of template type parameter.")
+            self.skip_ws()
+            parameterPack = self.skip_string('...')
+            self.skip_ws()
+            if self.match(identifier_re):
+                identifier = ASTIdentifier(self.matched_text)
+            else:
+                identifier = None
+            self.skip_ws()
+            if not parameterPack and self.skip_string('='):
+                default = self._parse_type(named=False, outer=None)
+            else:
+                default = None
+                if self.current_char not in ',>':
+                    self.fail('Expected "," or ">" after (template) type parameter.')
+            data = ASTTemplateKeyParamPackIdDefault(key, identifier,
+                                                    parameterPack, default)
+            if nestedParams:
+                return ASTTemplateParamTemplateType(nestedParams, data)
+            else:
+                return ASTTemplateParamType(data)
+        except DefinitionError as eType:
+            if nestedParams:
+                raise
+            try:
+                # non-type parameter or constrained type parameter
+                self.pos = pos
+                param = self._parse_type_with_init('maybe', 'templateParam')
+                return ASTTemplateParamNonType(param)
+            except DefinitionError as eNonType:
+                self.pos = pos
+                header = "Error when parsing template parameter."
+                errs = []
+                errs.append(
+                    (eType, "If unconstrained type parameter or template type parameter"))
+                errs.append(
+                    (eNonType, "If constrained type parameter or non-type parameter"))
+                raise self._make_multi_error(errs, header)
+
+    def _parse_template_parameter_list(self) -> ASTTemplateParams:
+        # only: '<' parameter-list '>'
+        # we assume that 'template' has just been parsed
+        templateParams = []  # type: List[ASTTemplateParam]
+        self.skip_ws()
+        if not self.skip_string("<"):
+            self.fail("Expected '<' after 'template'")
+        while 1:
+            pos = self.pos
+            err = None
+            try:
+                param = self._parse_template_paramter()
+                templateParams.append(param)
+            except DefinitionError as eParam:
+                self.pos = pos
+                err = eParam
             self.skip_ws()
             if self.skip_string('>'):
                 return ASTTemplateParams(templateParams)
             elif self.skip_string(','):
-                prevErrors = []
                 continue
             else:
                 header = "Error in template parameter list."
+                errs = []
+                if err:
+                    errs.append((err, "If parameter"))
                 try:
-                    self.fail('Expected "=", ",", or ">".')
+                    self.fail('Expected "," or ">".')
                 except DefinitionError as e:
-                    prevErrors.append((e, ""))
-                raise self._make_multi_error(prevErrors, header)
+                    errs.append((e, "If no parameter"))
+                print(errs)
+                raise self._make_multi_error(errs, header)
 
     def _parse_template_introduction(self) -> ASTTemplateIntroduction:
         pos = self.pos

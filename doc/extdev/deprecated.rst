@@ -26,6 +26,21 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.autodoc.members_set_option()``
+     - 3.2
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.merge_special_members_option()``
+     - 3.2
+     - 5.0
+     - ``sphinx.ext.autodoc.merge_members_option()``
+
+   * - ``sphinx.writers.texinfo.TexinfoWriter.desc``
+     - 3.2
+     - 5.0
+     - ``sphinx.writers.texinfo.TexinfoWriter.descs``
+
    * - The first argument for
        ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` has been changed
        to Sphinx object

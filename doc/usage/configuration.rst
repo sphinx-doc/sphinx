@@ -821,6 +821,8 @@ documentation on :ref:`intl` for details.
      extension, e.g. ``dirname/filename``
    * ``{path}`` - the directory path component of the filename, with a trailing
      slash if non-empty, e.g. ``dirname/``
+   * ``{docpath}`` - the directory path component for the current document, with
+     a trailing slash if non-empty.
    * ``{basename}`` - the filename without the directory path or file extension
      components, e.g. ``filename``
    * ``{ext}`` - the file extension, e.g. ``.png``
@@ -833,6 +835,9 @@ documentation on :ref:`intl` for details.
 
    .. versionchanged:: 1.5
       Added ``{path}`` and ``{basename}`` tokens.
+
+   .. versionchanged:: 3.2
+      Added ``{docpath}`` token.
 
 
 .. _math-options:

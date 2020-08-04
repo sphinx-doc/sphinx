@@ -497,19 +497,26 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
 def evaluate_signature(sig: inspect.Signature, globalns: Dict = None, localns: Dict = None
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
+    def evaluate_forwardref(ref: ForwardRef, globalns: Dict, localns: Dict) -> Any:
+        """Evaluate a forward reference."""
+        if sys.version_info > (3, 9):
+            return ref._evaluate(globalns, localns, frozenset())
+        else:
+            return ref._evaluate(globalns, localns)
+
     def evaluate(annotation: Any, globalns: Dict, localns: Dict) -> Any:
         """Evaluate unresolved type annotation."""
         try:
             if isinstance(annotation, str):
                 ref = ForwardRef(annotation, True)
-                annotation = ref._evaluate(globalns, localns)
+                annotation = evaluate_forwardref(ref, globalns, localns)
 
                 if isinstance(annotation, ForwardRef):
-                    annotation = annotation._evaluate(globalns, localns)
+                    annotation = evaluate_forwardref(ref, globalns, localns)
                 elif isinstance(annotation, str):
                     # might be a ForwardRef'ed annotation in overloaded functions
                     ref = ForwardRef(annotation, True)
-                    annotation = ref._evaluate(globalns, localns)
+                    annotation = evaluate_forwardref(ref, globalns, localns)
         except (NameError, TypeError):
             # failed to evaluate type. skipped.
             pass

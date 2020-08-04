@@ -645,7 +645,7 @@ def test_autodoc_typehints_description_for_invalid_node(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options(app):
     # no settings
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' not in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
     actual = do_autodoc(app, 'class', 'target.CustomIter')
@@ -655,13 +655,13 @@ def test_autodoc_default_options(app):
 
     # with :members:
     app.config.autodoc_default_options = {'members': None}
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
 
     # with :members: = True
     app.config.autodoc_default_options = {'members': True}
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
 
@@ -670,7 +670,7 @@ def test_autodoc_default_options(app):
         'members': None,
         'undoc-members': None,
     }
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' in actual
 
@@ -696,7 +696,7 @@ def test_autodoc_default_options(app):
         'members': None,
         'exclude-members': None,
     }
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
     app.config.autodoc_default_options = {
@@ -720,7 +720,7 @@ def test_autodoc_default_options(app):
 def test_autodoc_default_options_with_values(app):
     # with :members:
     app.config.autodoc_default_options = {'members': 'val1,val2'}
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val2' in actual
     assert '   .. py:attribute:: EnumCls.val3' not in actual
@@ -765,7 +765,7 @@ def test_autodoc_default_options_with_values(app):
         'members': None,
         'exclude-members': 'val1'
     }
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' not in actual
     assert '   .. py:attribute:: EnumCls.val2' in actual
     assert '   .. py:attribute:: EnumCls.val3' in actual
