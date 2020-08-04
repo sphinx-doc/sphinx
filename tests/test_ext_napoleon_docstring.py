@@ -1443,6 +1443,51 @@ arg_ : type
 
         self.assertEqual(expected, actual)
 
+    def test_return_types(self):
+        docstring = dedent("""
+            Returns
+            -------
+            DataFrame
+                a dataframe
+        """)
+        expected = dedent("""
+           :returns: a dataframe
+           :rtype: :class:`~pandas.DataFrame`
+        """)
+        translations = {
+            "DataFrame": "~pandas.DataFrame",
+        }
+        config = Config(
+            napoleon_use_param=True,
+            napoleon_use_rtype=True,
+            napoleon_type_aliases=translations,
+        )
+        actual = str(NumpyDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
+    def test_yield_types(self):
+        docstring = dedent("""
+            Example Function
+
+            Yields
+            ------
+            scalar or array-like
+                The result of the computation
+        """)
+        expected = dedent("""
+            Example Function
+
+            :Yields: :term:`scalar` or :class:`array-like <numpy.ndarray>` -- The result of the computation
+        """)
+        translations = {
+            "scalar": ":term:`scalar`",
+            "array-like": ":class:`array-like <numpy.ndarray>`",
+        }
+        config = Config(napoleon_type_aliases=translations)
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
+        self.assertEqual(expected, actual)
+
     def test_raises_types(self):
         docstrings = [("""
 Example Function
@@ -1656,42 +1701,6 @@ Example Function
 :rtype: :class:`numpy.ndarray`
 """
         config = Config()
-        app = mock.Mock()
-        actual = str(NumpyDocstring(docstring, config, app, "method"))
-        self.assertEqual(expected, actual)
-
-        docstring = """
-Example Function
-
-Returns
--------
-ndarray
-    A :math:`n \\times 2` array containing
-    a bunch of math items
-"""
-        config = Config(napoleon_type_aliases={"ndarray": ":class:`numpy.ndarray`"})
-        actual = str(NumpyDocstring(docstring, config, app, "method"))
-        self.assertEqual(expected, actual)
-
-    def test_yield_types(self):
-        docstring = dedent("""
-            Example Function
-
-            Yields
-            ------
-            scalar or array-like
-                The result of the computation
-        """)
-        expected = dedent("""
-            Example Function
-
-            :Yields: :term:`scalar` or :class:`array-like <numpy.ndarray>` -- The result of the computation
-        """)
-        translations = {
-            "scalar": ":term:`scalar`",
-            "array-like": ":class:`array-like <numpy.ndarray>`",
-        }
-        config = Config(napoleon_type_aliases=translations)
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "method"))
         self.assertEqual(expected, actual)
