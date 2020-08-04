@@ -1067,6 +1067,10 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
+
+        if prefer_type and not _type:
+            _type, _name = _name, _type
+
         if self._config.napoleon_use_param:
             _type = _convert_numpy_type_spec(
                 _type,
@@ -1074,8 +1078,6 @@ class NumpyDocstring(GoogleDocstring):
                 translations=self._config.napoleon_type_aliases or {},
             )
 
-        if prefer_type and not _type:
-            _type, _name = _name, _type
         indent = self._get_indent(line) + 1
         _desc = self._dedent(self._consume_indented_block(indent))
         _desc = self.__class__(_desc, self._config).lines()
