@@ -1131,6 +1131,7 @@ class NumpyDocstring(GoogleDocstring):
         func_name1, func_name2, :meth:`func_name`, func_name3
 
         """
+        inventory = getattr(self._app.builder.env, "intersphinx_inventory", {})
         items = []
 
         def parse_item_name(text: str) -> Tuple[str, str]:
@@ -1150,6 +1151,25 @@ class NumpyDocstring(GoogleDocstring):
             name, role = parse_item_name(name)
             items.append((name, list(rest), role))
             del rest[:]
+
+        def search_inventory(inventory, name, hint=None):
+            roles = list(inventory.keys())
+            if hint is not None:
+                preferred = [
+                    role
+                    for role in roles
+                    if role.split(":", 1)[-1].startswith(hint)
+                ]
+                roles = preferred + [role for role in roles if role not in preferred]
+
+            for role in roles:
+                objects = inventory[role]
+                found = objects.get(name, None)
+                if found is not None:
+                    domain, role = role.split(":", 1)
+                    return role
+
+            return None
 
         current_func = None
         rest = []  # type: List[str]
@@ -1206,6 +1226,10 @@ class NumpyDocstring(GoogleDocstring):
         lines = []  # type: List[str]
         last_had_desc = True
         for func, desc, role in items:
+            if not role:
+                raw_role = search_inventory(inventory, func, hint=func_role)
+                role = roles.get(raw_role, raw_role)
+
             if role:
                 link = ':%s:`%s`' % (role, func)
             elif func_role:
