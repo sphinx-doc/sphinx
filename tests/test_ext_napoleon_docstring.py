@@ -2036,6 +2036,7 @@ definition_after_normal_text : int
             "{'F', 'C', 'N or C'}, default 'F'",
             "int, default: None",
             "int, default None",
+            "int, default :obj:`None`",
             '"ma{icious"',
             r"'with \'quotes\''",
         )
@@ -2050,6 +2051,7 @@ definition_after_normal_text : int
             ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
             ["int", ", ", "default", ": ", "None"],
             ["int", ", " , "default", " ", "None"],
+            ["int", ", ", "default", " ", ":obj:`None`"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],
         )
