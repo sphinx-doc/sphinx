@@ -1078,6 +1078,22 @@ Methods:
                                      options={'noindex': True}))
         self.assertEqual(expected, actual)
 
+    def test_keywords_with_types(self):
+        docstring = """\
+Do as you please
+
+Keyword Args:
+    gotham_is_yours (None): shall interfere.
+"""
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+Do as you please
+
+:keyword gotham_is_yours: shall interfere.
+:kwtype gotham_is_yours: None
+"""
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
@@ -2189,22 +2205,6 @@ definition_after_normal_text : int
             napoleon_type_aliases=translations,
         )
         actual = str(NumpyDocstring(docstring, config))
-        self.assertEqual(expected, actual)
-
-    def test_keywords_with_types(self):
-        docstring = """\
-Do as you please
-
-Keyword Args:
-    gotham_is_yours (None): shall interfere.
-"""
-        actual = str(GoogleDocstring(docstring))
-        expected = """\
-Do as you please
-
-:keyword gotham_is_yours: shall interfere.
-:kwtype gotham_is_yours: None
-"""
         self.assertEqual(expected, actual)
 
 @contextmanager
