@@ -1175,7 +1175,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :returns: *str* -- Extended
+        :returns: :class:`str` -- Extended
                   description of return value
         """
     ), (
@@ -1191,7 +1191,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :returns: *str* -- Extended
+        :returns: :class:`str` -- Extended
                   description of return value
         """
     ), (
@@ -1227,7 +1227,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Yields: *str* -- Extended
+        :Yields: :class:`str` -- Extended
                  description of yielded value
         """
     ), (
@@ -1243,7 +1243,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Yields: *str* -- Extended
+        :Yields: :class:`str` -- Extended
                  description of yielded value
         """
     )]
