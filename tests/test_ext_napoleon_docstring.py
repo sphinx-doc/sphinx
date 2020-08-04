@@ -1687,12 +1687,11 @@ ndarray
 
             :Yields: :term:`scalar` or :class:`array-like <numpy.ndarray>` -- The result of the computation
         """)
-        config = Config(
-            napoleon_type_aliases={
-                "scalar": ":term:`scalar`",
-                "array-like": ":class:`array-like <numpy.ndarray>`",
-            }
-        )
+        translations = {
+            "scalar": ":term:`scalar`",
+            "array-like": ":class:`array-like <numpy.ndarray>`",
+        }
+        config = Config(napoleon_type_aliases=translations)
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "method"))
         self.assertEqual(expected, actual)
