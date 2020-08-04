@@ -856,11 +856,11 @@ def _tokenize_type_spec(spec: str) -> List[str]:
     def postprocess(item):
         if _default_regex.match(item):
             default = item[:7]
-            other = item[7:].lstrip()
+            # can't be separated by anything other than a single space
+            # for now
+            other = item[8:]
 
-            whitespace = item[7:7 + len(item) - len(default) - len(other)]
-
-            return [default, whitespace, other]
+            return [default, " ", other]
         else:
             return [item]
 
