@@ -1131,7 +1131,11 @@ class NumpyDocstring(GoogleDocstring):
         func_name1, func_name2, :meth:`func_name`, func_name3
 
         """
-        inventory = getattr(self._app.builder.env, "intersphinx_inventory", {})
+        try:
+            inventory = self._app.builder.env.intersphinx_inventory
+        except AttributeError:
+            inventory = {}
+
         items = []
 
         def parse_item_name(text: str) -> Tuple[str, str]:

@@ -1365,6 +1365,7 @@ otherfunc : relationship
 
         config = Config()
         app = mock.Mock()
+        app.builder.env = None
         actual = str(NumpyDocstring(docstring, config, app, "method"))
 
         expected = """\
@@ -1378,6 +1379,27 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
        relationship
 """
         self.assertEqual(expected, actual)
+
+        config = Config()
+        app = mock.Mock()
+        app.builder.env.intersphinx_inventory = {
+            "py:func": {"funcs": (), "otherfunc": ()},
+            "py:meth": {"some": (), "other": ()},
+        }
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
+
+        expected = """\
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+.. seealso::
+
+   :meth:`some`, :meth:`other`, :func:`funcs`
+   \n\
+   :func:`otherfunc`
+       relationship
+"""
+        self.assertEqual(expected, actual)
+
 
     def test_colon_in_return_type(self):
         docstring = """
