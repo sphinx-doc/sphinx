@@ -1609,6 +1609,20 @@ Example Function
 
 Raises
 ------
+CustomError
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises package.CustomError: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
 :class:`exc.InvalidDimensionsError`
 :class:`exc.InvalidArgumentsError`
 
@@ -1619,7 +1633,7 @@ Example Function
 :raises exc.InvalidArgumentsError:
 """)]
         for docstring, expected in docstrings:
-            config = Config()
+            config = Config(napoleon_type_aliases={"CustomError": "package.CustomError"})
             app = mock.Mock()
             actual = str(NumpyDocstring(docstring, config, app, "method"))
             self.assertEqual(expected, actual)
@@ -1642,6 +1656,43 @@ Example Function
 :rtype: :class:`numpy.ndarray`
 """
         config = Config()
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
+        self.assertEqual(expected, actual)
+
+        docstring = """
+Example Function
+
+Returns
+-------
+ndarray
+    A :math:`n \\times 2` array containing
+    a bunch of math items
+"""
+        config = Config(napoleon_type_aliases={"ndarray": ":class:`numpy.ndarray`"})
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
+        self.assertEqual(expected, actual)
+
+    def test_yield_types(self):
+        docstring = dedent("""
+            Example Function
+
+            Yields
+            ------
+            scalar or array-like
+                The result of the computation
+        """)
+        expected = dedent("""
+            Example Function
+
+            :Yields: :term:`scalar` or :class:`array-like <numpy.ndarray>` -- The result of the computation
+        """)
+        config = Config(
+            napoleon_type_aliases={
+                "scalar": ":term:`scalar`",
+                "array-like": ":class:`array-like <numpy.ndarray>`",
+            }
+        )
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "method"))
         self.assertEqual(expected, actual)
