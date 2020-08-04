@@ -64,19 +64,19 @@ Sample namedtuple subclass
 
    Quick description of attr1
 
-   :type: Arbitrary type
+   :type: :class:`Arbitrary type`
 
 .. attribute:: attr2
 
    Quick description of attr2
 
-   :type: Another arbitrary type
+   :type: :class:`Another arbitrary type`
 
 .. attribute:: attr3
 
    Adds a newline after the type
 
-   :type: Type
+   :type: :class:`Type`
 """
 
         self.assertEqual(expected, actual)
@@ -1108,7 +1108,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Parameters: **arg1** (*str*) -- Extended
+        :Parameters: **arg1** (:class:`str`) -- Extended
                      description of arg1
         """
     ), (
@@ -1136,14 +1136,14 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Parameters: * **arg1** (*str*) -- Extended
+        :Parameters: * **arg1** (:class:`str`) -- Extended
                        description of arg1
-                     * **arg2** (*int*) -- Extended
+                     * **arg2** (:class:`int`) -- Extended
                        description of arg2
 
-        :Keyword Arguments: * **kwarg1** (*str*) -- Extended
+        :Keyword Arguments: * **kwarg1** (:class:`str`) -- Extended
                               description of kwarg1
-                            * **kwarg2** (*int*) -- Extended
+                            * **kwarg2** (:class:`int`) -- Extended
                               description of kwarg2
         """
     ), (
@@ -1194,7 +1194,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Parameters: * **arg1** (*str*) -- Extended description of arg1
+        :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
                      * **\\*args** -- Variable length argument list.
                      * **\\*\\*kwargs** -- Arbitrary keyword arguments.
         """
@@ -1316,7 +1316,7 @@ param1 : MyClass instance
         config = Config(napoleon_use_param=False)
         actual = str(NumpyDocstring(docstring, config))
         expected = """\
-:Parameters: **param1** (*MyClass instance*)
+:Parameters: **param1** (:class:`MyClass instance`)
 """
         self.assertEqual(expected, actual)
 
@@ -1324,7 +1324,7 @@ param1 : MyClass instance
         actual = str(NumpyDocstring(dedent(docstring), config))
         expected = """\
 :param param1:
-:type param1: MyClass instance
+:type param1: :class:`MyClass instance`
 """
         self.assertEqual(expected, actual)
 
@@ -1413,7 +1413,7 @@ arg_ : type
 
         expected = """
 :ivar arg_: some description
-:vartype arg_: type
+:vartype arg_: :class:`type`
 """
 
         config = Config(napoleon_use_ivar=True)
@@ -1433,7 +1433,7 @@ arg_ : type
 
         expected = """
 :ivar arg\\_: some description
-:vartype arg\\_: type
+:vartype arg\\_: :class:`type`
 """
 
         config = Config(napoleon_use_ivar=True)
@@ -1801,59 +1801,59 @@ definition_after_normal_text : int
         expected = """One line summary.
 
 :param no_list:
-:type no_list: int
+:type no_list: :class:`int`
 :param one_bullet_empty:
                          *
-:type one_bullet_empty: int
+:type one_bullet_empty: :class:`int`
 :param one_bullet_single_line:
                                - first line
-:type one_bullet_single_line: int
+:type one_bullet_single_line: :class:`int`
 :param one_bullet_two_lines:
                              +   first line
                                  continued
-:type one_bullet_two_lines: int
+:type one_bullet_two_lines: :class:`int`
 :param two_bullets_single_line:
                                 -  first line
                                 -  second line
-:type two_bullets_single_line: int
+:type two_bullets_single_line: :class:`int`
 :param two_bullets_two_lines:
                               * first line
                                 continued
                               * second line
                                 continued
-:type two_bullets_two_lines: int
+:type two_bullets_two_lines: :class:`int`
 :param one_enumeration_single_line:
                                     1.  first line
-:type one_enumeration_single_line: int
+:type one_enumeration_single_line: :class:`int`
 :param one_enumeration_two_lines:
                                   1)   first line
                                        continued
-:type one_enumeration_two_lines: int
+:type one_enumeration_two_lines: :class:`int`
 :param two_enumerations_one_line:
                                   (iii) first line
                                   (iv) second line
-:type two_enumerations_one_line: int
+:type two_enumerations_one_line: :class:`int`
 :param two_enumerations_two_lines:
                                    a. first line
                                       continued
                                    b. second line
                                       continued
-:type two_enumerations_two_lines: int
+:type two_enumerations_two_lines: :class:`int`
 :param one_definition_one_line:
                                 item 1
                                     first line
-:type one_definition_one_line: int
+:type one_definition_one_line: :class:`int`
 :param one_definition_two_lines:
                                  item 1
                                      first line
                                      continued
-:type one_definition_two_lines: int
+:type one_definition_two_lines: :class:`int`
 :param two_definitions_one_line:
                                  item 1
                                      first line
                                  item 2
                                      second line
-:type two_definitions_one_line: int
+:type two_definitions_one_line: :class:`int`
 :param two_definitions_two_lines:
                                   item 1
                                       first line
@@ -1861,14 +1861,14 @@ definition_after_normal_text : int
                                   item 2
                                       second line
                                       continued
-:type two_definitions_two_lines: int
+:type two_definitions_two_lines: :class:`int`
 :param one_definition_blank_line:
                                   item 1
 
                                       first line
 
                                       extra first line
-:type one_definition_blank_line: int
+:type one_definition_blank_line: :class:`int`
 :param two_definitions_blank_lines:
                                     item 1
 
@@ -1881,12 +1881,12 @@ definition_after_normal_text : int
                                         second line
 
                                         extra second line
-:type two_definitions_blank_lines: int
+:type two_definitions_blank_lines: :class:`int`
 :param definition_after_normal_text: text line
 
                                      item 1
                                          first line
-:type definition_after_normal_text: int
+:type definition_after_normal_text: :class:`int`
 """
         config = Config(napoleon_use_param=True)
         actual = str(NumpyDocstring(docstring, config))
@@ -1894,60 +1894,60 @@ definition_after_normal_text : int
 
         expected = """One line summary.
 
-:Parameters: * **no_list** (*int*)
-             * **one_bullet_empty** (*int*) --
+:Parameters: * **no_list** (:class:`int`)
+             * **one_bullet_empty** (:class:`int`) --
 
                *
-             * **one_bullet_single_line** (*int*) --
+             * **one_bullet_single_line** (:class:`int`) --
 
                - first line
-             * **one_bullet_two_lines** (*int*) --
+             * **one_bullet_two_lines** (:class:`int`) --
 
                +   first line
                    continued
-             * **two_bullets_single_line** (*int*) --
+             * **two_bullets_single_line** (:class:`int`) --
 
                -  first line
                -  second line
-             * **two_bullets_two_lines** (*int*) --
+             * **two_bullets_two_lines** (:class:`int`) --
 
                * first line
                  continued
                * second line
                  continued
-             * **one_enumeration_single_line** (*int*) --
+             * **one_enumeration_single_line** (:class:`int`) --
 
                1.  first line
-             * **one_enumeration_two_lines** (*int*) --
+             * **one_enumeration_two_lines** (:class:`int`) --
 
                1)   first line
                     continued
-             * **two_enumerations_one_line** (*int*) --
+             * **two_enumerations_one_line** (:class:`int`) --
 
                (iii) first line
                (iv) second line
-             * **two_enumerations_two_lines** (*int*) --
+             * **two_enumerations_two_lines** (:class:`int`) --
 
                a. first line
                   continued
                b. second line
                   continued
-             * **one_definition_one_line** (*int*) --
+             * **one_definition_one_line** (:class:`int`) --
 
                item 1
                    first line
-             * **one_definition_two_lines** (*int*) --
+             * **one_definition_two_lines** (:class:`int`) --
 
                item 1
                    first line
                    continued
-             * **two_definitions_one_line** (*int*) --
+             * **two_definitions_one_line** (:class:`int`) --
 
                item 1
                    first line
                item 2
                    second line
-             * **two_definitions_two_lines** (*int*) --
+             * **two_definitions_two_lines** (:class:`int`) --
 
                item 1
                    first line
@@ -1955,14 +1955,14 @@ definition_after_normal_text : int
                item 2
                    second line
                    continued
-             * **one_definition_blank_line** (*int*) --
+             * **one_definition_blank_line** (:class:`int`) --
 
                item 1
 
                    first line
 
                    extra first line
-             * **two_definitions_blank_lines** (*int*) --
+             * **two_definitions_blank_lines** (:class:`int`) --
 
                item 1
 
@@ -1975,7 +1975,7 @@ definition_after_normal_text : int
                    second line
 
                    extra second line
-             * **definition_after_normal_text** (*int*) -- text line
+             * **definition_after_normal_text** (:class:`int`) -- text line
 
                item 1
                    first line
@@ -2111,7 +2111,7 @@ definition_after_normal_text : int
         """)
         expected = dedent("""\
             :param param1: the data to work on
-            :type param1: DataFrame
+            :type param1: :class:`DataFrame`
             :param param2: a parameter with different types
             :type param2: :class:`int` or :class:`float` or :obj:`None`
             :param param3: a optional mapping
