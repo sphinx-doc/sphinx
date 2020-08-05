@@ -1090,45 +1090,9 @@ class NumpyDocstring(GoogleDocstring):
         func = super()._escape_args_and_kwargs
 
         if ", " in name:
-            args, kwargs, *rest = name.split(", ")
-
-            def check_args(s):
-                return s[:1] == "*" and len([c for c in s if c == "*"]) == 1
-
-            def check_kwargs(s):
-                return s[:2] == "**" and len([c for c in s if c == "*"]) == 2
-
-            is_args = check_args(args)
-            is_kwargs = check_kwargs(kwargs)
-
-            location = self._get_location()
-            if (not is_args and check_args(kwargs)) and (not is_kwargs and check_kwargs(args)):
-                logger.warning(
-                    __("wrong order of *args and **kwargs: %s"),
-                    name,
-                    location=location,
-                )
-            elif (is_args or is_kwargs) and not (is_args and is_kwargs):
-                name_ = args if is_args else kwargs
-                other = "*args" if not is_args else "**kwargs"
-                logger.warning(
-                    __("can only combine parameters of form %s with %s: %s"),
-                    name_,
-                    other,
-                    name,
-                    location=location,
-                )
-            elif is_args and is_kwargs and rest:
-                logger.warning(
-                    __("cannot combine %s and %s with more parameters: %s"),
-                    args,
-                    kwargs,
-                    name,
-                    location=location,
-                )
-            return ", ".join([func(args), func(kwargs)])
-
-        return func(name)
+            return ", ".join(func(param) for param in name.split(", "))
+        else:
+            return func(name)
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:

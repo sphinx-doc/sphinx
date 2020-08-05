@@ -2238,28 +2238,15 @@ class TestNumpyDocstring:
                 _token_type(token)
 
     @pytest.mark.parametrize(
-        ["spec", "pattern"],
+        ("name", "expected"),
         (
-            pytest.param("*args, *kwargs", ".+: can only combine parameters of form", id="two args"),
-            pytest.param("**args, **kwargs", ".+: can only combine parameters of form", id="two kwargs"),
-            pytest.param(
-                "*args, **kwargs, other_parameter",
-                ".+: cannot combine .+ and .+ with more parameters",
-                id="more parameters",
-            ),
-            pytest.param("**kwargs, *args", r".+: wrong order of .+ and .+", id="swapped parameters"),
-        )
+            ("x, y, z", "x, y, z"),
+            ("*args, **kwargs", r"\*args, \*\*kwargs"),
+            ("*x, **y", r"\*x, \*\*y"),
+        ),
     )
-    def test_invalid_combined_args_and_kwargs(self, spec, pattern, app, warning):
-        docstring = dedent(
-            """\
-            Parameters
-            ----------
-            {}
-                variable args list and arbitrary keyword arguments
-            """
-        ).format(spec)
-        config = Config()
+    def test_escape_args_and_kwargs(self, name, expected):
+        numpy_docstring = NumpyDocstring("")
+        actual = numpy_docstring._escape_args_and_kwargs(name)
 
-        with warns(warning, match=pattern):
-            str(NumpyDocstring(docstring, config, app, "method"))
+        assert actual == expected
