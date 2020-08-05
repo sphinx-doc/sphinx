@@ -322,8 +322,6 @@ class DocFieldTransformer:
             if typedesc.is_typed:
                 try:
                     argtype, argname = fieldarg.split(None, 1)
-                    if argtype.endswith(","):
-                        raise ValueError
                 except ValueError:
                     pass
                 else:
