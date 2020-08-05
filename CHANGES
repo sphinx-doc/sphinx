@@ -80,6 +80,8 @@ Bugs fixed
   module has submodules 
 * #4258: napoleon: decorated special methods are not shown
 * #7799: napoleon: parameters are not escaped for combined params in numpydoc
+* #7780: napoleon: multiple paramaters declaration in numpydoc was wrongly
+  recognized when napoleon_use_params=True
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
 * #7846: html theme: XML-invalid files were generated
 * #7894: gettext: Wrong source info is shown when using rst_epilog
