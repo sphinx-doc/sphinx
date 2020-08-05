@@ -918,7 +918,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_short_title
 
-   A shorter "title" for the HTML docs.  This is used in for links in the
+   A shorter "title" for the HTML docs.  This is used for links in the
    header and in the HTML Help docs.  If not given, it defaults to the value of
    :confval:`html_title`.
 

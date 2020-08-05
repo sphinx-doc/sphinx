@@ -114,9 +114,9 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    **Additional options**
 
-   You can use ``caption`` option to provide a toctree caption and you can use
-   ``name`` option to provide implicit target name that can be referenced by
-   using :rst:role:`ref`::
+   You can use the ``caption`` option to provide a toctree caption and you can
+   use the ``name`` option to provide an implicit target name that can be
+   referenced by using :rst:role:`ref`::
 
       .. toctree::
          :caption: Table of Contents
@@ -246,7 +246,7 @@ The special document names (and pages generated for them) are:
 
 * every name beginning with ``_``
 
-  Though only few such names are currently used by Sphinx, you should not
+  Though few such names are currently used by Sphinx, you should not
   create documents or document-containing directories with such names.  (Using
   ``_`` as a prefix for a custom template directory is fine.)
 
