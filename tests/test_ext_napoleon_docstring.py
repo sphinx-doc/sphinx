@@ -1684,6 +1684,20 @@ Example Function
 
 Raises
 ------
+AnotherError
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises ~package.AnotherError: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
 :class:`exc.InvalidDimensionsError`
 :class:`exc.InvalidArgumentsError`
 
@@ -1694,7 +1708,11 @@ Example Function
 :raises exc.InvalidArgumentsError:
 """)]
         for docstring, expected in docstrings:
-            config = Config(napoleon_type_aliases={"CustomError": "package.CustomError"})
+            translations = {
+                "CustomError": "package.CustomError",
+                "AnotherError": ":py:exc:`~package.AnotherError`",
+            }
+            config = Config(napoleon_type_aliases=translations)
             app = mock.Mock()
             actual = str(NumpyDocstring(docstring, config, app, "method"))
             self.assertEqual(expected, actual)

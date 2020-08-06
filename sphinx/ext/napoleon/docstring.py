@@ -693,6 +693,9 @@ class GoogleDocstring:
             m = self._name_rgx.match(_type)
             if m and m.group('name'):
                 _type = m.group('name')
+            elif _xref_regex.match(_type):
+                pos = _type.find('`')
+                _type = _type[pos + 1:-1]
             _type = ' ' + _type if _type else ''
             _desc = self._strip_empty(_desc)
             _descs = ' ' + '\n    '.join(_desc) if any(_desc) else ''
