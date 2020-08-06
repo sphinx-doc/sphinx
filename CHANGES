@@ -94,6 +94,7 @@ Bugs fixed
 * #7993: texinfo: a warning not supporting desc_signature_line node is shown
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
+* #8048: graphviz: graphviz.css was copied on building non-HTML document
 * C and C++, removed ``noindex`` directive option as it did
   nothing.
 * #7619: Duplicated node IDs are generated if node has multiple IDs
