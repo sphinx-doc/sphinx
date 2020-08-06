@@ -1400,6 +1400,38 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 """
         self.assertEqual(expected, actual)
 
+        docstring = """\
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+See Also
+--------
+some, other, :func:`funcs`
+otherfunc : relationship
+
+"""
+        translations = {
+            "other": "MyClass.other",
+            "otherfunc": ":func:`~my_package.otherfunc`",
+        }
+        config = Config(napoleon_type_aliases=translations)
+        app = mock.Mock()
+        app.builder.env.intersphinx_inventory = {
+            "py:func": {"funcs": (), "otherfunc": ()},
+            "py:meth": {"some": (), "MyClass.other": ()},
+        }
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
+
+        expected = """\
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+.. seealso::
+
+   :meth:`some`, :meth:`MyClass.other`, :func:`funcs`
+   \n\
+   :func:`~my_package.otherfunc`
+       relationship
+"""
+        self.assertEqual(expected, actual)
 
     def test_colon_in_return_type(self):
         docstring = """

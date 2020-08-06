@@ -1175,6 +1175,22 @@ class NumpyDocstring(GoogleDocstring):
 
             return None
 
+        def translate(func, description, role):
+            translations = self._config.napoleon_type_aliases
+            if role is not None or not translations:
+                return func, description, role
+
+            translated = translations.get(func, func)
+            match = self._name_rgx.match(translated)
+            if not match:
+                return translated, description, role
+
+            groups = match.groupdict()
+            role = groups["role"]
+            new_func = groups["name"] or groups["name2"]
+
+            return new_func, description, role
+
         current_func = None
         rest = []  # type: List[str]
 
@@ -1204,6 +1220,12 @@ class NumpyDocstring(GoogleDocstring):
 
         if not items:
             return []
+
+        # apply type aliases
+        items = [
+            translate(func, description, role)
+            for func, description, role in items
+        ]
 
         roles = {
             'method': 'meth',
