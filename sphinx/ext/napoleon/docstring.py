@@ -1132,7 +1132,7 @@ class NumpyDocstring(GoogleDocstring):
 
         """
         try:
-            inventory = self._app.builder.env.intersphinx_inventory
+            inventory = self._app.builder.env.intersphinx_inventory  # type: ignore
         except AttributeError:
             inventory = {}
 
