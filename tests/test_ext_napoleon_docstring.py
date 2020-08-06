@@ -16,6 +16,8 @@ from inspect import cleandoc
 from textwrap import dedent
 from unittest import TestCase, mock
 
+import pytest
+
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.ext.napoleon.docstring import (
@@ -1218,6 +1220,23 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
+        Parameters
+        ----------
+        arg1:str
+             Extended description of arg1
+        *args, **kwargs:
+            Variable length argument list and arbitrary keyword arguments.
+        """,
+        """
+        Single line summary
+
+        :Parameters: * **arg1** (*str*) -- Extended description of arg1
+                     * **\\*args, \\*\\*kwargs** -- Variable length argument list and arbitrary keyword arguments.
+        """
+    ), (
+        """
+        Single line summary
+
         Yield
         -----
         str
@@ -2182,6 +2201,7 @@ definition_after_normal_text : int
         actual = str(NumpyDocstring(docstring, config))
         self.assertEqual(expected, actual)
 
+
 @contextmanager
 def warns(warning, match):
     match_re = re.compile(match)
@@ -2216,3 +2236,17 @@ class TestNumpyDocstring:
         for token, error in zip(tokens, errors):
             with warns(warning, match=error):
                 _token_type(token)
+
+    @pytest.mark.parametrize(
+        ("name", "expected"),
+        (
+            ("x, y, z", "x, y, z"),
+            ("*args, **kwargs", r"\*args, \*\*kwargs"),
+            ("*x, **y", r"\*x, \*\*y"),
+        ),
+    )
+    def test_escape_args_and_kwargs(self, name, expected):
+        numpy_docstring = NumpyDocstring("")
+        actual = numpy_docstring._escape_args_and_kwargs(name)
+
+        assert actual == expected

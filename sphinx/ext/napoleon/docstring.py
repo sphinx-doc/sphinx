@@ -22,11 +22,12 @@ from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
 
-logger = logging.getLogger(__name__)
-
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
+
+logger = logging.getLogger(__name__)
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
@@ -1075,13 +1076,23 @@ class NumpyDocstring(GoogleDocstring):
         super().__init__(docstring, config, app, what, name, obj, options)
 
     def _get_location(self) -> str:
-        filepath = inspect.getfile(self._obj) if self._obj is not None else ""
+        filepath = inspect.getfile(self._obj) if self._obj is not None else None
         name = self._name
 
         if filepath is None and name is None:
             return None
+        elif filepath is None:
+            filepath = ""
 
         return ":".join([filepath, "docstring of %s" % name])
+
+    def _escape_args_and_kwargs(self, name: str) -> str:
+        func = super()._escape_args_and_kwargs
+
+        if ", " in name:
+            return ", ".join(func(param) for param in name.split(", "))
+        else:
+            return func(name)
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
