@@ -18,6 +18,7 @@ from types import ModuleType
 from typing import (
     Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, TypeVar, Union
 )
+from typing import get_type_hints
 
 from docutils.statemachine import StringList
 
@@ -1605,8 +1606,12 @@ class DataDocumenter(ModuleLevelDocumenter):
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             # obtain annotation for this data
-            annotations = getattr(self.parent, '__annotations__', {})
-            if annotations and self.objpath[-1] in annotations:
+            try:
+                annotations = get_type_hints(self.parent)
+            except TypeError:
+                annotations = {}
+
+            if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
             else:
@@ -1971,8 +1976,12 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             # obtain type annotation for this attribute
-            annotations = getattr(self.parent, '__annotations__', {})
-            if annotations and self.objpath[-1] in annotations:
+            try:
+                annotations = get_type_hints(self.parent)
+            except TypeError:
+                annotations = {}
+
+            if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
             else:

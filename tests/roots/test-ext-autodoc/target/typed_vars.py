@@ -28,4 +28,4 @@ class Class:
 
 
 class Derived(Class):
-    pass
+    attr7: int

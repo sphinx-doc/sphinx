@@ -71,6 +71,8 @@ Bugs fixed
   when ``:inherited-members:`` option given
 * #8032: autodoc: A type hint for the instance variable defined at parent class
   is not shown in the document of the derived class
+* #8041: autodoc: An annotated instance variable on super class is not
+  documented when derived class has other annotated instance variables
 * #7839: autosummary: cannot handle umlauts in function names
 * #7865: autosummary: Failed to extract summary line when abbreviations found
 * #7866: autosummary: Failed to extract correct summary line when docstring
