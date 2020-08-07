@@ -32,6 +32,8 @@ Features added
 * #7888: napoleon: Add aliases Warn and Raise.
 * #7690: napoleon: parse type strings and make them hyperlinks as possible.  The
   conversion rule can be updated via :confval:`napoleon_type_aliases`
+* #8049: napoleon: Create a hyperlink for each the type of parameter when
+  :confval:`napoleon_use_params` is False
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
 * #7745: html: inventory is broken if the docname contains a space
