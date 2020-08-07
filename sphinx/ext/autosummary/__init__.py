@@ -299,7 +299,7 @@ class Autosummary(SphinxDirective):
                 raise exc  # re-raise ImportError if instance attribute not found
 
     def create_documenter(self, app: Sphinx, obj: Any,
-                          parent: Any, full_name: str) -> "Type[Documenter]":
+                          parent: Any, full_name: str) -> "Documenter":
         """Get an autodoc.Documenter class suitable for documenting the given
         object.
 
