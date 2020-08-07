@@ -1045,9 +1045,6 @@ class Sphinx:
         logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
         self.registry.add_autodoc_attrgetter(typ, getter)
 
-    def add_autosummary_get_documenter(self, func: Callable) -> None:
-        self.registry.add_autosummary_get_documenter(func)
-
     def add_search_language(self, cls: Any) -> None:
         """Register a new language for the HTML search index.
 

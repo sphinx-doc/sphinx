@@ -298,25 +298,6 @@ class Autosummary(SphinxDirective):
 
                 raise exc  # re-raise ImportError if instance attribute not found
 
-    def dispatch_get_documenter(self, obj, parent, real_name):
-        app = self.env.app
-        documenters = [
-            func(self, obj, parent, real_name)
-            for func in app.registry.custom_get_documenter_funcs
-        ]
-        sorted_documenters = sorted(
-            [
-                documenter
-                for documenter in documenters
-                if documenter is not NotImplemented
-            ],
-            key=lambda d: d.priority,
-        )
-        if sorted_documenters:
-            return sorted_documenters[-1]
-        else:
-            return get_documenter(app, obj, parent)
-
     def get_items(self, names: List[str]) -> List[Tuple[str, str, str, str]]:
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
@@ -348,7 +329,7 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            doccls = self.dispatch_get_documenter(obj, parent, real_name)
+            doccls = get_documenter(self.env.app, obj, parent)
             documenter = doccls(self.bridge, full_name)
             if not documenter.parse_name():
                 logger.warning(__('failed to parse name %s'), real_name,
