@@ -1131,11 +1131,6 @@ class NumpyDocstring(GoogleDocstring):
         func_name1, func_name2, :meth:`func_name`, func_name3
 
         """
-        try:
-            inventory = self._app.builder.env.intersphinx_inventory  # type: ignore
-        except AttributeError:
-            inventory = {}
-
         items = []
 
         def parse_item_name(text: str) -> Tuple[str, str]:
@@ -1227,41 +1222,14 @@ class NumpyDocstring(GoogleDocstring):
             for func, description, role in items
         ]
 
-        roles = {
-            'method': 'meth',
-            'meth': 'meth',
-            'function': 'func',
-            'func': 'func',
-            'class': 'class',
-            'exception': 'exc',
-            'exc': 'exc',
-            'object': 'obj',
-            'obj': 'obj',
-            'module': 'mod',
-            'mod': 'mod',
-            'data': 'data',
-            'constant': 'const',
-            'const': 'const',
-            'attribute': 'attr',
-            'attr': 'attr'
-        }
-        if self._what is None:
-            func_role = 'obj'
-        else:
-            func_role = roles.get(self._what, '')
+        func_role = 'obj'
         lines = []  # type: List[str]
         last_had_desc = True
         for func, desc, role in items:
-            if not role:
-                raw_role = search_inventory(inventory, func, hint=func_role)
-                role = roles.get(raw_role, raw_role)
-
             if role:
                 link = ':%s:`%s`' % (role, func)
-            elif func_role:
-                link = ':%s:`%s`' % (func_role, func)
             else:
-                link = "`%s`_" % func
+                link = ':%s:`%s`' % (func_role, func)
             if desc or last_had_desc:
                 lines += ['']
                 lines += [link]

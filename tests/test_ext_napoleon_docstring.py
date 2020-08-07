@@ -1365,7 +1365,6 @@ otherfunc : relationship
 
         config = Config()
         app = mock.Mock()
-        app.builder.env = None
         actual = str(NumpyDocstring(docstring, config, app, "method"))
 
         expected = """\
@@ -1373,29 +1372,9 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
 .. seealso::
 
-   :meth:`some`, :meth:`other`, :meth:`funcs`
+   :obj:`some`, :obj:`other`, :obj:`funcs`
    \n\
-   :meth:`otherfunc`
-       relationship
-"""
-        self.assertEqual(expected, actual)
-
-        config = Config()
-        app = mock.Mock()
-        app.builder.env.intersphinx_inventory = {
-            "py:func": {"funcs": (), "otherfunc": ()},
-            "py:meth": {"some": (), "other": ()},
-        }
-        actual = str(NumpyDocstring(docstring, config, app, "method"))
-
-        expected = """\
-numpy.multivariate_normal(mean, cov, shape=None, spam=None)
-
-.. seealso::
-
-   :meth:`some`, :meth:`other`, :func:`funcs`
-   \n\
-   :func:`otherfunc`
+   :obj:`otherfunc`
        relationship
 """
         self.assertEqual(expected, actual)
@@ -1415,10 +1394,6 @@ otherfunc : relationship
         }
         config = Config(napoleon_type_aliases=translations)
         app = mock.Mock()
-        app.builder.env.intersphinx_inventory = {
-            "py:func": {"funcs": (), "otherfunc": ()},
-            "py:meth": {"some": (), "MyClass.other": ()},
-        }
         actual = str(NumpyDocstring(docstring, config, app, "method"))
 
         expected = """\
@@ -1426,7 +1401,7 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
 .. seealso::
 
-   :meth:`some`, :meth:`MyClass.other`, :func:`funcs`
+   :obj:`some`, :obj:`MyClass.other`, :func:`funcs`
    \n\
    :func:`~my_package.otherfunc`
        relationship
