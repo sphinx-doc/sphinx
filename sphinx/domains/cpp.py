@@ -7345,9 +7345,8 @@ class CPPDomain(Domain):
                 # strange, that we don't get the error now, use the original
                 return target, e
             t, ex = findWarning(e)
-            if typ != 'any':
-                logger.warning('Unparseable C++ cross-reference: %r\n%s', t, ex,
-                               location=node)
+            logger.warning('Unparseable C++ cross-reference: %r\n%s', t, ex,
+                           location=node)
             return None, None
         parentKey = node.get("cpp:parent_key", None)  # type: LookupKey
         rootSymbol = self.data['root_symbol']
