@@ -265,3 +265,4 @@ def test_nosearch(app):
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
     assert 'latex' not in index['terms']
     assert 'zfs' in index['terms']
+    assert index['terms']['zfs'] == []  # zfs on nosearch.rst is not registered to index
