@@ -234,8 +234,10 @@ def suppress_logging() -> Generator[MemoryHandler, None, None]:
             handlers.append(handler)
 
         logger.addHandler(memhandler)
+        logger.propagate = False
         yield memhandler
     finally:
+        logger.propagate = True
         logger.removeHandler(memhandler)
 
         for handler in handlers:
