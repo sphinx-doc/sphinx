@@ -1340,6 +1340,32 @@ param1 : :class:`MyClass <name.space.MyClass>` instance
 """
         self.assertEqual(expected, actual)
 
+    def test_multiple_parameters(self):
+        docstring = """\
+Parameters
+----------
+x1, x2 : array_like
+    Input arrays, description of ``x1``, ``x2``.
+
+"""
+
+        config = Config(napoleon_use_param=False)
+        actual = str(NumpyDocstring(docstring, config))
+        expected = """\
+:Parameters: **x1, x2** (:class:`array_like`) -- Input arrays, description of ``x1``, ``x2``.
+"""
+        self.assertEqual(expected, actual)
+
+        config = Config(napoleon_use_param=True)
+        actual = str(NumpyDocstring(dedent(docstring), config))
+        expected = """\
+:param x1: Input arrays, description of ``x1``, ``x2``.
+:type x1: :class:`array_like`
+:param x2: Input arrays, description of ``x1``, ``x2``.
+:type x2: :class:`array_like`
+"""
+        self.assertEqual(expected, actual)
+
     def test_parameters_without_class_reference(self):
         docstring = """\
 Parameters
