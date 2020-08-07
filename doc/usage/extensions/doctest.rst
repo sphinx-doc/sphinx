@@ -67,7 +67,7 @@ a comma-separated list of group names.
    default set of flags is specified by the :confval:`doctest_default_flags`
    configuration variable.
 
-   This directive supports three options:
+   This directive supports five options:
 
    * ``hide``, a flag option, hides the doctest block in other builders.  By
      default it is shown as a highlighted doctest block.
@@ -102,6 +102,11 @@ a comma-separated list of group names.
 
         Supported PEP-440 operands and notations
 
+   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
+     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
+     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
+     individually.  Default is ``trim-doctest-flags``.
+
    Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
    signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed
    when building presentation output (HTML, LaTeX etc.).
@@ -119,10 +124,15 @@ a comma-separated list of group names.
 
    A code block for a code-output-style test.
 
-   This directive supports one option:
+   This directive supports three options:
 
    * ``hide``, a flag option, hides the code block in other builders.  By
      default it is shown as a highlighted code block.
+
+   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
+     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
+     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
+     individually.  Default is ``trim-doctest-flags``.
 
    .. note::
 
@@ -149,13 +159,18 @@ a comma-separated list of group names.
    The corresponding output, or the exception message, for the last
    :rst:dir:`testcode` block.
 
-   This directive supports two options:
+   This directive supports four options:
 
    * ``hide``, a flag option, hides the output block in other builders.  By
      default it is shown as a literal block without highlighting.
 
    * ``options``, a string option, can be used to give doctest flags
      (comma-separated) just like in normal doctest blocks.
+
+   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
+     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
+     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
+     individually.  Default is ``trim-doctest-flags``.
 
    Example::
 

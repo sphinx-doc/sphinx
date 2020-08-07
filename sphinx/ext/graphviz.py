@@ -385,7 +385,7 @@ def man_visit_graphviz(self: ManualPageTranslator, node: graphviz) -> None:
 
 
 def on_build_finished(app: Sphinx, exc: Exception) -> None:
-    if exc is None:
+    if exc is None and app.builder.format == 'html':
         src = path.join(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
         dst = path.join(app.outdir, '_static')
         copy_asset(src, dst)

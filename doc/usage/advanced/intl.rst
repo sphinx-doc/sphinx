@@ -6,8 +6,8 @@ Internationalization
 .. versionadded:: 1.1
 
 Complementary to translations provided for Sphinx-generated messages such as
-navigation bars, Sphinx provides mechanisms facilitating *document* translations
-in itself.  See the :ref:`intl-options` for details on configuration.
+navigation bars, Sphinx provides mechanisms facilitating the translation of
+*documents*.  See the :ref:`intl-options` for details on configuration.
 
 .. figure:: /_static/translation.*
    :width: 100%

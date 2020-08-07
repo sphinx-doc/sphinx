@@ -22,11 +22,12 @@ from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
 
-logger = logging.getLogger(__name__)
-
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
+
+logger = logging.getLogger(__name__)
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
@@ -958,16 +959,9 @@ def _convert_numpy_type_spec(_type: str, location: str = None, translations: dic
         for token in combined_tokens
     ]
 
-    # don't use the object role if it's not necessary
-    default_translation = (
-        ":class:`%s`"
-        if not all(type_ == "obj" for _, type_ in types)
-        else "%s"
-    )
-
     converters = {
         "literal": lambda x: "``%s``" % x,
-        "obj": lambda x: convert_obj(x, translations, default_translation),
+        "obj": lambda x: convert_obj(x, translations, ":class:`%s`"),
         "control": lambda x: "*%s*" % x,
         "delimiter": lambda x: x,
         "reference": lambda x: x,
@@ -1078,13 +1072,23 @@ class NumpyDocstring(GoogleDocstring):
         super().__init__(docstring, config, app, what, name, obj, options)
 
     def _get_location(self) -> str:
-        filepath = inspect.getfile(self._obj) if self._obj is not None else ""
+        filepath = inspect.getfile(self._obj) if self._obj is not None else None
         name = self._name
 
         if filepath is None and name is None:
             return None
+        elif filepath is None:
+            filepath = ""
 
         return ":".join([filepath, "docstring of %s" % name])
+
+    def _escape_args_and_kwargs(self, name: str) -> str:
+        func = super()._escape_args_and_kwargs
+
+        if ", " in name:
+            return ", ".join(func(param) for param in name.split(", "))
+        else:
+            return func(name)
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
@@ -1099,12 +1103,11 @@ class NumpyDocstring(GoogleDocstring):
         if prefer_type and not _type:
             _type, _name = _name, _type
 
-        if self._config.napoleon_use_param:
-            _type = _convert_numpy_type_spec(
-                _type,
-                location=self._get_location(),
-                translations=self._config.napoleon_type_aliases or {},
-            )
+        _type = _convert_numpy_type_spec(
+            _type,
+            location=self._get_location(),
+            translations=self._config.napoleon_type_aliases or {},
+        )
 
         indent = self._get_indent(line) + 1
         _desc = self._dedent(self._consume_indented_block(indent))
