@@ -4,10 +4,18 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: windows-latest
     strategy:
       matrix:
-        architecture: [x86, x64]
+        include:
+          - os: windows-latest
+            architecture: x86
+            python-version: 3.x
+            toxenv: py
+          - os: windows-latest
+            architecture: x64
+            python-version: 3.x
+            toxenv: py
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
@@ -15,7 +23,8 @@ jobs:
       uses: actions/setup-python@v1
       with:
         architecture: ${{ matrix.architecture }}
+        python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run:  pip install -U tox
     - name: Run Tox
-      run:  tox -e py -- -vv
+      run:  tox -e ${{ matrix.toxenv }} -- -vv
