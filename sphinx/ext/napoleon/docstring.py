@@ -956,16 +956,9 @@ def _convert_numpy_type_spec(_type: str, location: str = None, translations: dic
         for token in combined_tokens
     ]
 
-    # don't use the object role if it's not necessary
-    default_translation = (
-        ":class:`%s`"
-        if not all(type_ == "obj" for _, type_ in types)
-        else "%s"
-    )
-
     converters = {
         "literal": lambda x: "``%s``" % x,
-        "obj": lambda x: convert_obj(x, translations, default_translation),
+        "obj": lambda x: convert_obj(x, translations, ":class:`%s`"),
         "control": lambda x: "*%s*" % x,
         "delimiter": lambda x: x,
         "reference": lambda x: x,
@@ -1103,12 +1096,11 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
-        if self._config.napoleon_use_param:
-            _type = _convert_numpy_type_spec(
-                _type,
-                location=self._get_location(),
-                translations=self._config.napoleon_type_aliases or {},
-            )
+        _type = _convert_numpy_type_spec(
+            _type,
+            location=self._get_location(),
+            translations=self._config.napoleon_type_aliases or {},
+        )
 
         if prefer_type and not _type:
             _type, _name = _name, _type
