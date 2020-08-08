@@ -56,6 +56,7 @@ Features added
   :confval:`c_warn_on_allowed_pre_v3`` to ``True``.
   The functionality is immediately deprecated.
 * #7999: C, add support for named variadic macro arguments.
+* #8071: Allow to suppress "self referenced toctrees" warning
 
 Bugs fixed
 ----------
