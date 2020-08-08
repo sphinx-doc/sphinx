@@ -111,33 +111,8 @@ Bugs fixed
 * #7986: CSS: make "highlight" selector more robust
 * #7944: C++, parse non-type template parameters starting with
   a dependent qualified name.
-
-Testing
---------
-
-Release 3.1.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
 * C, don't deepcopy the entire symbol table and make a mess every time an
   enumerator is handled.
-
-Testing
---------
 
 Release 3.1.2 (released Jul 05, 2020)
 =====================================
