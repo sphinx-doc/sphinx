@@ -18,7 +18,7 @@ from types import ModuleType
 from typing import (
     Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, TypeVar, Union
 )
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, get_type_hints
 
 from docutils.statemachine import StringList
 
@@ -60,13 +60,29 @@ py_ext_sig_re = re.compile(
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
           ''', re.VERBOSE)
+special_member_re = re.compile(r'^__\S+__$')
 
 
 def identity(x: Any) -> Any:
     return x
 
 
-ALL = object()
+class _All:
+    """A special value for :*-members: that matches to any member."""
+
+    def __contains__(self, item: Any) -> bool:
+        return True
+
+
+class _Empty:
+    """A special value for :exclude-members: that never matches to any member."""
+
+    def __contains__(self, item: Any) -> bool:
+        return False
+
+
+ALL = _All()
+EMPTY = _Empty()
 UNINITIALIZED_ATTR = object()
 INSTANCEATTR = object()
 SLOTSATTR = object()
@@ -81,8 +97,17 @@ def members_option(arg: Any) -> Union[object, List[str]]:
 
 def members_set_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :members: option to auto directives."""
+    warnings.warn("members_set_option() is deprecated.",
+                  RemovedInSphinx50Warning, stacklevel=2)
     if arg is None:
         return ALL
+    return {x.strip() for x in arg.split(',') if x.strip()}
+
+
+def exclude_members_option(arg: Any) -> Union[object, Set[str]]:
+    """Used to convert the :exclude-members: option."""
+    if arg is None:
+        return EMPTY
     return {x.strip() for x in arg.split(',') if x.strip()}
 
 
@@ -124,6 +149,8 @@ def bool_option(arg: Any) -> bool:
 
 def merge_special_members_option(options: Dict) -> None:
     """Merge :special-members: option to :members: option."""
+    warnings.warn("merge_special_members_option() is deprecated.",
+                  RemovedInSphinx50Warning, stacklevel=2)
     if 'special-members' in options and options['special-members'] is not ALL:
         if options.get('members') is ALL:
             pass
@@ -133,6 +160,20 @@ def merge_special_members_option(options: Dict) -> None:
                     options['members'].append(member)
         else:
             options['members'] = options['special-members']
+
+
+def merge_members_option(options: Dict) -> None:
+    """Merge :*-members: option to the :members: option."""
+    if options.get('members') is ALL:
+        # merging is not needed when members: ALL
+        return
+
+    members = options.setdefault('members', [])
+    for key in {'private-members', 'special-members'}:
+        if key in options and options[key] is not ALL:
+            for member in options[key]:
+                if member not in members:
+                    members.append(member)
 
 
 # Some useful event listener factories for autodoc-process-docstring.
@@ -574,6 +615,8 @@ class Documenter:
                         return True
                     elif name in cls.__dict__:
                         return False
+                    elif name in self.get_attr(cls, '__annotations__', {}):
+                        return False
 
             return False
 
@@ -624,35 +667,40 @@ class Documenter:
             if safe_getattr(member, '__sphinx_mock__', False):
                 # mocked module or object
                 pass
-            elif (self.options.exclude_members not in (None, ALL) and
-                  membername in self.options.exclude_members):
+            elif self.options.exclude_members and membername in self.options.exclude_members:
                 # remove members given by exclude-members
                 keep = False
-            elif want_all and membername.startswith('__') and \
-                    membername.endswith('__') and len(membername) > 4:
+            elif want_all and special_member_re.match(membername):
                 # special __methods__
-                if self.options.special_members is ALL:
+                if self.options.special_members and membername in self.options.special_members:
                     if membername == '__doc__':
                         keep = False
                     elif is_filtered_inherited_member(membername):
                         keep = False
                     else:
                         keep = has_doc or self.options.undoc_members
-                elif self.options.special_members:
-                    if membername in self.options.special_members:
-                        keep = has_doc or self.options.undoc_members
+                else:
+                    keep = False
             elif (namespace, membername) in attr_docs:
                 if want_all and isprivate:
-                    # ignore members whose name starts with _ by default
-                    keep = self.options.private_members
+                    if self.options.private_members is None:
+                        keep = False
+                    else:
+                        keep = membername in self.options.private_members
                 else:
                     # keep documented attributes
                     keep = True
                 isattr = True
             elif want_all and isprivate:
-                # ignore members whose name starts with _ by default
-                keep = self.options.private_members and \
-                    (has_doc or self.options.undoc_members)
+                if has_doc or self.options.undoc_members:
+                    if self.options.private_members is None:
+                        keep = False
+                    elif is_filtered_inherited_member(membername):
+                        keep = False
+                    else:
+                        keep = membername in self.options.private_members
+                else:
+                    keep = False
             else:
                 if self.options.members is ALL and is_filtered_inherited_member(membername):
                     keep = False
@@ -853,14 +901,14 @@ class ModuleDocumenter(Documenter):
         'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
-        'member-order': member_order_option, 'exclude-members': members_set_option,
-        'private-members': bool_option, 'special-members': members_option,
+        'member-order': member_order_option, 'exclude-members': exclude_members_option,
+        'private-members': members_option, 'special-members': members_option,
         'imported-members': bool_option, 'ignore-module-all': bool_option
     }  # type: Dict[str, Callable]
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
-        merge_special_members_option(self.options)
+        merge_members_option(self.options)
         self.__all__ = None
 
     @classmethod
@@ -1264,8 +1312,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'member-order': member_order_option,
-        'exclude-members': members_set_option,
-        'private-members': bool_option, 'special-members': members_option,
+        'exclude-members': exclude_members_option,
+        'private-members': members_option, 'special-members': members_option,
     }  # type: Dict[str, Callable]
 
     _signature_class = None  # type: Any
@@ -1273,7 +1321,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
-        merge_special_members_option(self.options)
+        merge_members_option(self.options)
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -1539,8 +1587,12 @@ class DataDocumenter(ModuleLevelDocumenter):
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             # obtain annotation for this data
-            annotations = getattr(self.parent, '__annotations__', {})
-            if annotations and self.objpath[-1] in annotations:
+            try:
+                annotations = get_type_hints(self.parent)
+            except TypeError:
+                annotations = {}
+
+            if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
             else:
@@ -1905,8 +1957,12 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             # obtain type annotation for this attribute
-            annotations = getattr(self.parent, '__annotations__', {})
-            if annotations and self.objpath[-1] in annotations:
+            try:
+                annotations = get_type_hints(self.parent)
+            except TypeError:
+                annotations = {}
+
+            if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
             else:
@@ -2000,11 +2056,22 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
                 isattr and
                 member is INSTANCEATTR)
 
+    def import_parent(self) -> Any:
+        try:
+            parent = importlib.import_module(self.modname)
+            for name in self.objpath[:-1]:
+                parent = self.get_attr(parent, name)
+
+            return parent
+        except (ImportError, AttributeError):
+            return None
+
     def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as an attribute
         self.objtype = 'attribute'
         self.object = INSTANCEATTR
+        self.parent = self.import_parent()
         self._datadescriptor = False
         return True
 

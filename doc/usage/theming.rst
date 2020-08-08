@@ -348,7 +348,7 @@ Third Party Themes
 
 There are many third-party themes available. Some of these are general use,
 while others are specific to an individual project. A section of third-party
-themes is listed below. Many more can be found on PyPI__, GitHub__ and
+themes is listed below. Many more can be found on PyPI__, GitHub__, GitLab__ and
 sphinx-themes.org__.
 
 .. cssclass:: clear
@@ -367,4 +367,5 @@ sphinx-themes.org__.
 
 .. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
 .. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
+.. __: https://gitlab.com/explore?name=sphinx+theme
 .. __: https://sphinx-themes.org/

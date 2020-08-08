@@ -25,3 +25,7 @@ class Class:
         self.attr5: int         #: attr5
         self.attr6 = 0          # type: int
         """attr6"""
+
+
+class Derived(Class):
+    attr7: int

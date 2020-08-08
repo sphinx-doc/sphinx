@@ -16,6 +16,8 @@ from inspect import cleandoc
 from textwrap import dedent
 from unittest import TestCase, mock
 
+import pytest
+
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.ext.napoleon.docstring import (
@@ -64,19 +66,19 @@ Sample namedtuple subclass
 
    Quick description of attr1
 
-   :type: Arbitrary type
+   :type: :class:`Arbitrary type`
 
 .. attribute:: attr2
 
    Quick description of attr2
 
-   :type: Another arbitrary type
+   :type: :class:`Another arbitrary type`
 
 .. attribute:: attr3
 
    Adds a newline after the type
 
-   :type: Type
+   :type: :class:`Type`
 """
 
         self.assertEqual(expected, actual)
@@ -1078,6 +1080,22 @@ Methods:
                                      options={'noindex': True}))
         self.assertEqual(expected, actual)
 
+    def test_keywords_with_types(self):
+        docstring = """\
+Do as you please
+
+Keyword Args:
+    gotham_is_yours (None): shall interfere.
+"""
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+Do as you please
+
+:keyword gotham_is_yours: shall interfere.
+:kwtype gotham_is_yours: None
+"""
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
@@ -1108,7 +1126,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Parameters: **arg1** (*str*) -- Extended
+        :Parameters: **arg1** (:class:`str`) -- Extended
                      description of arg1
         """
     ), (
@@ -1136,14 +1154,14 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Parameters: * **arg1** (*str*) -- Extended
+        :Parameters: * **arg1** (:class:`str`) -- Extended
                        description of arg1
-                     * **arg2** (*int*) -- Extended
+                     * **arg2** (:class:`int`) -- Extended
                        description of arg2
 
-        :Keyword Arguments: * **kwarg1** (*str*) -- Extended
+        :Keyword Arguments: * **kwarg1** (:class:`str`) -- Extended
                               description of kwarg1
-                            * **kwarg2** (*int*) -- Extended
+                            * **kwarg2** (:class:`int`) -- Extended
                               description of kwarg2
         """
     ), (
@@ -1194,9 +1212,26 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Parameters: * **arg1** (*str*) -- Extended description of arg1
+        :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
                      * **\\*args** -- Variable length argument list.
                      * **\\*\\*kwargs** -- Arbitrary keyword arguments.
+        """
+    ), (
+        """
+        Single line summary
+
+        Parameters
+        ----------
+        arg1:str
+             Extended description of arg1
+        *args, **kwargs:
+            Variable length argument list and arbitrary keyword arguments.
+        """,
+        """
+        Single line summary
+
+        :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
+                     * **\\*args, \\*\\*kwargs** -- Variable length argument list and arbitrary keyword arguments.
         """
     ), (
         """
@@ -1305,6 +1340,32 @@ param1 : :class:`MyClass <name.space.MyClass>` instance
 """
         self.assertEqual(expected, actual)
 
+    def test_multiple_parameters(self):
+        docstring = """\
+Parameters
+----------
+x1, x2 : array_like
+    Input arrays, description of ``x1``, ``x2``.
+
+"""
+
+        config = Config(napoleon_use_param=False)
+        actual = str(NumpyDocstring(docstring, config))
+        expected = """\
+:Parameters: **x1, x2** (:class:`array_like`) -- Input arrays, description of ``x1``, ``x2``.
+"""
+        self.assertEqual(expected, actual)
+
+        config = Config(napoleon_use_param=True)
+        actual = str(NumpyDocstring(dedent(docstring), config))
+        expected = """\
+:param x1: Input arrays, description of ``x1``, ``x2``.
+:type x1: :class:`array_like`
+:param x2: Input arrays, description of ``x1``, ``x2``.
+:type x2: :class:`array_like`
+"""
+        self.assertEqual(expected, actual)
+
     def test_parameters_without_class_reference(self):
         docstring = """\
 Parameters
@@ -1316,7 +1377,7 @@ param1 : MyClass instance
         config = Config(napoleon_use_param=False)
         actual = str(NumpyDocstring(docstring, config))
         expected = """\
-:Parameters: **param1** (*MyClass instance*)
+:Parameters: **param1** (:class:`MyClass instance`)
 """
         self.assertEqual(expected, actual)
 
@@ -1324,7 +1385,7 @@ param1 : MyClass instance
         actual = str(NumpyDocstring(dedent(docstring), config))
         expected = """\
 :param param1:
-:type param1: MyClass instance
+:type param1: :class:`MyClass instance`
 """
         self.assertEqual(expected, actual)
 
@@ -1413,7 +1474,7 @@ arg_ : type
 
         expected = """
 :ivar arg_: some description
-:vartype arg_: type
+:vartype arg_: :class:`type`
 """
 
         config = Config(napoleon_use_ivar=True)
@@ -1433,7 +1494,7 @@ arg_ : type
 
         expected = """
 :ivar arg\\_: some description
-:vartype arg\\_: type
+:vartype arg\\_: :class:`type`
 """
 
         config = Config(napoleon_use_ivar=True)
@@ -1801,59 +1862,59 @@ definition_after_normal_text : int
         expected = """One line summary.
 
 :param no_list:
-:type no_list: int
+:type no_list: :class:`int`
 :param one_bullet_empty:
                          *
-:type one_bullet_empty: int
+:type one_bullet_empty: :class:`int`
 :param one_bullet_single_line:
                                - first line
-:type one_bullet_single_line: int
+:type one_bullet_single_line: :class:`int`
 :param one_bullet_two_lines:
                              +   first line
                                  continued
-:type one_bullet_two_lines: int
+:type one_bullet_two_lines: :class:`int`
 :param two_bullets_single_line:
                                 -  first line
                                 -  second line
-:type two_bullets_single_line: int
+:type two_bullets_single_line: :class:`int`
 :param two_bullets_two_lines:
                               * first line
                                 continued
                               * second line
                                 continued
-:type two_bullets_two_lines: int
+:type two_bullets_two_lines: :class:`int`
 :param one_enumeration_single_line:
                                     1.  first line
-:type one_enumeration_single_line: int
+:type one_enumeration_single_line: :class:`int`
 :param one_enumeration_two_lines:
                                   1)   first line
                                        continued
-:type one_enumeration_two_lines: int
+:type one_enumeration_two_lines: :class:`int`
 :param two_enumerations_one_line:
                                   (iii) first line
                                   (iv) second line
-:type two_enumerations_one_line: int
+:type two_enumerations_one_line: :class:`int`
 :param two_enumerations_two_lines:
                                    a. first line
                                       continued
                                    b. second line
                                       continued
-:type two_enumerations_two_lines: int
+:type two_enumerations_two_lines: :class:`int`
 :param one_definition_one_line:
                                 item 1
                                     first line
-:type one_definition_one_line: int
+:type one_definition_one_line: :class:`int`
 :param one_definition_two_lines:
                                  item 1
                                      first line
                                      continued
-:type one_definition_two_lines: int
+:type one_definition_two_lines: :class:`int`
 :param two_definitions_one_line:
                                  item 1
                                      first line
                                  item 2
                                      second line
-:type two_definitions_one_line: int
+:type two_definitions_one_line: :class:`int`
 :param two_definitions_two_lines:
                                   item 1
                                       first line
@@ -1861,14 +1922,14 @@ definition_after_normal_text : int
                                   item 2
                                       second line
                                       continued
-:type two_definitions_two_lines: int
+:type two_definitions_two_lines: :class:`int`
 :param one_definition_blank_line:
                                   item 1
 
                                       first line
 
                                       extra first line
-:type one_definition_blank_line: int
+:type one_definition_blank_line: :class:`int`
 :param two_definitions_blank_lines:
                                     item 1
 
@@ -1881,12 +1942,12 @@ definition_after_normal_text : int
                                         second line
 
                                         extra second line
-:type two_definitions_blank_lines: int
+:type two_definitions_blank_lines: :class:`int`
 :param definition_after_normal_text: text line
 
                                      item 1
                                          first line
-:type definition_after_normal_text: int
+:type definition_after_normal_text: :class:`int`
 """
         config = Config(napoleon_use_param=True)
         actual = str(NumpyDocstring(docstring, config))
@@ -1894,60 +1955,60 @@ definition_after_normal_text : int
 
         expected = """One line summary.
 
-:Parameters: * **no_list** (*int*)
-             * **one_bullet_empty** (*int*) --
+:Parameters: * **no_list** (:class:`int`)
+             * **one_bullet_empty** (:class:`int`) --
 
                *
-             * **one_bullet_single_line** (*int*) --
+             * **one_bullet_single_line** (:class:`int`) --
 
                - first line
-             * **one_bullet_two_lines** (*int*) --
+             * **one_bullet_two_lines** (:class:`int`) --
 
                +   first line
                    continued
-             * **two_bullets_single_line** (*int*) --
+             * **two_bullets_single_line** (:class:`int`) --
 
                -  first line
                -  second line
-             * **two_bullets_two_lines** (*int*) --
+             * **two_bullets_two_lines** (:class:`int`) --
 
                * first line
                  continued
                * second line
                  continued
-             * **one_enumeration_single_line** (*int*) --
+             * **one_enumeration_single_line** (:class:`int`) --
 
                1.  first line
-             * **one_enumeration_two_lines** (*int*) --
+             * **one_enumeration_two_lines** (:class:`int`) --
 
                1)   first line
                     continued
-             * **two_enumerations_one_line** (*int*) --
+             * **two_enumerations_one_line** (:class:`int`) --
 
                (iii) first line
                (iv) second line
-             * **two_enumerations_two_lines** (*int*) --
+             * **two_enumerations_two_lines** (:class:`int`) --
 
                a. first line
                   continued
                b. second line
                   continued
-             * **one_definition_one_line** (*int*) --
+             * **one_definition_one_line** (:class:`int`) --
 
                item 1
                    first line
-             * **one_definition_two_lines** (*int*) --
+             * **one_definition_two_lines** (:class:`int`) --
 
                item 1
                    first line
                    continued
-             * **two_definitions_one_line** (*int*) --
+             * **two_definitions_one_line** (:class:`int`) --
 
                item 1
                    first line
                item 2
                    second line
-             * **two_definitions_two_lines** (*int*) --
+             * **two_definitions_two_lines** (:class:`int`) --
 
                item 1
                    first line
@@ -1955,14 +2016,14 @@ definition_after_normal_text : int
                item 2
                    second line
                    continued
-             * **one_definition_blank_line** (*int*) --
+             * **one_definition_blank_line** (:class:`int`) --
 
                item 1
 
                    first line
 
                    extra first line
-             * **two_definitions_blank_lines** (*int*) --
+             * **two_definitions_blank_lines** (:class:`int`) --
 
                item 1
 
@@ -1975,7 +2036,7 @@ definition_after_normal_text : int
                    second line
 
                    extra second line
-             * **definition_after_normal_text** (*int*) -- text line
+             * **definition_after_normal_text** (:class:`int`) -- text line
 
                item 1
                    first line
@@ -1987,6 +2048,8 @@ definition_after_normal_text : int
     def test_token_type(self):
         tokens = (
             ("1", "literal"),
+            ("-4.6", "literal"),
+            ("2j", "literal"),
             ("'string'", "literal"),
             ('"another_string"', "literal"),
             ("{1, 2}", "literal"),
@@ -2010,20 +2073,32 @@ definition_after_normal_text : int
     def test_tokenize_type_spec(self):
         specs = (
             "str",
+            "defaultdict",
+            "int, float, or complex",
             "int or float or None, optional",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'F'",
             "{'F', 'C', 'N or C'}, default 'F'",
+            "str, default: 'F or C'",
+            "int, default: None",
+            "int, default None",
+            "int, default :obj:`None`",
             '"ma{icious"',
             r"'with \'quotes\''",
         )
 
         tokens = (
             ["str"],
+            ["defaultdict"],
+            ["int", ", ", "float", ", or ", "complex"],
             ["int", " or ", "float", " or ", "None", ", ", "optional"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "'F'"],
             ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
+            ["str", ", ", "default", ": ", "'F or C'"],
+            ["int", ", ", "default", ": ", "None"],
+            ["int", ", " , "default", " ", "None"],
+            ["int", ", ", "default", " ", ":obj:`None`"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],
         )
@@ -2037,12 +2112,14 @@ definition_after_normal_text : int
             ["{", "1", ", ", "2", "}"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}", ", ", "optional"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "None"],
+            ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", " ", "None"],
         )
 
         combined_tokens = (
             ["{1, 2}"],
             ['{"F", "C", "N"}', ", ", "optional"],
             ["{'F', 'C', 'N'}", ", ", "default", ": ", "None"],
+            ["{'F', 'C', 'N'}", ", ", "default", " ", "None"],
         )
 
         for tokens_, expected in zip(tokens, combined_tokens):
@@ -2075,8 +2152,10 @@ definition_after_normal_text : int
             "optional",
             "str, optional",
             "int or float or None, default: None",
+            "int, default None",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'N'",
+            "{'F', 'C', 'N'}, default 'N'",
             "DataFrame, optional",
         )
 
@@ -2085,8 +2164,10 @@ definition_after_normal_text : int
             "*optional*",
             ":class:`str`, *optional*",
             ":class:`int` or :class:`float` or :obj:`None`, *default*: :obj:`None`",
+            ":class:`int`, *default* :obj:`None`",
             '``{"F", "C", "N"}``',
             "``{'F', 'C', 'N'}``, *default*: ``'N'``",
+            "``{'F', 'C', 'N'}``, *default* ``'N'``",
             ":class:`pandas.DataFrame`, *optional*",
         )
 
@@ -2100,7 +2181,7 @@ definition_after_normal_text : int
             ----------
             param1 : DataFrame
                 the data to work on
-            param2 : int or float or None
+            param2 : int or float or None, optional
                 a parameter with different types
             param3 : dict-like, optional
                 a optional mapping
@@ -2108,21 +2189,35 @@ definition_after_normal_text : int
                 a optional parameter with different types
             param5 : {"F", "C", "N"}, optional
                 a optional parameter with fixed values
+            param6 : int, default None
+                different default format
+            param7 : mapping of hashable to str, optional
+                a optional mapping
+            param8 : ... or Ellipsis
+                ellipsis
         """)
         expected = dedent("""\
             :param param1: the data to work on
-            :type param1: DataFrame
+            :type param1: :class:`DataFrame`
             :param param2: a parameter with different types
-            :type param2: :class:`int` or :class:`float` or :obj:`None`
+            :type param2: :class:`int` or :class:`float` or :obj:`None`, *optional*
             :param param3: a optional mapping
             :type param3: :term:`dict-like <mapping>`, *optional*
             :param param4: a optional parameter with different types
             :type param4: :class:`int` or :class:`float` or :obj:`None`, *optional*
             :param param5: a optional parameter with fixed values
             :type param5: ``{"F", "C", "N"}``, *optional*
+            :param param6: different default format
+            :type param6: :class:`int`, *default* :obj:`None`
+            :param param7: a optional mapping
+            :type param7: :term:`mapping` of :term:`hashable` to :class:`str`, *optional*
+            :param param8: ellipsis
+            :type param8: :obj:`... <Ellipsis>` or :obj:`Ellipsis`
         """)
         translations = {
             "dict-like": ":term:`dict-like <mapping>`",
+            "mapping": ":term:`mapping`",
+            "hashable": ":term:`hashable`",
         }
         config = Config(
             napoleon_use_param=True,
@@ -2132,21 +2227,6 @@ definition_after_normal_text : int
         actual = str(NumpyDocstring(docstring, config))
         self.assertEqual(expected, actual)
 
-    def test_keywords_with_types(self):
-        docstring = """\
-Do as you please
-
-Keyword Args:
-    gotham_is_yours (None): shall interfere.
-"""
-        actual = str(GoogleDocstring(docstring))
-        expected = """\
-Do as you please
-
-:keyword gotham_is_yours: shall interfere.
-:kwtype gotham_is_yours: None
-"""
-        self.assertEqual(expected, actual)
 
 @contextmanager
 def warns(warning, match):
@@ -2182,3 +2262,17 @@ class TestNumpyDocstring:
         for token, error in zip(tokens, errors):
             with warns(warning, match=error):
                 _token_type(token)
+
+    @pytest.mark.parametrize(
+        ("name", "expected"),
+        (
+            ("x, y, z", "x, y, z"),
+            ("*args, **kwargs", r"\*args, \*\*kwargs"),
+            ("*x, **y", r"\*x, \*\*y"),
+        ),
+    )
+    def test_escape_args_and_kwargs(self, name, expected):
+        numpy_docstring = NumpyDocstring("")
+        actual = numpy_docstring._escape_args_and_kwargs(name)
+
+        assert actual == expected

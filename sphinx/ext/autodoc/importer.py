@@ -17,6 +17,10 @@ from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
 from sphinx.util.inspect import isclass, isenumclass, safe_getattr
 
+if False:
+    # For type annotation
+    from typing import Type  # NOQA
+
 logger = logging.getLogger(__name__)
 
 
@@ -158,6 +162,24 @@ class Attribute(NamedTuple):
     value: Any
 
 
+def _getmro(obj: Any) -> Tuple["Type", ...]:
+    """Get __mro__ from given *obj* safely."""
+    __mro__ = safe_getattr(obj, '__mro__', None)
+    if isinstance(__mro__, tuple):
+        return __mro__
+    else:
+        return tuple()
+
+
+def _getannotations(obj: Any) -> Mapping[str, Any]:
+    """Get __annotations__ from given *obj* safely."""
+    __annotations__ = safe_getattr(obj, '__annotations__', None)
+    if isinstance(__annotations__, Mapping):
+        return __annotations__
+    else:
+        return {}
+
+
 def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                        analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
@@ -199,11 +221,11 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
             continue
 
     # annotation only member (ex. attr: int)
-    if hasattr(subject, '__annotations__') and isinstance(subject.__annotations__, Mapping):
-        for name in subject.__annotations__:
-            name = unmangle(subject, name)
+    for i, cls in enumerate(_getmro(subject)):
+        for name in _getannotations(cls):
+            name = unmangle(cls, name)
             if name and name not in members:
-                members[name] = Attribute(name, True, INSTANCEATTR)
+                members[name] = Attribute(name, i == 0, INSTANCEATTR)
 
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows

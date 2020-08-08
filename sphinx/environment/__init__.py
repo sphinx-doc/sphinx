@@ -584,7 +584,9 @@ class BuildEnvironment:
 
         def traverse_toctree(parent: str, docname: str) -> Iterator[Tuple[str, str]]:
             if parent == docname:
-                logger.warning(__('self referenced toctree found. Ignored.'), location=docname)
+                logger.warning(__('self referenced toctree found. Ignored.'),
+                               location=docname, type='toc',
+                               subtype='circular')
                 return
 
             # traverse toctree by pre-order

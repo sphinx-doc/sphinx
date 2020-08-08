@@ -7,7 +7,7 @@ Templating
 ==========
 
 Sphinx uses the `Jinja <http://jinja.pocoo.org>`_ templating engine for its HTML
-templates.  Jinja is a text-based engine, and inspired by Django templates, so
+templates.  Jinja is a text-based engine, inspired by Django templates, so
 anyone having used Django will already be familiar with it.  It also has
 excellent documentation for those who need to make themselves familiar with it.
 

@@ -22,6 +22,7 @@ from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
 
+
 logger = logging.getLogger(__name__)
 
 _directive_regex = re.compile(r'\.\. \S+::')
@@ -33,7 +34,7 @@ _xref_or_code_regex = re.compile(
     r'((?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)|'
     r'(?:``.+``))')
 _xref_regex = re.compile(
-    r'(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)'
+    r'(?:(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:)?`.+?`)'
 )
 _bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
 _enumerated_list_regex = re.compile(
@@ -41,10 +42,15 @@ _enumerated_list_regex = re.compile(
     r'(\d+|#|[ivxlcdm]+|[IVXLCDM]+|[a-zA-Z])'
     r'(?(paren)\)|\.)(\s+\S|\s*$)')
 _token_regex = re.compile(
-    r"(\sor\s|\sof\s|:\s|,\s|[{]|[}]"
+    r"(,\sor\s|\sor\s|\sof\s|:\s|\sto\s|,\sand\s|\sand\s|,\s"
+    r"|[{]|[}]"
     r'|"(?:\\"|[^"])*"'
     r"|'(?:\\'|[^'])*')"
 )
+_default_regex = re.compile(
+    r"^default[^_0-9A-Za-z].*$",
+)
+_SINGLETONS = ("None", "True", "False", "Ellipsis")
 
 
 class GoogleDocstring:
@@ -256,13 +262,16 @@ class GoogleDocstring:
         _descs = self.__class__(_descs, self._config).lines()
         return _name, _type, _descs
 
-    def _consume_fields(self, parse_type: bool = True, prefer_type: bool = False
-                        ) -> List[Tuple[str, str, List[str]]]:
+    def _consume_fields(self, parse_type: bool = True, prefer_type: bool = False,
+                        multiple: bool = False) -> List[Tuple[str, str, List[str]]]:
         self._consume_empty()
         fields = []
         while not self._is_section_break():
             _name, _type, _desc = self._consume_field(parse_type, prefer_type)
-            if _name or _type or _desc:
+            if multiple and _name:
+                for name in _name.split(","):
+                    fields.append((name.strip(), _type, _desc))
+            elif _name or _type or _desc:
                 fields.append((_name, _type, _desc,))
         return fields
 
@@ -671,10 +680,12 @@ class GoogleDocstring:
         return self._format_fields(_('Other Parameters'), self._consume_fields())
 
     def _parse_parameters_section(self, section: str) -> List[str]:
-        fields = self._consume_fields()
         if self._config.napoleon_use_param:
+            # Allow to declare multiple parameters at once (ex: x, y: int)
+            fields = self._consume_fields(multiple=True)
             return self._format_docutils_params(fields)
         else:
+            fields = self._consume_fields()
             return self._format_fields(_('Parameters'), fields)
 
     def _parse_raises_section(self, section: str) -> List[str]:
@@ -804,6 +815,9 @@ def _recombine_set_tokens(tokens: List[str]) -> List[str]:
                 previous_token = token
                 continue
 
+            if not token.strip():
+                continue
+
             if token in keywords:
                 tokens.appendleft(token)
                 if previous_token is not None:
@@ -842,8 +856,13 @@ def _recombine_set_tokens(tokens: List[str]) -> List[str]:
 
 def _tokenize_type_spec(spec: str) -> List[str]:
     def postprocess(item):
-        if item.startswith("default"):
-            return [item[:7], item[7:]]
+        if _default_regex.match(item):
+            default = item[:7]
+            # can't be separated by anything other than a single space
+            # for now
+            other = item[8:]
+
+            return [default, " ", other]
         else:
             return [item]
 
@@ -857,10 +876,19 @@ def _tokenize_type_spec(spec: str) -> List[str]:
 
 
 def _token_type(token: str, location: str = None) -> str:
+    def is_numeric(token):
+        try:
+            # use complex to make sure every numeric value is detected as literal
+            complex(token)
+        except ValueError:
+            return False
+        else:
+            return True
+
     if token.startswith(" ") or token.endswith(" "):
         type_ = "delimiter"
     elif (
-            token.isnumeric() or
+            is_numeric(token) or
             (token.startswith("{") and token.endswith("}")) or
             (token.startswith('"') and token.endswith('"')) or
             (token.startswith("'") and token.endswith("'"))
@@ -910,9 +938,12 @@ def _convert_numpy_type_spec(_type: str, location: str = None, translations: dic
     def convert_obj(obj, translations, default_translation):
         translation = translations.get(obj, obj)
 
-        # use :class: (the default) only if obj is not a standard singleton (None, True, False)
-        if translation in ("None", "True", "False") and default_translation == ":class:`%s`":
+        # use :class: (the default) only if obj is not a standard singleton
+        if translation in _SINGLETONS and default_translation == ":class:`%s`":
             default_translation = ":obj:`%s`"
+        elif translation == "..." and default_translation == ":class:`%s`":
+            # allow referencing the builtin ...
+            default_translation = ":obj:`%s <Ellipsis>`"
 
         if _xref_regex.match(translation) is None:
             translation = default_translation % translation
@@ -926,16 +957,9 @@ def _convert_numpy_type_spec(_type: str, location: str = None, translations: dic
         for token in combined_tokens
     ]
 
-    # don't use the object role if it's not necessary
-    default_translation = (
-        ":class:`%s`"
-        if not all(type_ == "obj" for _, type_ in types)
-        else "%s"
-    )
-
     converters = {
         "literal": lambda x: "``%s``" % x,
-        "obj": lambda x: convert_obj(x, translations, default_translation),
+        "obj": lambda x: convert_obj(x, translations, ":class:`%s`"),
         "control": lambda x: "*%s*" % x,
         "delimiter": lambda x: x,
         "reference": lambda x: x,
@@ -1046,13 +1070,23 @@ class NumpyDocstring(GoogleDocstring):
         super().__init__(docstring, config, app, what, name, obj, options)
 
     def _get_location(self) -> str:
-        filepath = inspect.getfile(self._obj) if self._obj is not None else ""
+        filepath = inspect.getfile(self._obj) if self._obj is not None else None
         name = self._name
 
         if filepath is None and name is None:
             return None
+        elif filepath is None:
+            filepath = ""
 
         return ":".join([filepath, "docstring of %s" % name])
+
+    def _escape_args_and_kwargs(self, name: str) -> str:
+        func = super()._escape_args_and_kwargs
+
+        if ", " in name:
+            return ", ".join(func(param) for param in name.split(", "))
+        else:
+            return func(name)
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
@@ -1063,12 +1097,11 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
-        if self._config.napoleon_use_param:
-            _type = _convert_numpy_type_spec(
-                _type,
-                location=self._get_location(),
-                translations=self._config.napoleon_type_aliases or {},
-            )
+        _type = _convert_numpy_type_spec(
+            _type,
+            location=self._get_location(),
+            translations=self._config.napoleon_type_aliases or {},
+        )
 
         if prefer_type and not _type:
             _type, _name = _name, _type

@@ -232,8 +232,12 @@ def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> s
     dirname = path.dirname(d['root'])
     if dirname and not dirname.endswith(path.sep):
         dirname += path.sep
+    docpath = path.dirname(env.docname)
+    if docpath and not docpath.endswith(path.sep):
+        docpath += path.sep
     d['path'] = dirname
     d['basename'] = path.basename(d['root'])
+    d['docpath'] = docpath
     d['language'] = env.config.language
     try:
         return filename_format.format(**d)

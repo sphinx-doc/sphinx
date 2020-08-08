@@ -823,6 +823,8 @@ documentation on :ref:`intl` for details.
      extension, e.g. ``dirname/filename``
    * ``{path}`` - the directory path component of the filename, with a trailing
      slash if non-empty, e.g. ``dirname/``
+   * ``{docpath}`` - the directory path component for the current document, with
+     a trailing slash if non-empty.
    * ``{basename}`` - the filename without the directory path or file extension
      components, e.g. ``filename``
    * ``{ext}`` - the file extension, e.g. ``.png``
@@ -835,6 +837,9 @@ documentation on :ref:`intl` for details.
 
    .. versionchanged:: 1.5
       Added ``{path}`` and ``{basename}`` tokens.
+
+   .. versionchanged:: 3.2
+      Added ``{docpath}`` token.
 
 
 .. _math-options:
@@ -915,7 +920,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_short_title
 
-   A shorter "title" for the HTML docs.  This is used in for links in the
+   A shorter "title" for the HTML docs.  This is used for links in the
    header and in the HTML Help docs.  If not given, it defaults to the value of
    :confval:`html_title`.
 

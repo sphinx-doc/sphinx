@@ -42,7 +42,7 @@ Bugs fixed
 Testing
 --------
 
-Release 3.2.0 (in development)
+Release 3.3.0 (in development)
 ==============================
 
 Dependencies
@@ -54,6 +54,44 @@ Incompatible changes
 Deprecated
 ----------
 
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 3.2.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 3.2.0 (released Aug 08, 2020)
+=====================================
+
+Deprecated
+----------
+
+* ``sphinx.ext.autodoc.members_set_option()``
+* ``sphinx.ext.autodoc.merge_special_members_option()``
 * ``sphinx.writers.texinfo.TexinfoWriter.desc``
 * C, parsing of pre-v3 style type directives and roles, along with the options
   :confval:`c_allow_pre_v3` and :confval:`c_warn_on_allowed_pre_v3`.
@@ -62,14 +100,20 @@ Features added
 --------------
 
 * #2076: autodoc: Allow overriding of exclude-members in skip-member function
+* #8034: autodoc: ``:private-member:`` can take an explicit list of member names
+  to be documented
 * #2024: autosummary: Add :confval:`autosummary_filename_map` to avoid conflict
   of filenames between two object with different case
+* #8011: autosummary: Support instance attributes as a target of autosummary
+  directive
 * #7849: html: Add :confval:`html_codeblock_linenos_style` to change the style
   of line numbers for code-blocks
 * #7853: C and C++, support parameterized GNU style attributes.
 * #7888: napoleon: Add aliases Warn and Raise.
 * #7690: napoleon: parse type strings and make them hyperlinks as possible.  The
   conversion rule can be updated via :confval:`napoleon_type_aliases`
+* #8049: napoleon: Create a hyperlink for each the type of parameter when
+  :confval:`napoleon_use_params` is False
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
 * #7745: html: inventory is broken if the docname contains a space
@@ -77,8 +121,11 @@ Features added
 * #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
   the behavior of globaltoc in sidebar
 * #7840: i18n: Optimize the dependencies check on bootstrap
+* #7768: i18n: :confval:`figure_language_filename` supports ``docpath`` token
 * #5208: linkcheck: Support checks for local links
 * #5090: setuptools: Link verbosity to distutils' -v and -q option
+* #6698: doctest: Add ``:trim-doctest-flags:`` and ``:no-trim-doctest-flags:``
+  options to doctest, testcode and testoutput directives
 * #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
   Update the documentation to better reflect the relationship between this option
   and the ``:noindex:`` option.
@@ -89,6 +136,7 @@ Features added
   :confval:`c_warn_on_allowed_pre_v3`` to ``True``.
   The functionality is immediately deprecated.
 * #7999: C, add support for named variadic macro arguments.
+* #8071: Allow to suppress "self referenced toctrees" warning
 
 Bugs fixed
 ----------
@@ -100,6 +148,12 @@ Bugs fixed
 * #904: autodoc: An instance attribute cause a crash of autofunction directive
 * #1362: autodoc: ``private-members`` option does not work for class attributes
 * #7983: autodoc: Generator type annotation is wrongly rendered in py36
+* #8030: autodoc: An uninitialized annotated instance variable is not documented
+  when ``:inherited-members:`` option given
+* #8032: autodoc: A type hint for the instance variable defined at parent class
+  is not shown in the document of the derived class
+* #8041: autodoc: An annotated instance variable on super class is not
+  documented when derived class has other annotated instance variables
 * #7839: autosummary: cannot handle umlauts in function names
 * #7865: autosummary: Failed to extract summary line when abbreviations found
 * #7866: autosummary: Failed to extract correct summary line when docstring
@@ -108,6 +162,9 @@ Bugs fixed
 * #7940: apidoc: An extra newline is generated at the end of the rst file if a
   module has submodules 
 * #4258: napoleon: decorated special methods are not shown
+* #7799: napoleon: parameters are not escaped for combined params in numpydoc
+* #7780: napoleon: multiple paramaters declaration in numpydoc was wrongly
+  recognized when napoleon_use_params=True
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
 * #7846: html theme: XML-invalid files were generated
 * #7894: gettext: Wrong source info is shown when using rst_epilog
@@ -125,38 +182,17 @@ Bugs fixed
 * #7993: texinfo: a warning not supporting desc_signature_line node is shown
 * #7869: :rst:role:`abbr` role without an explanation will show the explanation
   from the previous abbr role
+* #8048: graphviz: graphviz.css was copied on building non-HTML document
 * C and C++, removed ``noindex`` directive option as it did
   nothing.
 * #7619: Duplicated node IDs are generated if node has multiple IDs
 * #2050: Symbols sections are appeared twice in the index page
 * #8017: Fix circular import in sphinx.addnodes
-
-Testing
---------
-
-Release 3.1.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
+* #7986: CSS: make "highlight" selector more robust
+* #7944: C++, parse non-type template parameters starting with
+  a dependent qualified name.
 * C, don't deepcopy the entire symbol table and make a mess every time an
   enumerator is handled.
-
-Testing
---------
 
 Release 3.1.2 (released Jul 05, 2020)
 =====================================

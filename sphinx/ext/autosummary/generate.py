@@ -41,7 +41,7 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
-from sphinx.ext.autosummary import import_by_name, get_documenter
+from sphinx.ext.autosummary import import_by_name, import_ivar_by_name, get_documenter
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
@@ -395,8 +395,13 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
             name, obj, parent, modname = import_by_name(entry.name)
             qualname = name.replace(modname + ".", "")
         except ImportError as e:
-            logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
-            continue
+            try:
+                # try to importl as an instance attribute
+                name, obj, parent, modname = import_ivar_by_name(entry.name)
+                qualname = name.replace(modname + ".", "")
+            except ImportError:
+                logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
+                continue
 
         context = {}
         if app:

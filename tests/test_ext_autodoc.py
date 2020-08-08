@@ -1176,44 +1176,44 @@ def test_slots(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app):
     options = {"members": None}
-    actual = do_autodoc(app, 'class', 'target.enum.EnumCls', options)
+    actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
     assert list(actual) == [
         '',
         '.. py:class:: EnumCls(value)',
-        '   :module: target.enum',
+        '   :module: target.enums',
         '',
         '   this is enum class',
         '',
         '',
         '   .. py:method:: EnumCls.say_goodbye()',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '      :classmethod:',
         '',
         '      a classmethod says good-bye to you.',
         '',
         '',
         '   .. py:method:: EnumCls.say_hello()',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '',
         '      a method says hello to you.',
         '',
         '',
         '   .. py:attribute:: EnumCls.val1',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '      :value: 12',
         '',
         '      doc for val1',
         '',
         '',
         '   .. py:attribute:: EnumCls.val2',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '      :value: 23',
         '',
         '      doc for val2',
         '',
         '',
         '   .. py:attribute:: EnumCls.val3',
-        '      :module: target.enum',
+        '      :module: target.enums',
         '      :value: 34',
         '',
         '      doc for val3',
@@ -1221,11 +1221,11 @@ def test_enum_class(app):
     ]
 
     # checks for an attribute of EnumClass
-    actual = do_autodoc(app, 'attribute', 'target.enum.EnumCls.val1')
+    actual = do_autodoc(app, 'attribute', 'target.enums.EnumCls.val1')
     assert list(actual) == [
         '',
         '.. py:attribute:: EnumCls.val1',
-        '   :module: target.enum',
+        '   :module: target.enums',
         '   :value: 12',
         '',
         '   doc for val1',
@@ -1576,6 +1576,15 @@ def test_autodoc_typed_instance_variables(app):
         '      This is descr4',
         '',
         '',
+        '.. py:class:: Derived()',
+        '   :module: target.typed_vars',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr7',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '',
         '.. py:data:: attr1',
         '   :module: target.typed_vars',
         '   :type: str',
@@ -1597,6 +1606,47 @@ def test_autodoc_typed_instance_variables(app):
         "   :value: ''",
         '',
         '   attr3',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typed_inherited_instance_variables(app):
+    options = {"members": None,
+               "undoc-members": True,
+               "inherited-members": True}
+    actual = do_autodoc(app, 'class', 'target.typed_vars.Derived', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Derived()',
+        '   :module: target.typed_vars',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr1',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '      :value: 0',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr2',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr3',
+        '      :module: target.typed_vars',
+        '      :value: 0',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr7',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:attribute:: Derived.descr4',
+        '      :module: target.typed_vars',
+        '      :type: int',
         '',
     ]
 
