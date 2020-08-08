@@ -628,7 +628,9 @@ class Sphinx:
                def run(self):
                    ...
 
-           add_directive('literalinclude', LiteralIncludeDirective)
+           def setup(app):
+               app.add_directive('literalinclude', LiteralIncludeDirective, override=True)
+               ...
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
