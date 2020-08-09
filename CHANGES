@@ -37,6 +37,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8074: napoleon: Crashes during processing C-ext module
+
 Testing
 --------
 

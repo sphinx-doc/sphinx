@@ -1074,7 +1074,10 @@ class NumpyDocstring(GoogleDocstring):
         super().__init__(docstring, config, app, what, name, obj, options)
 
     def _get_location(self) -> str:
-        filepath = inspect.getfile(self._obj) if self._obj is not None else None
+        try:
+            filepath = inspect.getfile(self._obj) if self._obj is not None else None
+        except TypeError:
+            filepath = None
         name = self._name
 
         if filepath is None and name is None:
