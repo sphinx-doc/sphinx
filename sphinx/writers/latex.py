@@ -1330,7 +1330,7 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_figure(self, node: Element) -> None:
         self.body.append(self.context.pop())
 
-    def visit_caption(self, node: Element) -> None:
+    def visit_caption(self, node):
         self.in_caption += 1
         if isinstance(node.parent, captioned_literal_block):
             self.body.append('\\sphinxSetupCaptionForVerbatim{')
@@ -1339,7 +1339,14 @@ class LaTeXTranslator(SphinxTranslator):
         elif self.table and node.parent.tagname == 'figure':
             self.body.append('\\sphinxfigcaption{')
         else:
-            self.body.append('\\caption{')
+            # Use alt text as short caption for the \listoffigures
+            short = ''
+            if isinstance(node.parent, nodes.figure):
+                if isinstance(node.parent.children[0], nodes.image):
+                    alt = node.parent.children[0].get('alt')
+                    if alt:
+                        short = '[' + texescape.escape(alt) + ']'
+            self.body.append('\\caption%s{' % short)
 
     def depart_caption(self, node: Element) -> None:
         self.body.append('}')
