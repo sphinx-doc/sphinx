@@ -1338,8 +1338,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(r'\captionof{figure}{')
         elif self.table and node.parent.tagname == 'figure':
             self.body.append(r'\sphinxfigcaption{')
-        elif (isinstance(node.parent, node.figure) and
-              isinstance(node.parent.children[0], node.image) and
+        elif (isinstance(node.parent, nodes.figure) and
+              isinstance(node.parent.children[0], nodes.image) and
               'alt' in node.parent.children[0]):
             alt = node.parent.children[0]['alt']
             self.body.append(r'\caption[%s]{' % texescape.escape(alt))
