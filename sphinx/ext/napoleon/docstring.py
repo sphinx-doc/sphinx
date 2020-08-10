@@ -1104,7 +1104,7 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
-        if self._config.napoleon_enable_type_preprocessor:
+        if self._config.napoleon_preprocess_types:
             _type = _convert_numpy_type_spec(
                 _type,
                 location=self._get_location(),
