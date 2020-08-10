@@ -1317,6 +1317,27 @@ class NumpyDocstringTest(BaseDocstringTest):
             expected = dedent(expected)
             self.assertEqual(expected, actual)
 
+    def test_type_preprocessor(self):
+        docstring = dedent("""
+        Single line summary
+
+        Parameters
+        ----------
+        arg1:str
+            Extended
+            description of arg1
+        """)
+
+        config = Config(napoleon_preprocess_types=False, napoleon_use_param=False)
+        actual = str(NumpyDocstring(docstring, config))
+        expected = dedent("""
+        Single line summary
+
+        :Parameters: **arg1** (*str*) -- Extended
+                     description of arg1
+        """)
+        self.assertEqual(expected, actual)
+
     def test_parameters_with_class_reference(self):
         docstring = """\
 Parameters
