@@ -38,6 +38,8 @@ Bugs fixed
 ----------
 
 * #8074: napoleon: Crashes during processing C-ext module
+* #8084: autodoc: KeyError is raised on documenting an attribute of the broken
+  class
 
 Testing
 --------
