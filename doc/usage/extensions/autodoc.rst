@@ -526,7 +526,7 @@ There are also config values that you can set:
 
    This value controls the docstrings inheritance.
    If set to True the docstring for classes or methods, if not explicitly set,
-   is inherited form parents.
+   is inherited from parents.
 
    The default is ``True``.
 
