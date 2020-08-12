@@ -41,7 +41,7 @@ class Config:
         napoleon_use_param = True
         napoleon_use_rtype = True
         napoleon_use_keyword = True
-        napoleon_preprocess_types = True
+        napoleon_preprocess_types = False
         napoleon_type_aliases = None
         napoleon_custom_sections = None
 
@@ -238,7 +238,7 @@ class Config:
 
             :returns: *bool* -- True if successful, False otherwise
 
-    napoleon_preprocess_types : :obj:`bool` (Defaults to True)
+    napoleon_preprocess_types : :obj:`bool` (Defaults to False)
         Enable the type preprocessor for numpy style docstrings.
 
     napoleon_type_aliases : :obj:`dict` (Defaults to None)
@@ -272,7 +272,7 @@ class Config:
         'napoleon_use_param': (True, 'env'),
         'napoleon_use_rtype': (True, 'env'),
         'napoleon_use_keyword': (True, 'env'),
-        'napoleon_preprocess_types': (True, 'env'),
+        'napoleon_preprocess_types': (False, 'env'),
         'napoleon_type_aliases': (None, 'env'),
         'napoleon_custom_sections': (None, 'env')
     }
