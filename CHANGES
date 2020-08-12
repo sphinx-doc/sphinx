@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #8093: The highlight warning has wrong location in some builders (LaTeX,
+  singlehtml and so on)
+
 Testing
 --------
 
