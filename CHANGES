@@ -47,6 +47,7 @@ Bugs fixed
   class
 * #8091: autodoc: AttributeError is raised on documenting an attribute on Python
   3.5.2
+* #8099: autodoc: NameError is raised when target code uses ``TYPE_CHECKING``
 
 Testing
 --------
