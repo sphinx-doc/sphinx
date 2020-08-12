@@ -402,7 +402,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
-            location=(self.builder.current_docname, node.line), **highlight_args
+            location=node, **highlight_args
         )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s notranslate' % lang)

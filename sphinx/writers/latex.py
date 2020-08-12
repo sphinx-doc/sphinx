@@ -651,7 +651,7 @@ class LaTeXTranslator(SphinxTranslator):
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
                     logger.warning(__('document title is not a single Text node'),
-                                   location=(self.curfilestack[-1], node.line))
+                                   location=node)
                 if not self.elements['title']:
                     # text needs to be escaped since it is inserted into
                     # the output literally
@@ -684,7 +684,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
-                           location=(self.curfilestack[-1], node.line or ''))
+                           location=node)
             self.body.append('\\sphinxstyleothertitle{')
             self.context.append('}\n')
         self.in_title = 1
@@ -1762,7 +1762,7 @@ class LaTeXTranslator(SphinxTranslator):
 
             hlcode = self.highlighter.highlight_block(
                 node.rawsource, lang, opts=opts, linenos=linenos,
-                location=(self.curfilestack[-1], node.line), **highlight_args
+                location=node, **highlight_args
             )
             if self.in_footnote:
                 self.body.append('\n\\sphinxSetupCodeBlockInFootnote')
