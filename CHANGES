@@ -40,6 +40,8 @@ Bugs fixed
 * #8074: napoleon: Crashes during processing C-ext module
 * #8084: autodoc: KeyError is raised on documenting an attribute of the broken
   class
+* #8091: autodoc: AttributeError is raised on documenting an attribute on Python
+  3.5.2
 
 Testing
 --------
