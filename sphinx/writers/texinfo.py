@@ -628,7 +628,7 @@ class TexinfoTranslator(SphinxTranslator):
         elif not isinstance(parent, nodes.section):
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
-                           location=(self.curfilestack[-1], node.line))
+                           location=node)
             self.visit_rubric(node)
         else:
             try:
@@ -1186,7 +1186,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.body.append('\n@caption{')
         else:
             logger.warning(__('caption not inside a figure.'),
-                           location=(self.curfilestack[-1], node.line))
+                           location=node)
 
     def depart_caption(self, node: Element) -> None:
         if (isinstance(node.parent, nodes.figure) or
@@ -1262,11 +1262,11 @@ class TexinfoTranslator(SphinxTranslator):
 
     def unimplemented_visit(self, node: Element) -> None:
         logger.warning(__("unimplemented node type: %r"), node,
-                       location=(self.curfilestack[-1], node.line))
+                       location=node)
 
     def unknown_visit(self, node: Node) -> None:
         logger.warning(__("unknown node type: %r"), node,
-                       location=(self.curfilestack[-1], node.line))
+                       location=node)
 
     def unknown_departure(self, node: Node) -> None:
         pass
