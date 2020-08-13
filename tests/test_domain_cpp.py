@@ -938,15 +938,15 @@ def test_attributes():
     check('function', 'static inline __attribute__(()) void f()',
           {1: 'f', 2: '1fv'},
           output='__attribute__(()) static inline void f()')
-    check('function', '[[attr1]] [[attr2]] void f()',
-          {1: 'f', 2: '1fv'},
-          output='[[attr1]] [[attr2]] void f()')
+    check('function', '[[attr1]] [[attr2]] void f()', {1: 'f', 2: '1fv'})
     # position: declarator
     check('member', 'int *[[attr]] i', {1: 'i__iP', 2: '1i'})
     check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
           output='int *[[attr]] volatile const i')
     check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
     check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
+    # position: parameters and qualifiers
+    check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f', 2: '1fv'})
 
 
 def test_xref_parsing():
