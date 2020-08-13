@@ -1287,11 +1287,33 @@ def test_automethod_for_decorated(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoclass_for_decorated_init(app):
-    actual = do_autodoc(app, 'class', 'target.decorator.Baz')
+def test_autoclass_for_decorated_call(app):
+    actual = do_autodoc(app, 'class', 'target.decorator.BarCall')
     assert list(actual) == [
         '',
-        '.. py:class:: Baz(name=None, age=None)',
+        '.. py:class:: BarCall(name=None, age=None)',
+        '   :module: target.decorator',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_for_decorated_call(app):
+    actual = do_autodoc(app, 'class', 'target.decorator.BarNew')
+    assert list(actual) == [
+        '',
+        '.. py:class:: BarNew(name=None, age=None)',
+        '   :module: target.decorator',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_for_decorated_init(app):
+    actual = do_autodoc(app, 'class', 'target.decorator.BarInit')
+    assert list(actual) == [
+        '',
+        '.. py:class:: BarInit(name=None, age=None)',
         '   :module: target.decorator',
         '',
     ]
