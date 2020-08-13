@@ -34,10 +34,15 @@ Deprecated
 Features added
 --------------
 
+* #8095: napoleon: Add :confval:`napoleon_preprocess_types` to enable the type
+  preprocessor for numpy style docstrings
+
 Bugs fixed
 ----------
 
 * #8074: napoleon: Crashes during processing C-ext module
+* #8088: napoleon: "Inline literal start-string without end-string" warning in
+  Numpy style Parameters section
 * #8084: autodoc: KeyError is raised on documenting an attribute of the broken
   class
 * #8091: autodoc: AttributeError is raised on documenting an attribute on Python
