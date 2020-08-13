@@ -1298,7 +1298,7 @@ def test_autoclass_for_decorated_call(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoclass_for_decorated_call(app):
+def test_autoclass_for_decorated_new(app):
     actual = do_autodoc(app, 'class', 'target.decorator.BarNew')
     assert list(actual) == [
         '',
