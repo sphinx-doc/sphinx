@@ -47,6 +47,7 @@ Bugs fixed
   class
 * #8091: autodoc: AttributeError is raised on documenting an attribute on Python
   3.5.2
+* C++, fix parsing of template template paramters, broken by the fix of #7944
 
 Testing
 --------
