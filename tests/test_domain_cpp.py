@@ -764,6 +764,7 @@ def test_templates():
     check('class', "template<template<typename> typename> {key}A", {2: "II0E0E1A"})
     check('class', "template<template<typename> typename ...T> {key}A", {2: "II0EDpE1A"})
     check('class', "template<template<typename> typename...> {key}A", {2: "II0EDpE1A"})
+    check('class', "template<typename T, template<typename> typename...> {key}A", {2: "I0I0EDpE1A"})
 
     check('class', "template<int> {key}A", {2: "I_iE1A"})
     check('class', "template<int T> {key}A", {2: "I_iE1A"})

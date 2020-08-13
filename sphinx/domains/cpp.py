@@ -6251,6 +6251,7 @@ class DefinitionParser(BaseParser):
     # ==========================================================================
 
     def _parse_template_paramter(self) -> ASTTemplateParam:
+        self.skip_ws()
         if self.skip_word('template'):
             # declare a tenplate template parameter
             nestedParams = self._parse_template_parameter_list()
