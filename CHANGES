@@ -36,6 +36,7 @@ Features added
 
 * #8095: napoleon: Add :confval:`napoleon_preprocess_types` to enable the type
   preprocessor for numpy style docstrings
+* #8114: C and C++, parse function attributes after parameters and qualifiers.
 
 Bugs fixed
 ----------
