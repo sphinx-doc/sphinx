@@ -35,10 +35,10 @@ def deco_init(cls):
     _original_init = cls.__init__
 
     @wraps(_original_init)
-    def wrapped(self, *args, **kwargs):
+    def wrapper(self, *args, **kwargs):
         _original_init(self, *args, **kwargs)
 
-    cls.__init__ = wrapped
+    cls.__init__ = wrapper
     return cls
 
 @deco_init
