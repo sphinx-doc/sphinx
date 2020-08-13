@@ -881,6 +881,26 @@ def test_autodoc_descriptor(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='cached_property is available since python3.8.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_cached_property(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'class', 'target.cached_property.Foo', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.cached_property',
+        '',
+        '',
+        '   .. py:method:: Foo.prop',
+        '      :module: target.cached_property',
+        '      :property:',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_member_order(app):
     # case member-order='bysource'

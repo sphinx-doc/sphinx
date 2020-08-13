@@ -16,6 +16,7 @@ Features added
 Bugs fixed
 ----------
 
+* #8103: autodoc: functools.cached_property is not considered as a property
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 
