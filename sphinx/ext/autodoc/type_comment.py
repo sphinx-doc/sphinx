@@ -119,7 +119,7 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
     try:
         type_sig = get_type_comment(obj, bound_method)
         if type_sig:
-            sig = inspect.signature(obj, bound_method)
+            sig = inspect.signature(obj, bound_method, follow_wrapped=True)
             for param in sig.parameters.values():
                 if param.name not in obj.__annotations__:
                     annotation = type_sig.parameters[param.name].annotation
