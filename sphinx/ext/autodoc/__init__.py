@@ -1378,7 +1378,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if call is not None:
             self.env.app.emit('autodoc-before-process-signature', call, True)
             try:
-                sig = inspect.signature(call, bound_method=True)
+                sig = inspect.signature(call, bound_method=True, follow_wrapped=True)
                 return type(self.object), '__call__', sig
             except ValueError:
                 pass
@@ -1388,7 +1388,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if new is not None:
             self.env.app.emit('autodoc-before-process-signature', new, True)
             try:
-                sig = inspect.signature(new, bound_method=True)
+                sig = inspect.signature(new, bound_method=True, follow_wrapped=True)
                 return self.object, '__new__', sig
             except ValueError:
                 pass
@@ -1398,7 +1398,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if init is not None:
             self.env.app.emit('autodoc-before-process-signature', init, True)
             try:
-                sig = inspect.signature(init, bound_method=True)
+                sig = inspect.signature(init, bound_method=True, follow_wrapped=True)
                 return self.object, '__init__', sig
             except ValueError:
                 pass
