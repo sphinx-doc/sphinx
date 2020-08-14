@@ -180,9 +180,9 @@ class TexinfoBuilder(Builder):
                                        stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
-                    imagedir = path.join(self.outdir, targetname + '-figures')
-                    ensuredir(imagedir)
-                    copy_asset_file(path.join(self.srcdir, dest), imagedir)
+                    assets_images_directory = path.join(self.outdir, targetname + '-figures')
+                    ensuredir(assets_images_directory)
+                    copy_asset_file(path.join(self.srcdir, dest), assets_images_directory)
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)

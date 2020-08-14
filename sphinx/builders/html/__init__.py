@@ -183,8 +183,8 @@ class StandaloneHTMLBuilder(Builder):
     indexer_dumps_unicode = True
 
     # basename of output assets directories
-    imagedir = '_images'
-    sourcedir = '_sources'
+    assets_images_directory = '_images'
+    assets_sources_directory = '_sources'
 
     # create links to original images from images [True/False]
     html_scaled_image_link = True
@@ -501,6 +501,10 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
+            'assets_dirs': {
+                'images': self.assets_images_directory,
+                'sources': self.assets_sources_directory
+            },
             'html5_doctype': html5_ready and not self.config.html4_writer,
         }
         if self.theme:
@@ -607,7 +611,7 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
-        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
+        self.imgpath = relative_uri(self.get_target_uri(docname), self.assets_images_directory)
         self.post_process_images(doctree)
         title_node = self.env.longtitles.get(docname)
         title = self.render_partial(title_node)['title'] if title_node else ''
@@ -701,14 +705,14 @@ class StandaloneHTMLBuilder(Builder):
     def copy_image_files(self) -> None:
         if self.images:
             stringify_func = ImageAdapter(self.app.env).get_original_image_uri
-            ensuredir(path.join(self.outdir, self.imagedir))
+            ensuredir(path.join(self.outdir, self.assets_images_directory))
             for src in status_iterator(self.images, __('copying images... '), "brown",
                                        len(self.images), self.app.verbosity,
                                        stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, self.imagedir, dest))
+                             path.join(self.outdir, self.assets_images_directory, dest))
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
@@ -1036,7 +1040,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__("error writing file %s: %s"), outfilename, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
-            source_name = path.join(self.outdir, self.sourcedir,
+            source_name = path.join(self.outdir, self.assets_sources_directory,
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
             copyfile(self.env.doc2path(pagename), source_name)

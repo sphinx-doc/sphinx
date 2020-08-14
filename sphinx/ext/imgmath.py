@@ -263,7 +263,7 @@ def render_math(self: HTMLTranslator, math: str) -> Tuple[str, int]:
 
     filename = "%s.%s" % (sha1(latex.encode()).hexdigest(), image_format)
     relfn = posixpath.join(self.builder.imgpath, 'math', filename)
-    outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
+    outfn = path.join(self.builder.outdir, self.builder.assets_images_directory, 'math', filename)
     if path.isfile(outfn):
         if image_format == 'png':
             depth = read_png_depth(outfn)

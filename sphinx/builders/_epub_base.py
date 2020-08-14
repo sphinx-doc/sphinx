@@ -392,7 +392,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         The method tries to read and write the files with Pillow, converting
         the format and resizing the image if necessary/possible.
         """
-        ensuredir(path.join(self.outdir, self.imagedir))
+        ensuredir(path.join(self.outdir, self.assets_images_directory))
         for src in status_iterator(self.images, __('copying images... '), "brown",
                                    len(self.images), self.app.verbosity):
             dest = self.images[src]
@@ -404,7 +404,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                    path.join(self.srcdir, src))
                 try:
                     copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, self.imagedir, dest))
+                             path.join(self.outdir, self.assets_images_directory, dest))
                 except OSError as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
@@ -421,7 +421,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     nh = (height * nw) / width
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
-                img.save(path.join(self.outdir, self.imagedir, dest))
+                img.save(path.join(self.outdir, self.assets_images_directory, dest))
             except OSError as err:
                 logger.warning(__('cannot write image file %r: %s'),
                                path.join(self.srcdir, src), err)

@@ -1225,25 +1225,25 @@ def test_html_assets(app):
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
     app.builder.build_all()
-    assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
+    assert not (app.outdir / app.builder.assets_sources_directory / 'index.rst.txt').exists()
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.txt'})
 def test_html_sourcelink_suffix(app):
     app.builder.build_all()
-    assert (app.outdir / '_sources' / 'index.rst.txt').exists()
+    assert (app.outdir / app.builder.assets_sources_directory / 'index.rst.txt').exists()
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.rst'})
 def test_html_sourcelink_suffix_same(app):
     app.builder.build_all()
-    assert (app.outdir / '_sources' / 'index.rst').exists()
+    assert (app.outdir / app.builder.assets_sources_directory / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_sourcelink_suffix_empty(app):
     app.builder.build_all()
-    assert (app.outdir / '_sources' / 'index.rst').exists()
+    assert (app.outdir / app.builder.assets_sources_directory / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='html_entity')

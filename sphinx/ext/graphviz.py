@@ -219,7 +219,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
 
     fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
     relfn = posixpath.join(self.builder.imgpath, fname)
-    outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
+    outfn = path.join(self.builder.outdir, self.builder.assets_images_directory, fname)
 
     if path.isfile(outfn):
         return relfn, outfn

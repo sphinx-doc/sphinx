@@ -43,7 +43,7 @@ class BaseImageConverter(SphinxTransform):
         pass
 
     @property
-    def imagedir(self) -> str:
+    def assets_images_directory(self) -> str:
         return os.path.join(self.app.doctreedir, 'images')
 
 
@@ -72,8 +72,8 @@ class ImageDownloader(BaseImageConverter):
                                                                  ord("&"): "/"})
             if len(dirname) > MAX_FILENAME_LEN:
                 dirname = sha1(dirname.encode()).hexdigest()
-            ensuredir(os.path.join(self.imagedir, dirname))
-            path = os.path.join(self.imagedir, dirname, basename)
+            ensuredir(os.path.join(self.assets_images_directory, dirname))
+            path = os.path.join(self.assets_images_directory, dirname, basename)
 
             headers = {}
             if os.path.exists(path):
@@ -100,7 +100,7 @@ class ImageDownloader(BaseImageConverter):
                 if mimetype != '*' and os.path.splitext(basename)[1] == '':
                     # append a suffix if URI does not contain suffix
                     ext = get_image_extension(mimetype)
-                    newpath = os.path.join(self.imagedir, dirname, basename + ext)
+                    newpath = os.path.join(self.assets_images_directory, dirname, basename + ext)
                     movefile(path, newpath)
                     self.app.env.original_image_uri.pop(path)
                     self.app.env.original_image_uri[newpath] = node['uri']
@@ -132,9 +132,9 @@ class DataURIExtractor(BaseImageConverter):
                            location=node)
             return
 
-        ensuredir(os.path.join(self.imagedir, 'embeded'))
+        ensuredir(os.path.join(self.assets_images_directory, 'embeded'))
         digest = sha1(image.data).hexdigest()
-        path = os.path.join(self.imagedir, 'embeded', digest + ext)
+        path = os.path.join(self.assets_images_directory, 'embeded', digest + ext)
         self.app.env.original_image_uri[path] = node['uri']
 
         with open(path, 'wb') as f:
@@ -240,8 +240,8 @@ class ImageConverter(BaseImageConverter):
             srcpath = node['candidates']['*']
 
         filename = get_filename_for(srcpath, _to)
-        ensuredir(self.imagedir)
-        destpath = os.path.join(self.imagedir, filename)
+        ensuredir(self.assets_images_directory)
+        destpath = os.path.join(self.assets_images_directory, filename)
 
         abs_srcpath = os.path.join(self.app.srcdir, srcpath)
         if self.convert(abs_srcpath, destpath):

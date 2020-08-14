@@ -85,7 +85,7 @@ class Builder:
     supported_data_uri_images = False
 
     # basename of output assets directories
-    imagedir = ""
+    assets_images_directory = ""
     sourcesdir = ""
 
     def __init__(self, app: "Sphinx") -> None:
