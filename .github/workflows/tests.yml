@@ -37,6 +37,9 @@ jobs:
             tox_env: "du16"
 
     steps:
+      env:
+        TOXENV: ${{ matrix.tox_env }}
+
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v2
@@ -56,13 +59,10 @@ jobs:
         run: pip install -U tox codecov
 
       - name: Run tox
-        env:
-          TOXENV: ${{ matrix.tox_env }}
         run: tox -- -vv
 
       - name: codecov
         if: matrix.use_coverage
         env:
-          TOXENV: ${{ matrix.tox_env }}
           PYTEST_ADDOPTS: "--cov ./ --cov-append --cov-config setup.cfg"
         run: codecov -e $TOXENV
