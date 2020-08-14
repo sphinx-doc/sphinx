@@ -258,6 +258,31 @@ class Options(dict):
             return None
 
 
+class ObjectMember(tuple):
+    """A member of object.
+
+    This is used for the result of `Documenter.get_object_members()` to
+    represent each member of the object.
+
+    .. Note::
+
+       An instance of this class behaves as a tuple of (name, object)
+       for compatibility to old Sphinx.  The behavior will be dropped
+       in the future.  Therefore extensions should not use the tuple
+       interface.
+    """
+
+    def __new__(cls, name: str, obj: Any) -> Any:
+        return super().__new__(cls, (name, obj))  # type: ignore
+
+    def __init__(self, name: str, obj: Any) -> None:
+        self.__name__ = name
+        self.object = obj
+
+
+ObjectMembers = Union[List[ObjectMember], List[Tuple[str, Any]]]
+
+
 class Documenter:
     """
     A Documenter knows how to autodocument a single object type.  When
@@ -580,7 +605,7 @@ class Documenter:
             for line, src in zip(more_content.data, more_content.items):
                 self.add_line(line, src[0], src[1])
 
-    def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
+    def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
         """Return `(members_check_module, members)` where `members` is a
         list of `(membername, member)` pairs of the members of *self.object*.
 
@@ -590,10 +615,10 @@ class Documenter:
         members = get_object_members(self.object, self.objpath, self.get_attr, self.analyzer)
         if not want_all:
             if not self.options.members:
-                return False, []
+                return False, []  # type: ignore
             # specific members given
             selected = []
-            for name in self.options.members:
+            for name in self.options.members:  # type: str
                 if name in members:
                     selected.append((name, members[name].value))
                 else:
@@ -606,7 +631,7 @@ class Documenter:
             return False, [(m.name, m.value) for m in members.values()
                            if m.directly_defined]
 
-    def filter_members(self, members: List[Tuple[str, Any]], want_all: bool
+    def filter_members(self, members: ObjectMembers, want_all: bool
                        ) -> List[Tuple[str, Any, bool]]:
         """Filter the given member list.
 
@@ -983,7 +1008,7 @@ class ModuleDocumenter(Documenter):
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
 
-    def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
+    def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
         if want_all:
             if self.__all__:
                 memberlist = self.__all__
