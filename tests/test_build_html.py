@@ -1297,6 +1297,13 @@ def test_html_anchor_for_figure(app):
             '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
             in content)
 
+@pytest.mark.sphinx('html', testroot='rubric')
+def test_html_rubric_permalink(app):
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text()
+    assert('<p class="rubric">Rubric Title<a class="headerlink" '
+           'href="#rubric-permalink-name" title="Permalink to this headline">¶</a>'
+           in content)
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
