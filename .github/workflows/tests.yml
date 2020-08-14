@@ -36,29 +36,29 @@ jobs:
             python: "3.10-dev"
             tox_env: "du16"
 
-  steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v2
-      if: matrix.python != '3.10-dev'
-      with:
-        python-version: ${{ matrix.python }}
-    - name: Set up Python ${{ matrix.python }} (deadsnakes)
-      uses: deadsnakes/action@v1.0.0
-      if: matrix.python == '3.10-dev'
-      with:
-        python-version: ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        if: matrix.python != '3.10-dev'
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Set up Python ${{ matrix.python }} (deadsnakes)
+        uses: deadsnakes/action@v1.0.0
+        if: matrix.python == '3.10-dev'
+        with:
+          python-version: ${{ matrix.python }}
 
-    - name: Install graphviz
-      run: sudo apt-get install graphviz
+      - name: Install graphviz
+        run: sudo apt-get install graphviz
 
-    - name: Run tests
-      env:
-        TOXENV: ${{ matrix.tox_env }}
-      run: tox -- -vv
+      - name: Run tests
+        env:
+          TOXENV: ${{ matrix.tox_env }}
+        run: tox -- -vv
 
-    - name: codecov
-      if: matrix.use_coverage
-      env:
-        TOXENV: ${{ matrix.tox_env }}
-      run: codecov -e $TOXENV
+      - name: codecov
+        if: matrix.use_coverage
+        env:
+          TOXENV: ${{ matrix.tox_env }}
+        run: codecov -e $TOXENV
