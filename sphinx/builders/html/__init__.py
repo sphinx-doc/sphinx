@@ -181,6 +181,11 @@ class StandaloneHTMLBuilder(Builder):
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index  # type: Any
     indexer_dumps_unicode = True
+
+    # basename of output directories
+    imagedir = '_images'
+    sourcedir = '_sources'
+
     # create links to original images from images [True/False]
     html_scaled_image_link = True
     supported_image_types = ['image/svg+xml', 'image/png',
@@ -209,8 +214,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
-        # basename of images directory
-        self.imagedir = '_images'
+
         # section numbers for headings in the currently visited document
         self.secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
         # currently written docname
@@ -1032,7 +1036,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__("error writing file %s: %s"), outfilename, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
-            source_name = path.join(self.outdir, '_sources',
+            source_name = path.join(self.outdir, self.sourcedir,
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
             copyfile(self.env.doc2path(pagename), source_name)
