@@ -1589,6 +1589,9 @@ class DataDocumenter(ModuleLevelDocumenter):
             # obtain annotation for this data
             try:
                 annotations = get_type_hints(self.parent)
+            except NameError:
+                # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
+                annotations = safe_getattr(self.parent, '__annotations__', {})
             except TypeError:
                 annotations = {}
             except KeyError:
@@ -1965,6 +1968,9 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             # obtain type annotation for this attribute
             try:
                 annotations = get_type_hints(self.parent)
+            except NameError:
+                # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
+                annotations = safe_getattr(self.parent, '__annotations__', {})
             except TypeError:
                 annotations = {}
             except KeyError:
