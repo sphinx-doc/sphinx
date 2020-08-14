@@ -32,7 +32,7 @@ from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
 from sphinx.util.cfamily import (
-    NoOldIdError, ASTBaseBase, ASTBaseParenExprList,
+    NoOldIdError, ASTBaseBase, ASTAttribute, ASTBaseParenExprList,
     verify_description_mode, StringifyTransform,
     BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
     identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
@@ -652,8 +652,9 @@ class ASTFunctionParameter(ASTBase):
 
 
 class ASTParameters(ASTBase):
-    def __init__(self, args: List[ASTFunctionParameter]) -> None:
+    def __init__(self, args: List[ASTFunctionParameter], attrs: List[ASTAttribute]) -> None:
         self.args = args
+        self.attrs = attrs
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -669,6 +670,9 @@ class ASTParameters(ASTBase):
             first = False
             res.append(str(a))
         res.append(')')
+        for attr in self.attrs:
+            res.append(' ')
+            res.append(transform(attr))
         return ''.join(res)
 
     def describe_signature(self, signode: TextElement, mode: str,
@@ -683,6 +687,9 @@ class ASTParameters(ASTBase):
                 arg.describe_signature(param, 'markType', env, symbol=symbol)
             paramlist += param
         signode += paramlist
+        for attr in self.attrs:
+            signode += nodes.Text(' ')
+            attr.describe_signature(signode)
 
 
 class ASTDeclSpecsSimple(ASTBaseBase):
@@ -2572,7 +2579,15 @@ class DefinitionParser(BaseParser):
                     self.fail(
                         'Expecting "," or ")" in parameters, '
                         'got "%s".' % self.current_char)
-        return ASTParameters(args)
+
+        attrs = []
+        while True:
+            attr = self._parse_attribute()
+            if attr is None:
+                break
+            attrs.append(attr)
+
+        return ASTParameters(args, attrs)
 
     def _parse_decl_specs_simple(self, outer: str, typed: bool) -> ASTDeclSpecsSimple:
         """Just parse the simple ones."""
