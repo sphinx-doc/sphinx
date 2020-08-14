@@ -27,7 +27,7 @@ jobs:
             python: "3.7"
             tox_env: "du14"
 
-          - name: "3.8"
+          - name: "py38"
             python: "3.8"
             tox_env: "du15"
             use_coverage: true
@@ -53,7 +53,7 @@ jobs:
         run: sudo apt-get install graphviz
 
       - name: Install wheel
-        run: pip install -U wheel
+        run: pip install wheel
 
       - name: Install dependencies
         run: pip install -U tox codecov
