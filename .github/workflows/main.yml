@@ -1,21 +1,81 @@
-name: CI on Windows
+name: CI
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  ubuntu:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        name: ["py35", "py36", "py37", "py38", "nightly"]
+
+        include:
+          - name: "py35"
+            python: "3.5"
+            tox_env: "du12"
+
+          - name: "py36"
+            python: "3.6"
+            tox_env: "du13"
+
+          - name: "py37"
+            python: "3.7"
+            tox_env: "du14"
+
+          - name: "py38"
+            python: "3.8"
+            tox_env: "du15"
+            use_coverage: true
+
+          - name: "nightly"
+            python: "3.10-dev"
+            tox_env: "du16"
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        if: matrix.python != '3.10-dev'
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Set up Python ${{ matrix.python }} (deadsnakes)
+        uses: deadsnakes/action@v1.0.0
+        if: matrix.python == '3.10-dev'
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install graphviz
+        run: sudo apt-get install graphviz
+
+      - name: Install dependencies
+        run: pip install -U tox codecov
+
+      - name: Run tox
+        env:
+          TOXENV: ${{ matrix.tox_env }}
+        run: tox -- -vv
+
+      - name: codecov
+        if: matrix.use_coverage
+        env:
+          TOXENV: ${{ matrix.tox_env }}
+          PYTEST_ADDOPTS: "--cov ./ --cov-append --cov-config setup.cfg"
+        run: codecov -e $TOXENV
+
+  windows:
     runs-on: windows-latest
     strategy:
       matrix:
         architecture: [x86, x64]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v1
-      with:
-        architecture: ${{ matrix.architecture }}
-    - name: Install dependencies
-      run:  pip install -U tox
-    - name: Run Tox
-      run:  tox -e py -- -vv
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          architecture: ${{ matrix.architecture }}
+      - name: Install dependencies
+        run: pip install -U tox
+      - name: Run Tox
+        run: tox -e py -- -vv
