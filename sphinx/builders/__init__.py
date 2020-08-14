@@ -84,6 +84,10 @@ class Builder:
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
+    # basename of output assets directories
+    imagedir = ""
+    sourcesdir = ""
+
     def __init__(self, app: "Sphinx") -> None:
         self.srcdir = app.srcdir
         self.confdir = app.confdir
@@ -103,8 +107,7 @@ class Builder:
 
         # images that need to be copied over (source -> dest)
         self.images = {}  # type: Dict[str, str]
-        # basename of images directory
-        self.imagedir = ""
+
         # relative path to image directory from current docname (used at writing docs)
         self.imgpath = ""
 

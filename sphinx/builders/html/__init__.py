@@ -182,7 +182,7 @@ class StandaloneHTMLBuilder(Builder):
     indexer_format = js_index  # type: Any
     indexer_dumps_unicode = True
 
-    # basename of output directories
+    # basename of output assets directories
     imagedir = '_images'
     sourcedir = '_sources'
 
