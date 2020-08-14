@@ -55,7 +55,7 @@ jobs:
       - name: Install dependencies
         run: pip install -U tox codecov
 
-      - name: Run tests
+      - name: Run tox
         env:
           TOXENV: ${{ matrix.tox_env }}
         run: tox -- -vv
