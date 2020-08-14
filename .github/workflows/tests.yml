@@ -52,6 +52,9 @@ jobs:
       - name: Install graphviz
         run: sudo apt-get install graphviz
 
+      - name: Install dependencies
+        run: pip install -U tox codecov
+
       - name: Run tests
         env:
           TOXENV: ${{ matrix.tox_env }}
