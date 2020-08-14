@@ -38,12 +38,21 @@ Deprecated
 Features added
 --------------
 
+* #8095: napoleon: Add :confval:`napoleon_preprocess_types` to enable the type
+  preprocessor for numpy style docstrings
+* #8114: C and C++, parse function attributes after parameters and qualifiers.
+
 Bugs fixed
 ----------
 
 * #8074: napoleon: Crashes during processing C-ext module
+* #8088: napoleon: "Inline literal start-string without end-string" warning in
+  Numpy style Parameters section
 * #8084: autodoc: KeyError is raised on documenting an attribute of the broken
   class
+* #8091: autodoc: AttributeError is raised on documenting an attribute on Python
+  3.5.2
+* C++, fix parsing of template template paramters, broken by the fix of #7944
 
 Testing
 --------
