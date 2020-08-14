@@ -1070,7 +1070,10 @@ class NumpyDocstring(GoogleDocstring):
         super().__init__(docstring, config, app, what, name, obj, options)
 
     def _get_location(self) -> str:
-        filepath = inspect.getfile(self._obj) if self._obj is not None else None
+        try:
+            filepath = inspect.getfile(self._obj) if self._obj is not None else None
+        except TypeError:
+            filepath = None
         name = self._name
 
         if filepath is None and name is None:
@@ -1097,11 +1100,12 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
-        _type = _convert_numpy_type_spec(
-            _type,
-            location=self._get_location(),
-            translations=self._config.napoleon_type_aliases or {},
-        )
+        if self._config.napoleon_preprocess_types:
+            _type = _convert_numpy_type_spec(
+                _type,
+                location=self._get_location(),
+                translations=self._config.napoleon_type_aliases or {},
+            )
 
         if prefer_type and not _type:
             _type, _name = _name, _type

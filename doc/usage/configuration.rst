@@ -755,8 +755,14 @@ documentation on :ref:`intl` for details.
    If true, a document's text domain is its docname if it is a top-level
    project file and its very base directory otherwise.
 
+   If set to string, all document's text domain is this string, making all
+   documents use single text domain.
+
    By default, the document ``markup/code.rst`` ends up in the ``markup`` text
    domain.  With this option set to ``False``, it is ``markup/code``.
+
+   .. versionchanged:: 3.3
+      The string value is now accepted.
 
 .. confval:: gettext_uuid
 

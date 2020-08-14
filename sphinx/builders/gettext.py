@@ -291,7 +291,7 @@ class MessageCatalogBuilder(I18nBuilder):
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(MessageCatalogBuilder)
 
-    app.add_config_value('gettext_compact', True, 'gettext')
+    app.add_config_value('gettext_compact', True, 'gettext', Any)
     app.add_config_value('gettext_location', True, 'gettext')
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')

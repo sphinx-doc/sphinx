@@ -374,7 +374,7 @@ class BaseParser:
                       % startPos)
         return self.definition[startPos:self.pos]
 
-    def _parse_attribute(self) -> ASTAttribute:
+    def _parse_attribute(self) -> Optional[ASTAttribute]:
         self.skip_ws()
         # try C++11 style
         startPos = self.pos

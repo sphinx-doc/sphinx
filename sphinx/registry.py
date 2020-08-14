@@ -366,7 +366,14 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 
+    def has_latex_package(self, name: str) -> bool:
+        packages = self.latex_packages + self.latex_packages_after_hyperref
+        return bool([x for x in packages if x[0] == name])
+
     def add_latex_package(self, name: str, options: str, after_hyperref: bool = False) -> None:
+        if self.has_latex_package(name):
+            logger.warn("latex package '%s' already included" % name)
+
         logger.debug('[app] adding latex package: %r', name)
         if after_hyperref:
             self.latex_packages_after_hyperref.append((name, options))

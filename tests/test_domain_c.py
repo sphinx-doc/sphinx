@@ -497,17 +497,16 @@ def test_attributes():
         parse('member', 'paren_attr({]}) int f')
 
     # position: decl specs
-    check('function', 'static inline __attribute__(()) void f()',
-          {1: 'f'},
+    check('function', 'static inline __attribute__(()) void f()', {1: 'f'},
           output='__attribute__(()) static inline void f()')
-    check('function', '[[attr1]] [[attr2]] void f()',
-          {1: 'f'},
-          output='[[attr1]] [[attr2]] void f()')
+    check('function', '[[attr1]] [[attr2]] void f()', {1: 'f'})
     # position: declarator
     check('member', 'int *[[attr]] i', {1: 'i'})
     check('member', 'int *const [[attr]] volatile i', {1: 'i'},
           output='int *[[attr]] volatile const i')
     check('member', 'int *[[attr]] *i', {1: 'i'})
+    # position: parameters
+    check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f'})
 
     # issue michaeljones/breathe#500
     check('function', 'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',

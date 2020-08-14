@@ -12,7 +12,7 @@ import os
 import re
 from datetime import datetime, timezone
 from os import path
-from typing import Callable, Generator, List, NamedTuple, Tuple
+from typing import Callable, Generator, List, NamedTuple, Tuple, Union
 from typing import TYPE_CHECKING
 
 import babel.dates
@@ -117,8 +117,10 @@ class CatalogRepository:
             yield CatalogInfo(basedir, domain, self.encoding)
 
 
-def docname_to_domain(docname: str, compation: bool) -> str:
+def docname_to_domain(docname: str, compation: Union[bool, str]) -> str:
     """Convert docname to domain for catalogs."""
+    if isinstance(compation, str):
+        return compation
     if compation:
         return docname.split(SEP, 1)[0]
     else:

@@ -1591,6 +1591,12 @@ class DataDocumenter(ModuleLevelDocumenter):
                 annotations = get_type_hints(self.parent)
             except TypeError:
                 annotations = {}
+            except KeyError:
+                # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
+                annotations = {}
+            except AttributeError:
+                # AttributeError is raised on 3.5.2 (fixed by 3.5.3)
+                annotations = {}
 
             if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
@@ -1960,6 +1966,12 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             try:
                 annotations = get_type_hints(self.parent)
             except TypeError:
+                annotations = {}
+            except KeyError:
+                # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
+                annotations = {}
+            except AttributeError:
+                # AttributeError is raised on 3.5.2 (fixed by 3.5.3)
                 annotations = {}
 
             if self.objpath[-1] in annotations:
