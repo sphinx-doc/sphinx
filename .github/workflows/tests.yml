@@ -64,4 +64,5 @@ jobs:
         if: matrix.use_coverage
         env:
           TOXENV: ${{ matrix.tox_env }}
+          PYTEST_ADDOPTS: "--cov ./ --cov-append --cov-config setup.cfg"
         run: codecov -e $TOXENV
