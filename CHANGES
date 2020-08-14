@@ -1,35 +1,5 @@
-Release 3.3.0 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
-
-Release 3.2.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 3.2.1 (released Aug 14, 2020)
+=====================================
 
 Features added
 --------------
@@ -50,9 +20,6 @@ Bugs fixed
   3.5.2
 * #8099: autodoc: NameError is raised when target code uses ``TYPE_CHECKING``
 * C++, fix parsing of template template paramters, broken by the fix of #7944
-
-Testing
---------
 
 Release 3.2.0 (released Aug 08, 2020)
 =====================================
