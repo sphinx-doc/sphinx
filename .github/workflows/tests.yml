@@ -52,6 +52,9 @@ jobs:
       - name: Install graphviz
         run: sudo apt-get install graphviz
 
+      - name: Install wheel
+        run: pip install -U wheel
+
       - name: Install dependencies
         run: pip install -U tox codecov
 
