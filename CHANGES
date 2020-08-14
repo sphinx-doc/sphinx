@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* #8119: autodoc: Allow to determine whether a member not included in
+  ``__all__`` attribute of the module should be documented or not via
+  :event:`autodoc-skip-member` event
+
 Bugs fixed
 ----------
 

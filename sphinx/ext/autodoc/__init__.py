@@ -272,12 +272,13 @@ class ObjectMember(tuple):
        interface.
     """
 
-    def __new__(cls, name: str, obj: Any) -> Any:
+    def __new__(cls, name: str, obj: Any, **kwargs: Any) -> Any:
         return super().__new__(cls, (name, obj))  # type: ignore
 
-    def __init__(self, name: str, obj: Any) -> None:
+    def __init__(self, name: str, obj: Any, skipped: bool = False) -> None:
         self.__name__ = name
         self.object = obj
+        self.skipped = skipped
 
 
 ObjectMembers = Union[List[ObjectMember], List[Tuple[str, Any]]]
@@ -670,7 +671,8 @@ class Documenter:
             attr_docs = {}
 
         # process members and determine which to skip
-        for (membername, member) in members:
+        for obj in members:
+            membername, member = obj
             # if isattr is True, the member is documented as an attribute
             if member is INSTANCEATTR:
                 isattr = True
@@ -746,6 +748,10 @@ class Documenter:
                 else:
                     # ignore undocumented members if :undoc-members: is not given
                     keep = has_doc or self.options.undoc_members
+
+            if isinstance(obj, ObjectMember) and obj.skipped:
+                # forcedly skipped member (ex. a module attribute not defined in __all__)
+                keep = False
 
             # give the user a chance to decide whether this member
             # should be skipped
@@ -1010,26 +1016,33 @@ class ModuleDocumenter(Documenter):
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
         if want_all:
-            if self.__all__:
-                memberlist = self.__all__
-            else:
+            members = get_module_members(self.object)
+            if not self.__all__:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
-                return True, get_module_members(self.object)
+                return True, members
+            else:
+                ret = []
+                for name, value in members:
+                    if name in self.__all__:
+                        ret.append(ObjectMember(name, value))
+                    else:
+                        ret.append(ObjectMember(name, value, skipped=True))
+
+                return False, ret
         else:
             memberlist = self.options.members or []
-        ret = []
-        for mname in memberlist:
-            try:
-                ret.append((mname, safe_getattr(self.object, mname)))
-            except AttributeError:
-                logger.warning(
-                    __('missing attribute mentioned in :members: or __all__: '
-                       'module %s, attribute %s') %
-                    (safe_getattr(self.object, '__name__', '???'), mname),
-                    type='autodoc'
-                )
-        return False, ret
+            ret = []
+            for name in memberlist:
+                try:
+                    value = safe_getattr(self.object, name)
+                    ret.append(ObjectMember(name, value))
+                except AttributeError:
+                    logger.warning(__('missing attribute mentioned in :members: option: '
+                                      'module %s, attribute %s') %
+                                   (safe_getattr(self.object, '__name__', '???'), name),
+                                   type='autodoc')
+            return False, ret
 
     def sort_members(self, documenters: List[Tuple["Documenter", bool]],
                      order: str) -> List[Tuple["Documenter", bool]]:
