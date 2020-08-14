@@ -256,6 +256,7 @@ h6:hover > a.headerlink,
 dt:hover > a.headerlink,
 caption:hover > a.headerlink,
 p.caption:hover > a.headerlink,
+p.rubric:hover > a.headerlink,
 div.code-block-caption:hover > a.headerlink {
     visibility: visible;
 }

@@ -382,6 +382,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         super().depart_title(node)
 
     # overwritten
+    def depart_rubric(self, node: Element) -> None:
+        self.add_permalink_ref(node.parent, _('Permalink to this headline'))
+        self.body.append('</p>\n')
+
+    # overwritten
     def visit_literal_block(self, node: Element) -> None:
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
