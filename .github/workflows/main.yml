@@ -45,7 +45,7 @@ jobs:
         run: sudo apt-get install graphviz
       - name: Install dependencies
         run: pip install -U tox codecov
-      - name: Run tox
+      - name: Run Tox
         run: tox -e ${{ matrix.tox_env }} -- -vv
       - name: codecov
         if: matrix.use_coverage
