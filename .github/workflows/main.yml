@@ -36,13 +36,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v2
-        if: matrix.python != '3.10-dev'
+        if: "!endsWith(matrix.python, '-dev')"
         with:
           python-version: ${{ matrix.python }}
 
       - name: Set up Python ${{ matrix.python }} (deadsnakes)
         uses: deadsnakes/action@v1.0.0
-        if: matrix.python == '3.10-dev'
+        if: endsWith(matrix.python, '-dev')
         with:
           python-version: ${{ matrix.python }}
 
