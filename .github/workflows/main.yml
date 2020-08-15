@@ -56,16 +56,13 @@ jobs:
         run: pip install -U tox codecov
 
       - name: Run tox
-        env:
-          TOXENV: ${{ matrix.tox_env }}
-        run: tox -- -vv
+        run: tox -- -vv -e ${{ matrix.tox_env }}
 
       - name: codecov
         if: matrix.use_coverage
         env:
-          TOXENV: ${{ matrix.tox_env }}
           PYTEST_ADDOPTS: "--cov ./ --cov-append --cov-config setup.cfg"
-        run: codecov -e $TOXENV
+        run: codecov -e ${{ matrix.tox_env }}
 
   windows:
     runs-on: windows-latest
