@@ -46,7 +46,7 @@ jobs:
       - name: Install dependencies
         run: pip install -U tox codecov
       - name: Run tox
-        run: tox -- -vv -e ${{ matrix.tox_env }}
+        run: tox -e ${{ matrix.tox_env }} -- -vv
       - name: codecov
         if: matrix.use_coverage
         env:
