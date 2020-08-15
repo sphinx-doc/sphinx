@@ -12,6 +12,9 @@ Getting help
 
 The Sphinx community maintains a number of mailing lists and IRC channels.
 
+Stack Overflow with tag `python-sphinx`_
+    Questions and answers about use and development.
+
 sphinx-users <sphinx-users@googlegroups.com>
     Mailing list for user support.
 
@@ -21,6 +24,7 @@ sphinx-dev <sphinx-dev@googlegroups.com>
 #sphinx-doc on irc.freenode.net
     IRC channel for development questions and user support.
 
+.. _python-sphinx: https://stackoverflow.com/questions/tagged/python-sphinx
 
 Bug Reports and Feature Requests
 --------------------------------
