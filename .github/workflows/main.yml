@@ -8,18 +8,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: ["py35", "py36", "py37", "py38", "nightly"]
+        name: ["py3.5", "py3.6", "py3.7", "py3.8", "nightly"]
         include:
-          - name: "py35"
+          - name: "py3.5"
             python: "3.5"
             tox_env: "du12"
-          - name: "py36"
+          - name: "py3.6"
             python: "3.6"
             tox_env: "du13"
-          - name: "py37"
+          - name: "py3.7"
             python: "3.7"
             tox_env: "du14"
-          - name: "py38"
+          - name: "py3.8"
             python: "3.8"
             tox_env: "du15"
             use_coverage: true
