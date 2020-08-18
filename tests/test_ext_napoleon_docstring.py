@@ -1543,6 +1543,7 @@ arg_ : type
         config = Config(
             napoleon_use_param=True,
             napoleon_use_rtype=True,
+            napoleon_preprocess_types=True,
             napoleon_type_aliases=translations,
         )
         actual = str(NumpyDocstring(docstring, config))
@@ -1566,7 +1567,7 @@ arg_ : type
             "scalar": ":term:`scalar`",
             "array-like": ":class:`array-like <numpy.ndarray>`",
         }
-        config = Config(napoleon_type_aliases=translations)
+        config = Config(napoleon_type_aliases=translations, napoleon_preprocess_types=True)
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "method"))
         self.assertEqual(expected, actual)
@@ -1779,7 +1780,7 @@ Example Function
                 "CustomError": "package.CustomError",
                 "AnotherError": ":py:exc:`~package.AnotherError`",
             }
-            config = Config(napoleon_type_aliases=translations)
+            config = Config(napoleon_type_aliases=translations, napoleon_preprocess_types=True)
             app = mock.Mock()
             actual = str(NumpyDocstring(docstring, config, app, "method"))
             self.assertEqual(expected, actual)
