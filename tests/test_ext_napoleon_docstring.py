@@ -66,19 +66,19 @@ Sample namedtuple subclass
 
    Quick description of attr1
 
-   :type: :class:`Arbitrary type`
+   :type: Arbitrary type
 
 .. attribute:: attr2
 
    Quick description of attr2
 
-   :type: :class:`Another arbitrary type`
+   :type: Another arbitrary type
 
 .. attribute:: attr3
 
    Adds a newline after the type
 
-   :type: :class:`Type`
+   :type: Type
 """
 
         self.assertEqual(expected, actual)
@@ -1311,11 +1311,33 @@ class NumpyDocstringTest(BaseDocstringTest):
         config = Config(
             napoleon_use_param=False,
             napoleon_use_rtype=False,
-            napoleon_use_keyword=False)
+            napoleon_use_keyword=False,
+            napoleon_preprocess_types=True)
         for docstring, expected in self.docstrings:
             actual = str(NumpyDocstring(dedent(docstring), config))
             expected = dedent(expected)
             self.assertEqual(expected, actual)
+
+    def test_type_preprocessor(self):
+        docstring = dedent("""
+        Single line summary
+
+        Parameters
+        ----------
+        arg1:str
+            Extended
+            description of arg1
+        """)
+
+        config = Config(napoleon_preprocess_types=False, napoleon_use_param=False)
+        actual = str(NumpyDocstring(docstring, config))
+        expected = dedent("""
+        Single line summary
+
+        :Parameters: **arg1** (*str*) -- Extended
+                     description of arg1
+        """)
+        self.assertEqual(expected, actual)
 
     def test_parameters_with_class_reference(self):
         docstring = """\
@@ -1340,6 +1362,32 @@ param1 : :class:`MyClass <name.space.MyClass>` instance
 """
         self.assertEqual(expected, actual)
 
+    def test_multiple_parameters(self):
+        docstring = """\
+Parameters
+----------
+x1, x2 : array_like
+    Input arrays, description of ``x1``, ``x2``.
+
+"""
+
+        config = Config(napoleon_use_param=False)
+        actual = str(NumpyDocstring(docstring, config))
+        expected = """\
+:Parameters: **x1, x2** (*array_like*) -- Input arrays, description of ``x1``, ``x2``.
+"""
+        self.assertEqual(expected, actual)
+
+        config = Config(napoleon_use_param=True)
+        actual = str(NumpyDocstring(dedent(docstring), config))
+        expected = """\
+:param x1: Input arrays, description of ``x1``, ``x2``.
+:type x1: array_like
+:param x2: Input arrays, description of ``x1``, ``x2``.
+:type x2: array_like
+"""
+        self.assertEqual(expected, actual)
+
     def test_parameters_without_class_reference(self):
         docstring = """\
 Parameters
@@ -1351,7 +1399,7 @@ param1 : MyClass instance
         config = Config(napoleon_use_param=False)
         actual = str(NumpyDocstring(docstring, config))
         expected = """\
-:Parameters: **param1** (:class:`MyClass instance`)
+:Parameters: **param1** (*MyClass instance*)
 """
         self.assertEqual(expected, actual)
 
@@ -1359,7 +1407,7 @@ param1 : MyClass instance
         actual = str(NumpyDocstring(dedent(docstring), config))
         expected = """\
 :param param1:
-:type param1: :class:`MyClass instance`
+:type param1: MyClass instance
 """
         self.assertEqual(expected, actual)
 
@@ -1448,7 +1496,7 @@ arg_ : type
 
         expected = """
 :ivar arg_: some description
-:vartype arg_: :class:`type`
+:vartype arg_: type
 """
 
         config = Config(napoleon_use_ivar=True)
@@ -1468,7 +1516,7 @@ arg_ : type
 
         expected = """
 :ivar arg\\_: some description
-:vartype arg\\_: :class:`type`
+:vartype arg\\_: type
 """
 
         config = Config(napoleon_use_ivar=True)
@@ -1913,59 +1961,59 @@ definition_after_normal_text : int
         expected = """One line summary.
 
 :param no_list:
-:type no_list: :class:`int`
+:type no_list: int
 :param one_bullet_empty:
                          *
-:type one_bullet_empty: :class:`int`
+:type one_bullet_empty: int
 :param one_bullet_single_line:
                                - first line
-:type one_bullet_single_line: :class:`int`
+:type one_bullet_single_line: int
 :param one_bullet_two_lines:
                              +   first line
                                  continued
-:type one_bullet_two_lines: :class:`int`
+:type one_bullet_two_lines: int
 :param two_bullets_single_line:
                                 -  first line
                                 -  second line
-:type two_bullets_single_line: :class:`int`
+:type two_bullets_single_line: int
 :param two_bullets_two_lines:
                               * first line
                                 continued
                               * second line
                                 continued
-:type two_bullets_two_lines: :class:`int`
+:type two_bullets_two_lines: int
 :param one_enumeration_single_line:
                                     1.  first line
-:type one_enumeration_single_line: :class:`int`
+:type one_enumeration_single_line: int
 :param one_enumeration_two_lines:
                                   1)   first line
                                        continued
-:type one_enumeration_two_lines: :class:`int`
+:type one_enumeration_two_lines: int
 :param two_enumerations_one_line:
                                   (iii) first line
                                   (iv) second line
-:type two_enumerations_one_line: :class:`int`
+:type two_enumerations_one_line: int
 :param two_enumerations_two_lines:
                                    a. first line
                                       continued
                                    b. second line
                                       continued
-:type two_enumerations_two_lines: :class:`int`
+:type two_enumerations_two_lines: int
 :param one_definition_one_line:
                                 item 1
                                     first line
-:type one_definition_one_line: :class:`int`
+:type one_definition_one_line: int
 :param one_definition_two_lines:
                                  item 1
                                      first line
                                      continued
-:type one_definition_two_lines: :class:`int`
+:type one_definition_two_lines: int
 :param two_definitions_one_line:
                                  item 1
                                      first line
                                  item 2
                                      second line
-:type two_definitions_one_line: :class:`int`
+:type two_definitions_one_line: int
 :param two_definitions_two_lines:
                                   item 1
                                       first line
@@ -1973,14 +2021,14 @@ definition_after_normal_text : int
                                   item 2
                                       second line
                                       continued
-:type two_definitions_two_lines: :class:`int`
+:type two_definitions_two_lines: int
 :param one_definition_blank_line:
                                   item 1
 
                                       first line
 
                                       extra first line
-:type one_definition_blank_line: :class:`int`
+:type one_definition_blank_line: int
 :param two_definitions_blank_lines:
                                     item 1
 
@@ -1993,12 +2041,12 @@ definition_after_normal_text : int
                                         second line
 
                                         extra second line
-:type two_definitions_blank_lines: :class:`int`
+:type two_definitions_blank_lines: int
 :param definition_after_normal_text: text line
 
                                      item 1
                                          first line
-:type definition_after_normal_text: :class:`int`
+:type definition_after_normal_text: int
 """
         config = Config(napoleon_use_param=True)
         actual = str(NumpyDocstring(docstring, config))
@@ -2092,7 +2140,7 @@ definition_after_normal_text : int
                item 1
                    first line
 """
-        config = Config(napoleon_use_param=False)
+        config = Config(napoleon_use_param=False, napoleon_preprocess_types=True)
         actual = str(NumpyDocstring(docstring, config))
         self.assertEqual(expected, actual)
 
@@ -2273,6 +2321,7 @@ definition_after_normal_text : int
         config = Config(
             napoleon_use_param=True,
             napoleon_use_rtype=True,
+            napoleon_preprocess_types=True,
             napoleon_type_aliases=translations,
         )
         actual = str(NumpyDocstring(docstring, config))

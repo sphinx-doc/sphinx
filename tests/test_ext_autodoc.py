@@ -1580,12 +1580,7 @@ def test_autodoc_typed_instance_variables(app):
         '   :module: target.typed_vars',
         '',
         '',
-        '   .. py:attribute:: Derived.attr2',
-        '      :module: target.typed_vars',
-        '      :type: int',
-        '',
-        '',
-        '   .. py:attribute:: Derived.descr4',
+        '   .. py:attribute:: Derived.attr7',
         '      :module: target.typed_vars',
         '      :type: int',
         '',
@@ -1611,6 +1606,47 @@ def test_autodoc_typed_instance_variables(app):
         "   :value: ''",
         '',
         '   attr3',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_typed_inherited_instance_variables(app):
+    options = {"members": None,
+               "undoc-members": True,
+               "inherited-members": True}
+    actual = do_autodoc(app, 'class', 'target.typed_vars.Derived', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Derived()',
+        '   :module: target.typed_vars',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr1',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '      :value: 0',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr2',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr3',
+        '      :module: target.typed_vars',
+        '      :value: 0',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr7',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:attribute:: Derived.descr4',
+        '      :module: target.typed_vars',
+        '      :type: int',
         '',
     ]
 
@@ -1700,6 +1736,28 @@ def test_autodoc_Annotated(app):
         '   :module: target.annotated',
         '',
         '   docstring',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_TYPE_CHECKING(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.TYPE_CHECKING', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.TYPE_CHECKING',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.TYPE_CHECKING',
+        '',
+        '',
+        '   .. py:attribute:: Foo.attr1',
+        '      :module: target.TYPE_CHECKING',
+        '      :type: StringIO',
         '',
     ]
 

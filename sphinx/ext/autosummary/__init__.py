@@ -298,6 +298,16 @@ class Autosummary(SphinxDirective):
 
                 raise exc  # re-raise ImportError if instance attribute not found
 
+    def create_documenter(self, app: Sphinx, obj: Any,
+                          parent: Any, full_name: str) -> "Documenter":
+        """Get an autodoc.Documenter class suitable for documenting the given
+        object.
+
+        Wraps get_documenter and is meant as a hook for extensions.
+        """
+        doccls = get_documenter(app, obj, parent)
+        return doccls(self.bridge, full_name)
+
     def get_items(self, names: List[str]) -> List[Tuple[str, str, str, str]]:
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
@@ -329,8 +339,7 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            doccls = get_documenter(self.env.app, obj, parent)
-            documenter = doccls(self.bridge, full_name)
+            documenter = self.create_documenter(self.env.app, obj, parent, full_name)
             if not documenter.parse_name():
                 logger.warning(__('failed to parse name %s'), real_name,
                                location=self.get_source_info())
