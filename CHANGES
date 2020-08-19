@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #8123: html-search: fix searching for terms containing + (Requires a
+  custom search language that does not split on +)
+
 Testing
 --------
 
