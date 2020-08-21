@@ -290,6 +290,22 @@ def test_format_signature(app):
         '(b, c=42, *d, **e)'
 
 
+@pytest.mark.skipif(sys.version_info < (3, 5), reason='typing is available since python3.5.')
+@pytest.mark.xfail
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_process_signature_typing_generic(app):
+    actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
+
+    assert list(actual) == [
+        '',
+        '.. py:class:: A(a, b=None)',
+        '   :module: target.generic_class',
+        '',
+        '   docstring for A',
+        '',
+    ]
+
+
 def test_autodoc_process_signature_typehints(app):
     captured = []
 
