@@ -17,6 +17,8 @@ Bugs fixed
 ----------
 
 * #8085: i18n: Add support for having single text domain
+* #8143: autodoc: AttributeError is raised when False value is passed to
+  autodoc_default_options
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 
