@@ -291,7 +291,6 @@ def test_format_signature(app):
 
 
 @pytest.mark.skipif(sys.version_info < (3, 5), reason='typing is available since python3.5.')
-@pytest.mark.xfail
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_process_signature_typing_generic(app):
     actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
