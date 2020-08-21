@@ -177,19 +177,18 @@ type for that event::
    9. (if running in parallel mode, for each process) event.env-merged-info(app, env, docnames, other)
    10. event.env-updated(app, env)
    11. event.env-get-updated(app, env)
-   11. event.env-check-consistency(app, env)
+   12. event.env-check-consistency(app, env)
 
    # The updated-docs list can be builder dependent, but generally includes all new/changed documents,
    # plus any output from `env-get-updated`, and then all "parent" documents in the ToC tree
    # For builders that output a single page, they are first joined into a single doctree before post-transforms/doctree-resolved
    for docname in updated-docs:
-      12. apply post-transforms (by priority): docutils.document -> docutils.document
-      13. event.doctree-resolved(app, doctree, docname)
+      13. apply post-transforms (by priority): docutils.document -> docutils.document
+      14. event.doctree-resolved(app, doctree, docname)
           - (for any reference node that fails to resolve) event.missing-reference(env, node, contnode)
 
-   14. Generate output files
-
-   15. event.build-finished(app, exception)
+   15. Generate output files
+   16. event.build-finished(app, exception)
 
 Here is a more detailed list of these events.
 
