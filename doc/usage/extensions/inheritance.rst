@@ -101,6 +101,9 @@ It adds this directive:
    It supports two different values: ``default``, which generates a diagram
    with normal arrows; and ``uml`` which generates UML-like arrows.
 
+   .. versionadded:: 3.3.0
+      Added ``style`` option to use predefined style.
+
    The direction of the diagram can be specified with the directive
    ``direction``. It can be one of the values: ``left-right`` (the default),
    or ``top-bottom``.
