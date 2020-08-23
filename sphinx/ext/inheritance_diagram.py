@@ -145,8 +145,8 @@ class InheritanceGraph:
         """Hold a class and it's relations with the other classes"""
         def __init__(self, cls):
             self.cls = cls
-            self.based = set([])  # type: Set[Any]
-            self.derived = set([])  # type: Set[Any]
+            self.based = set()  # type: Set[Any]
+            self.derived = set()  # type: Set[Any]
             self.used = False
 
     def __init__(self, class_names: List[str], currmodule: str, show_builtins: bool = False,
