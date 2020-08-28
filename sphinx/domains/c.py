@@ -3607,6 +3607,10 @@ class CDomain(Domain):
         'macro': ObjType(_('macro'), 'macro'),
         'type': ObjType(_('type'), 'type'),
         'var': ObjType(_('variable'), 'data'),
+        'enum': ObjType(_('enum'), 'enum'),
+        'enumerator': ObjType(_('enumerator'), 'enumerator'),
+        'struct': ObjType(_('struct'), 'struct'),
+        'union': ObjType(_('union'), 'union'),
     }
 
     directives = {
