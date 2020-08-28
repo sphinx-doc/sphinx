@@ -148,14 +148,15 @@ class InheritanceGraph:
         self.class_names = class_names
         classes = self._import_classes(class_names, currmodule)
         if include_subclasses:
-            classes = set(classes)
+            classes_set = set(classes)
+
             def subclasses(cls):
                 yield cls
                 for subcls in cls.__subclasses__():
                     yield from subclasses(subcls)
-            for cls in set(classes):
-                classes.update(subclasses(cls))
-            classes = list(classes)
+            for cls in set(classes_set):
+                classes_set.update(subclasses(cls))
+            classes = list(classes_set)
         self.class_info = self._class_info(classes, show_builtins,
                                            private_bases, parts, aliases, top_classes)
         if not self.class_info:
