@@ -138,7 +138,8 @@ class InheritanceGraph:
     """
     def __init__(self, class_names: List[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0, aliases: Dict[str, str] = None,
-                 top_classes: List[Any] = []) -> None:
+                 top_classes: List[Any] = [],
+                 include_subclasses: bool = False) -> None:
         """*class_names* is a list of child classes to show bases from.
 
         If *show_builtins* is True, then Python builtins will be shown
@@ -146,6 +147,16 @@ class InheritanceGraph:
         """
         self.class_names = class_names
         classes = self._import_classes(class_names, currmodule)
+        if include_subclasses:
+            classes_set = set(classes)
+
+            def subclasses(cls):
+                yield cls
+                for subcls in cls.__subclasses__():
+                    yield from subclasses(subcls)
+            for cls in set(classes_set):
+                classes_set.update(subclasses(cls))
+            classes = list(classes_set)
         self.class_info = self._class_info(classes, show_builtins,
                                            private_bases, parts, aliases, top_classes)
         if not self.class_info:
@@ -337,6 +348,7 @@ class InheritanceDiagram(SphinxDirective):
         'private-bases': directives.flag,
         'caption': directives.unchanged,
         'top-classes': directives.unchanged_required,
+        'include-subclasses': directives.flag,
     }
 
     def run(self) -> List[Node]:
@@ -360,7 +372,8 @@ class InheritanceDiagram(SphinxDirective):
                 parts=node['parts'],
                 private_bases='private-bases' in self.options,
                 aliases=self.config.inheritance_alias,
-                top_classes=node['top-classes'])
+                top_classes=node['top-classes'],
+                include_subclasses='include-subclasses' in self.options)
         except InheritanceException as err:
             return [node.document.reporter.warning(err, line=self.lineno)]
 
