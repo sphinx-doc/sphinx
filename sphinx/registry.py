@@ -401,7 +401,7 @@ class SphinxComponentRegistry:
 
     def load_extension(self, app: "Sphinx", extname: str) -> None:
         """Load a Sphinx extension."""
-        if extname in app.extensions:  # alread loaded
+        if extname in app.extensions:  # already loaded
             return
         if extname in EXTENSION_BLACKLIST:
             logger.warning(__('the extension %r was already merged with Sphinx since '
