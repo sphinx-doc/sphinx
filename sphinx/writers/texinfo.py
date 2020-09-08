@@ -1242,6 +1242,15 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_legend(self, node: Element) -> None:
         pass
 
+    def visit_substitution_reference(self, node: Element) -> None:
+        pass
+
+    def depart_substitution_reference(self, node: Element) -> None:
+        pass
+
+    def visit_substitution_definition(self, node: Element) -> None:
+        raise nodes.SkipNode
+
     def visit_system_message(self, node: Element) -> None:
         self.body.append('\n@verbatim\n'
                          '<SYSTEM MESSAGE: %s>\n'

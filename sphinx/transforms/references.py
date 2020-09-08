@@ -10,25 +10,13 @@
 
 from typing import Any, Dict
 
-from docutils import nodes
-from docutils.transforms.references import DanglingReferences, Substitutions
+from docutils.transforms.references import DanglingReferences
 
 from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
     from sphinx.application import Sphinx
-
-
-class SubstitutionDefinitionsRemover(SphinxTransform):
-    """Remove ``substitution_definition node from doctrees."""
-
-    # should be invoked after Substitutions process
-    default_priority = Substitutions.default_priority + 1
-
-    def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.substitution_definition):
-            node.parent.remove(node)
 
 
 class SphinxDanglingReferences(DanglingReferences):
@@ -56,7 +44,6 @@ class SphinxDomains(SphinxTransform):
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.add_transform(SubstitutionDefinitionsRemover)
     app.add_transform(SphinxDanglingReferences)
     app.add_transform(SphinxDomains)
 
