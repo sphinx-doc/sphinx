@@ -176,7 +176,8 @@ def test_js_module(app):
     text = ".. js:module:: sphinx"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (nodes.target,
-                          addnodes.index))
+                          addnodes.index,
+                          nodes.substitution_definition))
     assert_node(doctree[0], nodes.target, ids=["module-sphinx"])
     assert_node(doctree[1], addnodes.index,
                 entries=[("single", "sphinx (module)", "module-sphinx", "", None)])
@@ -188,7 +189,8 @@ def test_js_function(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "sum"],
                                                     desc_parameterlist)],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[1][0][1], [desc_parameterlist, ([desc_parameter, "a"],
                                                         [desc_parameter, "b"])])
     assert_node(doctree[0], addnodes.index,
@@ -203,7 +205,8 @@ def test_js_class(app):
                           [desc, ([desc_signature, ([desc_annotation, "class "],
                                                     [desc_name, "Application"],
                                                     [desc_parameterlist, ()])],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index,
                 entries=[("single", "Application() (class)", "Application", "", None)])
     assert_node(doctree[1], addnodes.desc, domain="js", objtype="class", noindex=False)
@@ -214,7 +217,8 @@ def test_js_data(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, desc_name, "name"],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index,
                 entries=[("single", "name (global variable or constant)", "name", "", None)])
     assert_node(doctree[1], addnodes.desc, domain="js", objtype="data", noindex=False)
@@ -225,6 +229,7 @@ def test_noindexentry(app):
             ".. js:function:: g()\n"
             "   :noindexentry:\n")
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc,
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f() (built-in function)', 'f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])

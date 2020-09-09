@@ -11,6 +11,7 @@
 import re
 
 import pytest
+from docutils import nodes
 
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
@@ -1233,6 +1234,7 @@ def test_noindexentry(app):
             ".. cpp:function:: void g()\n"
             "   :noindexentry:\n")
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc,
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])

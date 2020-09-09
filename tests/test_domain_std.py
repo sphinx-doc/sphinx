@@ -123,6 +123,7 @@ def test_glossary(app):
                                      [definition_list_item, ([term, ("term4",
                                                                      index)],
                                                              definition)])],
+        nodes.substitution_definition
     ))
     assert_node(doctree[0][0][0][0][1],
                 entries=[("single", "term1", "term-term1", "main", None)])
@@ -212,6 +213,7 @@ def test_glossary_comment(app):
         [glossary, definition_list, definition_list_item, ([term, ("term1",
                                                                    index)],
                                                            definition)],
+        nodes.substitution_definition
     ))
     assert_node(doctree[0][0][0][1],
                 [nodes.definition, nodes.paragraph, "description"])
@@ -235,6 +237,7 @@ def test_glossary_comment2(app):
                                      [definition_list_item, ([term, ("term3",
                                                                      index)],
                                                              definition)])],
+        nodes.substitution_definition
     ))
     assert_node(doctree[0][0][0][1],
                 [nodes.definition, nodes.paragraph, "description"])
@@ -263,6 +266,7 @@ def test_glossary_sorted(app):
                                      [definition_list_item, ([term, ("term3",
                                                                      index)],
                                                              definition)])],
+        nodes.substitution_definition
     ))
     assert_node(doctree[0][0][0][2],
                 [nodes.definition, nodes.paragraph, "description"])
@@ -300,7 +304,8 @@ def test_cmdoption(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "-l"],
                                                     [desc_addname, ()])],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index,
                 entries=[('pair', 'ls command line option; -l', 'cmdoption-ls-l', '', None)])
     assert ('ls', '-l') in domain.progoptions
@@ -319,7 +324,8 @@ def test_multiple_cmdoptions(app):
                                                     [desc_addname, ", "],
                                                     [desc_name, "--output"],
                                                     [desc_addname, " directory"])],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index,
                 entries=[('pair', 'cmd command line option; -o directory',
                           'cmdoption-cmd-o', '', None),
@@ -393,4 +399,5 @@ def test_disabled_docref(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, ([nodes.paragraph, ([pending_xref, nodes.inline, "index"],
                                              "\n",
-                                             [nodes.inline, "index"])],))
+                                             [nodes.inline, "index"])],
+                          nodes.substitution_definition))

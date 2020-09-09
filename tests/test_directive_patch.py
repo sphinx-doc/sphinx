@@ -21,7 +21,8 @@ def test_code_directive(app):
             '   print("hello world")\n')
 
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
+    assert_node(doctree, ([nodes.literal_block, 'print("hello world")'],
+                          nodes.substitution_definition))
     assert_node(doctree[0], language="default", highlight_args={})
 
     # with language
@@ -30,7 +31,8 @@ def test_code_directive(app):
             '   print("hello world")\n')
 
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
+    assert_node(doctree, ([nodes.literal_block, 'print("hello world")'],
+                          nodes.substitution_definition))
     assert_node(doctree[0], language="python", highlight_args={})
 
     # :number-lines: option
@@ -40,7 +42,8 @@ def test_code_directive(app):
             '   print("hello world")\n')
 
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
+    assert_node(doctree, ([nodes.literal_block, 'print("hello world")'],
+                          nodes.substitution_definition))
     assert_node(doctree[0], language="python", linenos=True, highlight_args={})
 
     # :number-lines: option
@@ -50,7 +53,8 @@ def test_code_directive(app):
             '   print("hello world")\n')
 
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
+    assert_node(doctree, ([nodes.literal_block, 'print("hello world")'],
+                          nodes.substitution_definition))
     assert_node(doctree[0], language="python", linenos=True, highlight_args={'linenostart': 5})
 
 
@@ -58,29 +62,33 @@ def test_math_directive(app):
     # normal case
     text = '.. math:: E = mc^2'
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, [nodes.document, nodes.math_block, 'E = mc^2\n\n'])
+    assert_node(doctree, ([nodes.math_block, "E = mc^2\n\n"],
+                          nodes.substitution_definition))
 
     # :name: option
     text = ('.. math:: E = mc^2\n'
             '   :name: eq1\n')
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, [nodes.document, (nodes.target,
-                                           [nodes.math_block, "E = mc^2\n\n"])])
+    assert_node(doctree, (nodes.target,
+                          [nodes.math_block, "E = mc^2\n\n"],
+                          nodes.substitution_definition))
     assert_node(doctree[1], nodes.math_block, docname='index', label="eq1", number=1)
 
     # :label: option
     text = ('.. math:: E = mc^2\n'
             '   :label: eq2\n')
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, [nodes.document, (nodes.target,
-                                           [nodes.math_block, 'E = mc^2\n\n'])])
+    assert_node(doctree, (nodes.target,
+                          [nodes.math_block, "E = mc^2\n\n"],
+                          nodes.substitution_definition))
     assert_node(doctree[1], nodes.math_block, docname='index', label="eq2", number=2)
 
     # :label: option without value
     text = ('.. math:: E = mc^2\n'
             '   :label:\n')
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, [nodes.document, (nodes.target,
-                                           [nodes.math_block, 'E = mc^2\n\n'])])
+    assert_node(doctree, (nodes.target,
+                          [nodes.math_block, "E = mc^2\n\n"],
+                          nodes.substitution_definition))
     assert_node(doctree[1], nodes.math_block, ids=['equation-index-0'],
                 docname='index', label="index:0", number=3)

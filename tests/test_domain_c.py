@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 import pytest
+from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import desc
@@ -601,6 +602,7 @@ def test_noindexentry(app):
             ".. c:function:: void g()\n"
             "   :noindexentry:\n")
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc,
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])

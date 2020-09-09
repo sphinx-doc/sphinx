@@ -8,6 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from docutils import nodes
+
 from sphinx import addnodes
 from sphinx.addnodes import (
     desc, desc_addname, desc_annotation, desc_content, desc_name, desc_signature
@@ -37,7 +39,8 @@ def test_rst_directive(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, desc_name, ".. toctree::"],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0],
                 entries=[("single", "toctree (directive)", "directive-toctree", "", None)])
     assert_node(doctree[1], addnodes.desc, desctype="directive",
@@ -48,7 +51,8 @@ def test_rst_directive(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, desc_name, ".. toctree::"],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0],
                 entries=[("single", "toctree (directive)", "directive-toctree", "", None)])
     assert_node(doctree[1], addnodes.desc, desctype="directive",
@@ -61,7 +65,8 @@ def test_rst_directive_with_argument(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, ".. toctree::"],
                                                     [desc_addname, " foo bar baz"])],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0],
                 entries=[("single", "toctree (directive)", "directive-toctree", "", None)])
     assert_node(doctree[1], addnodes.desc, desctype="directive",
@@ -73,7 +78,8 @@ def test_rst_directive_option(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, desc_name, ":foo:"],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0],
                 entries=[("single", ":foo: (directive option)",
                           "directive-option-foo", "", "F")])
@@ -87,7 +93,8 @@ def test_rst_directive_option_with_argument(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, ":foo:"],
                                                     [desc_annotation, " bar baz"])],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0],
                 entries=[("single", ":foo: (directive option)",
                           "directive-option-foo", "", "F")])
@@ -102,7 +109,8 @@ def test_rst_directive_option_type(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, ":foo:"],
                                                     [desc_annotation, " (directives.flags)"])],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0],
                 entries=[("single", ":foo: (directive option)",
                           "directive-option-foo", "", "F")])
@@ -118,7 +126,8 @@ def test_rst_directive_and_directive_option(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, desc_name, ".. foo::"],
                                   [desc_content, (addnodes.index,
-                                                  desc)])]))
+                                                  desc)])],
+                          nodes.substitution_definition))
     assert_node(doctree[1][1][0],
                 entries=[("pair", "foo (directive); :bar: (directive option)",
                           "directive-option-foo-bar", "", "B")])
@@ -133,7 +142,8 @@ def test_rst_role(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, desc_name, ":ref:"],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0],
                 entries=[("single", "ref (role)", "role-ref", "", None)])
     assert_node(doctree[1], addnodes.desc, desctype="role",

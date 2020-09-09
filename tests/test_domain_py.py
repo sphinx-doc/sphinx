@@ -301,7 +301,8 @@ def test_pyfunction_signature(app):
                           [desc, ([desc_signature, ([desc_name, "hello"],
                                                     desc_parameterlist,
                                                     [desc_returns, pending_xref, "str"])],
-                                  desc_content)]))
+                                  desc_content)],
+                          nodes.substitution_definition))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
     assert_node(doctree[1][0][1],
@@ -319,7 +320,8 @@ def test_pyfunction_signature_full(app):
                           [desc, ([desc_signature, ([desc_name, "hello"],
                                                     desc_parameterlist,
                                                     [desc_returns, pending_xref, "str"])],
-                                  desc_content)]))
+                                  desc_content)],
+                          nodes.substitution_definition))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
     assert_node(doctree[1][0][1],
@@ -393,7 +395,8 @@ def test_optional_pyfunction_signature(app):
                           [desc, ([desc_signature, ([desc_name, "compile"],
                                                     desc_parameterlist,
                                                     [desc_returns, pending_xref, "ast object"])],
-                                  desc_content)]))
+                                  desc_content)],
+                          nodes.substitution_definition))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
     assert_node(doctree[1][0][1],
@@ -409,7 +412,8 @@ def test_pyexception_signature(app):
                           [desc, ([desc_signature, ([desc_annotation, "exception "],
                                                     [desc_addname, "exceptions."],
                                                     [desc_name, "IOError"])],
-                                  desc_content)]))
+                                  desc_content)],
+                          nodes.substitution_definition))
     assert_node(doctree[1], desc, desctype="exception",
                 domain="py", objtype="exception", noindex=False)
 
@@ -421,7 +425,8 @@ def test_exceptions_module_is_ignored(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "exception "],
                                                     [desc_name, "IOError"])],
-                                  desc_content)]))
+                                  desc_content)],
+                          nodes.substitution_definition))
     assert_node(doctree[1], desc, desctype="exception",
                 domain="py", objtype="exception", noindex=False)
 
@@ -436,7 +441,8 @@ def test_pydata_signature(app):
                                                     [desc_annotation, (": ",
                                                                        [pending_xref, "int"])],
                                                     [desc_annotation, " = 1"])],
-                                  desc_content)]))
+                                  desc_content)],
+                          nodes.substitution_definition))
     assert_node(doctree[1], addnodes.desc, desctype="data",
                 domain="py", objtype="data", noindex=False)
 
@@ -448,7 +454,8 @@ def test_pydata_signature_old(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "version"],
                                                     [desc_annotation, " = 1"])],
-                                  desc_content)]))
+                                  desc_content)],
+                          nodes.substitution_definition))
     assert_node(doctree[1], addnodes.desc, desctype="data",
                 domain="py", objtype="data", noindex=False)
 
@@ -465,7 +472,8 @@ def test_pyobject_prefix(app):
                                   [desc_content, (addnodes.index,
                                                   desc,
                                                   addnodes.index,
-                                                  desc)])]))
+                                                  desc)])],
+                          nodes.substitution_definition))
     assert doctree[1][1][1].astext().strip() == 'say()'           # prefix is stripped
     assert doctree[1][1][3].astext().strip() == 'FooBar.say()'    # not stripped
 
@@ -483,7 +491,8 @@ def test_pydata(app):
                                                     [desc_name, "var"],
                                                     [desc_annotation, (": ",
                                                                        [pending_xref, "int"])])],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[3][0][2][1], pending_xref, **{"py:module": "example"})
     assert 'example.var' in domain.objects
     assert domain.objects['example.var'] == ('index', 'example.var', 'data')
@@ -507,7 +516,8 @@ def test_pyfunction(app):
                                                     [desc_addname, "example."],
                                                     [desc_name, "func2"],
                                                     [desc_parameterlist, ()])],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index,
                 entries=[('pair', 'built-in function; func1()', 'func1', '', None)])
     assert_node(doctree[3], addnodes.index,
@@ -534,7 +544,8 @@ def test_pyclass_options(app):
                           addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "final class "],
                                                     [desc_name, "Class2"])],
-                                  [desc_content, ()])]))
+                                  [desc_content, ()])],
+                          nodes.substitution_definition))
 
     # class
     assert_node(doctree[0], addnodes.index,
@@ -583,7 +594,8 @@ def test_pymethod_options(app):
                                                   addnodes.index,
                                                   desc,
                                                   addnodes.index,
-                                                  desc)])]))
+                                                  desc)])],
+                          nodes.substitution_definition))
 
     # method
     assert_node(doctree[1][1][0], addnodes.index,
@@ -664,7 +676,8 @@ def test_pyclassmethod(app):
                           [desc, ([desc_signature, ([desc_annotation, "class "],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
-                                                  desc)])]))
+                                                  desc)])],
+                          nodes.substitution_definition))
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'meth() (Class class method)', 'Class.meth', '', None)])
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, "classmethod "],
@@ -685,7 +698,8 @@ def test_pystaticmethod(app):
                           [desc, ([desc_signature, ([desc_annotation, "class "],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
-                                                  desc)])]))
+                                                  desc)])],
+                          nodes.substitution_definition))
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'meth() (Class static method)', 'Class.meth', '', None)])
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, "static "],
@@ -708,7 +722,8 @@ def test_pyattribute(app):
                           [desc, ([desc_signature, ([desc_annotation, "class "],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
-                                                  desc)])]))
+                                                  desc)])],
+                          nodes.substitution_definition))
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'attr (Class attribute)', 'Class.attr', '', None)])
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "attr"],
@@ -732,7 +747,8 @@ def test_pydecorator_signature(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_addname, "@"],
                                                     [desc_name, "deco"])],
-                                  desc_content)]))
+                                  desc_content)],
+                          nodes.substitution_definition))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
 
@@ -747,7 +763,8 @@ def test_pydecoratormethod_signature(app):
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_addname, "@"],
                                                     [desc_name, "deco"])],
-                                  desc_content)]))
+                                  desc_content)],
+                          nodes.substitution_definition))
     assert_node(doctree[1], addnodes.desc, desctype="method",
                 domain="py", objtype="method", noindex=False)
 
@@ -827,7 +844,8 @@ def test_noindexentry(app):
             ".. py:function:: g()\n"
             "   :noindexentry:\n")
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc,
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index, entries=[('pair', 'built-in function; f()', 'f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
 
@@ -835,6 +853,7 @@ def test_noindexentry(app):
             ".. py:class:: g\n"
             "   :noindexentry:\n")
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc,
+                          nodes.substitution_definition))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (built-in class)', 'f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
