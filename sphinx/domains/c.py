@@ -3753,6 +3753,7 @@ class CDomain(Domain):
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
         for refname, (docname, node_id, objtype) in list(self.objects.items()):
+            refname = refname.replace('[anonymous].', '')
             yield (refname, refname, objtype, docname, node_id, 1)
 
 
