@@ -34,6 +34,7 @@ Bugs fixed
   by string not ending with blank lines
 * #8142: autodoc: Wrong constructor signature for the class derived from
   typing.Generic
+* #8200: autodoc: type aliases break type formatting of autoattribute
 * #8192: napoleon: description is disappeared when it contains inline literals
 * #8142: napoleon: Potential of regex denial of service in google style docs
 * #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
