@@ -136,7 +136,13 @@ class TocTree(SphinxDirective):
                                                                     line=self.lineno))
                     self.env.note_reread()
                 else:
-                    all_docnames.discard(docname)
+                    if docname in all_docnames:
+                        all_docnames.remove(docname)
+                    else:
+                        message = 'duplicated entry found in toctree: %s'
+                        ret.append(self.state.document.reporter.warning(message % docname,
+                                                                        line=self.lineno))
+
                     toctree['entries'].append((title, docname))
                     toctree['includefiles'].append(docname)
 

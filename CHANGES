@@ -35,6 +35,7 @@ Features added
 * #7784: i18n: The alt text for image is translated by default (without
   :confval:`gettext_additional_targets` setting)
 * #7830: Add debug logs for change detection of sources and templates
+* #8201: Emit a warning if toctree contains duplicated entries
 
 Bugs fixed
 ----------
