@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #8188: C, add missing items to internal object types dictionary,
+  e.g., preventing intersphinx from resolving them.
+
+
 Testing
 --------
 
