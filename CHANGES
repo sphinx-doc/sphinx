@@ -19,6 +19,8 @@ Bugs fixed
 * #8085: i18n: Add support for having single text domain
 * #8143: autodoc: AttributeError is raised when False value is passed to
   autodoc_default_options
+* #8190: autodoc: parsing error is raised if some extension replaces docstring
+  by string not ending with blank lines
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 
