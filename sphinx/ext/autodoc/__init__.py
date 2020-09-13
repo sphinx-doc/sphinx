@@ -92,7 +92,10 @@ def members_option(arg: Any) -> Union[object, List[str]]:
     """Used to convert the :members: option to auto directives."""
     if arg is None or arg is True:
         return ALL
-    return [x.strip() for x in arg.split(',') if x.strip()]
+    elif arg is False:
+        return None
+    else:
+        return [x.strip() for x in arg.split(',') if x.strip()]
 
 
 def members_set_option(arg: Any) -> Union[object, Set[str]]:
@@ -170,7 +173,7 @@ def merge_members_option(options: Dict) -> None:
 
     members = options.setdefault('members', [])
     for key in {'private-members', 'special-members'}:
-        if key in options and options[key] is not ALL:
+        if key in options and options[key] not in (ALL, None):
             for member in options[key]:
                 if member not in members:
                     members.append(member)

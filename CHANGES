@@ -61,6 +61,9 @@ Bugs fixed
 ----------
 
 * #8085: i18n: Add support for having single text domain
+* #8143: autodoc: AttributeError is raised when False value is passed to
+  autodoc_default_options
+* #8192: napoleon: description is disappeared when it contains inline literals
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 
@@ -84,6 +87,10 @@ Features added
 
 Bugs fixed
 ----------
+
+* #8188: C, add missing items to internal object types dictionary,
+  e.g., preventing intersphinx from resolving them.
+
 
 Testing
 --------

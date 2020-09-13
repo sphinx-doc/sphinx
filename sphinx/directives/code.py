@@ -60,7 +60,7 @@ def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None
         return lines
 
     if any(s[:dedent].strip() for s in lines):
-        logger.warning(__('Over dedent has detected'), location=location)
+        logger.warning(__('non-whitespace stripped by dedent'), location=location)
 
     new_lines = []
     for line in lines:

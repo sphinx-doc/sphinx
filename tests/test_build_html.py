@@ -10,8 +10,10 @@
 
 import os
 import re
+from distutils.version import LooseVersion
 from itertools import cycle, chain
 
+import pygments
 import pytest
 from html5lib import HTMLParser
 
@@ -1567,4 +1569,8 @@ def test_html_codeblock_linenos_style_inline(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    assert '<span class="lineno">1 </span>' in content
+    pygments_version = tuple(LooseVersion(pygments.__version__).version)
+    if pygments_version > (2, 7):
+        assert '<span class="linenos">1</span>' in content
+    else:
+        assert '<span class="lineno">1 </span>' in content
