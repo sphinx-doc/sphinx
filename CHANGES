@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #8100: html: Show a better error message for failures on copying
+  html_static_files
+
 Bugs fixed
 ----------
 
