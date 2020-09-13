@@ -4292,7 +4292,7 @@ class Symbol:
 
         if not declaration:
             if Symbol.debug_lookup:
-                Symbol.debug_print("no delcaration")
+                Symbol.debug_print("no declaration")
                 Symbol.debug_indent -= 2
             # good, just a scope creation
             # TODO: what if we have more than one symbol?

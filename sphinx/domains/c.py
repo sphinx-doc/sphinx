@@ -1792,7 +1792,7 @@ class Symbol:
 
         if not declaration:
             if Symbol.debug_lookup:
-                Symbol.debug_print("no delcaration")
+                Symbol.debug_print("no declaration")
                 Symbol.debug_indent -= 2
             # good, just a scope creation
             # TODO: what if we have more than one symbol?
@@ -3607,6 +3607,10 @@ class CDomain(Domain):
         'macro': ObjType(_('macro'), 'macro'),
         'type': ObjType(_('type'), 'type'),
         'var': ObjType(_('variable'), 'data'),
+        'enum': ObjType(_('enum'), 'enum'),
+        'enumerator': ObjType(_('enumerator'), 'enumerator'),
+        'struct': ObjType(_('struct'), 'struct'),
+        'union': ObjType(_('union'), 'union'),
     }
 
     directives = {
