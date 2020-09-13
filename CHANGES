@@ -13,17 +13,24 @@ Deprecated
 Features added
 --------------
 
+* #8100: html: Show a better error message for failures on copying
+  html_static_files
+
 Bugs fixed
 ----------
 
+* #8085: i18n: Add support for having single text domain
+* #8143: autodoc: AttributeError is raised when False value is passed to
+  autodoc_default_options
 * #8103: autodoc: functools.cached_property is not considered as a property
+* #8192: napoleon: description is disappeared when it contains inline literals
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 
 Testing
 --------
 
-Release 3.2.1 (in development)
+Release 3.2.2 (in development)
 ==============================
 
 Dependencies
@@ -41,12 +48,35 @@ Features added
 Bugs fixed
 ----------
 
-* #8074: napoleon: Crashes during processing C-ext module
-* #8084: autodoc: KeyError is raised on documenting an attribute of the broken
-  class
+* #8188: C, add missing items to internal object types dictionary,
+  e.g., preventing intersphinx from resolving them.
+
 
 Testing
 --------
+
+Release 3.2.1 (released Aug 14, 2020)
+=====================================
+
+Features added
+--------------
+
+* #8095: napoleon: Add :confval:`napoleon_preprocess_types` to enable the type
+  preprocessor for numpy style docstrings
+* #8114: C and C++, parse function attributes after parameters and qualifiers.
+
+Bugs fixed
+----------
+
+* #8074: napoleon: Crashes during processing C-ext module
+* #8088: napoleon: "Inline literal start-string without end-string" warning in
+  Numpy style Parameters section
+* #8084: autodoc: KeyError is raised on documenting an attribute of the broken
+  class
+* #8091: autodoc: AttributeError is raised on documenting an attribute on Python
+  3.5.2
+* #8099: autodoc: NameError is raised when target code uses ``TYPE_CHECKING``
+* C++, fix parsing of template template paramters, broken by the fix of #7944
 
 Release 3.2.0 (released Aug 08, 2020)
 =====================================

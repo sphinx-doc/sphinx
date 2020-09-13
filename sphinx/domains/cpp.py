@@ -1879,7 +1879,8 @@ class ASTNoexceptSpec(ASTBase):
 class ASTParametersQualifiers(ASTBase):
     def __init__(self, args: List[ASTFunctionParameter], volatile: bool, const: bool,
                  refQual: str, exceptionSpec: ASTNoexceptSpec, trailingReturn: "ASTType",
-                 override: bool, final: bool, initializer: str) -> None:
+                 override: bool, final: bool, attrs: List[ASTAttribute],
+                 initializer: str) -> None:
         self.args = args
         self.volatile = volatile
         self.const = const
@@ -1888,6 +1889,7 @@ class ASTParametersQualifiers(ASTBase):
         self.trailingReturn = trailingReturn
         self.override = override
         self.final = final
+        self.attrs = attrs
         self.initializer = initializer
 
     @property
@@ -1947,6 +1949,9 @@ class ASTParametersQualifiers(ASTBase):
             res.append(' final')
         if self.override:
             res.append(' override')
+        for attr in self.attrs:
+            res.append(' ')
+            res.append(transform(attr))
         if self.initializer:
             res.append(' = ')
             res.append(self.initializer)
@@ -1988,6 +1993,9 @@ class ASTParametersQualifiers(ASTBase):
             _add_anno(signode, 'final')
         if self.override:
             _add_anno(signode, 'override')
+        for attr in self.attrs:
+            signode += nodes.Text(' ')
+            attr.describe_signature(signode)
         if self.initializer:
             _add_text(signode, '= ' + str(self.initializer))
 
@@ -4284,7 +4292,7 @@ class Symbol:
 
         if not declaration:
             if Symbol.debug_lookup:
-                Symbol.debug_print("no delcaration")
+                Symbol.debug_print("no declaration")
                 Symbol.debug_indent -= 2
             # good, just a scope creation
             # TODO: what if we have more than one symbol?
@@ -5709,6 +5717,13 @@ class DefinitionParser(BaseParser):
             override = self.skip_word_and_ws(
                 'override')  # they can be permuted
 
+        attrs = []
+        while True:
+            attr = self._parse_attribute()
+            if attr is None:
+                break
+            attrs.append(attr)
+
         self.skip_ws()
         initializer = None
         if self.skip_string('='):
@@ -5725,7 +5740,7 @@ class DefinitionParser(BaseParser):
 
         return ASTParametersQualifiers(
             args, volatile, const, refQual, exceptionSpec, trailingReturn,
-            override, final, initializer)
+            override, final, attrs, initializer)
 
     def _parse_decl_specs_simple(self, outer: str, typed: bool) -> ASTDeclSpecsSimple:
         """Just parse the simple ones."""
@@ -6251,6 +6266,7 @@ class DefinitionParser(BaseParser):
     # ==========================================================================
 
     def _parse_template_paramter(self) -> ASTTemplateParam:
+        self.skip_ws()
         if self.skip_word('template'):
             # declare a tenplate template parameter
             nestedParams = self._parse_template_parameter_list()

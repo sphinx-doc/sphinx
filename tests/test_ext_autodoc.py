@@ -1760,6 +1760,28 @@ def test_autodoc_Annotated(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_TYPE_CHECKING(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.TYPE_CHECKING', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.TYPE_CHECKING',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.TYPE_CHECKING',
+        '',
+        '',
+        '   .. py:attribute:: Foo.attr1',
+        '      :module: target.TYPE_CHECKING',
+        '      :type: StringIO',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='pycode-egg')
 def test_autodoc_for_egged_code(app):
     options = {"members": None,

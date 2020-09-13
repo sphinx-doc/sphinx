@@ -85,7 +85,7 @@ class LaTeXRenderer(SphinxRenderer):
         self.env.block_start_string = '<%'
         self.env.block_end_string = '%>'
         self.env.comment_start_string = '<#'
-        self.env.comment_end_string = '<#'
+        self.env.comment_end_string = '#>'
 
 
 class ReSTRenderer(SphinxRenderer):
