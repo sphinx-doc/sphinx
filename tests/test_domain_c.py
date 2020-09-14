@@ -562,6 +562,13 @@ def test_build_domain_c_semicolon(app, status, warning):
     assert len(ws) == 0
 
 
+def _get_obj(app, queryName):
+    domain = app.env.get_domain('c')
+    for name, dispname, objectType, docname, anchor, prio in domain.get_objects():
+        if name == queryName:
+            return (docname, anchor, objectType)
+    return (queryName, "not", "found")
+
 def test_cfunction(app):
     text = (".. c:function:: PyObject* "
             "PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)")
@@ -569,8 +576,7 @@ def test_cfunction(app):
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="c", objtype="function", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyType_GenericAlloc')
+    entry = _get_obj(app, 'PyType_GenericAlloc')
     assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
 
 
@@ -580,8 +586,7 @@ def test_cmember(app):
     assert_node(doctree[1], addnodes.desc, desctype="member",
                 domain="c", objtype="member", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyTypeObject.tp_bases')
+    entry = _get_obj(app, 'PyTypeObject.tp_bases')
     assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
 
 
@@ -591,9 +596,8 @@ def test_cvar(app):
     assert_node(doctree[1], addnodes.desc, desctype="var",
                 domain="c", objtype="var", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyClass_Type')
-    assert entry == ('index', 'c.PyClass_Type', 'var')
+    entry = _get_obj(app, 'PyClass_Type')
+    assert entry == ('index', 'c.PyClass_Type', 'member')
 
 
 def test_noindexentry(app):

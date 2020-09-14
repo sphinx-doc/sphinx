@@ -12,7 +12,6 @@ import re
 from typing import (
     Any, Callable, Dict, Generator, Iterator, List, Type, TypeVar, Tuple, Union
 )
-from typing import cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -3153,10 +3152,6 @@ class CObject(ObjectDescription):
 
             self.state.document.note_explicit_target(signode)
 
-            domain = cast(CDomain, self.env.get_domain('c'))
-            if name not in domain.objects:
-                domain.objects[name] = (domain.env.docname, newestId, self.objtype)
-
         if 'noindexentry' not in self.options:
             indexText = self.get_index_text(name)
             self.indexnode['entries'].append(('single', indexText, newestId, '', None))
@@ -3649,10 +3644,6 @@ class CDomain(Domain):
         'objects': {},  # fullname -> docname, node_id, objtype
     }  # type: Dict[str, Union[Symbol, Dict[str, Tuple[str, str, str]]]]
 
-    @property
-    def objects(self) -> Dict[str, Tuple[str, str, str]]:
-        return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
-
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
             print("clear_doc:", docname)
@@ -3668,9 +3659,6 @@ class CDomain(Domain):
             print(self.data['root_symbol'].dump(1))
             print("\tafter end")
             print("clear_doc end:", docname)
-        for fullname, (fn, _id, _l) in list(self.objects.items()):
-            if fn == docname:
-                del self.objects[fullname]
 
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
@@ -3756,8 +3744,18 @@ class CDomain(Domain):
         return []
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
-        for refname, (docname, node_id, objtype) in list(self.objects.items()):
-            yield (refname, refname, objtype, docname, node_id, 1)
+        rootSymbol = self.data['root_symbol']
+        for symbol in rootSymbol.get_all_symbols():
+            if symbol.declaration is None:
+                continue
+            assert symbol.docname
+            fullNestedName = symbol.get_full_nested_name()
+            name = str(fullNestedName).lstrip('.')
+            dispname = fullNestedName.get_display_string().lstrip('.')
+            objectType = symbol.declaration.objectType
+            docname = symbol.docname
+            newestId = symbol.declaration.get_newest_id()
+            yield (name, dispname, objectType, docname, newestId, 1)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
