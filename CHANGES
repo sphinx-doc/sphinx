@@ -15,6 +15,8 @@ Features added
 
 * #8100: html: Show a better error message for failures on copying
   html_static_files
+* #8141: C: added a ``maxdepth`` option to :rst:dir:`c:alias` to insert
+  nested declarations.
 
 Bugs fixed
 ----------
