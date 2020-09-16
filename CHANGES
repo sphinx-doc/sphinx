@@ -28,6 +28,7 @@ Bugs fixed
 * #8192: napoleon: description is disappeared when it contains inline literals
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
+* #8215: Eliminate Fancyhdr build warnings for oneside documents
 
 Testing
 --------
