@@ -326,6 +326,15 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
    By default, without ``annotation`` option, Sphinx tries to obtain the value of
    the variable and print it after the name.
 
+   The ``novalue`` option can be used instead of a blank ``annotation`` to show the
+   type hint but not the value::
+
+      .. autodata:: CD_DRIVE
+         :novalue:
+
+   If both the ``annotation`` and ``novalue`` options are used, ``novalue`` has no
+   effect.
+
    For module data members and class attributes, documentation can either be put
    into a comment with special formatting (using a ``#:`` to start the comment
    instead of just ``#``), or in a docstring *after* the definition.  Comments
@@ -365,6 +374,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       option.
    .. versionchanged:: 2.0
       :rst:dir:`autodecorator` added.
+   .. versionchanged:: 3.3
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``novalue``
+      option.
 
    .. note::
 
