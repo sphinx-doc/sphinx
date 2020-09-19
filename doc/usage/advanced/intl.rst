@@ -306,7 +306,7 @@ Contributing to Sphinx reference translation
 The recommended way for new contributors to translate Sphinx reference is to
 join the translation team on Transifex.
 
-There is `sphinx translation page`_ for Sphinx (master) documentation.
+There is a `sphinx translation page`_ for Sphinx (master) documentation.
 
 1. Login to transifex_ service.
 2. Go to `sphinx translation page`_.
