@@ -17,7 +17,7 @@ import pytest
 from docutils.statemachine import ViewList
 
 from sphinx import addnodes
-from sphinx.ext.autodoc import ModuleLevelDocumenter, ALL, Options
+from sphinx.ext.autodoc import ModuleLevelDocumenter, ALL, Options, SUPPRESS
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util.docutils import LoggingReporter
@@ -55,6 +55,7 @@ def make_directive_bridge(env):
         show_inheritance = False,
         noindex = False,
         annotation = None,
+        novalue = False,
         synopsis = '',
         platform = '',
         deprecated = False,
@@ -2024,6 +2025,151 @@ def test_pyclass_for_ClassLevelDocumenter(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_pydata_for_DataDeclarationDocumenter(app):
+    app.env.ref_context['py:module'] = 'target.typed_vars'
+    actual = do_autodoc(app, 'datadecl', 'attr2')
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars',
+        '   :type: str',
+        '',
+        '   attr2',
+        '',
+    ]
+    options = {"annotation": SUPPRESS, "novalue": True}
+    actual = do_autodoc(app, 'datadecl', 'attr2', options)
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars',
+        '',
+        '   attr2',
+        '',
+    ]
+    options = {"annotation": "= some string", "novalue": True}
+    actual = do_autodoc(app, 'datadecl', 'attr2', options)
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars',
+        '   :annotation: = some string',
+        '',
+        '   attr2',
+        '',
+    ]
+    options = {"novalue": True}
+    actual = do_autodoc(app, 'datadecl', 'attr2', options)
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars',
+        '   :type: str',
+        '',
+        '   attr2',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_pydata_for_DataDocumenter(app):
+    app.env.ref_context['py:module'] = 'target.typed_vars'
+    actual = do_autodoc(app, 'data', 'attr1')
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr1',
+        '   :module: target.typed_vars',
+        '   :type: str',
+        '   :value: \'\'',
+        '',
+        '   attr1',
+        '',
+    ]
+    options = {"annotation": SUPPRESS, "novalue": True}
+    actual = do_autodoc(app, 'data', 'attr1', options)
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr1',
+        '   :module: target.typed_vars',
+        '',
+        '   attr1',
+        '',
+    ]
+    options = {"annotation": "= some string", "novalue": True}
+    actual = do_autodoc(app, 'data', 'attr1', options)
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr1',
+        '   :module: target.typed_vars',
+        '   :annotation: = some string',
+        '',
+        '   attr1',
+        '',
+    ]
+    options = {"novalue": True}
+    actual = do_autodoc(app, 'data', 'attr1', options)
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr1',
+        '   :module: target.typed_vars',
+        '   :type: str',
+        '',
+        '   attr1',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_pydata_for_DataDocumenter_py35(app):
+    app.env.ref_context['py:module'] = 'target.typed_vars_py35'
+    actual = do_autodoc(app, 'data', 'attr1')
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr1',
+        '   :module: target.typed_vars_py35',
+        '   :type: str',
+        '   :value: None',
+        '',
+        '   attr1',
+        '',
+    ]
+    options = {"annotation": SUPPRESS, "novalue": True}
+    actual = do_autodoc(app, 'data', 'attr2', options)
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars_py35',
+        '',
+        '   A list of strings.',
+        '',
+    ]
+    options = {"annotation": "= some integer", "novalue": True}
+    actual = do_autodoc(app, 'data', 'attr3', options)
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr3',
+        '   :module: target.typed_vars_py35',
+        '   :annotation: = some integer',
+        '',
+        '   An integer.',
+        '',
+    ]
+    options = {"novalue": True}
+    actual = do_autodoc(app, 'data', 'attr4', options)
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr4',
+        '   :module: target.typed_vars_py35',
+        '   :type: Dict[str, Union[bool, str]]',
+        '',
+        '   A dictionary whose values are a boolean or a string.',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('dummy', testroot='ext-autodoc')
 def test_autodoc(app, status, warning):
     app.builder.build_all()
@@ -2041,6 +2187,16 @@ def test_autodoc(app, status, warning):
 my_name
 
 alias of bug2437.autodoc_dummy_foo.Foo"""
+
+    assert content[17][0].astext() == 'target.typed_vars_py35.attr1: str = None'
+    assert content[17][1].astext() == 'attr1'
+    assert content[19][0].astext() == 'target.typed_vars_py35.attr2'
+    assert content[19][1].astext() == 'A list of strings.'
+    assert content[21][0].astext() == 'target.typed_vars_py35.attr3 = some integer'
+    assert content[21][1].astext() == 'An integer.'
+    assert content[23][0].astext() == 'target.typed_vars_py35.attr4: Dict[str, Union[bool, str]]'
+    assert content[23][1].astext() == 'A dictionary whose values are a boolean or a string.'
+
     assert warning.getvalue() == ''
 
 
