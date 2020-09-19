@@ -314,6 +314,8 @@ There is a `sphinx translation page`_ for Sphinx (master) documentation.
 4. Wait acceptance by transifex sphinx translation maintainers.
 5. (After acceptance) Translate on transifex.
 
+Detail is here: https://docs.transifex.com/getting-started-1/translators
+
 .. rubric:: Footnotes
 
 .. [1] See the `GNU gettext utilities
