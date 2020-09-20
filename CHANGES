@@ -10,6 +10,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.builders.latex.LaTeXBuilder.usepackages``
+* ``sphinx.builders.latex.LaTeXBuilder.usepackages_afger_hyperref``
+
 Features added
 --------------
 
@@ -17,6 +20,8 @@ Features added
   html_static_files
 * #8141: C: added a ``maxdepth`` option to :rst:dir:`c:alias` to insert
   nested declarations.
+* #8081: LaTeX: Allow to add LaTeX package via ``app.add_latex_package()`` until
+  just before writing .tex file
 
 Bugs fixed
 ----------
