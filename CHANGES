@@ -20,6 +20,7 @@ Bugs fixed
 * #8143: autodoc: AttributeError is raised when False value is passed to
   autodoc_default_options
 * #8192: napoleon: description is disappeared when it contains inline literals
+* #8172: napoleon: Potential of regex denial of service in google style docs
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 
