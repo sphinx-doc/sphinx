@@ -66,6 +66,10 @@ module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
                            ''', re.VERBOSE)
 
 
+py_builtins = [obj for obj in vars(builtins).values()
+               if inspect.isclass(obj)]
+
+
 def try_import(objname: str) -> Any:
     """Import a object or module using *name* and *currentmodule*.
     *name* should be a relative name from *currentmodule* or
@@ -178,7 +182,6 @@ class InheritanceGraph:
         traverse to. Multiple names can be specified separated by comma.
         """
         all_classes = {}
-        py_builtins = vars(builtins).values()
 
         def recurse(cls: Any) -> None:
             if not show_builtins and cls in py_builtins:
