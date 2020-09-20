@@ -13,14 +13,22 @@ Deprecated
 Features added
 --------------
 
+* #8100: html: Show a better error message for failures on copying
+  html_static_files
+* #8141: C: added a ``maxdepth`` option to :rst:dir:`c:alias` to insert
+  nested declarations.
+
 Bugs fixed
 ----------
 
 * #8085: i18n: Add support for having single text domain
 * #8143: autodoc: AttributeError is raised when False value is passed to
   autodoc_default_options
+* #8103: autodoc: functools.cached_property is not considered as a property
 * #8190: autodoc: parsing error is raised if some extension replaces docstring
   by string not ending with blank lines
+* #8192: napoleon: description is disappeared when it contains inline literals
+* #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 
@@ -44,6 +52,10 @@ Features added
 
 Bugs fixed
 ----------
+
+* #8188: C, add missing items to internal object types dictionary,
+  e.g., preventing intersphinx from resolving them.
+
 
 Testing
 --------

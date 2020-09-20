@@ -36,7 +36,7 @@ _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
 _single_colon_regex = re.compile(r'(?<!:):(?!:)')
 _xref_or_code_regex = re.compile(
     r'((?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)|'
-    r'(?:``.+``))')
+    r'(?:``.+?``))')
 _xref_regex = re.compile(
     r'(?:(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:)?`.+?`)'
 )
