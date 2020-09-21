@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
+
 import pytest
 
 from test_ext_autodoc import do_autodoc
@@ -71,5 +73,22 @@ def test_decorators(app):
         '',
         '.. py:class:: Quux(name=None, age=None)',
         '   :module: target.decorator',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_show_inheritance_for_subclass_of_generic_type(app):
+    options = {'show-inheritance': True}
+    actual = do_autodoc(app, 'class', 'target.classes.Quux', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Quux(iterable=(), /)',
+        '   :module: target.classes',
+        '',
+        '   Bases: :class:`List`\\ [:obj:`Union`\\ [:class:`int`, :class:`float`]]',
+        '',
+        '   A subclass of List[Union[int, float]]',
         '',
     ]

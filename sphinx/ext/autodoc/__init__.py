@@ -37,7 +37,7 @@ from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import (
     evaluate_signature, getdoc, object_description, safe_getattr, stringify_signature
 )
-from sphinx.util.typing import stringify as stringify_typehint
+from sphinx.util.typing import restify, stringify as stringify_typehint
 
 if False:
     # For type annotation
@@ -1574,13 +1574,16 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if not self.doc_as_attr and self.options.show_inheritance:
             sourcename = self.get_sourcename()
             self.add_line('', sourcename)
-            if hasattr(self.object, '__bases__') and len(self.object.__bases__):
-                bases = [':class:`%s`' % b.__name__
-                         if b.__module__ in ('__builtin__', 'builtins')
-                         else ':class:`%s.%s`' % (b.__module__, b.__qualname__)
-                         for b in self.object.__bases__]
-                self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
-                              sourcename)
+
+            if hasattr(self.object, '__orig_bases__') and len(self.object.__orig_bases__):
+                # A subclass of generic types
+                # refs: PEP-560 <https://www.python.org/dev/peps/pep-0560/>
+                bases = [restify(cls) for cls in self.object.__orig_bases__]
+                self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
+            elif hasattr(self.object, '__bases__') and len(self.object.__bases__):
+                # A normal class
+                bases = [restify(cls) for cls in self.object.__bases__]
+                self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         if encoding is not None:
