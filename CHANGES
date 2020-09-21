@@ -25,6 +25,7 @@ Bugs fixed
 * #8143: autodoc: AttributeError is raised when False value is passed to
   autodoc_default_options
 * #8103: autodoc: functools.cached_property is not considered as a property
+* #8219: autodoc: A signature of constructor of generic class is incorrect
 * #8192: napoleon: description is disappeared when it contains inline literals
 * #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
 * #8093: The highlight warning has wrong location in some builders (LaTeX,

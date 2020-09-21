@@ -1312,11 +1312,15 @@ class DecoratorDocumenter(FunctionDocumenter):
             return None
 
 
-# Types which have confusing metaclass signatures it would be best not to show.
-# These are listed by name, rather than storing the objects themselves, to avoid
-# needing to import the modules.
+# Types which have confusing metaclass signatures and superclass signatures it
+# would be best not to show.  These are listed by name, rather than storing the
+# objects themselves, to avoid needing to import the modules.
 _METACLASS_CALL_BLACKLIST = [
     'enum.EnumMeta.__call__',
+]
+
+_SUPERCLASS_NEW_BLACKLIST = [
+    'typing.Generic.__new__',
 ]
 
 
@@ -1388,6 +1392,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # Now we check if the 'obj' class has a '__new__' method
         new = get_user_defined_function_or_method(self.object, '__new__')
+
+        if new is not None:
+            if "{0.__module__}.{0.__qualname__}".format(new) in _SUPERCLASS_NEW_BLACKLIST:
+                new = None
+
         if new is not None:
             self.env.app.emit('autodoc-before-process-signature', new, True)
             try:
