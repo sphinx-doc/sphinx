@@ -1370,7 +1370,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             attr = self.get_attr(obj, attr, None)
             if not (inspect.ismethod(attr) or inspect.isfunction(attr)):
                 return None
-            # Unwrap the user defined function or method
+            # Unwrap the user-defined function or method
             # to avoid that the signature of a decorator
             # is obtained
             return inspect.unwrap(attr)
