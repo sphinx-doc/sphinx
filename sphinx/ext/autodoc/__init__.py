@@ -1380,7 +1380,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # First, let's see if it has an overloaded __call__ defined
         # in its metaclass
-        call =  get_user_defined_function_or_method(type(self.object), '__call__')
+        call = get_user_defined_function_or_method(type(self.object), '__call__')
 
         if call is not None:
             if "{0.__module__}.{0.__qualname__}".format(call) in _METACLASS_CALL_BLACKLIST:
