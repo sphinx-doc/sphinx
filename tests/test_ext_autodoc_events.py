@@ -28,7 +28,8 @@ def test_process_docstring(app):
         '.. py:function:: func()',
         '   :module: target.process_docstring',
         '',
-        '   my docstring'
+        '   my docstring',
+        '',
     ]
 
 

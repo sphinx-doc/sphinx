@@ -535,6 +535,11 @@ class Documenter:
                 self.env.app.emit('autodoc-process-docstring',
                                   self.objtype, self.fullname, self.object,
                                   self.options, docstringlines)
+
+                if docstringlines and docstringlines[-1] != '':
+                    # append a blank line to the end of the docstring
+                    docstringlines.append('')
+
             yield from docstringlines
 
     def get_sourcename(self) -> str:

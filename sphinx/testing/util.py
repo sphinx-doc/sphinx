@@ -21,7 +21,6 @@ from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
-from sphinx.builders.latex import LaTeXBuilder
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
@@ -141,7 +140,6 @@ class SphinxTestApp(application.Sphinx):
 
     def cleanup(self, doctrees: bool = False) -> None:
         ModuleAnalyzer.cache.clear()
-        LaTeXBuilder.usepackages = []
         locale.translators.clear()
         sys.path[:] = self._saved_path
         sys.modules.pop('autodoc_fodder', None)
