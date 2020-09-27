@@ -1851,7 +1851,7 @@ currently Ada_, CoffeeScript_, Erlang_, HTTP_, Lasso_, MATLAB_, PHP_, and Ruby_
 domains. Also available are domains for `Chapel`_, `Common Lisp`_, dqn_, Go_,
 Jinja_, Operation_, and Scala_.
 
-.. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
+.. _sphinx-contrib: https://github.com/sphinx-contrib
 
 .. _Ada: https://pypi.org/project/sphinxcontrib-adadomain/
 .. _Chapel: https://pypi.org/project/sphinxcontrib-chapeldomain/
