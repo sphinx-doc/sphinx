@@ -33,6 +33,7 @@ Bugs fixed
 * #8190: autodoc: parsing error is raised if some extension replaces docstring
   by string not ending with blank lines
 * #8192: napoleon: description is disappeared when it contains inline literals
+* #8172: napoleon: Potential of regex denial of service in google style docs
 * #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
