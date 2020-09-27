@@ -210,7 +210,7 @@ class CheckExternalLinksBuilder(Builder):
                 else:
                     return 'redirected', new_url, 0
 
-        def check() -> Tuple[str, str, int]:
+        def check(srcdir: str) -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
             if len(uri) == 0 or uri.startswith(('#', 'mailto:')):
                 return 'unchecked', '', 0
@@ -219,7 +219,7 @@ class CheckExternalLinksBuilder(Builder):
                     # non supported URI schemes (ex. ftp)
                     return 'unchecked', '', 0
                 else:
-                    if path.exists(path.join(self.srcdir, uri)):
+                    if path.exists(path.join(srcdir, uri)):
                         return 'working', '', 0
                     else:
                         for rex in self.to_ignore:
@@ -256,7 +256,8 @@ class CheckExternalLinksBuilder(Builder):
             uri, docname, lineno = self.wqueue.get()
             if uri is None:
                 break
-            status, info, code = check()
+            srcdir = path.dirname(self.env.doc2path(docname))
+            status, info, code = check(srcdir)
             self.rqueue.put((uri, docname, lineno, status, info, code))
 
     def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
