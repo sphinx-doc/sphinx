@@ -2897,8 +2897,25 @@ class DefinitionParser(BaseParser):
                         decl = self._parse_declarator(named=True, paramMode=outer,
                                                       typed=typed)
         elif outer == 'function':
-            declSpecs = self._parse_decl_specs(outer=outer)
-            decl = self._parse_declarator(named=True, paramMode=outer)
+            start_pos = self.pos
+            prev_errors = []
+            try:
+                declSpecs = self._parse_decl_specs(outer=outer)
+                decl = self._parse_declarator(named=True, paramMode=outer)
+            except DefinitionError as ex_typed:
+                desc = "If the function has a return type"
+                prev_errors.append((ex_typed, desc))
+                self.pos = start_pos
+                try:
+                    declSpecs = self._parse_decl_specs(outer=outer, typed=False)
+                    decl = self._parse_declarator(named=True, paramMode=outer,
+                                                  typed=False)
+                except DefinitionError as ex_untyped:
+                    self.pos = startPos
+                    desc = "If the function has no return type"
+                    prev_errors.append((ex_untyped, desc))
+                    header = "Error when parsing function declaration."
+                    raise self._make_multi_error(prev_errors, header) from ex_untyped
         else:
             paramMode = 'type'
             if outer == 'member':  # i.e., member
