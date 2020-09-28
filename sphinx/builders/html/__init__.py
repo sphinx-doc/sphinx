@@ -1197,6 +1197,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
         config.html_favicon = None  # type: ignore
 
+
 def validate_html_apple_touch_icon(app: Sphinx, config: Config) -> None:
     """Check html_apple_touch_icon setting."""
     if config.html_apple_touch_icon and \
