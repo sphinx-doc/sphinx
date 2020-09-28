@@ -276,6 +276,10 @@ in the future.
 
    The path to the HTML favicon in the static path, or ``''``.
 
+.. data:: apple_touch_icon
+
+   The path to the iOS home screen icon in the static path, or ``''``.
+
 .. data:: file_suffix
 
    The value of the builder's :attr:`~.SerializingHTMLBuilder.out_suffix`

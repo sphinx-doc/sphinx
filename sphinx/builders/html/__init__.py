@@ -447,7 +447,8 @@ class StandaloneHTMLBuilder(Builder):
 
         logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
         favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
-
+        apple_touch_icon = path.basename(self.config.html_apple_touch_icon) \
+            if self.config.html_apple_touch_icon else ''
         if not isinstance(self.config.html_use_opensearch, str):
             logger.warning(__('html_use_opensearch config value must now be a string'))
 
@@ -497,6 +498,7 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
+            'apple_touch_icon': apple_touch_icon,
             'html5_doctype': html5_ready and not self.config.html4_writer,
         }
         if self.theme:
@@ -783,6 +785,12 @@ class StandaloneHTMLBuilder(Builder):
             copy_asset(path.join(self.confdir, self.config.html_favicon),
                        path.join(self.outdir, '_static'))
 
+    def copy_html_apple_touch_icon(self) -> None:
+        if self.config.html_apple_touch_icon:
+            copy_asset(path.join(self.confdir,
+                                 self.config.html_apple_touch_icon),
+                       path.join(self.outdir, '_static'))
+
     def copy_static_files(self) -> None:
         try:
             with progress_message(__('copying static files... ')):
@@ -800,6 +808,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.copy_html_static_files(context)
                 self.copy_html_logo()
                 self.copy_html_favicon()
+                self.copy_html_apple_touch_icon()
         except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
 
@@ -1188,6 +1197,13 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
         config.html_favicon = None  # type: ignore
 
+def validate_html_apple_touch_icon(app: Sphinx, config: Config) -> None:
+    """Check html_apple_touch_icon setting."""
+    if config.html_apple_touch_icon and \
+       not path.isfile(path.join(app.confdir, config.html_apple_touch_icon)):
+        logger.warning(__('apple touch icon file %r does not exist'),
+                       config.html_apple_touch_icon)
+        config.html_apple_touch_icon = None  # type: ignore
 
 # for compatibility
 import sphinx.builders.dirhtml  # NOQA
@@ -1210,6 +1226,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_style', None, 'html', [str])
     app.add_config_value('html_logo', None, 'html', [str])
     app.add_config_value('html_favicon', None, 'html', [str])
+    app.add_config_value('html_apple_touch_icon', None, 'html', [str])
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
@@ -1250,6 +1267,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
+    app.connect('config-inited', validate_html_apple_touch_icon, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
 

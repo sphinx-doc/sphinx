@@ -148,6 +148,12 @@ html_theme = 'alabaster'
 #
 # html_favicon = None
 
+# The name of an image file (relative to this directory) to use as touch icon
+# for a home screen link in iOS. This file should be a PNG file (.png) being
+# 180x180 pixels large without transparency.
+#
+# html_apple_touch_icon = None
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".

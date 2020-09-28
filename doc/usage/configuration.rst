@@ -977,6 +977,15 @@ that use Sphinx's HTMLWriter class.
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
 
+.. confval:: html_apple_touch_icon
+
+   If given, this must be the name of an image file (path relative to the
+   :term:`configuration directory`). iOS uses it as the home screen icon when
+   the page is bookmarked to the screen. It should be a PNG of
+   180x180 pixels. Default: ``None``.
+
+   .. versionadded:: 3.3
+
 .. confval:: html_css_files
 
    A list of CSS files.  The entry must be a *filename* string or a tuple
