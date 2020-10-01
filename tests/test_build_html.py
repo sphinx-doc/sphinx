@@ -421,11 +421,10 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', parallel=2)
 def test_html_parallel(app):
     app.build()
+
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
