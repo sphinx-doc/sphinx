@@ -43,6 +43,8 @@ Bugs fixed
 Testing
 --------
 
+* #8257: Support parallel build in sphinx.testing
+
 Release 3.2.2 (in development)
 ==============================
 
