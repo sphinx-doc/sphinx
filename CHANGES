@@ -32,8 +32,10 @@ Bugs fixed
 * #8103: autodoc: functools.cached_property is not considered as a property
 * #8190: autodoc: parsing error is raised if some extension replaces docstring
   by string not ending with blank lines
+* #8142: autodoc: Wrong constructor signature for the class derived from
+  typing.Generic
 * #8192: napoleon: description is disappeared when it contains inline literals
-* #8172: napoleon: Potential of regex denial of service in google style docs
+* #8142: napoleon: Potential of regex denial of service in google style docs
 * #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
 * #8175: intersphinx: Potential of regex denial of service by broken inventory
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
