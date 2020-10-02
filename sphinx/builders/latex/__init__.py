@@ -517,7 +517,7 @@ def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
             config.latex_theme_options.pop(key)
 
 
-def install_pakcages_for_ja(app: Sphinx) -> None:
+def install_packages_for_ja(app: Sphinx) -> None:
     """Install packages for Japanese."""
     if app.config.language == 'ja' and app.config.latex_engine in ('platex', 'uplatex'):
         app.add_latex_package('pxjahyper', after_hyperref=True)
@@ -570,7 +570,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(LaTeXBuilder)
     app.connect('config-inited', validate_config_values, priority=800)
     app.connect('config-inited', validate_latex_theme_options, priority=800)
-    app.connect('builder-inited', install_pakcages_for_ja)
+    app.connect('builder-inited', install_packages_for_ja)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
