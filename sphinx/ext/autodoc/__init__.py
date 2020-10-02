@@ -1325,6 +1325,12 @@ _METACLASS_CALL_BLACKLIST = [
 ]
 
 
+# Types whose __new__ signature is a pass-thru.
+_CLASS_NEW_BLACKLIST = [
+    'typing.Generic.__new__',
+]
+
+
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for classes.
@@ -1393,6 +1399,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # Now we check if the 'obj' class has a '__new__' method
         new = get_user_defined_function_or_method(self.object, '__new__')
+
+        if new is not None:
+            if "{0.__module__}.{0.__qualname__}".format(new) in _CLASS_NEW_BLACKLIST:
+                new = None
+
         if new is not None:
             self.env.app.emit('autodoc-before-process-signature', new, True)
             try:
