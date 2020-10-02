@@ -1322,6 +1322,7 @@ class DecoratorDocumenter(FunctionDocumenter):
 # needing to import the modules.
 _METACLASS_CALL_BLACKLIST = [
     'enum.EnumMeta.__call__',
+    'hypothesis.database._EDMeta.__call__',
 ]
 
 
