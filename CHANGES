@@ -12,6 +12,8 @@ Deprecated
 
 * ``sphinx.builders.latex.LaTeXBuilder.usepackages``
 * ``sphinx.builders.latex.LaTeXBuilder.usepackages_afger_hyperref``
+* ``sphinx.ext.autodoc.SingledispatchFunctionDocumenter``
+* ``sphinx.ext.autodoc.SingledispatchMethodDocumenter``
 
 Features added
 --------------
