@@ -665,7 +665,7 @@ __ http://pygments.org/docs/lexers
    .. note::
 
       If you want to select only ``[second-section]`` of ini file like the
-      following, you can use ``:start-at: [second-section]`` and 
+      following, you can use ``:start-at: [second-section]`` and
       ``:end-before: [third-section]``:
 
       .. code-block:: ini
@@ -692,7 +692,7 @@ __ http://pygments.org/docs/lexers
              # [initialize]
              app.start(":8000")
              # [initialize]
-     
+
 
    When lines have been selected in any of the ways described above, the line
    numbers in ``emphasize-lines`` refer to those selected lines, counted

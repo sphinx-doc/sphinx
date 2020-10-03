@@ -171,7 +171,7 @@ Bugs fixed
   contains a hyperlink target
 * #7469: autosummary: "Module attributes" header is not translatable
 * #7940: apidoc: An extra newline is generated at the end of the rst file if a
-  module has submodules 
+  module has submodules
 * #4258: napoleon: decorated special methods are not shown
 * #7799: napoleon: parameters are not escaped for combined params in numpydoc
 * #7780: napoleon: multiple paramaters declaration in numpydoc was wrongly
@@ -338,7 +338,7 @@ Features added
 * #7543: html theme: Add top and bottom margins to tables
 * #7695: html theme: Add viewport meta tag for basic theme
 * #7721: html theme: classic: default codetextcolor/codebgcolor doesn't override
-  Pygments 
+  Pygments
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
 * #7294: C++, parse expressions with user-defined literals.
