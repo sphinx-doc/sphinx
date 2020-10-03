@@ -137,6 +137,27 @@ def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
             return obj
 
 
+def getslots(obj: Any) -> Optional[Dict]:
+    """Get __slots__ attribute of the class as dict.
+
+    Return None if gienv *obj* does not have __slots__.
+    """
+    if not inspect.isclass(obj):
+        raise TypeError
+
+    __slots__ = safe_getattr(obj, '__slots__', None)
+    if __slots__ is None:
+        return None
+    elif isinstance(__slots__, dict):
+        return __slots__
+    elif isinstance(__slots__, str):
+        return {__slots__: None}
+    elif isinstance(__slots__, (list, tuple)):
+        return {e: None for e in __slots__}
+    else:
+        raise ValueError
+
+
 def isenumclass(x: Any) -> bool:
     """Check if the object is subclass of enum."""
     return inspect.isclass(x) and issubclass(x, enum.Enum)
