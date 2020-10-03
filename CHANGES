@@ -41,6 +41,7 @@ Bugs fixed
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 * #8239: Failed to refer a token in productionlist if it is indented
+* #8268: linkcheck: Report HTTP errors when ``linkcheck_anchors`` is ``True``
 
 Testing
 --------
