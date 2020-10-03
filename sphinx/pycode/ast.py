@@ -58,17 +58,19 @@ def parse(code: str, mode: str = 'exec') -> "ast.AST":
         return ast.parse(code, mode=mode)
 
 
-def unparse(node: Optional[ast.AST]) -> Optional[str]:
+def unparse(node: Optional[ast.AST], code: str = '') -> Optional[str]:
     """Unparse an AST to string."""
     if node is None:
         return None
     elif isinstance(node, str):
         return node
-    return _UnparseVisitor().visit(node)
+    return _UnparseVisitor(code).visit(node)
 
 
 # a greatly cut-down version of `ast._Unparser`
 class _UnparseVisitor(ast.NodeVisitor):
+    def __init__(self, code: str = '') -> None:
+        self.code = code
 
     def _visit_op(self, node: ast.AST) -> str:
         return OPERATORS[node.__class__]
@@ -195,6 +197,11 @@ class _UnparseVisitor(ast.NodeVisitor):
         def visit_Constant(self, node: ast.Constant) -> str:
             if node.value is Ellipsis:
                 return "..."
+            elif isinstance(node.value, (int, float, complex)):
+                if self.code and sys.version_info > (3, 8):
+                    return ast.get_source_segment(self.code, node)
+                else:
+                    return repr(node.value)
             else:
                 return repr(node.value)
 
