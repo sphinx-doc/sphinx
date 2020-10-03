@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
-_google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.*[^\s]+)\s*\)')
+_google_typed_arg_regex = re.compile(r'(.+?)\(\s*(.*[^\s]+)\s*\)')
 _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
 _single_colon_regex = re.compile(r'(?<!:):(?!:)')
 _xref_or_code_regex = re.compile(
@@ -250,7 +250,7 @@ class GoogleDocstring:
         if parse_type:
             match = _google_typed_arg_regex.match(before)
             if match:
-                _name = match.group(1)
+                _name = match.group(1).strip()
                 _type = match.group(2)
 
         _name = self._escape_args_and_kwargs(_name)

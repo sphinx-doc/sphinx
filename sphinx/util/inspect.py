@@ -304,6 +304,11 @@ def iscoroutinefunction(obj: Any) -> bool:
 
 def isproperty(obj: Any) -> bool:
     """Check if the object is property."""
+    if sys.version_info > (3, 8):
+        from functools import cached_property  # cached_property is available since py3.8
+        if isinstance(obj, cached_property):
+            return True
+
     return isinstance(obj, property)
 
 

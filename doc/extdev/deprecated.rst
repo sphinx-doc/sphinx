@@ -56,6 +56,16 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.utils.smartyquotes``
 
+   * - ``sphinx.builders.latex.LaTeXBuilder.usepackages``
+     - 3.3
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.latex.LaTeXBuilder.usepackages_afger_hyperref``
+     - 3.3
+     - 5.0
+     - N/A
+
    * - ``sphinx.ext.autodoc.members_set_option()``
      - 3.2
      - 5.0

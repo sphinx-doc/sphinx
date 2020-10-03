@@ -23,6 +23,7 @@ from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTING
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import Config, ENUM
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
@@ -126,8 +127,6 @@ class LaTeXBuilder(Builder):
         self.docnames = []          # type: Iterable[str]
         self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
         self.themes = ThemeFactory(self.app)
-        self.usepackages = self.app.registry.latex_packages
-        self.usepackages_after_hyperref = self.app.registry.latex_packages_after_hyperref
         texescape.init()
 
         self.init_context()
@@ -177,10 +176,6 @@ class LaTeXBuilder(Builder):
             key = (self.config.latex_engine, self.config.language[:2])
             self.context.update(ADDITIONAL_SETTINGS.get(key, {}))
 
-        # Apply extension settings to context
-        self.context['packages'] = self.usepackages
-        self.context['packages_after_hyperref'] = self.usepackages_after_hyperref
-
         # Apply user settings to context
         self.context.update(self.config.latex_elements)
         self.context['release'] = self.config.release
@@ -200,6 +195,13 @@ class LaTeXBuilder(Builder):
         if self.config.release:
             # Show the release label only if release value exists
             self.context.setdefault('releasename', _('Release'))
+
+    def update_context(self) -> None:
+        """Update template variables for .tex file just before writing."""
+        # Apply extension settings to context
+        registry = self.app.registry
+        self.context['packages'] = registry.latex_packages
+        self.context['packages_after_hyperref'] = registry.latex_packages_after_hyperref
 
     def init_babel(self) -> None:
         self.babel = ExtBabel(self.config.language, not self.context['babel'])
@@ -287,6 +289,7 @@ class LaTeXBuilder(Builder):
                 doctree['tocdepth'] = tocdepth
                 self.post_process_images(doctree)
                 self.update_doc_context(title, author, theme)
+                self.update_context()
 
             with progress_message(__("writing")):
                 docsettings._author = author
@@ -441,6 +444,18 @@ class LaTeXBuilder(Builder):
         filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
+    @property
+    def usepackages(self) -> List[Tuple[str, str]]:
+        warnings.warn('LaTeXBuilder.usepackages is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.app.registry.latex_packages
+
+    @property
+    def usepackages_after_hyperref(self) -> List[Tuple[str, str]]:
+        warnings.warn('LaTeXBuilder.usepackages_after_hyperref is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.app.registry.latex_packages_after_hyperref
+
 
 def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
@@ -460,7 +475,7 @@ def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
 
 def install_pakcages_for_ja(app: Sphinx) -> None:
     """Install packages for Japanese."""
-    if app.config.language == 'ja':
+    if app.config.language == 'ja' and app.config.latex_engine in ('platex', 'uplatex'):
         app.add_latex_package('pxjahyper', after_hyperref=True)
 
 

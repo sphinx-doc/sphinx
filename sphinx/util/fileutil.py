@@ -10,7 +10,7 @@
 
 import os
 import posixpath
-from typing import Dict
+from typing import Callable, Dict
 from typing import TYPE_CHECKING
 
 from docutils.utils import relative_path
@@ -56,7 +56,8 @@ def copy_asset_file(source: str, destination: str,
 
 
 def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda path: False,
-               context: Dict = None, renderer: "BaseRenderer" = None) -> None:
+               context: Dict = None, renderer: "BaseRenderer" = None,
+               onerror: Callable[[str, Exception], None] = None) -> None:
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and
@@ -67,6 +68,7 @@ def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda pat
     :param excluded: The matcher to determine the given path should be copied or not
     :param context: The template variables.  If not given, template files are simply copied
     :param renderer: The template engine.  If not given, SphinxRenderer is used by default
+    :param onerror: The error handler.
     """
     if not os.path.exists(source):
         return
@@ -90,6 +92,12 @@ def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda pat
 
         for filename in files:
             if not excluded(posixpath.join(reldir, filename)):
-                copy_asset_file(posixpath.join(root, filename),
-                                posixpath.join(destination, reldir),
-                                context, renderer)
+                try:
+                    copy_asset_file(posixpath.join(root, filename),
+                                    posixpath.join(destination, reldir),
+                                    context, renderer)
+                except Exception as exc:
+                    if onerror:
+                        onerror(posixpath.join(root, filename), exc)
+                    else:
+                        raise

@@ -55,8 +55,18 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.builders.latex.LaTeXBuilder.usepackages``
+* ``sphinx.builders.latex.LaTeXBuilder.usepackages_afger_hyperref``
+
 Features added
 --------------
+
+* #8100: html: Show a better error message for failures on copying
+  html_static_files
+* #8141: C: added a ``maxdepth`` option to :rst:dir:`c:alias` to insert
+  nested declarations.
+* #8081: LaTeX: Allow to add LaTeX package via ``app.add_latex_package()`` until
+  just before writing .tex file
 
 Bugs fixed
 ----------
@@ -64,12 +74,23 @@ Bugs fixed
 * #8085: i18n: Add support for having single text domain
 * #8143: autodoc: AttributeError is raised when False value is passed to
   autodoc_default_options
+* #8103: autodoc: functools.cached_property is not considered as a property
+* #8190: autodoc: parsing error is raised if some extension replaces docstring
+  by string not ending with blank lines
+* #8142: autodoc: Wrong constructor signature for the class derived from
+  typing.Generic
 * #8192: napoleon: description is disappeared when it contains inline literals
+* #8142: napoleon: Potential of regex denial of service in google style docs
+* #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
+* #8175: intersphinx: Potential of regex denial of service by broken inventory
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
+* #8239: Failed to refer a token in productionlist if it is indented
 
 Testing
 --------
+
+* #8257: Support parallel build in sphinx.testing
 
 Release 3.2.2 (in development)
 ==============================
