@@ -4360,6 +4360,11 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print("candId:", candId)
             for symbol in withDecl:
+                # but all existing must be functions as well,
+                # otherwise we declare it to be a duplicate
+                if symbol.declaration.objectType != 'function':
+                    handleDuplicateDeclaration(symbol, candSymbol)
+                    # (not reachable)
                 oldId = symbol.declaration.get_newest_id()
                 if Symbol.debug_lookup:
                     Symbol.debug_print("oldId: ", oldId)
