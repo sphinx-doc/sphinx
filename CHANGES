@@ -19,6 +19,8 @@ Bugs fixed
 * #8188: C, add missing items to internal object types dictionary,
   e.g., preventing intersphinx from resolving them.
 * C, fix anon objects in intersphinx.
+* #8270, C++, properly reject functions as duplicate declarations if a
+  non-function declaration of the same name already exists.
 
 
 Testing
