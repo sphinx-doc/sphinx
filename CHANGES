@@ -22,6 +22,8 @@ Features added
   nested declarations.
 * #8081: LaTeX: Allow to add LaTeX package via ``app.add_latex_package()`` until
   just before writing .tex file
+* #7996: manpage: Add :confval:`man_make_section_directory` to make a section
+  directory on build man page
 
 Bugs fixed
 ----------
