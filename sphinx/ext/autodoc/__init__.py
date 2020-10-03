@@ -1213,7 +1213,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         try:
             self.env.app.emit('autodoc-before-process-signature', self.object, False)
-            sig = inspect.signature(self.object, follow_wrapped=True)
+            sig = inspect.signature(self.object, follow_wrapped=True,
+                                    type_aliases=self.env.config.autodoc_type_aliases)
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
             logger.warning(__("Failed to get a function signature for %s: %s"),
@@ -1262,7 +1263,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if overloaded:
             __globals__ = safe_getattr(self.object, '__globals__', {})
             for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
-                overload = evaluate_signature(overload, __globals__)
+                overload = evaluate_signature(overload, __globals__,
+                                              self.env.config.autodoc_type_aliases)
+
                 sig = stringify_signature(overload, **kwargs)
                 sigs.append(sig)
 
@@ -1271,7 +1274,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
         try:
-            sig = inspect.signature(func)
+            sig = inspect.signature(func, type_aliases=self.env.config.autodoc_type_aliases)
         except TypeError as exc:
             logger.warning(__("Failed to get a function signature for %s: %s"),
                            self.fullname, exc)
@@ -1392,7 +1395,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if call is not None:
             self.env.app.emit('autodoc-before-process-signature', call, True)
             try:
-                sig = inspect.signature(call, bound_method=True)
+                sig = inspect.signature(call, bound_method=True,
+                                        type_aliases=self.env.config.autodoc_type_aliases)
                 return type(self.object), '__call__', sig
             except ValueError:
                 pass
@@ -1407,7 +1411,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if new is not None:
             self.env.app.emit('autodoc-before-process-signature', new, True)
             try:
-                sig = inspect.signature(new, bound_method=True)
+                sig = inspect.signature(new, bound_method=True,
+                                        type_aliases=self.env.config.autodoc_type_aliases)
                 return self.object, '__new__', sig
             except ValueError:
                 pass
@@ -1417,7 +1422,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if init is not None:
             self.env.app.emit('autodoc-before-process-signature', init, True)
             try:
-                sig = inspect.signature(init, bound_method=True)
+                sig = inspect.signature(init, bound_method=True,
+                                        type_aliases=self.env.config.autodoc_type_aliases)
                 return self.object, '__init__', sig
             except ValueError:
                 pass
@@ -1428,7 +1434,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # the signature from, so just pass the object itself to our hook.
         self.env.app.emit('autodoc-before-process-signature', self.object, False)
         try:
-            sig = inspect.signature(self.object, bound_method=False)
+            sig = inspect.signature(self.object, bound_method=False,
+                                    type_aliases=self.env.config.autodoc_type_aliases)
             return None, None, sig
         except ValueError:
             pass
@@ -1475,7 +1482,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             method = safe_getattr(self._signature_class, self._signature_method_name, None)
             __globals__ = safe_getattr(method, '__globals__', {})
             for overload in self.analyzer.overloads.get(qualname):
-                overload = evaluate_signature(overload, __globals__)
+                overload = evaluate_signature(overload, __globals__,
+                                              self.env.config.autodoc_type_aliases)
 
                 parameters = list(overload.parameters.values())
                 overload = overload.replace(parameters=parameters[1:],
@@ -1820,11 +1828,13 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             else:
                 if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
                     self.env.app.emit('autodoc-before-process-signature', self.object, False)
-                    sig = inspect.signature(self.object, bound_method=False)
+                    sig = inspect.signature(self.object, bound_method=False,
+                                            type_aliases=self.env.config.autodoc_type_aliases)
                 else:
                     self.env.app.emit('autodoc-before-process-signature', self.object, True)
                     sig = inspect.signature(self.object, bound_method=True,
-                                            follow_wrapped=True)
+                                            follow_wrapped=True,
+                                            type_aliases=self.env.config.autodoc_type_aliases)
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
             logger.warning(__("Failed to get a method signature for %s: %s"),
@@ -1884,7 +1894,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if overloaded:
             __globals__ = safe_getattr(self.object, '__globals__', {})
             for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
-                overload = evaluate_signature(overload, __globals__)
+                overload = evaluate_signature(overload, __globals__,
+                                              self.env.config.autodoc_type_aliases)
+
                 if not inspect.isstaticmethod(self.object, cls=self.parent,
                                               name=self.object_name):
                     parameters = list(overload.parameters.values())
@@ -1897,7 +1909,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
         try:
-            sig = inspect.signature(func)
+            sig = inspect.signature(func, type_aliases=self.env.config.autodoc_type_aliases)
         except TypeError as exc:
             logger.warning(__("Failed to get a method signature for %s: %s"),
                            self.fullname, exc)
@@ -2237,6 +2249,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_mock_imports', [], True)
     app.add_config_value('autodoc_typehints', "signature", True,
                          ENUM("signature", "description", "none"))
+    app.add_config_value('autodoc_type_aliases', {}, True)
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
     app.add_event('autodoc-before-process-signature')

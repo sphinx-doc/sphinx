@@ -63,7 +63,11 @@ def is_system_TypeVar(typ: Any) -> bool:
 def stringify(annotation: Any) -> str:
     """Stringify type annotation object."""
     if isinstance(annotation, str):
-        return annotation
+        if annotation.startswith("'") and annotation.endswith("'"):
+            # might be a double Forward-ref'ed type.  Go unquoting.
+            return annotation[1:-2]
+        else:
+            return annotation
     elif isinstance(annotation, TypeVar):  # type: ignore
         return annotation.__name__
     elif not annotation:
