@@ -49,6 +49,7 @@ Bugs fixed
   singlehtml and so on)
 * #8239: Failed to refer a token in productionlist if it is indented
 * #8268: linkcheck: Report HTTP errors when ``linkcheck_anchors`` is ``True``
+* #8245: linkcheck: take source directory into account for local files
 * #6914: figure numbers are unexpectedly assigned to uncaptioned items
 
 Testing
