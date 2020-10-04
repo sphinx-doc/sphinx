@@ -35,6 +35,7 @@ Bugs fixed
 * #8142: autodoc: Wrong constructor signature for the class derived from
   typing.Generic
 * #8157: autodoc: TypeError is raised when annotation has invalid __args__
+* #7964: autodoc: Tuple in default value is wrongly rendered
 * #8192: napoleon: description is disappeared when it contains inline literals
 * #8142: napoleon: Potential of regex denial of service in google style docs
 * #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
