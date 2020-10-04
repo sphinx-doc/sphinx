@@ -1736,7 +1736,8 @@ class GenericAliasDocumenter(DataDocumenter):
         return inspect.isgenericalias(member)
 
     def add_directive_header(self, sig: str) -> None:
-        self.options.annotation = SUPPRESS  # type: ignore
+        self.options = Options(self.options)
+        self.options['annotation'] = SUPPRESS
         super().add_directive_header(sig)
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
@@ -1760,7 +1761,8 @@ class TypeVarDocumenter(DataDocumenter):
         return isinstance(member, TypeVar) and isattr  # type: ignore
 
     def add_directive_header(self, sig: str) -> None:
-        self.options.annotation = SUPPRESS  # type: ignore
+        self.options = Options(self.options)
+        self.options['annotation'] = SUPPRESS
         super().add_directive_header(sig)
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
