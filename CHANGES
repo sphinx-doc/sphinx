@@ -27,6 +27,7 @@ Bugs fixed
 ----------
 
 * #8085: i18n: Add support for having single text domain
+* #6640: i18n: Failed to override system message translation
 * #8143: autodoc: AttributeError is raised when False value is passed to
   autodoc_default_options
 * #8103: autodoc: functools.cached_property is not considered as a property
