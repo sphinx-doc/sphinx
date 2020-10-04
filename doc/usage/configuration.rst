@@ -2525,6 +2525,23 @@ Options for the linkcheck builder
 
    .. versionadded:: 2.3
 
+.. confval:: linkcheck_rate_limit_timeout
+
+   The ``linkcheck`` builder may issue a large number of requests to the same
+   site over a short period of time. This setting controls the builder behavior
+   when servers indicate that requests are rate-limited.
+
+   If a server indicates when to retry (using the `Retry-After`_ header),
+   ``linkcheck`` always follows the server indication.
+
+   Otherwise, ``linkcheck`` waits for a minute before to retry and keeps
+   doubling the wait time between attempts until it succeeds or exceeds the
+   ``linkcheck_rate_limit_timeout``. By default, the timeout is 5 minutes.
+
+   .. _Retry-After: https://tools.ietf.org/html/rfc7231#section-7.1.3
+
+   .. versionadded:: 3.4
+
 
 Options for the XML builder
 ---------------------------
