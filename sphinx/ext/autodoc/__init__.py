@@ -1302,6 +1302,11 @@ class SingledispatchFunctionDocumenter(FunctionDocumenter):
     Retained for backwards compatibility, now does the same as the FunctionDocumenter
     """
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn("%s is deprecated." % self.__class__.__name__,
+                      RemovedInSphinx50Warning, stacklevel=2)
+        super().__init__(*args, **kwargs)
+
 
 class DecoratorDocumenter(FunctionDocumenter):
     """
@@ -1935,6 +1940,11 @@ class SingledispatchMethodDocumenter(MethodDocumenter):
 
     Retained for backwards compatibility, now does the same as the MethodDocumenter
     """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn("%s is deprecated." % self.__class__.__name__,
+                      RemovedInSphinx50Warning, stacklevel=2)
+        super().__init__(*args, **kwargs)
 
 
 class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
