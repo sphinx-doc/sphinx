@@ -611,14 +611,14 @@ class Sphinx:
         details, see `the Docutils docs
         <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_ .
 
-        For example, the (already existing) :rst:dir:`literalinclude` directive
-        would be added like this:
+        For example, a custom directive named ``my-directive`` would be added
+        like this:
 
         .. code-block:: python
 
            from docutils.parsers.rst import Directive, directives
 
-           class LiteralIncludeDirective(Directive):
+           class MyDirective(Directive):
                has_content = True
                required_arguments = 1
                optional_arguments = 0
@@ -631,7 +631,8 @@ class Sphinx:
                def run(self):
                    ...
 
-           add_directive('literalinclude', LiteralIncludeDirective)
+           def setup(app):
+               add_directive('my-directive', MyDirective)
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
