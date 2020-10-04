@@ -2003,6 +2003,22 @@ def test_overload(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload2(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.overload2', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload2',
+        '',
+        '',
+        '.. py:class:: Baz(x: int, y: int)',
+        '              Baz(x: str, y: str)',
+        '   :module: target.overload2',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_pymodule_for_ModuleLevelDocumenter(app):
     app.env.ref_context['py:module'] = 'target.classes'
     actual = do_autodoc(app, 'class', 'Foo')
