@@ -120,7 +120,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_config_value('man_pages', default_man_pages, None)
     app.add_config_value('man_show_urls', False, None)
-    app.add_config_value('man_make_section_directory', False, None)
+    app.add_config_value('man_make_section_directory', True, None)
 
     return {
         'version': 'builtin',
