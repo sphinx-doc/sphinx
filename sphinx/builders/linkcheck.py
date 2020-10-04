@@ -166,6 +166,7 @@ class CheckExternalLinksBuilder(Builder):
                     # Read the whole document and see if #anchor exists
                     response = requests.get(req_url, stream=True, config=self.app.config,
                                             auth=auth_info, **kwargs)
+                    response.raise_for_status()
                     found = check_anchor(response, unquote(anchor))
 
                     if not found:
