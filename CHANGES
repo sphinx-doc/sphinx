@@ -12,6 +12,8 @@ Deprecated
 
 * ``sphinx.builders.latex.LaTeXBuilder.usepackages``
 * ``sphinx.builders.latex.LaTeXBuilder.usepackages_afger_hyperref``
+* ``sphinx.ext.autodoc.SingledispatchFunctionDocumenter``
+* ``sphinx.ext.autodoc.SingledispatchMethodDocumenter``
 
 Features added
 --------------
@@ -22,11 +24,14 @@ Features added
   nested declarations.
 * #8081: LaTeX: Allow to add LaTeX package via ``app.add_latex_package()`` until
   just before writing .tex file
+* #7996: manpage: Add :confval:`man_make_section_directory` to make a section
+  directory on build man page
 
 Bugs fixed
 ----------
 
 * #8085: i18n: Add support for having single text domain
+* #6640: i18n: Failed to override system message translation
 * #8143: autodoc: AttributeError is raised when False value is passed to
   autodoc_default_options
 * #8103: autodoc: functools.cached_property is not considered as a property
@@ -34,15 +39,22 @@ Bugs fixed
   by string not ending with blank lines
 * #8142: autodoc: Wrong constructor signature for the class derived from
   typing.Generic
+* #8157: autodoc: TypeError is raised when annotation has invalid __args__
+* #7964: autodoc: Tuple in default value is wrongly rendered
 * #8200: autodoc: type aliases break type formatting of autoattribute
 * #8192: napoleon: description is disappeared when it contains inline literals
 * #8142: napoleon: Potential of regex denial of service in google style docs
 * #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
 * #8175: intersphinx: Potential of regex denial of service by broken inventory
+* #8277: sphinx-build: missing and redundant spacing (and etc) for console
+  output on building
+* #7973: imgconverter: Check availability of imagemagick many times
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 * #8239: Failed to refer a token in productionlist if it is indented
 * #8268: linkcheck: Report HTTP errors when ``linkcheck_anchors`` is ``True``
+* #8245: linkcheck: take source directory into account for local files
+* #6914: figure numbers are unexpectedly assigned to uncaptioned items
 
 Testing
 --------
