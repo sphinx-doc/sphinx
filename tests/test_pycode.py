@@ -26,7 +26,7 @@ def test_ModuleAnalyzer_get_module_source():
         ModuleAnalyzer.get_module_source('builtins')
     with pytest.raises(PycodeError):
         ModuleAnalyzer.get_module_source('itertools')
-        
+
 
 def test_ModuleAnalyzer_for_string():
     analyzer = ModuleAnalyzer.for_string('print("Hello world")', 'module_name')
