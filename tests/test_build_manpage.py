@@ -30,6 +30,13 @@ def test_all(app, status, warning):
     assert 'Footnotes' not in content
 
 
+@pytest.mark.sphinx('man', testroot='basic',
+                    confoverrides={'man_make_section_directory': True})
+def test_man_make_section_directory(app, status, warning):
+    app.build()
+    assert (app.outdir / '1' / 'python.1').exists()
+
+
 @pytest.mark.sphinx('man', testroot='directive-code')
 def test_captioned_code_block(app, status, warning):
     app.builder.build_all()
