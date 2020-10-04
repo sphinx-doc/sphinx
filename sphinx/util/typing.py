@@ -109,7 +109,10 @@ def _stringify_py37(annotation: Any) -> str:
         return repr(annotation)
 
     if getattr(annotation, '__args__', None):
-        if qualname == 'Union':
+        if not isinstance(annotation.__args__, (list, tuple)):
+            # broken __args__ found
+            pass
+        elif qualname == 'Union':
             if len(annotation.__args__) > 1 and annotation.__args__[-1] is NoneType:
                 if len(annotation.__args__) > 2:
                     args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
