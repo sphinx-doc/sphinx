@@ -614,7 +614,8 @@ class GoogleDocstring:
                         except TypeError:
                             self._annotations = {}
                         except KeyError:
-                            # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
+                            # a broken class found
+                            # (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
                             self._annotations = {}
                         except AttributeError:
                             # AttributeError is raised on 3.5.2 (fixed by 3.5.3)
