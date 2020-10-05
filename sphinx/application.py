@@ -623,14 +623,14 @@ class Sphinx:
         details, see `the Docutils docs
         <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_ .
 
-        For example, the (already existing) :rst:dir:`literalinclude` directive
-        would be added like this:
+        For example, a custom directive named ``my-directive`` would be added
+        like this:
 
         .. code-block:: python
 
            from docutils.parsers.rst import Directive, directives
 
-           class LiteralIncludeDirective(Directive):
+           class MyDirective(Directive):
                has_content = True
                required_arguments = 1
                optional_arguments = 0
@@ -643,7 +643,8 @@ class Sphinx:
                def run(self):
                    ...
 
-           add_directive('literalinclude', LiteralIncludeDirective)
+           def setup(app):
+               add_directive('my-directive', MyDirective)
 
         If *override* is True, the given *cls* is forcedly installed even if
         a directive named as *name* is already installed.
