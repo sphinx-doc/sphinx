@@ -26,8 +26,8 @@ Features added
   just before writing .tex file
 * #7996: manpage: Add :confval:`man_make_section_directory` to make a section
   directory on build man page
-* #8289: epub: Allow to suppress "duplicated ToC entry found" warnings from epub builder
-  using :confval:`suppress_warnings`.
+* #8289: epub: Allow to suppress "duplicated ToC entry found" warnings from epub
+  builder using :confval:`suppress_warnings`.
 
 Bugs fixed
 ----------
