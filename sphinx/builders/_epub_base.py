@@ -208,7 +208,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         appeared = set()  # type: Set[str]
         for node in nodes:
             if node['refuri'] in appeared:
-                logger.warning(__('duplicated ToC entry found: %s'), node['refuri'])
+                logger.warning(
+                    __('duplicated ToC entry found: %s'),
+                    node['refuri'],
+                    type="epub",
+                    subtype="duplicated_toc_entry",
+                )
             else:
                 appeared.add(node['refuri'])
 
