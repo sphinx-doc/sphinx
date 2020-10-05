@@ -22,6 +22,7 @@ from typing import Any, Callable, Dict, IO, List, Optional, Tuple, Union
 
 from docutils import nodes
 from docutils.nodes import Element, TextElement
+from docutils.parsers import Parser
 from docutils.parsers.rst import Directive, roles
 from docutils.transforms import Transform
 from pygments.lexer import Lexer
@@ -1118,7 +1119,7 @@ class Sphinx:
         """
         self.registry.add_source_suffix(suffix, filetype, override=override)
 
-    def add_source_parser(self, *args: Any, **kwargs: Any) -> None:
+    def add_source_parser(self, parser: "Type[Parser]", override: bool = False) -> None:
         """Register a parser class.
 
         If *override* is True, the given *parser* is forcedly installed even if
@@ -1131,7 +1132,7 @@ class Sphinx:
         .. versionchanged:: 1.8
            Add *override* keyword.
         """
-        self.registry.add_source_parser(*args, **kwargs)
+        self.registry.add_source_parser(parser, override=override)
 
     def add_env_collector(self, collector: "Type[EnvironmentCollector]") -> None:
         """Register an environment collector class.
