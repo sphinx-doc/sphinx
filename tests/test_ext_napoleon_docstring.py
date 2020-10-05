@@ -45,6 +45,18 @@ class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
         return super().__new__(cls, attr1, attr2)
 
 
+class PEP526Class:
+    """Sample class with PEP 526 annotations
+
+    Attributes:
+        attr1: Attr1 description.
+        attr2: Attr2 description.
+    """
+
+    attr1: int
+    attr2: str
+
+
 class BaseDocstringTest(TestCase):
     pass
 
@@ -1089,6 +1101,30 @@ Do as you please
 
 :keyword gotham_is_yours: shall interfere.
 :kwtype gotham_is_yours: None
+"""
+        self.assertEqual(expected, actual)
+    
+    def test_pep_526_annotations(self):
+        config = Config(
+            napoleon_google_attr_annotations=True
+        )
+        actual = str(GoogleDocstring(cleandoc(PEP526Class.__doc__), config, app=None, what="class",
+                                     obj=PEP526Class))
+        print(actual)
+        expected = """\
+Sample class with PEP 526 annotations
+
+.. attribute:: attr1
+
+   Attr1 description.
+
+   :type: int
+
+.. attribute:: attr2
+
+   Attr2 description.
+
+   :type: str
 """
         self.assertEqual(expected, actual)
 

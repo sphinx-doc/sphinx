@@ -14,13 +14,14 @@ import collections
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple, Union, get_type_hints
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.inspect import safe_getattr, stringify_annotation
 
 if False:
     # For type annotation
@@ -600,6 +601,26 @@ class GoogleDocstring:
     def _parse_attributes_section(self, section: str) -> List[str]:
         lines = []
         for _name, _type, _desc in self._consume_fields():
+            # code adapted from autodoc.AttributeDocumenter:add_directive_header
+            if not _type and self._what == 'class' and self._obj:
+                if self._config.napoleon_google_attr_annotations:
+                    # cache the class annotations
+                    if not hasattr(self, "_annotations"):
+                        try:
+                            self._annotations = get_type_hints(self._obj)
+                        except NameError:
+                            # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
+                            self._annotations = safe_getattr(self._obj, '__annotations__', {})
+                        except TypeError:
+                            self._annotations = {}
+                        except KeyError:
+                            # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
+                            self._annotations = {}
+                        except AttributeError:
+                            # AttributeError is raised on 3.5.2 (fixed by 3.5.3)
+                            self._annotations = {}
+                    if _name in self._annotations:
+                        _type = stringify_annotation(self._annotations[_name])
             if self._config.napoleon_use_ivar:
                 _name = self._qualify_name(_name, self._obj)
                 field = ':ivar %s: ' % _name
