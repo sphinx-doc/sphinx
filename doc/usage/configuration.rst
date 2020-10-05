@@ -341,7 +341,6 @@ General configuration
 
       Added ``autosectionlabel.*``
 
-
    .. versionchanged:: 3.3.0
 
       Added ``epub.duplicated_toc_entry``
