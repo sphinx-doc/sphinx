@@ -13,6 +13,7 @@ import re
 from collections import namedtuple
 from contextlib import contextmanager
 from inspect import cleandoc
+import sys
 from textwrap import dedent
 from unittest import TestCase, mock
 
@@ -22,6 +23,9 @@ from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (GoogleDocstring, NumpyDocstring,
                                            _convert_numpy_type_spec, _recombine_set_tokens,
                                            _token_type, _tokenize_type_spec)
+
+if sys.version_info >= (3, 6):
+    from ext_napoleon_docstring_data import PEP526Class
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -43,18 +47,6 @@ class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
 
     def __new__(cls, attr1, attr2=None):
         return super().__new__(cls, attr1, attr2)
-
-
-class PEP526Class:
-    """Sample class with PEP 526 annotations
-
-    Attributes:
-        attr1: Attr1 description.
-        attr2: Attr2 description.
-    """
-
-    attr1: int
-    attr2: str
 
 
 class BaseDocstringTest(TestCase):
@@ -1105,13 +1097,13 @@ Do as you please
         self.assertEqual(expected, actual)
     
     def test_pep_526_annotations(self):
-        config = Config(
-            napoleon_google_attr_annotations=True
-        )
-        actual = str(GoogleDocstring(cleandoc(PEP526Class.__doc__), config, app=None, what="class",
-                                     obj=PEP526Class))
-        print(actual)
-        expected = """\
+        if sys.version_info >= (3, 6):
+            config = Config(
+                napoleon_google_attr_annotations=True
+            )
+            actual = str(GoogleDocstring(cleandoc(PEP526Class.__doc__), config, app=None, what="class",
+                                        obj=PEP526Class))
+            expected = """\
 Sample class with PEP 526 annotations
 
 .. attribute:: attr1
@@ -1126,7 +1118,7 @@ Sample class with PEP 526 annotations
 
    :type: str
 """
-        self.assertEqual(expected, actual)
+            self.assertEqual(expected, actual)
 
 
 class NumpyDocstringTest(BaseDocstringTest):
