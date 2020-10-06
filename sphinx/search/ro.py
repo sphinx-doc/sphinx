@@ -7,8 +7,8 @@
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from typing import Dict, Set
+from typing import Dict
+from typing import Set
 
 import snowballstemmer
 
@@ -22,14 +22,14 @@ var Stemmer = JSX.require("src/romanian-stemmer.jsx").RomanianStemmer;
 
 
 class SearchRomanian(SearchLanguage):
-    lang = 'ro'
-    language_name = 'Romanian'
-    js_stemmer_rawcode = 'romanian-stemmer.js'
+    lang = "ro"
+    language_name = "Romanian"
+    js_stemmer_rawcode = "romanian-stemmer.js"
     js_stemmer_code = js_stemmer
     stopwords = set()  # type: Set[str]
 
     def init(self, options: Dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('romanian')
+        self.stemmer = snowballstemmer.stemmer("romanian")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

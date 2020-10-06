@@ -81,4 +81,3 @@ msgstr "ADMONITION BODY"
 
 msgid "1. admonition title"
 msgstr "1. ADMONITION TITLE"
-

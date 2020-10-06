@@ -1,2 +1,2 @@
-master_doc = 'equations'
-extensions = ['sphinx.ext.imgmath']
+master_doc = "equations"
+extensions = ["sphinx.ext.imgmath"]

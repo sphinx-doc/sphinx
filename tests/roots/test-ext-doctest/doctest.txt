@@ -160,4 +160,3 @@ keep control char in raw string
     two
     >>> print(r'one\ntwo')
     one\ntwo
-

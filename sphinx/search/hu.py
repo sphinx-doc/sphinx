@@ -7,15 +7,16 @@
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 from typing import Dict
 
 import snowballstemmer
 
-from sphinx.search import SearchLanguage, parse_stop_word
+from sphinx.search import parse_stop_word
+from sphinx.search import SearchLanguage
 
 
-hungarian_stopwords = parse_stop_word('''
+hungarian_stopwords = parse_stop_word(
+    """
 | source: http://snowball.tartarus.org/algorithms/hungarian/stop.txt
 | prepared by Anna Tordai
 a
@@ -217,7 +218,8 @@ vissza
 vele
 viszont
 volna
-''')
+"""
+)
 
 js_stemmer = """
 
@@ -227,14 +229,14 @@ var Stemmer = JSX.require("src/hungarian-stemmer.jsx").HungarianStemmer;
 
 
 class SearchHungarian(SearchLanguage):
-    lang = 'hu'
-    language_name = 'Hungarian'
-    js_stemmer_rawcode = 'hungarian-stemmer.js'
+    lang = "hu"
+    language_name = "Hungarian"
+    js_stemmer_rawcode = "hungarian-stemmer.js"
     js_stemmer_code = js_stemmer
     stopwords = hungarian_stopwords
 
     def init(self, options: Dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('hungarian')
+        self.stemmer = snowballstemmer.stemmer("hungarian")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

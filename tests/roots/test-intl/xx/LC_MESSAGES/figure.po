@@ -54,4 +54,3 @@ msgstr "IMAGE ON SUBSTITUTION"
 
 msgid "image under note"
 msgstr "IMAGE UNDER NOTE"
-

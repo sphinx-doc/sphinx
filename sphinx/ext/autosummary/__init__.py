@@ -51,7 +51,6 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import inspect
 import os
 import posixpath
@@ -60,13 +59,21 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any
 from typing import cast
+from typing import Dict
+from typing import List
+from typing import Tuple
+from typing import Type
 
 from docutils import nodes
-from docutils.nodes import Element, Node, system_message
+from docutils.nodes import Element
+from docutils.nodes import Node
+from docutils.nodes import system_message
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
+from docutils.parsers.rst.states import RSTStateMachine
+from docutils.parsers.rst.states import state_classes
+from docutils.parsers.rst.states import Struct
 from docutils.statemachine import StringList
 
 import sphinx
@@ -75,16 +82,22 @@ from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.ext.autodoc import Documenter, INSTANCEATTR
-from sphinx.ext.autodoc.directive import DocumenterBridge, Options
+from sphinx.ext.autodoc import Documenter
+from sphinx.ext.autodoc import INSTANCEATTR
+from sphinx.ext.autodoc.directive import DocumenterBridge
+from sphinx.ext.autodoc.directive import Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
-from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.util import rst, logging
-from sphinx.util.docutils import (
-    NullReporter, SphinxDirective, SphinxRole, new_document, switch_source_input
-)
+from sphinx.pycode import ModuleAnalyzer
+from sphinx.pycode import PycodeError
+from sphinx.util import logging
+from sphinx.util import rst
+from sphinx.util.docutils import new_document
+from sphinx.util.docutils import NullReporter
+from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxRole
+from sphinx.util.docutils import switch_source_input
 from sphinx.util.matching import Matcher
 from sphinx.writers.html import HTMLTranslator
 
@@ -92,13 +105,14 @@ from sphinx.writers.html import HTMLTranslator
 logger = logging.getLogger(__name__)
 
 
-periods_re = re.compile(r'\.(?:\s+)')
-literal_re = re.compile(r'::\s*$')
+periods_re = re.compile(r"\.(?:\s+)")
+literal_re = re.compile(r"::\s*$")
 
-WELL_KNOWN_ABBREVIATIONS = (' i.e.',)
+WELL_KNOWN_ABBREVIATIONS = (" i.e.",)
 
 
 # -- autosummary_toc node ------------------------------------------------------
+
 
 class autosummary_toc(nodes.comment):
     pass
@@ -108,8 +122,11 @@ def process_autosummary_toc(app: Sphinx, doctree: nodes.document) -> None:
     """Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
     """
-    warnings.warn('process_autosummary_toc() is deprecated',
-                  RemovedInSphinx50Warning, stacklevel=2)
+    warnings.warn(
+        "process_autosummary_toc() is deprecated",
+        RemovedInSphinx50Warning,
+        stacklevel=2,
+    )
     env = app.builder.env
     crawled = {}
 
@@ -117,8 +134,9 @@ def process_autosummary_toc(app: Sphinx, doctree: nodes.document) -> None:
         crawled[node] = True
         for j, subnode in enumerate(node):
             try:
-                if (isinstance(subnode, autosummary_toc) and
-                        isinstance(subnode[0], addnodes.toctree)):
+                if isinstance(subnode, autosummary_toc) and isinstance(
+                    subnode[0], addnodes.toctree
+                ):
                     TocTree(env).note(env.docname, subnode[0])
                     continue
             except IndexError:
@@ -127,6 +145,7 @@ def process_autosummary_toc(app: Sphinx, doctree: nodes.document) -> None:
                 continue
             if subnode not in crawled:
                 crawl_toc(subnode, depth + 1)
+
     crawl_toc(doctree)
 
 
@@ -140,6 +159,7 @@ def autosummary_noop(self: nodes.NodeVisitor, node: Node) -> None:
 
 
 # -- autosummary_table node ----------------------------------------------------
+
 
 class autosummary_table(nodes.comment):
     pass
@@ -197,14 +217,17 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
     else:
         parent_doc_cls = ModuleDocumenter
 
-    if hasattr(parent, '__name__'):
+    if hasattr(parent, "__name__"):
         parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
     else:
         parent_doc = parent_doc_cls(FakeDirective(), "")
 
     # Get the corrent documenter class for *obj*
-    classes = [cls for cls in app.registry.documenters.values()
-               if cls.can_document_member(obj, '', False, parent_doc)]
+    classes = [
+        cls
+        for cls in app.registry.documenters.values()
+        if cls.can_document_member(obj, "", False, parent_doc)
+    ]
     if classes:
         classes.sort(key=lambda cls: cls.priority)
         return classes[-1]
@@ -213,6 +236,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
 
 
 # -- .. autosummary:: ----------------------------------------------------------
+
 
 class Autosummary(SphinxDirective):
     """
@@ -226,26 +250,30 @@ class Autosummary(SphinxDirective):
     final_argument_whitespace = False
     has_content = True
     option_spec = {
-        'caption': directives.unchanged_required,
-        'toctree': directives.unchanged,
-        'nosignatures': directives.flag,
-        'recursive': directives.flag,
-        'template': directives.unchanged,
+        "caption": directives.unchanged_required,
+        "toctree": directives.unchanged,
+        "nosignatures": directives.flag,
+        "recursive": directives.flag,
+        "template": directives.unchanged,
     }
 
     def run(self) -> List[Node]:
-        self.bridge = DocumenterBridge(self.env, self.state.document.reporter,
-                                       Options(), self.lineno, self.state)
+        self.bridge = DocumenterBridge(
+            self.env, self.state.document.reporter, Options(), self.lineno, self.state
+        )
 
-        names = [x.strip().split()[0] for x in self.content
-                 if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
+        names = [
+            x.strip().split()[0]
+            for x in self.content
+            if x.strip() and re.search(r"^[~a-zA-Z_]", x.strip()[0])
+        ]
         items = self.get_items(names)
         nodes = self.get_table(items)
 
-        if 'toctree' in self.options:
+        if "toctree" in self.options:
             dirname = posixpath.dirname(self.env.docname)
 
-            tree_prefix = self.options['toctree'].strip()
+            tree_prefix = self.options["toctree"].strip()
             docnames = []
             excluded = Matcher(self.config.exclude_patterns)
             filename_map = self.config.autosummary_filename_map
@@ -255,10 +283,14 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
                     if excluded(self.env.doc2path(docname, None)):
-                        msg = __('autosummary references excluded document %r. Ignored.')
+                        msg = __(
+                            "autosummary references excluded document %r. Ignored."
+                        )
                     else:
-                        msg = __('autosummary: stub file not found %r. '
-                                 'Check your autosummary_generate setting.')
+                        msg = __(
+                            "autosummary: stub file not found %r. "
+                            "Check your autosummary_generate setting."
+                        )
 
                     logger.warning(msg, real_name, location=self.get_source_info())
                     continue
@@ -267,21 +299,25 @@ class Autosummary(SphinxDirective):
 
             if docnames:
                 tocnode = addnodes.toctree()
-                tocnode['includefiles'] = docnames
-                tocnode['entries'] = [(None, docn) for docn in docnames]
-                tocnode['maxdepth'] = -1
-                tocnode['glob'] = None
-                tocnode['caption'] = self.options.get('caption')
+                tocnode["includefiles"] = docnames
+                tocnode["entries"] = [(None, docn) for docn in docnames]
+                tocnode["maxdepth"] = -1
+                tocnode["glob"] = None
+                tocnode["caption"] = self.options.get("caption")
 
-                nodes.append(autosummary_toc('', '', tocnode))
+                nodes.append(autosummary_toc("", "", tocnode))
 
-        if 'toctree' not in self.options and 'caption' in self.options:
-            logger.warning(__('A captioned autosummary requires :toctree: option. ignored.'),
-                           location=nodes[-1])
+        if "toctree" not in self.options and "caption" in self.options:
+            logger.warning(
+                __("A captioned autosummary requires :toctree: option. ignored."),
+                location=nodes[-1],
+            )
 
         return nodes
 
-    def import_by_name(self, name: str, prefixes: List[str]) -> Tuple[str, Any, Any, str]:
+    def import_by_name(
+        self, name: str, prefixes: List[str]
+    ) -> Tuple[str, Any, Any, str]:
         with mock(self.config.autosummary_mock_imports):
             try:
                 return import_by_name(name, prefixes)
@@ -294,8 +330,9 @@ class Autosummary(SphinxDirective):
 
                 raise exc  # re-raise ImportError if instance attribute not found
 
-    def create_documenter(self, app: Sphinx, obj: Any,
-                          parent: Any, full_name: str) -> "Documenter":
+    def create_documenter(
+        self, app: Sphinx, obj: Any, parent: Any, full_name: str
+    ) -> "Documenter":
         """Get an autodoc.Documenter class suitable for documenting the given
         object.
 
@@ -316,15 +353,20 @@ class Autosummary(SphinxDirective):
 
         for name in names:
             display_name = name
-            if name.startswith('~'):
+            if name.startswith("~"):
                 name = name[1:]
-                display_name = name.split('.')[-1]
+                display_name = name.split(".")[-1]
 
             try:
-                real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
+                real_name, obj, parent, modname = self.import_by_name(
+                    name, prefixes=prefixes
+                )
             except ImportError:
-                logger.warning(__('autosummary: failed to import %s'), name,
-                               location=self.get_source_info())
+                logger.warning(
+                    __("autosummary: failed to import %s"),
+                    name,
+                    location=self.get_source_info(),
+                )
                 continue
 
             self.bridge.result = StringList()  # initialize for each documenter
@@ -332,19 +374,25 @@ class Autosummary(SphinxDirective):
             if not isinstance(obj, ModuleType):
                 # give explicitly separated module name, so that members
                 # of inner classes can be documented
-                full_name = modname + '::' + full_name[len(modname) + 1:]
+                full_name = modname + "::" + full_name[len(modname) + 1 :]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
             documenter = self.create_documenter(self.env.app, obj, parent, full_name)
             if not documenter.parse_name():
-                logger.warning(__('failed to parse name %s'), real_name,
-                               location=self.get_source_info())
-                items.append((display_name, '', '', real_name))
+                logger.warning(
+                    __("failed to parse name %s"),
+                    real_name,
+                    location=self.get_source_info(),
+                )
+                items.append((display_name, "", "", real_name))
                 continue
             if not documenter.import_object():
-                logger.warning(__('failed to import object %s'), real_name,
-                               location=self.get_source_info())
-                items.append((display_name, '', '', real_name))
+                logger.warning(
+                    __("failed to import object %s"),
+                    real_name,
+                    location=self.get_source_info(),
+                )
+                items.append((display_name, "", "", real_name))
                 continue
             if documenter.options.members and not documenter.check_module():
                 continue
@@ -352,12 +400,13 @@ class Autosummary(SphinxDirective):
             # try to also get a source code analyzer for attribute docs
             try:
                 documenter.analyzer = ModuleAnalyzer.for_module(
-                    documenter.get_real_modname())
+                    documenter.get_real_modname()
+                )
                 # parse right now, to get PycodeErrors on parsing (results will
                 # be cached anyway)
                 documenter.analyzer.find_attr_docs()
             except PycodeError as err:
-                logger.debug('[autodoc] module analyzer failed: %s', err)
+                logger.debug("[autodoc] module analyzer failed: %s", err)
                 # no source file -- e.g. for builtin and C modules
                 documenter.analyzer = None
 
@@ -370,7 +419,7 @@ class Autosummary(SphinxDirective):
                 sig = documenter.format_signature()
 
             if not sig:
-                sig = ''
+                sig = ""
             else:
                 max_chars = max(10, max_item_chars - len(display_name))
                 sig = mangle_signature(sig, max_chars=max_chars)
@@ -390,25 +439,25 @@ class Autosummary(SphinxDirective):
         *items* is a list produced by :meth:`get_items`.
         """
         table_spec = addnodes.tabular_col_spec()
-        table_spec['spec'] = r'\X{1}{2}\X{1}{2}'
+        table_spec["spec"] = r"\X{1}{2}\X{1}{2}"
 
-        table = autosummary_table('')
-        real_table = nodes.table('', classes=['longtable'])
+        table = autosummary_table("")
+        real_table = nodes.table("", classes=["longtable"])
         table.append(real_table)
-        group = nodes.tgroup('', cols=2)
+        group = nodes.tgroup("", cols=2)
         real_table.append(group)
-        group.append(nodes.colspec('', colwidth=10))
-        group.append(nodes.colspec('', colwidth=90))
-        body = nodes.tbody('')
+        group.append(nodes.colspec("", colwidth=10))
+        group.append(nodes.colspec("", colwidth=90))
+        body = nodes.tbody("")
         group.append(body)
 
         def append_row(*column_texts: str) -> None:
-            row = nodes.row('')
+            row = nodes.row("")
             source, line = self.state_machine.get_source_and_line()
             for text in column_texts:
-                node = nodes.paragraph('')
+                node = nodes.paragraph("")
                 vl = StringList()
-                vl.append(text, '%s:%d:<autosummary>' % (source, line))
+                vl.append(text, "%s:%d:<autosummary>" % (source, line))
                 with switch_source_input(self.state, vl):
                     self.state.nested_parse(vl, 0, node)
                     try:
@@ -416,15 +465,17 @@ class Autosummary(SphinxDirective):
                             node = node[0]
                     except IndexError:
                         pass
-                    row.append(nodes.entry('', node))
+                    row.append(nodes.entry("", node))
             body.append(row)
 
         for name, sig, summary, real_name in items:
-            qualifier = 'obj'
-            if 'nosignatures' not in self.options:
-                col1 = ':%s:`%s <%s>`\\ %s' % (qualifier, name, real_name, rst.escape(sig))
+            qualifier = "obj"
+            if "nosignatures" not in self.options:
+                col1 = ":{}:`{} <{}>`\\ {}".format(
+                    qualifier, name, real_name, rst.escape(sig)
+                )
             else:
-                col1 = ':%s:`%s <%s>`' % (qualifier, name, real_name)
+                col1 = f":{qualifier}:`{name} <{real_name}>`"
             col2 = summary
             append_row(col1, col2)
 
@@ -433,7 +484,7 @@ class Autosummary(SphinxDirective):
 
 def strip_arg_typehint(s: str) -> str:
     """Strip a type hint from argument definition."""
-    return s.split(':')[0].strip()
+    return s.split(":")[0].strip()
 
 
 def mangle_signature(sig: str, max_chars: int = 30) -> str:
@@ -445,19 +496,21 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
     s = re.sub(r"^\((.*)\)$", r"\1", s).strip()
 
     # Strip literals (which can contain things that confuse the code below)
-    s = re.sub(r"\\\\", "", s)      # escaped backslash (maybe inside string)
-    s = re.sub(r"\\'", "", s)       # escaped single quote
-    s = re.sub(r'\\"', "", s)       # escaped double quote
-    s = re.sub(r"'[^']*'", "", s)   # string literal (w/ single quote)
-    s = re.sub(r'"[^"]*"', "", s)   # string literal (w/ double quote)
+    s = re.sub(r"\\\\", "", s)  # escaped backslash (maybe inside string)
+    s = re.sub(r"\\'", "", s)  # escaped single quote
+    s = re.sub(r'\\"', "", s)  # escaped double quote
+    s = re.sub(r"'[^']*'", "", s)  # string literal (w/ single quote)
+    s = re.sub(r'"[^"]*"', "", s)  # string literal (w/ double quote)
 
     # Strip complex objects (maybe default value of arguments)
-    while re.search(r'\([^)]*\)', s):   # contents of parenthesis (ex. NamedTuple(attr=...))
-        s = re.sub(r'\([^)]*\)', '', s)
-    while re.search(r'<[^>]*>', s):     # contents of angle brackets (ex. <object>)
-        s = re.sub(r'<[^>]*>', '', s)
-    while re.search(r'{[^}]*}', s):     # contents of curly brackets (ex. dict)
-        s = re.sub(r'{[^}]*}', '', s)
+    while re.search(
+        r"\([^)]*\)", s
+    ):  # contents of parenthesis (ex. NamedTuple(attr=...))
+        s = re.sub(r"\([^)]*\)", "", s)
+    while re.search(r"<[^>]*>", s):  # contents of angle brackets (ex. <object>)
+        s = re.sub(r"<[^>]*>", "", s)
+    while re.search(r"{[^}]*}", s):  # contents of curly brackets (ex. dict)
+        s = re.sub(r"{[^}]*}", "", s)
 
     # Parse the signature to arguments + options
     args = []  # type: List[str]
@@ -468,7 +521,7 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
         m = opt_re.search(s)
         if not m:
             # The rest are arguments
-            args = s.split(', ')
+            args = s.split(", ")
             break
 
         opts.insert(0, m.group(2))
@@ -487,17 +540,19 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
         if not sig:
             sig = "[%s]" % limited_join(", ", opts, max_chars=max_chars - 4)
         elif len(sig) < max_chars - 4 - 2 - 3:
-            sig += "[, %s]" % limited_join(", ", opts,
-                                           max_chars=max_chars - len(sig) - 4 - 2)
+            sig += "[, %s]" % limited_join(
+                ", ", opts, max_chars=max_chars - len(sig) - 4 - 2
+            )
 
     return "(%s)" % sig
 
 
 def extract_summary(doc: List[str], document: Any) -> str:
     """Extract summary from docstring."""
+
     def parse(doc: List[str], settings: Any) -> nodes.document:
-        state_machine = RSTStateMachine(state_classes, 'Body')
-        node = new_document('', settings)
+        state_machine = RSTStateMachine(state_classes, "Body")
+        node = new_document("", settings)
         node.reporter = NullReporter()
         state_machine.run(doc, node)
 
@@ -516,7 +571,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
             break
 
     if doc == []:
-        return ''
+        return ""
 
     # parse the docstring
     node = parse(doc, document.settings)
@@ -529,9 +584,9 @@ def extract_summary(doc: List[str], document: Any) -> str:
         if len(sentences) == 1:
             summary = sentences[0].strip()
         else:
-            summary = ''
+            summary = ""
             for i in range(len(sentences)):
-                summary = ". ".join(sentences[:i + 1]).rstrip(".") + "."
+                summary = ". ".join(sentences[: i + 1]).rstrip(".") + "."
                 node[:] = []
                 node = parse(doc, document.settings)
                 if summary.endswith(WELL_KNOWN_ABBREVIATIONS):
@@ -541,13 +596,14 @@ def extract_summary(doc: List[str], document: Any) -> str:
                     break
 
     # strip literal notation mark ``::`` from tail of summary
-    summary = literal_re.sub('.', summary)
+    summary = literal_re.sub(".", summary)
 
     return summary
 
 
-def limited_join(sep: str, items: List[str], max_chars: int = 30,
-                 overflow_marker: str = "...") -> str:
+def limited_join(
+    sep: str, items: List[str], max_chars: int = 30, overflow_marker: str = "..."
+) -> str:
     """Join a number of strings to one, limiting the length to *max_chars*.
 
     If the string overflows this limit, replace the last fitting item by
@@ -573,6 +629,7 @@ def limited_join(sep: str, items: List[str], max_chars: int = 30,
 
 # -- Importing items -----------------------------------------------------------
 
+
 def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     """
     Obtain current Python import prefixes (for `import_by_name`)
@@ -580,11 +637,11 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     """
     prefixes = [None]  # type: List[str]
 
-    currmodule = env.ref_context.get('py:module')
+    currmodule = env.ref_context.get("py:module")
     if currmodule:
         prefixes.insert(0, currmodule)
 
-    currclass = env.ref_context.get('py:class')
+    currclass = env.ref_context.get("py:class")
     if currclass:
         if currmodule:
             prefixes.insert(0, currmodule + "." + currclass)
@@ -594,7 +651,9 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     return prefixes
 
 
-def import_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, Any, str]:
+def import_by_name(
+    name: str, prefixes: List[str] = [None]
+) -> Tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -602,23 +661,23 @@ def import_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, A
     for prefix in prefixes:
         try:
             if prefix:
-                prefixed_name = '.'.join([prefix, name])
+                prefixed_name = ".".join([prefix, name])
             else:
                 prefixed_name = name
             obj, parent, modname = _import_by_name(prefixed_name)
             return prefixed_name, obj, parent, modname
         except ImportError:
             tried.append(prefixed_name)
-    raise ImportError('no module named %s' % ' or '.join(tried))
+    raise ImportError("no module named %s" % " or ".join(tried))
 
 
 def _import_by_name(name: str) -> Tuple[Any, Any, str]:
     """Import a Python object given its full name."""
     try:
-        name_parts = name.split('.')
+        name_parts = name.split(".")
 
         # try first interpret `name` as MODNAME.OBJ
-        modname = '.'.join(name_parts[:-1])
+        modname = ".".join(name_parts[:-1])
         if modname:
             try:
                 mod = import_module(modname)
@@ -631,7 +690,7 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
         modname = None
         for j in reversed(range(1, len(name_parts) + 1)):
             last_j = j
-            modname = '.'.join(name_parts[:j])
+            modname = ".".join(name_parts[:j])
             try:
                 import_module(modname)
             except ImportError:
@@ -653,7 +712,9 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
         raise ImportError(*e.args) from e
 
 
-def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, Any, str]:
+def import_ivar_by_name(
+    name: str, prefixes: List[str] = [None]
+) -> Tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -672,16 +733,25 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, A
 
 # -- :autolink: (smart default role) -------------------------------------------
 
+
 class AutoLink(SphinxRole):
     """Smart linking role.
 
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
+
     def run(self) -> Tuple[List[Node], List[system_message]]:
-        pyobj_role = self.env.get_domain('py').role('obj')
-        objects, errors = pyobj_role('obj', self.rawtext, self.text, self.lineno,
-                                     self.inliner, self.options, self.content)
+        pyobj_role = self.env.get_domain("py").role("obj")
+        objects, errors = pyobj_role(
+            "obj",
+            self.rawtext,
+            self.text,
+            self.lineno,
+            self.inliner,
+            self.options,
+            self.content,
+        )
         if errors:
             return objects, errors
 
@@ -690,11 +760,12 @@ class AutoLink(SphinxRole):
         try:
             # try to import object by name
             prefixes = get_import_prefixes_from_env(self.env)
-            import_by_name(pending_xref['reftarget'], prefixes)
+            import_by_name(pending_xref["reftarget"], prefixes)
         except ImportError:
             literal = cast(nodes.literal, pending_xref[0])
-            objects[0] = nodes.emphasis(self.rawtext, literal.astext(),
-                                        classes=literal['classes'])
+            objects[0] = nodes.emphasis(
+                self.rawtext, literal.astext(), classes=literal["classes"]
+            )
 
         return objects, errors
 
@@ -703,12 +774,12 @@ def get_rst_suffix(app: Sphinx) -> str:
     def get_supported_format(suffix: str) -> Tuple[str, ...]:
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
-            return ('restructuredtext',)
+            return ("restructuredtext",)
         return parser_class.supported
 
     suffix = None  # type: str
     for suffix in app.config.source_suffix:
-        if 'restructuredtext' in get_supported_format(suffix):
+        if "restructuredtext" in get_supported_format(suffix):
             return suffix
 
     return None
@@ -719,18 +790,23 @@ def process_generate_options(app: Sphinx) -> None:
 
     if genfiles is True:
         env = app.builder.env
-        genfiles = [env.doc2path(x, base=None) for x in env.found_docs
-                    if os.path.isfile(env.doc2path(x))]
+        genfiles = [
+            env.doc2path(x, base=None)
+            for x in env.found_docs
+            if os.path.isfile(env.doc2path(x))
+        ]
     elif genfiles is False:
         pass
     else:
         ext = list(app.config.source_suffix)
-        genfiles = [genfile + (ext[0] if not genfile.endswith(tuple(ext)) else '')
-                    for genfile in genfiles]
+        genfiles = [
+            genfile + (ext[0] if not genfile.endswith(tuple(ext)) else "")
+            for genfile in genfiles
+        ]
 
         for entry in genfiles[:]:
             if not path.isfile(path.join(app.srcdir, entry)):
-                logger.warning(__('autosummary_generate: file not found: %s'), entry)
+                logger.warning(__("autosummary_generate: file not found: %s"), entry)
                 genfiles.remove(entry)
 
     if not genfiles:
@@ -738,44 +814,58 @@ def process_generate_options(app: Sphinx) -> None:
 
     suffix = get_rst_suffix(app)
     if suffix is None:
-        logger.warning(__('autosummary generats .rst files internally. '
-                          'But your source_suffix does not contain .rst. Skipped.'))
+        logger.warning(
+            __(
+                "autosummary generats .rst files internally. "
+                "But your source_suffix does not contain .rst. Skipped."
+            )
+        )
         return
 
     from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
     imported_members = app.config.autosummary_imported_members
     with mock(app.config.autosummary_mock_imports):
-        generate_autosummary_docs(genfiles, suffix=suffix, base_path=app.srcdir,
-                                  app=app, imported_members=imported_members,
-                                  overwrite=app.config.autosummary_generate_overwrite,
-                                  encoding=app.config.source_encoding)
+        generate_autosummary_docs(
+            genfiles,
+            suffix=suffix,
+            base_path=app.srcdir,
+            app=app,
+            imported_members=imported_members,
+            overwrite=app.config.autosummary_generate_overwrite,
+            encoding=app.config.source_encoding,
+        )
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     # I need autodoc
-    app.setup_extension('sphinx.ext.autodoc')
-    app.add_node(autosummary_toc,
-                 html=(autosummary_toc_visit_html, autosummary_noop),
-                 latex=(autosummary_noop, autosummary_noop),
-                 text=(autosummary_noop, autosummary_noop),
-                 man=(autosummary_noop, autosummary_noop),
-                 texinfo=(autosummary_noop, autosummary_noop))
-    app.add_node(autosummary_table,
-                 html=(autosummary_table_visit_html, autosummary_noop),
-                 latex=(autosummary_noop, autosummary_noop),
-                 text=(autosummary_noop, autosummary_noop),
-                 man=(autosummary_noop, autosummary_noop),
-                 texinfo=(autosummary_noop, autosummary_noop))
-    app.add_directive('autosummary', Autosummary)
-    app.add_role('autolink', AutoLink())
-    app.connect('builder-inited', process_generate_options)
-    app.add_config_value('autosummary_context', {}, True)
-    app.add_config_value('autosummary_filename_map', {}, 'html')
-    app.add_config_value('autosummary_generate', [], True, [bool])
-    app.add_config_value('autosummary_generate_overwrite', True, False)
-    app.add_config_value('autosummary_mock_imports',
-                         lambda config: config.autodoc_mock_imports, 'env')
-    app.add_config_value('autosummary_imported_members', [], False, [bool])
+    app.setup_extension("sphinx.ext.autodoc")
+    app.add_node(
+        autosummary_toc,
+        html=(autosummary_toc_visit_html, autosummary_noop),
+        latex=(autosummary_noop, autosummary_noop),
+        text=(autosummary_noop, autosummary_noop),
+        man=(autosummary_noop, autosummary_noop),
+        texinfo=(autosummary_noop, autosummary_noop),
+    )
+    app.add_node(
+        autosummary_table,
+        html=(autosummary_table_visit_html, autosummary_noop),
+        latex=(autosummary_noop, autosummary_noop),
+        text=(autosummary_noop, autosummary_noop),
+        man=(autosummary_noop, autosummary_noop),
+        texinfo=(autosummary_noop, autosummary_noop),
+    )
+    app.add_directive("autosummary", Autosummary)
+    app.add_role("autolink", AutoLink())
+    app.connect("builder-inited", process_generate_options)
+    app.add_config_value("autosummary_context", {}, True)
+    app.add_config_value("autosummary_filename_map", {}, "html")
+    app.add_config_value("autosummary_generate", [], True, [bool])
+    app.add_config_value("autosummary_generate_overwrite", True, False)
+    app.add_config_value(
+        "autosummary_mock_imports", lambda config: config.autodoc_mock_imports, "env"
+    )
+    app.add_config_value("autosummary_imported_members", [], False, [bool])
 
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}

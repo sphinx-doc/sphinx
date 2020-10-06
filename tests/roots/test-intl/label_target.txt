@@ -64,4 +64,3 @@ label bridged target section
 `bridge label`_ is not translatable but linked to translated section title.
 
 `bridge label2`_ point to ``section and label`` and `bridge label`_ point to ``label bridged target section``. The second appeared `bridge label2`_ point to correct target.
-

@@ -28,4 +28,3 @@ msgstr "CAPTION"
 #: ../../toctree.txt:2
 msgid "i18n with toctree"
 msgstr "I18N WITH TOCTREE"
-

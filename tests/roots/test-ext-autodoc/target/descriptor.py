@@ -1,4 +1,4 @@
-class CustomDataDescriptor(object):
+class CustomDataDescriptor:
     """Descriptor class docstring."""
 
     def __init__(self, doc):
@@ -20,6 +20,7 @@ class CustomDataDescriptorMeta(type):
 
 class CustomDataDescriptor2(CustomDataDescriptor):
     """Descriptor class with custom metaclass docstring."""
+
     __metaclass__ = CustomDataDescriptorMeta
 
 

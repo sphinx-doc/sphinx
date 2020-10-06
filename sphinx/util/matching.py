@@ -7,9 +7,13 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import re
-from typing import Callable, Dict, Iterable, List, Match, Pattern
+from typing import Callable
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Match
+from typing import Pattern
 
 from sphinx.util.osutil import canon_path
 
@@ -21,43 +25,43 @@ def _translate_pattern(pat: str) -> str:
     match slashes.
     """
     i, n = 0, len(pat)
-    res = ''  # type: str
+    res = ""  # type: str
     while i < n:
         c = pat[i]
         i += 1
-        if c == '*':
-            if i < n and pat[i] == '*':
+        if c == "*":
+            if i < n and pat[i] == "*":
                 # double star matches slashes too
                 i += 1
-                res = res + '.*'
+                res = res + ".*"
             else:
                 # single star doesn't match slashes
-                res = res + '[^/]*'
-        elif c == '?':
+                res = res + "[^/]*"
+        elif c == "?":
             # question mark doesn't match slashes too
-            res = res + '[^/]'
-        elif c == '[':
+            res = res + "[^/]"
+        elif c == "[":
             j = i
-            if j < n and pat[j] == '!':
+            if j < n and pat[j] == "!":
                 j += 1
-            if j < n and pat[j] == ']':
+            if j < n and pat[j] == "]":
                 j += 1
-            while j < n and pat[j] != ']':
+            while j < n and pat[j] != "]":
                 j += 1
             if j >= n:
-                res = res + '\\['
+                res = res + "\\["
             else:
-                stuff = pat[i:j].replace('\\', '\\\\')
+                stuff = pat[i:j].replace("\\", "\\\\")
                 i = j + 1
-                if stuff[0] == '!':
+                if stuff[0] == "!":
                     # negative pattern mustn't match slashes too
-                    stuff = '^/' + stuff[1:]
-                elif stuff[0] == '^':
-                    stuff = '\\' + stuff
-                res = '%s[%s]' % (res, stuff)
+                    stuff = "^/" + stuff[1:]
+                elif stuff[0] == "^":
+                    stuff = "\\" + stuff
+                res = f"{res}[{stuff}]"
         else:
             res += re.escape(c)
-    return res + '$'
+    return res + "$"
 
 
 def compile_matchers(patterns: List[str]) -> List[Callable[[str], Match[str]]]:
@@ -72,7 +76,7 @@ class Matcher:
     """
 
     def __init__(self, patterns: List[str]) -> None:
-        expanded = [pat[3:] for pat in patterns if pat.startswith('**/')]
+        expanded = [pat[3:] for pat in patterns if pat.startswith("**/")]
         self.patterns = compile_matchers(patterns + expanded)
 
     def __call__(self, string: str) -> bool:
@@ -83,7 +87,7 @@ class Matcher:
         return any(pat(string) for pat in self.patterns)
 
 
-DOTFILES = Matcher(['**/.*'])
+DOTFILES = Matcher(["**/.*"])
 
 
 _pat_cache = {}  # type: Dict[str, Pattern]

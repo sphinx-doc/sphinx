@@ -7,14 +7,17 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import os
 import platform
 import sys
 import time
 import traceback
 from math import sqrt
-from typing import Any, Callable, Dict, List, Sequence
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Sequence
 
 try:
     import multiprocessing
@@ -31,9 +34,11 @@ logger = logging.getLogger(__name__)
 #
 # Note: "fork" is not recommended on macOS and py38+.
 #       see https://bugs.python.org/issue33725
-parallel_available = (multiprocessing and
-                      (os.name == 'posix') and
-                      not (sys.version_info > (3, 8) and platform.system() == 'Darwin'))
+parallel_available = (
+    multiprocessing
+    and (os.name == "posix")
+    and not (sys.version_info > (3, 8) and platform.system() == "Darwin")
+)
 
 
 class SerialTasks:
@@ -42,7 +47,9 @@ class SerialTasks:
     def __init__(self, nproc: int = 1) -> None:
         pass
 
-    def add_task(self, task_func: Callable, arg: Any = None, result_func: Callable = None) -> None:  # NOQA
+    def add_task(
+        self, task_func: Callable, arg: Any = None, result_func: Callable = None
+    ) -> None:  # NOQA
         if arg is not None:
             res = task_func(arg)
         else:
@@ -90,14 +97,17 @@ class ParallelTasks:
         logging.convert_serializable(collector.logs)
         pipe.send((failed, collector.logs, ret))
 
-    def add_task(self, task_func: Callable, arg: Any = None, result_func: Callable = None) -> None:  # NOQA
+    def add_task(
+        self, task_func: Callable, arg: Any = None, result_func: Callable = None
+    ) -> None:  # NOQA
         tid = self._taskid
         self._taskid += 1
         self._result_funcs[tid] = result_func or (lambda arg, result: None)
         self._args[tid] = arg
         precv, psend = multiprocessing.Pipe(False)
-        proc = multiprocessing.Process(target=self._process,
-                                       args=(psend, task_func, arg))
+        proc = multiprocessing.Process(
+            target=self._process, args=(psend, task_func, arg)
+        )
         self._procs[tid] = proc
         self._precvsWaiting[tid] = precv
         self._join_one()
@@ -141,4 +151,4 @@ def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> Lis
     if rest:
         nchunks += 1
     # partition documents in "chunks" that will be written by one Process
-    return [arguments[i * chunksize:(i + 1) * chunksize] for i in range(nchunks)]
+    return [arguments[i * chunksize : (i + 1) * chunksize] for i in range(nchunks)]

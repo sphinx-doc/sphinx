@@ -1,4 +1,4 @@
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: issue1363 1363\n"
@@ -22,4 +22,3 @@ msgstr "SEE THIS DECORATOR: :func:`sensitive_variables`."
 #: ..\..\index.rst:12
 msgid "Some description"
 msgstr "SOME DESCRIPTION"
-

@@ -13,7 +13,6 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import os
 import subprocess
 import sys
@@ -22,36 +21,43 @@ from typing import List
 
 import sphinx
 from sphinx.cmd.build import build_main
-from sphinx.util.console import color_terminal, nocolor, bold, blue  # type: ignore
-from sphinx.util.osutil import cd, rmtree
+from sphinx.util.console import blue
+from sphinx.util.console import bold
+from sphinx.util.console import color_terminal
+from sphinx.util.console import nocolor
+from sphinx.util.osutil import cd
+from sphinx.util.osutil import rmtree
 
 
 BUILDERS = [
-    ("",      "html",        "to make standalone HTML files"),
-    ("",      "dirhtml",     "to make HTML files named index.html in directories"),
-    ("",      "singlehtml",  "to make a single large HTML file"),
-    ("",      "pickle",      "to make pickle files"),
-    ("",      "json",        "to make JSON files"),
-    ("",      "htmlhelp",    "to make HTML files and an HTML help project"),
-    ("",      "qthelp",      "to make HTML files and a qthelp project"),
-    ("",      "devhelp",     "to make HTML files and a Devhelp project"),
-    ("",      "epub",        "to make an epub"),
-    ("",      "latex",       "to make LaTeX files, you can set PAPER=a4 or PAPER=letter"),
-    ("posix", "latexpdf",    "to make LaTeX and PDF files (default pdflatex)"),
-    ("posix", "latexpdfja",  "to make LaTeX files and run them through platex/dvipdfmx"),
-    ("",      "text",        "to make text files"),
-    ("",      "man",         "to make manual pages"),
-    ("",      "texinfo",     "to make Texinfo files"),
-    ("posix", "info",        "to make Texinfo files and run them through makeinfo"),
-    ("",      "gettext",     "to make PO message catalogs"),
-    ("",      "changes",     "to make an overview of all changed/added/deprecated items"),
-    ("",      "xml",         "to make Docutils-native XML files"),
-    ("",      "pseudoxml",   "to make pseudoxml-XML files for display purposes"),
-    ("",      "linkcheck",   "to check all external links for integrity"),
-    ("",      "doctest",     "to run all doctests embedded in the documentation "
-                             "(if enabled)"),
-    ("",      "coverage",    "to run coverage check of the documentation (if enabled)"),
-    ("",      "clean",       "to remove everything in the build directory"),
+    ("", "html", "to make standalone HTML files"),
+    ("", "dirhtml", "to make HTML files named index.html in directories"),
+    ("", "singlehtml", "to make a single large HTML file"),
+    ("", "pickle", "to make pickle files"),
+    ("", "json", "to make JSON files"),
+    ("", "htmlhelp", "to make HTML files and an HTML help project"),
+    ("", "qthelp", "to make HTML files and a qthelp project"),
+    ("", "devhelp", "to make HTML files and a Devhelp project"),
+    ("", "epub", "to make an epub"),
+    ("", "latex", "to make LaTeX files, you can set PAPER=a4 or PAPER=letter"),
+    ("posix", "latexpdf", "to make LaTeX and PDF files (default pdflatex)"),
+    ("posix", "latexpdfja", "to make LaTeX files and run them through platex/dvipdfmx"),
+    ("", "text", "to make text files"),
+    ("", "man", "to make manual pages"),
+    ("", "texinfo", "to make Texinfo files"),
+    ("posix", "info", "to make Texinfo files and run them through makeinfo"),
+    ("", "gettext", "to make PO message catalogs"),
+    ("", "changes", "to make an overview of all changed/added/deprecated items"),
+    ("", "xml", "to make Docutils-native XML files"),
+    ("", "pseudoxml", "to make pseudoxml-XML files for display purposes"),
+    ("", "linkcheck", "to check all external links for integrity"),
+    (
+        "",
+        "doctest",
+        "to run all doctests embedded in the documentation " "(if enabled)",
+    ),
+    ("", "coverage", "to run coverage check of the documentation (if enabled)"),
+    ("", "clean", "to remove everything in the build directory"),
 ]
 
 
@@ -60,7 +66,9 @@ class Make:
         self.srcdir = srcdir
         self.builddir = builddir
         self.opts = opts
-        self.makecmd = os.environ.get('MAKE', 'make')  # refer $MAKE to determine make command
+        self.makecmd = os.environ.get(
+            "MAKE", "make"
+        )  # refer $MAKE to determine make command
 
     def builddir_join(self, *comps: str) -> str:
         return path.join(self.builddir, *comps)
@@ -89,80 +97,87 @@ class Make:
             nocolor()
 
         print(bold("Sphinx v%s" % sphinx.__display_version__))
-        print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))
+        print("Please use `make %s' where %s is one of" % ((blue("target"),) * 2))
         for osname, bname, description in BUILDERS:
             if not osname or os.name == osname:
-                print('  %s  %s' % (blue(bname.ljust(10)), description))
+                print("  {}  {}".format(blue(bname.ljust(10)), description))
 
     def build_latexpdf(self) -> int:
-        if self.run_generic_build('latex') > 0:
+        if self.run_generic_build("latex") > 0:
             return 1
 
-        if sys.platform == 'win32':
-            makecmd = os.environ.get('MAKE', 'make.bat')
+        if sys.platform == "win32":
+            makecmd = os.environ.get("MAKE", "make.bat")
         else:
             makecmd = self.makecmd
         try:
-            with cd(self.builddir_join('latex')):
-                return subprocess.call([makecmd, 'all-pdf'])
+            with cd(self.builddir_join("latex")):
+                return subprocess.call([makecmd, "all-pdf"])
         except OSError:
-            print('Error: Failed to run: %s' % makecmd)
+            print("Error: Failed to run: %s" % makecmd)
             return 1
 
     def build_latexpdfja(self) -> int:
-        if self.run_generic_build('latex') > 0:
+        if self.run_generic_build("latex") > 0:
             return 1
 
-        if sys.platform == 'win32':
-            makecmd = os.environ.get('MAKE', 'make.bat')
+        if sys.platform == "win32":
+            makecmd = os.environ.get("MAKE", "make.bat")
         else:
             makecmd = self.makecmd
         try:
-            with cd(self.builddir_join('latex')):
-                return subprocess.call([makecmd, 'all-pdf'])
+            with cd(self.builddir_join("latex")):
+                return subprocess.call([makecmd, "all-pdf"])
         except OSError:
-            print('Error: Failed to run: %s' % makecmd)
+            print("Error: Failed to run: %s" % makecmd)
             return 1
 
     def build_info(self) -> int:
-        if self.run_generic_build('texinfo') > 0:
+        if self.run_generic_build("texinfo") > 0:
             return 1
         try:
-            with cd(self.builddir_join('texinfo')):
-                return subprocess.call([self.makecmd, 'info'])
+            with cd(self.builddir_join("texinfo")):
+                return subprocess.call([self.makecmd, "info"])
         except OSError:
-            print('Error: Failed to run: %s' % self.makecmd)
+            print("Error: Failed to run: %s" % self.makecmd)
             return 1
 
     def build_gettext(self) -> int:
-        dtdir = self.builddir_join('gettext', '.doctrees')
-        if self.run_generic_build('gettext', doctreedir=dtdir) > 0:
+        dtdir = self.builddir_join("gettext", ".doctrees")
+        if self.run_generic_build("gettext", doctreedir=dtdir) > 0:
             return 1
         return 0
 
     def run_generic_build(self, builder: str, doctreedir: str = None) -> int:
         # compatibility with old Makefile
-        papersize = os.getenv('PAPER', '')
+        papersize = os.getenv("PAPER", "")
         opts = self.opts
-        if papersize in ('a4', 'letter'):
-            opts.extend(['-D', 'latex_elements.papersize=' + papersize + 'paper'])
+        if papersize in ("a4", "letter"):
+            opts.extend(["-D", "latex_elements.papersize=" + papersize + "paper"])
         if doctreedir is None:
-            doctreedir = self.builddir_join('doctrees')
+            doctreedir = self.builddir_join("doctrees")
 
-        args = ['-b', builder,
-                '-d', doctreedir,
-                self.srcdir,
-                self.builddir_join(builder)]
+        args = [
+            "-b",
+            builder,
+            "-d",
+            doctreedir,
+            self.srcdir,
+            self.builddir_join(builder),
+        ]
         return build_main(args + opts)
 
 
 def run_make_mode(args: List[str]) -> int:
     if len(args) < 3:
-        print('Error: at least 3 arguments (builder, source '
-              'dir, build dir) are required.', file=sys.stderr)
+        print(
+            "Error: at least 3 arguments (builder, source "
+            "dir, build dir) are required.",
+            file=sys.stderr,
+        )
         return 1
     make = Make(args[1], args[2], args[3:])
-    run_method = 'build_' + args[0]
+    run_method = "build_" + args[0]
     if hasattr(make, run_method):
         return getattr(make, run_method)()
     return make.run_generic_build(args[0])

@@ -25,4 +25,3 @@ msgstr "2. SUB SECTION"
 
 msgid "3. Contents Title"
 msgstr "3. CONTENTS TITLE"
-

@@ -6,4 +6,3 @@ Dummy text
 .. parsed-literal::
 
    |picture|\ AFTER
-

@@ -7,8 +7,8 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from typing import Any, Dict
+from typing import Any
+from typing import Dict
 from typing import TYPE_CHECKING
 
 from sphinx.config import Config
@@ -27,17 +27,17 @@ class Extension:
         self.name = name
         self.module = module
         self.metadata = kwargs
-        self.version = kwargs.pop('version', 'unknown version')
+        self.version = kwargs.pop("version", "unknown version")
 
         # The extension supports parallel read or not.  The default value
         # is ``None``.  It means the extension does not tell the status.
         # It will be warned on parallel reading.
-        self.parallel_read_safe = kwargs.pop('parallel_read_safe', None)
+        self.parallel_read_safe = kwargs.pop("parallel_read_safe", None)
 
         # The extension supports parallel write or not.  The default value
         # is ``True``.  Sphinx writes parallelly documents even if
         # the extension does not tell its status.
-        self.parallel_write_safe = kwargs.pop('parallel_write_safe', True)
+        self.parallel_write_safe = kwargs.pop("parallel_write_safe", True)
 
 
 def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
@@ -48,22 +48,31 @@ def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
     for extname, reqversion in config.needs_extensions.items():
         extension = app.extensions.get(extname)
         if extension is None:
-            logger.warning(__('The %s extension is required by needs_extensions settings, '
-                              'but it is not loaded.'), extname)
+            logger.warning(
+                __(
+                    "The %s extension is required by needs_extensions settings, "
+                    "but it is not loaded."
+                ),
+                extname,
+            )
             continue
 
-        if extension.version == 'unknown version' or reqversion > extension.version:
-            raise VersionRequirementError(__('This project needs the extension %s at least in '
-                                             'version %s and therefore cannot be built with '
-                                             'the loaded version (%s).') %
-                                          (extname, reqversion, extension.version))
+        if extension.version == "unknown version" or reqversion > extension.version:
+            raise VersionRequirementError(
+                __(
+                    "This project needs the extension %s at least in "
+                    "version %s and therefore cannot be built with "
+                    "the loaded version (%s)."
+                )
+                % (extname, reqversion, extension.version)
+            )
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', verify_needs_extensions, priority=800)
+    app.connect("config-inited", verify_needs_extensions, priority=800)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

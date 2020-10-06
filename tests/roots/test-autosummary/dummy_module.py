@@ -10,26 +10,26 @@
 
 
 def withSentence():
-    '''I have a sentence which
+    """I have a sentence which
     spans multiple lines. Then I have
     more stuff
-    '''
+    """
     pass
 
 
 def noSentence():
-    '''this doesn't start with a
+    """this doesn't start with a
     capital. so it's not considered
     a sentence
-    '''
+    """
     pass
 
 
 def emptyLine():
-    '''This is the real summary
+    """This is the real summary
 
     However, it did't end with a period.
-    '''
+    """
     pass
 
 
@@ -40,11 +40,11 @@ module_attr = 1
 
 
 class C:
-    '''
+    """
     My C class
 
     with class_attr attribute
-    '''
+    """
 
     #: This is a class attribute
     #:
@@ -57,7 +57,7 @@ class C:
 
         return value is string.
         """
-        return 'spam egg'
+        return "spam egg"
 
     prop_attr1 = property(_prop_attr_get)
 
@@ -69,9 +69,9 @@ class C:
     """
 
     class C2:
-        '''
+        """
         This is a nested inner class docstring
-        '''
+        """
 
 
 def func(arg_, *args, **kwargs):

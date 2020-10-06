@@ -8,7 +8,6 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 from typing import Any
 
 
@@ -32,22 +31,26 @@ class SphinxError(Exception):
        exception to a string ("category: message").  Should be set accordingly
        in subclasses.
     """
-    category = 'Sphinx error'
+
+    category = "Sphinx error"
 
 
 class SphinxWarning(SphinxError):
     """Warning, treated as error."""
-    category = 'Warning, treated as error'
+
+    category = "Warning, treated as error"
 
 
 class ApplicationError(SphinxError):
     """Application initialization error."""
-    category = 'Application error'
+
+    category = "Application error"
 
 
 class ExtensionError(SphinxError):
     """Extension error."""
-    category = 'Extension error'
+
+    category = "Extension error"
 
     def __init__(self, message: str, orig_exc: Exception = None) -> None:
         super().__init__(message)
@@ -56,46 +59,52 @@ class ExtensionError(SphinxError):
 
     def __repr__(self) -> str:
         if self.orig_exc:
-            return '%s(%r, %r)' % (self.__class__.__name__,
-                                   self.message, self.orig_exc)
-        return '%s(%r)' % (self.__class__.__name__, self.message)
+            return "{}({!r}, {!r})".format(
+                self.__class__.__name__, self.message, self.orig_exc
+            )
+        return f"{self.__class__.__name__}({self.message!r})"
 
     def __str__(self) -> str:
         parent_str = super().__str__()
         if self.orig_exc:
-            return '%s (exception: %s)' % (parent_str, self.orig_exc)
+            return f"{parent_str} (exception: {self.orig_exc})"
         return parent_str
 
 
 class BuildEnvironmentError(SphinxError):
     """BuildEnvironment error."""
-    category = 'BuildEnvironment error'
+
+    category = "BuildEnvironment error"
 
 
 class ConfigError(SphinxError):
     """Configuration error."""
-    category = 'Configuration error'
+
+    category = "Configuration error"
 
 
 class DocumentError(SphinxError):
     """Document error."""
-    category = 'Document error'
+
+    category = "Document error"
 
 
 class ThemeError(SphinxError):
     """Theme error."""
-    category = 'Theme error'
+
+    category = "Theme error"
 
 
 class VersionRequirementError(SphinxError):
     """Incompatible Sphinx version error."""
-    category = 'Sphinx version error'
+
+    category = "Sphinx version error"
 
 
 class SphinxParallelError(SphinxError):
     """Sphinx parallel build error."""
 
-    category = 'Sphinx parallel build error'
+    category = "Sphinx parallel build error"
 
     def __init__(self, message: str, traceback: Any) -> None:
         self.message = message
@@ -111,13 +120,14 @@ class PycodeError(Exception):
     def __str__(self) -> str:
         res = self.args[0]
         if len(self.args) > 1:
-            res += ' (exception was: %r)' % self.args[1]
+            res += " (exception was: %r)" % self.args[1]
         return res
 
 
 class NoUri(Exception):
     """Raised by builder.get_relative_uri() or from missing-reference handlers
     if there is no URI available."""
+
     pass
 
 

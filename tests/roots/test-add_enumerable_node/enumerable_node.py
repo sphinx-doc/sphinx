@@ -21,7 +21,7 @@ class MyFigure(Directive):
     def run(self):
         figure_node = my_figure()
         figure_node += nodes.image(uri=self.arguments[0])
-        figure_node += nodes.caption(text=''.join(self.content))
+        figure_node += nodes.caption(text="".join(self.content))
         return [figure_node]
 
 
@@ -30,15 +30,15 @@ class numbered_text(nodes.Element):
 
 
 def visit_numbered_text(self, node):
-    self.body.append(self.starttag(node, 'div'))
+    self.body.append(self.starttag(node, "div"))
     self.add_fignumber(node)
-    self.body.append(node['title'])
-    self.body.append('</div>')
+    self.body.append(node["title"])
+    self.body.append("</div>")
     raise nodes.SkipNode
 
 
 def get_title(node):
-    return node['title']
+    return node["title"]
 
 
 class NumberedText(Directive):
@@ -51,12 +51,14 @@ class NumberedText(Directive):
 
 def setup(app):
     # my-figure
-    app.add_enumerable_node(my_figure, 'figure',
-                            html=(visit_my_figure, depart_my_figure))
-    app.add_directive('my-figure', MyFigure)
+    app.add_enumerable_node(
+        my_figure, "figure", html=(visit_my_figure, depart_my_figure)
+    )
+    app.add_directive("my-figure", MyFigure)
 
     # numbered_label
-    app.add_enumerable_node(numbered_text, 'original', get_title,
-                            html=(visit_numbered_text, None))
-    app.add_directive('numbered-text', NumberedText)
-    app.config.numfig_format.setdefault('original', 'No.%s')
+    app.add_enumerable_node(
+        numbered_text, "original", get_title, html=(visit_numbered_text, None)
+    )
+    app.add_directive("numbered-text", NumberedText)
+    app.config.numfig_format.setdefault("original", "No.%s")

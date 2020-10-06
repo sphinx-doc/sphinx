@@ -12,4 +12,3 @@ See this decorator: :func:`sensitive_variables`.
    Some description
 
 .. currentmodule:: reporting
-

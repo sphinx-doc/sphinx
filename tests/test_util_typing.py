@@ -7,12 +7,18 @@
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import sys
 from numbers import Integral
-from typing import (
-    Any, Dict, Generator, List, TypeVar, Union, Callable, Tuple, Optional, Generic
-)
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Generator
+from typing import Generic
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import TypeVar
+from typing import Union
 
 import pytest
 
@@ -24,9 +30,11 @@ class MyClass1:
 
 
 class MyClass2(MyClass1):
-    __qualname__ = '<MyClass2>'
+    __qualname__ = "<MyClass2>"
 
-T = TypeVar('T')
+
+T = TypeVar("T")
+
 
 class MyList(List[T]):
     pass
@@ -53,13 +61,16 @@ def test_stringify_type_hints_containers():
     assert stringify(Tuple[str, str, str]) == "Tuple[str, str, str]"
     assert stringify(Tuple[str, ...]) == "Tuple[str, ...]"
     assert stringify(List[Dict[str, Tuple]]) == "List[Dict[str, Tuple]]"
-    assert stringify(MyList[Tuple[int, int]]) == "test_util_typing.MyList[Tuple[int, int]]"
+    assert (
+        stringify(MyList[Tuple[int, int]]) == "test_util_typing.MyList[Tuple[int, int]]"
+    )
     assert stringify(Generator[None, None, None]) == "Generator[None, None, None]"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
+@pytest.mark.skipif(sys.version_info < (3, 9), reason="python 3.9+ is required.")
 def test_stringify_Annotated():
     from typing import Annotated
+
     assert stringify(Annotated[str, "foo", "bar"]) == "str"
 
 
@@ -89,17 +100,19 @@ def test_stringify_type_hints_Union():
 
     if sys.version_info >= (3, 7):
         assert stringify(Union[int, Integral]) == "Union[int, numbers.Integral]"
-        assert (stringify(Union[MyClass1, MyClass2]) ==
-                "Union[test_util_typing.MyClass1, test_util_typing.<MyClass2>]")
+        assert (
+            stringify(Union[MyClass1, MyClass2])
+            == "Union[test_util_typing.MyClass1, test_util_typing.<MyClass2>]"
+        )
     else:
         assert stringify(Union[int, Integral]) == "numbers.Integral"
         assert stringify(Union[MyClass1, MyClass2]) == "test_util_typing.MyClass1"
 
 
 def test_stringify_type_hints_typevars():
-    T = TypeVar('T')
-    T_co = TypeVar('T_co', covariant=True)
-    T_contra = TypeVar('T_contra', contravariant=True)
+    T = TypeVar("T")
+    T_co = TypeVar("T_co", covariant=True)
+    T_contra = TypeVar("T_contra", contravariant=True)
 
     assert stringify(T) == "T"
     assert stringify(T_co) == "T_co"
@@ -120,4 +133,4 @@ def test_stringify_type_hints_alias():
 
 
 def test_stringify_broken_type_hints():
-    assert stringify(BrokenType) == 'test_util_typing.BrokenType'
+    assert stringify(BrokenType) == "test_util_typing.BrokenType"

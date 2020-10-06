@@ -1,1 +1,2 @@
-from .submodule import func1, Class1  # NOQA
+from .submodule import Class1
+from .submodule import func1

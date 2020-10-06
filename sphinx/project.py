@@ -7,7 +7,6 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import os
 from glob import glob
 from typing import TYPE_CHECKING
@@ -17,14 +16,15 @@ from sphinx.util import get_matching_files
 from sphinx.util import logging
 from sphinx.util import path_stabilize
 from sphinx.util.matching import compile_matchers
-from sphinx.util.osutil import SEP, relpath
+from sphinx.util.osutil import relpath
+from sphinx.util.osutil import SEP
 
 if TYPE_CHECKING:
     from typing import Dict, List, Set
 
 
 logger = logging.getLogger(__name__)
-EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
+EXCLUDE_PATHS = ["**/_sources", ".#*", "**/.#*", "*.lproj/**"]
 
 
 class Project:
@@ -57,15 +57,24 @@ class Project:
             docname = self.path2doc(filename)
             if docname:
                 if docname in self.docnames:
-                    pattern = os.path.join(self.srcdir, docname) + '.*'
+                    pattern = os.path.join(self.srcdir, docname) + ".*"
                     files = [relpath(f, self.srcdir) for f in glob(pattern)]
-                    logger.warning(__('multiple files found for the document "%s": %r\n'
-                                      'Use %r for the build.'),
-                                   docname, files, self.doc2path(docname), once=True)
+                    logger.warning(
+                        __(
+                            'multiple files found for the document "%s": %r\n'
+                            "Use %r for the build."
+                        ),
+                        docname,
+                        files,
+                        self.doc2path(docname),
+                        once=True,
+                    )
                 elif os.access(os.path.join(self.srcdir, filename), os.R_OK):
                     self.docnames.add(docname)
                 else:
-                    logger.warning(__("document not readable. Ignored."), location=docname)
+                    logger.warning(
+                        __("document not readable. Ignored."), location=docname
+                    )
 
         return self.docnames
 
@@ -80,7 +89,7 @@ class Project:
         for suffix in self.source_suffix:
             if filename.endswith(suffix):
                 filename = path_stabilize(filename)
-                return filename[:-len(suffix)]
+                return filename[: -len(suffix)]
 
         # the file does not have docname
         return None

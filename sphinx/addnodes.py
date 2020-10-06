@@ -7,8 +7,10 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from typing import Any, Dict, List, Sequence
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Sequence
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -28,9 +30,11 @@ class document(nodes.document):
                    in your extensions.  It will be removed without deprecation period.
     """
 
-    def set_id(self, node: Element, msgnode: Element = None,
-               suggested_prefix: str = '') -> str:
+    def set_id(
+        self, node: Element, msgnode: Element = None, suggested_prefix: str = ""
+    ) -> str:
         from sphinx.util import docutils
+
         if docutils.__version_info__ >= (0, 16):
             ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
         else:
@@ -38,7 +42,7 @@ class document(nodes.document):
 
         if docutils.__version_info__ < (0, 17):
             # register other node IDs forcedly
-            for node_id in node['ids']:
+            for node_id in node["ids"]:
                 if node_id not in self.ids:
                     self.ids[node_id] = node
 
@@ -63,7 +67,9 @@ class translatable(nodes.Node):
         """Preserve original translatable messages."""
         raise NotImplementedError
 
-    def apply_translated_message(self, original_message: str, translated_message: str) -> None:
+    def apply_translated_message(
+        self, original_message: str, translated_message: str
+    ) -> None:
         """Apply translated message."""
         raise NotImplementedError
 
@@ -77,6 +83,7 @@ class translatable(nodes.Node):
 
 class not_smartquotable:
     """A node which does not support smart-quotes."""
+
     support_smartquotes = False
 
 
@@ -85,38 +92,41 @@ class toctree(nodes.General, nodes.Element, translatable):
 
     def preserve_original_messages(self) -> None:
         # toctree entries
-        rawentries = self.setdefault('rawentries', [])
-        for title, docname in self['entries']:
+        rawentries = self.setdefault("rawentries", [])
+        for title, docname in self["entries"]:
             if title:
                 rawentries.append(title)
 
         # :caption: option
-        if self.get('caption'):
-            self['rawcaption'] = self['caption']
+        if self.get("caption"):
+            self["rawcaption"] = self["caption"]
 
-    def apply_translated_message(self, original_message: str, translated_message: str) -> None:
+    def apply_translated_message(
+        self, original_message: str, translated_message: str
+    ) -> None:
         # toctree entries
-        for i, (title, docname) in enumerate(self['entries']):
+        for i, (title, docname) in enumerate(self["entries"]):
             if title == original_message:
-                self['entries'][i] = (translated_message, docname)
+                self["entries"][i] = (translated_message, docname)
 
         # :caption: option
-        if self.get('rawcaption') == original_message:
-            self['caption'] = translated_message
+        if self.get("rawcaption") == original_message:
+            self["caption"] = translated_message
 
     def extract_original_messages(self) -> List[str]:
         messages = []  # type: List[str]
 
         # toctree entries
-        messages.extend(self.get('rawentries', []))
+        messages.extend(self.get("rawentries", []))
 
         # :caption: option
-        if 'rawcaption' in self:
-            messages.append(self['rawcaption'])
+        if "rawcaption" in self:
+            messages.append(self["rawcaption"])
         return messages
 
 
 # domain-specific object descriptions (class, function etc.)
+
 
 class desc(nodes.Admonition, nodes.Element):
     """Node for object descriptions.
@@ -138,8 +148,8 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
 
     @property
     def child_text_separator(self):
-        if self.get('is_multiline'):
-            return ' '
+        if self.get("is_multiline"):
+            return " "
         else:
             return super().child_text_separator
 
@@ -150,10 +160,12 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     It should only be used in a ``desc_signature`` with ``is_multiline`` set.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
-    sphinx_line_type = ''
+
+    sphinx_line_type = ""
 
 
 # nodes to use within a desc_signature or desc_signature_line
+
 
 class desc_addname(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for additional name parts (module name, class name)."""
@@ -169,8 +181,9 @@ class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
+
     def astext(self) -> str:
-        return ' -> ' + super().astext()
+        return " -> " + super().astext()
 
 
 class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -179,10 +192,11 @@ class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general parameter list."""
-    child_text_separator = ', '
+
+    child_text_separator = ", "
 
     def astext(self):
-        return '({})'.format(super().astext())
+        return f"({super().astext()})"
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -191,10 +205,11 @@ class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for marking optional parts of the parameter list."""
-    child_text_separator = ', '
+
+    child_text_separator = ", "
 
     def astext(self) -> str:
-        return '[' + super().astext() + ']'
+        return "[" + super().astext() + "]"
 
 
 class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -210,30 +225,36 @@ class desc_content(nodes.General, nodes.Element):
 
 class desc_sig_element(nodes.inline):
     """Common parent class of nodes for inline text of a signature."""
+
     classes = []  # type: List[str]
 
-    def __init__(self, rawsource: str = '', text: str = '',
-                 *children: Element, **attributes: Any) -> None:
+    def __init__(
+        self, rawsource: str = "", text: str = "", *children: Element, **attributes: Any
+    ) -> None:
         super().__init__(rawsource, text, *children, **attributes)
-        self['classes'].extend(self.classes)
+        self["classes"].extend(self.classes)
 
 
 class desc_sig_name(desc_sig_element):
     """Node for a name in a signature."""
+
     classes = ["n"]
 
 
 class desc_sig_operator(desc_sig_element):
     """Node for an operator in a signature."""
+
     classes = ["o"]
 
 
 class desc_sig_punctuation(desc_sig_element):
     """Node for a punctuation in a signature."""
+
     classes = ["p"]
 
 
 # new admonition-like constructs
+
 
 class versionmodified(nodes.Admonition, nodes.TextElement):
     """Node for version change entries.
@@ -259,6 +280,7 @@ class production(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 
 # other directive-level nodes
+
 
 class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
     """Node for index entries.
@@ -307,6 +329,7 @@ class only(nodes.Element):
 
 # meta-information nodes
 
+
 class start_of_file(nodes.Element):
     """Node to mark start of a new file, used in the LaTeX builder only."""
 
@@ -325,10 +348,12 @@ class meta(nodes.Special, nodes.PreBibliographic, nodes.Element):
     """Node for meta directive -- same as docutils' standard meta node,
     but pickleable.
     """
+
     rawcontent = None
 
 
 # inline nodes
+
 
 class pending_xref(nodes.Inline, nodes.Element):
     """Node for cross-references that cannot be resolved without complete
@@ -404,7 +429,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(manpage)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

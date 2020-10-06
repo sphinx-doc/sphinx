@@ -2,4 +2,3 @@ contents
 =========
 
 spam egg ham
-

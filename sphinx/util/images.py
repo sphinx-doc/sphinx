@@ -7,12 +7,14 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import base64
 import imghdr
 from collections import OrderedDict
 from os import path
-from typing import IO, NamedTuple, Optional, Tuple
+from typing import IO
+from typing import NamedTuple
+from typing import Optional
+from typing import Tuple
 
 import imagesize
 
@@ -21,15 +23,17 @@ try:
 except ImportError:
     Image = None
 
-mime_suffixes = OrderedDict([
-    ('.gif', 'image/gif'),
-    ('.jpg', 'image/jpeg'),
-    ('.png', 'image/png'),
-    ('.pdf', 'application/pdf'),
-    ('.svg', 'image/svg+xml'),
-    ('.svgz', 'image/svg+xml'),
-    ('.ai', 'application/illustrator'),
-])
+mime_suffixes = OrderedDict(
+    [
+        (".gif", "image/gif"),
+        (".jpg", "image/jpeg"),
+        (".png", "image/png"),
+        (".pdf", "application/pdf"),
+        (".svg", "image/svg+xml"),
+        (".svgz", "image/svg+xml"),
+        (".ai", "application/illustrator"),
+    ]
+)
 
 
 class DataURI(NamedTuple):
@@ -55,20 +59,22 @@ def get_image_size(filename: str) -> Optional[Tuple[int, int]]:
         return None
 
 
-def guess_mimetype_for_stream(stream: IO, default: Optional[str] = None) -> Optional[str]:
+def guess_mimetype_for_stream(
+    stream: IO, default: Optional[str] = None
+) -> Optional[str]:
     imgtype = imghdr.what(stream)
     if imgtype:
-        return 'image/' + imgtype
+        return "image/" + imgtype
     else:
         return default
 
 
-def guess_mimetype(filename: str = '', default: Optional[str] = None) -> Optional[str]:
+def guess_mimetype(filename: str = "", default: Optional[str] = None) -> Optional[str]:
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
     elif path.exists(filename):
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             return guess_mimetype_for_stream(f, default=default)
 
     return default
@@ -83,18 +89,18 @@ def get_image_extension(mimetype: str) -> Optional[str]:
 
 
 def parse_data_uri(uri: str) -> Optional[DataURI]:
-    if not uri.startswith('data:'):
+    if not uri.startswith("data:"):
         return None
 
     # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
-    mimetype = 'text/plain'
-    charset = 'US-ASCII'
+    mimetype = "text/plain"
+    charset = "US-ASCII"
 
-    properties, data = uri[5:].split(',', 1)
-    for prop in properties.split(';'):
-        if prop == 'base64':
+    properties, data = uri[5:].split(",", 1)
+    for prop in properties.split(";"):
+        if prop == "base64":
             pass  # skip
-        elif prop.startswith('charset='):
+        elif prop.startswith("charset="):
             charset = prop[8:]
         elif prop:
             mimetype = prop
@@ -106,8 +112,8 @@ def parse_data_uri(uri: str) -> Optional[DataURI]:
 def test_svg(h: bytes, f: IO) -> Optional[str]:
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
-        if '<svg' in h.decode().lower():
-            return 'svg+xml'
+        if "<svg" in h.decode().lower():
+            return "svg+xml"
     except UnicodeDecodeError:
         pass
 

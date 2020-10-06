@@ -54,4 +54,3 @@ test-maxlistdepth
                              .. code-block:: python
 
                                   def foo():
-

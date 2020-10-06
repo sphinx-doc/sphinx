@@ -37,4 +37,3 @@ link to :keyword:`i18n-role-xref` and :keyword:`same-type-links`.
 
 .. productionlist::
    token_stmt: `token1` ":" `token2`
-

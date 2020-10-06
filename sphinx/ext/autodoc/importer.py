@@ -7,15 +7,23 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import importlib
 import traceback
 import warnings
-from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tuple
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Mapping
+from typing import NamedTuple
+from typing import Optional
+from typing import Tuple
 
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
-from sphinx.util.inspect import isclass, isenumclass, safe_getattr
+from sphinx.util.inspect import isclass
+from sphinx.util.inspect import isenumclass
+from sphinx.util.inspect import safe_getattr
 
 if False:
     # For type annotation
@@ -27,8 +35,8 @@ logger = logging.getLogger(__name__)
 def mangle(subject: Any, name: str) -> str:
     """mangle the given name."""
     try:
-        if isclass(subject) and name.startswith('__') and not name.endswith('__'):
-            return "_%s%s" % (subject.__name__, name)
+        if isclass(subject) and name.startswith("__") and not name.endswith("__"):
+            return f"_{subject.__name__}{name}"
     except AttributeError:
         pass
 
@@ -38,7 +46,7 @@ def mangle(subject: Any, name: str) -> str:
 def unmangle(subject: Any, name: str) -> Optional[str]:
     """unmangle the given name."""
     try:
-        if isclass(subject) and not name.endswith('__'):
+        if isclass(subject) and not name.endswith("__"):
             prefix = "_%s__" % subject.__name__
             if name.startswith(prefix):
                 return name.replace(prefix, "__", 1)
@@ -69,13 +77,17 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
         raise ImportError(exc, traceback.format_exc()) from exc
 
 
-def import_object(modname: str, objpath: List[str], objtype: str = '',
-                  attrgetter: Callable[[Any, str], Any] = safe_getattr,
-                  warningiserror: bool = False) -> Any:
+def import_object(
+    modname: str,
+    objpath: List[str],
+    objtype: str = "",
+    attrgetter: Callable[[Any, str], Any] = safe_getattr,
+    warningiserror: bool = False,
+) -> Any:
     if objpath:
-        logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
+        logger.debug("[autodoc] from %s import %s", modname, ".".join(objpath))
     else:
-        logger.debug('[autodoc] import %s', modname)
+        logger.debug("[autodoc] import %s", modname)
 
     try:
         module = None
@@ -84,13 +96,13 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
         while module is None:
             try:
                 module = import_module(modname, warningiserror=warningiserror)
-                logger.debug('[autodoc] import %s => %r', modname, module)
+                logger.debug("[autodoc] import %s => %r", modname, module)
             except ImportError as exc:
-                logger.debug('[autodoc] import %s => failed', modname)
+                logger.debug("[autodoc] import %s => failed", modname)
                 exc_on_importing = exc
-                if '.' in modname:
+                if "." in modname:
                     # retry with parent module
-                    modname, name = modname.rsplit('.', 1)
+                    modname, name = modname.rsplit(".", 1)
                     objpath.insert(0, name)
                 else:
                     raise
@@ -100,10 +112,10 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
         object_name = None
         for attrname in objpath:
             parent = obj
-            logger.debug('[autodoc] getattr(_, %r)', attrname)
+            logger.debug("[autodoc] getattr(_, %r)", attrname)
             mangled_name = mangle(obj, attrname)
             obj = attrgetter(obj, mangled_name)
-            logger.debug('[autodoc] => %r', obj)
+            logger.debug("[autodoc] => %r", obj)
             object_name = attrname
         return [module, parent, object_name, obj]
     except (AttributeError, ImportError) as exc:
@@ -112,24 +124,29 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
             exc = exc_on_importing
 
         if objpath:
-            errmsg = ('autodoc: failed to import %s %r from module %r' %
-                      (objtype, '.'.join(objpath), modname))
+            errmsg = "autodoc: failed to import {} {!r} from module {!r}".format(
+                objtype, ".".join(objpath), modname,
+            )
         else:
-            errmsg = 'autodoc: failed to import %s %r' % (objtype, modname)
+            errmsg = f"autodoc: failed to import {objtype} {modname!r}"
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
             # traceback
             real_exc, traceback_msg = exc.args
             if isinstance(real_exc, SystemExit):
-                errmsg += ('; the module executes module level statement '
-                           'and it might call sys.exit().')
+                errmsg += (
+                    "; the module executes module level statement "
+                    "and it might call sys.exit()."
+                )
             elif isinstance(real_exc, ImportError) and real_exc.args:
-                errmsg += '; the following exception was raised:\n%s' % real_exc.args[0]
+                errmsg += "; the following exception was raised:\n%s" % real_exc.args[0]
             else:
-                errmsg += '; the following exception was raised:\n%s' % traceback_msg
+                errmsg += "; the following exception was raised:\n%s" % traceback_msg
         else:
-            errmsg += '; the following exception was raised:\n%s' % traceback.format_exc()
+            errmsg += (
+                "; the following exception was raised:\n%s" % traceback.format_exc()
+            )
 
         logger.debug(errmsg)
         raise ImportError(errmsg) from exc
@@ -148,7 +165,7 @@ def get_module_members(module: Any) -> List[Tuple[str, Any]]:
             continue
 
     # annotation only member (ex. attr: int)
-    if hasattr(module, '__annotations__'):
+    if hasattr(module, "__annotations__"):
         for name in module.__annotations__:
             if name not in members:
                 members[name] = (name, INSTANCEATTR)
@@ -164,7 +181,7 @@ class Attribute(NamedTuple):
 
 def _getmro(obj: Any) -> Tuple["Type", ...]:
     """Get __mro__ from given *obj* safely."""
-    __mro__ = safe_getattr(obj, '__mro__', None)
+    __mro__ = safe_getattr(obj, "__mro__", None)
     if isinstance(__mro__, tuple):
         return __mro__
     else:
@@ -173,20 +190,24 @@ def _getmro(obj: Any) -> Tuple["Type", ...]:
 
 def _getannotations(obj: Any) -> Mapping[str, Any]:
     """Get __annotations__ from given *obj* safely."""
-    __annotations__ = safe_getattr(obj, '__annotations__', None)
+    __annotations__ = safe_getattr(obj, "__annotations__", None)
     if isinstance(__annotations__, Mapping):
         return __annotations__
     else:
         return {}
 
 
-def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
-                       analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
+def get_object_members(
+    subject: Any,
+    objpath: List[str],
+    attrgetter: Callable,
+    analyzer: ModuleAnalyzer = None,
+) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR
 
     # the members directly defined in the class
-    obj_dict = attrgetter(subject, '__dict__', {})
+    obj_dict = attrgetter(subject, "__dict__", {})
 
     members = {}  # type: Dict[str, Attribute]
 
@@ -203,7 +224,7 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                 members[name] = Attribute(name, True, value)
 
     # members in __slots__
-    if isclass(subject) and getattr(subject, '__slots__', None) is not None:
+    if isclass(subject) and getattr(subject, "__slots__", None) is not None:
         from sphinx.ext.autodoc import SLOTSATTR
 
         for name in subject.__slots__:
@@ -229,7 +250,7 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
 
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows
-        namespace = '.'.join(objpath)
+        namespace = ".".join(objpath)
         for (ns, name) in analyzer.find_attr_docs():
             if namespace == ns and name not in members:
                 members[name] = Attribute(name, True, INSTANCEATTR)

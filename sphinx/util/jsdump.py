@@ -8,28 +8,32 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import re
-from typing import Any, Dict, IO, List, Match, Union
+from typing import Any
+from typing import Dict
+from typing import IO
+from typing import List
+from typing import Match
+from typing import Union
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
-_int_re = re.compile(r'\d+')
-_name_re = re.compile(r'[a-zA-Z_]\w*')
-_nameonly_re = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*$')
+_int_re = re.compile(r"\d+")
+_name_re = re.compile(r"[a-zA-Z_]\w*")
+_nameonly_re = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*$")
 
 # escape \, ", control characters and everything outside ASCII
 ESCAPE_ASCII = re.compile(r'([\\"]|[^\ -~])')
 ESCAPE_DICT = {
-    '\\': '\\\\',
+    "\\": "\\\\",
     '"': '\\"',
-    '\b': '\\b',
-    '\f': '\\f',
-    '\n': '\\n',
-    '\r': '\\r',
-    '\t': '\\t',
+    "\b": "\\b",
+    "\f": "\\f",
+    "\n": "\\n",
+    "\r": "\\r",
+    "\t": "\\t",
 }
 
-ESCAPED = re.compile(r'\\u.{4}|\\.')
+ESCAPED = re.compile(r"\\u.{4}|\\.")
 
 
 def encode_string(s: str) -> str:
@@ -40,13 +44,14 @@ def encode_string(s: str) -> str:
         except KeyError:
             n = ord(s)
             if n < 0x10000:
-                return '\\u%04x' % (n,)
+                return f"\\u{n:04x}"
             else:
                 # surrogate pair
                 n -= 0x10000
-                s1 = 0xd800 | ((n >> 10) & 0x3ff)
-                s2 = 0xdc00 | (n & 0x3ff)
-                return '\\u%04x\\u%04x' % (s1, s2)
+                s1 = 0xD800 | ((n >> 10) & 0x3FF)
+                s2 = 0xDC00 | (n & 0x3FF)
+                return f"\\u{s1:04x}\\u{s2:04x}"
+
     return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
 
 
@@ -54,7 +59,8 @@ def decode_string(s: str) -> str:
     return ESCAPED.sub(lambda m: eval('"' + m.group() + '"'), s)
 
 
-reswords = set("""\
+reswords = set(
+    """\
 abstract   else   instanceof   switch
 boolean   enum   int   synchronized
 break   export   interface   this
@@ -69,7 +75,8 @@ debugger   goto   public   void
 default   if   return   volatile
 delete   implements   short   while
 do   import   static   with
-double   in   super""".split())
+double   in   super""".split()
+)
 
 
 def dumps(obj: Any, key: bool = False) -> str:
@@ -81,20 +88,22 @@ def dumps(obj: Any, key: bool = False) -> str:
         else:
             return encode_string(obj)
     if obj is None:
-        return 'null'
+        return "null"
     elif obj is True or obj is False:
-        return 'true' if obj else 'false'
+        return "true" if obj else "false"
     elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, dict):
-        return '{%s}' % ','.join(sorted('%s:%s' % (
-            dumps(key, True),
-            dumps(value)
-        ) for key, value in obj.items()))
+        return "{%s}" % ",".join(
+            sorted(
+                "{}:{}".format(dumps(key, True), dumps(value))
+                for key, value in obj.items()
+            )
+        )
     elif isinstance(obj, set):
-        return '[%s]' % ','.join(sorted(dumps(x) for x in obj))
+        return "[%s]" % ",".join(sorted(dumps(x) for x in obj))
     elif isinstance(obj, (tuple, list)):
-        return '[%s]' % ','.join(dumps(x) for x in obj)
+        return "[%s]" % ",".join(dumps(x) for x in obj)
     elif isinstance(obj, str):
         return encode_string(obj)
     raise TypeError(type(obj))
@@ -115,19 +124,19 @@ def loads(x: str) -> Any:
     keys = []
     while i < n:
         c = x[i]
-        if c == '{':
+        if c == "{":
             obj = {}
             stack.append(obj)
             key = True
             keys.append(nothing)
             i += 1
-        elif c == '[':
+        elif c == "[":
             obj = []
             stack.append(obj)
             key = False
             keys.append(nothing)
             i += 1
-        elif c in '}]':
+        elif c in "}]":
             if key:
                 if keys[-1] is not nothing:
                     raise ValueError("unfinished dict")
@@ -146,13 +155,13 @@ def loads(x: str) -> Any:
             else:
                 break
             i += 1
-        elif c == ',':
+        elif c == ",":
             if key:
                 raise ValueError("multiple keys")
             if isinstance(obj, dict):
                 key = True
             i += 1
-        elif c == ':':
+        elif c == ":":
             if not isinstance(obj, dict):
                 raise ValueError("colon in list")
             i += 1
@@ -172,11 +181,11 @@ def loads(x: str) -> Any:
                     m = _name_re.match(x, i)
                     if m:
                         y = m.group()
-                        if y == 'true':
+                        if y == "true":
                             y = True
-                        elif y == 'false':
+                        elif y == "false":
                             y = False
-                        elif y == 'null':
+                        elif y == "null":
                             y = None
                         elif not key:
                             raise ValueError("bareword as value")

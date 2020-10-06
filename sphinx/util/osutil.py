@@ -7,7 +7,6 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import contextlib
 import filecmp
 import os
@@ -16,7 +15,12 @@ import shutil
 import sys
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Optional, Type
+from typing import Any
+from typing import Generator
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import Type
 
 try:
     # for ALT Linux (#6712)
@@ -46,8 +50,8 @@ def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split('#')[0].split(SEP)
-    t2 = to.split('#')[0].split(SEP)
+    b2 = base.split("#")[0].split(SEP)
+    t2 = to.split("#")[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:
@@ -57,12 +61,12 @@ def relative_uri(base: str, to: str) -> str:
     if b2 == t2:
         # Special case: relative_uri('f/index.html','f/index.html')
         # returns '', not 'index.html'
-        return ''
-    if len(b2) == 1 and t2 == ['']:
+        return ""
+    if len(b2) == 1 and t2 == [""]:
         # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
-        return '.' + SEP
-    return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
+        return "." + SEP
+    return (".." + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
 def ensuredir(path: str) -> None:
@@ -94,7 +98,7 @@ def movefile(source: str, dest: str) -> None:
 def copytimes(source: str, dest: str) -> None:
     """Copy a file's modification times."""
     st = os.stat(source)
-    if hasattr(os, 'utime'):
+    if hasattr(os, "utime"):
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
@@ -111,16 +115,16 @@ def copyfile(source: str, dest: str) -> None:
             pass
 
 
-no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
-project_suffix_re = re.compile(' Documentation$')
+no_fn_re = re.compile(r"[^a-zA-Z0-9_-]")
+project_suffix_re = re.compile(" Documentation$")
 
 
 def make_filename(string: str) -> str:
-    return no_fn_re.sub('', string) or 'sphinx'
+    return no_fn_re.sub("", string) or "sphinx"
 
 
 def make_filename_from_project(project: str) -> str:
-    return make_filename(project_suffix_re.sub('', project)).lower()
+    return make_filename(project_suffix_re.sub("", project)).lower()
 
 
 def relpath(path: str, start: str = os.curdir) -> str:
@@ -149,9 +153,11 @@ def abspath(pathdir: str) -> str:
             try:
                 pathdir = pathdir.decode(fs_encoding)
             except UnicodeDecodeError as exc:
-                raise UnicodeDecodeError('multibyte filename not supported on '
-                                         'this filesystem encoding '
-                                         '(%r)' % fs_encoding) from exc
+                raise UnicodeDecodeError(
+                    "multibyte filename not supported on "
+                    "this filesystem encoding "
+                    "(%r)" % fs_encoding
+                ) from exc
         return pathdir
 
 
@@ -177,6 +183,7 @@ class FileAvoidWrite:
 
     Objects can be used as context managers.
     """
+
     def __init__(self, path: str) -> None:
         self._path = path
         self._io = None  # type: Optional[StringIO]
@@ -189,7 +196,7 @@ class FileAvoidWrite:
     def close(self) -> None:
         """Stop accepting writes and write file, if needed."""
         if not self._io:
-            raise Exception('FileAvoidWrite does not support empty files.')
+            raise Exception("FileAvoidWrite does not support empty files.")
 
         buf = self.getvalue()
         self._io.close()
@@ -202,21 +209,24 @@ class FileAvoidWrite:
         except OSError:
             pass
 
-        with open(self._path, 'w') as f:
+        with open(self._path, "w") as f:
             f.write(buf)
 
     def __enter__(self) -> "FileAvoidWrite":
         return self
 
-    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(
+        self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any
+    ) -> bool:  # NOQA
         self.close()
         return True
 
     def __getattr__(self, name: str) -> Any:
         # Proxy to _io instance.
         if not self._io:
-            raise Exception('Must write to FileAvoidWrite before other '
-                            'methods can be used')
+            raise Exception(
+                "Must write to FileAvoidWrite before other " "methods can be used"
+            )
 
         return getattr(self._io, name)
 

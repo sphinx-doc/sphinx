@@ -94,4 +94,3 @@ msgstr ""
 ">>>\n"
 ">>> if __name__ == '__main__':  # IF RUN THIS PY FILE AS PYTHON SCRIPT\n"
 "...     main()  # CALL MAIN"
-

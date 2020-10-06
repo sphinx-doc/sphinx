@@ -27,6 +27,7 @@ def myawait(f):
     def wrapper(*args, **kwargs):
         awaitable = f(*args, **kwargs)
         return asyncio.run(awaitable)
+
     return wrapper
 
 

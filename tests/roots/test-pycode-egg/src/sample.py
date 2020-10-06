@@ -3,4 +3,4 @@ CONSTANT = 1
 
 
 def hello(s):
-    print('Hello %s' % s)
+    print("Hello %s" % s)

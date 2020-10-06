@@ -50,4 +50,3 @@ image under note
 
    .. figure:: img.png
       :alt: img under note
-

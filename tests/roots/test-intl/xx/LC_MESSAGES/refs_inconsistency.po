@@ -36,4 +36,3 @@ msgstr "THIS IS A CITATION."
 
 msgid "This is a numbered footnote."
 msgstr "THIS IS A NUMBERED FOOTNOTE."
-

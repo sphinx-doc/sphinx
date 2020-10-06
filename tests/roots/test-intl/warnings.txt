@@ -2,4 +2,3 @@ i18n with reST warnings
 ========================
 
 line of ``literal`` markup.
-

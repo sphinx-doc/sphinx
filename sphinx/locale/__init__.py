@@ -7,12 +7,19 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import gettext
 import locale
-from collections import UserString, defaultdict
+from collections import defaultdict
+from collections import UserString
 from gettext import NullTranslations
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 
 class _TranslationProxy(UserString):
@@ -27,7 +34,8 @@ class _TranslationProxy(UserString):
     for their Text nodes, which then checks its argument for being either a
     basestring or UserString, otherwise calls str() -- not unicode() -- on it.
     """
-    __slots__ = ('_func', '_args')
+
+    __slots__ = ("_func", "_args")
 
     def __new__(cls, func: Callable, *args: str) -> object:  # type: ignore
         if not args:
@@ -83,7 +91,7 @@ class _TranslationProxy(UserString):
         return other * self.data
 
     def __getattr__(self, name: str) -> Any:
-        if name == '__members__':
+        if name == "__members__":
             return self.__dir__()
         return getattr(self.data, name)
 
@@ -98,16 +106,22 @@ class _TranslationProxy(UserString):
 
     def __repr__(self) -> str:
         try:
-            return 'i' + repr(str(self.data))
+            return "i" + repr(str(self.data))
         except Exception:
-            return '<%s broken>' % self.__class__.__name__
+            return "<%s broken>" % self.__class__.__name__
 
 
-translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
+translators = defaultdict(
+    NullTranslations
+)  # type: Dict[Tuple[str, str], NullTranslations]
 
 
-def init(locale_dirs: List[Optional[str]], language: str,
-         catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
+def init(
+    locale_dirs: List[Optional[str]],
+    language: str,
+    catalog: str = "sphinx",
+    namespace: str = "general",
+) -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -121,9 +135,9 @@ def init(locale_dirs: List[Optional[str]], language: str,
     # the None entry is the system's default locale path
     has_translation = True
 
-    if language and '_' in language:
+    if language and "_" in language:
         # for language having country code (like "de_AT")
-        languages = [language, language.split('_')[0]]
+        languages = [language, language.split("_")[0]]
     else:
         languages = [language]
 
@@ -173,19 +187,25 @@ def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]
     """
     try:
         # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)  # type: Tuple[Optional[str], Any]
+        language, _ = locale.getlocale(
+            locale.LC_MESSAGES
+        )  # type: Tuple[Optional[str], Any]
     except AttributeError:
         # LC_MESSAGES is not always defined. Fallback to the default language
         # in case it is not.
         language = None
-    return init([locale_dir], language, catalog, 'console')
+    return init([locale_dir], language, catalog, "console")
 
 
-def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
+def get_translator(
+    catalog: str = "sphinx", namespace: str = "general"
+) -> NullTranslations:
     return translators[(namespace, catalog)]
 
 
-def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:
+def is_translator_registered(
+    catalog: str = "sphinx", namespace: str = "general"
+) -> bool:
     return (namespace, catalog) in translators
 
 
@@ -197,7 +217,7 @@ def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
     return translator.gettext(message)
 
 
-def get_translation(catalog: str, namespace: str = 'general') -> Callable:
+def get_translation(catalog: str, namespace: str = "general") -> Callable:
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the
@@ -222,6 +242,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable:
 
     .. versionadded:: 1.8
     """
+
     def gettext(message: str, *args: Any) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
@@ -239,24 +260,24 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable:
 # A shortcut for sphinx-core
 #: Translation function for messages on documentation (menu, labels, themes and so on).
 #: This function follows :confval:`language` setting.
-_ = get_translation('sphinx')
+_ = get_translation("sphinx")
 #: Translation function for console messages
 #: This function follows locale setting (`LC_ALL`, `LC_MESSAGES` and so on).
-__ = get_translation('sphinx', 'console')
+__ = get_translation("sphinx", "console")
 
 
 # labels
 admonitionlabels = {
-    'attention': _('Attention'),
-    'caution':   _('Caution'),
-    'danger':    _('Danger'),
-    'error':     _('Error'),
-    'hint':      _('Hint'),
-    'important': _('Important'),
-    'note':      _('Note'),
-    'seealso':   _('See also'),
-    'tip':       _('Tip'),
-    'warning':   _('Warning'),
+    "attention": _("Attention"),
+    "caution": _("Caution"),
+    "danger": _("Danger"),
+    "error": _("Error"),
+    "hint": _("Hint"),
+    "important": _("Important"),
+    "note": _("Note"),
+    "seealso": _("See also"),
+    "tip": _("Tip"),
+    "warning": _("Warning"),
 }
 
 # Moved to sphinx.directives.other (will be overriden later)

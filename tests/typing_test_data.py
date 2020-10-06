@@ -1,6 +1,13 @@
 from inspect import Signature
 from numbers import Integral
-from typing import Any, Dict, List, TypeVar, Union, Callable, Tuple, Optional
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import TypeVar
+from typing import Union
 
 
 def f0(x: int, y: Integral) -> None:
@@ -11,9 +18,9 @@ def f1(x: List[int]) -> List[int]:
     pass
 
 
-T = TypeVar('T')
-T_co = TypeVar('T_co', covariant=True)
-T_contra = TypeVar('T_contra', contravariant=True)
+T = TypeVar("T")
+T_co = TypeVar("T_co", covariant=True)
+T_contra = TypeVar("T_contra", contravariant=True)
 
 
 def f2(x: List[T], y: List[T_co], z: T) -> List[T_contra]:
@@ -27,7 +34,7 @@ def f3(x: Union[str, Integral]) -> None:
 MyStr = str
 
 
-def f4(x: 'MyStr', y: MyStr) -> None:
+def f4(x: "MyStr", y: MyStr) -> None:
     pass
 
 
@@ -58,7 +65,7 @@ def f10(x: Tuple[int, str], y: Tuple[int, ...]) -> None:
 
 class CustomAnnotation:
     def __repr__(self):
-        return 'CustomAnnotation'
+        return "CustomAnnotation"
 
 
 def f11(x: CustomAnnotation(), y: 123) -> None:
@@ -101,13 +108,13 @@ def f20() -> Optional[Union[int, str]]:
     pass
 
 
-def f21(arg1='whatever', arg2=Signature.empty):
+def f21(arg1="whatever", arg2=Signature.empty):
     pass
 
 
 class Node:
-    def __init__(self, parent: Optional['Node']) -> None:
+    def __init__(self, parent: Optional["Node"]) -> None:
         pass
 
-    def children(self) -> List['Node']:
+    def children(self) -> List["Node"]:
         pass

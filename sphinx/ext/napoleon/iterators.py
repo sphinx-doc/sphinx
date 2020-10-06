@@ -9,9 +9,10 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import collections
-from typing import Any, Iterable, Optional
+from typing import Any
+from typing import Iterable
+from typing import Optional
 
 
 class peek_iter:
@@ -47,10 +48,11 @@ class peek_iter:
         be set to a new object instance: ``object()``.
 
     """
+
     def __init__(self, *args: Any) -> None:
         """__init__(o, sentinel=None)"""
-        self._iterable = iter(*args)        # type: Iterable
-        self._cache = collections.deque()   # type: collections.deque
+        self._iterable = iter(*args)  # type: Iterable
+        self._cache = collections.deque()  # type: collections.deque
         if len(args) == 2:
             self.sentinel = args[1]
         else:
@@ -206,18 +208,18 @@ class modify_iter(peek_iter):
     "whitespace."
 
     """
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """__init__(o, sentinel=None, modifier=lambda x: x)"""
-        if 'modifier' in kwargs:
-            self.modifier = kwargs['modifier']
+        if "modifier" in kwargs:
+            self.modifier = kwargs["modifier"]
         elif len(args) > 2:
             self.modifier = args[2]
             args = args[:2]
         else:
             self.modifier = lambda x: x
         if not callable(self.modifier):
-            raise TypeError('modify_iter(o, modifier): '
-                            'modifier must be callable')
+            raise TypeError("modify_iter(o, modifier): " "modifier must be callable")
         super().__init__(*args)
 
     def _fillcache(self, n: Optional[int]) -> None:

@@ -3,11 +3,11 @@ from docutils.parsers import Parser
 
 
 class Parser(Parser):
-    supported = ('foo',)
+    supported = ("foo",)
 
     def parse(self, input, document):
-        section = nodes.section(ids=['id1'])
-        section += nodes.title('Generated section', 'Generated section')
+        section = nodes.section(ids=["id1"])
+        section += nodes.title("Generated section", "Generated section")
         document += section
 
     def get_transforms(self):

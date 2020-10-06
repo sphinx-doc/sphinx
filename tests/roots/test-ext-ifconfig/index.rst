@@ -8,4 +8,3 @@ ifconfig
 .. ifconfig:: confval2
 
    egg
-

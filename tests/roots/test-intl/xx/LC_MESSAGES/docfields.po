@@ -36,4 +36,3 @@ msgstr "IF THE VALUES ARE OUT OF RANGE"
 
 msgid "a new :class:`Cls3` instance"
 msgstr "A NEW :class:`Cls3` INSTANCE"
-

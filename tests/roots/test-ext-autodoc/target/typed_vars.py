@@ -1,14 +1,15 @@
 #: attr1
-attr1: str = ''
+attr1: str = ""
 #: attr2
 attr2: str
 #: attr3
-attr3 = ''  # type: str
+attr3 = ""  # type: str
 
 
 class _Descriptor:
     def __init__(self, name):
-        self.__doc__ = "This is {}".format(name)
+        self.__doc__ = f"This is {name}"
+
     def __get__(self):
         pass
 
@@ -21,9 +22,9 @@ class Class:
     descr4: int = _Descriptor("descr4")
 
     def __init__(self):
-        self.attr4: int = 0     #: attr4
-        self.attr5: int         #: attr5
-        self.attr6 = 0          # type: int
+        self.attr4: int = 0  #: attr4
+        self.attr5: int  #: attr5
+        self.attr6 = 0  # type: int
         """attr6"""
 
 

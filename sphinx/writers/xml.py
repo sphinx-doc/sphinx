@@ -7,7 +7,6 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 from typing import Any
 
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
@@ -22,9 +21,9 @@ class XMLWriter(BaseXMLWriter):
         self.translator_class = self.builder.get_translator_class()
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
-        self.document.settings.newlines = \
-            self.document.settings.indents = \
-            self.builder.env.config.xml_pretty
+        self.document.settings.newlines = (
+            self.document.settings.indents
+        ) = self.builder.env.config.xml_pretty
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
         return super().translate()
@@ -32,11 +31,11 @@ class XMLWriter(BaseXMLWriter):
 
 class PseudoXMLWriter(BaseXMLWriter):
 
-    supported = ('pprint', 'pformat', 'pseudoxml')
+    supported = ("pprint", "pformat", "pseudoxml")
     """Formats this writer supports."""
 
-    config_section = 'pseudoxml writer'
-    config_section_dependencies = ('writers',)
+    config_section = "pseudoxml writer"
+    config_section_dependencies = ("writers",)
 
     output = None
     """Final translated form of `document`."""

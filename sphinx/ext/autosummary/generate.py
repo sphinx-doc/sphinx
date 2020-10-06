@@ -16,7 +16,6 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import argparse
 import inspect
 import locale
@@ -28,7 +27,14 @@ import sys
 import warnings
 from gettext import NullTranslations
 from os import path
-from typing import Any, Dict, List, NamedTuple, Set, Tuple, Type, Union
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import NamedTuple
+from typing import Set
+from typing import Tuple
+from typing import Type
+from typing import Union
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -41,9 +47,12 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
-from sphinx.ext.autosummary import import_by_name, import_ivar_by_name, get_documenter
+from sphinx.ext.autosummary import get_documenter
+from sphinx.ext.autosummary import import_by_name
+from sphinx.ext.autosummary import import_ivar_by_name
 from sphinx.locale import __
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
+from sphinx.pycode import PycodeError
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging
 from sphinx.util import rst
@@ -69,8 +78,8 @@ class DummyApplication:
         self._warncount = 0
         self.warningiserror = False
 
-        self.config.add('autosummary_context', {}, True, None)
-        self.config.add('autosummary_filename_map', {}, True, None)
+        self.config.add("autosummary_context", {}, True, None)
+        self.config.add("autosummary_filename_map", {}, True, None)
         self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
@@ -86,17 +95,36 @@ class AutosummaryEntry(NamedTuple):
 
 def setup_documenters(app: Any) -> None:
     from sphinx.ext.autodoc import (
-        ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
-        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
-        InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
+        ModuleDocumenter,
+        ClassDocumenter,
+        ExceptionDocumenter,
+        DataDocumenter,
+        FunctionDocumenter,
+        MethodDocumenter,
+        AttributeDocumenter,
+        InstanceAttributeDocumenter,
+        DecoratorDocumenter,
+        PropertyDocumenter,
+        SlotsAttributeDocumenter,
+        DataDeclarationDocumenter,
+        GenericAliasDocumenter,
         SingledispatchFunctionDocumenter,
     )
+
     documenters = [
-        ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
-        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
-        InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
+        ModuleDocumenter,
+        ClassDocumenter,
+        ExceptionDocumenter,
+        DataDocumenter,
+        FunctionDocumenter,
+        MethodDocumenter,
+        AttributeDocumenter,
+        InstanceAttributeDocumenter,
+        DecoratorDocumenter,
+        PropertyDocumenter,
+        SlotsAttributeDocumenter,
+        DataDeclarationDocumenter,
+        GenericAliasDocumenter,
         SingledispatchFunctionDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
@@ -108,13 +136,13 @@ def _simple_info(msg: str) -> None:
 
 
 def _simple_warn(msg: str) -> None:
-    print('WARNING: ' + msg, file=sys.stderr)
+    print("WARNING: " + msg, file=sys.stderr)
 
 
-def _underline(title: str, line: str = '=') -> str:
-    if '\n' in title:
-        raise ValueError('Can only underline single lines')
-    return title + '\n' + line * len(title)
+def _underline(title: str, line: str = "=") -> str:
+    if "\n" in title:
+        raise ValueError("Can only underline single lines")
+    return title + "\n" + line * len(title)
 
 
 class AutosummaryRenderer:
@@ -122,21 +150,30 @@ class AutosummaryRenderer:
 
     def __init__(self, app: Union[Builder, Sphinx], template_dir: str = None) -> None:
         if isinstance(app, Builder):
-            warnings.warn('The first argument for AutosummaryRenderer has been '
-                          'changed to Sphinx object',
-                          RemovedInSphinx50Warning, stacklevel=2)
+            warnings.warn(
+                "The first argument for AutosummaryRenderer has been "
+                "changed to Sphinx object",
+                RemovedInSphinx50Warning,
+                stacklevel=2,
+            )
         if template_dir:
-            warnings.warn('template_dir argument for AutosummaryRenderer is deprecated.',
-                          RemovedInSphinx50Warning, stacklevel=2)
+            warnings.warn(
+                "template_dir argument for AutosummaryRenderer is deprecated.",
+                RemovedInSphinx50Warning,
+                stacklevel=2,
+            )
 
-        system_templates_path = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
-        loader = SphinxTemplateLoader(app.srcdir, app.config.templates_path,
-                                      system_templates_path)
+        system_templates_path = [
+            os.path.join(package_dir, "ext", "autosummary", "templates")
+        ]
+        loader = SphinxTemplateLoader(
+            app.srcdir, app.config.templates_path, system_templates_path
+        )
 
         self.env = SandboxedEnvironment(loader=loader)
-        self.env.filters['escape'] = rst.escape
-        self.env.filters['e'] = rst.escape
-        self.env.filters['underline'] = _underline
+        self.env.filters["escape"] = rst.escape
+        self.env.filters["e"] = rst.escape
+        self.env.filters["underline"] = _underline
 
         if isinstance(app, (Sphinx, DummyApplication)):
             if app.translator:
@@ -149,8 +186,11 @@ class AutosummaryRenderer:
 
     def exists(self, template_name: str) -> bool:
         """Check if template file exists."""
-        warnings.warn('AutosummaryRenderer.exists() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "AutosummaryRenderer.exists() is deprecated.",
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
         try:
             self.env.get_template(template_name)
             return True
@@ -164,10 +204,10 @@ class AutosummaryRenderer:
         except TemplateNotFound:
             try:
                 # objtype is given as template_name
-                template = self.env.get_template('autosummary/%s.rst' % template_name)
+                template = self.env.get_template("autosummary/%s.rst" % template_name)
             except TemplateNotFound:
                 # fallback to base.rst
-                template = self.env.get_template('autosummary/base.rst')
+                template = self.env.get_template("autosummary/base.rst")
 
         return template.render(context)
 
@@ -185,12 +225,19 @@ class ModuleScanner:
 
     def is_skipped(self, name: str, value: Any, objtype: str) -> bool:
         try:
-            return self.app.emit_firstresult('autodoc-skip-member', objtype,
-                                             name, value, False, {})
+            return self.app.emit_firstresult(
+                "autodoc-skip-member", objtype, name, value, False, {}
+            )
         except Exception as exc:
-            logger.warning(__('autosummary: failed to determine %r to be documented, '
-                              'the following exception was raised:\n%s'),
-                           name, exc, type='autosummary')
+            logger.warning(
+                __(
+                    "autosummary: failed to determine %r to be documented, "
+                    "the following exception was raised:\n%s"
+                ),
+                name,
+                exc,
+                type="autosummary",
+            )
             return False
 
     def scan(self, imported_members: bool) -> List[str]:
@@ -208,7 +255,7 @@ class ModuleScanner:
             try:
                 if inspect.ismodule(value):
                     imported = True
-                elif safe_getattr(value, '__module__') != self.object.__name__:
+                elif safe_getattr(value, "__module__") != self.object.__name__:
                     imported = True
                 else:
                     imported = False
@@ -225,25 +272,41 @@ class ModuleScanner:
         return members
 
 
-def generate_autosummary_content(name: str, obj: Any, parent: Any,
-                                 template: AutosummaryRenderer, template_name: str,
-                                 imported_members: bool, app: Any,
-                                 recursive: bool, context: Dict,
-                                 modname: str = None, qualname: str = None) -> str:
+def generate_autosummary_content(
+    name: str,
+    obj: Any,
+    parent: Any,
+    template: AutosummaryRenderer,
+    template_name: str,
+    imported_members: bool,
+    app: Any,
+    recursive: bool,
+    context: Dict,
+    modname: str = None,
+    qualname: str = None,
+) -> str:
     doc = get_documenter(app, obj, parent)
 
     def skip_member(obj: Any, name: str, objtype: str) -> bool:
         try:
-            return app.emit_firstresult('autodoc-skip-member', objtype, name,
-                                        obj, False, {})
+            return app.emit_firstresult(
+                "autodoc-skip-member", objtype, name, obj, False, {}
+            )
         except Exception as exc:
-            logger.warning(__('autosummary: failed to determine %r to be documented, '
-                              'the following exception was raised:\n%s'),
-                           name, exc, type='autosummary')
+            logger.warning(
+                __(
+                    "autosummary: failed to determine %r to be documented, "
+                    "the following exception was raised:\n%s"
+                ),
+                name,
+                exc,
+                type="autosummary",
+            )
             return False
 
-    def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
-                    imported: bool = True) -> Tuple[List[str], List[str]]:
+    def get_members(
+        obj: Any, types: Set[str], include_public: List[str] = [], imported: bool = True
+    ) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
         public = []  # type: List[str]
         for name in dir(obj):
@@ -254,7 +317,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
                 # skip imported members if expected
-                if imported or getattr(value, '__module__', None) == obj.__name__:
+                if imported or getattr(value, "__module__", None) == obj.__name__:
                     skipped = skip_member(value, name, documenter.objtype)
                     if skipped is True:
                         pass
@@ -264,7 +327,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                         public.append(name)
                     else:
                         items.append(name)
-                        if name in include_public or not name.startswith('_'):
+                        if name in include_public or not name.startswith("_"):
                             # considers member as public
                             public.append(name)
         return public, items
@@ -276,66 +339,67 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             analyzer = ModuleAnalyzer.for_module(name)
             attr_docs = analyzer.find_attr_docs()
             for namespace, attr_name in attr_docs:
-                if namespace == '' and attr_name in members:
+                if namespace == "" and attr_name in members:
                     attrs.append(attr_name)
-                    if not attr_name.startswith('_'):
+                    if not attr_name.startswith("_"):
                         public.append(attr_name)
         except PycodeError:
-            pass    # give up if ModuleAnalyzer fails to parse code
+            pass  # give up if ModuleAnalyzer fails to parse code
         return public, attrs
 
     def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
         items = []  # type: List[str]
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
-            fullname = name + '.' + modname
+            fullname = name + "." + modname
             items.append(fullname)
-        public = [x for x in items if not x.split('.')[-1].startswith('_')]
+        public = [x for x in items if not x.split(".")[-1].startswith("_")]
         return public, items
 
     ns = {}  # type: Dict[str, Any]
     ns.update(context)
 
-    if doc.objtype == 'module':
+    if doc.objtype == "module":
         scanner = ModuleScanner(app, obj)
-        ns['members'] = scanner.scan(imported_members)
-        ns['functions'], ns['all_functions'] = \
-            get_members(obj, {'function'}, imported=imported_members)
-        ns['classes'], ns['all_classes'] = \
-            get_members(obj, {'class'}, imported=imported_members)
-        ns['exceptions'], ns['all_exceptions'] = \
-            get_members(obj, {'exception'}, imported=imported_members)
-        ns['attributes'], ns['all_attributes'] = \
-            get_module_attrs(ns['members'])
-        ispackage = hasattr(obj, '__path__')
+        ns["members"] = scanner.scan(imported_members)
+        ns["functions"], ns["all_functions"] = get_members(
+            obj, {"function"}, imported=imported_members
+        )
+        ns["classes"], ns["all_classes"] = get_members(
+            obj, {"class"}, imported=imported_members
+        )
+        ns["exceptions"], ns["all_exceptions"] = get_members(
+            obj, {"exception"}, imported=imported_members
+        )
+        ns["attributes"], ns["all_attributes"] = get_module_attrs(ns["members"])
+        ispackage = hasattr(obj, "__path__")
         if ispackage and recursive:
-            ns['modules'], ns['all_modules'] = get_modules(obj)
-    elif doc.objtype == 'class':
-        ns['members'] = dir(obj)
-        ns['inherited_members'] = \
-            set(dir(obj)) - set(obj.__dict__.keys())
-        ns['methods'], ns['all_methods'] = \
-            get_members(obj, {'method'}, ['__init__'])
-        ns['attributes'], ns['all_attributes'] = \
-            get_members(obj, {'attribute', 'property'})
+            ns["modules"], ns["all_modules"] = get_modules(obj)
+    elif doc.objtype == "class":
+        ns["members"] = dir(obj)
+        ns["inherited_members"] = set(dir(obj)) - set(obj.__dict__.keys())
+        ns["methods"], ns["all_methods"] = get_members(obj, {"method"}, ["__init__"])
+        ns["attributes"], ns["all_attributes"] = get_members(
+            obj, {"attribute", "property"}
+        )
 
     if modname is None or qualname is None:
         modname, qualname = split_full_qualified_name(name)
 
-    if doc.objtype in ('method', 'attribute', 'property'):
-        ns['class'] = qualname.rsplit(".", 1)[0]
+    if doc.objtype in ("method", "attribute", "property"):
+        ns["class"] = qualname.rsplit(".", 1)[0]
 
-    if doc.objtype in ('class',):
+    if doc.objtype in ("class",):
         shortname = qualname
     else:
         shortname = qualname.rsplit(".", 1)[-1]
 
-    ns['fullname'] = name
-    ns['module'] = modname
-    ns['objname'] = qualname
-    ns['name'] = shortname
+    ns["fullname"] = name
+    ns["module"] = modname
+    ns["objname"] = qualname
+    ns["name"] = shortname
 
-    ns['objtype'] = doc.objtype
-    ns['underline'] = len(name) * '='
+    ns["objtype"] = doc.objtype
+    ns["underline"] = len(name) * "="
 
     if template_name:
         return template.render(template_name, ns)
@@ -343,27 +407,41 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return template.render(doc.objtype, ns)
 
 
-def generate_autosummary_docs(sources: List[str], output_dir: str = None,
-                              suffix: str = '.rst', base_path: str = None,
-                              builder: Builder = None, template_dir: str = None,
-                              imported_members: bool = False, app: Any = None,
-                              overwrite: bool = True, encoding: str = 'utf-8') -> None:
+def generate_autosummary_docs(
+    sources: List[str],
+    output_dir: str = None,
+    suffix: str = ".rst",
+    base_path: str = None,
+    builder: Builder = None,
+    template_dir: str = None,
+    imported_members: bool = False,
+    app: Any = None,
+    overwrite: bool = True,
+    encoding: str = "utf-8",
+) -> None:
     if builder:
-        warnings.warn('builder argument for generate_autosummary_docs() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "builder argument for generate_autosummary_docs() is deprecated.",
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
 
     if template_dir:
-        warnings.warn('template_dir argument for generate_autosummary_docs() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "template_dir argument for generate_autosummary_docs() is deprecated.",
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
 
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
-        showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
-    logger.info(__('[autosummary] generating autosummary for: %s') %
-                ', '.join(showed_sources))
+        showed_sources = showed_sources[:10] + ["..."] + showed_sources[-10:]
+    logger.info(
+        __("[autosummary] generating autosummary for: %s") % ", ".join(showed_sources)
+    )
 
     if output_dir:
-        logger.info(__('[autosummary] writing to %s') % output_dir)
+        logger.info(__("[autosummary] writing to %s") % output_dir)
 
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
@@ -400,16 +478,28 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                 name, obj, parent, modname = import_ivar_by_name(entry.name)
                 qualname = name.replace(modname + ".", "")
             except ImportError:
-                logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
+                logger.warning(
+                    __("[autosummary] failed to import %r: %s") % (entry.name, e)
+                )
                 continue
 
         context = {}
         if app:
             context.update(app.config.autosummary_context)
 
-        content = generate_autosummary_content(name, obj, parent, template, entry.template,
-                                               imported_members, app, entry.recursive, context,
-                                               modname, qualname)
+        content = generate_autosummary_content(
+            name,
+            obj,
+            parent,
+            template,
+            entry.template,
+            imported_members,
+            app,
+            entry.recursive,
+            context,
+            modname,
+            qualname,
+        )
 
         filename = os.path.join(path, filename_map.get(name, name) + suffix)
         if os.path.isfile(filename):
@@ -419,24 +509,31 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
             if content == old_content:
                 continue
             elif overwrite:  # content has changed
-                with open(filename, 'w', encoding=encoding) as f:
+                with open(filename, "w", encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)
         else:
-            with open(filename, 'w', encoding=encoding) as f:
+            with open(filename, "w", encoding=encoding) as f:
                 f.write(content)
             new_files.append(filename)
 
     # descend recursively to new files
     if new_files:
-        generate_autosummary_docs(new_files, output_dir=output_dir,
-                                  suffix=suffix, base_path=base_path,
-                                  builder=builder, template_dir=template_dir,
-                                  imported_members=imported_members, app=app,
-                                  overwrite=overwrite)
+        generate_autosummary_docs(
+            new_files,
+            output_dir=output_dir,
+            suffix=suffix,
+            base_path=base_path,
+            builder=builder,
+            template_dir=template_dir,
+            imported_members=imported_members,
+            app=app,
+            overwrite=overwrite,
+        )
 
 
 # -- Finding documented entries in files ---------------------------------------
+
 
 def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
     """Find out what items are documented in source/*.rst.
@@ -445,21 +542,25 @@ def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
     """
     documented = []  # type: List[AutosummaryEntry]
     for filename in filenames:
-        with open(filename, encoding='utf-8', errors='ignore') as f:
+        with open(filename, encoding="utf-8", errors="ignore") as f:
             lines = f.read().splitlines()
             documented.extend(find_autosummary_in_lines(lines, filename=filename))
     return documented
 
 
-def find_autosummary_in_docstring(name: str, module: str = None, filename: str = None
-                                  ) -> List[AutosummaryEntry]:
+def find_autosummary_in_docstring(
+    name: str, module: str = None, filename: str = None
+) -> List[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
     See `find_autosummary_in_lines`.
     """
     if module:
-        warnings.warn('module argument for find_autosummary_in_docstring() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "module argument for find_autosummary_in_docstring() is deprecated.",
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
 
     try:
         real_name, obj, parent, modname = import_by_name(name)
@@ -468,15 +569,18 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
     except AttributeError:
         pass
     except ImportError as e:
-        print("Failed to import '%s': %s" % (name, e))
+        print(f"Failed to import '{name}': {e}")
     except SystemExit:
-        print("Failed to import '%s'; the module executes module level "
-              "statement and it might call sys.exit()." % name)
+        print(
+            "Failed to import '%s'; the module executes module level "
+            "statement and it might call sys.exit()." % name
+        )
     return []
 
 
-def find_autosummary_in_lines(lines: List[str], module: str = None, filename: str = None
-                              ) -> List[AutosummaryEntry]:
+def find_autosummary_in_lines(
+    lines: List[str], module: str = None, filename: str = None
+) -> List[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
 
@@ -487,15 +591,13 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
     *template* ``None`` if the directive does not have the
     corresponding options set.
     """
-    autosummary_re = re.compile(r'^(\s*)\.\.\s+autosummary::\s*')
-    automodule_re = re.compile(
-        r'^\s*\.\.\s+automodule::\s*([A-Za-z0-9_.]+)\s*$')
-    module_re = re.compile(
-        r'^\s*\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$')
-    autosummary_item_re = re.compile(r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
-    recursive_arg_re = re.compile(r'^\s+:recursive:\s*$')
-    toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
-    template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
+    autosummary_re = re.compile(r"^(\s*)\.\.\s+autosummary::\s*")
+    automodule_re = re.compile(r"^\s*\.\.\s+automodule::\s*([A-Za-z0-9_.]+)\s*$")
+    module_re = re.compile(r"^\s*\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$")
+    autosummary_item_re = re.compile(r"^\s+(~?[_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?")
+    recursive_arg_re = re.compile(r"^\s+:recursive:\s*$")
+    toctree_arg_re = re.compile(r"^\s+:toctree:\s*(.*?)\s*$")
+    template_arg_re = re.compile(r"^\s+:template:\s*(.*?)\s*$")
 
     documented = []  # type: List[AutosummaryEntry]
 
@@ -517,8 +619,7 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
             if m:
                 toctree = m.group(1)
                 if filename:
-                    toctree = os.path.join(os.path.dirname(filename),
-                                           toctree)
+                    toctree = os.path.join(os.path.dirname(filename), toctree)
                 continue
 
             m = template_arg_re.match(line)
@@ -526,17 +627,16 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
                 template = m.group(1).strip()
                 continue
 
-            if line.strip().startswith(':'):
+            if line.strip().startswith(":"):
                 continue  # skip options
 
             m = autosummary_item_re.match(line)
             if m:
                 name = m.group(1).strip()
-                if name.startswith('~'):
+                if name.startswith("~"):
                     name = name[1:]
-                if current_module and \
-                   not name.startswith(current_module + '.'):
-                    name = "%s.%s" % (current_module, name)
+                if current_module and not name.startswith(current_module + "."):
+                    name = f"{current_module}.{name}"
                 documented.append(AutosummaryEntry(name, toctree, template, recursive))
                 continue
 
@@ -558,8 +658,9 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
         if m:
             current_module = m.group(1).strip()
             # recurse into the automodule docstring
-            documented.extend(find_autosummary_in_docstring(
-                current_module, filename=filename))
+            documented.extend(
+                find_autosummary_in_docstring(current_module, filename=filename)
+            )
             continue
 
         m = module_re.match(line)
@@ -572,9 +673,10 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
-        epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
-        description=__("""
+        usage="%(prog)s [OPTIONS] <SOURCE_FILE>...",
+        epilog=__("For more information, visit <http://sphinx-doc.org/>."),
+        description=__(
+            """
 Generate ReStructuredText using autosummary directives.
 
 sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates
@@ -585,36 +687,59 @@ The format of the autosummary directive is documented in the
 ``sphinx.ext.autosummary`` Python module and can be read using::
 
   pydoc sphinx.ext.autosummary
-"""))
+"""
+        ),
+    )
 
-    parser.add_argument('--version', action='version', dest='show_version',
-                        version='%%(prog)s %s' % __display_version__)
+    parser.add_argument(
+        "--version",
+        action="version",
+        dest="show_version",
+        version="%%(prog)s %s" % __display_version__,
+    )
 
-    parser.add_argument('source_file', nargs='+',
-                        help=__('source files to generate rST files for'))
+    parser.add_argument(
+        "source_file", nargs="+", help=__("source files to generate rST files for")
+    )
 
-    parser.add_argument('-o', '--output-dir', action='store',
-                        dest='output_dir',
-                        help=__('directory to place all output in'))
-    parser.add_argument('-s', '--suffix', action='store', dest='suffix',
-                        default='rst',
-                        help=__('default suffix for files (default: '
-                                '%(default)s)'))
-    parser.add_argument('-t', '--templates', action='store', dest='templates',
-                        default=None,
-                        help=__('custom template directory (default: '
-                                '%(default)s)'))
-    parser.add_argument('-i', '--imported-members', action='store_true',
-                        dest='imported_members', default=False,
-                        help=__('document imported members (default: '
-                                '%(default)s)'))
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        action="store",
+        dest="output_dir",
+        help=__("directory to place all output in"),
+    )
+    parser.add_argument(
+        "-s",
+        "--suffix",
+        action="store",
+        dest="suffix",
+        default="rst",
+        help=__("default suffix for files (default: " "%(default)s)"),
+    )
+    parser.add_argument(
+        "-t",
+        "--templates",
+        action="store",
+        dest="templates",
+        default=None,
+        help=__("custom template directory (default: " "%(default)s)"),
+    )
+    parser.add_argument(
+        "-i",
+        "--imported-members",
+        action="store_true",
+        dest="imported_members",
+        default=False,
+        help=__("document imported members (default: " "%(default)s)"),
+    )
 
     return parser
 
 
 def main(argv: List[str] = sys.argv[1:]) -> None:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    sphinx.locale.setlocale(locale.LC_ALL, "")
+    sphinx.locale.init_console(os.path.join(package_dir, "locale"), "sphinx")
     translator, _ = sphinx.locale.init([], None)
 
     app = DummyApplication(translator)
@@ -625,11 +750,14 @@ def main(argv: List[str] = sys.argv[1:]) -> None:
     if args.templates:
         app.config.templates_path.append(path.abspath(args.templates))
 
-    generate_autosummary_docs(args.source_file, args.output_dir,
-                              '.' + args.suffix,
-                              imported_members=args.imported_members,
-                              app=app)
+    generate_autosummary_docs(
+        args.source_file,
+        args.output_dir,
+        "." + args.suffix,
+        imported_members=args.imported_members,
+        app=app,
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

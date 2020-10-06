@@ -43,4 +43,3 @@ i18n with docfields
    :returns: a new :class:`Cls3` instance
 
 .. Field is never grouped
-

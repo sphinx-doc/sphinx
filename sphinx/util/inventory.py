@@ -10,7 +10,9 @@
 import os
 import re
 import zlib
-from typing import Callable, IO, Iterator
+from typing import Callable
+from typing import IO
+from typing import Iterator
 from typing import TYPE_CHECKING
 
 from sphinx.util import logging
@@ -33,23 +35,23 @@ class InventoryFileReader:
 
     def __init__(self, stream: IO) -> None:
         self.stream = stream
-        self.buffer = b''
+        self.buffer = b""
         self.eof = False
 
     def read_buffer(self) -> None:
         chunk = self.stream.read(BUFSIZE)
-        if chunk == b'':
+        if chunk == b"":
             self.eof = True
         self.buffer += chunk
 
     def readline(self) -> str:
-        pos = self.buffer.find(b'\n')
+        pos = self.buffer.find(b"\n")
         if pos != -1:
             line = self.buffer[:pos].decode()
-            self.buffer = self.buffer[pos + 1:]
+            self.buffer = self.buffer[pos + 1 :]
         elif self.eof:
             line = self.buffer.decode()
-            self.buffer = b''
+            self.buffer = b""
         else:
             self.read_buffer()
             line = self.readline()
@@ -67,18 +69,18 @@ class InventoryFileReader:
         while not self.eof:
             self.read_buffer()
             yield decompressor.decompress(self.buffer)
-            self.buffer = b''
+            self.buffer = b""
         yield decompressor.flush()
 
     def read_compressed_lines(self) -> Iterator[str]:
-        buf = b''
+        buf = b""
         for chunk in self.read_compressed_chunks():
             buf += chunk
-            pos = buf.find(b'\n')
+            pos = buf.find(b"\n")
             while pos != -1:
                 yield buf[:pos].decode()
-                buf = buf[pos + 1:]
-                pos = buf.find(b'\n')
+                buf = buf[pos + 1 :]
+                pos = buf.find(b"\n")
 
 
 class InventoryFile:
@@ -86,15 +88,17 @@ class InventoryFile:
     def load(cls, stream: IO, uri: str, joinfunc: Callable) -> Inventory:
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
-        if line == '# Sphinx inventory version 1':
+        if line == "# Sphinx inventory version 1":
             return cls.load_v1(reader, uri, joinfunc)
-        elif line == '# Sphinx inventory version 2':
+        elif line == "# Sphinx inventory version 2":
             return cls.load_v2(reader, uri, joinfunc)
         else:
-            raise ValueError('invalid inventory header: %s' % line)
+            raise ValueError("invalid inventory header: %s" % line)
 
     @classmethod
-    def load_v1(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
+    def load_v1(
+        cls, stream: InventoryFileReader, uri: str, join: Callable
+    ) -> Inventory:
         invdata = {}  # type: Inventory
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -102,47 +106,47 @@ class InventoryFile:
             name, type, location = line.rstrip().split(None, 2)
             location = join(uri, location)
             # version 1 did not add anchors to the location
-            if type == 'mod':
-                type = 'py:module'
-                location += '#module-' + name
+            if type == "mod":
+                type = "py:module"
+                location += "#module-" + name
             else:
-                type = 'py:' + type
-                location += '#' + name
-            invdata.setdefault(type, {})[name] = (projname, version, location, '-')
+                type = "py:" + type
+                location += "#" + name
+            invdata.setdefault(type, {})[name] = (projname, version, location, "-")
         return invdata
 
     @classmethod
-    def load_v2(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
+    def load_v2(
+        cls, stream: InventoryFileReader, uri: str, join: Callable
+    ) -> Inventory:
         invdata = {}  # type: Inventory
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
         line = stream.readline()
-        if 'zlib' not in line:
-            raise ValueError('invalid inventory header (not compressed): %s' % line)
+        if "zlib" not in line:
+            raise ValueError("invalid inventory header (not compressed): %s" % line)
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
-            m = re.match(r'(?x)(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
-                         line.rstrip())
+            m = re.match(r"(?x)(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)", line.rstrip())
             if not m:
                 continue
             name, type, prio, location, dispname = m.groups()
-            if ':' not in type:
+            if ":" not in type:
                 # wrong type value. type should be in the form of "{domain}:{objtype}"
                 #
                 # Note: To avoid the regex DoS, this is implemented in python (refs: #8175)
                 continue
-            if type == 'py:module' and type in invdata and name in invdata[type]:
+            if type == "py:module" and type in invdata and name in invdata[type]:
                 # due to a bug in 1.1 and below,
                 # two inventory entries are created
                 # for Python modules, and the first
                 # one is correct
                 continue
-            if location.endswith('$'):
+            if location.endswith("$"):
                 location = location[:-1] + name
             location = join(uri, location)
-            invdata.setdefault(type, {})[name] = (projname, version,
-                                                  location, dispname)
+            invdata.setdefault(type, {})[name] = (projname, version, location, dispname)
         return invdata
 
     @classmethod
@@ -150,29 +154,34 @@ class InventoryFile:
         def escape(string: str) -> str:
             return re.sub("\\s+", " ", string)
 
-        with open(os.path.join(filename), 'wb') as f:
+        with open(os.path.join(filename), "wb") as f:
             # header
-            f.write(('# Sphinx inventory version 2\n'
-                     '# Project: %s\n'
-                     '# Version: %s\n'
-                     '# The remainder of this file is compressed using zlib.\n' %
-                     (escape(env.config.project),
-                      escape(env.config.version))).encode())
+            f.write(
+                (
+                    "# Sphinx inventory version 2\n"
+                    "# Project: %s\n"
+                    "# Version: %s\n"
+                    "# The remainder of this file is compressed using zlib.\n"
+                    % (escape(env.config.project), escape(env.config.version))
+                ).encode()
+            )
 
             # body
             compressor = zlib.compressobj(9)
             for domainname, domain in sorted(env.domains.items()):
-                for name, dispname, typ, docname, anchor, prio in \
-                        sorted(domain.get_objects()):
+                for name, dispname, typ, docname, anchor, prio in sorted(
+                    domain.get_objects()
+                ):
                     if anchor.endswith(name):
                         # this can shorten the inventory by as much as 25%
-                        anchor = anchor[:-len(name)] + '$'
+                        anchor = anchor[: -len(name)] + "$"
                     uri = builder.get_target_uri(docname)
                     if anchor:
-                        uri += '#' + anchor
+                        uri += "#" + anchor
                     if dispname == name:
-                        dispname = '-'
-                    entry = ('%s %s:%s %s %s %s\n' %
-                             (name, domainname, typ, prio, uri, dispname))
+                        dispname = "-"
+                    entry = "{} {}:{} {} {} {}\n".format(
+                        name, domainname, typ, prio, uri, dispname,
+                    )
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())

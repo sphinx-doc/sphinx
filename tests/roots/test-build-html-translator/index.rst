@@ -21,4 +21,3 @@ Test HTML admonitions
 .. important:: test
 
 .. tip:: test
-

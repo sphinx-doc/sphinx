@@ -51,4 +51,3 @@ msgstr "TEXT6"
 
 msgid "1. table caption"
 msgstr "1. TABLE CAPTION"
-

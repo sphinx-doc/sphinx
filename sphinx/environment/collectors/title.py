@@ -7,8 +7,9 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from typing import Any, Dict, Set
+from typing import Any
+from typing import Dict
+from typing import Set
 
 from docutils import nodes
 
@@ -25,8 +26,13 @@ class TitleCollector(EnvironmentCollector):
         env.titles.pop(docname, None)
         env.longtitles.pop(docname, None)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: Set[str],
+        other: BuildEnvironment,
+    ) -> None:
         for docname in docnames:
             env.titles[docname] = other.titles[docname]
             env.longtitles[docname] = other.longtitles[docname]
@@ -39,9 +45,9 @@ class TitleCollector(EnvironmentCollector):
         longtitlenode = titlenode
         # explicit title set with title directive; use this only for
         # the <title> tag in HTML output
-        if 'title' in doctree:
+        if "title" in doctree:
             longtitlenode = nodes.title()
-            longtitlenode += nodes.Text(doctree['title'])
+            longtitlenode += nodes.Text(doctree["title"])
         # look for first section title and use that as the title
         for node in doctree.traverse(nodes.section):
             visitor = SphinxContentsFilter(doctree)
@@ -50,7 +56,7 @@ class TitleCollector(EnvironmentCollector):
             break
         else:
             # document has no title
-            titlenode += nodes.Text('<no title>')
+            titlenode += nodes.Text("<no title>")
         app.env.titles[app.env.docname] = titlenode
         app.env.longtitles[app.env.docname] = longtitlenode
 
@@ -59,7 +65,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_env_collector(TitleCollector)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

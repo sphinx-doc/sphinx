@@ -30,4 +30,3 @@ msgstr "SHORT TEXT 2"
 
 msgid "long text 2"
 msgstr "LONG TEXT 2"
-

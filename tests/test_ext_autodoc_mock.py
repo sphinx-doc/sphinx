@@ -7,7 +7,6 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import abc
 import sys
 from importlib import import_module
@@ -15,22 +14,24 @@ from typing import TypeVar
 
 import pytest
 
-from sphinx.ext.autodoc.mock import _MockModule, _MockObject, mock
+from sphinx.ext.autodoc.mock import _MockModule
+from sphinx.ext.autodoc.mock import _MockObject
+from sphinx.ext.autodoc.mock import mock
 
 
 def test_MockModule():
-    mock = _MockModule('mocked_module')
+    mock = _MockModule("mocked_module")
     assert isinstance(mock.some_attr, _MockObject)
     assert isinstance(mock.some_method, _MockObject)
     assert isinstance(mock.attr1.attr2, _MockObject)
     assert isinstance(mock.attr1.attr2.meth(), _MockObject)
 
-    assert repr(mock.some_attr) == 'mocked_module.some_attr'
-    assert repr(mock.some_method) == 'mocked_module.some_method'
-    assert repr(mock.attr1.attr2) == 'mocked_module.attr1.attr2'
-    assert repr(mock.attr1.attr2.meth) == 'mocked_module.attr1.attr2.meth'
+    assert repr(mock.some_attr) == "mocked_module.some_attr"
+    assert repr(mock.some_method) == "mocked_module.some_method"
+    assert repr(mock.attr1.attr2) == "mocked_module.attr1.attr2"
+    assert repr(mock.attr1.attr2.meth) == "mocked_module.attr1.attr2.meth"
 
-    assert repr(mock) == 'mocked_module'
+    assert repr(mock) == "mocked_module"
 
 
 def test_MockObject():
@@ -54,7 +55,7 @@ def test_MockObject():
     assert isinstance(obj.other_method(), SubClass)
 
     # parametrized type
-    T = TypeVar('T')
+    T = TypeVar("T")
 
     class SubClass2(mock.SomeClass[T]):
         """docstring of SubClass"""
@@ -65,8 +66,8 @@ def test_MockObject():
 
 
 def test_mock():
-    modname = 'sphinx.unknown'
-    submodule = modname + '.submodule'
+    modname = "sphinx.unknown"
+    submodule = modname + ".submodule"
     assert modname not in sys.modules
     with pytest.raises(ImportError):
         import_module(modname)
@@ -87,12 +88,12 @@ def test_mock():
 
 
 def test_mock_does_not_follow_upper_modules():
-    with mock(['sphinx.unknown.module']):
+    with mock(["sphinx.unknown.module"]):
         with pytest.raises(ImportError):
-            import_module('sphinx.unknown')
+            import_module("sphinx.unknown")
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='Only for py37 or above')
+@pytest.mark.skipif(sys.version_info < (3, 7), reason="Only for py37 or above")
 def test_abc_MockObject():
     mock = _MockObject()
 

@@ -9,34 +9,52 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import importlib
 import re
 import warnings
-from inspect import Parameter, Signature
+from inspect import Parameter
+from inspect import Signature
 from types import ModuleType
-from typing import (
-    Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, TypeVar, Union
-)
-from typing import TYPE_CHECKING, get_type_hints
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import get_type_hints
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Set
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import TypeVar
+from typing import Union
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.application import Sphinx
-from sphinx.config import Config, ENUM
+from sphinx.config import Config
+from sphinx.config import ENUM
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
+from sphinx.ext.autodoc.importer import get_module_members
+from sphinx.ext.autodoc.importer import get_object_members
+from sphinx.ext.autodoc.importer import import_object
 from sphinx.ext.autodoc.mock import mock
-from sphinx.locale import _, __
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.locale import _
+from sphinx.locale import __
+from sphinx.pycode import ModuleAnalyzer
+from sphinx.pycode import PycodeError
 from sphinx.util import inspect
 from sphinx.util import logging
-from sphinx.util.docstrings import extract_metadata, prepare_docstring
-from sphinx.util.inspect import (
-    evaluate_signature, getdoc, object_description, safe_getattr, stringify_signature
-)
+from sphinx.util.docstrings import extract_metadata
+from sphinx.util.docstrings import prepare_docstring
+from sphinx.util.inspect import evaluate_signature
+from sphinx.util.inspect import getdoc
+from sphinx.util.inspect import object_description
+from sphinx.util.inspect import safe_getattr
+from sphinx.util.inspect import stringify_signature
 from sphinx.util.typing import stringify as stringify_typehint
 
 if TYPE_CHECKING:
@@ -53,14 +71,16 @@ MethodDescriptorType = type(type.__subclasses__)
 
 #: extended signature RE: with explicit module name separated by ::
 py_ext_sig_re = re.compile(
-    r'''^ ([\w.]+::)?            # explicit module name
+    r"""^ ([\w.]+::)?            # explicit module name
           ([\w.]+\.)?            # module and/or class name(s)
           (\w+)  \s*             # thing name
           (?: \((.*)\)           # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
-          ''', re.VERBOSE)
-special_member_re = re.compile(r'^__\S+__$')
+          """,
+    re.VERBOSE,
+)
+special_member_re = re.compile(r"^__\S+__$")
 
 
 def identity(x: Any) -> Any:
@@ -95,29 +115,30 @@ def members_option(arg: Any) -> Union[object, List[str]]:
     elif arg is False:
         return None
     else:
-        return [x.strip() for x in arg.split(',') if x.strip()]
+        return [x.strip() for x in arg.split(",") if x.strip()]
 
 
 def members_set_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :members: option to auto directives."""
-    warnings.warn("members_set_option() is deprecated.",
-                  RemovedInSphinx50Warning, stacklevel=2)
+    warnings.warn(
+        "members_set_option() is deprecated.", RemovedInSphinx50Warning, stacklevel=2
+    )
     if arg is None:
         return ALL
-    return {x.strip() for x in arg.split(',') if x.strip()}
+    return {x.strip() for x in arg.split(",") if x.strip()}
 
 
 def exclude_members_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :exclude-members: option."""
     if arg is None:
         return EMPTY
-    return {x.strip() for x in arg.split(',') if x.strip()}
+    return {x.strip() for x in arg.split(",") if x.strip()}
 
 
 def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :members: option to auto directives."""
     if arg is None:
-        return 'object'
+        return "object"
     else:
         return arg
 
@@ -126,10 +147,10 @@ def member_order_option(arg: Any) -> Optional[str]:
     """Used to convert the :members: option to auto directives."""
     if arg is None:
         return None
-    elif arg in ('alphabetical', 'bysource', 'groupwise'):
+    elif arg in ("alphabetical", "bysource", "groupwise"):
         return arg
     else:
-        raise ValueError(__('invalid value for member-order option: %s') % arg)
+        raise ValueError(__("invalid value for member-order option: %s") % arg)
 
 
 SUPPRESS = object()
@@ -152,27 +173,30 @@ def bool_option(arg: Any) -> bool:
 
 def merge_special_members_option(options: Dict) -> None:
     """Merge :special-members: option to :members: option."""
-    warnings.warn("merge_special_members_option() is deprecated.",
-                  RemovedInSphinx50Warning, stacklevel=2)
-    if 'special-members' in options and options['special-members'] is not ALL:
-        if options.get('members') is ALL:
+    warnings.warn(
+        "merge_special_members_option() is deprecated.",
+        RemovedInSphinx50Warning,
+        stacklevel=2,
+    )
+    if "special-members" in options and options["special-members"] is not ALL:
+        if options.get("members") is ALL:
             pass
-        elif options.get('members'):
-            for member in options['special-members']:
-                if member not in options['members']:
-                    options['members'].append(member)
+        elif options.get("members"):
+            for member in options["special-members"]:
+                if member not in options["members"]:
+                    options["members"].append(member)
         else:
-            options['members'] = options['special-members']
+            options["members"] = options["special-members"]
 
 
 def merge_members_option(options: Dict) -> None:
     """Merge :*-members: option to the :members: option."""
-    if options.get('members') is ALL:
+    if options.get("members") is ALL:
         # merging is not needed when members: ALL
         return
 
-    members = options.setdefault('members', [])
-    for key in {'private-members', 'special-members'}:
+    members = options.setdefault("members", [])
+    for key in {"private-members", "special-members"}:
         if key in options and options[key] not in (ALL, None):
             for member in options[key]:
                 if member not in members:
@@ -180,6 +204,7 @@ def merge_members_option(options: Dict) -> None:
 
 
 # Some useful event listener factories for autodoc-process-docstring.
+
 
 def cut_lines(pre: int, post: int = 0, what: str = None) -> Callable:
     """Return a listener that removes the first *pre* and last *post*
@@ -193,8 +218,10 @@ def cut_lines(pre: int, post: int = 0, what: str = None) -> Callable:
 
     This can (and should) be used in place of :confval:`automodule_skip_lines`.
     """
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: List[str]
-                ) -> None:
+
+    def process(
+        app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: List[str]
+    ) -> None:
         if what and what_ not in what:
             return
         del lines[:pre]
@@ -205,12 +232,17 @@ def cut_lines(pre: int, post: int = 0, what: str = None) -> Callable:
             del lines[-post:]
         # make sure there is a blank line at the end
         if lines and lines[-1]:
-            lines.append('')
+            lines.append("")
+
     return process
 
 
-def between(marker: str, what: Sequence[str] = None, keepempty: bool = False,
-            exclude: bool = False) -> Callable:
+def between(
+    marker: str,
+    what: Sequence[str] = None,
+    keepempty: bool = False,
+    exclude: bool = False,
+) -> Callable:
     """Return a listener that either keeps, or if *exclude* is True excludes,
     lines between lines that match the *marker* regular expression.  If no line
     matches, the resulting docstring would be empty, so no change will be made
@@ -221,8 +253,9 @@ def between(marker: str, what: Sequence[str] = None, keepempty: bool = False,
     """
     marker_re = re.compile(marker)
 
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: List[str]
-                ) -> None:
+    def process(
+        app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: List[str]
+    ) -> None:
         if what and what_ not in what:
             return
         deleted = 0
@@ -241,7 +274,8 @@ def between(marker: str, what: Sequence[str] = None, keepempty: bool = False,
             lines[:] = orig_lines
         # make sure there is a blank line at the end
         if lines and lines[-1]:
-            lines.append('')
+            lines.append("")
+
     return process
 
 
@@ -249,9 +283,10 @@ def between(marker: str, what: Sequence[str] = None, keepempty: bool = False,
 # But we define this class here to keep compatibility (see #4538)
 class Options(dict):
     """A dict/attribute hybrid that returns None on nonexisting keys."""
+
     def __getattr__(self, name: str) -> Any:
         try:
-            return self[name.replace('_', '-')]
+            return self[name.replace("_", "-")]
         except KeyError:
             return None
 
@@ -271,11 +306,12 @@ class Documenter:
     in fact, it will be used to parse an auto directive's options that matches
     the documenter.
     """
+
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
-    objtype = 'object'
+    objtype = "object"
     #: indentation by which to indent the directive content
-    content_indent = '   '
+    content_indent = "   "
     #: priority if multiple documenters return True from can_document_member
     priority = 0
     #: order if autodoc_member_order is set to 'groupwise'
@@ -283,41 +319,44 @@ class Documenter:
     #: true if the generated content may contain titles
     titles_allowed = False
 
-    option_spec = {'noindex': bool_option}  # type: Dict[str, Callable]
+    option_spec = {"noindex": bool_option}  # type: Dict[str, Callable]
 
     def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
         """getattr() override for types such as Zope interfaces."""
         return autodoc_attrgetter(self.env.app, obj, name, *defargs)
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         """Called to see if a member can be documented by this documenter."""
-        raise NotImplementedError('must be implemented in subclasses')
+        raise NotImplementedError("must be implemented in subclasses")
 
-    def __init__(self, directive: "DocumenterBridge", name: str, indent: str = '') -> None:
+    def __init__(
+        self, directive: "DocumenterBridge", name: str, indent: str = ""
+    ) -> None:
         self.directive = directive
-        self.env = directive.env    # type: BuildEnvironment
+        self.env = directive.env  # type: BuildEnvironment
         self.options = directive.genopt
         self.name = name
         self.indent = indent
         # the module and object path within the module, and the fully
         # qualified name (all set after resolve_name succeeds)
-        self.modname = None         # type: str
-        self.module = None          # type: ModuleType
-        self.objpath = None         # type: List[str]
-        self.fullname = None        # type: str
+        self.modname = None  # type: str
+        self.module = None  # type: ModuleType
+        self.objpath = None  # type: List[str]
+        self.fullname = None  # type: str
         # extra signature items (arguments and return annotation,
         # also set after resolve_name succeeds)
-        self.args = None            # type: str
-        self.retann = None          # type: str
+        self.args = None  # type: str
+        self.retann = None  # type: str
         # the object to document (set after import_object succeeds)
-        self.object = None          # type: Any
-        self.object_name = None     # type: str
+        self.object = None  # type: Any
+        self.object_name = None  # type: str
         # the parent/owner of the object to document
-        self.parent = None          # type: Any
+        self.parent = None  # type: Any
         # the module analyzer to get at attribute docs, or None
-        self.analyzer = None        # type: ModuleAnalyzer
+        self.analyzer = None  # type: ModuleAnalyzer
 
     @property
     def documenters(self) -> Dict[str, Type["Documenter"]]:
@@ -329,10 +368,11 @@ class Documenter:
         if line.strip():  # not a blank line
             self.directive.result.append(self.indent + line, source, *lineno)
         else:
-            self.directive.result.append('', source, *lineno)
+            self.directive.result.append("", source, *lineno)
 
-    def resolve_name(self, modname: str, parents: Any, path: str, base: Any
-                     ) -> Tuple[str, List[str]]:
+    def resolve_name(
+        self, modname: str, parents: Any, path: str, base: Any
+    ) -> Tuple[str, List[str]]:
         """Resolve the module and name of the object to document given by the
         arguments and the current module/class.
 
@@ -340,7 +380,7 @@ class Documenter:
         example, it would return ``('zipfile', ['ZipFile', 'open'])`` for the
         ``zipfile.ZipFile.open`` method.
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        raise NotImplementedError("must be implemented in subclasses")
 
     def parse_name(self) -> bool:
         """Determine what module to import and what attribute to document.
@@ -352,17 +392,20 @@ class Documenter:
         # functions can contain a signature which is then used instead of
         # an autogenerated one
         try:
-            explicit_modname, path, base, args, retann = \
-                py_ext_sig_re.match(self.name).groups()
+            explicit_modname, path, base, args, retann = py_ext_sig_re.match(
+                self.name
+            ).groups()
         except AttributeError:
-            logger.warning(__('invalid signature for auto%s (%r)') % (self.objtype, self.name),
-                           type='autodoc')
+            logger.warning(
+                __("invalid signature for auto%s (%r)") % (self.objtype, self.name),
+                type="autodoc",
+            )
             return False
 
         # support explicit module and class name separation via ::
         if explicit_modname is not None:
             modname = explicit_modname[:-2]
-            parents = path.rstrip('.').split('.') if path else []
+            parents = path.rstrip(".").split(".") if path else []
         else:
             modname = None
             parents = []
@@ -375,8 +418,9 @@ class Documenter:
 
         self.args = args
         self.retann = retann
-        self.fullname = (self.modname or '') + \
-                        ('.' + '.'.join(self.objpath) if self.objpath else '')
+        self.fullname = (self.modname or "") + (
+            "." + ".".join(self.objpath) if self.objpath else ""
+        )
         return True
 
     def import_object(self, raiseerror: bool = False) -> bool:
@@ -387,16 +431,20 @@ class Documenter:
         """
         with mock(self.env.config.autodoc_mock_imports):
             try:
-                ret = import_object(self.modname, self.objpath, self.objtype,
-                                    attrgetter=self.get_attr,
-                                    warningiserror=self.env.config.autodoc_warningiserror)
+                ret = import_object(
+                    self.modname,
+                    self.objpath,
+                    self.objtype,
+                    attrgetter=self.get_attr,
+                    warningiserror=self.env.config.autodoc_warningiserror,
+                )
                 self.module, self.parent, self.object_name, self.object = ret
                 return True
             except ImportError as exc:
                 if raiseerror:
                     raise
                 else:
-                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                    logger.warning(exc.args[0], type="autodoc", subtype="import_object")
                     self.env.note_reread()
                     return False
 
@@ -406,7 +454,7 @@ class Documenter:
         It can differ from the name of the module through which the object was
         imported.
         """
-        return self.get_attr(self.object, '__module__', None) or self.modname
+        return self.get_attr(self.object, "__module__", None) or self.modname
 
     def check_module(self) -> bool:
         """Check if *self.object* is really defined in the module given by
@@ -416,7 +464,7 @@ class Documenter:
             return True
 
         subject = inspect.unpartial(self.object)
-        modname = self.get_attr(subject, '__module__', None)
+        modname = self.get_attr(subject, "__module__", None)
         if modname and modname != self.modname:
             return False
         return True
@@ -437,7 +485,7 @@ class Documenter:
         """
         # normally the name doesn't contain the module (except for module
         # directives of course)
-        return '.'.join(self.objpath) or self.modname
+        return ".".join(self.objpath) or self.modname
 
     def _call_format_args(self, **kwargs: Any) -> str:
         if kwargs:
@@ -465,57 +513,73 @@ class Documenter:
                 retann = None
                 args = self._call_format_args(**kwargs)
                 if args:
-                    matched = re.match(r'^(\(.*\))\s+->\s+(.*)$', args)
+                    matched = re.match(r"^(\(.*\))\s+->\s+(.*)$", args)
                     if matched:
                         args = matched.group(1)
                         retann = matched.group(2)
             except Exception as exc:
-                logger.warning(__('error while formatting arguments for %s: %s'),
-                               self.fullname, exc, type='autodoc')
+                logger.warning(
+                    __("error while formatting arguments for %s: %s"),
+                    self.fullname,
+                    exc,
+                    type="autodoc",
+                )
                 args = None
 
-        result = self.env.events.emit_firstresult('autodoc-process-signature',
-                                                  self.objtype, self.fullname,
-                                                  self.object, self.options, args, retann)
+        result = self.env.events.emit_firstresult(
+            "autodoc-process-signature",
+            self.objtype,
+            self.fullname,
+            self.object,
+            self.options,
+            args,
+            retann,
+        )
         if result:
             args, retann = result
 
         if args is not None:
-            return args + ((' -> %s' % retann) if retann else '')
+            return args + ((" -> %s" % retann) if retann else "")
         else:
-            return ''
+            return ""
 
     def add_directive_header(self, sig: str) -> None:
         """Add the directive header and options to the generated content."""
-        domain = getattr(self, 'domain', 'py')
-        directive = getattr(self, 'directivetype', self.objtype)
+        domain = getattr(self, "domain", "py")
+        directive = getattr(self, "directivetype", self.objtype)
         name = self.format_name()
         sourcename = self.get_sourcename()
 
         # one signature per line, indented by column
-        prefix = '.. %s:%s:: ' % (domain, directive)
+        prefix = f".. {domain}:{directive}:: "
         for i, sig_line in enumerate(sig.split("\n")):
-            self.add_line('%s%s%s' % (prefix, name, sig_line),
-                          sourcename)
+            self.add_line(f"{prefix}{name}{sig_line}", sourcename)
             if i == 0:
                 prefix = " " * len(prefix)
 
         if self.options.noindex:
-            self.add_line('   :noindex:', sourcename)
+            self.add_line("   :noindex:", sourcename)
         if self.objpath:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
-            self.add_line('   :module: %s' % self.modname, sourcename)
+            self.add_line("   :module: %s" % self.modname, sourcename)
 
     def get_doc(self, ignore: int = None) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""
         if ignore is not None:
-            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx50Warning, stacklevel=2)
-        docstring = getdoc(self.object, self.get_attr,
-                           self.env.config.autodoc_inherit_docstrings,
-                           self.parent, self.object_name)
+            warnings.warn(
+                "The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                % self.__class__.__name__,
+                RemovedInSphinx50Warning,
+                stacklevel=2,
+            )
+        docstring = getdoc(
+            self.object,
+            self.get_attr,
+            self.env.config.autodoc_inherit_docstrings,
+            self.parent,
+            self.object_name,
+        )
         if docstring:
             tab_width = self.directive.state.document.settings.tab_width
             return [prepare_docstring(docstring, ignore, tab_width)]
@@ -526,20 +590,25 @@ class Documenter:
         for docstringlines in docstrings:
             if self.env.app:
                 # let extensions preprocess docstrings
-                self.env.app.emit('autodoc-process-docstring',
-                                  self.objtype, self.fullname, self.object,
-                                  self.options, docstringlines)
+                self.env.app.emit(
+                    "autodoc-process-docstring",
+                    self.objtype,
+                    self.fullname,
+                    self.object,
+                    self.options,
+                    docstringlines,
+                )
 
-                if docstringlines and docstringlines[-1] != '':
+                if docstringlines and docstringlines[-1] != "":
                     # append a blank line to the end of the docstring
-                    docstringlines.append('')
+                    docstringlines.append("")
 
             yield from docstringlines
 
     def get_sourcename(self) -> str:
         if self.analyzer:
-            return '%s:docstring of %s' % (self.analyzer.srcname, self.fullname)
-        return 'docstring of %s' % self.fullname
+            return f"{self.analyzer.srcname}:docstring of {self.fullname}"
+        return "docstring of %s" % self.fullname
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         """Add content from docstrings, attribute documentation and user."""
@@ -548,7 +617,7 @@ class Documenter:
         if self.analyzer:
             attr_docs = self.analyzer.find_attr_docs()
             if self.objpath:
-                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                key = (".".join(self.objpath[:-1]), self.objpath[-1])
                 if key in attr_docs:
                     no_docstring = True
                     # make a copy of docstring for attributes to avoid cache
@@ -581,7 +650,9 @@ class Documenter:
         If *want_all* is True, return all members.  Else, only return those
         members given by *self.options.members* (which may also be none).
         """
-        members = get_object_members(self.object, self.objpath, self.get_attr, self.analyzer)
+        members = get_object_members(
+            self.object, self.objpath, self.get_attr, self.analyzer
+        )
         if not want_all:
             if not self.options.members:
                 return False, []
@@ -591,17 +662,22 @@ class Documenter:
                 if name in members:
                     selected.append((name, members[name].value))
                 else:
-                    logger.warning(__('missing attribute %s in object %s') %
-                                   (name, self.fullname), type='autodoc')
+                    logger.warning(
+                        __("missing attribute %s in object %s") % (name, self.fullname),
+                        type="autodoc",
+                    )
             return False, selected
         elif self.options.inherited_members:
             return False, [(m.name, m.value) for m in members.values()]
         else:
-            return False, [(m.name, m.value) for m in members.values()
-                           if m.directly_defined]
+            return (
+                False,
+                [(m.name, m.value) for m in members.values() if m.directly_defined],
+            )
 
-    def filter_members(self, members: List[Tuple[str, Any]], want_all: bool
-                       ) -> List[Tuple[str, Any, bool]]:
+    def filter_members(
+        self, members: List[Tuple[str, Any]], want_all: bool
+    ) -> List[Tuple[str, Any, bool]]:
         """Filter the given member list.
 
         Members are skipped if
@@ -615,15 +691,19 @@ class Documenter:
         The user can override the skipping decision by connecting to the
         ``autodoc-skip-member`` event.
         """
+
         def is_filtered_inherited_member(name: str) -> bool:
             if inspect.isclass(self.object):
                 for cls in self.object.__mro__:
-                    if cls.__name__ == self.options.inherited_members and cls != self.object:
+                    if (
+                        cls.__name__ == self.options.inherited_members
+                        and cls != self.object
+                    ):
                         # given member is a member of specified *super class*
                         return True
                     elif name in cls.__dict__:
                         return False
-                    elif name in self.get_attr(cls, '__annotations__', {}):
+                    elif name in self.get_attr(cls, "__annotations__", {}):
                         return False
 
             return False
@@ -631,7 +711,7 @@ class Documenter:
         ret = []
 
         # search for members in source code too
-        namespace = '.'.join(self.objpath)  # will be empty for modules
+        namespace = ".".join(self.objpath)  # will be empty for modules
 
         if self.analyzer:
             attr_docs = self.analyzer.find_attr_docs()
@@ -646,42 +726,53 @@ class Documenter:
             else:
                 isattr = False
 
-            doc = getdoc(member, self.get_attr, self.env.config.autodoc_inherit_docstrings,
-                         self.parent, self.object_name)
+            doc = getdoc(
+                member,
+                self.get_attr,
+                self.env.config.autodoc_inherit_docstrings,
+                self.parent,
+                self.object_name,
+            )
             if not isinstance(doc, str):
                 # Ignore non-string __doc__
                 doc = None
 
             # if the member __doc__ is the same as self's __doc__, it's just
             # inherited and therefore not the member's doc
-            cls = self.get_attr(member, '__class__', None)
+            cls = self.get_attr(member, "__class__", None)
             if cls:
-                cls_doc = self.get_attr(cls, '__doc__', None)
+                cls_doc = self.get_attr(cls, "__doc__", None)
                 if cls_doc == doc:
                     doc = None
             has_doc = bool(doc)
 
             metadata = extract_metadata(doc)
-            if 'private' in metadata:
+            if "private" in metadata:
                 # consider a member private if docstring has "private" metadata
                 isprivate = True
-            elif 'public' in metadata:
+            elif "public" in metadata:
                 # consider a member public if docstring has "public" metadata
                 isprivate = False
             else:
-                isprivate = membername.startswith('_')
+                isprivate = membername.startswith("_")
 
             keep = False
-            if safe_getattr(member, '__sphinx_mock__', False):
+            if safe_getattr(member, "__sphinx_mock__", False):
                 # mocked module or object
                 pass
-            elif self.options.exclude_members and membername in self.options.exclude_members:
+            elif (
+                self.options.exclude_members
+                and membername in self.options.exclude_members
+            ):
                 # remove members given by exclude-members
                 keep = False
             elif want_all and special_member_re.match(membername):
                 # special __methods__
-                if self.options.special_members and membername in self.options.special_members:
-                    if membername == '__doc__':
+                if (
+                    self.options.special_members
+                    and membername in self.options.special_members
+                ):
+                    if membername == "__doc__":
                         keep = False
                     elif is_filtered_inherited_member(membername):
                         keep = False
@@ -710,7 +801,9 @@ class Documenter:
                 else:
                     keep = False
             else:
-                if self.options.members is ALL and is_filtered_inherited_member(membername):
+                if self.options.members is ALL and is_filtered_inherited_member(
+                    membername
+                ):
                     keep = False
                 else:
                     # ignore undocumented members if :undoc-members: is not given
@@ -722,14 +815,25 @@ class Documenter:
                 # let extensions preprocess docstrings
                 try:
                     skip_user = self.env.app.emit_firstresult(
-                        'autodoc-skip-member', self.objtype, membername, member,
-                        not keep, self.options)
+                        "autodoc-skip-member",
+                        self.objtype,
+                        membername,
+                        member,
+                        not keep,
+                        self.options,
+                    )
                     if skip_user is not None:
                         keep = not skip_user
                 except Exception as exc:
-                    logger.warning(__('autodoc: failed to determine %r to be documented, '
-                                      'the following exception was raised:\n%s'),
-                                   member, exc, type='autodoc')
+                    logger.warning(
+                        __(
+                            "autodoc: failed to determine %r to be documented, "
+                            "the following exception was raised:\n%s"
+                        ),
+                        member,
+                        exc,
+                        type="autodoc",
+                    )
                     keep = False
 
             if keep:
@@ -744,20 +848,24 @@ class Documenter:
         *self.options.members*.
         """
         # set current namespace for finding members
-        self.env.temp_data['autodoc:module'] = self.modname
+        self.env.temp_data["autodoc:module"] = self.modname
         if self.objpath:
-            self.env.temp_data['autodoc:class'] = self.objpath[0]
+            self.env.temp_data["autodoc:class"] = self.objpath[0]
 
-        want_all = all_members or self.options.inherited_members or \
-            self.options.members is ALL
+        want_all = (
+            all_members or self.options.inherited_members or self.options.members is ALL
+        )
         # find out which members are documentable
         members_check_module, members = self.get_object_members(want_all)
 
         # document non-skipped members
         memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
         for (mname, member, isattr) in self.filter_members(members, want_all):
-            classes = [cls for cls in self.documenters.values()
-                       if cls.can_document_member(member, mname, isattr, self)]
+            classes = [
+                cls
+                for cls in self.documenters.values()
+                if cls.can_document_member(member, mname, isattr, self)
+            ]
             if not classes:
                 # don't know how to document this member
                 continue
@@ -765,8 +873,7 @@ class Documenter:
             classes.sort(key=lambda cls: cls.priority)
             # give explicitly separated module name, so that members
             # of inner classes can be documented
-            full_mname = self.modname + '::' + \
-                '.'.join(self.objpath + [mname])
+            full_mname = self.modname + "::" + ".".join(self.objpath + [mname])
             documenter = classes[-1](self.directive, full_mname, self.indent)
             memberdocumenters.append((documenter, isattr))
 
@@ -775,27 +882,31 @@ class Documenter:
 
         for documenter, isattr in memberdocumenters:
             documenter.generate(
-                all_members=True, real_modname=self.real_modname,
-                check_module=members_check_module and not isattr)
+                all_members=True,
+                real_modname=self.real_modname,
+                check_module=members_check_module and not isattr,
+            )
 
         # reset current objects
-        self.env.temp_data['autodoc:module'] = None
-        self.env.temp_data['autodoc:class'] = None
+        self.env.temp_data["autodoc:module"] = None
+        self.env.temp_data["autodoc:class"] = None
 
-    def sort_members(self, documenters: List[Tuple["Documenter", bool]],
-                     order: str) -> List[Tuple["Documenter", bool]]:
+    def sort_members(
+        self, documenters: List[Tuple["Documenter", bool]], order: str
+    ) -> List[Tuple["Documenter", bool]]:
         """Sort the given member list."""
-        if order == 'groupwise':
+        if order == "groupwise":
             # sort by group; alphabetically within groups
             documenters.sort(key=lambda e: (e[0].member_order, e[0].name))
-        elif order == 'bysource':
+        elif order == "bysource":
             if self.analyzer:
                 # sort by source order, by virtue of the module analyzer
                 tagorder = self.analyzer.tagorder
 
                 def keyfunc(entry: Tuple[Documenter, bool]) -> int:
-                    fullname = entry[0].name.split('::')[1]
+                    fullname = entry[0].name.split("::")[1]
                     return tagorder.get(fullname, len(tagorder))
+
                 documenters.sort(key=keyfunc)
             else:
                 # Assume that member discovery order matches source order.
@@ -807,8 +918,13 @@ class Documenter:
 
         return documenters
 
-    def generate(self, more_content: Any = None, real_modname: str = None,
-                 check_module: bool = False, all_members: bool = False) -> None:
+    def generate(
+        self,
+        more_content: Any = None,
+        real_modname: str = None,
+        check_module: bool = False,
+        all_members: bool = False,
+    ) -> None:
         """Generate reST for the object given by *self.name*, and possibly for
         its members.
 
@@ -820,10 +936,14 @@ class Documenter:
         if not self.parse_name():
             # need a module to import
             logger.warning(
-                __('don\'t know which module to import for autodocumenting '
-                   '%r (try placing a "module" or "currentmodule" directive '
-                   'in the document, or giving an explicit module name)') %
-                self.name, type='autodoc')
+                __(
+                    "don't know which module to import for autodocumenting "
+                    '%r (try placing a "module" or "currentmodule" directive '
+                    "in the document, or giving an explicit module name)"
+                )
+                % self.name,
+                type="autodoc",
+            )
             return
 
         # now, import the module and get object to document
@@ -845,11 +965,11 @@ class Documenter:
             # be cached anyway)
             self.analyzer.find_attr_docs()
         except PycodeError as exc:
-            logger.debug('[autodoc] module analyzer failed: %s', exc)
+            logger.debug("[autodoc] module analyzer failed: %s", exc)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
             # at least add the module.__file__ as a dependency
-            if hasattr(self.module, '__file__') and self.module.__file__:
+            if hasattr(self.module, "__file__") and self.module.__file__:
                 self.directive.filename_set.add(self.module.__file__)
         else:
             self.directive.filename_set.add(self.analyzer.srcname)
@@ -872,19 +992,23 @@ class Documenter:
         # make sure that the result starts with an empty line.  This is
         # necessary for some situations where another directive preprocesses
         # reST and no starting newline is present
-        self.add_line('', sourcename)
+        self.add_line("", sourcename)
 
         # format the object's signature, if any
         try:
             sig = self.format_signature()
         except Exception as exc:
-            logger.warning(__('error while formatting signature for %s: %s'),
-                           self.fullname, exc, type='autodoc')
+            logger.warning(
+                __("error while formatting signature for %s: %s"),
+                self.fullname,
+                exc,
+                type="autodoc",
+            )
             return
 
         # generate the directive header and options, if applicable
         self.add_directive_header(sig)
-        self.add_line('', sourcename)
+        self.add_line("", sourcename)
 
         # e.g. the module directive doesn't have content
         self.indent += self.content_indent
@@ -900,18 +1024,26 @@ class ModuleDocumenter(Documenter):
     """
     Specialized Documenter subclass for modules.
     """
-    objtype = 'module'
-    content_indent = ''
+
+    objtype = "module"
+    content_indent = ""
     titles_allowed = True
 
     option_spec = {
-        'members': members_option, 'undoc-members': bool_option,
-        'noindex': bool_option, 'inherited-members': inherited_members_option,
-        'show-inheritance': bool_option, 'synopsis': identity,
-        'platform': identity, 'deprecated': bool_option,
-        'member-order': member_order_option, 'exclude-members': exclude_members_option,
-        'private-members': members_option, 'special-members': members_option,
-        'imported-members': bool_option, 'ignore-module-all': bool_option
+        "members": members_option,
+        "undoc-members": bool_option,
+        "noindex": bool_option,
+        "inherited-members": inherited_members_option,
+        "show-inheritance": bool_option,
+        "synopsis": identity,
+        "platform": identity,
+        "deprecated": bool_option,
+        "member-order": member_order_option,
+        "exclude-members": exclude_members_option,
+        "private-members": members_option,
+        "special-members": members_option,
+        "imported-members": bool_option,
+        "ignore-module-all": bool_option,
     }  # type: Dict[str, Callable]
 
     def __init__(self, *args: Any) -> None:
@@ -920,31 +1052,40 @@ class ModuleDocumenter(Documenter):
         self.__all__ = None
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         # don't document submodules automatically
         return False
 
-    def resolve_name(self, modname: str, parents: Any, path: str, base: Any
-                     ) -> Tuple[str, List[str]]:
+    def resolve_name(
+        self, modname: str, parents: Any, path: str, base: Any
+    ) -> Tuple[str, List[str]]:
         if modname is not None:
-            logger.warning(__('"::" in automodule name doesn\'t make sense'),
-                           type='autodoc')
-        return (path or '') + base, []
+            logger.warning(
+                __('"::" in automodule name doesn\'t make sense'), type="autodoc"
+            )
+        return (path or "") + base, []
 
     def parse_name(self) -> bool:
         ret = super().parse_name()
         if self.args or self.retann:
-            logger.warning(__('signature arguments or return annotation '
-                              'given for automodule %s') % self.fullname,
-                           type='autodoc')
+            logger.warning(
+                __(
+                    "signature arguments or return annotation "
+                    "given for automodule %s"
+                )
+                % self.fullname,
+                type="autodoc",
+            )
         return ret
 
     def import_object(self, raiseerror: bool = False) -> bool:
         def is_valid_module_all(__all__: Any) -> bool:
             """Check the given *__all__* is valid for a module."""
-            if (isinstance(__all__, (list, tuple)) and
-                    all(isinstance(e, str) for e in __all__)):
+            if isinstance(__all__, (list, tuple)) and all(
+                isinstance(e, str) for e in __all__
+            ):
                 return True
             else:
                 return False
@@ -952,15 +1093,20 @@ class ModuleDocumenter(Documenter):
         ret = super().import_object(raiseerror)
 
         if not self.options.ignore_module_all:
-            __all__ = getattr(self.object, '__all__', None)
+            __all__ = getattr(self.object, "__all__", None)
             if is_valid_module_all(__all__):
                 # valid __all__ found. copy it to self.__all__
                 self.__all__ = __all__
             elif __all__:
                 # invalid __all__ found.
-                logger.warning(__('__all__ should be a list of strings, not %r '
-                                  '(in module %s) -- ignoring __all__') %
-                               (__all__, self.fullname), type='autodoc')
+                logger.warning(
+                    __(
+                        "__all__ should be a list of strings, not %r "
+                        "(in module %s) -- ignoring __all__"
+                    )
+                    % (__all__, self.fullname),
+                    type="autodoc",
+                )
 
         return ret
 
@@ -971,11 +1117,11 @@ class ModuleDocumenter(Documenter):
 
         # add some module-specific options
         if self.options.synopsis:
-            self.add_line('   :synopsis: ' + self.options.synopsis, sourcename)
+            self.add_line("   :synopsis: " + self.options.synopsis, sourcename)
         if self.options.platform:
-            self.add_line('   :platform: ' + self.options.platform, sourcename)
+            self.add_line("   :platform: " + self.options.platform, sourcename)
         if self.options.deprecated:
-            self.add_line('   :deprecated:', sourcename)
+            self.add_line("   :deprecated:", sourcename)
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
         if want_all:
@@ -993,26 +1139,30 @@ class ModuleDocumenter(Documenter):
                 ret.append((mname, safe_getattr(self.object, mname)))
             except AttributeError:
                 logger.warning(
-                    __('missing attribute mentioned in :members: or __all__: '
-                       'module %s, attribute %s') %
-                    (safe_getattr(self.object, '__name__', '???'), mname),
-                    type='autodoc'
+                    __(
+                        "missing attribute mentioned in :members: or __all__: "
+                        "module %s, attribute %s"
+                    )
+                    % (safe_getattr(self.object, "__name__", "???"), mname),
+                    type="autodoc",
                 )
         return False, ret
 
-    def sort_members(self, documenters: List[Tuple["Documenter", bool]],
-                     order: str) -> List[Tuple["Documenter", bool]]:
-        if order == 'bysource' and self.__all__:
+    def sort_members(
+        self, documenters: List[Tuple["Documenter", bool]], order: str
+    ) -> List[Tuple["Documenter", bool]]:
+        if order == "bysource" and self.__all__:
             # Sort alphabetically first (for members not listed on the __all__)
             documenters.sort(key=lambda e: e[0].name)
 
             # Sort by __all__
             def keyfunc(entry: Tuple[Documenter, bool]) -> int:
-                name = entry[0].name.split('::')[1]
+                name = entry[0].name.split("::")[1]
                 if self.__all__ and name in self.__all__:
                     return self.__all__.index(name)
                 else:
                     return len(self.__all__)
+
             documenters.sort(key=keyfunc)
 
             return documenters
@@ -1025,18 +1175,20 @@ class ModuleLevelDocumenter(Documenter):
     Specialized Documenter subclass for objects on module level (functions,
     classes, data/constants).
     """
-    def resolve_name(self, modname: str, parents: Any, path: str, base: Any
-                     ) -> Tuple[str, List[str]]:
+
+    def resolve_name(
+        self, modname: str, parents: Any, path: str, base: Any
+    ) -> Tuple[str, List[str]]:
         if modname is None:
             if path:
-                modname = path.rstrip('.')
+                modname = path.rstrip(".")
             else:
                 # if documenting a toplevel object without explicit module,
                 # it can be contained in another auto directive ...
-                modname = self.env.temp_data.get('autodoc:module')
+                modname = self.env.temp_data.get("autodoc:module")
                 # ... or in the scope of a module directive
                 if not modname:
-                    modname = self.env.ref_context.get('py:module')
+                    modname = self.env.ref_context.get("py:module")
                 # ... else, it stays None, which means invalid
         return modname, parents + [base]
 
@@ -1046,30 +1198,32 @@ class ClassLevelDocumenter(Documenter):
     Specialized Documenter subclass for objects on class level (methods,
     attributes).
     """
-    def resolve_name(self, modname: str, parents: Any, path: str, base: Any
-                     ) -> Tuple[str, List[str]]:
+
+    def resolve_name(
+        self, modname: str, parents: Any, path: str, base: Any
+    ) -> Tuple[str, List[str]]:
         if modname is None:
             if path:
-                mod_cls = path.rstrip('.')
+                mod_cls = path.rstrip(".")
             else:
                 mod_cls = None
                 # if documenting a class-level object without path,
                 # there must be a current class, either from a parent
                 # auto directive ...
-                mod_cls = self.env.temp_data.get('autodoc:class')
+                mod_cls = self.env.temp_data.get("autodoc:class")
                 # ... or from a class directive
                 if mod_cls is None:
-                    mod_cls = self.env.ref_context.get('py:class')
+                    mod_cls = self.env.ref_context.get("py:class")
                 # ... if still None, there's no way to know
                 if mod_cls is None:
                     return None, []
-            modname, sep, cls = mod_cls.rpartition('.')
+            modname, sep, cls = mod_cls.rpartition(".")
             parents = [cls]
             # if the module name is still missing, get it like above
             if not modname:
-                modname = self.env.temp_data.get('autodoc:module')
+                modname = self.env.temp_data.get("autodoc:module")
             if not modname:
-                modname = self.env.ref_context.get('py:module')
+                modname = self.env.ref_context.get("py:module")
             # ... else, it stays None, which means invalid
         return modname, parents + [base]
 
@@ -1079,15 +1233,16 @@ class DocstringSignatureMixin:
     Mixin for FunctionDocumenter and MethodDocumenter to provide the
     feature of reading the signature from the docstring.
     """
+
     _new_docstrings = None  # type: List[List[str]]
-    _signatures = None      # type: List[str]
+    _signatures = None  # type: List[str]
 
     def _find_signature(self) -> Tuple[str, str]:
         # candidates of the object name
         valid_names = [self.objpath[-1]]  # type: ignore
         if isinstance(self, ClassDocumenter):
-            valid_names.append('__init__')
-            if hasattr(self.object, '__mro__'):
+            valid_names.append("__init__")
+            if hasattr(self.object, "__mro__"):
                 valid_names.extend(cls.__name__ for cls in self.object.__mro__)
 
         docstrings = self.get_doc()
@@ -1100,9 +1255,9 @@ class DocstringSignatureMixin:
                     # no lines in docstring, no match
                     break
 
-                if line.endswith('\\'):
+                if line.endswith("\\"):
                     multiline = True
-                    line = line.rstrip('\\').rstrip()
+                    line = line.rstrip("\\").rstrip()
                 else:
                     multiline = False
 
@@ -1118,15 +1273,16 @@ class DocstringSignatureMixin:
 
                 # re-prepare docstring to ignore more leading indentation
                 tab_width = self.directive.state.document.settings.tab_width  # type: ignore
-                self._new_docstrings[i] = prepare_docstring('\n'.join(doclines[j + 1:]),
-                                                            tabsize=tab_width)
+                self._new_docstrings[i] = prepare_docstring(
+                    "\n".join(doclines[j + 1 :]), tabsize=tab_width
+                )
 
                 if result is None:
                     # first signature
                     result = args, retann
                 else:
                     # subsequent signatures
-                    self._signatures.append("(%s) -> %s" % (args, retann))
+                    self._signatures.append(f"({args}) -> {retann}")
 
                 if multiline:
                     # the signature have multiple signatures on docstring
@@ -1165,6 +1321,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
     Mixin for AttributeDocumenter to provide the
     feature of stripping any function signature from the docstring.
     """
+
     def format_signature(self, **kwargs: Any) -> str:
         if self.args is None and self.env.config.autodoc_docstring_signature:  # type: ignore
             # only act if a signature is not explicitly given already, and if
@@ -1182,35 +1339,44 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     """
     Specialized Documenter subclass for functions.
     """
-    objtype = 'function'
+
+    objtype = "function"
     member_order = 30
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         # supports functions, builtins and bound methods exported at the module level
-        return (inspect.isfunction(member) or inspect.isbuiltin(member) or
-                (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter)))
+        return (
+            inspect.isfunction(member)
+            or inspect.isbuiltin(member)
+            or (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter))
+        )
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.env.config.autodoc_typehints in ('none', 'description'):
-            kwargs.setdefault('show_annotation', False)
+        if self.env.config.autodoc_typehints in ("none", "description"):
+            kwargs.setdefault("show_annotation", False)
 
         try:
-            self.env.app.emit('autodoc-before-process-signature', self.object, False)
-            sig = inspect.signature(self.object, follow_wrapped=True,
-                                    type_aliases=self.env.config.autodoc_type_aliases)
+            self.env.app.emit("autodoc-before-process-signature", self.object, False)
+            sig = inspect.signature(
+                self.object,
+                follow_wrapped=True,
+                type_aliases=self.env.config.autodoc_type_aliases,
+            )
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
-            logger.warning(__("Failed to get a function signature for %s: %s"),
-                           self.fullname, exc)
+            logger.warning(
+                __("Failed to get a function signature for %s: %s"), self.fullname, exc
+            )
             return None
         except ValueError:
-            args = ''
+            args = ""
 
         if self.env.config.strip_signature_backslash:
             # escape backslashes for reST
-            args = args.replace('\\', '\\\\')
+            args = args.replace("\\", "\\\\")
         return args
 
     def document_members(self, all_members: bool = False) -> None:
@@ -1221,11 +1387,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         super().add_directive_header(sig)
 
         if inspect.iscoroutinefunction(self.object):
-            self.add_line('   :async:', sourcename)
+            self.add_line("   :async:", sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
         sigs = []
-        if self.analyzer and '.'.join(self.objpath) in self.analyzer.overloads:
+        if self.analyzer and ".".join(self.objpath) in self.analyzer.overloads:
             # Use signatures for overloaded functions instead of the implementation function.
             overloaded = True
         else:
@@ -1241,15 +1407,16 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 else:
                     self.annotate_to_first_argument(func, typ)
 
-                    documenter = FunctionDocumenter(self.directive, '')
+                    documenter = FunctionDocumenter(self.directive, "")
                     documenter.object = func
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
         if overloaded:
-            __globals__ = safe_getattr(self.object, '__globals__', {})
-            for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
-                overload = evaluate_signature(overload, __globals__,
-                                              self.env.config.autodoc_type_aliases)
+            __globals__ = safe_getattr(self.object, "__globals__", {})
+            for overload in self.analyzer.overloads.get(".".join(self.objpath)):
+                overload = evaluate_signature(
+                    overload, __globals__, self.env.config.autodoc_type_aliases
+                )
 
                 sig = stringify_signature(overload, **kwargs)
                 sigs.append(sig)
@@ -1259,10 +1426,13 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
         try:
-            sig = inspect.signature(func, type_aliases=self.env.config.autodoc_type_aliases)
+            sig = inspect.signature(
+                func, type_aliases=self.env.config.autodoc_type_aliases
+            )
         except TypeError as exc:
-            logger.warning(__("Failed to get a function signature for %s: %s"),
-                           self.fullname, exc)
+            logger.warning(
+                __("Failed to get a function signature for %s: %s"), self.fullname, exc
+            )
             return
         except ValueError:
             return
@@ -1288,8 +1458,11 @@ class SingledispatchFunctionDocumenter(FunctionDocumenter):
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn("%s is deprecated." % self.__class__.__name__,
-                      RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "%s is deprecated." % self.__class__.__name__,
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
         super().__init__(*args, **kwargs)
 
 
@@ -1297,14 +1470,15 @@ class DecoratorDocumenter(FunctionDocumenter):
     """
     Specialized Documenter subclass for decorator functions.
     """
-    objtype = 'decorator'
+
+    objtype = "decorator"
 
     # must be lower than FunctionDocumenter
     priority = -1
 
     def format_args(self, **kwargs: Any) -> Any:
         args = super().format_args(**kwargs)
-        if ',' in args:
+        if "," in args:
             return args
         else:
             return None
@@ -1314,13 +1488,13 @@ class DecoratorDocumenter(FunctionDocumenter):
 # These are listed by name, rather than storing the objects themselves, to avoid
 # needing to import the modules.
 _METACLASS_CALL_BLACKLIST = [
-    'enum.EnumMeta.__call__',
+    "enum.EnumMeta.__call__",
 ]
 
 
 # Types whose __new__ signature is a pass-thru.
 _CLASS_NEW_BLACKLIST = [
-    'typing.Generic.__new__',
+    "typing.Generic.__new__",
 ]
 
 
@@ -1328,14 +1502,19 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     """
     Specialized Documenter subclass for classes.
     """
-    objtype = 'class'
+
+    objtype = "class"
     member_order = 20
     option_spec = {
-        'members': members_option, 'undoc-members': bool_option,
-        'noindex': bool_option, 'inherited-members': inherited_members_option,
-        'show-inheritance': bool_option, 'member-order': member_order_option,
-        'exclude-members': exclude_members_option,
-        'private-members': members_option, 'special-members': members_option,
+        "members": members_option,
+        "undoc-members": bool_option,
+        "noindex": bool_option,
+        "inherited-members": inherited_members_option,
+        "show-inheritance": bool_option,
+        "member-order": member_order_option,
+        "exclude-members": exclude_members_option,
+        "private-members": members_option,
+        "special-members": members_option,
     }  # type: Dict[str, Callable]
 
     _signature_class = None  # type: Any
@@ -1346,8 +1525,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         merge_members_option(self.options)
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         return isinstance(member, type)
 
     def import_object(self, raiseerror: bool = False) -> bool:
@@ -1355,13 +1535,15 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # if the class is documented under another name, document it
         # as data/attribute
         if ret:
-            if hasattr(self.object, '__name__'):
-                self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
+            if hasattr(self.object, "__name__"):
+                self.doc_as_attr = self.objpath[-1] != self.object.__name__
             else:
                 self.doc_as_attr = True
         return ret
 
-    def _get_signature(self) -> Tuple[Optional[Any], Optional[str], Optional[Signature]]:
+    def _get_signature(
+        self,
+    ) -> Tuple[Optional[Any], Optional[str], Optional[Signature]]:
         def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
             """ Get the `attr` function or method from `obj`, if it is user-defined. """
             if inspect.is_builtin_class_method(obj, attr):
@@ -1376,45 +1558,57 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # First, let's see if it has an overloaded __call__ defined
         # in its metaclass
-        call = get_user_defined_function_or_method(type(self.object), '__call__')
+        call = get_user_defined_function_or_method(type(self.object), "__call__")
 
         if call is not None:
-            if "{0.__module__}.{0.__qualname__}".format(call) in _METACLASS_CALL_BLACKLIST:
+            if (
+                "{0.__module__}.{0.__qualname__}".format(call)
+                in _METACLASS_CALL_BLACKLIST
+            ):
                 call = None
 
         if call is not None:
-            self.env.app.emit('autodoc-before-process-signature', call, True)
+            self.env.app.emit("autodoc-before-process-signature", call, True)
             try:
-                sig = inspect.signature(call, bound_method=True,
-                                        type_aliases=self.env.config.autodoc_type_aliases)
-                return type(self.object), '__call__', sig
+                sig = inspect.signature(
+                    call,
+                    bound_method=True,
+                    type_aliases=self.env.config.autodoc_type_aliases,
+                )
+                return type(self.object), "__call__", sig
             except ValueError:
                 pass
 
         # Now we check if the 'obj' class has a '__new__' method
-        new = get_user_defined_function_or_method(self.object, '__new__')
+        new = get_user_defined_function_or_method(self.object, "__new__")
 
         if new is not None:
             if "{0.__module__}.{0.__qualname__}".format(new) in _CLASS_NEW_BLACKLIST:
                 new = None
 
         if new is not None:
-            self.env.app.emit('autodoc-before-process-signature', new, True)
+            self.env.app.emit("autodoc-before-process-signature", new, True)
             try:
-                sig = inspect.signature(new, bound_method=True,
-                                        type_aliases=self.env.config.autodoc_type_aliases)
-                return self.object, '__new__', sig
+                sig = inspect.signature(
+                    new,
+                    bound_method=True,
+                    type_aliases=self.env.config.autodoc_type_aliases,
+                )
+                return self.object, "__new__", sig
             except ValueError:
                 pass
 
         # Finally, we should have at least __init__ implemented
-        init = get_user_defined_function_or_method(self.object, '__init__')
+        init = get_user_defined_function_or_method(self.object, "__init__")
         if init is not None:
-            self.env.app.emit('autodoc-before-process-signature', init, True)
+            self.env.app.emit("autodoc-before-process-signature", init, True)
             try:
-                sig = inspect.signature(init, bound_method=True,
-                                        type_aliases=self.env.config.autodoc_type_aliases)
-                return self.object, '__init__', sig
+                sig = inspect.signature(
+                    init,
+                    bound_method=True,
+                    type_aliases=self.env.config.autodoc_type_aliases,
+                )
+                return self.object, "__init__", sig
             except ValueError:
                 pass
 
@@ -1422,10 +1616,13 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # handle it.
         # We don't know the exact method that inspect.signature will read
         # the signature from, so just pass the object itself to our hook.
-        self.env.app.emit('autodoc-before-process-signature', self.object, False)
+        self.env.app.emit("autodoc-before-process-signature", self.object, False)
         try:
-            sig = inspect.signature(self.object, bound_method=False,
-                                    type_aliases=self.env.config.autodoc_type_aliases)
+            sig = inspect.signature(
+                self.object,
+                bound_method=False,
+                type_aliases=self.env.config.autodoc_type_aliases,
+            )
             return None, None, sig
         except ValueError:
             pass
@@ -1435,15 +1632,22 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         return None, None, None
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.env.config.autodoc_typehints in ('none', 'description'):
-            kwargs.setdefault('show_annotation', False)
+        if self.env.config.autodoc_typehints in ("none", "description"):
+            kwargs.setdefault("show_annotation", False)
 
         try:
-            self._signature_class, self._signature_method_name, sig = self._get_signature()
+            (
+                self._signature_class,
+                self._signature_method_name,
+                sig,
+            ) = self._get_signature()
         except TypeError as exc:
             # __signature__ attribute contained junk
-            logger.warning(__("Failed to get a constructor signature for %s: %s"),
-                           self.fullname, exc)
+            logger.warning(
+                __("Failed to get a constructor signature for %s: %s"),
+                self.fullname,
+                exc,
+            )
             return None
 
         if sig is None:
@@ -1453,7 +1657,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.doc_as_attr:
-            return ''
+            return ""
 
         sig = super().format_signature()
 
@@ -1461,23 +1665,28 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         qualname = None
         # TODO: recreate analyzer for the module of class (To be clear, owner of the method)
         if self._signature_class and self._signature_method_name and self.analyzer:
-            qualname = '.'.join([self._signature_class.__qualname__,
-                                 self._signature_method_name])
+            qualname = ".".join(
+                [self._signature_class.__qualname__, self._signature_method_name]
+            )
             if qualname in self.analyzer.overloads:
                 overloaded = True
 
         sigs = []
         if overloaded:
             # Use signatures for overloaded methods instead of the implementation method.
-            method = safe_getattr(self._signature_class, self._signature_method_name, None)
-            __globals__ = safe_getattr(method, '__globals__', {})
+            method = safe_getattr(
+                self._signature_class, self._signature_method_name, None
+            )
+            __globals__ = safe_getattr(method, "__globals__", {})
             for overload in self.analyzer.overloads.get(qualname):
-                overload = evaluate_signature(overload, __globals__,
-                                              self.env.config.autodoc_type_aliases)
+                overload = evaluate_signature(
+                    overload, __globals__, self.env.config.autodoc_type_aliases
+                )
 
                 parameters = list(overload.parameters.values())
-                overload = overload.replace(parameters=parameters[1:],
-                                            return_annotation=Parameter.empty)
+                overload = overload.replace(
+                    parameters=parameters[1:], return_annotation=Parameter.empty
+                )
                 sig = stringify_signature(overload, **kwargs)
                 sigs.append(sig)
         else:
@@ -1489,79 +1698,92 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         sourcename = self.get_sourcename()
 
         if self.doc_as_attr:
-            self.directivetype = 'attribute'
+            self.directivetype = "attribute"
         super().add_directive_header(sig)
 
-        if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
-            self.add_line('   :final:', sourcename)
+        if self.analyzer and ".".join(self.objpath) in self.analyzer.finals:
+            self.add_line("   :final:", sourcename)
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
             sourcename = self.get_sourcename()
-            self.add_line('', sourcename)
-            if hasattr(self.object, '__bases__') and len(self.object.__bases__):
-                bases = [':class:`%s`' % b.__name__
-                         if b.__module__ in ('__builtin__', 'builtins')
-                         else ':class:`%s.%s`' % (b.__module__, b.__qualname__)
-                         for b in self.object.__bases__]
-                self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
-                              sourcename)
+            self.add_line("", sourcename)
+            if hasattr(self.object, "__bases__") and len(self.object.__bases__):
+                bases = [
+                    ":class:`%s`" % b.__name__
+                    if b.__module__ in ("__builtin__", "builtins")
+                    else f":class:`{b.__module__}.{b.__qualname__}`"
+                    for b in self.object.__bases__
+                ]
+                self.add_line("   " + _("Bases: %s") % ", ".join(bases), sourcename)
 
     def get_doc(self, ignore: int = None) -> List[List[str]]:
-        lines = getattr(self, '_new_docstrings', None)
+        lines = getattr(self, "_new_docstrings", None)
         if lines is not None:
             return lines
 
         content = self.env.config.autoclass_content
 
         docstrings = []
-        attrdocstring = self.get_attr(self.object, '__doc__', None)
+        attrdocstring = self.get_attr(self.object, "__doc__", None)
         if attrdocstring:
             docstrings.append(attrdocstring)
 
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring
-        if content in ('both', 'init'):
-            __init__ = self.get_attr(self.object, '__init__', None)
-            initdocstring = getdoc(__init__, self.get_attr,
-                                   self.env.config.autodoc_inherit_docstrings,
-                                   self.parent, self.object_name)
+        if content in ("both", "init"):
+            __init__ = self.get_attr(self.object, "__init__", None)
+            initdocstring = getdoc(
+                __init__,
+                self.get_attr,
+                self.env.config.autodoc_inherit_docstrings,
+                self.parent,
+                self.object_name,
+            )
             # for new-style classes, no __init__ means default __init__
-            if (initdocstring is not None and
-                (initdocstring == object.__init__.__doc__ or  # for pypy
-                 initdocstring.strip() == object.__init__.__doc__)):  # for !pypy
+            if initdocstring is not None and (
+                initdocstring == object.__init__.__doc__
+                or initdocstring.strip() == object.__init__.__doc__  # for pypy
+            ):  # for !pypy
                 initdocstring = None
             if not initdocstring:
                 # try __new__
-                __new__ = self.get_attr(self.object, '__new__', None)
-                initdocstring = getdoc(__new__, self.get_attr,
-                                       self.env.config.autodoc_inherit_docstrings,
-                                       self.parent, self.object_name)
+                __new__ = self.get_attr(self.object, "__new__", None)
+                initdocstring = getdoc(
+                    __new__,
+                    self.get_attr,
+                    self.env.config.autodoc_inherit_docstrings,
+                    self.parent,
+                    self.object_name,
+                )
                 # for new-style classes, no __new__ means default __new__
-                if (initdocstring is not None and
-                    (initdocstring == object.__new__.__doc__ or  # for pypy
-                     initdocstring.strip() == object.__new__.__doc__)):  # for !pypy
+                if initdocstring is not None and (
+                    initdocstring == object.__new__.__doc__
+                    or initdocstring.strip() == object.__new__.__doc__  # for pypy
+                ):  # for !pypy
                     initdocstring = None
             if initdocstring:
-                if content == 'init':
+                if content == "init":
                     docstrings = [initdocstring]
                 else:
                     docstrings.append(initdocstring)
 
         tab_width = self.directive.state.document.settings.tab_width
-        return [prepare_docstring(docstring, ignore, tab_width) for docstring in docstrings]
+        return [
+            prepare_docstring(docstring, ignore, tab_width) for docstring in docstrings
+        ]
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         if self.doc_as_attr:
-            classname = safe_getattr(self.object, '__qualname__', None)
+            classname = safe_getattr(self.object, "__qualname__", None)
             if not classname:
-                classname = safe_getattr(self.object, '__name__', None)
+                classname = safe_getattr(self.object, "__name__", None)
             if classname:
-                module = safe_getattr(self.object, '__module__', None)
-                parentmodule = safe_getattr(self.parent, '__module__', None)
+                module = safe_getattr(self.object, "__module__", None)
+                parentmodule = safe_getattr(self.parent, "__module__", None)
                 if module and module != parentmodule:
-                    classname = str(module) + '.' + str(classname)
-                content = StringList([_('alias of :class:`%s`') % classname], source='')
+                    classname = str(module) + "." + str(classname)
+                content = StringList([_("alias of :class:`%s`") % classname], source="")
                 super().add_content(content, no_docstring=True)
         else:
             super().add_content(more_content)
@@ -1571,31 +1793,40 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return
         super().document_members(all_members)
 
-    def generate(self, more_content: Any = None, real_modname: str = None,
-                 check_module: bool = False, all_members: bool = False) -> None:
+    def generate(
+        self,
+        more_content: Any = None,
+        real_modname: str = None,
+        check_module: bool = False,
+        all_members: bool = False,
+    ) -> None:
         # Do not pass real_modname and use the name from the __module__
         # attribute of the class.
         # If a class gets imported into the module real_modname
         # the analyzer won't find the source of the class, if
         # it looks in real_modname.
-        return super().generate(more_content=more_content,
-                                check_module=check_module,
-                                all_members=all_members)
+        return super().generate(
+            more_content=more_content,
+            check_module=check_module,
+            all_members=all_members,
+        )
 
 
 class ExceptionDocumenter(ClassDocumenter):
     """
     Specialized ClassDocumenter subclass for exceptions.
     """
-    objtype = 'exception'
+
+    objtype = "exception"
     member_order = 10
 
     # needs a higher priority than ClassDocumenter
     priority = 10
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         return isinstance(member, type) and issubclass(member, BaseException)
 
 
@@ -1603,15 +1834,17 @@ class DataDocumenter(ModuleLevelDocumenter):
     """
     Specialized Documenter subclass for data items.
     """
-    objtype = 'data'
+
+    objtype = "data"
     member_order = 40
     priority = -10
     option_spec = dict(ModuleLevelDocumenter.option_spec)
     option_spec["annotation"] = annotation_option
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         return isinstance(parent, ModuleDocumenter) and isattr
 
     def add_directive_header(self, sig: str) -> None:
@@ -1623,7 +1856,7 @@ class DataDocumenter(ModuleLevelDocumenter):
                 annotations = get_type_hints(self.parent)
             except NameError:
                 # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
-                annotations = safe_getattr(self.parent, '__annotations__', {})
+                annotations = safe_getattr(self.parent, "__annotations__", {})
             except TypeError:
                 annotations = {}
             except KeyError:
@@ -1632,33 +1865,35 @@ class DataDocumenter(ModuleLevelDocumenter):
 
             if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                self.add_line('   :type: ' + objrepr, sourcename)
+                self.add_line("   :type: " + objrepr, sourcename)
             else:
-                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                key = (".".join(self.objpath[:-1]), self.objpath[-1])
                 if self.analyzer and key in self.analyzer.annotations:
-                    self.add_line('   :type: ' + self.analyzer.annotations[key],
-                                  sourcename)
+                    self.add_line(
+                        "   :type: " + self.analyzer.annotations[key], sourcename
+                    )
 
             try:
                 if self.object is UNINITIALIZED_ATTR:
                     pass
                 else:
                     objrepr = object_description(self.object)
-                    self.add_line('   :value: ' + objrepr, sourcename)
+                    self.add_line("   :value: " + objrepr, sourcename)
             except ValueError:
                 pass
         elif self.options.annotation is SUPPRESS:
             pass
         else:
-            self.add_line('   :annotation: %s' % self.options.annotation,
-                          sourcename)
+            self.add_line("   :annotation: %s" % self.options.annotation, sourcename)
 
     def document_members(self, all_members: bool = False) -> None:
         pass
 
     def get_real_modname(self) -> str:
-        return self.get_attr(self.parent or self.object, '__module__', None) \
+        return (
+            self.get_attr(self.parent or self.object, "__module__", None)
             or self.modname
+        )
 
 
 class DataDeclarationDocumenter(DataDocumenter):
@@ -1666,25 +1901,27 @@ class DataDeclarationDocumenter(DataDocumenter):
     Specialized Documenter subclass for data that cannot be imported
     because they are declared without initial value (refs: PEP-526).
     """
-    objtype = 'datadecl'
-    directivetype = 'data'
+
+    objtype = "datadecl"
+    directivetype = "data"
     member_order = 60
 
     # must be higher than AttributeDocumenter
     priority = 11
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         """This documents only INSTANCEATTR members."""
-        return (isinstance(parent, ModuleDocumenter) and
-                isattr and
-                member is INSTANCEATTR)
+        return (
+            isinstance(parent, ModuleDocumenter) and isattr and member is INSTANCEATTR
+        )
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as a data
-        self.objtype = 'data'
+        self.objtype = "data"
         self.object = UNINITIALIZED_ATTR
         try:
             # import module to obtain type annotation
@@ -1704,13 +1941,14 @@ class GenericAliasDocumenter(DataDocumenter):
     Specialized Documenter subclass for GenericAliases.
     """
 
-    objtype = 'genericalias'
-    directivetype = 'data'
+    objtype = "genericalias"
+    directivetype = "data"
     priority = DataDocumenter.priority + 1
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         return inspect.isgenericalias(member)
 
     def add_directive_header(self, sig: str) -> None:
@@ -1719,7 +1957,7 @@ class GenericAliasDocumenter(DataDocumenter):
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         name = stringify_typehint(self.object)
-        content = StringList([_('alias of %s') % name], source='')
+        content = StringList([_("alias of %s") % name], source="")
         super().add_content(content)
 
 
@@ -1728,13 +1966,14 @@ class TypeVarDocumenter(DataDocumenter):
     Specialized Documenter subclass for TypeVars.
     """
 
-    objtype = 'typevar'
-    directivetype = 'data'
+    objtype = "typevar"
+    directivetype = "data"
     priority = DataDocumenter.priority + 1
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         return isinstance(member, TypeVar) and isattr  # type: ignore
 
     def add_directive_header(self, sig: str) -> None:
@@ -1743,9 +1982,12 @@ class TypeVarDocumenter(DataDocumenter):
 
     def get_doc(self, ignore: int = None) -> List[List[str]]:
         if ignore is not None:
-            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx50Warning, stacklevel=2)
+            warnings.warn(
+                "The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                % self.__class__.__name__,
+                RemovedInSphinx50Warning,
+                stacklevel=2,
+            )
 
         if self.object.__doc__ != TypeVar.__doc__:
             return super().get_doc()
@@ -1761,7 +2003,7 @@ class TypeVarDocumenter(DataDocumenter):
         if self.object.__contravariant__:
             attrs.append("contravariant=True")
 
-        content = StringList([_('alias of TypeVar(%s)') % ", ".join(attrs)], source='')
+        content = StringList([_("alias of TypeVar(%s)") % ", ".join(attrs)], source="")
         super().add_content(content)
 
 
@@ -1769,16 +2011,17 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     """
     Specialized Documenter subclass for methods (normal, static and class).
     """
-    objtype = 'method'
-    directivetype = 'method'
+
+    objtype = "method"
+    directivetype = "method"
     member_order = 50
     priority = 1  # must be more than FunctionDocumenter
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        return inspect.isroutine(member) and \
-            not isinstance(parent, ModuleDocumenter)
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
+        return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
@@ -1790,16 +2033,17 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if obj is None:
             obj = self.object
 
-        if (inspect.isclassmethod(obj) or
-                inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name)):
+        if inspect.isclassmethod(obj) or inspect.isstaticmethod(
+            obj, cls=self.parent, name=self.object_name
+        ):
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
 
         return ret
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.env.config.autodoc_typehints in ('none', 'description'):
-            kwargs.setdefault('show_annotation', False)
+        if self.env.config.autodoc_typehints in ("none", "description"):
+            kwargs.setdefault("show_annotation", False)
 
         try:
             if self.object == object.__init__ and self.parent != object:
@@ -1807,28 +2051,41 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 #
                 # Note: The signature of object.__init__() is (self, /, *args, **kwargs).
                 #       But it makes users confused.
-                args = '()'
+                args = "()"
             else:
-                if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
-                    self.env.app.emit('autodoc-before-process-signature', self.object, False)
-                    sig = inspect.signature(self.object, bound_method=False,
-                                            type_aliases=self.env.config.autodoc_type_aliases)
+                if inspect.isstaticmethod(
+                    self.object, cls=self.parent, name=self.object_name
+                ):
+                    self.env.app.emit(
+                        "autodoc-before-process-signature", self.object, False
+                    )
+                    sig = inspect.signature(
+                        self.object,
+                        bound_method=False,
+                        type_aliases=self.env.config.autodoc_type_aliases,
+                    )
                 else:
-                    self.env.app.emit('autodoc-before-process-signature', self.object, True)
-                    sig = inspect.signature(self.object, bound_method=True,
-                                            follow_wrapped=True,
-                                            type_aliases=self.env.config.autodoc_type_aliases)
+                    self.env.app.emit(
+                        "autodoc-before-process-signature", self.object, True
+                    )
+                    sig = inspect.signature(
+                        self.object,
+                        bound_method=True,
+                        follow_wrapped=True,
+                        type_aliases=self.env.config.autodoc_type_aliases,
+                    )
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
-            logger.warning(__("Failed to get a method signature for %s: %s"),
-                           self.fullname, exc)
+            logger.warning(
+                __("Failed to get a method signature for %s: %s"), self.fullname, exc
+            )
             return None
         except ValueError:
-            args = ''
+            args = ""
 
         if self.env.config.strip_signature_backslash:
             # escape backslashes for reST
-            args = args.replace('\\', '\\\\')
+            args = args.replace("\\", "\\\\")
         return args
 
     def add_directive_header(self, sig: str) -> None:
@@ -1837,22 +2094,22 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         sourcename = self.get_sourcename()
         obj = self.parent.__dict__.get(self.object_name, self.object)
         if inspect.isabstractmethod(obj):
-            self.add_line('   :abstractmethod:', sourcename)
+            self.add_line("   :abstractmethod:", sourcename)
         if inspect.iscoroutinefunction(obj):
-            self.add_line('   :async:', sourcename)
+            self.add_line("   :async:", sourcename)
         if inspect.isclassmethod(obj):
-            self.add_line('   :classmethod:', sourcename)
+            self.add_line("   :classmethod:", sourcename)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
-            self.add_line('   :staticmethod:', sourcename)
-        if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
-            self.add_line('   :final:', sourcename)
+            self.add_line("   :staticmethod:", sourcename)
+        if self.analyzer and ".".join(self.objpath) in self.analyzer.finals:
+            self.add_line("   :final:", sourcename)
 
     def document_members(self, all_members: bool = False) -> None:
         pass
 
     def format_signature(self, **kwargs: Any) -> str:
         sigs = []
-        if self.analyzer and '.'.join(self.objpath) in self.analyzer.overloads:
+        if self.analyzer and ".".join(self.objpath) in self.analyzer.overloads:
             # Use signatures for overloaded methods instead of the implementation method.
             overloaded = True
         else:
@@ -1869,19 +2126,21 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 else:
                     self.annotate_to_first_argument(func, typ)
 
-                    documenter = MethodDocumenter(self.directive, '')
+                    documenter = MethodDocumenter(self.directive, "")
                     documenter.parent = self.parent
                     documenter.object = func
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
         if overloaded:
-            __globals__ = safe_getattr(self.object, '__globals__', {})
-            for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
-                overload = evaluate_signature(overload, __globals__,
-                                              self.env.config.autodoc_type_aliases)
+            __globals__ = safe_getattr(self.object, "__globals__", {})
+            for overload in self.analyzer.overloads.get(".".join(self.objpath)):
+                overload = evaluate_signature(
+                    overload, __globals__, self.env.config.autodoc_type_aliases
+                )
 
-                if not inspect.isstaticmethod(self.object, cls=self.parent,
-                                              name=self.object_name):
+                if not inspect.isstaticmethod(
+                    self.object, cls=self.parent, name=self.object_name
+                ):
                     parameters = list(overload.parameters.values())
                     overload = overload.replace(parameters=parameters[1:])
                 sig = stringify_signature(overload, **kwargs)
@@ -1892,10 +2151,13 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
         try:
-            sig = inspect.signature(func, type_aliases=self.env.config.autodoc_type_aliases)
+            sig = inspect.signature(
+                func, type_aliases=self.env.config.autodoc_type_aliases
+            )
         except TypeError as exc:
-            logger.warning(__("Failed to get a method signature for %s: %s"),
-                           self.fullname, exc)
+            logger.warning(
+                __("Failed to get a method signature for %s: %s"), self.fullname, exc
+            )
             return
         except ValueError:
             return
@@ -1920,8 +2182,11 @@ class SingledispatchMethodDocumenter(MethodDocumenter):
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn("%s is deprecated." % self.__class__.__name__,
-                      RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "%s is deprecated." % self.__class__.__name__,
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
         super().__init__(*args, **kwargs)
 
 
@@ -1929,7 +2194,8 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     """
     Specialized Documenter subclass for attributes.
     """
-    objtype = 'attribute'
+
+    objtype = "attribute"
     member_order = 60
     option_spec = dict(ModuleLevelDocumenter.option_spec)
     option_spec["annotation"] = annotation_option
@@ -1940,16 +2206,21 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
 
     @staticmethod
     def is_function_or_method(obj: Any) -> bool:
-        return inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
+        return (
+            inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
+        )
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         if inspect.isattributedescriptor(member):
             return True
-        elif (not isinstance(parent, ModuleDocumenter) and
-              not inspect.isroutine(member) and
-              not isinstance(member, type)):
+        elif (
+            not isinstance(parent, ModuleDocumenter)
+            and not inspect.isroutine(member)
+            and not isinstance(member, type)
+        ):
             return True
         else:
             return False
@@ -1963,7 +2234,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             analyzer = ModuleAnalyzer.for_module(self.modname)
             attr_docs = analyzer.find_attr_docs()
             if self.objpath:
-                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                key = (".".join(self.objpath[:-1]), self.objpath[-1])
                 if key in attr_docs:
                     return True
 
@@ -1989,15 +2260,17 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             elif raiseerror:
                 raise
             else:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                logger.warning(exc.args[0], type="autodoc", subtype="import_object")
                 self.env.note_reread()
                 ret = False
 
         return ret
 
     def get_real_modname(self) -> str:
-        return self.get_attr(self.parent or self.object, '__module__', None) \
+        return (
+            self.get_attr(self.parent or self.object, "__module__", None)
             or self.modname
+        )
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
@@ -2008,7 +2281,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
                 annotations = get_type_hints(self.parent)
             except NameError:
                 # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
-                annotations = safe_getattr(self.parent, '__annotations__', {})
+                annotations = safe_getattr(self.parent, "__annotations__", {})
             except TypeError:
                 annotations = {}
             except KeyError:
@@ -2017,12 +2290,13 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
 
             if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                self.add_line('   :type: ' + objrepr, sourcename)
+                self.add_line("   :type: " + objrepr, sourcename)
             else:
-                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+                key = (".".join(self.objpath[:-1]), self.objpath[-1])
                 if self.analyzer and key in self.analyzer.annotations:
-                    self.add_line('   :type: ' + self.analyzer.annotations[key],
-                                  sourcename)
+                    self.add_line(
+                        "   :type: " + self.analyzer.annotations[key], sourcename
+                    )
 
             # data descriptors do not have useful values
             if not self._datadescriptor:
@@ -2031,13 +2305,13 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
                         pass
                     else:
                         objrepr = object_description(self.object)
-                        self.add_line('   :value: ' + objrepr, sourcename)
+                        self.add_line("   :value: " + objrepr, sourcename)
                 except ValueError:
                     pass
         elif self.options.annotation is SUPPRESS:
             pass
         else:
-            self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
+            self.add_line("   :annotation: %s" % self.options.annotation, sourcename)
 
     def get_doc(self, ignore: int = None) -> List[List[str]]:
         try:
@@ -2062,31 +2336,35 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
     """
     Specialized Documenter subclass for properties.
     """
-    objtype = 'property'
-    directivetype = 'method'
+
+    objtype = "property"
+    directivetype = "method"
     member_order = 60
 
     # before AttributeDocumenter
     priority = AttributeDocumenter.priority + 1
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         return inspect.isproperty(member) and isinstance(parent, ClassDocumenter)
 
     def document_members(self, all_members: bool = False) -> None:
         pass
 
     def get_real_modname(self) -> str:
-        return self.get_attr(self.parent or self.object, '__module__', None) \
+        return (
+            self.get_attr(self.parent or self.object, "__module__", None)
             or self.modname
+        )
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
         if inspect.isabstractmethod(self.object):
-            self.add_line('   :abstractmethod:', sourcename)
-        self.add_line('   :property:', sourcename)
+            self.add_line("   :abstractmethod:", sourcename)
+        self.add_line("   :property:", sourcename)
 
 
 class InstanceAttributeDocumenter(AttributeDocumenter):
@@ -2094,20 +2372,24 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
     Specialized Documenter subclass for attributes that cannot be imported
     because they are instance attributes (e.g. assigned in __init__).
     """
-    objtype = 'instanceattribute'
-    directivetype = 'attribute'
+
+    objtype = "instanceattribute"
+    directivetype = "attribute"
     member_order = 60
 
     # must be higher than AttributeDocumenter
     priority = 11
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         """This documents only INSTANCEATTR members."""
-        return (not isinstance(parent, ModuleDocumenter) and
-                isattr and
-                member is INSTANCEATTR)
+        return (
+            not isinstance(parent, ModuleDocumenter)
+            and isattr
+            and member is INSTANCEATTR
+        )
 
     def import_parent(self) -> Any:
         try:
@@ -2122,7 +2404,7 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
     def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as an attribute
-        self.objtype = 'attribute'
+        self.objtype = "attribute"
         self.object = INSTANCEATTR
         self.parent = self.import_parent()
         self._datadescriptor = False
@@ -2138,48 +2420,57 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
     Specialized Documenter subclass for attributes that cannot be imported
     because they are attributes in __slots__.
     """
-    objtype = 'slotsattribute'
-    directivetype = 'attribute'
+
+    objtype = "slotsattribute"
+    directivetype = "attribute"
     member_order = 60
 
     # must be higher than AttributeDocumenter
     priority = 11
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
         """This documents only SLOTSATTR members."""
         return member is SLOTSATTR
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Never import anything."""
         # disguise as an attribute
-        self.objtype = 'attribute'
+        self.objtype = "attribute"
         self._datadescriptor = True
 
         with mock(self.env.config.autodoc_mock_imports):
             try:
-                ret = import_object(self.modname, self.objpath[:-1], 'class',
-                                    attrgetter=self.get_attr,
-                                    warningiserror=self.env.config.autodoc_warningiserror)
+                ret = import_object(
+                    self.modname,
+                    self.objpath[:-1],
+                    "class",
+                    attrgetter=self.get_attr,
+                    warningiserror=self.env.config.autodoc_warningiserror,
+                )
                 self.module, _, _, self.parent = ret
                 return True
             except ImportError as exc:
                 if raiseerror:
                     raise
                 else:
-                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                    logger.warning(exc.args[0], type="autodoc", subtype="import_object")
                     self.env.note_reread()
                     return False
 
     def get_doc(self, ignore: int = None) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""
         if ignore is not None:
-            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx50Warning, stacklevel=2)
+            warnings.warn(
+                "The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                % self.__class__.__name__,
+                RemovedInSphinx50Warning,
+                stacklevel=2,
+            )
         name = self.objpath[-1]
-        __slots__ = safe_getattr(self.parent, '__slots__', [])
+        __slots__ = safe_getattr(self.parent, "__slots__", [])
         if isinstance(__slots__, dict) and isinstance(__slots__.get(name), str):
             docstring = prepare_docstring(__slots__[name])
             return [docstring]
@@ -2189,7 +2480,9 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
 
 def get_documenters(app: Sphinx) -> Dict[str, Type[Documenter]]:
     """Returns registered Documenter classes"""
-    warnings.warn("get_documenters() is deprecated.", RemovedInSphinx50Warning, stacklevel=2)
+    warnings.warn(
+        "get_documenters() is deprecated.", RemovedInSphinx50Warning, stacklevel=2
+    )
     return app.registry.documenters
 
 
@@ -2203,11 +2496,15 @@ def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
 
 
 def migrate_autodoc_member_order(app: Sphinx, config: Config) -> None:
-    if config.autodoc_member_order == 'alphabetic':
+    if config.autodoc_member_order == "alphabetic":
         # RemovedInSphinx50Warning
-        logger.warning(__('autodoc_member_order now accepts "alphabetical" '
-                          'instead of "alphabetic". Please update your setting.'))
-        config.autodoc_member_order = 'alphabetical'  # type: ignore
+        logger.warning(
+            __(
+                'autodoc_member_order now accepts "alphabetical" '
+                'instead of "alphabetic". Please update your setting.'
+            )
+        )
+        config.autodoc_member_order = "alphabetical"  # type: ignore
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -2226,25 +2523,32 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(InstanceAttributeDocumenter)
     app.add_autodocumenter(SlotsAttributeDocumenter)
 
-    app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
-    app.add_config_value('autodoc_member_order', 'alphabetical', True,
-                         ENUM('alphabetic', 'alphabetical', 'bysource', 'groupwise'))
-    app.add_config_value('autodoc_default_options', {}, True)
-    app.add_config_value('autodoc_docstring_signature', True, True)
-    app.add_config_value('autodoc_mock_imports', [], True)
-    app.add_config_value('autodoc_typehints', "signature", True,
-                         ENUM("signature", "description", "none"))
-    app.add_config_value('autodoc_type_aliases', {}, True)
-    app.add_config_value('autodoc_warningiserror', True, True)
-    app.add_config_value('autodoc_inherit_docstrings', True, True)
-    app.add_event('autodoc-before-process-signature')
-    app.add_event('autodoc-process-docstring')
-    app.add_event('autodoc-process-signature')
-    app.add_event('autodoc-skip-member')
+    app.add_config_value(
+        "autoclass_content", "class", True, ENUM("both", "class", "init")
+    )
+    app.add_config_value(
+        "autodoc_member_order",
+        "alphabetical",
+        True,
+        ENUM("alphabetic", "alphabetical", "bysource", "groupwise"),
+    )
+    app.add_config_value("autodoc_default_options", {}, True)
+    app.add_config_value("autodoc_docstring_signature", True, True)
+    app.add_config_value("autodoc_mock_imports", [], True)
+    app.add_config_value(
+        "autodoc_typehints", "signature", True, ENUM("signature", "description", "none")
+    )
+    app.add_config_value("autodoc_type_aliases", {}, True)
+    app.add_config_value("autodoc_warningiserror", True, True)
+    app.add_config_value("autodoc_inherit_docstrings", True, True)
+    app.add_event("autodoc-before-process-signature")
+    app.add_event("autodoc-process-docstring")
+    app.add_event("autodoc-process-signature")
+    app.add_event("autodoc-skip-member")
 
-    app.connect('config-inited', migrate_autodoc_member_order, priority=800)
+    app.connect("config-inited", migrate_autodoc_member_order, priority=800)
 
-    app.setup_extension('sphinx.ext.autodoc.type_comment')
-    app.setup_extension('sphinx.ext.autodoc.typehints')
+    app.setup_extension("sphinx.ext.autodoc.type_comment")
+    app.setup_extension("sphinx.ext.autodoc.typehints")
 
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}

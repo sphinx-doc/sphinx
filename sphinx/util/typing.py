@@ -7,10 +7,16 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import sys
 import typing
-from typing import Any, Callable, Dict, Generator, List, Tuple, TypeVar, Union
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Generator
+from typing import List
+from typing import Tuple
+from typing import TypeVar
+from typing import Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -99,7 +105,7 @@ def _stringify_py37(annotation: Any) -> str:
         else:
             qualname = stringify(annotation.__origin__)  # ex. Union
     elif hasattr(annotation, '__qualname__'):
-        qualname = '%s.%s' % (module, annotation.__qualname__)
+        qualname = f'{module}.{annotation.__qualname__}'
     elif hasattr(annotation, '__origin__'):
         # instantiated generic provided by a user
         qualname = stringify(annotation.__origin__)
@@ -125,7 +131,7 @@ def _stringify_py37(annotation: Any) -> str:
         elif qualname == 'Callable':
             args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
             returns = stringify(annotation.__args__[-1])
-            return '%s[[%s], %s]' % (qualname, args, returns)
+            return f'{qualname}[[{args}], {returns}]'
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify(annotation.__args__[0])
         elif all(is_system_TypeVar(a) for a in annotation.__args__):
@@ -133,7 +139,7 @@ def _stringify_py37(annotation: Any) -> str:
             return qualname
         else:
             args = ', '.join(stringify(a) for a in annotation.__args__)
-            return '%s[%s]' % (qualname, args)
+            return f'{qualname}[{args}]'
 
     return qualname
 
@@ -153,7 +159,7 @@ def _stringify_py36(annotation: Any) -> str:
         else:
             qualname = repr(annotation).replace('typing.', '')
     elif hasattr(annotation, '__qualname__'):
-        qualname = '%s.%s' % (module, annotation.__qualname__)
+        qualname = f'{module}.{annotation.__qualname__}'
     else:
         qualname = repr(annotation)
 
@@ -162,7 +168,7 @@ def _stringify_py36(annotation: Any) -> str:
         params = annotation.__args__
         if params:
             param_str = ', '.join(stringify(p) for p in params)
-            return '%s[%s]' % (qualname, param_str)
+            return f'{qualname}[{param_str}]'
         else:
             return qualname
     elif isinstance(annotation, typing.GenericMeta):
@@ -175,10 +181,10 @@ def _stringify_py36(annotation: Any) -> str:
             args = ', '.join(stringify(arg) for arg
                              in annotation.__args__[:-1])  # type: ignore
             result = stringify(annotation.__args__[-1])  # type: ignore
-            return '%s[[%s], %s]' % (qualname, args, result)
+            return f'{qualname}[[{args}], {result}]'
         if params is not None:
             param_str = ', '.join(stringify(p) for p in params)
-            return '%s[%s]' % (qualname, param_str)
+            return f'{qualname}[{param_str}]'
     elif (hasattr(annotation, '__origin__') and
           annotation.__origin__ is typing.Union):
         params = annotation.__args__

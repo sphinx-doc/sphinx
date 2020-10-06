@@ -47,4 +47,3 @@ Admonitions
 .. admonition:: 1. admonition title
 
    admonition body
-

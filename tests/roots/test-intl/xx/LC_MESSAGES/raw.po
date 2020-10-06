@@ -18,4 +18,3 @@ msgstr ""
 
 msgid "<iframe src=\"http://sphinx-doc.org\"></iframe>"
 msgstr "<iframe src=\"HTTP://SPHINX-DOC.ORG\"></iframe>"
-

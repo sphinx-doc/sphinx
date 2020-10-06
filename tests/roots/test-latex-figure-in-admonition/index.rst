@@ -6,4 +6,3 @@ Test Figure in Admonition
    This uses a figure in an admonition.
 
    .. figure:: img.png
-

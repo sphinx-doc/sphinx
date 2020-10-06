@@ -83,5 +83,3 @@ describe('jQuery extensions', function() {
 
 
 });
-
-

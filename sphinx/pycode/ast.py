@@ -7,10 +7,12 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import sys
-from typing import Dict, List, Type, Optional
+from typing import Dict
+from typing import List
+from typing import Optional
 from typing import overload
+from typing import Type
 
 if sys.version_info > (3, 8):
     import ast
@@ -45,7 +47,7 @@ OPERATORS = {
 }  # type: Dict[Type[ast.AST], str]
 
 
-def parse(code: str, mode: str = 'exec') -> "ast.AST":
+def parse(code: str, mode: str = "exec") -> "ast.AST":
     """Parse the *code* using built-in ast or typed_ast.
 
     This enables "type_comments" feature if possible.
@@ -80,15 +82,15 @@ def unparse(node: Optional[ast.AST]) -> Optional[str]:
 
 # a greatly cut-down version of `ast._Unparser`
 class _UnparseVisitor(ast.NodeVisitor):
-
     def _visit_op(self, node: ast.AST) -> str:
         return OPERATORS[node.__class__]
+
     for _op in OPERATORS:
-        locals()['visit_{}'.format(_op.__name__)] = _visit_op
+        locals()[f"visit_{_op.__name__}"] = _visit_op
 
     def visit_arg(self, node: ast.arg) -> str:
         if node.annotation:
-            return "%s: %s" % (node.arg, self.visit(node.annotation))
+            return "{}: {}".format(node.arg, self.visit(node.annotation))
         else:
             return node.arg
 
@@ -122,7 +124,7 @@ class _UnparseVisitor(ast.NodeVisitor):
                 args.append(self._visit_arg_with_default(arg, defaults[i]))
 
             if node.posonlyargs:  # type: ignore
-                args.append('/')
+                args.append("/")
 
         for i, arg in enumerate(node.args):
             args.append(self._visit_arg_with_default(arg, defaults[i + posonlyargs]))
@@ -131,7 +133,7 @@ class _UnparseVisitor(ast.NodeVisitor):
             args.append("*" + self.visit(node.vararg))
 
         if node.kwonlyargs and not node.vararg:
-            args.append('*')
+            args.append("*")
         for i, arg in enumerate(node.kwonlyargs):
             args.append(self._visit_arg_with_default(arg, kw_defaults[i]))
 
@@ -141,7 +143,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         return ", ".join(args)
 
     def visit_Attribute(self, node: ast.Attribute) -> str:
-        return "%s.%s" % (self.visit(node.value), node.attr)
+        return "{}.{}".format(self.visit(node.value), node.attr)
 
     def visit_BinOp(self, node: ast.BinOp) -> str:
         return " ".join(self.visit(e) for e in [node.left, node.op, node.right])
@@ -151,9 +153,10 @@ class _UnparseVisitor(ast.NodeVisitor):
         return op.join(self.visit(e) for e in node.values)
 
     def visit_Call(self, node: ast.Call) -> str:
-        args = ([self.visit(e) for e in node.args] +
-                ["%s=%s" % (k.arg, self.visit(k.value)) for k in node.keywords])
-        return "%s(%s)" % (self.visit(node.func), ", ".join(args))
+        args = [self.visit(e) for e in node.args] + [
+            "{}={}".format(k.arg, self.visit(k.value)) for k in node.keywords
+        ]
+        return "{}({})".format(self.visit(node.func), ", ".join(args))
 
     def visit_Constant(self, node: ast.Constant) -> str:  # type: ignore
         if node.value is Ellipsis:
@@ -185,22 +188,22 @@ class _UnparseVisitor(ast.NodeVisitor):
     def visit_Subscript(self, node: ast.Subscript) -> str:
         def is_simple_tuple(value: ast.AST) -> bool:
             return (
-                isinstance(value, ast.Tuple) and
-                bool(value.elts) and
-                not any(isinstance(elt, ast.Starred) for elt in value.elts)
+                isinstance(value, ast.Tuple)
+                and bool(value.elts)
+                and not any(isinstance(elt, ast.Starred) for elt in value.elts)
             )
 
         if is_simple_tuple(node.slice):
             elts = ", ".join(self.visit(e) for e in node.slice.elts)  # type: ignore
-            return "%s[%s]" % (self.visit(node.value), elts)
+            return "{}[{}]".format(self.visit(node.value), elts)
         elif isinstance(node.slice, ast.Index) and is_simple_tuple(node.slice.value):
             elts = ", ".join(self.visit(e) for e in node.slice.value.elts)  # type: ignore
-            return "%s[%s]" % (self.visit(node.value), elts)
+            return "{}[{}]".format(self.visit(node.value), elts)
         else:
-            return "%s[%s]" % (self.visit(node.value), self.visit(node.slice))
+            return "{}[{}]".format(self.visit(node.value), self.visit(node.slice))
 
     def visit_UnaryOp(self, node: ast.UnaryOp) -> str:
-        return "%s %s" % (self.visit(node.op), self.visit(node.operand))
+        return "{} {}".format(self.visit(node.op), self.visit(node.operand))
 
     def visit_Tuple(self, node: ast.Tuple) -> str:
         if node.elts:
@@ -226,4 +229,4 @@ class _UnparseVisitor(ast.NodeVisitor):
             return repr(node.s)
 
     def generic_visit(self, node):
-        raise NotImplementedError('Unable to parse %s object' % type(node).__name__)
+        raise NotImplementedError("Unable to parse %s object" % type(node).__name__)

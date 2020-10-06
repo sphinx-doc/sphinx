@@ -5,20 +5,28 @@
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from typing import Any, Callable, Dict, List, Set, Type
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Set
+from typing import Type
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
+from docutils.nodes import Node
 from docutils.parsers.rst.states import RSTState
 from docutils.statemachine import StringList
-from docutils.utils import Reporter, assemble_option_dict
+from docutils.utils import assemble_option_dict
+from docutils.utils import Reporter
 
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc import Documenter, Options
+from sphinx.ext.autodoc import Documenter
+from sphinx.ext.autodoc import Options
 from sphinx.util import logging
-from sphinx.util.docutils import SphinxDirective, switch_source_input
+from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
 
 
@@ -26,10 +34,18 @@ logger = logging.getLogger(__name__)
 
 
 # common option names for autodoc directives
-AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
-                           'show-inheritance', 'private-members', 'special-members',
-                           'ignore-module-all', 'exclude-members', 'member-order',
-                           'imported-members']
+AUTODOC_DEFAULT_OPTIONS = [
+    "members",
+    "undoc-members",
+    "inherited-members",
+    "show-inheritance",
+    "private-members",
+    "special-members",
+    "ignore-module-all",
+    "exclude-members",
+    "member-order",
+    "imported-members",
+]
 
 
 class DummyOptionSpec(dict):
@@ -46,8 +62,14 @@ class DummyOptionSpec(dict):
 class DocumenterBridge:
     """A parameters container for Documenters."""
 
-    def __init__(self, env: BuildEnvironment, reporter: Reporter, options: Options,
-                 lineno: int, state: Any) -> None:
+    def __init__(
+        self,
+        env: BuildEnvironment,
+        reporter: Reporter,
+        options: Options,
+        lineno: int,
+        state: Any,
+    ) -> None:
         self.env = env
         self.reporter = reporter
         self.genopt = options
@@ -60,22 +82,24 @@ class DocumenterBridge:
         logger.warning(msg, location=(self.env.docname, self.lineno))
 
 
-def process_documenter_options(documenter: "Type[Documenter]", config: Config, options: Dict
-                               ) -> Options:
+def process_documenter_options(
+    documenter: "Type[Documenter]", config: Config, options: Dict
+) -> Options:
     """Recognize options of Documenter from user input."""
     for name in AUTODOC_DEFAULT_OPTIONS:
         if name not in documenter.option_spec:
             continue
         else:
-            negated = options.pop('no-' + name, True) is None
+            negated = options.pop("no-" + name, True) is None
             if name in config.autodoc_default_options and not negated:
                 options[name] = config.autodoc_default_options[name]
 
     return Options(assemble_option_dict(options.items(), documenter.option_spec))
 
 
-def parse_generated_content(state: RSTState, content: StringList, documenter: Documenter
-                            ) -> List[Node]:
+def parse_generated_content(
+    state: RSTState, content: StringList, documenter: Documenter
+) -> List[Node]:
     """Parse a generated content by Documenter."""
     with switch_source_input(state, content):
         if documenter.titles_allowed:
@@ -97,6 +121,7 @@ class AutodocDirective(SphinxDirective):
     It invokes a Documenter on running. After the processing, it parses and returns
     the generated content by Documenter.
     """
+
     option_spec = DummyOptionSpec()
     has_content = True
     required_arguments = 1
@@ -110,7 +135,7 @@ class AutodocDirective(SphinxDirective):
             source, lineno = reporter.get_source_and_line(self.lineno)  # type: ignore
         except AttributeError:
             source, lineno = (None, None)
-        logger.debug('[autodoc] %s:%s: input:\n%s', source, lineno, self.block_text)
+        logger.debug("[autodoc] %s:%s: input:\n%s", source, lineno, self.block_text)
 
         # look up target Documenter
         objtype = self.name[4:]  # strip prefix (auto-).
@@ -118,21 +143,28 @@ class AutodocDirective(SphinxDirective):
 
         # process the options with the selected documenter's option_spec
         try:
-            documenter_options = process_documenter_options(doccls, self.config, self.options)
+            documenter_options = process_documenter_options(
+                doccls, self.config, self.options
+            )
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
-            logger.error('An option to %s is either unknown or has an invalid value: %s' %
-                         (self.name, exc), location=(self.env.docname, lineno))
+            logger.error(
+                "An option to %s is either unknown or has an invalid value: %s"
+                % (self.name, exc),
+                location=(self.env.docname, lineno),
+            )
             return []
 
         # generate the output
-        params = DocumenterBridge(self.env, reporter, documenter_options, lineno, self.state)
+        params = DocumenterBridge(
+            self.env, reporter, documenter_options, lineno, self.state
+        )
         documenter = doccls(params, self.arguments[0])
         documenter.generate(more_content=self.content)
         if not params.result:
             return []
 
-        logger.debug('[autodoc] output:\n%s', '\n'.join(params.result))
+        logger.debug("[autodoc] output:\n%s", "\n".join(params.result))
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible

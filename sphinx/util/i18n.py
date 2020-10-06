@@ -7,13 +7,18 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from os import path
-from typing import Callable, Generator, List, NamedTuple, Tuple, Union
+from typing import Callable
+from typing import Generator
+from typing import List
+from typing import NamedTuple
+from typing import Tuple
 from typing import TYPE_CHECKING
+from typing import Union
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -22,7 +27,9 @@ from babel.messages.pofile import read_po
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import SEP, canon_path, relpath
+from sphinx.util.osutil import canon_path
+from sphinx.util.osutil import relpath
+from sphinx.util.osutil import SEP
 
 if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
@@ -38,14 +45,13 @@ class LocaleFileInfoBase(NamedTuple):
 
 
 class CatalogInfo(LocaleFileInfoBase):
-
     @property
     def po_file(self) -> str:
-        return self.domain + '.po'
+        return self.domain + ".po"
 
     @property
     def mo_file(self) -> str:
-        return self.domain + '.mo'
+        return self.domain + ".mo"
 
     @property
     def po_path(self) -> str:
@@ -56,30 +62,31 @@ class CatalogInfo(LocaleFileInfoBase):
         return path.join(self.base_dir, self.mo_file)
 
     def is_outdated(self) -> bool:
-        return (
-            not path.exists(self.mo_path) or
-            path.getmtime(self.mo_path) < path.getmtime(self.po_path))
+        return not path.exists(self.mo_path) or path.getmtime(
+            self.mo_path
+        ) < path.getmtime(self.po_path)
 
     def write_mo(self, locale: str) -> None:
         with open(self.po_path, encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
-                logger.warning(__('reading error: %s, %s'), self.po_path, exc)
+                logger.warning(__("reading error: %s, %s"), self.po_path, exc)
                 return
 
-        with open(self.mo_path, 'wb') as file_mo:
+        with open(self.mo_path, "wb") as file_mo:
             try:
                 write_mo(file_mo, po)
             except Exception as exc:
-                logger.warning(__('writing error: %s, %s'), self.mo_path, exc)
+                logger.warning(__("writing error: %s, %s"), self.mo_path, exc)
 
 
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str, locale_dirs: List[str],
-                 language: str, encoding: str) -> None:
+    def __init__(
+        self, basedir: str, locale_dirs: List[str], language: str, encoding: str
+    ) -> None:
         self.basedir = basedir
         self._locale_dirs = locale_dirs
         self.language = language
@@ -92,21 +99,21 @@ class CatalogRepository:
 
         for locale_dir in self._locale_dirs:
             locale_dir = path.join(self.basedir, locale_dir)
-            if path.exists(path.join(locale_dir, self.language, 'LC_MESSAGES')):
+            if path.exists(path.join(locale_dir, self.language, "LC_MESSAGES")):
                 yield locale_dir
 
     @property
     def pofiles(self) -> Generator[Tuple[str, str], None, None]:
         for locale_dir in self.locale_dirs:
-            basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
+            basedir = path.join(locale_dir, self.language, "LC_MESSAGES")
             for root, dirnames, filenames in os.walk(basedir):
                 # skip dot-directories
                 for dirname in dirnames:
-                    if dirname.startswith('.'):
+                    if dirname.startswith("."):
                         dirnames.remove(dirname)
 
                 for filename in filenames:
-                    if filename.endswith('.po'):
+                    if filename.endswith(".po"):
                         fullpath = path.join(root, filename)
                         yield basedir, relpath(fullpath, basedir)
 
@@ -129,64 +136,73 @@ def docname_to_domain(docname: str, compation: Union[bool, str]) -> str:
 
 # date_format mappings: ustrftime() to bable.dates.format_datetime()
 date_format_mappings = {
-    '%a':  'EEE',     # Weekday as locale’s abbreviated name.
-    '%A':  'EEEE',    # Weekday as locale’s full name.
-    '%b':  'MMM',     # Month as locale’s abbreviated name.
-    '%B':  'MMMM',    # Month as locale’s full name.
-    '%c':  'medium',  # Locale’s appropriate date and time representation.
-    '%-d': 'd',       # Day of the month as a decimal number.
-    '%d':  'dd',      # Day of the month as a zero-padded decimal number.
-    '%-H': 'H',       # Hour (24-hour clock) as a decimal number [0,23].
-    '%H':  'HH',      # Hour (24-hour clock) as a zero-padded decimal number [00,23].
-    '%-I': 'h',       # Hour (12-hour clock) as a decimal number [1,12].
-    '%I':  'hh',      # Hour (12-hour clock) as a zero-padded decimal number [01,12].
-    '%-j': 'D',       # Day of the year as a decimal number.
-    '%j':  'DDD',     # Day of the year as a zero-padded decimal number.
-    '%-m': 'M',       # Month as a decimal number.
-    '%m':  'MM',      # Month as a zero-padded decimal number.
-    '%-M': 'm',       # Minute as a decimal number [0,59].
-    '%M':  'mm',      # Minute as a zero-padded decimal number [00,59].
-    '%p':  'a',       # Locale’s equivalent of either AM or PM.
-    '%-S': 's',       # Second as a decimal number.
-    '%S':  'ss',      # Second as a zero-padded decimal number.
-    '%U':  'WW',      # Week number of the year (Sunday as the first day of the week)
-                      # as a zero padded decimal number. All days in a new year preceding
-                      # the first Sunday are considered to be in week 0.
-    '%w':  'e',       # Weekday as a decimal number, where 0 is Sunday and 6 is Saturday.
-    '%-W': 'W',       # Week number of the year (Monday as the first day of the week)
-                      # as a decimal number. All days in a new year preceding the first
-                      # Monday are considered to be in week 0.
-    '%W':  'WW',      # Week number of the year (Monday as the first day of the week)
-                      # as a zero-padded decimal number.
-    '%x':  'medium',  # Locale’s appropriate date representation.
-    '%X':  'medium',  # Locale’s appropriate time representation.
-    '%y':  'YY',      # Year without century as a zero-padded decimal number.
-    '%Y':  'yyyy',    # Year with century as a decimal number.
-    '%Z':  'zzzz',    # Time zone name (no characters if no time zone exists).
-    '%%':  '%',
+    "%a": "EEE",  # Weekday as locale’s abbreviated name.
+    "%A": "EEEE",  # Weekday as locale’s full name.
+    "%b": "MMM",  # Month as locale’s abbreviated name.
+    "%B": "MMMM",  # Month as locale’s full name.
+    "%c": "medium",  # Locale’s appropriate date and time representation.
+    "%-d": "d",  # Day of the month as a decimal number.
+    "%d": "dd",  # Day of the month as a zero-padded decimal number.
+    "%-H": "H",  # Hour (24-hour clock) as a decimal number [0,23].
+    "%H": "HH",  # Hour (24-hour clock) as a zero-padded decimal number [00,23].
+    "%-I": "h",  # Hour (12-hour clock) as a decimal number [1,12].
+    "%I": "hh",  # Hour (12-hour clock) as a zero-padded decimal number [01,12].
+    "%-j": "D",  # Day of the year as a decimal number.
+    "%j": "DDD",  # Day of the year as a zero-padded decimal number.
+    "%-m": "M",  # Month as a decimal number.
+    "%m": "MM",  # Month as a zero-padded decimal number.
+    "%-M": "m",  # Minute as a decimal number [0,59].
+    "%M": "mm",  # Minute as a zero-padded decimal number [00,59].
+    "%p": "a",  # Locale’s equivalent of either AM or PM.
+    "%-S": "s",  # Second as a decimal number.
+    "%S": "ss",  # Second as a zero-padded decimal number.
+    "%U": "WW",  # Week number of the year (Sunday as the first day of the week)
+    # as a zero padded decimal number. All days in a new year preceding
+    # the first Sunday are considered to be in week 0.
+    "%w": "e",  # Weekday as a decimal number, where 0 is Sunday and 6 is Saturday.
+    "%-W": "W",  # Week number of the year (Monday as the first day of the week)
+    # as a decimal number. All days in a new year preceding the first
+    # Monday are considered to be in week 0.
+    "%W": "WW",  # Week number of the year (Monday as the first day of the week)
+    # as a zero-padded decimal number.
+    "%x": "medium",  # Locale’s appropriate date representation.
+    "%X": "medium",  # Locale’s appropriate time representation.
+    "%y": "YY",  # Year without century as a zero-padded decimal number.
+    "%Y": "yyyy",  # Year with century as a decimal number.
+    "%Z": "zzzz",  # Time zone name (no characters if no time zone exists).
+    "%%": "%",
 }
 
-date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
+date_format_re = re.compile("(%s)" % "|".join(date_format_mappings))
 
 
-def babel_format_date(date: datetime, format: str, locale: str,
-                      formatter: Callable = babel.dates.format_date) -> str:
+def babel_format_date(
+    date: datetime,
+    format: str,
+    locale: str,
+    formatter: Callable = babel.dates.format_date,
+) -> str:
     if locale is None:
-        locale = 'en'
+        locale = "en"
 
     # Check if we have the tzinfo attribute. If not we cannot do any time
     # related formats.
-    if not hasattr(date, 'tzinfo'):
+    if not hasattr(date, "tzinfo"):
         formatter = babel.dates.format_date
 
     try:
         return formatter(date, format, locale=locale)
     except (ValueError, babel.core.UnknownLocaleError):
         # fallback to English
-        return formatter(date, format, locale='en')
+        return formatter(date, format, locale="en")
     except AttributeError:
-        logger.warning(__('Invalid date format. Quote the string by single quote '
-                          'if you want to output it directly: %s'), format)
+        logger.warning(
+            __(
+                "Invalid date format. Quote the string by single quote "
+                "if you want to output it directly: %s"
+            ),
+            format,
+        )
         return format
 
 
@@ -194,7 +210,7 @@ def format_date(format: str, date: datetime = None, language: str = None) -> str
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
-        source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
+        source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
         if source_date_epoch is not None:
             date = datetime.utcfromtimestamp(float(source_date_epoch))
         else:
@@ -204,20 +220,23 @@ def format_date(format: str, date: datetime = None, language: str = None) -> str
     tokens = date_format_re.split(format)
     for token in tokens:
         if token in date_format_mappings:
-            babel_format = date_format_mappings.get(token, '')
+            babel_format = date_format_mappings.get(token, "")
 
             # Check if we have to use a different babel formatter then
             # format_datetime, because we only want to format a date
             # or a time.
-            if token == '%x':
+            if token == "%x":
                 function = babel.dates.format_date
-            elif token == '%X':
+            elif token == "%X":
                 function = babel.dates.format_time
             else:
                 function = babel.dates.format_datetime
 
-            result.append(babel_format_date(date, babel_format, locale=language,
-                                            formatter=function))
+            result.append(
+                babel_format_date(
+                    date, babel_format, locale=language, formatter=function
+                )
+            )
         else:
             result.append(token)
 
@@ -230,21 +249,21 @@ def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> s
 
     filename_format = env.config.figure_language_filename
     d = dict()
-    d['root'], d['ext'] = path.splitext(filename)
-    dirname = path.dirname(d['root'])
+    d["root"], d["ext"] = path.splitext(filename)
+    dirname = path.dirname(d["root"])
     if dirname and not dirname.endswith(path.sep):
         dirname += path.sep
     docpath = path.dirname(env.docname)
     if docpath and not docpath.endswith(path.sep):
         docpath += path.sep
-    d['path'] = dirname
-    d['basename'] = path.basename(d['root'])
-    d['docpath'] = docpath
-    d['language'] = env.config.language
+    d["path"] = dirname
+    d["basename"] = path.basename(d["root"])
+    d["docpath"] = docpath
+    d["language"] = env.config.language
     try:
         return filename_format.format(**d)
     except KeyError as exc:
-        raise SphinxError('Invalid figure_language_filename: %r' % exc) from exc
+        raise SphinxError("Invalid figure_language_filename: %r" % exc) from exc
 
 
 def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:

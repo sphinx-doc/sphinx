@@ -7,18 +7,18 @@
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import os
 import re
 
 import sphinx
 
-name_mail_re = r'[\w ]+(<.*?>)?'
-copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-20\d\d)? '
-                          r'by %s(, %s)*[,.]$' % (name_mail_re, name_mail_re))
-copyright_2_re = re.compile(r'^                %s(, %s)*[,.]$' %
-                            (name_mail_re, name_mail_re))
-license_re = re.compile(r'    :license: (.*?).\n')
+name_mail_re = r"[\w ]+(<.*?>)?"
+copyright_re = re.compile(
+    r"^    :copyright: Copyright 200\d(-20\d\d)? "
+    r"by %s(, %s)*[,.]$" % (name_mail_re, name_mail_re)
+)
+copyright_2_re = re.compile(fr"^                {name_mail_re}(, {name_mail_re})*[,.]$")
+license_re = re.compile(r"    :license: (.*?).\n")
 
 
 def flake8ext(_func):
@@ -48,18 +48,22 @@ def sphinx_has_header(physical_line, filename, lines, line_number):
     # ignore specific errors on a file-level basis yet [1]. Simply skip it.
     #
     # [1] https://gitlab.com/pycqa/flake8/issues/347
-    if os.path.samefile(filename, './sphinx/util/smartypants.py'):
+    if os.path.samefile(filename, "./sphinx/util/smartypants.py"):
         return
 
     # if the top-level package or not inside the package, ignore
-    mod_name = os.path.splitext(filename)[0].strip('./\\').replace(
-        '/', '.').replace('.__init__', '')
-    if mod_name == 'sphinx' or not mod_name.startswith('sphinx.'):
+    mod_name = (
+        os.path.splitext(filename)[0]
+        .strip("./\\")
+        .replace("/", ".")
+        .replace(".__init__", "")
+    )
+    if mod_name == "sphinx" or not mod_name.startswith("sphinx."):
         return
 
     # line number correction
     offset = 1
-    if lines[0:1] == ['#!/usr/bin/env python3\n']:
+    if lines[0:1] == ["#!/usr/bin/env python3\n"]:
         lines = lines[1:]
         offset = 2
 
@@ -77,32 +81,31 @@ def sphinx_has_header(physical_line, filename, lines, line_number):
             if line == '"""\n':
                 # end of docstring
                 if lno <= 3:
-                    return 0, 'X101 missing module name in docstring'
+                    return 0, "X101 missing module name in docstring"
                 break
 
-            if line != '\n' and line[:4] != '    ' and doc_open:
-                return 0, 'X101 missing correct docstring indentation'
+            if line != "\n" and line[:4] != "    " and doc_open:
+                return 0, "X101 missing correct docstring indentation"
 
             if lno == 1:
                 mod_name_len = len(line.strip())
                 if line.strip() != mod_name:
-                    return 2, 'X101 wrong module name in docstring heading'
+                    return 2, "X101 wrong module name in docstring heading"
             elif lno == 2:
-                if line.strip() != mod_name_len * '~':
-                    return (3, 'X101 wrong module name underline, should be '
-                            '~~~...~')
+                if line.strip() != mod_name_len * "~":
+                    return (3, "X101 wrong module name underline, should be " "~~~...~")
     else:
-        return 0, 'X101 missing end and/or start of docstring...'
+        return 0, "X101 missing end and/or start of docstring..."
 
     # check for copyright and license fields
     license = llist[-2:-1]
     if not license or not license_re.match(license[0]):
-        return 0, 'X101 no correct license info'
+        return 0, "X101 no correct license info"
 
     offset = -3
-    copyright = llist[offset:offset + 1]
+    copyright = llist[offset : offset + 1]
     while copyright and copyright_2_re.match(copyright[0]):
         offset -= 1
-        copyright = llist[offset:offset + 1]
+        copyright = llist[offset : offset + 1]
     if not copyright or not copyright_re.match(copyright[0]):
-        return 0, 'X101 no correct copyright info'
+        return 0, "X101 no correct copyright info"

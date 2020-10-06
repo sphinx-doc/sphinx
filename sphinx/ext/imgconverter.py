@@ -7,11 +7,12 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import subprocess
 import sys
-from subprocess import CalledProcessError, PIPE
-from typing import Any, Dict
+from subprocess import CalledProcessError
+from subprocess import PIPE
+from typing import Any
+from typing import Dict
 
 from sphinx.application import Sphinx
 from sphinx.errors import ExtensionError
@@ -25,28 +26,34 @@ logger = logging.getLogger(__name__)
 
 class ImagemagickConverter(ImageConverter):
     conversion_rules = [
-        ('image/svg+xml', 'image/png'),
-        ('image/gif', 'image/png'),
-        ('application/pdf', 'image/png'),
-        ('application/illustrator', 'image/png'),
+        ("image/svg+xml", "image/png"),
+        ("image/gif", "image/png"),
+        ("application/pdf", "image/png"),
+        ("application/illustrator", "image/png"),
     ]
 
     def is_available(self) -> bool:
         """Confirms the converter is available or not."""
         try:
-            args = [self.config.image_converter, '-version']
-            logger.debug('Invoking %r ...', args)
+            args = [self.config.image_converter, "-version"]
+            logger.debug("Invoking %r ...", args)
             subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
             return True
         except OSError:
-            logger.warning(__('convert command %r cannot be run, '
-                              'check the image_converter setting'),
-                           self.config.image_converter)
+            logger.warning(
+                __(
+                    "convert command %r cannot be run, "
+                    "check the image_converter setting"
+                ),
+                self.config.image_converter,
+            )
             return False
         except CalledProcessError as exc:
-            logger.warning(__('convert exited with error:\n'
-                              '[stderr]\n%r\n[stdout]\n%r'),
-                           exc.stderr, exc.stdout)
+            logger.warning(
+                __("convert exited with error:\n" "[stderr]\n%r\n[stdout]\n%r"),
+                exc.stderr,
+                exc.stdout,
+            )
             return False
 
     def convert(self, _from: str, _to: str) -> bool:
@@ -54,41 +61,48 @@ class ImagemagickConverter(ImageConverter):
         try:
             # append an index 0 to source filename to pick up the first frame
             # (or first page) of image (ex. Animation GIF, PDF)
-            _from += '[0]'
+            _from += "[0]"
 
-            args = ([self.config.image_converter] +
-                    self.config.image_converter_args +
-                    [_from, _to])
-            logger.debug('Invoking %r ...', args)
+            args = (
+                [self.config.image_converter]
+                + self.config.image_converter_args
+                + [_from, _to]
+            )
+            logger.debug("Invoking %r ...", args)
             subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
             return True
         except OSError:
-            logger.warning(__('convert command %r cannot be run, '
-                              'check the image_converter setting'),
-                           self.config.image_converter)
+            logger.warning(
+                __(
+                    "convert command %r cannot be run, "
+                    "check the image_converter setting"
+                ),
+                self.config.image_converter,
+            )
             return False
         except CalledProcessError as exc:
-            raise ExtensionError(__('convert exited with error:\n'
-                                    '[stderr]\n%r\n[stdout]\n%r') %
-                                 (exc.stderr, exc.stdout)) from exc
+            raise ExtensionError(
+                __("convert exited with error:\n" "[stderr]\n%r\n[stdout]\n%r")
+                % (exc.stderr, exc.stdout)
+            ) from exc
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(ImagemagickConverter)
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         # On Windows, we use Imagemagik v7 by default to avoid the trouble for
         # convert.exe bundled with Windows.
-        app.add_config_value('image_converter', 'magick', 'env')
-        app.add_config_value('image_converter_args', ['convert'], 'env')
+        app.add_config_value("image_converter", "magick", "env")
+        app.add_config_value("image_converter_args", ["convert"], "env")
     else:
         # On other platform, we use Imagemagick v6 by default.  Especially,
         # Debian/Ubuntu are still based of v6.  So we can't use "magick" command
         # for these platforms.
-        app.add_config_value('image_converter', 'convert', 'env')
-        app.add_config_value('image_converter_args', [], 'env')
+        app.add_config_value("image_converter", "convert", "env")
+        app.add_config_value("image_converter_args", [], "env")
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

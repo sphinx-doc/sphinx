@@ -4,7 +4,7 @@ from io import StringIO
 from sphinx.util import save_traceback  # NOQA
 
 
-__all__ = ['Class']
+__all__ = ["Class"]
 
 #: documentation for the integer
 integer = 1
@@ -25,16 +25,19 @@ class CustomEx(Exception):
 def _funky_classmethod(name, b, c, d, docstring=None):
     """Generates a classmethod for a class from a template by filling out
     some arguments."""
+
     def template(cls, a, b, c, d=4, e=5, f=6):
         return a, b, c, d, e, f
+
     from functools import partial
+
     function = partial(template, b=b, c=c, d=d)
     function.__name__ = name
     function.__doc__ = docstring
     return classmethod(function)
 
 
-class Class(object):
+class Class:
     """Class to document."""
 
     def meth(self):
@@ -50,15 +53,15 @@ class Class(object):
         """Method that should be excluded."""
 
     # should not be documented
-    skipattr = 'foo'
+    skipattr = "foo"
 
     #: should be documented -- süß
-    attr = 'bar'
+    attr = "bar"
 
-    docattr = 'baz'
+    docattr = "baz"
     """should likewise be documented -- süß"""
 
-    udocattr = 'quux'
+    udocattr = "quux"
     """should be documented as well - süß"""
 
     # initialized to any class imported from another module
@@ -67,8 +70,9 @@ class Class(object):
 
     roger = _funky_classmethod("roger", 2, 3, 4)
 
-    moore = _funky_classmethod("moore", 9, 8, 7,
-                               docstring="moore(a, e, f) -> happiness")
+    moore = _funky_classmethod(
+        "moore", 9, 8, 7, docstring="moore(a, e, f) -> happiness"
+    )
 
     def __init__(self, arg):
         self.inst_attr_inline = None  #: an inline documented instance attr
@@ -97,10 +101,10 @@ def function(foo, *args, **kwds):
     pass
 
 
-class Outer(object):
+class Outer:
     """Foo"""
 
-    class Inner(object):
+    class Inner:
         """Foo"""
 
         def meth(self):
@@ -114,7 +118,7 @@ class InnerChild(Outer.Inner):
     """InnerChild docstring"""
 
 
-class DocstringSig(object):
+class DocstringSig:
     def meth(self):
         """meth(FOO, BAR=1) -> BAZ
 First line of docstring
@@ -151,32 +155,32 @@ class StrRepr(str):
         return self
 
 
-class AttCls(object):
-    a1 = StrRepr('hello\nworld')
+class AttCls:
+    a1 = StrRepr("hello\nworld")
     a2 = None
 
 
-class InstAttCls(object):
+class InstAttCls:
     """Class with documented class and instance attributes."""
 
     #: Doc comment for class attribute InstAttCls.ca1.
     #: It can have multiple lines.
-    ca1 = 'a'
+    ca1 = "a"
 
-    ca2 = 'b'    #: Doc comment for InstAttCls.ca2. One line only.
+    ca2 = "b"  #: Doc comment for InstAttCls.ca2. One line only.
 
-    ca3 = 'c'
+    ca3 = "c"
     """Docstring for class attribute InstAttCls.ca3."""
 
     def __init__(self):
         #: Doc comment for instance attribute InstAttCls.ia1
-        self.ia1 = 'd'
+        self.ia1 = "d"
 
-        self.ia2 = 'e'
+        self.ia2 = "e"
         """Docstring for instance attribute InstAttCls.ia2."""
 
 
-class CustomIter(object):
+class CustomIter:
     def __init__(self):
         """Create a new `CustomIter`."""
         self.values = range(10)

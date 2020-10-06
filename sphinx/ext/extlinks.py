@@ -22,11 +22,15 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
 
-from typing import Any, Dict, List, Tuple
-
-from docutils import nodes, utils
-from docutils.nodes import Node, system_message
+from docutils import nodes
+from docutils import utils
+from docutils.nodes import Node
+from docutils.nodes import system_message
 from docutils.parsers.rst.states import Inliner
 
 import sphinx
@@ -36,18 +40,25 @@ from sphinx.util.typing import RoleFunction
 
 
 def make_link_role(base_url: str, prefix: str) -> RoleFunction:
-    def role(typ: str, rawtext: str, text: str, lineno: int,
-             inliner: Inliner, options: Dict = {}, content: List[str] = []
-             ) -> Tuple[List[Node], List[system_message]]:
+    def role(
+        typ: str,
+        rawtext: str,
+        text: str,
+        lineno: int,
+        inliner: Inliner,
+        options: Dict = {},
+        content: List[str] = [],
+    ) -> Tuple[List[Node], List[system_message]]:
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
         try:
             full_url = base_url % part
         except (TypeError, ValueError):
             inliner.reporter.warning(
-                'unable to expand %s extlink with base URL %r, please make '
-                'sure the base contains \'%%s\' exactly once'
-                % (typ, base_url), line=lineno)
+                "unable to expand %s extlink with base URL %r, please make "
+                "sure the base contains '%%s' exactly once" % (typ, base_url),
+                line=lineno,
+            )
             full_url = base_url + part
         if not has_explicit_title:
             if prefix is None:
@@ -56,6 +67,7 @@ def make_link_role(base_url: str, prefix: str) -> RoleFunction:
                 title = prefix + part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
         return [pnode], []
+
     return role
 
 
@@ -65,6 +77,6 @@ def setup_link_roles(app: Sphinx) -> None:
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
-    app.add_config_value('extlinks', {}, 'env')
-    app.connect('builder-inited', setup_link_roles)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    app.add_config_value("extlinks", {}, "env")
+    app.connect("builder-inited", setup_link_roles)
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}

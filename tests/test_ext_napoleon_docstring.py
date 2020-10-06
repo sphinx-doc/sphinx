@@ -8,27 +8,26 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import re
 from collections import namedtuple
 from contextlib import contextmanager
 from inspect import cleandoc
 from textwrap import dedent
-from unittest import TestCase, mock
+from unittest import mock
+from unittest import TestCase
 
 import pytest
 
 from sphinx.ext.napoleon import Config
-from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-from sphinx.ext.napoleon.docstring import (
-    _tokenize_type_spec,
-    _recombine_set_tokens,
-    _convert_numpy_type_spec,
-    _token_type
-)
+from sphinx.ext.napoleon.docstring import _convert_numpy_type_spec
+from sphinx.ext.napoleon.docstring import _recombine_set_tokens
+from sphinx.ext.napoleon.docstring import _token_type
+from sphinx.ext.napoleon.docstring import _tokenize_type_spec
+from sphinx.ext.napoleon.docstring import GoogleDocstring
+from sphinx.ext.napoleon.docstring import NumpyDocstring
 
 
-class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
+class NamedtupleSubclass(namedtuple("NamedtupleSubclass", ("attr1", "attr2"))):
     """Sample namedtuple subclass
 
     Attributes
@@ -42,6 +41,7 @@ class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
         Adds a newline after the type
 
     """
+
     # To avoid creating a dict, as a namedtuple doesn't have it:
     __slots__ = ()
 
@@ -56,9 +56,16 @@ class BaseDocstringTest(TestCase):
 class NamedtupleSubclassTest(BaseDocstringTest):
     def test_attributes_docstring(self):
         config = Config()
-        actual = str(NumpyDocstring(cleandoc(NamedtupleSubclass.__doc__),
-                     config=config, app=None, what='class',
-                     name='NamedtupleSubclass', obj=NamedtupleSubclass))
+        actual = str(
+            NumpyDocstring(
+                cleandoc(NamedtupleSubclass.__doc__),
+                config=config,
+                app=None,
+                what="class",
+                name="NamedtupleSubclass",
+                obj=NamedtupleSubclass,
+            )
+        )
         expected = """\
 Sample namedtuple subclass
 
@@ -85,39 +92,68 @@ Sample namedtuple subclass
 
 
 class InlineAttributeTest(BaseDocstringTest):
-
     def test_class_data_member(self):
         config = Config()
-        docstring = dedent("""\
+        docstring = dedent(
+            """\
         data member description:
 
         - a: b
-        """)
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = dedent("""\
+        """
+        )
+        actual = str(
+            GoogleDocstring(
+                docstring,
+                config=config,
+                app=None,
+                what="attribute",
+                name="some_data",
+                obj=0,
+            )
+        )
+        expected = dedent(
+            """\
         data member description:
 
-        - a: b""")
+        - a: b"""
+        )
 
         self.assertEqual(expected, actual)
 
     def test_class_data_member_inline(self):
         config = Config()
         docstring = """b: data member description with :ref:`reference`"""
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = dedent("""\
+        actual = str(
+            GoogleDocstring(
+                docstring,
+                config=config,
+                app=None,
+                what="attribute",
+                name="some_data",
+                obj=0,
+            )
+        )
+        expected = dedent(
+            """\
         data member description with :ref:`reference`
 
-        :type: b""")
+        :type: b"""
+        )
         self.assertEqual(expected, actual)
 
     def test_class_data_member_inline_no_type(self):
         config = Config()
         docstring = """data with ``a : in code`` and :ref:`reference` and no type"""
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
+        actual = str(
+            GoogleDocstring(
+                docstring,
+                config=config,
+                app=None,
+                what="attribute",
+                name="some_data",
+                obj=0,
+            )
+        )
         expected = """data with ``a : in code`` and :ref:`reference` and no type"""
 
         self.assertEqual(expected, actual)
@@ -125,47 +161,58 @@ class InlineAttributeTest(BaseDocstringTest):
     def test_class_data_member_inline_ref_in_type(self):
         config = Config()
         docstring = """:class:`int`: data member description"""
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = dedent("""\
+        actual = str(
+            GoogleDocstring(
+                docstring,
+                config=config,
+                app=None,
+                what="attribute",
+                name="some_data",
+                obj=0,
+            )
+        )
+        expected = dedent(
+            """\
         data member description
 
-        :type: :class:`int`""")
+        :type: :class:`int`"""
+        )
         self.assertEqual(expected, actual)
 
 
 class GoogleDocstringTest(BaseDocstringTest):
-    docstrings = [(
-        """Single line summary""",
-        """Single line summary"""
-    ), (
-        """
+    docstrings = [
+        ("""Single line summary""", """Single line summary"""),
+        (
+            """
         Single line summary
 
         Extended description
 
         """,
-        """
+            """
         Single line summary
 
         Extended description
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Args:
           arg1(str):Extended
             description of arg1
         """,
-        """
+            """
         Single line summary
 
         :Parameters: **arg1** (*str*) -- Extended
                      description of arg1
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Args:
@@ -179,7 +226,7 @@ class GoogleDocstringTest(BaseDocstringTest):
             description of kwarg1
           kwarg2 ( int ) : Extended
             description of kwarg2""",
-        """
+            """
         Single line summary
 
         :Parameters: * **arg1** (*str*) -- Extended
@@ -191,9 +238,10 @@ class GoogleDocstringTest(BaseDocstringTest):
                               description of kwarg1
                             * **kwarg2** (*int*) -- Extended
                               description of kwarg2
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Arguments:
@@ -207,7 +255,7 @@ class GoogleDocstringTest(BaseDocstringTest):
             description of kwarg1
           kwarg2 ( int ) : Extended
             description of kwarg2""",
-        """
+            """
         Single line summary
 
         :Parameters: * **arg1** (*str*) -- Extended
@@ -219,51 +267,55 @@ class GoogleDocstringTest(BaseDocstringTest):
                               description of kwarg1
                             * **kwarg2** (*int*) -- Extended
                               description of kwarg2
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Return:
           str:Extended
           description of return value
         """,
-        """
+            """
         Single line summary
 
         :returns: *str* -- Extended
                   description of return value
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Returns:
           str:Extended
           description of return value
         """,
-        """
+            """
         Single line summary
 
         :returns: *str* -- Extended
                   description of return value
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Returns:
           Extended
           description of return value
         """,
-        """
+            """
         Single line summary
 
         :returns: Extended
                   description of return value
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Args:
@@ -272,16 +324,17 @@ class GoogleDocstringTest(BaseDocstringTest):
           *args: Variable length argument list.
           **kwargs: Arbitrary keyword arguments.
         """,
-        """
+            """
         Single line summary
 
         :Parameters: * **arg1** (*str*) -- Extended
                        description of arg1
                      * **\\*args** -- Variable length argument list.
                      * **\\*\\*kwargs** -- Arbitrary keyword arguments.
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Args:
@@ -290,87 +343,98 @@ class GoogleDocstringTest(BaseDocstringTest):
           arg3 (dict(str, int)): Description
           arg4 (dict[str, int]): Description
         """,
-        """
+            """
         Single line summary
 
         :Parameters: * **arg1** (*list(int)*) -- Description
                      * **arg2** (*list[int]*) -- Description
                      * **arg3** (*dict(str, int)*) -- Description
                      * **arg4** (*dict[str, int]*) -- Description
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Yield:
           str:Extended
           description of yielded value
         """,
-        """
+            """
         Single line summary
 
         :Yields: *str* -- Extended
                  description of yielded value
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Yields:
           Extended
           description of yielded value
         """,
-        """
+            """
         Single line summary
 
         :Yields: Extended
                  description of yielded value
-        """
-    )]
+        """,
+        ),
+    ]
 
     def test_sphinx_admonitions(self):
         admonition_map = {
-            'Attention': 'attention',
-            'Caution': 'caution',
-            'Danger': 'danger',
-            'Error': 'error',
-            'Hint': 'hint',
-            'Important': 'important',
-            'Note': 'note',
-            'Tip': 'tip',
-            'Todo': 'todo',
-            'Warning': 'warning',
-            'Warnings': 'warning',
+            "Attention": "attention",
+            "Caution": "caution",
+            "Danger": "danger",
+            "Error": "error",
+            "Hint": "hint",
+            "Important": "important",
+            "Note": "note",
+            "Tip": "tip",
+            "Todo": "todo",
+            "Warning": "warning",
+            "Warnings": "warning",
         }
         config = Config()
         for section, admonition in admonition_map.items():
             # Multiline
-            actual = str(GoogleDocstring(("{}:\n"
-                                          "    this is the first line\n"
-                                          "\n"
-                                          "    and this is the second line\n"
-                                          ).format(section), config))
-            expect = (".. {}::\n"
-                      "\n"
-                      "   this is the first line\n"
-                      "   \n"
-                      "   and this is the second line\n"
-                      ).format(admonition)
+            actual = str(
+                GoogleDocstring(
+                    (
+                        "{}:\n"
+                        "    this is the first line\n"
+                        "\n"
+                        "    and this is the second line\n"
+                    ).format(section),
+                    config,
+                )
+            )
+            expect = (
+                ".. {}::\n"
+                "\n"
+                "   this is the first line\n"
+                "   \n"
+                "   and this is the second line\n"
+            ).format(admonition)
             self.assertEqual(expect, actual)
 
             # Single line
-            actual = str(GoogleDocstring(("{}:\n"
-                                          "    this is a single line\n"
-                                          ).format(section), config))
-            expect = (".. {}:: this is a single line\n"
-                      ).format(admonition)
+            actual = str(
+                GoogleDocstring(
+                    ("{}:\n" "    this is a single line\n").format(section), config
+                )
+            )
+            expect = (".. {}:: this is a single line\n").format(admonition)
             self.assertEqual(expect, actual)
 
     def test_docstrings(self):
         config = Config(
             napoleon_use_param=False,
             napoleon_use_rtype=False,
-            napoleon_use_keyword=False
+            napoleon_use_keyword=False,
         )
         for docstring, expected in self.docstrings:
             actual = str(GoogleDocstring(dedent(docstring), config))
@@ -497,7 +561,9 @@ Returns:
         self.assertEqual(expected, actual)
 
     def test_raises_types(self):
-        docstrings = [("""
+        docstrings = [
+            (
+                """
 Example Function
 
 Raises:
@@ -514,7 +580,8 @@ Raises:
     :exc:`~ValueError`
         If the arguments are wrong.
 
-""", """
+""",
+                """
 Example Function
 
 :raises RuntimeError: A setting wasn't specified, or was invalid.
@@ -523,145 +590,180 @@ Example Function
 :raises ~InvalidDimensionsError: If the dimensions couldn't be parsed.
 :raises InvalidArgumentsError: If the arguments are invalid.
 :raises ~ValueError: If the arguments are wrong.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     InvalidDimensionsError
 
-""", """
+""",
+                """
 Example Function
 
 :raises InvalidDimensionsError:
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     Invalid Dimensions Error
 
-""", """
+""",
+                """
 Example Function
 
 :raises Invalid Dimensions Error:
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     Invalid Dimensions Error: With description
 
-""", """
+""",
+                """
 Example Function
 
 :raises Invalid Dimensions Error: With description
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     InvalidDimensionsError: If the dimensions couldn't be parsed.
 
-""", """
+""",
+                """
 Example Function
 
 :raises InvalidDimensionsError: If the dimensions couldn't be parsed.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     Invalid Dimensions Error: If the dimensions couldn't be parsed.
 
-""", """
+""",
+                """
 Example Function
 
 :raises Invalid Dimensions Error: If the dimensions couldn't be parsed.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     If the dimensions couldn't be parsed.
 
-""", """
+""",
+                """
 Example Function
 
 :raises If the dimensions couldn't be parsed.:
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     :class:`exc.InvalidDimensionsError`
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError:
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     :class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed.
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     :class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed,
        then a :class:`exc.InvalidDimensionsError` will be raised.
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed,
     then a :class:`exc.InvalidDimensionsError` will be raised.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     :class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed.
     :class:`exc.InvalidArgumentsError`: If the arguments are invalid.
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed.
 :raises exc.InvalidArgumentsError: If the arguments are invalid.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises:
     :class:`exc.InvalidDimensionsError`
     :class:`exc.InvalidArgumentsError`
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError:
 :raises exc.InvalidArgumentsError:
-""")]
+""",
+            ),
+        ]
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring))
             self.assertEqual(expected, actual)
@@ -698,23 +800,28 @@ Code sample for usage::
         self.assertEqual(expected, actual)
 
     def test_section_header_formatting(self):
-        docstrings = [("""
+        docstrings = [
+            (
+                """
 Summary line
 
 Example:
     Multiline reStructuredText
     literal code block
 
-""", """
+""",
+                """
 Summary line
 
 .. rubric:: Example
 
 Multiline reStructuredText
 literal code block
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Summary line
 
 Example::
@@ -722,16 +829,19 @@ Example::
     Multiline reStructuredText
     literal code block
 
-""", """
+""",
+                """
 Summary line
 
 Example::
 
     Multiline reStructuredText
     literal code block
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Summary line
 
 :Example:
@@ -739,14 +849,17 @@ Summary line
     Multiline reStructuredText
     literal code block
 
-""", """
+""",
+                """
 Summary line
 
 :Example:
 
     Multiline reStructuredText
     literal code block
-""")]
+""",
+            ),
+        ]
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring))
             self.assertEqual(expected, actual)
@@ -1032,21 +1145,33 @@ Parameters:
 
     def test_custom_generic_sections(self):
 
-        docstrings = (("""\
+        docstrings = (
+            (
+                """\
 Really Important Details:
     You should listen to me!
-""", """.. rubric:: Really Important Details
+""",
+                """.. rubric:: Really Important Details
 
 You should listen to me!
-"""),
-                      ("""\
+""",
+            ),
+            (
+                """\
 Sooper Warning:
     Stop hitting yourself!
-""", """:Warns: **Stop hitting yourself!**
-"""))
+""",
+                """:Warns: **Stop hitting yourself!**
+""",
+            ),
+        )
 
-        testConfig = Config(napoleon_custom_sections=['Really Important Details',
-                                                      ('Sooper Warning', 'warns')])
+        testConfig = Config(
+            napoleon_custom_sections=[
+                "Really Important Details",
+                ("Sooper Warning", "warns"),
+            ]
+        )
 
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring, testConfig))
@@ -1072,12 +1197,19 @@ Methods:
 .. method:: func(i, j)
    :noindex:
 
-   
+
    description
 """
         config = Config()
-        actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
-                                     options={'noindex': True}))
+        actual = str(
+            GoogleDocstring(
+                docstring,
+                config=config,
+                app=None,
+                what="module",
+                options={"noindex": True},
+            )
+        )
         self.assertEqual(expected, actual)
 
     def test_keywords_with_types(self):
@@ -1098,23 +1230,23 @@ Do as you please
 
 
 class NumpyDocstringTest(BaseDocstringTest):
-    docstrings = [(
-        """Single line summary""",
-        """Single line summary"""
-    ), (
-        """
+    docstrings = [
+        ("""Single line summary""", """Single line summary"""),
+        (
+            """
         Single line summary
 
         Extended description
 
         """,
-        """
+            """
         Single line summary
 
         Extended description
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Parameters
@@ -1123,14 +1255,15 @@ class NumpyDocstringTest(BaseDocstringTest):
             Extended
             description of arg1
         """,
-        """
+            """
         Single line summary
 
         :Parameters: **arg1** (:class:`str`) -- Extended
                      description of arg1
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Parameters
@@ -1151,7 +1284,7 @@ class NumpyDocstringTest(BaseDocstringTest):
               Extended
               description of kwarg2
         """,
-        """
+            """
         Single line summary
 
         :Parameters: * **arg1** (:class:`str`) -- Extended
@@ -1163,9 +1296,10 @@ class NumpyDocstringTest(BaseDocstringTest):
                               description of kwarg1
                             * **kwarg2** (:class:`int`) -- Extended
                               description of kwarg2
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Return
@@ -1174,14 +1308,15 @@ class NumpyDocstringTest(BaseDocstringTest):
             Extended
             description of return value
         """,
-        """
+            """
         Single line summary
 
         :returns: *str* -- Extended
                   description of return value
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Returns
@@ -1190,14 +1325,15 @@ class NumpyDocstringTest(BaseDocstringTest):
             Extended
             description of return value
         """,
-        """
+            """
         Single line summary
 
         :returns: *str* -- Extended
                   description of return value
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Parameters
@@ -1209,15 +1345,16 @@ class NumpyDocstringTest(BaseDocstringTest):
         **kwargs:
             Arbitrary keyword arguments.
         """,
-        """
+            """
         Single line summary
 
         :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
                      * **\\*args** -- Variable length argument list.
                      * **\\*\\*kwargs** -- Arbitrary keyword arguments.
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Parameters
@@ -1227,14 +1364,15 @@ class NumpyDocstringTest(BaseDocstringTest):
         *args, **kwargs:
             Variable length argument list and arbitrary keyword arguments.
         """,
-        """
+            """
         Single line summary
 
         :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
                      * **\\*args, \\*\\*kwargs** -- Variable length argument list and arbitrary keyword arguments.
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Yield
@@ -1243,14 +1381,15 @@ class NumpyDocstringTest(BaseDocstringTest):
             Extended
             description of yielded value
         """,
-        """
+            """
         Single line summary
 
         :Yields: *str* -- Extended
                  description of yielded value
-        """
-    ), (
-        """
+        """,
+        ),
+        (
+            """
         Single line summary
 
         Yields
@@ -1259,52 +1398,63 @@ class NumpyDocstringTest(BaseDocstringTest):
             Extended
             description of yielded value
         """,
-        """
+            """
         Single line summary
 
         :Yields: *str* -- Extended
                  description of yielded value
-        """
-    )]
+        """,
+        ),
+    ]
 
     def test_sphinx_admonitions(self):
         admonition_map = {
-            'Attention': 'attention',
-            'Caution': 'caution',
-            'Danger': 'danger',
-            'Error': 'error',
-            'Hint': 'hint',
-            'Important': 'important',
-            'Note': 'note',
-            'Tip': 'tip',
-            'Todo': 'todo',
-            'Warning': 'warning',
-            'Warnings': 'warning',
+            "Attention": "attention",
+            "Caution": "caution",
+            "Danger": "danger",
+            "Error": "error",
+            "Hint": "hint",
+            "Important": "important",
+            "Note": "note",
+            "Tip": "tip",
+            "Todo": "todo",
+            "Warning": "warning",
+            "Warnings": "warning",
         }
         config = Config()
         for section, admonition in admonition_map.items():
             # Multiline
-            actual = str(NumpyDocstring(("{}\n"
-                                         "{}\n"
-                                         "    this is the first line\n"
-                                         "\n"
-                                         "    and this is the second line\n"
-                                         ).format(section, '-' * len(section)), config))
-            expect = (".. {}::\n"
-                      "\n"
-                      "   this is the first line\n"
-                      "   \n"
-                      "   and this is the second line\n"
-                      ).format(admonition)
+            actual = str(
+                NumpyDocstring(
+                    (
+                        "{}\n"
+                        "{}\n"
+                        "    this is the first line\n"
+                        "\n"
+                        "    and this is the second line\n"
+                    ).format(section, "-" * len(section)),
+                    config,
+                )
+            )
+            expect = (
+                ".. {}::\n"
+                "\n"
+                "   this is the first line\n"
+                "   \n"
+                "   and this is the second line\n"
+            ).format(admonition)
             self.assertEqual(expect, actual)
 
             # Single line
-            actual = str(NumpyDocstring(("{}\n"
-                                         "{}\n"
-                                         "    this is a single line\n"
-                                         ).format(section, '-' * len(section)), config))
-            expect = (".. {}:: this is a single line\n"
-                      ).format(admonition)
+            actual = str(
+                NumpyDocstring(
+                    ("{}\n" "{}\n" "    this is a single line\n").format(
+                        section, "-" * len(section)
+                    ),
+                    config,
+                )
+            )
+            expect = (".. {}:: this is a single line\n").format(admonition)
             self.assertEqual(expect, actual)
 
     def test_docstrings(self):
@@ -1312,14 +1462,16 @@ class NumpyDocstringTest(BaseDocstringTest):
             napoleon_use_param=False,
             napoleon_use_rtype=False,
             napoleon_use_keyword=False,
-            napoleon_preprocess_types=True)
+            napoleon_preprocess_types=True,
+        )
         for docstring, expected in self.docstrings:
             actual = str(NumpyDocstring(dedent(docstring), config))
             expected = dedent(expected)
             self.assertEqual(expected, actual)
 
     def test_type_preprocessor(self):
-        docstring = dedent("""
+        docstring = dedent(
+            """
         Single line summary
 
         Parameters
@@ -1327,16 +1479,19 @@ class NumpyDocstringTest(BaseDocstringTest):
         arg1:str
             Extended
             description of arg1
-        """)
+        """
+        )
 
         config = Config(napoleon_preprocess_types=False, napoleon_use_param=False)
         actual = str(NumpyDocstring(docstring, config))
-        expected = dedent("""
+        expected = dedent(
+            """
         Single line summary
 
         :Parameters: **arg1** (*str*) -- Extended
                      description of arg1
-        """)
+        """
+        )
         self.assertEqual(expected, actual)
 
     def test_parameters_with_class_reference(self):
@@ -1527,7 +1682,9 @@ arg_ : type
         self.assertEqual(expected, actual)
 
     def test_raises_types(self):
-        docstrings = [("""
+        docstrings = [
+            (
+                """
 Example Function
 
 Raises
@@ -1539,40 +1696,49 @@ Raises
 
       Something something value error.
 
-""", """
+""",
+                """
 Example Function
 
 :raises RuntimeError: A setting wasn't specified, or was invalid.
 :raises ValueError: Something something value error.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
 ------
 InvalidDimensionsError
 
-""", """
+""",
+                """
 Example Function
 
 :raises InvalidDimensionsError:
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
 ------
 Invalid Dimensions Error
 
-""", """
+""",
+                """
 Example Function
 
 :raises Invalid Dimensions Error:
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
@@ -1580,13 +1746,16 @@ Raises
 Invalid Dimensions Error
     With description
 
-""", """
+""",
+                """
 Example Function
 
 :raises Invalid Dimensions Error: With description
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
@@ -1594,13 +1763,16 @@ Raises
 InvalidDimensionsError
     If the dimensions couldn't be parsed.
 
-""", """
+""",
+                """
 Example Function
 
 :raises InvalidDimensionsError: If the dimensions couldn't be parsed.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
@@ -1608,39 +1780,48 @@ Raises
 Invalid Dimensions Error
     If the dimensions couldn't be parsed.
 
-""", """
+""",
+                """
 Example Function
 
 :raises Invalid Dimensions Error: If the dimensions couldn't be parsed.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
 ------
 If the dimensions couldn't be parsed.
 
-""", """
+""",
+                """
 Example Function
 
 :raises If the dimensions couldn't be parsed.:
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
 ------
 :class:`exc.InvalidDimensionsError`
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError:
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
@@ -1648,13 +1829,16 @@ Raises
 :class:`exc.InvalidDimensionsError`
     If the dimensions couldn't be parsed.
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
@@ -1663,14 +1847,17 @@ Raises
     If the dimensions couldn't be parsed,
     then a :class:`exc.InvalidDimensionsError` will be raised.
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed,
     then a :class:`exc.InvalidDimensionsError` will be raised.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
@@ -1680,14 +1867,17 @@ Raises
 :class:`exc.InvalidArgumentsError`
     If the arguments are invalid.
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed.
 :raises exc.InvalidArgumentsError: If the arguments are invalid.
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Example Function
 
 Raises
@@ -1695,12 +1885,15 @@ Raises
 :class:`exc.InvalidDimensionsError`
 :class:`exc.InvalidArgumentsError`
 
-""", """
+""",
+                """
 Example Function
 
 :raises exc.InvalidDimensionsError:
 :raises exc.InvalidArgumentsError:
-""")]
+""",
+            ),
+        ]
         for docstring, expected in docstrings:
             config = Config()
             app = mock.Mock()
@@ -1730,7 +1923,9 @@ Example Function
         self.assertEqual(expected, actual)
 
     def test_section_header_underline_length(self):
-        docstrings = [("""
+        docstrings = [
+            (
+                """
 Summary line
 
 Example
@@ -1738,16 +1933,19 @@ Example
 Multiline example
 body
 
-""", """
+""",
+                """
 Summary line
 
 Example
 -
 Multiline example
 body
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Summary line
 
 Example
@@ -1755,16 +1953,19 @@ Example
 Multiline example
 body
 
-""", """
+""",
+                """
 Summary line
 
 .. rubric:: Example
 
 Multiline example
 body
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Summary line
 
 Example
@@ -1772,16 +1973,19 @@ Example
 Multiline example
 body
 
-""", """
+""",
+                """
 Summary line
 
 .. rubric:: Example
 
 Multiline example
 body
-"""),
-                      ################################
-                      ("""
+""",
+            ),
+            ################################
+            (
+                """
 Summary line
 
 Example
@@ -1789,14 +1993,17 @@ Example
 Multiline example
 body
 
-""", """
+""",
+                """
 Summary line
 
 .. rubric:: Example
 
 Multiline example
 body
-""")]
+""",
+            ),
+        ]
         for docstring, expected in docstrings:
             actual = str(NumpyDocstring(docstring))
             self.assertEqual(expected, actual)
@@ -2116,10 +2323,22 @@ definition_after_normal_text : int
             ["int", " or ", "float", " or ", "None", ", ", "optional"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "'F'"],
-            ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
+            [
+                "{",
+                "'F'",
+                ", ",
+                "'C'",
+                ", ",
+                "'N or C'",
+                "}",
+                ", ",
+                "default",
+                " ",
+                "'F'",
+            ],
             ["str", ", ", "default", ": ", "'F or C'"],
             ["int", ", ", "default", ": ", "None"],
-            ["int", ", " , "default", " ", "None"],
+            ["int", ", ", "default", " ", "None"],
             ["int", ", ", "default", " ", ":obj:`None`"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],
@@ -2198,7 +2417,8 @@ definition_after_normal_text : int
             self.assertEqual(expected, actual)
 
     def test_parameter_types(self):
-        docstring = dedent("""\
+        docstring = dedent(
+            """\
             Parameters
             ----------
             param1 : DataFrame
@@ -2217,8 +2437,10 @@ definition_after_normal_text : int
                 a optional mapping
             param8 : ... or Ellipsis
                 ellipsis
-        """)
-        expected = dedent("""\
+        """
+        )
+        expected = dedent(
+            """\
             :param param1: the data to work on
             :type param1: :class:`DataFrame`
             :param param2: a parameter with different types
@@ -2235,7 +2457,8 @@ definition_after_normal_text : int
             :type param7: :term:`mapping` of :term:`hashable` to :class:`str`, *optional*
             :param param8: ellipsis
             :type param8: :obj:`... <Ellipsis>` or :obj:`Ellipsis`
-        """)
+        """
+        )
         translations = {
             "dict-like": ":term:`dict-like <mapping>`",
             "mapping": ":term:`mapping`",

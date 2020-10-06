@@ -34,4 +34,3 @@ Tests with only width or height
 .. wide image which does not fit in linewidth even after height diminished
 .. image:: sphinx.png
    :height: 1000
-

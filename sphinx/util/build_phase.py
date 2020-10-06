@@ -7,12 +7,12 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 from enum import IntEnum
 
 
 class BuildPhase(IntEnum):
     """Build phase of Sphinx application."""
+
     INITIALIZATION = 1
     READING = 2
     CONSISTENCY_CHECK = 3

@@ -7,15 +7,16 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import re
+
 import pytest
 
 
-@pytest.mark.sphinx('dummy', testroot='basic',
-                    confoverrides={'extensions': ['sphinx.ext.duration']})
+@pytest.mark.sphinx(
+    "dummy", testroot="basic", confoverrides={"extensions": ["sphinx.ext.duration"]}
+)
 def test_githubpages(app, status, warning):
     app.build()
 
-    assert 'slowest reading durations' in status.getvalue()
-    assert re.search('\\d+\\.\\d{3} index\n', status.getvalue())
+    assert "slowest reading durations" in status.getvalue()
+    assert re.search("\\d+\\.\\d{3} index\n", status.getvalue())

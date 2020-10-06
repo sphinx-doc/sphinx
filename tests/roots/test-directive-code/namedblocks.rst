@@ -25,4 +25,3 @@ Named Literal Include
 .. literalinclude:: literal.inc
    :language: python
    :name: some python code
-

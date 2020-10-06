@@ -7,14 +7,15 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import os
 
 from docutils import nodes
 
-from sphinx.util.docutils import (
-    SphinxFileOutput, SphinxTranslator, docutils_namespace, new_document, register_node
-)
+from sphinx.util.docutils import docutils_namespace
+from sphinx.util.docutils import new_document
+from sphinx.util.docutils import register_node
+from sphinx.util.docutils import SphinxFileOutput
+from sphinx.util.docutils import SphinxTranslator
 
 
 def test_register_node():
@@ -25,23 +26,23 @@ def test_register_node():
         register_node(custom_node)
 
         # check registered
-        assert hasattr(nodes.GenericNodeVisitor, 'visit_custom_node')
-        assert hasattr(nodes.GenericNodeVisitor, 'depart_custom_node')
-        assert hasattr(nodes.SparseNodeVisitor, 'visit_custom_node')
-        assert hasattr(nodes.SparseNodeVisitor, 'depart_custom_node')
+        assert hasattr(nodes.GenericNodeVisitor, "visit_custom_node")
+        assert hasattr(nodes.GenericNodeVisitor, "depart_custom_node")
+        assert hasattr(nodes.SparseNodeVisitor, "visit_custom_node")
+        assert hasattr(nodes.SparseNodeVisitor, "depart_custom_node")
 
     # check unregistered outside namespace
-    assert not hasattr(nodes.GenericNodeVisitor, 'visit_custom_node')
-    assert not hasattr(nodes.GenericNodeVisitor, 'depart_custom_node')
-    assert not hasattr(nodes.SparseNodeVisitor, 'visit_custom_node')
-    assert not hasattr(nodes.SparseNodeVisitor, 'depart_custom_node')
+    assert not hasattr(nodes.GenericNodeVisitor, "visit_custom_node")
+    assert not hasattr(nodes.GenericNodeVisitor, "depart_custom_node")
+    assert not hasattr(nodes.SparseNodeVisitor, "visit_custom_node")
+    assert not hasattr(nodes.SparseNodeVisitor, "depart_custom_node")
 
 
 def test_SphinxFileOutput(tmpdir):
-    content = 'Hello Sphinx World'
+    content = "Hello Sphinx World"
 
     # write test.txt at first
-    filename = str(tmpdir / 'test.txt')
+    filename = str(tmpdir / "test.txt")
     output = SphinxFileOutput(destination_path=filename)
     output.write(content)
     os.utime(filename, (0, 0))
@@ -51,7 +52,7 @@ def test_SphinxFileOutput(tmpdir):
     assert os.stat(filename).st_mtime != 0  # updated
 
     # write test2.txt at first
-    filename = str(tmpdir / 'test2.txt')
+    filename = str(tmpdir / "test2.txt")
     output = SphinxFileOutput(destination_path=filename, overwrite_if_changed=True)
     output.write(content)
     os.utime(filename, (0, 0))
@@ -81,16 +82,16 @@ def test_SphinxTranslator(app):
             pass
 
         def visit_inline(self, node):
-            self.called.append('visit_inline')
+            self.called.append("visit_inline")
 
         def depart_inline(self, node):
-            self.called.append('depart_inline')
+            self.called.append("depart_inline")
 
-    document = new_document('')
+    document = new_document("")
     document += CustomNode()
 
     translator = MyTranslator(document, app.builder)
     document.walkabout(translator)
 
     # MyTranslator does not have visit_CustomNode. But it calls visit_inline instead.
-    assert translator.called == ['visit_inline', 'depart_inline']
+    assert translator.called == ["visit_inline", "depart_inline"]

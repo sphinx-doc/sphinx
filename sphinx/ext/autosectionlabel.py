@@ -7,9 +7,9 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from typing import Any, Dict
+from typing import Any
 from typing import cast
+from typing import Dict
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -34,37 +34,44 @@ def get_node_depth(node: Node) -> int:
 
 
 def register_sections_as_label(app: Sphinx, document: Node) -> None:
-    domain = cast(StandardDomain, app.env.get_domain('std'))
+    domain = cast(StandardDomain, app.env.get_domain("std"))
     for node in document.traverse(nodes.section):
-        if (app.config.autosectionlabel_maxdepth and
-                get_node_depth(node) >= app.config.autosectionlabel_maxdepth):
+        if (
+            app.config.autosectionlabel_maxdepth
+            and get_node_depth(node) >= app.config.autosectionlabel_maxdepth
+        ):
             continue
-        labelid = node['ids'][0]
+        labelid = node["ids"][0]
         docname = app.env.docname
         title = cast(nodes.title, node[0])
-        ref_name = getattr(title, 'rawsource', title.astext())
+        ref_name = getattr(title, "rawsource", title.astext())
         if app.config.autosectionlabel_prefix_document:
-            name = nodes.fully_normalize_name(docname + ':' + ref_name)
+            name = nodes.fully_normalize_name(docname + ":" + ref_name)
         else:
             name = nodes.fully_normalize_name(ref_name)
         sectname = clean_astext(title)
 
         if name in domain.labels:
-            logger.warning(__('duplicate label %s, other instance in %s'),
-                           name, app.env.doc2path(domain.labels[name][0]),
-                           location=node, type='autosectionlabel', subtype=docname)
+            logger.warning(
+                __("duplicate label %s, other instance in %s"),
+                name,
+                app.env.doc2path(domain.labels[name][0]),
+                location=node,
+                type="autosectionlabel",
+                subtype=docname,
+            )
 
         domain.anonlabels[name] = docname, labelid
         domain.labels[name] = docname, labelid, sectname
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
-    app.add_config_value('autosectionlabel_prefix_document', False, 'env')
-    app.add_config_value('autosectionlabel_maxdepth', None, 'env')
-    app.connect('doctree-read', register_sections_as_label)
+    app.add_config_value("autosectionlabel_prefix_document", False, "env")
+    app.add_config_value("autosectionlabel_maxdepth", None, "env")
+    app.connect("doctree-read", register_sections_as_label)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

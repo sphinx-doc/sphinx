@@ -5,4 +5,3 @@ Raw
 .. raw:: html
 
    <iframe src="http://sphinx-doc.org"></iframe>
-

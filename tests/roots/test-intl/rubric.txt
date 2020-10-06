@@ -11,4 +11,3 @@ rubric in the block
 block
 
    .. rubric:: rubric title
-

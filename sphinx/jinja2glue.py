@@ -7,13 +7,21 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 from os import path
 from pprint import pformat
-from typing import Any, Callable, Dict, Iterator, List, Tuple, Union
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Iterator
+from typing import List
+from typing import Tuple
 from typing import TYPE_CHECKING
+from typing import Union
 
-from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, contextfunction
+from jinja2 import BaseLoader
+from jinja2 import contextfunction
+from jinja2 import FileSystemLoader
+from jinja2 import TemplateNotFound
 from jinja2.environment import Environment
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2.utils import open_if_exists
@@ -29,7 +37,7 @@ if TYPE_CHECKING:
 
 def _tobool(val: str) -> bool:
     if isinstance(val, str):
-        return val.lower() in ('true', '1', 'yes', 'on')
+        return val.lower() in ("true", "1", "yes", "on")
     return bool(val)
 
 
@@ -52,9 +60,9 @@ def _todim(val: Union[int, str]) -> str:
     Everything else is returned unchanged.
     """
     if val is None:
-        return 'initial'
+        return "initial"
     elif str(val).isdigit():
-        return '0' if int(val) == 0 else '%spx' % val
+        return "0" if int(val) == 0 else "%spx" % val
     return val  # type: ignore
 
 
@@ -81,12 +89,12 @@ def _slice_index(values: List, slices: int) -> Iterator[List]:
 
 def accesskey(context: Any, key: str) -> str:
     """Helper to output each access key only once."""
-    if '_accesskeys' not in context:
-        context.vars['_accesskeys'] = {}
-    if key and key not in context.vars['_accesskeys']:
-        context.vars['_accesskeys'][key] = 1
+    if "_accesskeys" not in context:
+        context.vars["_accesskeys"] = {}
+    if key and key not in context.vars["_accesskeys"]:
+        context.vars["_accesskeys"][key] = 1
         return 'accesskey="%s"' % key
-    return ''
+    return ""
 
 
 class idgen:
@@ -99,17 +107,18 @@ class idgen:
     def __next__(self) -> int:
         self.id += 1
         return self.id
+
     next = __next__  # Python 2/Jinja compatibility
 
 
 @contextfunction
 def warning(context: Dict, message: str, *args: Any, **kwargs: Any) -> str:
-    if 'pagename' in context:
-        filename = context.get('pagename') + context.get('file_suffix', '')
-        message = 'in rendering %s: %s' % (filename, message)
-    logger = logging.getLogger('sphinx.themes')
+    if "pagename" in context:
+        filename = context.get("pagename") + context.get("file_suffix", "")
+        message = f"in rendering {filename}: {message}"
+    logger = logging.getLogger("sphinx.themes")
     logger.warning(message, *args, **kwargs)
-    return ''  # return empty string not to output any values
+    return ""  # return empty string not to output any values
 
 
 class SphinxFileSystemLoader(FileSystemLoader):
@@ -118,7 +127,9 @@ class SphinxFileSystemLoader(FileSystemLoader):
     template names.
     """
 
-    def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
+    def get_source(
+        self, environment: Environment, template: str
+    ) -> Tuple[str, str, Callable]:
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
@@ -134,6 +145,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
                     return path.getmtime(filename) == mtime
                 except OSError:
                     return False
+
             return contents, filename, uptodate
         raise TemplateNotFound(template)
 
@@ -145,13 +157,15 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # TemplateBridge interface
 
-    def init(self, builder: "Builder", theme: Theme = None, dirs: List[str] = None) -> None:
+    def init(
+        self, builder: "Builder", theme: Theme = None, dirs: List[str] = None
+    ) -> None:
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs
             pathchain = theme.get_theme_dirs()
             # the loader dirs: pathchain + the parent directories for all themes
-            loaderchain = pathchain + [path.join(p, '..') for p in pathchain]
+            loaderchain = pathchain + [path.join(p, "..") for p in pathchain]
         elif dirs:
             pathchain = list(dirs)
             loaderchain = list(dirs)
@@ -162,8 +176,9 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         # prepend explicit template paths
         self.templatepathlen = len(builder.config.templates_path)
         if builder.config.templates_path:
-            cfg_templates_path = [path.join(builder.confdir, tp)
-                                  for tp in builder.config.templates_path]
+            cfg_templates_path = [
+                path.join(builder.confdir, tp) for tp in builder.config.templates_path
+            ]
             pathchain[0:0] = cfg_templates_path
             loaderchain[0:0] = cfg_templates_path
 
@@ -174,17 +189,16 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.loaders = [SphinxFileSystemLoader(x) for x in loaderchain]
 
         use_i18n = builder.app.translator is not None
-        extensions = ['jinja2.ext.i18n'] if use_i18n else []
-        self.environment = SandboxedEnvironment(loader=self,
-                                                extensions=extensions)
-        self.environment.filters['tobool'] = _tobool
-        self.environment.filters['toint'] = _toint
-        self.environment.filters['todim'] = _todim
-        self.environment.filters['slice_index'] = _slice_index
-        self.environment.globals['debug'] = contextfunction(pformat)
-        self.environment.globals['warning'] = warning
-        self.environment.globals['accesskey'] = contextfunction(accesskey)
-        self.environment.globals['idgen'] = idgen
+        extensions = ["jinja2.ext.i18n"] if use_i18n else []
+        self.environment = SandboxedEnvironment(loader=self, extensions=extensions)
+        self.environment.filters["tobool"] = _tobool
+        self.environment.filters["toint"] = _toint
+        self.environment.filters["todim"] = _todim
+        self.environment.filters["slice_index"] = _slice_index
+        self.environment.globals["debug"] = contextfunction(pformat)
+        self.environment.globals["warning"] = warning
+        self.environment.globals["accesskey"] = contextfunction(accesskey)
+        self.environment.globals["idgen"] = idgen
         if use_i18n:
             self.environment.install_gettext_translations(builder.app.translator)
 
@@ -195,15 +209,17 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self) -> float:
-        return max(mtimes_of_files(self.pathchain, '.html'))
+        return max(mtimes_of_files(self.pathchain, ".html"))
 
     # Loader interface
 
-    def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
+    def get_source(
+        self, environment: Environment, template: str
+    ) -> Tuple[str, str, Callable]:
         loaders = self.loaders
         # exclamation mark starts search from theme
-        if template.startswith('!'):
-            loaders = loaders[self.templatepathlen:]
+        if template.startswith("!"):
+            loaders = loaders[self.templatepathlen :]
             template = template[1:]
         for loader in loaders:
             try:

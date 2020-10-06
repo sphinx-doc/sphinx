@@ -7,9 +7,9 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import re
-from typing import Any, Dict
+from typing import Any
+from typing import Dict
 
 from docutils import nodes
 
@@ -35,9 +35,10 @@ class KeyboardTransform(SphinxPostTransform):
             <literal class="kbd">
                 x
     """
+
     default_priority = 400
-    builders = ('html',)
-    pattern = re.compile(r'(-|\+|\^|\s+)')
+    builders = ("html",)
+    pattern = re.compile(r"(-|\+|\^|\s+)")
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, classes=["kbd"])
@@ -49,7 +50,7 @@ class KeyboardTransform(SphinxPostTransform):
             node.pop()
             while parts:
                 key = parts.pop(0)
-                node += nodes.literal('', key, classes=["kbd"])
+                node += nodes.literal("", key, classes=["kbd"])
 
                 try:
                     # key separator (ex. -, +, ^)
@@ -63,7 +64,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(KeyboardTransform)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

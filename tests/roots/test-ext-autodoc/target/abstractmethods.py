@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 
-class Base():
+class Base:
     def meth(self):
         pass
 

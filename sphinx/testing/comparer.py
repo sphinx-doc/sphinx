@@ -9,7 +9,9 @@
 """
 import difflib
 import pathlib
-from typing import Any, List, Union
+from typing import Any
+from typing import List
+from typing import Union
 
 
 class PathComparer:
@@ -32,6 +34,7 @@ class PathComparer:
     >>> 'C:\\to\\index' == PathComparer('D:/to/index')
     False
     """
+
     def __init__(self, path: Union[str, pathlib.Path]):
         """
         :param str path: path string, it will be cast as pathlib.Path.
@@ -67,16 +70,10 @@ class PathComparer:
         return self.ldiff(other)
 
     def ldiff(self, other: Union[str, pathlib.Path]) -> List[str]:
-        return self._diff(
-            self.path,
-            pathlib.Path(other),
-        )
+        return self._diff(self.path, pathlib.Path(other),)
 
     def rdiff(self, other: Union[str, pathlib.Path]) -> List[str]:
-        return self._diff(
-            pathlib.Path(other),
-            self.path,
-        )
+        return self._diff(pathlib.Path(other), self.path,)
 
     def _diff(self, lhs: pathlib.Path, rhs: pathlib.Path) -> List[str]:
         if lhs == rhs:
@@ -96,8 +93,8 @@ class PathComparer:
 
 def pytest_assertrepr_compare(op: str, left: Any, right: Any) -> List[str]:
     if isinstance(left, PathComparer) and op == "==":
-        return ['Comparing path:'] + left.ldiff(right)
+        return ["Comparing path:"] + left.ldiff(right)
     elif isinstance(right, PathComparer) and op == "==":
-        return ['Comparing path:'] + right.rdiff(left)
+        return ["Comparing path:"] + right.rdiff(left)
     else:
         return []

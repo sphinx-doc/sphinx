@@ -1,4 +1,4 @@
-__all__ = ['baz', 'foo', 'Bar']
+__all__ = ["baz", "foo", "Bar"]
 
 
 def foo():

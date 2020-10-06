@@ -1,9 +1,9 @@
-master_doc = 'index'
+master_doc = "index"
 
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
 latex_elements = {
-    'preamble': r'''
+    "preamble": r"""
 \makeatletter
 \def\dividetwolengths#1#2{\the\dimexpr
     \numexpr65536*\dimexpr#1\relax/\dimexpr#2\relax sp}%
@@ -45,5 +45,5 @@ latex_elements = {
 }
 \def\sphinxincludegraphics#1#{\tempincludegraphics#1}
 \makeatother
-''',
+""",
 }

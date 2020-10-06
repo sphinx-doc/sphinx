@@ -1,1 +1,1 @@
-extensions = ['sphinx.ext.imgconverter']
+extensions = ["sphinx.ext.imgconverter"]

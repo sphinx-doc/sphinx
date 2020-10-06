@@ -6,4 +6,3 @@ Diagram using 2 top classes
     dummy.test.D
     dummy.test.E
     :top-classes: dummy.test.B, dummy.test.C
-

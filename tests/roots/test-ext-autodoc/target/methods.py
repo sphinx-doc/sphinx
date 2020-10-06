@@ -1,7 +1,7 @@
 from functools import partialmethod
 
 
-class Base():
+class Base:
     def meth(self):
         pass
 

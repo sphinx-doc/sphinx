@@ -7,9 +7,11 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from typing import Any, Dict, List, Set
+from typing import Any
 from typing import cast
+from typing import Dict
+from typing import List
+from typing import Set
 
 from docutils import nodes
 
@@ -24,8 +26,13 @@ class MetadataCollector(EnvironmentCollector):
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.metadata.pop(docname, None)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: Set[str],
+        other: BuildEnvironment,
+    ) -> None:
         for docname in docnames:
             env.metadata[docname] = other.metadata[docname]
 
@@ -40,7 +47,7 @@ class MetadataCollector(EnvironmentCollector):
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
                     authors = cast(List[nodes.author], node)
-                    md['authors'] = [author.astext() for author in authors]
+                    md["authors"] = [author.astext() for author in authors]
                 elif isinstance(node, nodes.field):
                     assert len(node) == 2
                     field_name = cast(nodes.field_name, node[0])
@@ -52,7 +59,7 @@ class MetadataCollector(EnvironmentCollector):
                     md[node.__class__.__name__] = node.astext()
 
             for name, value in md.items():
-                if name in ('tocdepth',):
+                if name in ("tocdepth",):
                     try:
                         value = int(value)
                     except ValueError:
@@ -66,7 +73,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_env_collector(MetadataCollector)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

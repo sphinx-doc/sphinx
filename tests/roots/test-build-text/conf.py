@@ -1,2 +1,2 @@
-source_suffix = '.txt'
-exclude_patterns = ['_build']
+source_suffix = ".txt"
+exclude_patterns = ["_build"]

@@ -83,4 +83,3 @@ clean:
 
 .PHONY: all all-pdf all-dvi all-ps clean zip tar gz bz2 xz
 .PHONY: all-pdf-ja
-

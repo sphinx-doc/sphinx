@@ -7,7 +7,6 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import _testcapi
 import ast
 import datetime
@@ -19,7 +18,8 @@ from inspect import Parameter
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import stringify_signature, is_builtin_class_method
+from sphinx.util.inspect import is_builtin_class_method
+from sphinx.util.inspect import stringify_signature
 
 
 def test_signature():
@@ -28,13 +28,13 @@ def test_signature():
         inspect.signature(1)
 
     with pytest.raises(TypeError):
-        inspect.signature('')
+        inspect.signature("")
 
     # builtins are supported on a case-by-case basis, depending on whether
     # they define __text_signature__
-    if getattr(list, '__text_signature__', None):
+    if getattr(list, "__text_signature__", None):
         sig = inspect.stringify_signature(inspect.signature(list))
-        assert sig == '(iterable=(), /)'
+        assert sig == "(iterable=(), /)"
     else:
         with pytest.raises(ValueError):
             inspect.signature(list)
@@ -44,16 +44,17 @@ def test_signature():
         pass
 
     sig = inspect.stringify_signature(inspect.signature(func))
-    assert sig == '(a, b, c=1, d=2, *e, **f)'
+    assert sig == "(a, b, c=1, d=2, *e, **f)"
 
 
 def test_signature_partial():
     def fun(a, b, c=1, d=2):
         pass
+
     p = functools.partial(fun, 10, c=11)
 
     sig = inspect.signature(p)
-    assert stringify_signature(sig) == '(b, *, c=11, d=2)'
+    assert stringify_signature(sig) == "(b, *, c=11, d=2)"
 
 
 def test_signature_methods():
@@ -75,32 +76,32 @@ def test_signature_methods():
 
     # unbound method
     sig = inspect.signature(Foo.meth1)
-    assert stringify_signature(sig) == '(self, arg1, **kwargs)'
+    assert stringify_signature(sig) == "(self, arg1, **kwargs)"
 
     sig = inspect.signature(Foo.meth1, bound_method=True)
-    assert stringify_signature(sig) == '(arg1, **kwargs)'
+    assert stringify_signature(sig) == "(arg1, **kwargs)"
 
     # bound method
     sig = inspect.signature(Foo().meth1)
-    assert stringify_signature(sig) == '(arg1, **kwargs)'
+    assert stringify_signature(sig) == "(arg1, **kwargs)"
 
     # class method
     sig = inspect.signature(Foo.meth2)
-    assert stringify_signature(sig) == '(arg1, *args, **kwargs)'
+    assert stringify_signature(sig) == "(arg1, *args, **kwargs)"
 
     sig = inspect.signature(Foo().meth2)
-    assert stringify_signature(sig) == '(arg1, *args, **kwargs)'
+    assert stringify_signature(sig) == "(arg1, *args, **kwargs)"
 
     # static method
     sig = inspect.signature(Foo.meth3)
-    assert stringify_signature(sig) == '(arg1, *args, **kwargs)'
+    assert stringify_signature(sig) == "(arg1, *args, **kwargs)"
 
     sig = inspect.signature(Foo().meth3)
-    assert stringify_signature(sig) == '(arg1, *args, **kwargs)'
+    assert stringify_signature(sig) == "(arg1, *args, **kwargs)"
 
     # wrapped bound method
     sig = inspect.signature(wrapped_bound_method)
-    assert stringify_signature(sig) == '(*args, **kwargs)'
+    assert stringify_signature(sig) == "(*args, **kwargs)"
 
 
 def test_signature_partialmethod():
@@ -119,100 +120,130 @@ def test_signature_partialmethod():
 
     subject = Foo()
     sig = inspect.signature(subject.foo)
-    assert stringify_signature(sig) == '(arg3=None, arg4=None)'
+    assert stringify_signature(sig) == "(arg3=None, arg4=None)"
 
     sig = inspect.signature(subject.bar)
-    assert stringify_signature(sig) == '(arg2, *, arg3=3, arg4=None)'
+    assert stringify_signature(sig) == "(arg2, *, arg3=3, arg4=None)"
 
     sig = inspect.signature(subject.baz)
-    assert stringify_signature(sig) == '()'
+    assert stringify_signature(sig) == "()"
 
 
 def test_signature_annotations():
-    from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                                  f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, Node)
+    from typing_test_data import (
+        f0,
+        f1,
+        f2,
+        f3,
+        f4,
+        f5,
+        f6,
+        f7,
+        f8,
+        f9,
+        f10,
+        f11,
+        f12,
+        f13,
+        f14,
+        f15,
+        f16,
+        f17,
+        f18,
+        f19,
+        f20,
+        f21,
+        Node,
+    )
 
     # Class annotations
     sig = inspect.signature(f0)
-    assert stringify_signature(sig) == '(x: int, y: numbers.Integral) -> None'
+    assert stringify_signature(sig) == "(x: int, y: numbers.Integral) -> None"
 
     # Generic types with concrete parameters
     sig = inspect.signature(f1)
-    assert stringify_signature(sig) == '(x: List[int]) -> List[int]'
+    assert stringify_signature(sig) == "(x: List[int]) -> List[int]"
 
     # TypeVars and generic types with TypeVars
     sig = inspect.signature(f2)
-    assert stringify_signature(sig) == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
+    assert (
+        stringify_signature(sig)
+        == "(x: List[T], y: List[T_co], z: T) -> List[T_contra]"
+    )
 
     # Union types
     sig = inspect.signature(f3)
-    assert stringify_signature(sig) == '(x: Union[str, numbers.Integral]) -> None'
+    assert stringify_signature(sig) == "(x: Union[str, numbers.Integral]) -> None"
 
     # Quoted annotations
     sig = inspect.signature(f4)
-    assert stringify_signature(sig) == '(x: str, y: str) -> None'
+    assert stringify_signature(sig) == "(x: str, y: str) -> None"
 
     # Keyword-only arguments
     sig = inspect.signature(f5)
-    assert stringify_signature(sig) == '(x: int, *, y: str, z: str) -> None'
+    assert stringify_signature(sig) == "(x: int, *, y: str, z: str) -> None"
 
     # Keyword-only arguments with varargs
     sig = inspect.signature(f6)
-    assert stringify_signature(sig) == '(x: int, *args, y: str, z: str) -> None'
+    assert stringify_signature(sig) == "(x: int, *args, y: str, z: str) -> None"
 
     # Space around '=' for defaults
     sig = inspect.signature(f7)
-    assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
+    assert stringify_signature(sig) == "(x: int = None, y: dict = {}) -> None"
 
     # Callable types
     sig = inspect.signature(f8)
-    assert stringify_signature(sig) == '(x: Callable[[int, str], int]) -> None'
+    assert stringify_signature(sig) == "(x: Callable[[int, str], int]) -> None"
 
     sig = inspect.signature(f9)
-    assert stringify_signature(sig) == '(x: Callable) -> None'
+    assert stringify_signature(sig) == "(x: Callable) -> None"
 
     # Tuple types
     sig = inspect.signature(f10)
-    assert stringify_signature(sig) == '(x: Tuple[int, str], y: Tuple[int, ...]) -> None'
+    assert (
+        stringify_signature(sig) == "(x: Tuple[int, str], y: Tuple[int, ...]) -> None"
+    )
 
     # Instance annotations
     sig = inspect.signature(f11)
-    assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
+    assert stringify_signature(sig) == "(x: CustomAnnotation, y: 123) -> None"
 
     # tuple with more than two items
     sig = inspect.signature(f12)
-    assert stringify_signature(sig) == '() -> Tuple[int, str, int]'
+    assert stringify_signature(sig) == "() -> Tuple[int, str, int]"
 
     # optional
     sig = inspect.signature(f13)
-    assert stringify_signature(sig) == '() -> Optional[str]'
+    assert stringify_signature(sig) == "() -> Optional[str]"
 
     # optional union
     sig = inspect.signature(f20)
-    assert stringify_signature(sig) == '() -> Optional[Union[int, str]]'
+    assert stringify_signature(sig) == "() -> Optional[Union[int, str]]"
 
     # Any
     sig = inspect.signature(f14)
-    assert stringify_signature(sig) == '() -> Any'
+    assert stringify_signature(sig) == "() -> Any"
 
     # ForwardRef
     sig = inspect.signature(f15)
-    assert stringify_signature(sig) == '(x: Unknown, y: int) -> Any'
+    assert stringify_signature(sig) == "(x: Unknown, y: int) -> Any"
 
     # keyword only arguments (1)
     sig = inspect.signature(f16)
-    assert stringify_signature(sig) == '(arg1, arg2, *, arg3=None, arg4=None)'
+    assert stringify_signature(sig) == "(arg1, arg2, *, arg3=None, arg4=None)"
 
     # keyword only arguments (2)
     sig = inspect.signature(f17)
-    assert stringify_signature(sig) == '(*, arg3, arg4)'
+    assert stringify_signature(sig) == "(*, arg3, arg4)"
 
     sig = inspect.signature(f18)
-    assert stringify_signature(sig) == '(self, arg1: Union[int, Tuple] = 10) -> List[Dict]'
+    assert (
+        stringify_signature(sig) == "(self, arg1: Union[int, Tuple] = 10) -> List[Dict]"
+    )
 
     # annotations for variadic and keyword parameters
     sig = inspect.signature(f19)
-    assert stringify_signature(sig) == '(*args: int, **kwargs: str)'
+    assert stringify_signature(sig) == "(*args: int, **kwargs: str)"
 
     # default value is inspect.Signature.empty
     sig = inspect.signature(f21)
@@ -221,169 +252,173 @@ def test_signature_annotations():
     # type hints by string
     sig = inspect.signature(Node.children)
     if (3, 5, 0) <= sys.version_info < (3, 5, 3):
-        assert stringify_signature(sig) == '(self) -> List[Node]'
+        assert stringify_signature(sig) == "(self) -> List[Node]"
     else:
-        assert stringify_signature(sig) == '(self) -> List[typing_test_data.Node]'
+        assert stringify_signature(sig) == "(self) -> List[typing_test_data.Node]"
 
     sig = inspect.signature(Node.__init__)
-    assert stringify_signature(sig) == '(self, parent: Optional[Node]) -> None'
+    assert stringify_signature(sig) == "(self, parent: Optional[Node]) -> None"
 
     # show_annotation is False
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, show_annotation=False) == '(x=None, y={})'
+    assert stringify_signature(sig, show_annotation=False) == "(x=None, y={})"
 
     # show_return_annotation is False
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
+    assert (
+        stringify_signature(sig, show_return_annotation=False)
+        == "(x: int = None, y: dict = {})"
+    )
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="python 3.8+ is required.")
+@pytest.mark.sphinx(testroot="ext-autodoc")
 def test_signature_annotations_py38(app):
     from target.pep570 import foo, bar, baz, qux
 
     # case: separator at head
     sig = inspect.signature(foo)
-    assert stringify_signature(sig) == '(*, a, b)'
+    assert stringify_signature(sig) == "(*, a, b)"
 
     # case: separator in the middle
     sig = inspect.signature(bar)
-    assert stringify_signature(sig) == '(a, b, /, c, d)'
+    assert stringify_signature(sig) == "(a, b, /, c, d)"
 
     sig = inspect.signature(baz)
-    assert stringify_signature(sig) == '(a, /, *, b)'
+    assert stringify_signature(sig) == "(a, /, *, b)"
 
     # case: separator at tail
     sig = inspect.signature(qux)
-    assert stringify_signature(sig) == '(a, b, /)'
+    assert stringify_signature(sig) == "(a, b, /)"
 
 
 def test_signature_from_str_basic():
     signature = '(a, b, *args, c=0, d="blah", **kwargs)'
     sig = inspect.signature_from_str(signature)
-    assert list(sig.parameters.keys()) == ['a', 'b', 'args', 'c', 'd', 'kwargs']
-    assert sig.parameters['a'].name == 'a'
-    assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
-    assert sig.parameters['a'].default == Parameter.empty
-    assert sig.parameters['a'].annotation == Parameter.empty
-    assert sig.parameters['b'].name == 'b'
-    assert sig.parameters['b'].kind == Parameter.POSITIONAL_OR_KEYWORD
-    assert sig.parameters['b'].default == Parameter.empty
-    assert sig.parameters['b'].annotation == Parameter.empty
-    assert sig.parameters['args'].name == 'args'
-    assert sig.parameters['args'].kind == Parameter.VAR_POSITIONAL
-    assert sig.parameters['args'].default == Parameter.empty
-    assert sig.parameters['args'].annotation == Parameter.empty
-    assert sig.parameters['c'].name == 'c'
-    assert sig.parameters['c'].kind == Parameter.KEYWORD_ONLY
-    assert sig.parameters['c'].default == '0'
-    assert sig.parameters['c'].annotation == Parameter.empty
-    assert sig.parameters['d'].name == 'd'
-    assert sig.parameters['d'].kind == Parameter.KEYWORD_ONLY
-    assert sig.parameters['d'].default == "'blah'"
-    assert sig.parameters['d'].annotation == Parameter.empty
-    assert sig.parameters['kwargs'].name == 'kwargs'
-    assert sig.parameters['kwargs'].kind == Parameter.VAR_KEYWORD
-    assert sig.parameters['kwargs'].default == Parameter.empty
-    assert sig.parameters['kwargs'].annotation == Parameter.empty
+    assert list(sig.parameters.keys()) == ["a", "b", "args", "c", "d", "kwargs"]
+    assert sig.parameters["a"].name == "a"
+    assert sig.parameters["a"].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters["a"].default == Parameter.empty
+    assert sig.parameters["a"].annotation == Parameter.empty
+    assert sig.parameters["b"].name == "b"
+    assert sig.parameters["b"].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters["b"].default == Parameter.empty
+    assert sig.parameters["b"].annotation == Parameter.empty
+    assert sig.parameters["args"].name == "args"
+    assert sig.parameters["args"].kind == Parameter.VAR_POSITIONAL
+    assert sig.parameters["args"].default == Parameter.empty
+    assert sig.parameters["args"].annotation == Parameter.empty
+    assert sig.parameters["c"].name == "c"
+    assert sig.parameters["c"].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters["c"].default == "0"
+    assert sig.parameters["c"].annotation == Parameter.empty
+    assert sig.parameters["d"].name == "d"
+    assert sig.parameters["d"].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters["d"].default == "'blah'"
+    assert sig.parameters["d"].annotation == Parameter.empty
+    assert sig.parameters["kwargs"].name == "kwargs"
+    assert sig.parameters["kwargs"].kind == Parameter.VAR_KEYWORD
+    assert sig.parameters["kwargs"].default == Parameter.empty
+    assert sig.parameters["kwargs"].annotation == Parameter.empty
     assert sig.return_annotation == Parameter.empty
 
 
 def test_signature_from_str_default_values():
-    signature = ('(a=0, b=0.0, c="str", d=b"bytes", e=..., f=True, '
-                 'g=[1, 2, 3], h={"a": 1}, i={1, 2, 3}, '
-                 'j=lambda x, y: None, k=None, l=object(), m=foo.bar.CONSTANT)')
+    signature = (
+        '(a=0, b=0.0, c="str", d=b"bytes", e=..., f=True, '
+        'g=[1, 2, 3], h={"a": 1}, i={1, 2, 3}, '
+        "j=lambda x, y: None, k=None, l=object(), m=foo.bar.CONSTANT)"
+    )
     sig = inspect.signature_from_str(signature)
-    assert sig.parameters['a'].default == '0'
-    assert sig.parameters['b'].default == '0.0'
-    assert sig.parameters['c'].default == "'str'"
-    assert sig.parameters['d'].default == "b'bytes'"
-    assert sig.parameters['e'].default == '...'
-    assert sig.parameters['f'].default == 'True'
-    assert sig.parameters['g'].default == '[1, 2, 3]'
-    assert sig.parameters['h'].default == "{'a': 1}"
-    assert sig.parameters['i'].default == '{1, 2, 3}'
-    assert sig.parameters['j'].default == 'lambda x, y: ...'
-    assert sig.parameters['k'].default == 'None'
-    assert sig.parameters['l'].default == 'object()'
-    assert sig.parameters['m'].default == 'foo.bar.CONSTANT'
+    assert sig.parameters["a"].default == "0"
+    assert sig.parameters["b"].default == "0.0"
+    assert sig.parameters["c"].default == "'str'"
+    assert sig.parameters["d"].default == "b'bytes'"
+    assert sig.parameters["e"].default == "..."
+    assert sig.parameters["f"].default == "True"
+    assert sig.parameters["g"].default == "[1, 2, 3]"
+    assert sig.parameters["h"].default == "{'a': 1}"
+    assert sig.parameters["i"].default == "{1, 2, 3}"
+    assert sig.parameters["j"].default == "lambda x, y: ..."
+    assert sig.parameters["k"].default == "None"
+    assert sig.parameters["l"].default == "object()"
+    assert sig.parameters["m"].default == "foo.bar.CONSTANT"
 
 
 def test_signature_from_str_annotations():
     signature = '(a: int, *args: bytes, b: str = "blah", **kwargs: float) -> None'
     sig = inspect.signature_from_str(signature)
-    assert list(sig.parameters.keys()) == ['a', 'args', 'b', 'kwargs']
-    assert sig.parameters['a'].annotation == "int"
-    assert sig.parameters['args'].annotation == "bytes"
-    assert sig.parameters['b'].annotation == "str"
-    assert sig.parameters['kwargs'].annotation == "float"
-    assert sig.return_annotation == 'None'
+    assert list(sig.parameters.keys()) == ["a", "args", "b", "kwargs"]
+    assert sig.parameters["a"].annotation == "int"
+    assert sig.parameters["args"].annotation == "bytes"
+    assert sig.parameters["b"].annotation == "str"
+    assert sig.parameters["kwargs"].annotation == "float"
+    assert sig.return_annotation == "None"
 
 
 def test_signature_from_str_complex_annotations():
-    sig = inspect.signature_from_str('() -> Tuple[str, int, ...]')
-    assert sig.return_annotation == 'Tuple[str, int, ...]'
+    sig = inspect.signature_from_str("() -> Tuple[str, int, ...]")
+    assert sig.return_annotation == "Tuple[str, int, ...]"
 
-    sig = inspect.signature_from_str('() -> Callable[[int, int], int]')
-    assert sig.return_annotation == 'Callable[[int, int], int]'
+    sig = inspect.signature_from_str("() -> Callable[[int, int], int]")
+    assert sig.return_annotation == "Callable[[int, int], int]"
 
 
 def test_signature_from_str_kwonly_args():
-    sig = inspect.signature_from_str('(a, *, b)')
-    assert list(sig.parameters.keys()) == ['a', 'b']
-    assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
-    assert sig.parameters['a'].default == Parameter.empty
-    assert sig.parameters['b'].kind == Parameter.KEYWORD_ONLY
-    assert sig.parameters['b'].default == Parameter.empty
+    sig = inspect.signature_from_str("(a, *, b)")
+    assert list(sig.parameters.keys()) == ["a", "b"]
+    assert sig.parameters["a"].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters["a"].default == Parameter.empty
+    assert sig.parameters["b"].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters["b"].default == Parameter.empty
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='python-3.8 or above is required')
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="python-3.8 or above is required")
 def test_signature_from_str_positionaly_only_args():
-    sig = inspect.signature_from_str('(a, b=0, /, c=1)')
-    assert list(sig.parameters.keys()) == ['a', 'b', 'c']
-    assert sig.parameters['a'].kind == Parameter.POSITIONAL_ONLY
-    assert sig.parameters['a'].default == Parameter.empty
-    assert sig.parameters['b'].kind == Parameter.POSITIONAL_ONLY
-    assert sig.parameters['b'].default == '0'
-    assert sig.parameters['c'].kind == Parameter.POSITIONAL_OR_KEYWORD
-    assert sig.parameters['c'].default == '1'
+    sig = inspect.signature_from_str("(a, b=0, /, c=1)")
+    assert list(sig.parameters.keys()) == ["a", "b", "c"]
+    assert sig.parameters["a"].kind == Parameter.POSITIONAL_ONLY
+    assert sig.parameters["a"].default == Parameter.empty
+    assert sig.parameters["b"].kind == Parameter.POSITIONAL_ONLY
+    assert sig.parameters["b"].default == "0"
+    assert sig.parameters["c"].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters["c"].default == "1"
 
 
 def test_signature_from_str_invalid():
     with pytest.raises(SyntaxError):
-        inspect.signature_from_str('')
+        inspect.signature_from_str("")
 
 
 def test_signature_from_ast():
     signature = 'def func(a, b, *args, c=0, d="blah", **kwargs): pass'
     tree = ast.parse(signature)
     sig = inspect.signature_from_ast(tree.body[0])
-    assert list(sig.parameters.keys()) == ['a', 'b', 'args', 'c', 'd', 'kwargs']
-    assert sig.parameters['a'].name == 'a'
-    assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
-    assert sig.parameters['a'].default == Parameter.empty
-    assert sig.parameters['a'].annotation == Parameter.empty
-    assert sig.parameters['b'].name == 'b'
-    assert sig.parameters['b'].kind == Parameter.POSITIONAL_OR_KEYWORD
-    assert sig.parameters['b'].default == Parameter.empty
-    assert sig.parameters['b'].annotation == Parameter.empty
-    assert sig.parameters['args'].name == 'args'
-    assert sig.parameters['args'].kind == Parameter.VAR_POSITIONAL
-    assert sig.parameters['args'].default == Parameter.empty
-    assert sig.parameters['args'].annotation == Parameter.empty
-    assert sig.parameters['c'].name == 'c'
-    assert sig.parameters['c'].kind == Parameter.KEYWORD_ONLY
-    assert sig.parameters['c'].default == '0'
-    assert sig.parameters['c'].annotation == Parameter.empty
-    assert sig.parameters['d'].name == 'd'
-    assert sig.parameters['d'].kind == Parameter.KEYWORD_ONLY
-    assert sig.parameters['d'].default == "'blah'"
-    assert sig.parameters['d'].annotation == Parameter.empty
-    assert sig.parameters['kwargs'].name == 'kwargs'
-    assert sig.parameters['kwargs'].kind == Parameter.VAR_KEYWORD
-    assert sig.parameters['kwargs'].default == Parameter.empty
-    assert sig.parameters['kwargs'].annotation == Parameter.empty
+    assert list(sig.parameters.keys()) == ["a", "b", "args", "c", "d", "kwargs"]
+    assert sig.parameters["a"].name == "a"
+    assert sig.parameters["a"].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters["a"].default == Parameter.empty
+    assert sig.parameters["a"].annotation == Parameter.empty
+    assert sig.parameters["b"].name == "b"
+    assert sig.parameters["b"].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters["b"].default == Parameter.empty
+    assert sig.parameters["b"].annotation == Parameter.empty
+    assert sig.parameters["args"].name == "args"
+    assert sig.parameters["args"].kind == Parameter.VAR_POSITIONAL
+    assert sig.parameters["args"].default == Parameter.empty
+    assert sig.parameters["args"].annotation == Parameter.empty
+    assert sig.parameters["c"].name == "c"
+    assert sig.parameters["c"].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters["c"].default == "0"
+    assert sig.parameters["c"].annotation == Parameter.empty
+    assert sig.parameters["d"].name == "d"
+    assert sig.parameters["d"].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters["d"].default == "'blah'"
+    assert sig.parameters["d"].annotation == Parameter.empty
+    assert sig.parameters["kwargs"].name == "kwargs"
+    assert sig.parameters["kwargs"].kind == Parameter.VAR_KEYWORD
+    assert sig.parameters["kwargs"].default == Parameter.empty
+    assert sig.parameters["kwargs"].annotation == Parameter.empty
     assert sig.return_annotation == Parameter.empty
 
 
@@ -394,9 +429,9 @@ def test_safe_getattr_with_default():
 
     obj = Foo()
 
-    result = inspect.safe_getattr(obj, 'bar', 'baz')
+    result = inspect.safe_getattr(obj, "bar", "baz")
 
-    assert result == 'baz'
+    assert result == "baz"
 
 
 def test_safe_getattr_with_exception():
@@ -407,11 +442,11 @@ def test_safe_getattr_with_exception():
     obj = Foo()
 
     try:
-        inspect.safe_getattr(obj, 'bar')
+        inspect.safe_getattr(obj, "bar")
     except AttributeError as exc:
-        assert exc.args[0] == 'bar'
+        assert exc.args[0] == "bar"
     else:
-        pytest.fail('AttributeError not raised')
+        pytest.fail("AttributeError not raised")
 
 
 def test_safe_getattr_with_property_exception():
@@ -423,11 +458,11 @@ def test_safe_getattr_with_property_exception():
     obj = Foo()
 
     try:
-        inspect.safe_getattr(obj, 'bar')
+        inspect.safe_getattr(obj, "bar")
     except AttributeError as exc:
-        assert exc.args[0] == 'bar'
+        assert exc.args[0] == "bar"
     else:
-        pytest.fail('AttributeError not raised')
+        pytest.fail("AttributeError not raised")
 
 
 def test_safe_getattr_with___dict___override():
@@ -439,11 +474,11 @@ def test_safe_getattr_with___dict___override():
     obj = Foo()
 
     try:
-        inspect.safe_getattr(obj, 'bar')
+        inspect.safe_getattr(obj, "bar")
     except AttributeError as exc:
-        assert exc.args[0] == 'bar'
+        assert exc.args[0] == "bar"
     else:
-        pytest.fail('AttributeError not raised')
+        pytest.fail("AttributeError not raised")
 
 
 def test_dictionary_sorting():
@@ -490,7 +525,7 @@ def test_dict_customtype():
     assert "<CustomType(2)>: 2" in description
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot="ext-autodoc")
 def test_isclassmethod(app):
     from target.methods import Base, Inherited
 
@@ -500,74 +535,80 @@ def test_isclassmethod(app):
     assert inspect.isclassmethod(Inherited.meth) is False
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot="ext-autodoc")
 def test_isstaticmethod(app):
     from target.methods import Base, Inherited
 
-    assert inspect.isstaticmethod(Base.staticmeth, Base, 'staticmeth') is True
-    assert inspect.isstaticmethod(Base.meth, Base, 'meth') is False
-    assert inspect.isstaticmethod(Inherited.staticmeth, Inherited, 'staticmeth') is True
-    assert inspect.isstaticmethod(Inherited.meth, Inherited, 'meth') is False
+    assert inspect.isstaticmethod(Base.staticmeth, Base, "staticmeth") is True
+    assert inspect.isstaticmethod(Base.meth, Base, "meth") is False
+    assert inspect.isstaticmethod(Inherited.staticmeth, Inherited, "staticmeth") is True
+    assert inspect.isstaticmethod(Inherited.meth, Inherited, "meth") is False
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot="ext-autodoc")
 def test_iscoroutinefunction(app):
     from target.functions import coroutinefunc, func, partial_coroutinefunc
     from target.methods import Base
 
-    assert inspect.iscoroutinefunction(func) is False                   # function
-    assert inspect.iscoroutinefunction(coroutinefunc) is True           # coroutine
-    assert inspect.iscoroutinefunction(partial_coroutinefunc) is True   # partial-ed coroutine
-    assert inspect.iscoroutinefunction(Base.meth) is False              # method
-    assert inspect.iscoroutinefunction(Base.coroutinemeth) is True      # coroutine-method
+    assert inspect.iscoroutinefunction(func) is False  # function
+    assert inspect.iscoroutinefunction(coroutinefunc) is True  # coroutine
+    assert (
+        inspect.iscoroutinefunction(partial_coroutinefunc) is True
+    )  # partial-ed coroutine
+    assert inspect.iscoroutinefunction(Base.meth) is False  # method
+    assert inspect.iscoroutinefunction(Base.coroutinemeth) is True  # coroutine-method
 
     # partial-ed coroutine-method
-    partial_coroutinemeth = Base.__dict__['partial_coroutinemeth']
+    partial_coroutinemeth = Base.__dict__["partial_coroutinemeth"]
     assert inspect.iscoroutinefunction(partial_coroutinemeth) is True
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot="ext-autodoc")
 def test_isfunction(app):
     from target.functions import builtin_func, partial_builtin_func
     from target.functions import func, partial_func
     from target.methods import Base
 
-    assert inspect.isfunction(func) is True                     # function
-    assert inspect.isfunction(partial_func) is True             # partial-ed function
-    assert inspect.isfunction(Base.meth) is True                # method of class
-    assert inspect.isfunction(Base.partialmeth) is True         # partial-ed method of class
-    assert inspect.isfunction(Base().meth) is False             # method of instance
-    assert inspect.isfunction(builtin_func) is False            # builtin function
-    assert inspect.isfunction(partial_builtin_func) is False    # partial-ed builtin function
+    assert inspect.isfunction(func) is True  # function
+    assert inspect.isfunction(partial_func) is True  # partial-ed function
+    assert inspect.isfunction(Base.meth) is True  # method of class
+    assert inspect.isfunction(Base.partialmeth) is True  # partial-ed method of class
+    assert inspect.isfunction(Base().meth) is False  # method of instance
+    assert inspect.isfunction(builtin_func) is False  # builtin function
+    assert (
+        inspect.isfunction(partial_builtin_func) is False
+    )  # partial-ed builtin function
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot="ext-autodoc")
 def test_isbuiltin(app):
     from target.functions import builtin_func, partial_builtin_func
     from target.functions import func, partial_func
     from target.methods import Base
 
-    assert inspect.isbuiltin(builtin_func) is True          # builtin function
-    assert inspect.isbuiltin(partial_builtin_func) is True  # partial-ed builtin function
-    assert inspect.isbuiltin(func) is False                 # function
-    assert inspect.isbuiltin(partial_func) is False         # partial-ed function
-    assert inspect.isbuiltin(Base.meth) is False            # method of class
-    assert inspect.isbuiltin(Base().meth) is False          # method of instance
+    assert inspect.isbuiltin(builtin_func) is True  # builtin function
+    assert (
+        inspect.isbuiltin(partial_builtin_func) is True
+    )  # partial-ed builtin function
+    assert inspect.isbuiltin(func) is False  # function
+    assert inspect.isbuiltin(partial_func) is False  # partial-ed function
+    assert inspect.isbuiltin(Base.meth) is False  # method of class
+    assert inspect.isbuiltin(Base().meth) is False  # method of instance
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot="ext-autodoc")
 def test_isdescriptor(app):
     from target.functions import func
     from target.methods import Base
 
-    assert inspect.isdescriptor(Base.prop) is True      # property of class
-    assert inspect.isdescriptor(Base().prop) is False   # property of instance
-    assert inspect.isdescriptor(Base.meth) is True      # method of class
-    assert inspect.isdescriptor(Base().meth) is True    # method of instance
-    assert inspect.isdescriptor(func) is True           # function
+    assert inspect.isdescriptor(Base.prop) is True  # property of class
+    assert inspect.isdescriptor(Base().prop) is False  # property of instance
+    assert inspect.isdescriptor(Base.meth) is True  # method of class
+    assert inspect.isdescriptor(Base().meth) is True  # method of instance
+    assert inspect.isdescriptor(func) is True  # function
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot="ext-autodoc")
 def test_isattributedescriptor(app):
     from target.methods import Base
 
@@ -577,32 +618,46 @@ def test_isattributedescriptor(app):
 
     testinstancemethod = _testcapi.instancemethod(str.__repr__)
 
-    assert inspect.isattributedescriptor(Base.prop) is True                    # property
-    assert inspect.isattributedescriptor(Base.meth) is False                   # method
-    assert inspect.isattributedescriptor(Base.staticmeth) is False             # staticmethod
-    assert inspect.isattributedescriptor(Base.classmeth) is False              # classmetho
-    assert inspect.isattributedescriptor(Descriptor) is False                  # custom descriptor class    # NOQA
-    assert inspect.isattributedescriptor(str.join) is False                    # MethodDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(object.__init__) is False             # WrapperDescriptorType      # NOQA
-    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType  # NOQA
-    assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(testinstancemethod) is False          # instancemethod (C-API)     # NOQA
+    assert inspect.isattributedescriptor(Base.prop) is True  # property
+    assert inspect.isattributedescriptor(Base.meth) is False  # method
+    assert inspect.isattributedescriptor(Base.staticmeth) is False  # staticmethod
+    assert inspect.isattributedescriptor(Base.classmeth) is False  # classmetho
+    assert (
+        inspect.isattributedescriptor(Descriptor) is False
+    )  # custom descriptor class    # NOQA
+    assert (
+        inspect.isattributedescriptor(str.join) is False
+    )  # MethodDescriptorType       # NOQA
+    assert (
+        inspect.isattributedescriptor(object.__init__) is False
+    )  # WrapperDescriptorType      # NOQA
+    assert (
+        inspect.isattributedescriptor(dict.__dict__["fromkeys"]) is False
+    )  # ClassMethodDescriptorType  # NOQA
+    assert (
+        inspect.isattributedescriptor(types.FrameType.f_locals) is True
+    )  # GetSetDescriptorType       # NOQA
+    assert (
+        inspect.isattributedescriptor(datetime.timedelta.days) is True
+    )  # MemberDescriptorType       # NOQA
+    assert (
+        inspect.isattributedescriptor(testinstancemethod) is False
+    )  # instancemethod (C-API)     # NOQA
 
 
 def test_isproperty(app):
     from target.functions import func
     from target.methods import Base
 
-    assert inspect.isproperty(Base.prop) is True        # property of class
-    assert inspect.isproperty(Base().prop) is False     # property of instance
-    assert inspect.isproperty(Base.meth) is False       # method of class
-    assert inspect.isproperty(Base().meth) is False     # method of instance
-    assert inspect.isproperty(func) is False            # function
+    assert inspect.isproperty(Base.prop) is True  # property of class
+    assert inspect.isproperty(Base().prop) is False  # property of instance
+    assert inspect.isproperty(Base.meth) is False  # method of class
+    assert inspect.isproperty(Base().meth) is False  # method of instance
+    assert inspect.isproperty(func) is False  # function
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
-@pytest.mark.sphinx(testroot='ext-autodoc')
+@pytest.mark.skipif(sys.version_info < (3, 7), reason="python 3.7+ is required.")
+@pytest.mark.sphinx(testroot="ext-autodoc")
 def test_isgenericalias(app):
     from target.genericalias import C, T
     from target.methods import Base
@@ -645,14 +700,16 @@ def test_is_builtin_class_method():
         def my_method(self):
             pass
 
-    assert inspect.is_builtin_class_method(MyInt, 'to_bytes')
-    assert inspect.is_builtin_class_method(MyInt, '__init__')
-    assert not inspect.is_builtin_class_method(MyInt, 'my_method')
-    assert not inspect.is_builtin_class_method(MyInt, 'does_not_exist')
-    assert not inspect.is_builtin_class_method(4, 'still does not crash')
+    assert inspect.is_builtin_class_method(MyInt, "to_bytes")
+    assert inspect.is_builtin_class_method(MyInt, "__init__")
+    assert not inspect.is_builtin_class_method(MyInt, "my_method")
+    assert not inspect.is_builtin_class_method(MyInt, "does_not_exist")
+    assert not inspect.is_builtin_class_method(4, "still does not crash")
 
     class ObjectWithMroAttr:
         def __init__(self, mro_attr):
             self.__mro__ = mro_attr
 
-    assert not inspect.is_builtin_class_method(ObjectWithMroAttr([1, 2, 3]), 'still does not crash')
+    assert not inspect.is_builtin_class_method(
+        ObjectWithMroAttr([1, 2, 3]), "still does not crash"
+    )

@@ -4,12 +4,14 @@ class A:
 
 class B:
     """B(foo, bar)"""
+
     def __init__(self):
         """B(foo, bar, baz)"""
 
 
 class C:
     """C(foo, bar)"""
+
     def __new__(cls):
         """C(foo, bar, baz)"""
 

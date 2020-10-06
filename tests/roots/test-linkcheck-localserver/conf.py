@@ -1,2 +1,2 @@
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 linkcheck_anchors = True

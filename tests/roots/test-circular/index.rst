@@ -1,4 +1,3 @@
 .. toctree::
 
    sub
-

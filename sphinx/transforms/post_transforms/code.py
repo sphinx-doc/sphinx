@@ -7,13 +7,17 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import sys
-from typing import Any, Dict, List, NamedTuple
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import NamedTuple
 
 from docutils import nodes
-from docutils.nodes import Node, TextElement
-from pygments.lexers import PythonConsoleLexer, guess_lexer
+from docutils.nodes import Node
+from docutils.nodes import TextElement
+from pygments.lexers import guess_lexer
+from pygments.lexers import PythonConsoleLexer
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
@@ -35,11 +39,13 @@ class HighlightLanguageTransform(SphinxTransform):
     :rst:dir:`highlightlang` directive.  After processing, this transform
     removes ``highlightlang`` node from doctree.
     """
+
     default_priority = 400
 
     def apply(self, **kwargs: Any) -> None:
-        visitor = HighlightLanguageVisitor(self.document,
-                                           self.config.highlight_language)
+        visitor = HighlightLanguageVisitor(
+            self.document, self.config.highlight_language
+        )
         self.document.walkabout(visitor)
 
         for node in self.document.traverse(addnodes.highlightlang):
@@ -71,18 +77,18 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
         self.settings.pop()
 
     def visit_highlightlang(self, node: addnodes.highlightlang) -> None:
-        self.settings[-1] = HighlightSetting(node['lang'],
-                                             node['force'],
-                                             node['linenothreshold'])
+        self.settings[-1] = HighlightSetting(
+            node["lang"], node["force"], node["linenothreshold"]
+        )
 
     def visit_literal_block(self, node: nodes.literal_block) -> None:
         setting = self.settings[-1]
-        if 'language' not in node:
-            node['language'] = setting.language
-            node['force'] = setting.force
-        if 'linenos' not in node:
-            lines = node.astext().count('\n')
-            node['linenos'] = (lines >= setting.lineno_threshold - 1)
+        if "language" not in node:
+            node["language"] = setting.language
+            node["force"] = setting.force
+        if "linenos" not in node:
+            lines = node.astext().count("\n")
+            node["linenos"] = lines >= setting.lineno_threshold - 1
 
 
 class TrimDoctestFlagsTransform(SphinxTransform):
@@ -91,23 +97,28 @@ class TrimDoctestFlagsTransform(SphinxTransform):
 
     see :confval:`trim_doctest_flags` for more information.
     """
+
     default_priority = HighlightLanguageTransform.default_priority + 1
 
     def apply(self, **kwargs: Any) -> None:
-        for lbnode in self.document.traverse(nodes.literal_block):  # type: nodes.literal_block
+        for lbnode in self.document.traverse(
+            nodes.literal_block
+        ):  # type: nodes.literal_block
             if self.is_pyconsole(lbnode):
                 self.strip_doctest_flags(lbnode)
 
-        for dbnode in self.document.traverse(nodes.doctest_block):  # type: nodes.doctest_block
+        for dbnode in self.document.traverse(
+            nodes.doctest_block
+        ):  # type: nodes.doctest_block
             self.strip_doctest_flags(dbnode)
 
     def strip_doctest_flags(self, node: TextElement) -> None:
-        if not node.get('trim_flags', self.config.trim_doctest_flags):
+        if not node.get("trim_flags", self.config.trim_doctest_flags):
             return
 
         source = node.rawsource
-        source = doctest.blankline_re.sub('', source)
-        source = doctest.doctestopt_re.sub('', source)
+        source = doctest.blankline_re.sub("", source)
+        source = doctest.doctestopt_re.sub("", source)
         node.rawsource = source
         node[:] = [nodes.Text(source)]
 
@@ -116,12 +127,12 @@ class TrimDoctestFlagsTransform(SphinxTransform):
         if node.rawsource != node.astext():
             return False  # skip parsed-literal node
 
-        language = node.get('language')
-        if language in ('pycon', 'pycon3'):
+        language = node.get("language")
+        if language in ("pycon", "pycon3"):
             return True
-        elif language in ('py', 'py3', 'python', 'python3', 'default'):
-            return node.rawsource.startswith('>>>')
-        elif language == 'guess':
+        elif language in ("py", "py3", "python", "python3", "default"):
+            return node.rawsource.startswith(">>>")
+        elif language == "guess":
             try:
                 lexer = guess_lexer(node.rawsource)
                 return isinstance(lexer, PythonConsoleLexer)
@@ -136,7 +147,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(TrimDoctestFlagsTransform)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

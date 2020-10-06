@@ -7,15 +7,16 @@
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 from typing import Dict
 
 import snowballstemmer
 
-from sphinx.search import SearchLanguage, parse_stop_word
+from sphinx.search import parse_stop_word
+from sphinx.search import SearchLanguage
 
 
-portuguese_stopwords = parse_stop_word('''
+portuguese_stopwords = parse_stop_word(
+    """
 | source: http://snowball.tartarus.org/algorithms/portuguese/stop.txt
 de             |  of, from
 a              |  the; to, at; her
@@ -252,7 +253,8 @@ terão
 teria
 teríamos
 teriam
-''')
+"""
+)
 
 js_stemmer = """
 
@@ -262,14 +264,14 @@ var Stemmer = JSX.require("src/portuguese-stemmer.jsx").PortugueseStemmer;
 
 
 class SearchPortuguese(SearchLanguage):
-    lang = 'pt'
-    language_name = 'Portuguese'
-    js_stemmer_rawcode = 'portuguese-stemmer.js'
+    lang = "pt"
+    language_name = "Portuguese"
+    js_stemmer_rawcode = "portuguese-stemmer.js"
     js_stemmer_code = js_stemmer
     stopwords = portuguese_stopwords
 
     def init(self, options: Dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('portuguese')
+        self.stemmer = snowballstemmer.stemmer("portuguese")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

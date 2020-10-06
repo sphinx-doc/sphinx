@@ -13,37 +13,46 @@ import re
 import sys
 import warnings
 from io import StringIO
-from typing import Any, Dict, Generator, IO, List, Pattern
+from typing import Any
+from typing import Dict
+from typing import Generator
+from typing import IO
+from typing import List
+from typing import Pattern
 from xml.etree import ElementTree
 
 from docutils import nodes
 from docutils.nodes import Node
-from docutils.parsers.rst import directives, roles
+from docutils.parsers.rst import directives
+from docutils.parsers.rst import roles
 
-from sphinx import application, locale
+from sphinx import application
+from sphinx import locale
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
 
 
 __all__ = [
-    'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
+    "Struct",
+    "SphinxTestApp",
+    "SphinxTestAppWrapperForSkipBuilding",
 ]
 
 
 def assert_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
     if not re.search(regex, text, flags):
-        assert False, '%r did not match %r' % (regex, text)
+        assert False, f"{regex!r} did not match {text!r}"
 
 
 def assert_not_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
     if re.search(regex, text, flags):
-        assert False, '%r did match %r' % (regex, text)
+        assert False, f"{regex!r} did match {text!r}"
 
 
 def assert_startswith(thing: str, prefix: str) -> None:
     if not thing.startswith(prefix):
-        assert False, '%r does not start with %r' % (thing, prefix)
+        assert False, f"{thing!r} does not start with {prefix!r}"
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -54,34 +63,45 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 if isinstance(cls[1], tuple):
                     assert_node(node, cls[1], xpath=xpath, **kwargs)
                 else:
-                    assert isinstance(node, nodes.Element), \
-                        'The node%s does not have any children' % xpath
-                    assert len(node) == 1, \
-                        'The node%s has %d child nodes, not one' % (xpath, len(node))
+                    assert isinstance(node, nodes.Element), (
+                        "The node%s does not have any children" % xpath
+                    )
+                    assert len(node) == 1, "The node%s has %d child nodes, not one" % (
+                        xpath,
+                        len(node),
+                    )
                     assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
         elif isinstance(cls, tuple):
-            assert isinstance(node, (list, nodes.Element)), \
-                'The node%s does not have any items' % xpath
-            assert len(node) == len(cls), \
-                'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
+            assert isinstance(node, (list, nodes.Element)), (
+                "The node%s does not have any items" % xpath
+            )
+            assert len(node) == len(cls), "The node%s has %d child nodes, not %r" % (
+                xpath,
+                len(node),
+                len(cls),
+            )
             for i, nodecls in enumerate(cls):
                 path = xpath + "[%d]" % i
                 assert_node(node[i], nodecls, xpath=path, **kwargs)
         elif isinstance(cls, str):
-            assert node == cls, 'The node %r is not %r: %r' % (xpath, cls, node)
+            assert node == cls, f"The node {xpath!r} is not {cls!r}: {node!r}"
         else:
-            assert isinstance(node, cls), \
-                'The node%s is not subclass of %r: %r' % (xpath, cls, node)
+            assert isinstance(
+                node, cls
+            ), f"The node{xpath} is not subclass of {cls!r}: {node!r}"
 
     if kwargs:
-        assert isinstance(node, nodes.Element), \
-            'The node%s does not have any attributes' % xpath
+        assert isinstance(node, nodes.Element), (
+            "The node%s does not have any attributes" % xpath
+        )
 
         for key, value in kwargs.items():
-            assert key in node, \
-                'The node%s does not have %r attribute: %r' % (xpath, key, node)
-            assert node[key] == value, \
-                'The node%s[%s] is not %r: %r' % (xpath, key, value, node[key])
+            assert (
+                key in node
+            ), f"The node{xpath} does not have {key!r} attribute: {node!r}"
+            assert node[key] == value, "The node{}[{}] is not {!r}: {!r}".format(
+                xpath, key, value, node[key]
+            )
 
 
 def etree_parse(path: str) -> Any:
@@ -100,21 +120,31 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
+
     _status = None  # type: StringIO
     _warning = None  # type: StringIO
 
-    def __init__(self, buildername: str = 'html', srcdir: path = None, freshenv: bool = False,
-                 confoverrides: Dict = None, status: IO = None, warning: IO = None,
-                 tags: List[str] = None, docutilsconf: str = None, parallel: int = 0) -> None:
+    def __init__(
+        self,
+        buildername: str = "html",
+        srcdir: path = None,
+        freshenv: bool = False,
+        confoverrides: Dict = None,
+        status: IO = None,
+        warning: IO = None,
+        tags: List[str] = None,
+        docutilsconf: str = None,
+        parallel: int = 0,
+    ) -> None:
 
         if docutilsconf is not None:
-            (srcdir / 'docutils.conf').write_text(docutilsconf)
+            (srcdir / "docutils.conf").write_text(docutilsconf)
 
-        builddir = srcdir / '_build'
+        builddir = srcdir / "_build"
         confdir = srcdir
         outdir = builddir.joinpath(buildername)
         outdir.makedirs(exist_ok=True)
-        doctreedir = builddir.joinpath('doctrees')
+        doctreedir = builddir.joinpath("doctrees")
         doctreedir.makedirs(exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
@@ -124,13 +154,25 @@ class SphinxTestApp(application.Sphinx):
         self._saved_directives = directives._directives.copy()  # type: ignore
         self._saved_roles = roles._roles.copy()  # type: ignore
 
-        self._saved_nodeclasses = {v for v in dir(nodes.GenericNodeVisitor)
-                                   if v.startswith('visit_')}
+        self._saved_nodeclasses = {
+            v for v in dir(nodes.GenericNodeVisitor) if v.startswith("visit_")
+        }
 
         try:
-            super().__init__(srcdir, confdir, outdir, doctreedir,
-                             buildername, confoverrides, status, warning,
-                             freshenv, warningiserror, tags, parallel=parallel)
+            super().__init__(
+                srcdir,
+                confdir,
+                outdir,
+                doctreedir,
+                buildername,
+                confoverrides,
+                status,
+                warning,
+                freshenv,
+                warningiserror,
+                tags,
+                parallel=parallel,
+            )
         except Exception:
             self.cleanup()
             raise
@@ -139,17 +181,16 @@ class SphinxTestApp(application.Sphinx):
         ModuleAnalyzer.cache.clear()
         locale.translators.clear()
         sys.path[:] = self._saved_path
-        sys.modules.pop('autodoc_fodder', None)
+        sys.modules.pop("autodoc_fodder", None)
         directives._directives = self._saved_directives  # type: ignore
         roles._roles = self._saved_roles  # type: ignore
         for method in dir(nodes.GenericNodeVisitor):
-            if method.startswith('visit_') and \
-               method not in self._saved_nodeclasses:
-                delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
-                delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+            if method.startswith("visit_") and method not in self._saved_nodeclasses:
+                delattr(nodes.GenericNodeVisitor, "visit_" + method[6:])
+                delattr(nodes.GenericNodeVisitor, "depart_" + method[6:])
 
     def __repr__(self) -> str:
-        return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
+        return f"<{self.__class__.__name__} buildername={self.builder.name!r}>"
 
 
 class SphinxTestAppWrapperForSkipBuilding:
@@ -184,14 +225,16 @@ def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:
 
 
 def strip_escseq(text: str) -> str:
-    return re.sub('\x1b.*?m', '', text)
+    return re.sub("\x1b.*?m", "", text)
 
 
 def simple_decorator(f):
     """
     A simple decorator that does nothing, for tests to use.
     """
+
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
+
     return wrapper

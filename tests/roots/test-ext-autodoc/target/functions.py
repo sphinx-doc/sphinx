@@ -8,6 +8,7 @@ def func():
 async def coroutinefunc():
     pass
 
+
 partial_func = partial(func)
 partial_coroutinefunc = partial(coroutinefunc)
 

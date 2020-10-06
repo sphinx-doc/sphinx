@@ -7,14 +7,21 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import re
 import unicodedata
-from typing import Any, Callable, Iterable, List, Set, Tuple, Type
-from typing import TYPE_CHECKING, cast
+from typing import Any
+from typing import Callable
+from typing import cast
+from typing import Iterable
+from typing import List
+from typing import Set
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
+from docutils.nodes import Node
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import StringList
@@ -33,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 
 # \x00 means the "<" was backslash-escaped
-explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<([^<]*?)>$', re.DOTALL)
+explicit_title_re = re.compile(r"^(.+?)\s*(?<!\x00)<([^<]*?)>$", re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
@@ -96,7 +103,7 @@ def get_full_module_name(node: Node) -> str:
     :param nodes.Node node: target node
     :return: full module dotted path
     """
-    return '{}.{}'.format(node.__module__, node.__class__.__name__)
+    return f"{node.__module__}.{node.__class__.__name__}"
 
 
 def repr_domxml(node: Node, length: int = 80) -> str:
@@ -115,7 +122,7 @@ def repr_domxml(node: Node, length: int = 80) -> str:
     except Exception:
         text = str(node)
     if length and len(text) > length:
-        text = text[:length] + '...'
+        text = text[:length] + "..."
     return text
 
 
@@ -126,8 +133,11 @@ def apply_source_workaround(node: Element) -> None:
     # * rawsource of term node will have: ``term text : classifier1 : classifier2``
     # * rawsource of classifier node will be None
     if isinstance(node, nodes.classifier) and not node.rawsource:
-        logger.debug('[i18n] PATCH: %r to have source, line and rawsource: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        logger.debug(
+            "[i18n] PATCH: %r to have source, line and rawsource: %s",
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         definition_list_item = node.parent
         node.source = definition_list_item.source
         node.line = definition_list_item.line - 1
@@ -136,20 +146,30 @@ def apply_source_workaround(node: Element) -> None:
         # docutils-0.15 fills in rawsource attribute, but not in source.
         node.source = node.parent.source
     if isinstance(node, nodes.image) and node.source is None:
-        logger.debug('[i18n] PATCH: %r to have source, line: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        logger.debug(
+            "[i18n] PATCH: %r to have source, line: %s",
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.title) and node.source is None:
-        logger.debug('[i18n] PATCH: %r to have source: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        logger.debug(
+            "[i18n] PATCH: %r to have source: %s",
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.term):
-        logger.debug('[i18n] PATCH: %r to have rawsource: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        logger.debug(
+            "[i18n] PATCH: %r to have rawsource: %s",
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         # strip classifier from rawsource of term
         for classifier in reversed(list(node.parent.traverse(nodes.classifier))):
-            node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
-                                    '', node.rawsource)
+            node.rawsource = re.sub(
+                r"\s*:\s*%s" % re.escape(classifier.astext()), "", node.rawsource
+            )
 
     # workaround: literal_block under bullet list (#4913)
     if isinstance(node, nodes.literal_block) and node.source is None:
@@ -163,14 +183,20 @@ def apply_source_workaround(node: Element) -> None:
         return
 
     # workaround: some docutils nodes doesn't have source, line.
-    if (isinstance(node, (
+    if isinstance(
+        node,
+        (
             nodes.rubric,  # #1305 rubric directive
             nodes.line,  # #1477 line node
             nodes.image,  # #3093 image directive in substitution
             nodes.field_name,  # #3335 field list syntax
-    ))):
-        logger.debug('[i18n] PATCH: %r to have source and line: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        ),
+    ):
+        logger.debug(
+            "[i18n] PATCH: %r to have source and line: %s",
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         node.source = get_node_source(node)
         node.line = 0  # need fix docutils to get `node.line`
         return
@@ -186,8 +212,9 @@ IGNORED_NODES = (
 
 
 def is_pending_meta(node: Node) -> bool:
-    if (isinstance(node, nodes.pending) and
-       isinstance(node.details.get('nodes', [None])[0], addnodes.meta)):
+    if isinstance(node, nodes.pending) and isinstance(
+        node.details.get("nodes", [None])[0], addnodes.meta
+    ):
         return True
     else:
         return False
@@ -198,33 +225,45 @@ def is_translatable(node: Node) -> bool:
         return True
 
     # image node marked as translatable or having alt text
-    if isinstance(node, nodes.image) and (node.get('translatable') or node.get('alt')):
+    if isinstance(node, nodes.image) and (node.get("translatable") or node.get("alt")):
         return True
 
-    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore
+    if isinstance(node, nodes.Inline) and "translatable" not in node:  # type: ignore
         # inline node must not be translated if 'translatable' is not set
         return False
 
     if isinstance(node, nodes.TextElement):
         if not node.source:
-            logger.debug('[i18n] SKIP %r because no node.source: %s',
-                         get_full_module_name(node), repr_domxml(node))
+            logger.debug(
+                "[i18n] SKIP %r because no node.source: %s",
+                get_full_module_name(node),
+                repr_domxml(node),
+            )
             return False  # built-in message
-        if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
-            logger.debug("[i18n] SKIP %r because node is in IGNORED_NODES "
-                         "and no node['translatable']: %s",
-                         get_full_module_name(node), repr_domxml(node))
+        if isinstance(node, IGNORED_NODES) and "translatable" not in node:
+            logger.debug(
+                "[i18n] SKIP %r because node is in IGNORED_NODES "
+                "and no node['translatable']: %s",
+                get_full_module_name(node),
+                repr_domxml(node),
+            )
             return False
-        if not node.get('translatable', True):
+        if not node.get("translatable", True):
             # not(node['translatable'] == True or node['translatable'] is None)
-            logger.debug("[i18n] SKIP %r because not node['translatable']: %s",
-                         get_full_module_name(node), repr_domxml(node))
+            logger.debug(
+                "[i18n] SKIP %r because not node['translatable']: %s",
+                get_full_module_name(node),
+                repr_domxml(node),
+            )
             return False
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
-        if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
-            logger.debug('[i18n] SKIP %r because orphan node: %s',
-                         get_full_module_name(node), repr_domxml(node))
+        if isinstance(node, nodes.field_name) and node.children[0] == "orphan":
+            logger.debug(
+                "[i18n] SKIP %r because orphan node: %s",
+                get_full_module_name(node),
+                repr_domxml(node),
+            )
             return False
         return True
 
@@ -242,12 +281,8 @@ LITERAL_TYPE_NODES = (
     nodes.math_block,
     nodes.raw,
 )
-IMAGE_TYPE_NODES = (
-    nodes.image,
-)
-META_TYPE_NODES = (
-    addnodes.meta,
-)
+IMAGE_TYPE_NODES = (nodes.image,)
+META_TYPE_NODES = (addnodes.meta,)
 
 
 def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
@@ -262,18 +297,18 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
             if not msg:
                 msg = node.astext()
         elif isinstance(node, nodes.image):
-            if node.get('alt'):
-                yield node, node['alt']
-            if node.get('translatable'):
-                msg = '.. image:: %s' % node['uri']
+            if node.get("alt"):
+                yield node, node["alt"]
+            if node.get("translatable"):
+                msg = ".. image:: %s" % node["uri"]
             else:
                 msg = None
         elif isinstance(node, META_TYPE_NODES):
             msg = node.rawcontent
         elif isinstance(node, nodes.pending) and is_pending_meta(node):
-            msg = node.details['nodes'][0].rawcontent
+            msg = node.details["nodes"][0].rawcontent
         else:
-            msg = node.rawsource.replace('\n', ' ').strip()
+            msg = node.rawsource.replace("\n", " ").strip()
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
@@ -309,13 +344,17 @@ def get_prev_node(node: Node) -> Node:
         return None
 
 
-def traverse_translatable_index(doctree: Element) -> Iterable[Tuple[Element, List["IndexEntry"]]]:  # NOQA
+def traverse_translatable_index(
+    doctree: Element,
+) -> Iterable[Tuple[Element, List["IndexEntry"]]]:  # NOQA
     """Traverse translatable index node from a document tree."""
-    for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):  # type: addnodes.index  # NOQA
-        if 'raw_entries' in node:
-            entries = node['raw_entries']
+    for node in doctree.traverse(
+        NodeMatcher(addnodes.index, inline=False)
+    ):  # type: addnodes.index  # NOQA
+        if "raw_entries" in node:
+            entries = node["raw_entries"]
         else:
-            entries = node['entries']
+            entries = node["entries"]
         yield node, entries
 
 
@@ -342,7 +381,7 @@ def clean_astext(node: Element) -> str:
     """Like node.astext(), but ignore images."""
     node = node.deepcopy()
     for img in node.traverse(nodes.image):
-        img['alt'] = ''
+        img["alt"] = ""
     for raw in node.traverse(nodes.raw):
         raw.parent.remove(raw)
     return node.astext()
@@ -357,51 +396,63 @@ def split_explicit_title(text: str) -> Tuple[bool, str, str]:
 
 
 indextypes = [
-    'single', 'pair', 'double', 'triple', 'see', 'seealso',
+    "single",
+    "pair",
+    "double",
+    "triple",
+    "see",
+    "seealso",
 ]
 
 
-def process_index_entry(entry: str, targetid: str) -> List[Tuple[str, str, str, str, str]]:
+def process_index_entry(
+    entry: str, targetid: str
+) -> List[Tuple[str, str, str, str, str]]:
     from sphinx.domains.python import pairindextypes
 
     indexentries = []  # type: List[Tuple[str, str, str, str, str]]
     entry = entry.strip()
     oentry = entry
-    main = ''
-    if entry.startswith('!'):
-        main = 'main'
+    main = ""
+    if entry.startswith("!"):
+        main = "main"
         entry = entry[1:].lstrip()
     for type in pairindextypes:
-        if entry.startswith(type + ':'):
-            value = entry[len(type) + 1:].strip()
-            value = pairindextypes[type] + '; ' + value
-            indexentries.append(('pair', value, targetid, main, None))
+        if entry.startswith(type + ":"):
+            value = entry[len(type) + 1 :].strip()
+            value = pairindextypes[type] + "; " + value
+            indexentries.append(("pair", value, targetid, main, None))
             break
     else:
         for type in indextypes:
-            if entry.startswith(type + ':'):
-                value = entry[len(type) + 1:].strip()
-                if type == 'double':
-                    type = 'pair'
+            if entry.startswith(type + ":"):
+                value = entry[len(type) + 1 :].strip()
+                if type == "double":
+                    type = "pair"
                 indexentries.append((type, value, targetid, main, None))
                 break
         # shorthand notation for single entries
         else:
-            for value in oentry.split(','):
+            for value in oentry.split(","):
                 value = value.strip()
-                main = ''
-                if value.startswith('!'):
-                    main = 'main'
+                main = ""
+                if value.startswith("!"):
+                    main = "main"
                     value = value[1:].lstrip()
                 if not value:
                     continue
-                indexentries.append(('single', value, targetid, main, None))
+                indexentries.append(("single", value, targetid, main, None))
     return indexentries
 
 
-def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
-                        tree: nodes.document, colorfunc: Callable, traversed: List[str]
-                        ) -> nodes.document:
+def inline_all_toctrees(
+    builder: "Builder",
+    docnameset: Set[str],
+    docname: str,
+    tree: nodes.document,
+    colorfunc: Callable,
+    traversed: List[str],
+) -> nodes.document:
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -409,25 +460,33 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
     tree = cast(nodes.document, tree.deepcopy())
     for toctreenode in tree.traverse(addnodes.toctree):
         newnodes = []
-        includefiles = map(str, toctreenode['includefiles'])
+        includefiles = map(str, toctreenode["includefiles"])
         for includefile in includefiles:
             if includefile not in traversed:
                 try:
                     traversed.append(includefile)
                     logger.info(colorfunc(includefile) + " ", nonl=True)
-                    subtree = inline_all_toctrees(builder, docnameset, includefile,
-                                                  builder.env.get_doctree(includefile),
-                                                  colorfunc, traversed)
+                    subtree = inline_all_toctrees(
+                        builder,
+                        docnameset,
+                        includefile,
+                        builder.env.get_doctree(includefile),
+                        colorfunc,
+                        traversed,
+                    )
                     docnameset.add(includefile)
                 except Exception:
-                    logger.warning(__('toctree contains ref to nonexisting file %r'),
-                                   includefile, location=docname)
+                    logger.warning(
+                        __("toctree contains ref to nonexisting file %r"),
+                        includefile,
+                        location=docname,
+                    )
                 else:
                     sof = addnodes.start_of_file(docname=includefile)
                     sof.children = subtree.children
                     for sectionnode in sof.traverse(nodes.section):
-                        if 'docname' not in sectionnode:
-                            sectionnode['docname'] = includefile
+                        if "docname" not in sectionnode:
+                            sectionnode["docname"] = includefile
                     newnodes.append(sof)
         toctreenode.parent.replace(toctreenode, newnodes)
     return tree
@@ -453,61 +512,65 @@ def _make_id(string: str) -> str:
     id = id.translate(_non_id_translate)
     # get rid of non-ascii characters.
     # 'ascii' lowercase to prevent problems with turkish locale.
-    id = unicodedata.normalize('NFKD', id).encode('ascii', 'ignore').decode('ascii')
+    id = unicodedata.normalize("NFKD", id).encode("ascii", "ignore").decode("ascii")
     # shrink runs of whitespace and replace by hyphen
-    id = _non_id_chars.sub('-', ' '.join(id.split()))
-    id = _non_id_at_ends.sub('', id)
+    id = _non_id_chars.sub("-", " ".join(id.split()))
+    id = _non_id_at_ends.sub("", id)
     return str(id)
 
 
-_non_id_chars = re.compile('[^a-zA-Z0-9._]+')
-_non_id_at_ends = re.compile('^[-0-9._]+|-+$')
+_non_id_chars = re.compile("[^a-zA-Z0-9._]+")
+_non_id_at_ends = re.compile("^[-0-9._]+|-+$")
 _non_id_translate = {
-    0x00f8: u'o',       # o with stroke
-    0x0111: u'd',       # d with stroke
-    0x0127: u'h',       # h with stroke
-    0x0131: u'i',       # dotless i
-    0x0142: u'l',       # l with stroke
-    0x0167: u't',       # t with stroke
-    0x0180: u'b',       # b with stroke
-    0x0183: u'b',       # b with topbar
-    0x0188: u'c',       # c with hook
-    0x018c: u'd',       # d with topbar
-    0x0192: u'f',       # f with hook
-    0x0199: u'k',       # k with hook
-    0x019a: u'l',       # l with bar
-    0x019e: u'n',       # n with long right leg
-    0x01a5: u'p',       # p with hook
-    0x01ab: u't',       # t with palatal hook
-    0x01ad: u't',       # t with hook
-    0x01b4: u'y',       # y with hook
-    0x01b6: u'z',       # z with stroke
-    0x01e5: u'g',       # g with stroke
-    0x0225: u'z',       # z with hook
-    0x0234: u'l',       # l with curl
-    0x0235: u'n',       # n with curl
-    0x0236: u't',       # t with curl
-    0x0237: u'j',       # dotless j
-    0x023c: u'c',       # c with stroke
-    0x023f: u's',       # s with swash tail
-    0x0240: u'z',       # z with swash tail
-    0x0247: u'e',       # e with stroke
-    0x0249: u'j',       # j with stroke
-    0x024b: u'q',       # q with hook tail
-    0x024d: u'r',       # r with stroke
-    0x024f: u'y',       # y with stroke
+    0x00F8: "o",  # o with stroke
+    0x0111: "d",  # d with stroke
+    0x0127: "h",  # h with stroke
+    0x0131: "i",  # dotless i
+    0x0142: "l",  # l with stroke
+    0x0167: "t",  # t with stroke
+    0x0180: "b",  # b with stroke
+    0x0183: "b",  # b with topbar
+    0x0188: "c",  # c with hook
+    0x018C: "d",  # d with topbar
+    0x0192: "f",  # f with hook
+    0x0199: "k",  # k with hook
+    0x019A: "l",  # l with bar
+    0x019E: "n",  # n with long right leg
+    0x01A5: "p",  # p with hook
+    0x01AB: "t",  # t with palatal hook
+    0x01AD: "t",  # t with hook
+    0x01B4: "y",  # y with hook
+    0x01B6: "z",  # z with stroke
+    0x01E5: "g",  # g with stroke
+    0x0225: "z",  # z with hook
+    0x0234: "l",  # l with curl
+    0x0235: "n",  # n with curl
+    0x0236: "t",  # t with curl
+    0x0237: "j",  # dotless j
+    0x023C: "c",  # c with stroke
+    0x023F: "s",  # s with swash tail
+    0x0240: "z",  # z with swash tail
+    0x0247: "e",  # e with stroke
+    0x0249: "j",  # j with stroke
+    0x024B: "q",  # q with hook tail
+    0x024D: "r",  # r with stroke
+    0x024F: "y",  # y with stroke
 }
 _non_id_translate_digraphs = {
-    0x00df: u'sz',      # ligature sz
-    0x00e6: u'ae',      # ae
-    0x0153: u'oe',      # ligature oe
-    0x0238: u'db',      # db digraph
-    0x0239: u'qp',      # qp digraph
+    0x00DF: "sz",  # ligature sz
+    0x00E6: "ae",  # ae
+    0x0153: "oe",  # ligature oe
+    0x0238: "db",  # db digraph
+    0x0239: "qp",  # qp digraph
 }
 
 
-def make_id(env: "BuildEnvironment", document: nodes.document,
-            prefix: str = '', term: str = None) -> str:
+def make_id(
+    env: "BuildEnvironment",
+    document: nodes.document,
+    prefix: str = "",
+    term: str = None,
+) -> str:
     """Generate an appropriate node_id for given *prefix* and *term*."""
     node_id = None
     if prefix:
@@ -523,7 +586,7 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
             node_id = None
     elif term:
         node_id = _make_id(term)
-        if node_id == '':
+        if node_id == "":
             node_id = None  # fallback to None
 
     while node_id is None or node_id in document.ids:
@@ -532,27 +595,35 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
     return node_id
 
 
-def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
-                 child: Node, title: str = None) -> nodes.reference:
+def make_refnode(
+    builder: "Builder",
+    fromdocname: str,
+    todocname: str,
+    targetid: str,
+    child: Node,
+    title: str = None,
+) -> nodes.reference:
     """Shortcut to create a reference node."""
-    node = nodes.reference('', '', internal=True)
+    node = nodes.reference("", "", internal=True)
     if fromdocname == todocname and targetid:
-        node['refid'] = targetid
+        node["refid"] = targetid
     else:
         if targetid:
-            node['refuri'] = (builder.get_relative_uri(fromdocname, todocname) +
-                              '#' + targetid)
+            node["refuri"] = (
+                builder.get_relative_uri(fromdocname, todocname) + "#" + targetid
+            )
         else:
-            node['refuri'] = builder.get_relative_uri(fromdocname, todocname)
+            node["refuri"] = builder.get_relative_uri(fromdocname, todocname)
     if title:
-        node['reftitle'] = title
+        node["reftitle"] = title
     node.append(child)
     return node
 
 
 def set_source_info(directive: Directive, node: Node) -> None:
-    node.source, node.line = \
-        directive.state_machine.get_source_and_line(directive.lineno)
+    node.source, node.line = directive.state_machine.get_source_and_line(
+        directive.lineno
+    )
 
 
 def set_role_source_info(inliner: Inliner, lineno: int, node: Node) -> None:
@@ -579,9 +650,9 @@ def is_smartquotable(node: Node) -> bool:
     """Check the node is smart-quotable or not."""
     if isinstance(node.parent, NON_SMARTQUOTABLE_PARENT_NODES):
         return False
-    elif node.parent.get('support_smartquotes', None) is False:
+    elif node.parent.get("support_smartquotes", None) is False:
         return False
-    elif getattr(node, 'support_smartquotes', None) is False:
+    elif getattr(node, "support_smartquotes", None) is False:
         return False
     else:
         return True
@@ -591,10 +662,13 @@ def process_only_nodes(document: Node, tags: "Tags") -> None:
     """Filter ``only`` nodes which does not match *tags*."""
     for node in document.traverse(addnodes.only):
         try:
-            ret = tags.eval_condition(node['expr'])
+            ret = tags.eval_condition(node["expr"])
         except Exception as err:
-            logger.warning(__('exception while evaluating only directive expression: %s'), err,
-                           location=node)
+            logger.warning(
+                __("exception while evaluating only directive expression: %s"),
+                err,
+                location=node,
+            )
             node.replace_self(node.children or nodes.comment())
         else:
             if ret:

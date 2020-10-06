@@ -7,13 +7,13 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 from typing import Dict
 
 from sphinx.search import SearchLanguage
 from sphinx.util.stemmer import get_stemmer
 
-english_stopwords = set("""
+english_stopwords = set(
+    """
 a  and  are  as  at
 be  but  by
 for
@@ -23,7 +23,8 @@ of  on  or
 such
 that  the  their  then  there  these  they  this  to
 was  will  with
-""".split())
+""".split()
+)
 
 js_porter_stemmer = """
 /**
@@ -213,8 +214,8 @@ iti|ous|ive|ize)$/;
 
 
 class SearchEnglish(SearchLanguage):
-    lang = 'en'
-    language_name = 'English'
+    lang = "en"
+    language_name = "English"
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
 

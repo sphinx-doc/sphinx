@@ -24,10 +24,11 @@
     See the LICENSE file and the original docutils code for details.
 
 """
-
 import re
 import warnings
-from typing import Generator, Iterable, Tuple
+from typing import Generator
+from typing import Iterable
+from typing import Tuple
 
 from docutils.utils import smartquotes
 
@@ -35,101 +36,101 @@ from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.util.docutils import __version_info__ as docutils_version
 
 
-warnings.warn('sphinx.util.smartypants is deprecated.',
-              RemovedInSphinx60Warning)
+warnings.warn("sphinx.util.smartypants is deprecated.", RemovedInSphinx60Warning)
 
 
-langquotes = {'af':           '“”‘’',
-              'af-x-altquot': '„”‚’',
-              'bg':           '„“‚‘',  # Bulgarian, https://bg.wikipedia.org/wiki/Кавички
-              'ca':           '«»“”',
-              'ca-x-altquot': '“”‘’',
-              'cs':           '„“‚‘',
-              'cs-x-altquot': '»«›‹',
-              'da':           '»«›‹',
-              'da-x-altquot': '„“‚‘',
-              # 'da-x-altquot2': '””’’',
-              'de':           '„“‚‘',
-              'de-x-altquot': '»«›‹',
-              'de-ch':        '«»‹›',
-              'el':           '«»“”',
-              'en':           '“”‘’',
-              'en-uk-x-altquot': '‘’“”',  # Attention: " → ‘ and ' → “ !
-              'eo':           '“”‘’',
-              'es':           '«»“”',
-              'es-x-altquot': '“”‘’',
-              'et':           '„“‚‘',  # no secondary quote listed in
-              'et-x-altquot': '«»‹›',  # the sources above (wikipedia.org)
-              'eu':           '«»‹›',
-              'fi':           '””’’',
-              'fi-x-altquot': '»»››',
-              'fr':           ('« ', ' »', '“', '”'),  # full no-break space
-              'fr-x-altquot': ('« ', ' »', '“', '”'),  # narrow no-break space
-              'fr-ch':        '«»‹›',
-              'fr-ch-x-altquot': ('« ',  ' »', '‹ ', ' ›'),  # narrow no-break space
-              # http://typoguide.ch/
-              'gl':           '«»“”',
-              'he':           '”“»«',  # Hebrew is RTL, test position:
-              'he-x-altquot': '„”‚’',  # low quotation marks are opening.
-              # 'he-x-altquot': '“„‘‚',  # RTL: low quotation marks opening
-              'hr':           '„”‘’',  # https://hrvatska-tipografija.com/polunavodnici/
-              'hr-x-altquot': '»«›‹',
-              'hsb':          '„“‚‘',
-              'hsb-x-altquot': '»«›‹',
-              'hu':           '„”«»',
-              'is':           '„“‚‘',
-              'it':           '«»“”',
-              'it-ch':        '«»‹›',
-              'it-x-altquot': '“”‘’',
-              # 'it-x-altquot2': '“„‘‚',  # [7] in headlines
-              'ja':           '「」『』',
-              'lt':           '„“‚‘',
-              'lv':           '„“‚‘',
-              'mk':           '„“‚‘',  # Macedonian,
-              # https://mk.wikipedia.org/wiki/Правопис_и_правоговор_на_македонскиот_јазик
-              'nl':           '“”‘’',
-              'nl-x-altquot': '„”‚’',
-              # 'nl-x-altquot2': '””’’',
-              'nb':           '«»’’',  # Norsk bokmål (canonical form 'no')
-              'nn':           '«»’’',  # Nynorsk [10]
-              'nn-x-altquot': '«»‘’',  # [8], [10]
-              # 'nn-x-altquot2': '«»«»',  # [9], [10]
-              # 'nn-x-altquot3': '„“‚‘',  # [10]
-              'no':           '«»’’',  # Norsk bokmål [10]
-              'no-x-altquot': '«»‘’',  # [8], [10]
-              # 'no-x-altquot2': '«»«»',  # [9], [10]
-              # 'no-x-altquot3': '„“‚‘',  # [10]
-              'pl':           '„”«»',
-              'pl-x-altquot': '«»‚’',
-              # 'pl-x-altquot2': '„”‚’',
-              # https://pl.wikipedia.org/wiki/Cudzys%C5%82%C3%B3w
-              'pt':           '«»“”',
-              'pt-br':        '“”‘’',
-              'ro':           '„”«»',
-              'ru':           '«»„“',
-              'sh':           '„”‚’',  # Serbo-Croatian
-              'sh-x-altquot': '»«›‹',
-              'sk':           '„“‚‘',  # Slovak
-              'sk-x-altquot': '»«›‹',
-              'sl':           '„“‚‘',  # Slovenian
-              'sl-x-altquot': '»«›‹',
-              'sq':           '«»‹›',  # Albanian
-              'sq-x-altquot': '“„‘‚',
-              'sr':           '„”’’',
-              'sr-x-altquot': '»«›‹',
-              'sv':           '””’’',
-              'sv-x-altquot': '»»››',
-              'tr':           '“”‘’',
-              'tr-x-altquot': '«»‹›',
-              # 'tr-x-altquot2': '“„‘‚',  # [7] antiquated?
-              'uk':           '«»„“',
-              'uk-x-altquot': '„“‚‘',
-              'zh-cn':        '“”‘’',
-              'zh-tw':        '「」『』',
-              }
+langquotes = {
+    "af": "“”‘’",
+    "af-x-altquot": "„”‚’",
+    "bg": "„“‚‘",  # Bulgarian, https://bg.wikipedia.org/wiki/Кавички
+    "ca": "«»“”",
+    "ca-x-altquot": "“”‘’",
+    "cs": "„“‚‘",
+    "cs-x-altquot": "»«›‹",
+    "da": "»«›‹",
+    "da-x-altquot": "„“‚‘",
+    # 'da-x-altquot2': '””’’',
+    "de": "„“‚‘",
+    "de-x-altquot": "»«›‹",
+    "de-ch": "«»‹›",
+    "el": "«»“”",
+    "en": "“”‘’",
+    "en-uk-x-altquot": "‘’“”",  # Attention: " → ‘ and ' → “ !
+    "eo": "“”‘’",
+    "es": "«»“”",
+    "es-x-altquot": "“”‘’",
+    "et": "„“‚‘",  # no secondary quote listed in
+    "et-x-altquot": "«»‹›",  # the sources above (wikipedia.org)
+    "eu": "«»‹›",
+    "fi": "””’’",
+    "fi-x-altquot": "»»››",
+    "fr": ("« ", " »", "“", "”"),  # full no-break space
+    "fr-x-altquot": ("« ", " »", "“", "”"),  # narrow no-break space
+    "fr-ch": "«»‹›",
+    "fr-ch-x-altquot": ("« ", " »", "‹ ", " ›"),  # narrow no-break space
+    # http://typoguide.ch/
+    "gl": "«»“”",
+    "he": "”“»«",  # Hebrew is RTL, test position:
+    "he-x-altquot": "„”‚’",  # low quotation marks are opening.
+    # 'he-x-altquot': '“„‘‚',  # RTL: low quotation marks opening
+    "hr": "„”‘’",  # https://hrvatska-tipografija.com/polunavodnici/
+    "hr-x-altquot": "»«›‹",
+    "hsb": "„“‚‘",
+    "hsb-x-altquot": "»«›‹",
+    "hu": "„”«»",
+    "is": "„“‚‘",
+    "it": "«»“”",
+    "it-ch": "«»‹›",
+    "it-x-altquot": "“”‘’",
+    # 'it-x-altquot2': '“„‘‚',  # [7] in headlines
+    "ja": "「」『』",
+    "lt": "„“‚‘",
+    "lv": "„“‚‘",
+    "mk": "„“‚‘",  # Macedonian,
+    # https://mk.wikipedia.org/wiki/Правопис_и_правоговор_на_македонскиот_јазик
+    "nl": "“”‘’",
+    "nl-x-altquot": "„”‚’",
+    # 'nl-x-altquot2': '””’’',
+    "nb": "«»’’",  # Norsk bokmål (canonical form 'no')
+    "nn": "«»’’",  # Nynorsk [10]
+    "nn-x-altquot": "«»‘’",  # [8], [10]
+    # 'nn-x-altquot2': '«»«»',  # [9], [10]
+    # 'nn-x-altquot3': '„“‚‘',  # [10]
+    "no": "«»’’",  # Norsk bokmål [10]
+    "no-x-altquot": "«»‘’",  # [8], [10]
+    # 'no-x-altquot2': '«»«»',  # [9], [10]
+    # 'no-x-altquot3': '„“‚‘',  # [10]
+    "pl": "„”«»",
+    "pl-x-altquot": "«»‚’",
+    # 'pl-x-altquot2': '„”‚’',
+    # https://pl.wikipedia.org/wiki/Cudzys%C5%82%C3%B3w
+    "pt": "«»“”",
+    "pt-br": "“”‘’",
+    "ro": "„”«»",
+    "ru": "«»„“",
+    "sh": "„”‚’",  # Serbo-Croatian
+    "sh-x-altquot": "»«›‹",
+    "sk": "„“‚‘",  # Slovak
+    "sk-x-altquot": "»«›‹",
+    "sl": "„“‚‘",  # Slovenian
+    "sl-x-altquot": "»«›‹",
+    "sq": "«»‹›",  # Albanian
+    "sq-x-altquot": "“„‘‚",
+    "sr": "„”’’",
+    "sr-x-altquot": "»«›‹",
+    "sv": "””’’",
+    "sv-x-altquot": "»»››",
+    "tr": "“”‘’",
+    "tr-x-altquot": "«»‹›",
+    # 'tr-x-altquot2': '“„‘‚',  # [7] antiquated?
+    "uk": "«»„“",
+    "uk-x-altquot": "„“‚‘",
+    "zh-cn": "“”‘’",
+    "zh-tw": "「」『』",
+}
 
 
-def educateQuotes(text: str, language: str = 'en') -> str:
+def educateQuotes(text: str, language: str = "en") -> str:
     """
     Parameter:  - text string (unicode or bytes).
                 - language (`BCP 47` language tag.)
@@ -143,7 +144,7 @@ def educateQuotes(text: str, language: str = 'en') -> str:
     try:
         apostrophe = smart.apostrophe
     except Exception:
-        apostrophe = '’'
+        apostrophe = "’"
 
     # oldtext = text
     punct_class = r"""[!"#\$\%'()*+,-.\/:;<=>?\@\[\\\]\^_`{|}~]"""
@@ -151,8 +152,8 @@ def educateQuotes(text: str, language: str = 'en') -> str:
     # Special case if the very first character is a quote
     # followed by punctuation at a non-word-break.
     # Close the quotes by brute force:
-    text = re.sub(r"""^'(?=%s\\B)""" % (punct_class,), smart.csquote, text)
-    text = re.sub(r"""^"(?=%s\\B)""" % (punct_class,), smart.cpquote, text)
+    text = re.sub(fr"""^'(?={punct_class}\\B)""", smart.csquote, text)
+    text = re.sub(fr"""^"(?={punct_class}\\B)""", smart.cpquote, text)
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>
@@ -160,26 +161,31 @@ def educateQuotes(text: str, language: str = 'en') -> str:
     text = re.sub(r"""'"(?=\w)""", smart.osquote + smart.opquote, text)
 
     # Special case for decade abbreviations (the '80s):
-    if language.startswith('en'):  # TODO similar cases in other languages?
+    if language.startswith("en"):  # TODO similar cases in other languages?
         text = re.sub(r"""'(?=\d{2}s)""", apostrophe, text, flags=re.UNICODE)
 
     close_class = r"""[^\ \t\r\n\[\{\(\-]"""
     dec_dashes = r"""&#8211;|&#8212;"""
 
     # Get most opening single quotes:
-    opening_single_quotes_regex = re.compile(r"""
+    opening_single_quotes_regex = re.compile(
+        r"""
                     (
                             \s          |   # a whitespace char, or
                             &nbsp;      |   # a non-breaking space entity, or
                             --          |   # dashes, or
                             &[mn]dash;  |   # named dash entities
-                            %s          |   # or decimal entities
+                            {}          |   # or decimal entities
                             &\#x201[34];    # or hex
                     )
                     '                 # the quote
                     (?=\w)            # followed by a word character
-                    """ % (dec_dashes,), re.VERBOSE | re.UNICODE)
-    text = opening_single_quotes_regex.sub(r'\1' + smart.osquote, text)
+                    """.format(
+            dec_dashes
+        ),
+        re.VERBOSE | re.UNICODE,
+    )
+    text = opening_single_quotes_regex.sub(r"\1" + smart.osquote, text)
 
     # In many locales, single closing quotes are different from apostrophe:
     if smart.csquote != apostrophe:
@@ -188,54 +194,79 @@ def educateQuotes(text: str, language: str = 'en') -> str:
     # TODO: keep track of quoting level to recognize apostrophe in, e.g.,
     # "Ich fass' es nicht."
 
-    closing_single_quotes_regex = re.compile(r"""
-                    (%s)
+    closing_single_quotes_regex = re.compile(
+        r"""
+                    ({})
                     '
                     (?!\s  |       # whitespace
                        s\b |
                         \d         # digits   ('80s)
                     )
-                    """ % (close_class,), re.VERBOSE | re.UNICODE)
-    text = closing_single_quotes_regex.sub(r'\1' + smart.csquote, text)
+                    """.format(
+            close_class
+        ),
+        re.VERBOSE | re.UNICODE,
+    )
+    text = closing_single_quotes_regex.sub(r"\1" + smart.csquote, text)
 
-    closing_single_quotes_regex = re.compile(r"""
-                    (%s)
+    closing_single_quotes_regex = re.compile(
+        r"""
+                    ({})
                     '
                     (\s | s\b)
-                    """ % (close_class,), re.VERBOSE | re.UNICODE)
-    text = closing_single_quotes_regex.sub(r'\1%s\2' % smart.csquote, text)
+                    """.format(
+            close_class
+        ),
+        re.VERBOSE | re.UNICODE,
+    )
+    text = closing_single_quotes_regex.sub(r"\1%s\2" % smart.csquote, text)
 
     # Any remaining single quotes should be opening ones:
     text = re.sub(r"""'""", smart.osquote, text)
 
     # Get most opening double quotes:
-    opening_double_quotes_regex = re.compile(r"""
+    opening_double_quotes_regex = re.compile(
+        r"""
                     (
                             \s          |   # a whitespace char, or
                             &nbsp;      |   # a non-breaking space entity, or
                             --          |   # dashes, or
                             &[mn]dash;  |   # named dash entities
-                            %s          |   # or decimal entities
+                            {}          |   # or decimal entities
                             &\#x201[34];    # or hex
                     )
                     "                 # the quote
                     (?=\w)            # followed by a word character
-                    """ % (dec_dashes,), re.VERBOSE)
-    text = opening_double_quotes_regex.sub(r'\1' + smart.opquote, text)
+                    """.format(
+            dec_dashes
+        ),
+        re.VERBOSE,
+    )
+    text = opening_double_quotes_regex.sub(r"\1" + smart.opquote, text)
 
     # Double closing quotes:
-    closing_double_quotes_regex = re.compile(r"""
-                    #(%s)?   # character that indicates the quote should be closing
+    closing_double_quotes_regex = re.compile(
+        r"""
+                    #({})?   # character that indicates the quote should be closing
                     "
                     (?=\s)
-                    """ % (close_class,), re.VERBOSE)
+                    """.format(
+            close_class
+        ),
+        re.VERBOSE,
+    )
     text = closing_double_quotes_regex.sub(smart.cpquote, text)
 
-    closing_double_quotes_regex = re.compile(r"""
-                    (%s)   # character that indicates the quote should be closing
+    closing_double_quotes_regex = re.compile(
+        r"""
+                    ({})   # character that indicates the quote should be closing
                     "
-                    """ % (close_class,), re.VERBOSE)
-    text = closing_double_quotes_regex.sub(r'\1' + smart.cpquote, text)
+                    """.format(
+            close_class
+        ),
+        re.VERBOSE,
+    )
+    text = closing_double_quotes_regex.sub(r"\1" + smart.cpquote, text)
 
     # Any remaining quotes should be opening ones.
     text = re.sub(r'"', smart.opquote, text)
@@ -243,10 +274,11 @@ def educateQuotes(text: str, language: str = 'en') -> str:
     return text
 
 
-def educate_tokens(text_tokens: Iterable[Tuple[str, str]],
-                   attr: str = smartquotes.default_smartypants_attr,
-                   language: str = 'en'
-                   ) -> Generator[str, None, None]:
+def educate_tokens(
+    text_tokens: Iterable[Tuple[str, str]],
+    attr: str = smartquotes.default_smartypants_attr,
+    language: str = "en",
+) -> Generator[str, None, None]:
     """Return iterator that "educates" the items of `text_tokens`.
 
     This is modified to intercept the ``attr='2'`` as it was used by the
@@ -328,12 +360,12 @@ def educate_tokens(text_tokens: Iterable[Tuple[str, str]],
 
         # skip HTML and/or XML tags as well as emtpy text tokens
         # without updating the last character
-        if ttype == 'tag' or not text:
+        if ttype == "tag" or not text:
             yield text
             continue
 
         # skip literal text (math, literal, raw, ...)
-        if ttype == 'literal':
+        if ttype == "literal":
             prev_token_last_char = text[-1:]
             yield text
             continue
@@ -343,7 +375,7 @@ def educate_tokens(text_tokens: Iterable[Tuple[str, str]],
         text = smartquotes.processEscapes(text)
 
         if convert_quot:
-            text = re.sub('&quot;', '"', text)
+            text = re.sub("&quot;", '"', text)
 
         if do_dashes == 1:
             text = smartquotes.educateDashes(text)
@@ -365,7 +397,7 @@ def educate_tokens(text_tokens: Iterable[Tuple[str, str]],
         if do_quotes:
             # Replace plain quotes to prevent converstion to
             # 2-character sequence in French.
-            context = prev_token_last_char.replace('"', ';').replace("'", ';')
+            context = prev_token_last_char.replace('"', ";").replace("'", ";")
             text = educateQuotes(context + text, language)[1:]
 
         if do_stupefy:

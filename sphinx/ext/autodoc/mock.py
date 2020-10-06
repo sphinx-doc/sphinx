@@ -7,14 +7,23 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import contextlib
 import os
 import sys
-from importlib.abc import Loader, MetaPathFinder
+from importlib.abc import Loader
+from importlib.abc import MetaPathFinder
 from importlib.machinery import ModuleSpec
-from types import FunctionType, MethodType, ModuleType
-from typing import Any, Generator, Iterator, List, Optional, Sequence, Tuple, Union
+from types import FunctionType
+from types import MethodType
+from types import ModuleType
+from typing import Any
+from typing import Generator
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
+from typing import Union
 
 from sphinx.util import logging
 
@@ -24,7 +33,7 @@ logger = logging.getLogger(__name__)
 class _MockObject:
     """Used by autodoc_mock_imports."""
 
-    __display_name__ = '_MockObject'
+    __display_name__ = "_MockObject"
     __sphinx_mock__ = True
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
@@ -32,13 +41,17 @@ class _MockObject:
             superclass = args[1][-1].__class__
             if superclass is cls:
                 # subclassing MockObject
-                return _make_subclass(args[0], superclass.__display_name__,
-                                      superclass=superclass, attributes=args[2])
+                return _make_subclass(
+                    args[0],
+                    superclass.__display_name__,
+                    superclass=superclass,
+                    attributes=args[2],
+                )
 
         return super().__new__(cls)
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.__qualname__ = ''
+        self.__qualname__ = ""
 
     def __len__(self) -> int:
         return 0
@@ -68,9 +81,10 @@ class _MockObject:
         return self.__display_name__
 
 
-def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
-                   attributes: Any = None) -> Any:
-    attrs = {'__module__': module, '__display_name__': module + '.' + name}
+def _make_subclass(
+    name: str, module: str, superclass: Any = _MockObject, attributes: Any = None
+) -> Any:
+    attrs = {"__module__": module, "__display_name__": module + "." + name}
     attrs.update(attributes or {})
 
     return type(name, (superclass,), attrs)
@@ -78,6 +92,7 @@ def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
 
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
+
     __file__ = os.devnull
     __sphinx_mock__ = True
 
@@ -95,12 +110,13 @@ class _MockModule(ModuleType):
 
 class MockLoader(Loader):
     """A loader for mocking."""
+
     def __init__(self, finder: "MockFinder") -> None:
         super().__init__()
         self.finder = finder
 
     def create_module(self, spec: ModuleSpec) -> ModuleType:
-        logger.debug('[autodoc] adding a mock module as %s!', spec.name)
+        logger.debug("[autodoc] adding a mock module as %s!", spec.name)
         self.finder.mocked_modules.append(spec.name)
         return _MockModule(spec.name)
 
@@ -117,11 +133,15 @@ class MockFinder(MetaPathFinder):
         self.loader = MockLoader(self)
         self.mocked_modules = []  # type: List[str]
 
-    def find_spec(self, fullname: str, path: Optional[Sequence[Union[bytes, str]]],
-                  target: ModuleType = None) -> Optional[ModuleSpec]:
+    def find_spec(
+        self,
+        fullname: str,
+        path: Optional[Sequence[Union[bytes, str]]],
+        target: ModuleType = None,
+    ) -> Optional[ModuleSpec]:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
-            if modname == fullname or fullname.startswith(modname + '.'):
+            if modname == fullname or fullname.startswith(modname + "."):
                 return ModuleSpec(fullname, self.loader)
 
         return None

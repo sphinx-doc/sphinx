@@ -1,4 +1,5 @@
-from typing import Any, overload
+from typing import Any
+from typing import overload
 
 
 @overload

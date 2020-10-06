@@ -7,12 +7,14 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import warnings
-from typing import Any, Dict, List, Type, Union
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Type
 from typing import TYPE_CHECKING
+from typing import Union
 
-import docutils.parsers
 import docutils.parsers.rst
 from docutils import nodes
 from docutils.parsers.rst import states
@@ -20,7 +22,8 @@ from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx.deprecation import RemovedInSphinx50Warning
-from sphinx.util.rst import append_epilog, prepend_prolog
+from sphinx.util.rst import append_epilog
+from sphinx.util.rst import prepend_prolog
 
 if TYPE_CHECKING:
     from docutils.transforms import Transform  # NOQA
@@ -63,7 +66,9 @@ class Parser(docutils.parsers.Parser):
 
     @property
     def app(self) -> "Sphinx":
-        warnings.warn('parser.app is deprecated.', RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "parser.app is deprecated.", RemovedInSphinx50Warning, stacklevel=2
+        )
         return self._app
 
 
@@ -79,19 +84,24 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         transforms.remove(SmartQuotes)
         return transforms
 
-    def parse(self, inputstring: Union[str, StringList], document: nodes.document) -> None:
+    def parse(
+        self, inputstring: Union[str, StringList], document: nodes.document
+    ) -> None:
         """Parse text and generate a document tree."""
         self.setup_parse(inputstring, document)  # type: ignore
         self.statemachine = states.RSTStateMachine(
             state_classes=self.state_classes,
             initial_state=self.initial_state,
-            debug=document.reporter.debug_flag)
+            debug=document.reporter.debug_flag,
+        )
 
         # preprocess inputstring
         if isinstance(inputstring, str):
             lines = docutils.statemachine.string2lines(
-                inputstring, tab_width=document.settings.tab_width,
-                convert_whitespace=True)
+                inputstring,
+                tab_width=document.settings.tab_width,
+                convert_whitespace=True,
+            )
 
             inputlines = StringList(lines, document.current_source)
         else:
@@ -111,7 +121,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_source_parser(RSTParser)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }
