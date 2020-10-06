@@ -141,7 +141,7 @@ Please follow these guidelines when writing code for Sphinx:
 * Try to use the same code style as used in the rest of the project.  See the
   `Pocoo Styleguide`__ for more information.
 
-  __ http://flask.pocoo.org/docs/styleguide/
+  __ https://github.com/pallets/flask/blob/master/.pre-commit-config.yaml
 
 * For non-trivial changes, please update the :file:`CHANGES` file.  If your
   changes alter existing behavior, please document this.
