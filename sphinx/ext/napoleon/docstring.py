@@ -602,7 +602,7 @@ class GoogleDocstring:
         lines = []
         for _name, _type, _desc in self._consume_fields():
             # code adapted from autodoc.AttributeDocumenter:add_directive_header
-            if not _type and self._what == 'class' and self._obj:
+            if not _type and self._what in ('class', 'exception') and self._obj:
                 if self._config.napoleon_google_attr_annotations:
                     # cache the class annotations
                     if not hasattr(self, "_annotations"):
