@@ -488,6 +488,40 @@ def test_autoclass_content_and_docstring_signature_both(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoclass_content_and_docstring_signature_prefer_class(app):
+    app.config.autoclass_content = 'prefer-class'
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.docstring_signature', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: A(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: B(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: C(foo, bar)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: D(foo, bar, baz)',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: E(foo: int, bar: int, baz: int) -> None',
+        '              E(foo: str, bar: str, baz: str) -> None',
+        '   :module: target.docstring_signature',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_mocked_module_imports(app, warning):
     # no autodoc_mock_imports
     options = {"members": 'TestAutodoc,decoratedFunction,func'}
