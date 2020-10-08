@@ -22,6 +22,21 @@ from sphinx.testing import util
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
 
+markers = [
+    (
+        'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None,'
+        ' docutilsconf=None, parallel=0): arguments to initialize the sphinx test application.'
+    ),
+    'test_params(shared_result=...): test parameters.',
+]
+
+
+def pytest_configure(config):
+    # register custom markers
+    for marker in markers:
+        config.addinivalue_line('markers', marker)
+
+
 @pytest.fixture(scope='session')
 def rootdir() -> str:
     return None
