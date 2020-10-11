@@ -417,6 +417,9 @@ def test_function_definitions():
     check('function', 'void f(int arr[const static volatile 42])', {1: 'f'},
           output='void f(int arr[static volatile const 42])')
 
+    with pytest.raises(DefinitionError):
+        parse('function', 'void f(int for)')
+
 
 def test_nested_name():
     check('struct', '{key}.A', {1: "A"})
