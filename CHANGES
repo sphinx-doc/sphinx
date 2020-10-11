@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+- C and C++, show line numbers for previous declarations when duplicates are
+  detected.
+
 Bugs fixed
 ----------
 
