@@ -2703,6 +2703,9 @@ class DefinitionParser(BaseParser):
                 declId = None
         elif named == 'single':
             if self.match(identifier_re):
+                if self.matched_text in _keywords:
+                    self.fail("Expected identifier, "
+                              "got keyword: %s" % self.matched_text)
                 identifier = ASTIdentifier(self.matched_text)
                 declId = ASTNestedName([identifier], rooted=False)
             else:
