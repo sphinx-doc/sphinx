@@ -526,8 +526,15 @@ def test_attributes():
 #     raise DefinitionError("")
 
 
+def split_warnigns(warning):
+    ws = warning.getvalue().split("\n")
+    assert len(ws) >= 1
+    assert ws[-1] == ""
+    return ws[:-1]
+
+
 def filter_warnings(warning, file):
-    lines = warning.getvalue().split("\n")
+    lines = split_warnigns(warning)
     res = [l for l in lines if "domain-c" in l and "{}.rst".format(file) in l and
            "WARNING: document isn't included in any toctree" not in l]
     print("Filtered warnings for file '{}':".format(file))
@@ -581,10 +588,22 @@ def test_build_domain_c_anon_dup_decl(app, status, warning):
     assert "WARNING: c:identifier reference target not found: @b" in ws[1]
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c_semicolon(app, status, warning):
-    app.builder.build_all()
-    ws = filter_warnings(warning, "semicolon")
+@pytest.mark.sphinx(confoverrides={'nitpicky': True})
+def test_build_domain_c_semicolon(app, warning):
+    text = """
+.. c:member:: int member;
+.. c:var:: int var;
+.. c:function:: void f();
+.. .. c:macro:: NO_SEMICOLON;
+.. c:struct:: Struct;
+.. c:union:: Union;
+.. c:enum:: Enum;
+.. c:enumerator:: Enumerator;
+.. c:type:: Type;
+.. c:type:: int TypeDef;
+"""
+    restructuredtext.parse(app, text)
+    ws = split_warnigns(warning)
     assert len(ws) == 0
 
 
