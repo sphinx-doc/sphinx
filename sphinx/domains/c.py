@@ -3797,6 +3797,11 @@ class CDomain(Domain):
             logger.warning('Unparseable C cross-reference: %r\n%s', target, e,
                            location=node)
             return None, None
+        if typ in ('struct', 'union', 'enum'):
+            last = name.names[-1]
+            if last.tag == '':
+                last.tag = typ
+
         parentKey = node.get("c:parent_key", None)  # type: LookupKey
         rootSymbol = self.data['root_symbol']
         if parentKey:

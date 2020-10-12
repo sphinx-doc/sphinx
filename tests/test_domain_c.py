@@ -634,6 +634,43 @@ def test_ids_vs_tags1(app, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "ids-vs-tags1")
     assert len(ws) == 0
+    t = (app.outdir / "ids-vs-tags1.html").read_text()
+    lis = [l for l in t.split('\n') if l.startswith("<li")]
+    entries = []
+    for l in lis:
+        li = ElementTree.fromstring(l)
+        assert li.tag == 'li'
+        assert len(li) == 1
+        p = li[0]
+        assert p.tag == 'p'
+        assert len(p) == 1
+        a = p[0]
+        assert a.tag == 'a'
+        target = a.attrib['href'].lstrip('#')
+        title = a.attrib['title']
+        assert len(a) == 1
+        code = a[0]
+        assert code.tag == 'code'
+        text = ''.join(code.itertext())
+        entries.append((target, title, text))
+    expected = []
+    idPrefix = 'C2-@ids_vs_tags.'
+    for tag in ['struct', 'union', 'enum']:
+        name = 'f_' + tag
+        tagTitle = tag + ' ' + name
+        title = name
+        tagTarget = idPrefix + '-' + name
+        target = idPrefix + name
+        # using the designated role
+        expected.append((tagTarget, tagTitle, title))
+        expected.append((tagTarget, tagTitle, tagTitle))
+        # using :c:type:
+        expected.append((target, title, title))
+        expected.append((tagTarget, tagTitle, tagTitle))
+        # using :any:
+        expected.append((target, title, title))
+        expected.append((tagTarget, tagTitle, tagTitle))
+    assert entries == expected
 
 
 def test_build_domain_c_semicolon(app, warning):
