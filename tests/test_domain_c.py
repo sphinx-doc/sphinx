@@ -32,6 +32,21 @@ def parse(name, string):
     return ast
 
 
+def parse_expression(expr, allowTypeExpr=False):
+    class Config:
+        c_id_attributes = ["id_attr"]
+        c_paren_attributes = ["paren_attr"]
+    parser = DefinitionParser(expr, location=None, config=Config())
+    parser.allowFallbackExpressionParsing = False
+    if allowTypeExpr:
+        ast = parser.parse_expression()
+    else:
+        ast = parser._parse_expression()
+        parser.skip_ws()
+    parser.assert_end()
+    return ast
+
+
 def _check(name, input, idDict, output, key, asTextOutput):
     if key is None:
         key = name
@@ -113,14 +128,8 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
 
 
 def test_expressions():
-    def exprCheck(expr, output=None):
-        class Config:
-            c_id_attributes = ["id_attr"]
-            c_paren_attributes = ["paren_attr"]
-        parser = DefinitionParser(expr, location=None, config=Config())
-        parser.allowFallbackExpressionParsing = False
-        ast = parser.parse_expression()
-        parser.assert_end()
+    def exprCheck(expr, output=None, allowTypeExpr=False):
+        ast = parse_expression(expr, allowTypeExpr)
         # first a simple check of the AST
         if output is None:
             output = expr
@@ -141,14 +150,14 @@ def test_expressions():
             raise DefinitionError("")
 
     # type expressions
-    exprCheck('int*')
-    exprCheck('int *const*')
-    exprCheck('int *volatile*')
-    exprCheck('int *restrict*')
-    exprCheck('int *(*)(double)')
-    exprCheck('const int*')
-    exprCheck('__int64')
-    exprCheck('unsigned __int64')
+    exprCheck('int*', allowTypeExpr=True)
+    exprCheck('int *const*', allowTypeExpr=True)
+    exprCheck('int *volatile*', allowTypeExpr=True)
+    exprCheck('int *restrict*', allowTypeExpr=True)
+    exprCheck('int *(*)(double)', allowTypeExpr=True)
+    exprCheck('const int*', allowTypeExpr=True)
+    exprCheck('__int64', allowTypeExpr=True)
+    exprCheck('unsigned __int64', allowTypeExpr=True)
 
     # actual expressions
 
@@ -422,33 +431,60 @@ def test_function_definitions():
 
 
 def test_nested_name():
-    check('struct', '{key}.A', {1: "A"})
-    check('struct', '{key}.A.B', {1: "A.B"})
+    check('struct', '{key}.A', {1: "A", 2: "-A"})
+    check('struct', '{key}.A.B', {1: "A.B", 2: "A.-B"})
     check('function', 'void f(.A a)', {1: "f"})
     check('function', 'void f(.A.B a)', {1: "f"})
 
 
 def test_struct_definitions():
-    check('struct', '{key}A', {1: 'A'})
+    check('struct', '{key}A', {1: 'A', 2: '-A'})
 
 
 def test_union_definitions():
-    check('union', '{key}A', {1: 'A'})
+    check('union', '{key}A', {1: 'A', 2: '-A'})
 
 
 def test_enum_definitions():
-    check('enum', '{key}A', {1: 'A'})
+    check('enum', '{key}A', {1: 'A', 2: '-A'})
 
     check('enumerator', '{key}A', {1: 'A'})
     check('enumerator', '{key}A = 42', {1: 'A'})
 
 
 def test_anon_definitions():
-    check('struct', '@a', {1: "@a"}, asTextOutput='struct [anonymous]')
-    check('union', '@a', {1: "@a"}, asTextOutput='union [anonymous]')
-    check('enum', '@a', {1: "@a"}, asTextOutput='enum [anonymous]')
-    check('struct', '@1', {1: "@1"}, asTextOutput='struct [anonymous]')
-    check('struct', '@a.A', {1: "@a.A"}, asTextOutput='struct [anonymous].A')
+    check('struct', '@a', {1: "@a", 2: "-@a"}, asTextOutput='struct [anonymous]')
+    check('union', '@a', {1: "@a", 2: "-@a"}, asTextOutput='union [anonymous]')
+    check('enum', '@a', {1: "@a", 2: "-@a"}, asTextOutput='enum [anonymous]')
+    check('struct', '@1', {1: "@1", 2: "-@1"}, asTextOutput='struct [anonymous]')
+    check('struct', '@a.A', {1: "@a.A", 2: "@a.-A"}, asTextOutput='struct [anonymous].A')
+
+
+def test_tagged_names():
+    for key in ('struct', 'union', 'enum'):
+        with pytest.raises(DefinitionError):
+            parse('member', "int {} A".format(key))
+        with pytest.raises(DefinitionError):
+            parse('function', "int {} A()".format(key))
+        with pytest.raises(DefinitionError):
+            parse('function', "int A(int {} a)".format(key))
+        for objType in ('macro', 'struct', 'union', 'enum', 'enumerator'):
+            with pytest.raises(DefinitionError):
+                parse(objType, '{} A'.format(key))
+        # type
+        with pytest.raises(DefinitionError):
+            parse('type', '{} A'.format(key))
+        check('type', '{key1}{key2} A A'.format(key2=key, key1="{key}"), idDict={1: 'A'}, key='typedef')
+        # TODO: namespace, namespace-push, namespace-pop
+        # TODO: alias
+        # primary expression
+        for expr in ('{} a.b', 'a.{} b.c', 'a.{} b'):
+            with pytest.raises(DefinitionError):
+                parse_expression(expr.format(key))
+        # postfix expression
+        for expr in ('a->{} b->c', 'a->{} b'):
+            with pytest.raises(DefinitionError):
+                parse_expression(expr.format(key))
 
 
 def test_initializers():
@@ -593,7 +629,13 @@ def test_ids_vs_tags0(app, status, warning):
     ws = filter_warnings(warning, "ids-vs-tags0")
     assert len(ws) == 0
 
-@pytest.mark.sphinx(confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_ids_vs_tags1(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "ids-vs-tags1")
+    assert len(ws) == 0
+
+
 def test_build_domain_c_semicolon(app, warning):
     text = """
 .. c:member:: int member;
@@ -619,8 +661,8 @@ def test_build_function_param_target(app, warning):
     assert len(ws) == 0
     entries = extract_role_links(app, "function_param_target.html")
     assert entries == [
-        ('c.f', 'i', 'i'),
-        ('c.f', 'f.i', 'f.i'),
+        ('C2-f', 'i', 'i'),
+        ('C2-f', 'f.i', 'f.i'),
     ]
 
 
@@ -647,7 +689,7 @@ def test_cfunction(app):
                 domain="c", objtype="function", noindex=False)
 
     entry = _get_obj(app, 'PyType_GenericAlloc')
-    assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
+    assert entry == ('index', 'C2-PyType_GenericAlloc', 'function')
 
 
 def test_cmember(app):
@@ -657,7 +699,7 @@ def test_cmember(app):
                 domain="c", objtype="member", noindex=False)
 
     entry = _get_obj(app, 'PyTypeObject.tp_bases')
-    assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
+    assert entry == ('index', 'C2-PyTypeObject.tp_bases', 'member')
 
 
 def test_cvar(app):
@@ -667,7 +709,7 @@ def test_cvar(app):
                 domain="c", objtype="var", noindex=False)
 
     entry = _get_obj(app, 'PyClass_Type')
-    assert entry == ('index', 'c.PyClass_Type', 'member')
+    assert entry == ('index', 'C2-PyClass_Type', 'member')
 
 
 def test_noindexentry(app):
@@ -676,7 +718,7 @@ def test_noindexentry(app):
             "   :noindexentry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
-    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'C2-f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
