@@ -1725,7 +1725,7 @@ class TypeVarDocumenter(DataDocumenter):
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        return isinstance(member, TypeVar) and isattr  # type: ignore
+        return isinstance(member, TypeVar) and isattr
 
     def add_directive_header(self, sig: str) -> None:
         self.options.annotation = SUPPRESS  # type: ignore
