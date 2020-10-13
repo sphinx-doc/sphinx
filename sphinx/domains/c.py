@@ -10,7 +10,7 @@
 
 import re
 from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, Type, TypeVar, Tuple, Union
+    Any, Callable, cast, Dict, Generator, Iterator, List, Type, TypeVar, Tuple, Union
 )
 
 from docutils import nodes
@@ -45,6 +45,11 @@ from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
+
+DeclarationType = Union[
+    "ASTStruct", "ASTUnion", "ASTEnum", "ASTEnumerator",
+    "ASTType", "ASTTypeWithInit", "ASTMacro",
+]
 
 # https://en.cppreference.com/w/c/keyword
 _keywords = [
@@ -635,6 +640,10 @@ class ASTFunctionParameter(ASTBase):
         self.arg = arg
         self.ellipsis = ellipsis
 
+    def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
+        # the anchor will be our parent
+        return symbol.parent.declaration.get_id(version, prefixed=False)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.ellipsis:
             return '...'
@@ -1148,6 +1157,9 @@ class ASTType(ASTBase):
     def name(self) -> ASTNestedName:
         return self.decl.name
 
+    def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
+        return symbol.get_full_nested_name().get_id(version)
+
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.decl.function_params
@@ -1189,6 +1201,9 @@ class ASTTypeWithInit(ASTBase):
     @property
     def name(self) -> ASTNestedName:
         return self.type.name
+
+    def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
+        return self.type.get_id(version, objectType, symbol)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
@@ -1240,6 +1255,9 @@ class ASTMacro(ASTBase):
     @property
     def name(self) -> ASTNestedName:
         return self.ident
+
+    def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
+        return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
@@ -1341,7 +1359,8 @@ class ASTEnumerator(ASTBase):
 
 
 class ASTDeclaration(ASTBaseBase):
-    def __init__(self, objectType: str, directiveType: str, declaration: Any,
+    def __init__(self, objectType: str, directiveType: str,
+                 declaration: Union[DeclarationType, ASTFunctionParameter],
                  semicolon: bool = False) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
@@ -1358,18 +1377,20 @@ class ASTDeclaration(ASTBaseBase):
 
     @property
     def name(self) -> ASTNestedName:
-        return self.declaration.name
+        decl = cast(DeclarationType, self.declaration)
+        return decl.name
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
         if self.objectType != 'function':
             return None
-        return self.declaration.function_params
+        decl = cast(ASTType, self.declaration)
+        return decl.function_params
 
     def get_id(self, version: int, prefixed: bool = True) -> str:
         if self.objectType == 'enumerator' and self.enumeratorScopedSymbol:
             return self.enumeratorScopedSymbol.declaration.get_id(version, prefixed)
-        id_ = self.symbol.get_full_nested_name().get_id(version)
+        id_ = self.declaration.get_id(version, self.objectType, self.symbol)
         if prefixed:
             return _id_prefix[version] + id_
         else:
@@ -1412,7 +1433,8 @@ class ASTDeclaration(ASTBaseBase):
         elif self.objectType == 'enumerator':
             mainDeclNode += addnodes.desc_annotation('enumerator ', 'enumerator ')
         elif self.objectType == 'type':
-            prefix = self.declaration.get_type_declaration_prefix()
+            decl = cast(ASTType, self.declaration)
+            prefix = decl.get_type_declaration_prefix()
             prefix += ' '
             mainDeclNode += addnodes.desc_annotation(prefix, prefix)
         else:
@@ -2982,7 +3004,7 @@ class DefinitionParser(BaseParser):
 
     def parse_pre_v3_type_definition(self) -> ASTDeclaration:
         self.skip_ws()
-        declaration = None  # type: Any
+        declaration = None  # type: DeclarationType
         if self.skip_word('struct'):
             typ = 'struct'
             declaration = self._parse_struct()
@@ -3005,7 +3027,7 @@ class DefinitionParser(BaseParser):
                                  'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
             raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
 
-        declaration = None  # type: Any
+        declaration = None  # type: DeclarationType
         if objectType == 'member':
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':

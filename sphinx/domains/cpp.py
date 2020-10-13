@@ -1836,7 +1836,7 @@ class ASTFunctionParameter(ASTBase):
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
-            return symbol.parent.declaration.get_id(version, prefixed=None)
+            return symbol.parent.declaration.get_id(version, prefixed=False)
         # else, do the usual
         if self.ellipsis:
             return 'z'

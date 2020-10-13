@@ -9,6 +9,8 @@
 """
 import pytest
 
+from xml.etree import ElementTree
+
 from sphinx import addnodes
 from sphinx.addnodes import desc
 from sphinx.domains.c import DefinitionParser, DefinitionError
@@ -529,6 +531,25 @@ def filter_warnings(warning, file):
     return res
 
 
+def extract_role_links(app, filename):
+    t = (app.outdir / filename).read_text()
+    lis = [l for l in t.split('\n') if l.startswith("<li")]
+    entries = []
+    for l in lis:
+        li = ElementTree.fromstring(l)
+        aList = list(li.iter('a'))
+        assert len(aList) == 1
+        a = aList[0]
+        target = a.attrib['href'].lstrip('#')
+        title = a.attrib['title']
+        assert len(a) == 1
+        code = a[0]
+        assert code.tag == 'code'
+        text = ''.join(code.itertext())
+        entries.append((target, title, text))
+    return entries
+
+
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_build_domain_c(app, status, warning):
     app.builder.build_all()
@@ -560,6 +581,19 @@ def test_build_domain_c_semicolon(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "semicolon")
     assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_function_param_target(app, warning):
+    # the anchor for function parameters should be the function
+    app.builder.build_all()
+    ws = filter_warnings(warning, "function_param_target")
+    assert len(ws) == 0
+    entries = extract_role_links(app, "function_param_target.html")
+    assert entries == [
+        ('c.f', 'i', 'i'),
+        ('c.f', 'f.i', 'f.i'),
+    ]
 
 
 def _get_obj(app, queryName):
