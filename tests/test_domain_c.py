@@ -673,6 +673,13 @@ def test_ids_vs_tags1(app, warning):
     assert entries == expected
 
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_ids_vs_tags2(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "ids-vs-tags2")
+    assert len(ws) == 0
+
+
 def test_build_domain_c_semicolon(app, warning):
     text = """
 .. c:member:: int member;

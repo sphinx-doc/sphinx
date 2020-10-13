@@ -118,11 +118,6 @@ class ASTIdentifier(ASTBaseBase):
         self.identifier = identifier
         self.tag = tag
 
-    def __eq__(self, other: Any) -> bool:
-        return type(other) is ASTIdentifier \
-            and self.identifier == other.identifier \
-            and self.tag == other.tag
-
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'
 
@@ -134,6 +129,13 @@ class ASTIdentifier(ASTBaseBase):
             return '-' + self.identifier
         else:
             return self.identifier
+
+    def matches(self, other: "ASTIdentifier") -> bool:
+        if self.identifier != other.identifier:
+            return False
+        if self.tag is None:
+            return True
+        return self.tag == other.tag
 
     # and this is where we finally make a difference between __str__ and the display string
 
@@ -1684,7 +1686,7 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print("candidate:")
                 print(s.to_string(Symbol.debug_indent + 1), end="")
-            if s.ident == ident:
+            if s.ident and ident.matches(s.ident):
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
                     Symbol.debug_print("matches")
@@ -1996,11 +1998,11 @@ class Symbol:
                 Symbol.debug_print("trying:")
                 print(current.to_string(Symbol.debug_indent + 1), end="")
                 Symbol.debug_indent -= 2
-            if matchSelf and current.ident == ident:
+            if matchSelf and ident.matches(current.ident):
                 return current
             children = current.children_recurse_anon if recurseInAnon else current._children
             for s in children:
-                if s.ident == ident:
+                if ident.matches(s.ident):
                     return s
             if not searchInSiblings:
                 break
@@ -3813,10 +3815,20 @@ class CDomain(Domain):
             assert parentSymbol  # should be there
         else:
             parentSymbol = rootSymbol
+
         s = parentSymbol.find_declaration(name, typ,
                                           matchSelf=True, recurseInAnon=True)
         if s is None or s.declaration is None:
-            return None, None
+            if typ == 'identifier':
+                # these are from within declarations and should be tagged correctly
+                return None, None
+            # but those from xref roles may not have correct tagging
+            name.setTagsToPattern()
+            s = parentSymbol.find_declaration(name, typ,
+                                              matchSelf=True, recurseInAnon=True)
+            if s is None or s.declaration is None:
+                return None, None
+            # TODO: conditionally warn about xrefs with incorrect tagging?
 
         # TODO: check role type vs. object type
 
