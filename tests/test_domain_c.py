@@ -680,6 +680,21 @@ def test_ids_vs_tags2(app, warning):
     assert len(ws) == 0
 
 
+def test_duplicate_tags(app, warning):
+    text = """
+.. c:struct:: A
+.. c:union:: A
+.. c:enum:: A
+"""
+    restructuredtext.parse(app, text)
+    ws = split_warnigns(warning)
+    assert len(ws) == 4
+    assert "index.rst:3: WARNING: Duplicate C declaration" in ws[0]
+    assert "Declaration is '.. c:union:: A'." in ws[1]
+    assert "index.rst:4: WARNING: Duplicate C declaration" in ws[2]
+    assert "Declaration is '.. c:enum:: A'." in ws[3]
+
+
 def test_build_domain_c_semicolon(app, warning):
     text = """
 .. c:member:: int member;

@@ -135,7 +135,10 @@ class ASTIdentifier(ASTBaseBase):
             return False
         if self.tag is None:
             return True
-        return self.tag == other.tag
+        assert other.tag is not None
+        isTag = self.tag == ''
+        isOtherTag = other.tag == ''
+        return isTag == isOtherTag
 
     # and this is where we finally make a difference between __str__ and the display string
 
