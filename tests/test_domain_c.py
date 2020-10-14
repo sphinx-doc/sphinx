@@ -695,6 +695,26 @@ def test_duplicate_tags(app, warning):
     assert "Declaration is '.. c:enum:: A'." in ws[3]
 
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_domain_c_wrong_tags(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "wrong-tags")
+    template = ".rst:%d: WARNING: C '%s' cross-reference uses wrong tag:"\
+               " reference name is '%s' but found name is '%s'."\
+               " Full reference name is '%s'."\
+               " Full found name is '%s'."
+    expected = [
+        template % (8, 'var', 'union A', 'struct A', 'union A.i', '@wrong_tag.struct A.i'),
+        template % (9, 'var', 'enum A', 'struct A', 'enum A.i', '@wrong_tag.struct A.i'),
+        template % (11, 'identifier', 'union A', 'struct A', 'union A', '@wrong_tag.struct A'),
+        template % (13, 'identifier', 'enum A', 'struct A', 'enum A', '@wrong_tag.struct A'),
+        template % (14, 'identifier', 'union A', 'struct A', 'union A', '@wrong_tag.struct A'),
+    ]
+    for i in range(len(expected)):
+        assert expected[i] in ws[i]
+    assert len(ws) == len(expected)
+
+
 def test_build_domain_c_semicolon(app, warning):
     text = """
 .. c:member:: int member;

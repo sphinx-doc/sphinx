@@ -3833,6 +3833,22 @@ class CDomain(Domain):
                 return None, None
             # TODO: conditionally warn about xrefs with incorrect tagging?
 
+        # check if tags are used correctly
+        sName = s.get_full_nested_name()
+        assert len(name.names) <= len(sName.names)
+        for n, ns in zip(reversed(name.names), reversed(sName.names)):
+            if n.tag is None:
+                continue
+            assert ns.tag is not None
+            assert (n.tag == '') == (ns.tag == '')
+            if n.tag != ns.tag:
+                logger.warning(
+                    "C '%s' cross-reference uses wrong tag:"
+                    " reference name is '%s' but found name is '%s'."
+                    " Full reference name is '%s'."
+                    " Full found name is '%s'.",
+                    typ, n, ns, name, sName, location=node)
+
         # TODO: check role type vs. object type
 
         declaration = s.declaration
