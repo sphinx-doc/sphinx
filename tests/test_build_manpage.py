@@ -19,7 +19,7 @@ def test_all(app, status, warning):
     app.builder.build_all()
     assert (app.outdir / 'sphinxtests.1').exists()
 
-    content = (app.outdir / 'sphinxtests.1').text()
+    content = (app.outdir / 'sphinxtests.1').read_text()
     assert r'\fBprint \fP\fIi\fP\fB\en\fP' in content
     assert r'\fBmanpage\en\fP' in content
 
@@ -30,10 +30,17 @@ def test_all(app, status, warning):
     assert 'Footnotes' not in content
 
 
+@pytest.mark.sphinx('man', testroot='basic',
+                    confoverrides={'man_make_section_directory': True})
+def test_man_make_section_directory(app, status, warning):
+    app.build()
+    assert (app.outdir / '1' / 'python.1').exists()
+
+
 @pytest.mark.sphinx('man', testroot='directive-code')
 def test_captioned_code_block(app, status, warning):
     app.builder.build_all()
-    content = (app.outdir / 'python.1').text()
+    content = (app.outdir / 'python.1').read_text()
 
     assert ('.sp\n'
             'caption \\fItest\\fP rb\n'
@@ -64,5 +71,5 @@ def test_default_man_pages():
 @pytest.mark.sphinx('man', testroot='markup-rubric')
 def test_rubric(app, status, warning):
     app.build()
-    content = (app.outdir / 'python.1').text()
+    content = (app.outdir / 'python.1').read_text()
     assert 'This is a rubric\n' in content

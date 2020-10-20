@@ -23,7 +23,7 @@ from sphinx import package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.search.jssplitter import splitter_code
-from sphinx.util import jsdump, rpartition
+from sphinx.util import jsdump
 
 if False:
     # For type annotation
@@ -43,6 +43,14 @@ class SearchLanguage:
        This is a set of stop words of the target language.  Default `stopwords`
        is empty.  This word is used for building index and embedded in JS.
 
+    .. attribute:: js_splitter_code
+
+       Return splitter funcion of JavaScript version.  The function should be
+       named as ``splitQuery``.  And it should take a string and return list of
+       strings.
+
+       .. versionadded:: 3.0
+
     .. attribute:: js_stemmer_code
 
        Return stemmer class of JavaScript version.  This class' name should be
@@ -55,6 +63,7 @@ class SearchLanguage:
     lang = None                 # type: str
     language_name = None        # type: str
     stopwords = set()           # type: Set[str]
+    js_splitter_code = None     # type: str
     js_stemmer_rawcode = None   # type: str
     js_stemmer_code = """
 /**
@@ -108,7 +117,7 @@ var Stemmer = function() {
             len(word) == 0 or not (
                 ((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
                 (ord(word[0]) < 256 and (
-                    len(word) < 3 or word in self.stopwords or word.isdigit()
+                    len(word) < 3 or word in self.stopwords
                 ))))
 
 
@@ -194,7 +203,7 @@ class WordCollector(nodes.NodeVisitor):
     def is_meta_keywords(self, node: addnodes.meta, nodetype: Any = None) -> bool:
         if nodetype is not None:
             warnings.warn('"nodetype" argument for WordCollector.is_meta_keywords() '
-                          'is deprecated.', RemovedInSphinx40Warning)
+                          'is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
 
         if isinstance(node, addnodes.meta) and node.get('name') == 'keywords':
             meta_lang = node.get('lang')
@@ -288,8 +297,8 @@ class IndexBuilder:
            frozen.get('envversion') != self.env.version:
             raise ValueError('old format')
         index2fn = frozen['docnames']
-        self._filenames = dict(zip(index2fn, frozen['filenames']))
-        self._titles = dict(zip(index2fn, frozen['titles']))
+        self._filenames = dict(zip(index2fn, frozen['filenames']))  # type: ignore
+        self._titles = dict(zip(index2fn, frozen['titles']))  # type: ignore
 
         def load_terms(mapping: Dict[str, Any]) -> Dict[str, Set[str]]:
             rv = {}
@@ -324,7 +333,7 @@ class IndexBuilder:
                     continue
                 fullname = html.escape(fullname)
                 dispname = html.escape(dispname)
-                prefix, name = rpartition(dispname, '.')
+                prefix, _, name = dispname.rpartition('.')
                 pdict = rv.setdefault(prefix, {})
                 try:
                     typeindex = otypes[domainname, type]
@@ -350,13 +359,13 @@ class IndexBuilder:
     def get_terms(self, fn2index: Dict) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
         rvs = {}, {}  # type: Tuple[Dict[str, List[str]], Dict[str, List[str]]]
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
-            for k, v in mapping.items():
+            for k, v in mapping.items():  # type: ignore
                 if len(v) == 1:
                     fn, = v
                     if fn in fn2index:
-                        rv[k] = fn2index[fn]
+                        rv[k] = fn2index[fn]  # type: ignore
                 else:
-                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
+                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])  # type: ignore  # NOQA
         return rvs
 
     def freeze(self) -> Dict[str, Any]:
@@ -425,11 +434,16 @@ class IndexBuilder:
                 self._mapping.setdefault(stemmed_word, set()).add(docname)
 
     def context_for_searchtool(self) -> Dict[str, Any]:
+        if self.lang.js_splitter_code:
+            js_splitter_code = self.lang.js_splitter_code
+        else:
+            js_splitter_code = self.js_splitter_code
+
         return {
             'search_language_stemming_code': self.lang.js_stemmer_code,
             'search_language_stop_words': jsdump.dumps(sorted(self.lang.stopwords)),
             'search_scorer_tool': self.js_scorer_code,
-            'search_word_splitter_code': self.js_splitter_code,
+            'search_word_splitter_code': js_splitter_code,
         }
 
     def get_js_stemmer_rawcode(self) -> str:

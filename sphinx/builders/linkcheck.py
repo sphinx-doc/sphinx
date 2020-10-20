@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import json
 import queue
 import re
 import socket
@@ -15,7 +16,7 @@ import threading
 from html.parser import HTMLParser
 from os import path
 from typing import Any, Dict, List, Set, Tuple
-from urllib.parse import unquote
+from urllib.parse import unquote, urlparse
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -26,13 +27,20 @@ from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
-    purple, red, darkgreen, darkgray, darkred, turquoise
+    purple, red, darkgreen, darkgray, turquoise
 )
 from sphinx.util.nodes import get_node_line
 from sphinx.util.requests import is_ssl_error
 
 
 logger = logging.getLogger(__name__)
+
+uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
+
+
+DEFAULT_REQUEST_HEADERS = {
+    'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
+}
 
 
 class AnchorCheckParser(HTMLParser):
@@ -90,6 +98,8 @@ class CheckExternalLinksBuilder(Builder):
         socket.setdefaulttimeout(5.0)
         # create output file
         open(path.join(self.outdir, 'output.txt'), 'w').close()
+        # create JSON output file
+        open(path.join(self.outdir, 'output.json'), 'w').close()
 
         # create queues and worker threads
         self.wqueue = queue.Queue()  # type: queue.Queue
@@ -104,12 +114,24 @@ class CheckExternalLinksBuilder(Builder):
     def check_thread(self) -> None:
         kwargs = {
             'allow_redirects': True,
-            'headers': {
-                'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
-            },
-        }
+        }  # type: Dict
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
+
+        def get_request_headers() -> Dict:
+            url = urlparse(uri)
+            candidates = ["%s://%s" % (url.scheme, url.netloc),
+                          "%s://%s/" % (url.scheme, url.netloc),
+                          uri,
+                          "*"]
+
+            for u in candidates:
+                if u in self.config.linkcheck_request_headers:
+                    headers = dict(DEFAULT_REQUEST_HEADERS)
+                    headers.update(self.config.linkcheck_request_headers[u])
+                    return headers
+
+            return {}
 
         def check_uri() -> Tuple[str, str, int]:
             # split off anchor
@@ -136,11 +158,15 @@ class CheckExternalLinksBuilder(Builder):
             else:
                 auth_info = None
 
+            # update request headers for the URL
+            kwargs['headers'] = get_request_headers()
+
             try:
                 if anchor and self.app.config.linkcheck_anchors:
                     # Read the whole document and see if #anchor exists
                     response = requests.get(req_url, stream=True, config=self.app.config,
                                             auth=auth_info, **kwargs)
+                    response.raise_for_status()
                     found = check_anchor(response, unquote(anchor))
 
                     if not found:
@@ -185,12 +211,24 @@ class CheckExternalLinksBuilder(Builder):
                 else:
                     return 'redirected', new_url, 0
 
-        def check() -> Tuple[str, str, int]:
+        def check(docname: str) -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
-            if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
+            if len(uri) == 0 or uri.startswith(('#', 'mailto:')):
                 return 'unchecked', '', 0
             elif not uri.startswith(('http:', 'https:')):
-                return 'local', '', 0
+                if uri_re.match(uri):
+                    # non supported URI schemes (ex. ftp)
+                    return 'unchecked', '', 0
+                else:
+                    srcdir = path.dirname(self.env.doc2path(docname))
+                    if path.exists(path.join(srcdir, uri)):
+                        return 'working', '', 0
+                    else:
+                        for rex in self.to_ignore:
+                            if rex.match(uri):
+                                return 'ignored', '', 0
+                        else:
+                            return 'broken', '', 0
             elif uri in self.good:
                 return 'working', 'old', 0
             elif uri in self.broken:
@@ -220,14 +258,21 @@ class CheckExternalLinksBuilder(Builder):
             uri, docname, lineno = self.wqueue.get()
             if uri is None:
                 break
-            status, info, code = check()
+            status, info, code = check(docname)
             self.rqueue.put((uri, docname, lineno, status, info, code))
 
     def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
         uri, docname, lineno, status, info, code = result
+
+        filename = self.env.doc2path(docname, None)
+        linkstat = dict(filename=filename, lineno=lineno,
+                        status=status, code=code, uri=uri,
+                        info=info)
         if status == 'unchecked':
+            self.write_linkstat(linkstat)
             return
         if status == 'working' and info == 'old':
+            self.write_linkstat(linkstat)
             return
         if lineno:
             logger.info('(line %4d) ', lineno, nonl=True)
@@ -236,32 +281,38 @@ class CheckExternalLinksBuilder(Builder):
                 logger.info(darkgray('-ignored- ') + uri + ': ' + info)
             else:
                 logger.info(darkgray('-ignored- ') + uri)
+            self.write_linkstat(linkstat)
         elif status == 'local':
             logger.info(darkgray('-local-   ') + uri)
-            self.write_entry('local', docname, lineno, uri)
+            self.write_entry('local', docname, filename, lineno, uri)
+            self.write_linkstat(linkstat)
         elif status == 'working':
             logger.info(darkgreen('ok        ') + uri + info)
+            self.write_linkstat(linkstat)
         elif status == 'broken':
-            self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
                 logger.warning(__('broken link: %s (%s)'), uri, info,
-                               location=(self.env.doc2path(docname), lineno))
+                               location=(filename, lineno))
             else:
                 logger.info(red('broken    ') + uri + red(' - ' + info))
+            self.write_entry('broken', docname, filename, lineno, uri + ': ' + info)
+            self.write_linkstat(linkstat)
         elif status == 'redirected':
             try:
                 text, color = {
-                    301: ('permanently', darkred),
+                    301: ('permanently', purple),
                     302: ('with Found', purple),
                     303: ('with See Other', purple),
                     307: ('temporarily', turquoise),
-                    308: ('permanently', darkred),
+                    308: ('permanently', purple),
                 }[code]
             except KeyError:
                 text, color = ('with unknown code', purple)
-            self.write_entry('redirected ' + text, docname, lineno,
-                             uri + ' to ' + info)
+            linkstat['text'] = text
             logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
+            self.write_entry('redirected ' + text, docname, filename,
+                             lineno, uri + ' to ' + info)
+            self.write_linkstat(linkstat)
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
@@ -301,10 +352,15 @@ class CheckExternalLinksBuilder(Builder):
         if self.broken:
             self.app.statuscode = 1
 
-    def write_entry(self, what: str, docname: str, line: int, uri: str) -> None:
-        with open(path.join(self.outdir, 'output.txt'), 'a', encoding='utf-8') as output:
-            output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
-                                               line, what, uri))
+    def write_entry(self, what: str, docname: str, filename: str, line: int,
+                    uri: str) -> None:
+        with open(path.join(self.outdir, 'output.txt'), 'a') as output:
+            output.write("%s:%s: [%s] %s\n" % (filename, line, what, uri))
+
+    def write_linkstat(self, data: dict) -> None:
+        with open(path.join(self.outdir, 'output.json'), 'a') as output:
+            output.write(json.dumps(data))
+            output.write('\n')
 
     def finish(self) -> None:
         for worker in self.workers:
@@ -316,6 +372,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_config_value('linkcheck_ignore', [], None)
     app.add_config_value('linkcheck_auth', [], None)
+    app.add_config_value('linkcheck_request_headers', {}, None)
     app.add_config_value('linkcheck_retries', 1, None)
     app.add_config_value('linkcheck_timeout', None, None, [int])
     app.add_config_value('linkcheck_workers', 5, None)

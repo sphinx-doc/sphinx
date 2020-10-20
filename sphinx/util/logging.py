@@ -118,6 +118,7 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
+    KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
     def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:
         if isinstance(level, int):
@@ -131,16 +132,9 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
 
     def process(self, msg: str, kwargs: Dict) -> Tuple[str, Dict]:  # type: ignore
         extra = kwargs.setdefault('extra', {})
-        if 'type' in kwargs:
-            extra['type'] = kwargs.pop('type')
-        if 'subtype' in kwargs:
-            extra['subtype'] = kwargs.pop('subtype')
-        if 'location' in kwargs:
-            extra['location'] = kwargs.pop('location')
-        if 'nonl' in kwargs:
-            extra['nonl'] = kwargs.pop('nonl')
-        if 'color' in kwargs:
-            extra['color'] = kwargs.pop('color')
+        for keyword in self.KEYWORDS:
+            if keyword in kwargs:
+                extra[keyword] = kwargs.pop(keyword)
 
         return msg, kwargs
 
@@ -220,16 +214,15 @@ def pending_warnings() -> Generator[logging.Handler, None, None]:
 
 
 @contextmanager
-def pending_logging() -> Generator[MemoryHandler, None, None]:
-    """Contextmanager to pend logging all logs temporary.
+def suppress_logging() -> Generator[MemoryHandler, None, None]:
+    """Contextmanager to suppress logging all logs temporary.
 
     For example::
 
-        >>> with pending_logging():
-        >>>     logger.warning('Warning message!')  # not flushed yet
+        >>> with suppress_logging():
+        >>>     logger.warning('Warning message!')  # suppressed
         >>>     some_long_process()
         >>>
-        Warning message!  # the warning is flushed here
     """
     logger = logging.getLogger(NAMESPACE)
     memhandler = MemoryHandler()
@@ -248,6 +241,24 @@ def pending_logging() -> Generator[MemoryHandler, None, None]:
         for handler in handlers:
             logger.addHandler(handler)
 
+
+@contextmanager
+def pending_logging() -> Generator[MemoryHandler, None, None]:
+    """Contextmanager to pend logging all logs temporary.
+
+    For example::
+
+        >>> with pending_logging():
+        >>>     logger.warning('Warning message!')  # not flushed yet
+        >>>     some_long_process()
+        >>>
+        Warning message!  # the warning is flushed here
+    """
+    logger = logging.getLogger(NAMESPACE)
+    try:
+        with suppress_logging() as memhandler:
+            yield memhandler
+    finally:
         memhandler.flushTo(logger)
 
 
@@ -401,9 +412,13 @@ class WarningIsErrorFilter(logging.Filter):
                 message = record.msg  # use record.msg itself
 
             if location:
-                raise SphinxWarning(location + ":" + message)
+                exc = SphinxWarning(location + ":" + str(message))
             else:
-                raise SphinxWarning(message)
+                exc = SphinxWarning(message)
+            if record.exc_info is not None:
+                raise exc from record.exc_info[1]
+            else:
+                raise exc
         else:
             return True
 
@@ -427,6 +442,26 @@ class MessagePrefixFilter(logging.Filter):
         if self.prefix:
             record.msg = self.prefix + ' ' + record.msg
         return True
+
+
+class OnceFilter(logging.Filter):
+    """Show the message only once."""
+
+    def __init__(self, name: str = '') -> None:
+        super().__init__(name)
+        self.messages = {}  # type: Dict[str, List]
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        once = getattr(record, 'once', '')
+        if not once:
+            return True
+        else:
+            params = self.messages.setdefault(record.msg, [])
+            if record.args in params:
+                return False
+
+            params.append(record.args)
+            return True
 
 
 class SphinxLogRecordTranslator(logging.Filter):
@@ -546,6 +581,7 @@ def setup(app: "Sphinx", status: IO, warning: IO) -> None:
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
     warning_handler.addFilter(WarningIsErrorFilter(app))
+    warning_handler.addFilter(OnceFilter())
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(ColorizeFormatter())
 

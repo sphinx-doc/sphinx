@@ -33,7 +33,7 @@ def test_copy_asset_file(tempdir):
 
     copy_asset_file(src, dest)
     assert dest.exists()
-    assert src.text() == dest.text()
+    assert src.read_text() == dest.read_text()
 
     # copy template file
     src = (tempdir / 'asset.txt_t')
@@ -43,7 +43,7 @@ def test_copy_asset_file(tempdir):
     copy_asset_file(src, dest, {'var1': 'template'}, renderer)
     assert not dest.exists()
     assert (tempdir / 'output.txt').exists()
-    assert (tempdir / 'output.txt').text() == '# template data'
+    assert (tempdir / 'output.txt').read_text() == '# template data'
 
     # copy template file to subdir
     src = (tempdir / 'asset.txt_t')
@@ -53,7 +53,7 @@ def test_copy_asset_file(tempdir):
 
     copy_asset_file(src, subdir1, {'var1': 'template'}, renderer)
     assert (subdir1 / 'asset.txt').exists()
-    assert (subdir1 / 'asset.txt').text() == '# template data'
+    assert (subdir1 / 'asset.txt').read_text() == '# template data'
 
     # copy template file without context
     src = (tempdir / 'asset.txt_t')
@@ -63,7 +63,7 @@ def test_copy_asset_file(tempdir):
     copy_asset_file(src, subdir2)
     assert not (subdir2 / 'asset.txt').exists()
     assert (subdir2 / 'asset.txt_t').exists()
-    assert (subdir2 / 'asset.txt_t').text() == '# {{var1}} data'
+    assert (subdir2 / 'asset.txt_t').read_text() == '# {{var1}} data'
 
 
 def test_copy_asset(tempdir):
@@ -91,11 +91,11 @@ def test_copy_asset(tempdir):
     copy_asset(source, destdir, context=dict(var1='bar', var2='baz'), renderer=renderer)
     assert (destdir / 'index.rst').exists()
     assert (destdir / 'foo.rst').exists()
-    assert (destdir / 'foo.rst').text() == 'bar.rst'
+    assert (destdir / 'foo.rst').read_text() == 'bar.rst'
     assert (destdir / '_static' / 'basic.css').exists()
     assert (destdir / '_templates' / 'layout.html').exists()
     assert (destdir / '_templates' / 'sidebar.html').exists()
-    assert (destdir / '_templates' / 'sidebar.html').text() == 'sidebar: baz'
+    assert (destdir / '_templates' / 'sidebar.html').read_text() == 'sidebar: baz'
 
     # copy with exclusion
     def excluded(path):

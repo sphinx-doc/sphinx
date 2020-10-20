@@ -10,6 +10,7 @@
 
 import fnmatch
 import functools
+import hashlib
 import os
 import posixpath
 import re
@@ -21,23 +22,19 @@ import warnings
 from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
-from hashlib import md5
 from importlib import import_module
 from os import path
 from time import mktime, strptime
 from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
-from docutils.utils import relative_path
-
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.errors import (
     PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError
 )
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
-from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.typing import PathMatcher
 from sphinx.util import smartypants  # noqa
 
@@ -45,7 +42,7 @@ from sphinx.util import smartypants  # noqa
 # prune unused ones indiscriminately
 from sphinx.util.osutil import (  # noqa
     SEP, os_path, relative_uri, ensuredir, walk, mtimes_of_files, movefile,
-    copyfile, copytimes, make_filename, ustrftime)
+    copyfile, copytimes, make_filename)
 from sphinx.util.nodes import (   # noqa
     nested_parse_with_titles, split_explicit_title, explicit_title_re,
     caption_ref_re)
@@ -56,7 +53,7 @@ if False:
     # For type annotation
     from typing import Type  # for python3.5.1
     from sphinx.application import Sphinx
-    from sphinx.builders import Builder
+
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +110,7 @@ def get_matching_docs(dirname: str, suffixes: List[str],
     Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
     warnings.warn('get_matching_docs() is now deprecated. Use get_matching_files() instead.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     suffixpatterns = ['*' + s for s in suffixes]
     for filename in get_matching_files(dirname, exclude_matchers):
         for suffixpattern in suffixpatterns:
@@ -173,6 +170,36 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
+def md5(data=b'', **kwargs):
+    """Wrapper around hashlib.md5
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError, which happens when
+    OpenSSL FIPS mode is enabled:
+    ValueError: error:060800A3:digital envelope routines:EVP_DigestInit_ex:disabled for fips
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return hashlib.md5(data, **kwargs)  # type: ignore
+    except ValueError:
+        return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
+
+
+def sha1(data=b'', **kwargs):
+    """Wrapper around hashlib.sha1
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return hashlib.sha1(data, **kwargs)  # type: ignore
+    except ValueError:
+        return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
+
+
 class DownloadFiles(dict):
     """A special dictionary for download files.
 
@@ -199,35 +226,6 @@ class DownloadFiles(dict):
         for filename, (docs, dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
-
-
-def copy_static_entry(source: str, targetdir: str, builder: "Builder", context: Dict = {},
-                      exclude_matchers: Tuple[PathMatcher, ...] = (), level: int = 0) -> None:
-    """[DEPRECATED] Copy a HTML builder static_path entry from source to targetdir.
-
-    Handles all possible cases of files, directories and subdirectories.
-    """
-    warnings.warn('sphinx.util.copy_static_entry is deprecated for removal',
-                  RemovedInSphinx30Warning, stacklevel=2)
-
-    if exclude_matchers:
-        relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
-        for matcher in exclude_matchers:
-            if matcher(relpath):
-                return
-    if path.isfile(source):
-        copy_asset_file(source, targetdir, context, builder.templates)
-    elif path.isdir(source):
-        ensuredir(targetdir)
-        for entry in os.listdir(source):
-            if entry.startswith('.'):
-                continue
-            newtarget = targetdir
-            if path.isdir(path.join(source, entry)):
-                newtarget = path.join(targetdir, entry)
-            copy_static_entry(path.join(source, entry), newtarget,
-                              builder, context, level=level + 1,
-                              exclude_matchers=exclude_matchers)
 
 
 _DEBUG_HEADER = '''\
@@ -287,21 +285,21 @@ def get_module_source(modname: str) -> Tuple[str, str]:
     try:
         mod = import_module(modname)
     except Exception as err:
-        raise PycodeError('error importing %r' % modname, err)
+        raise PycodeError('error importing %r' % modname, err) from err
     filename = getattr(mod, '__file__', None)
     loader = getattr(mod, '__loader__', None)
     if loader and getattr(loader, 'get_filename', None):
         try:
             filename = loader.get_filename(modname)
         except Exception as err:
-            raise PycodeError('error getting filename for %r' % filename, err)
+            raise PycodeError('error getting filename for %r' % filename, err) from err
     if filename is None and loader:
         try:
             filename = loader.get_source(modname)
             if filename:
                 return 'string', filename
         except Exception as err:
-            raise PycodeError('error getting source for %r' % modname, err)
+            raise PycodeError('error getting source for %r' % modname, err) from err
     if filename is None:
         raise PycodeError('no source found for module %r' % modname)
     filename = path.normpath(path.abspath(filename))
@@ -330,7 +328,7 @@ def get_full_modname(modname: str, attribute: str) -> str:
         return None
     module = import_module(modname)
 
-    # Allow an attribute to have multiple parts and incidentially allow
+    # Allow an attribute to have multiple parts and incidentally allow
     # repeated .s in the attribute.
     value = module
     for attr in attribute.split('.'):
@@ -347,7 +345,7 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 def detect_encoding(readline: Callable[[], bytes]) -> str:
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
     warnings.warn('sphinx.util.detect_encoding() is deprecated',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
 
     def read_or_stop() -> bytes:
         try:
@@ -499,8 +497,8 @@ def parselinenos(spec: str, total: int, sample_lines: List[str] = None) -> List[
                 items.extend(range(start - 1, end))
             else:
                 raise ValueError
-        except Exception:
-            raise ValueError('invalid line number spec: %r' % spec)
+        except Exception as exc:
+            raise ValueError('invalid line number spec: %r' % spec) from exc
 
     return items
 
@@ -540,6 +538,7 @@ class attrdict(dict):
 
 def rpartition(s: str, t: str) -> Tuple[str, str]:
     """Similar to str.rpartition from 2.5, but doesn't return the separator."""
+    warnings.warn('rpartition() is now deprecated.', RemovedInSphinx50Warning, stacklevel=2)
     i = s.rfind(t)
     if i != -1:
         return s[:i], s[i + len(t):]
@@ -638,9 +637,39 @@ def import_object(objname: str, source: str = None) -> Any:
     except (AttributeError, ImportError) as exc:
         if source:
             raise ExtensionError('Could not import %s (needed for %s)' %
-                                 (objname, source), exc)
+                                 (objname, source), exc) from exc
         else:
-            raise ExtensionError('Could not import %s' % objname, exc)
+            raise ExtensionError('Could not import %s' % objname, exc) from exc
+
+
+def split_full_qualified_name(name: str) -> Tuple[str, str]:
+    """Split full qualified name to a pair of modname and qualname.
+
+    A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
+    (https://www.python.org/dev/peps/pep-3155/).  It is a dotted path name
+    from the module top-level.
+
+    A "full" qualified name means a string containing both module name and
+    qualified name.
+
+    .. note:: This function imports module actually to check the exisitence.
+              Therefore you need to mock 3rd party modules if needed before
+              calling this function.
+    """
+    parts = name.split('.')
+    for i, part in enumerate(parts, 1):
+        try:
+            modname = ".".join(parts[:i])
+            import_module(modname)
+        except ImportError:
+            if parts[:i - 1]:
+                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            else:
+                return None, ".".join(parts)
+        except IndexError:
+            pass
+
+    return name, ""
 
 
 def encode_uri(uri: str) -> str:
@@ -722,7 +751,7 @@ class progress_message:
 
     def __call__(self, f: Callable) -> Callable:
         @functools.wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             with self:
                 return f(*args, **kwargs)
 

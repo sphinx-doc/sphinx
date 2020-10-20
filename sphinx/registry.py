@@ -9,9 +9,7 @@
 """
 
 import traceback
-import warnings
 from importlib import import_module
-from inspect import isclass
 from types import MethodType
 from typing import Any, Callable, Dict, Iterator, List, Tuple, Union
 
@@ -25,18 +23,15 @@ from pkg_resources import iter_entry_points
 
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
-from sphinx.io import SphinxFileInput
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.docutils import directive_helper
 from sphinx.util.logging import prefixed_warnings
 from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -103,6 +98,8 @@ class SphinxComponentRegistry:
         #: LaTeX packages; list of package names and its options
         self.latex_packages = []        # type: List[Tuple[str, str]]
 
+        self.latex_packages_after_hyperref = []     # type: List[Tuple[str, str]]
+
         #: post transforms; list of transforms
         self.post_transforms = []       # type: List[Type[Transform]]
 
@@ -142,9 +139,9 @@ class SphinxComponentRegistry:
             entry_points = iter_entry_points('sphinx.builders', name)
             try:
                 entry_point = next(entry_points)
-            except StopIteration:
+            except StopIteration as exc:
                 raise SphinxError(__('Builder name %s not registered or available'
-                                     ' through entry point') % name)
+                                     ' through entry point') % name) from exc
 
             self.load_extension(app, entry_point.module_name)
 
@@ -176,17 +173,9 @@ class SphinxComponentRegistry:
 
             yield domain
 
-    def override_domain(self, domain: "Type[Domain]") -> None:
-        warnings.warn('registry.override_domain() is deprecated. '
-                      'Use app.add_domain(domain, override=True) instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        self.add_domain(domain, override=True)
-
-    def add_directive_to_domain(self, domain: str, name: str, obj: Any,
-                                has_content: bool = None, argument_spec: Any = None,
-                                override: bool = False, **option_spec: Any) -> None:
-        logger.debug('[app] adding directive to domain: %r',
-                     (domain, name, obj, has_content, argument_spec, option_spec))
+    def add_directive_to_domain(self, domain: str, name: str,
+                                cls: "Type[Directive]", override: bool = False) -> None:
+        logger.debug('[app] adding directive to domain: %r', (domain, name, cls))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
 
@@ -194,10 +183,7 @@ class SphinxComponentRegistry:
         if name in directives and not override:
             raise ExtensionError(__('The %r directive is already registered to domain %s') %
                                  (name, domain))
-        if not isclass(obj) or not issubclass(obj, Directive):
-            directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
-        else:
-            directives[name] = obj
+        directives[name] = cls
 
     def add_role_to_domain(self, domain: str, name: str,
                            role: Union[RoleFunction, XRefRole], override: bool = False
@@ -273,47 +259,22 @@ class SphinxComponentRegistry:
         else:
             self.source_suffix[suffix] = filetype
 
-    def add_source_parser(self, *args: Any, **kwargs: Any) -> None:
-        logger.debug('[app] adding search source_parser: %r', args)
-        if len(args) == 1:
-            # new sytle arguments: (source_parser)
-            suffix = None       # type: str
-            parser = args[0]    # type: Type[Parser]
-        else:
-            # old style arguments: (suffix, source_parser)
-            warnings.warn('app.add_source_parser() does not support suffix argument. '
-                          'Use app.add_source_suffix() instead.',
-                          RemovedInSphinx30Warning, stacklevel=3)
-            suffix = args[0]
-            parser = args[1]
-
-        if suffix:
-            self.add_source_suffix(suffix, suffix, override=True)
-
-        if len(parser.supported) == 0:
-            warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
-                          'attribute: %s' % parser.__name__,
-                          RemovedInSphinx30Warning, stacklevel=3)
+    def add_source_parser(self, parser: "Type[Parser]", override: bool = False) -> None:
+        logger.debug('[app] adding search source_parser: %r', parser)
 
         # create a map from filetype to parser
         for filetype in parser.supported:
-            if filetype in self.source_parsers and not kwargs.get('override'):
+            if filetype in self.source_parsers and not override:
                 raise ExtensionError(__('source_parser for %r is already registered') %
                                      filetype)
             else:
                 self.source_parsers[filetype] = parser
 
-        # also maps suffix to parser
-        #
-        # This rescues old styled parsers which does not have ``supported`` filetypes.
-        if suffix:
-            self.source_parsers[suffix] = parser
-
     def get_source_parser(self, filetype: str) -> "Type[Parser]":
         try:
             return self.source_parsers[filetype]
-        except KeyError:
-            raise SphinxError(__('Source parser for %s not registered') % filetype)
+        except KeyError as exc:
+            raise SphinxError(__('Source parser for %s not registered') % filetype) from exc
 
     def get_source_parsers(self) -> Dict[str, "Type[Parser]"]:
         return self.source_parsers
@@ -324,16 +285,6 @@ class SphinxComponentRegistry:
         if isinstance(parser, SphinxParser):
             parser.set_application(app)
         return parser
-
-    def add_source_input(self, input_class: "Type[SphinxFileInput]", override: bool = False
-                         ) -> None:
-        warnings.warn('registry.source_input() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        for filetype in input_class.supported:
-            if filetype in self.source_inputs and not override:
-                raise ExtensionError(__('source_input for %r is already registered') %
-                                     filetype)
-            self.source_inputs[filetype] = input_class
 
     def get_source_input(self, filetype: str) -> "Type[Input]":
         try:
@@ -347,7 +298,7 @@ class SphinxComponentRegistry:
 
     def add_translator(self, name: str, translator: "Type[nodes.NodeVisitor]",
                        override: bool = False) -> None:
-        logger.debug('[app] Change of translator for the %s builder.' % name)
+        logger.debug('[app] Change of translator for the %s builder.', name)
         if name in self.translators and not override:
             raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
@@ -360,9 +311,11 @@ class SphinxComponentRegistry:
             try:
                 visit, depart = handlers  # unpack once for assertion
                 translation_handlers[node.__name__] = (visit, depart)
-            except ValueError:
-                raise ExtensionError(__('kwargs for add_node() must be a (visit, depart) '
-                                        'function tuple: %r=%r') % (builder_name, handlers))
+            except ValueError as exc:
+                raise ExtensionError(
+                    __('kwargs for add_node() must be a (visit, depart) '
+                       'function tuple: %r=%r') % (builder_name, handlers)
+                ) from exc
 
     def get_translator_class(self, builder: Builder) -> "Type[nodes.NodeVisitor]":
         return self.translators.get(builder.name,
@@ -407,16 +360,26 @@ class SphinxComponentRegistry:
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
         self.autodoc_attrgettrs[typ] = attrgetter
 
-    def add_css_files(self, filename, **attributes):
+    def add_css_files(self, filename: str, **attributes: str) -> None:
         self.css_files.append((filename, attributes))
 
     def add_js_file(self, filename: str, **attributes: str) -> None:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 
-    def add_latex_package(self, name: str, options: str) -> None:
+    def has_latex_package(self, name: str) -> bool:
+        packages = self.latex_packages + self.latex_packages_after_hyperref
+        return bool([x for x in packages if x[0] == name])
+
+    def add_latex_package(self, name: str, options: str, after_hyperref: bool = False) -> None:
+        if self.has_latex_package(name):
+            logger.warn("latex package '%s' already included" % name)
+
         logger.debug('[app] adding latex package: %r', name)
-        self.latex_packages.append((name, options))
+        if after_hyperref:
+            self.latex_packages_after_hyperref.append((name, options))
+        else:
+            self.latex_packages.append((name, options))
 
     def add_enumerable_node(self, node: "Type[Node]", figtype: str,
                             title_getter: TitleGetter = None, override: bool = False) -> None:
@@ -438,7 +401,7 @@ class SphinxComponentRegistry:
 
     def load_extension(self, app: "Sphinx", extname: str) -> None:
         """Load a Sphinx extension."""
-        if extname in app.extensions:  # alread loaded
+        if extname in app.extensions:  # already loaded
             return
         if extname in EXTENSION_BLACKLIST:
             logger.warning(__('the extension %r was already merged with Sphinx since '
@@ -453,7 +416,8 @@ class SphinxComponentRegistry:
                 mod = import_module(extname)
             except ImportError as err:
                 logger.verbose(__('Original exception:\n') + traceback.format_exc())
-                raise ExtensionError(__('Could not import extension %s') % extname, err)
+                raise ExtensionError(__('Could not import extension %s') % extname,
+                                     err) from err
 
             setup = getattr(mod, 'setup', None)
             if setup is None:
@@ -469,7 +433,7 @@ class SphinxComponentRegistry:
                         __('The %s extension used by this project needs at least '
                            'Sphinx v%s; it therefore cannot be built with this '
                            'version.') % (extname, err)
-                    )
+                    ) from err
 
             if metadata is None:
                 metadata = {}
@@ -504,7 +468,7 @@ def merge_source_suffix(app: "Sphinx", config: Config) -> None:
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', merge_source_suffix)
+    app.connect('config-inited', merge_source_suffix, priority=800)
 
     return {
         'version': 'builtin',

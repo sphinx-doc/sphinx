@@ -9,16 +9,16 @@
 """
 
 import os
-from hashlib import sha1
+import re
 from math import ceil
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from docutils import nodes
 
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch
+from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch, sha1
 from sphinx.util import logging, requests
 from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
 from sphinx.util.osutil import ensuredir, movefile
@@ -27,6 +27,7 @@ from sphinx.util.osutil import ensuredir, movefile
 logger = logging.getLogger(__name__)
 
 MAX_FILENAME_LEN = 32
+CRITICAL_PATH_CHAR_RE = re.compile('[:;<>|*" ]')
 
 
 class BaseImageConverter(SphinxTransform):
@@ -65,6 +66,7 @@ class ImageDownloader(BaseImageConverter):
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
                 basename = sha1(filename.encode()).hexdigest() + ext
+            basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
 
             dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
                                                                  ord("&"): "/"})
@@ -146,6 +148,7 @@ class DataURIExtractor(BaseImageConverter):
 
 def get_filename_for(filename: str, mimetype: str) -> str:
     basename = os.path.basename(filename)
+    basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
     return os.path.splitext(basename)[0] + get_image_extension(mimetype)
 
 
@@ -172,6 +175,13 @@ class ImageConverter(BaseImageConverter):
     """
     default_priority = 200
 
+    #: The converter is available or not.  Will be filled at the first call of
+    #: the build.  The result is shared in the same process.
+    #:
+    #: .. todo:: This should be refactored not to store the state without class
+    #:           variable.
+    available = None  # type: Optional[bool]
+
     #: A conversion rules the image converter supports.
     #: It is represented as a list of pair of source image format (mimetype) and
     #: destination one::
@@ -184,14 +194,14 @@ class ImageConverter(BaseImageConverter):
     conversion_rules = []  # type: List[Tuple[str, str]]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.available = None   # type: bool
-                                # the converter is available or not.
-                                # Will be checked at first conversion
         super().__init__(*args, **kwargs)
 
     def match(self, node: nodes.image) -> bool:
-        if self.available is None:
-            self.available = self.is_available()
+        if not self.app.builder.supported_image_types:
+            return False
+        elif self.available is None:
+            # store the value to the class variable to share it during the build
+            self.__class__.available = self.is_available()
 
         if not self.available:
             return False

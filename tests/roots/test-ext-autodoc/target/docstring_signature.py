@@ -17,3 +17,9 @@ class C:
 class D:
     def __init__(self):
         """D(foo, bar, baz)"""
+
+
+class E:
+    def __init__(self):
+        """E(foo: int, bar: int, baz: int) -> None \\
+        E(foo: str, bar: str, baz: str) -> None"""

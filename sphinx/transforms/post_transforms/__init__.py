@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Type
 from typing import cast
 
 from docutils import nodes
@@ -22,6 +22,7 @@ from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import process_only_nodes
 
 
@@ -81,8 +82,8 @@ class ReferencesResolver(SphinxPostTransform):
                     # let the domain try to resolve the reference
                     try:
                         domain = self.env.domains[node['refdomain']]
-                    except KeyError:
-                        raise NoUri(target, typ)
+                    except KeyError as exc:
+                        raise NoUri(target, typ) from exc
                     newnode = domain.resolve_xref(self.env, refdoc, self.app.builder,
                                                   typ, target, node, contnode)
                 # really hardwired reference types
@@ -91,7 +92,8 @@ class ReferencesResolver(SphinxPostTransform):
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = self.app.emit_firstresult('missing-reference', self.env,
-                                                        node, contnode)
+                                                        node, contnode,
+                                                        allowed_exceptions=(NoUri,))
                     # still not found? warn if node wishes to be warned about or
                     # we are in nit-picky mode
                     if newnode is None:
@@ -131,7 +133,7 @@ class ReferencesResolver(SphinxPostTransform):
         if not results:
             return None
         if len(results) > 1:
-            def stringify(name, node):
+            def stringify(name: str, node: Element) -> str:
                 reftitle = node.get('reftitle', node.astext())
                 return ':%s:`%s`' % (name, reftitle)
             candidates = ' or '.join(stringify(name, role) for name, role in results)
@@ -186,9 +188,41 @@ class OnlyNodeTransform(SphinxPostTransform):
         process_only_nodes(self.document, self.app.builder.tags)
 
 
+class SigElementFallbackTransform(SphinxPostTransform):
+    """Fallback desc_sig_element nodes to inline if translator does not supported them."""
+    default_priority = 200
+
+    SIG_ELEMENTS = [addnodes.desc_sig_name,
+                    addnodes.desc_sig_operator,
+                    addnodes.desc_sig_punctuation]
+
+    def run(self, **kwargs: Any) -> None:
+        def has_visitor(translator: Type[nodes.NodeVisitor], node: Type[Element]) -> bool:
+            return hasattr(translator, "visit_%s" % node.__name__)
+
+        translator = self.app.builder.get_translator_class()
+        if isinstance(translator, SphinxTranslator):
+            # subclass of SphinxTranslator supports desc_sig_element nodes automatically.
+            return
+
+        if all(has_visitor(translator, node) for node in self.SIG_ELEMENTS):
+            # the translator supports all desc_sig_element nodes
+            return
+        else:
+            self.fallback()
+
+    def fallback(self) -> None:
+        for node in self.document.traverse(addnodes.desc_sig_element):
+            newnode = nodes.inline()
+            newnode.update_all_atts(node)
+            newnode.extend(node)
+            node.replace_self(newnode)
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
+    app.add_post_transform(SigElementFallbackTransform)
 
     return {
         'version': 'builtin',

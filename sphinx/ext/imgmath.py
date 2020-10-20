@@ -14,7 +14,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError, PIPE
 from typing import Any, Dict, List, Tuple
@@ -30,7 +29,7 @@ from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
-from sphinx.util import logging
+from sphinx.util import logging, sha1
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
@@ -166,13 +165,13 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, stdout=PIPE, stderr=PIPE, cwd=tempdir, check=True)
         return path.join(tempdir, 'math.dvi')
-    except OSError:
+    except OSError as exc:
         logger.warning(__('LaTeX command %r cannot be run (needed for math '
                           'display), check the imgmath_latex setting'),
                        builder.config.imgmath_latex)
-        raise InvokeError
+        raise InvokeError from exc
     except CalledProcessError as exc:
-        raise MathExtError('latex exited with error', exc.stderr, exc.stdout)
+        raise MathExtError('latex exited with error', exc.stderr, exc.stdout) from exc
 
 
 def convert_dvi_to_image(command: List[str], name: str) -> Tuple[bytes, bytes]:
@@ -180,13 +179,13 @@ def convert_dvi_to_image(command: List[str], name: str) -> Tuple[bytes, bytes]:
     try:
         ret = subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True)
         return ret.stdout, ret.stderr
-    except OSError:
+    except OSError as exc:
         logger.warning(__('%s command %r cannot be run (needed for math '
                           'display), check the imgmath_%s setting'),
                        name, command[0], name)
-        raise InvokeError
+        raise InvokeError from exc
     except CalledProcessError as exc:
-        raise MathExtError('%s exited with error' % name, exc.stderr, exc.stdout)
+        raise MathExtError('%s exited with error' % name, exc.stderr, exc.stdout) from exc
 
 
 def convert_dvi_to_png(dvipath: str, builder: Builder) -> Tuple[str, int]:
@@ -327,7 +326,7 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
                                   backrefs=[], source=node.astext())
         sm.walkabout(self)
         logger.warning(__('display latex %r: %s'), node.astext(), msg)
-        raise nodes.SkipNode
+        raise nodes.SkipNode from exc
     if fname is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span>' %
@@ -353,7 +352,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
                                   backrefs=[], source=node.astext())
         sm.walkabout(self)
         logger.warning(__('inline latex %r: %s'), node.astext(), msg)
-        raise nodes.SkipNode
+        raise nodes.SkipNode from exc
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
     if node['number']:

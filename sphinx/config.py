@@ -18,7 +18,7 @@ from typing import (
     Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple, Union
 )
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -131,7 +131,7 @@ class Config:
         'rst_epilog': (None, 'env', [str]),
         'rst_prolog': (None, 'env', [str]),
         'trim_doctest_flags': (True, 'env', []),
-        'primary_domain': ('py', 'env', [NoneType]),   # type: ignore
+        'primary_domain': ('py', 'env', [NoneType]),
         'needs_sphinx': (None, None, [str]),
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
@@ -154,26 +154,7 @@ class Config:
                                  'env', []),
     }  # type: Dict[str, Tuple]
 
-    def __init__(self, *args: Any) -> None:
-        if len(args) == 4:
-            # old style arguments: (dirname, filename, overrides, tags)
-            warnings.warn('The argument of Config() class has been changed. '
-                          'Use Config.read() to read configuration from conf.py.',
-                          RemovedInSphinx30Warning, stacklevel=2)
-            dirname, filename, overrides, tags = args
-            if dirname is None:
-                config = {}  # type: Dict[str, Any]
-            else:
-                config = eval_config_file(path.join(dirname, filename), tags)
-        else:
-            # new style arguments: (config={}, overrides={})
-            if len(args) == 0:
-                config, overrides = {}, {}
-            elif len(args) == 1:
-                config, overrides = args[0], {}
-            else:
-                config, overrides = args[:2]
-
+    def __init__(self, config: Dict[str, Any] = {}, overrides: Dict[str, Any] = {}) -> None:
         self.overrides = dict(overrides)
         self.values = Config.config_values.copy()
         self._raw_config = config
@@ -192,16 +173,6 @@ class Config:
         filename = path.join(confdir, CONFIG_FILENAME)
         namespace = eval_config_file(filename, tags)
         return cls(namespace, overrides or {})
-
-    def check_types(self) -> None:
-        warnings.warn('Config.check_types() is deprecated. Use check_confval_types() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        check_confval_types(None, self)
-
-    def check_unicode(self) -> None:
-        warnings.warn('Config.check_unicode() is deprecated. Use check_unicode() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        check_unicode(self)
 
     def convert_overrides(self, name: str, value: Any) -> Any:
         if not isinstance(value, str):
@@ -225,9 +196,9 @@ class Config:
             elif isinstance(defvalue, int):
                 try:
                     return int(value)
-                except ValueError:
+                except ValueError as exc:
                     raise ValueError(__('invalid number %r for config value %r, ignoring') %
-                                     (value, name))
+                                     (value, name)) from exc
             elif hasattr(defvalue, '__call__'):
                 return value
             elif defvalue is not None and not isinstance(defvalue, str):
@@ -348,14 +319,17 @@ def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
             execfile_(filename, namespace)
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
-            raise ConfigError(msg % err)
-        except SystemExit:
+            raise ConfigError(msg % err) from err
+        except SystemExit as exc:
             msg = __("The configuration file (or one of the modules it imports) "
                      "called sys.exit()")
-            raise ConfigError(msg)
-        except Exception:
+            raise ConfigError(msg) from exc
+        except ConfigError:
+            # pass through ConfigError from conf.py as is.  It will be shown in console.
+            raise
+        except Exception as exc:
             msg = __("There is a programmable error in your configuration file:\n\n%s")
-            raise ConfigError(msg % traceback.format_exc())
+            raise ConfigError(msg % traceback.format_exc()) from exc
 
     return namespace
 
@@ -470,7 +444,7 @@ def check_unicode(config: Config) -> None:
     since that can result in UnicodeErrors all over the place
     """
     warnings.warn('sphinx.config.check_unicode() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
 
     nonascii_re = re.compile(br'[\x80-\xff]')
 
@@ -504,11 +478,11 @@ def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', convert_source_suffix)
-    app.connect('config-inited', init_numfig_format)
-    app.connect('config-inited', correct_copyright_year)
-    app.connect('config-inited', check_confval_types)
-    app.connect('config-inited', check_primary_domain)
+    app.connect('config-inited', convert_source_suffix, priority=800)
+    app.connect('config-inited', init_numfig_format, priority=800)
+    app.connect('config-inited', correct_copyright_year, priority=800)
+    app.connect('config-inited', check_confval_types, priority=800)
+    app.connect('config-inited', check_primary_domain, priority=800)
     app.connect('env-get-outdated', check_master_doc)
 
     return {

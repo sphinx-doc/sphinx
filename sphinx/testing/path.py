@@ -10,7 +10,10 @@ import builtins
 import os
 import shutil
 import sys
+import warnings
 from typing import Any, Callable, IO, List
+
+from sphinx.deprecation import RemovedInSphinx50Warning
 
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
@@ -138,10 +141,26 @@ class path(str):
         """
         Returns the text in the file.
         """
+        warnings.warn('Path.text() is deprecated.  Please use read_text() instead.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.read_text(encoding, **kwargs)
+
+    def read_text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
+        """
+        Returns the text in the file.
+        """
         with open(self, encoding=encoding, **kwargs) as f:
             return f.read()
 
     def bytes(self) -> builtins.bytes:
+        """
+        Returns the bytes in the file.
+        """
+        warnings.warn('Path.bytes() is deprecated.  Please use read_bytes() instead.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.read_bytes()
+
+    def read_bytes(self) -> builtins.bytes:
         """
         Returns the bytes in the file.
         """

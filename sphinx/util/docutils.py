@@ -10,8 +10,6 @@
 
 import os
 import re
-import types
-import warnings
 from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
@@ -24,14 +22,12 @@ import docutils
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.nodes import Element, Node, system_message
-from docutils.parsers.rst import Directive, directives, roles, convert_directive_function
+from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import StateMachine, State, StringList
 from docutils.utils import Reporter, unescape
 
-from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.errors import ExtensionError, SphinxError
-from sphinx.locale import __
+from sphinx.errors import SphinxError
 from sphinx.util import logging
 from sphinx.util.typing import RoleFunction
 
@@ -279,25 +275,6 @@ def is_html5_writer_available() -> bool:
     return __version_info__ > (0, 13, 0)
 
 
-def directive_helper(obj: Any, has_content: bool = None,
-                     argument_spec: Tuple[int, int, bool] = None, **option_spec: Any
-                     ) -> Any:
-    warnings.warn('function based directive support is now deprecated. '
-                  'Use class based directive instead.',
-                  RemovedInSphinx30Warning)
-
-    if isinstance(obj, (types.FunctionType, types.MethodType)):
-        obj.content = has_content                       # type: ignore
-        obj.arguments = argument_spec or (0, 0, False)  # type: ignore
-        obj.options = option_spec                       # type: ignore
-        return convert_directive_function(obj)
-    else:
-        if has_content or argument_spec or option_spec:
-            raise ExtensionError(__('when adding directive classes, no '
-                                    'additional arguments may be given'))
-        return obj
-
-
 @contextmanager
 def switch_source_input(state: State, content: StringList) -> Generator[None, None, None]:
     """Switch current source input of state temporarily."""
@@ -353,9 +330,13 @@ class SphinxDirective(Directive):
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
+    def get_source_info(self) -> Tuple[str, int]:
+        """Get source and line number."""
+        return self.state_machine.get_source_and_line(self.lineno)
+
     def set_source_info(self, node: Node) -> None:
         """Set source and line number to the node."""
-        node.source, node.line = self.state_machine.get_source_and_line(self.lineno)
+        node.source, node.line = self.get_source_info()
 
 
 class SphinxRole:
@@ -411,12 +392,13 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def set_source_info(self, node: Node, lineno: int = None) -> None:
+    def get_source_info(self, lineno: int = None) -> Tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
+        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
-        source_info = self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
-        node.source, node.line = source_info
+    def set_source_info(self, node: Node, lineno: int = None) -> None:
+        node.source, node.line = self.get_source_info(lineno)
 
 
 class ReferenceRole(SphinxRole):
@@ -427,6 +409,7 @@ class ReferenceRole(SphinxRole):
     ``self.title`` and ``self.target``.
     """
     has_explicit_title = None   #: A boolean indicates the role has explicit title or not.
+    disabled = False            #: A boolean indicates the reference is disabled.
     title = None                #: The link title for the interpreted text.
     target = None               #: The link target for the interpreted text.
 
@@ -436,6 +419,9 @@ class ReferenceRole(SphinxRole):
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
                  inliner: Inliner, options: Dict = {}, content: List[str] = []
                  ) -> Tuple[List[Node], List[system_message]]:
+        # if the first character is a bang, don't cross-reference at all
+        self.disabled = text.startswith('!')
+
         matched = self.explicit_title_re.match(text)
         if matched:
             self.has_explicit_title = True
@@ -467,25 +453,24 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.config = builder.config
         self.settings = document.settings
 
-    def dispatch_visit(self, node):
+    def dispatch_visit(self, node: Node) -> None:
         """
         Dispatch node to appropriate visitor method.
         The priority of visitor method is:
 
         1. ``self.visit_{node_class}()``
-        2. ``self.visit_{supre_node_class}()``
+        2. ``self.visit_{super_node_class}()``
         3. ``self.unknown_visit()``
         """
         for node_class in node.__class__.__mro__:
             method = getattr(self, 'visit_%s' % (node_class.__name__), None)
             if method:
-                logger.debug('SphinxTranslator.dispatch_visit calling %s for %s' %
-                             (method.__name__, node))
-                return method(node)
+                method(node)
+                break
         else:
             super().dispatch_visit(node)
 
-    def dispatch_departure(self, node):
+    def dispatch_departure(self, node: Node) -> None:
         """
         Dispatch node to appropriate departure method.
         The priority of departure method is:
@@ -497,9 +482,8 @@ class SphinxTranslator(nodes.NodeVisitor):
         for node_class in node.__class__.__mro__:
             method = getattr(self, 'depart_%s' % (node_class.__name__), None)
             if method:
-                logger.debug('SphinxTranslator.dispatch_departure calling %s for %s' %
-                             (method.__name__, node))
-                return method(node)
+                method(node)
+                break
         else:
             super().dispatch_departure(node)
 
@@ -513,7 +497,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     """Return a new empty document object.  This is an alternative of docutils'.
 
     This is a simple wrapper for ``docutils.utils.new_document()``.  It
-    caches the result of docutils' and use it on second call for instanciation.
+    caches the result of docutils' and use it on second call for instantiation.
     This makes an instantiation of document nodes much faster.
     """
     global __document_cache__
@@ -525,6 +509,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
         settings = copy(__document_cache__.settings)
 
     # Create a new instance of nodes.document using cached reporter
-    document = nodes.document(settings, __document_cache__.reporter, source=source_path)
+    from sphinx import addnodes
+    document = addnodes.document(settings, __document_cache__.reporter, source=source_path)
     document.note_source(source_path, -1)
     return document

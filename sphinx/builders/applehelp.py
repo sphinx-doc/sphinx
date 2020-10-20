@@ -27,12 +27,19 @@ deprecated_alias('sphinx.builders.applehelp',
                      'AppleHelpIndexerFailed': AppleHelpIndexerFailed,
                      'AppleHelpBuilder': AppleHelpBuilder,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'AppleHelpCodeSigningFailed':
+                     'sphinxcontrib.applehelp.AppleHelpCodeSigningFailed',
+                     'AppleHelpIndexerFailed':
+                     'sphinxcontrib.applehelp.AppleHelpIndexerFailed',
+                     'AppleHelpBuilder': 'sphinxcontrib.applehelp.AppleHelpBuilder',
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     warnings.warn('sphinx.builders.applehelp has been moved to sphinxcontrib-applehelp.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     app.setup_extension('sphinxcontrib.applehelp')
 
     return {

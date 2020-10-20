@@ -2,21 +2,38 @@
 Getting Started
 ===============
 
-Once Sphinx is :doc:`installed </usage/installation>`, you can proceed with
-setting up your first Sphinx project. To ease the process of getting started,
-Sphinx provides a tool, :program:`sphinx-quickstart`, which will generate a
-documentation source directory and populate it with some defaults. We're going
-to use the :program:`sphinx-quickstart` tool here, though it's use by no means
-necessary.
+Sphinx is a *documentation generator* or a tool that translates a set of plain
+text source files into various output formats, automatically producing
+cross-references, indices, etc.  That is, if you have a directory containing a
+bunch of :doc:`/usage/restructuredtext/index` or :doc:`/usage/markdown`
+documents, Sphinx can generate a series of HTML files, a PDF file (via LaTeX),
+man pages and much more.
+
+Sphinx focuses on documentation, in particular handwritten documentation,
+however, Sphinx can also be used to generate blogs, homepages and even books.
+Much of Sphinx's power comes from the richness of its default plain-text markup
+format, :doc:`reStructuredText </usage/restructuredtext/index>`, along with
+it's :doc:`significant extensibility capabilities </development/index>`.
+
+The goal of this document is to give you a quick taste of what Sphinx is and
+how you might use it. When you're done here, you can check out the
+:doc:`installation guide </usage/installation>` followed by the intro to the
+default markup format used by Sphinx, :doc:`reStucturedText
+</usage/restructuredtext/index>`.
+
+For a great "introduction" to writing docs in general -- the whys and hows, see
+also `Write the docs`__, written by Eric Holscher.
+
+.. __: http://www.writethedocs.org/guide/writing/beginners-guide-to-docs/
 
 
 Setting up the documentation sources
 ------------------------------------
 
-The root directory of a Sphinx collection of :term:`reStructuredText` document
-sources is called the :term:`source directory`.  This directory also contains
-the Sphinx configuration file :file:`conf.py`, where you can configure all
-aspects of how Sphinx reads your sources and builds your documentation.  [#]_
+The root directory of a Sphinx collection of plain-text document sources is
+called the :term:`source directory`.  This directory also contains the Sphinx
+configuration file :file:`conf.py`, where you can configure all aspects of how
+Sphinx reads your sources and builds your documentation.  [#]_
 
 Sphinx comes with a script called :program:`sphinx-quickstart` that sets up a
 source directory and creates a default :file:`conf.py` with the most useful
@@ -26,23 +43,16 @@ configuration values from a few questions it asks you. To use this, run:
 
    $ sphinx-quickstart
 
-Answer each question asked. Be sure to say yes to the ``autodoc`` extension, as
-we will use this later.
-
-There is also an automatic "API documentation" generator called
-:program:`sphinx-apidoc`; see :doc:`/man/sphinx-apidoc` for details.
-
 
 Defining document structure
 ---------------------------
 
 Let's assume you've run :program:`sphinx-quickstart`.  It created a source
-directory with :file:`conf.py` and a master document, :file:`index.rst` (if you
-accepted the defaults).  The main function of the :term:`master document` is to
-serve as a welcome page, and to contain the root of the "table of contents
-tree" (or *toctree*).  This is one of the main things that Sphinx adds to
-reStructuredText, a way to connect multiple files to a single hierarchy of
-documents.
+directory with :file:`conf.py` and a master document, :file:`index.rst`.  The
+main function of the :term:`master document` is to serve as a welcome page, and
+to contain the root of the "table of contents tree" (or *toctree*).  This is one
+of the main things that Sphinx adds to reStructuredText, a way to connect
+multiple files to a single hierarchy of documents.
 
 .. sidebar:: reStructuredText directives
 
@@ -103,7 +113,7 @@ In Sphinx source files, you can use most features of standard
 For example, you can add cross-file references in a portable way (which works
 for all output types) using the :rst:role:`ref` role.
 
-For an example, if you are viewing the HTML version you can look at the source
+For an example, if you are viewing the HTML version, you can look at the source
 for this document -- use the "Show Source" link in the sidebar.
 
 .. todo:: Update the below link when we add new guides on these.
@@ -233,8 +243,7 @@ customize a config value that is not automatically added by
 
 Keep in mind that the file uses Python syntax for strings, numbers, lists and
 so on.  The file is saved in UTF-8 by default, as indicated by the encoding
-declaration in the first line.  If you use non-ASCII characters in any string
-value, you need to use Python Unicode strings (like ``project = u'Exposé'``).
+declaration in the first line.
 
 |more| See :doc:`/usage/configuration` for documentation of all available
 config values.
@@ -252,10 +261,12 @@ module that provides additional features for Sphinx projects) called *autodoc*.
 
 In order to use *autodoc*, you need to activate it in :file:`conf.py` by
 putting the string ``'sphinx.ext.autodoc'`` into the list assigned to the
-:confval:`extensions` config value.  Then, you have a few additional directives
-at your disposal.
+:confval:`extensions` config value::
 
-For example, to document the function ``io.open()``, reading its signature and
+   extensions = ['sphinx.ext.autodoc']
+
+Then, you have a few additional directives at your disposal.  For example, to
+document the function ``io.open()``, reading its signature and
 docstring from the source file, you'd write this::
 
    .. autofunction:: io.open

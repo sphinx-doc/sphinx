@@ -12,14 +12,14 @@ import re
 import textwrap
 import warnings
 from os import path
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Pattern, Set, Tuple, Union
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set, Tuple, Union
 from typing import cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, __display_version__
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
@@ -191,6 +191,7 @@ class TexinfoTranslator(SphinxTranslator):
 
         self.body = []                  # type: List[str]
         self.context = []               # type: List[str]
+        self.descs = []                 # type: List[addnodes.desc]
         self.previous_section = None    # type: nodes.section
         self.section_level = 0
         self.seen_title = False
@@ -627,7 +628,7 @@ class TexinfoTranslator(SphinxTranslator):
         elif not isinstance(parent, nodes.section):
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
-                           location=(self.curfilestack[-1], node.line))
+                           location=node)
             self.visit_rubric(node)
         else:
             try:
@@ -855,8 +856,8 @@ class TexinfoTranslator(SphinxTranslator):
         num = node.astext().strip()
         try:
             footnode, used = self.footnotestack[-1][num]
-        except (KeyError, IndexError):
-            raise nodes.SkipNode
+        except (KeyError, IndexError) as exc:
+            raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
         footnode.walkabout(self)  # type: ignore
         raise nodes.SkipChildren
@@ -1185,7 +1186,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.body.append('\n@caption{')
         else:
             logger.warning(__('caption not inside a figure.'),
-                           location=(self.curfilestack[-1], node.line))
+                           location=node)
 
     def depart_caption(self, node: Element) -> None:
         if (isinstance(node.parent, nodes.figure) or
@@ -1261,11 +1262,11 @@ class TexinfoTranslator(SphinxTranslator):
 
     def unimplemented_visit(self, node: Element) -> None:
         logger.warning(__("unimplemented node type: %r"), node,
-                       location=(self.curfilestack[-1], node.line))
+                       location=node)
 
     def unknown_visit(self, node: Node) -> None:
         logger.warning(__("unknown node type: %r"), node,
-                       location=(self.curfilestack[-1], node.line))
+                       location=node)
 
     def unknown_departure(self, node: Node) -> None:
         pass
@@ -1367,12 +1368,12 @@ class TexinfoTranslator(SphinxTranslator):
 
     # -- Desc
 
-    def visit_desc(self, node: Element) -> None:
-        self.desc = node
+    def visit_desc(self, node: addnodes.desc) -> None:
+        self.descs.append(node)
         self.at_deffnx = '@deffn'
 
-    def depart_desc(self, node: Element) -> None:
-        self.desc = None
+    def depart_desc(self, node: addnodes.desc) -> None:
+        self.descs.pop()
         self.ensure_eol()
         self.body.append('@end deffn\n')
 
@@ -1400,6 +1401,12 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append("\n")
         self.escape_hyphens -= 1
         self.desc_type_name = None
+
+    def visit_desc_signature_line(self, node: Element) -> None:
+        pass
+
+    def depart_desc_signature_line(self, node: Element) -> None:
+        pass
 
     def visit_desc_name(self, node: Element) -> None:
         pass
@@ -1456,9 +1463,8 @@ class TexinfoTranslator(SphinxTranslator):
         #     -- instead of --
         #     @deffn {Class} class Foo
         txt = node.astext().strip()
-        if txt == self.desc['desctype'] or \
-           txt == self.desc['objtype'] or \
-           txt in self.desc_type_name.split():
+        if ((self.descs and txt == self.descs[-1]['objtype']) or
+                (self.desc_type_name and txt in self.desc_type_name.split())):
             raise nodes.SkipNode
 
     def depart_desc_annotation(self, node: Element) -> None:
@@ -1529,10 +1535,10 @@ class TexinfoTranslator(SphinxTranslator):
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
 
-    def _make_visit_admonition(name: str) -> Callable[["TexinfoTranslator", Element], None]:  # type: ignore  # NOQA
-        warnings.warn('TexinfoTranslator._make_visit_admonition() is deprecated.',
-                      RemovedInSphinx30Warning)
-
-        def visit(self: "TexinfoTranslator", node: Element) -> None:
-            self.visit_admonition(node, admonitionlabels[name])
-        return visit
+    @property
+    def desc(self) -> Optional[addnodes.desc]:
+        warnings.warn('TexinfoWriter.desc is deprecated.', RemovedInSphinx50Warning)
+        if len(self.descs):
+            return self.descs[-1]
+        else:
+            return None

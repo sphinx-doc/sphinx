@@ -54,10 +54,8 @@ EXTENSIONS = OrderedDict([
     ('imgmath', __('include math, rendered as PNG or SVG images')),
     ('mathjax', __('include math, rendered in the browser by MathJax')),
     ('ifconfig', __('conditional inclusion of content based on config values')),
-    ('viewcode',
-     __('include links to the source code of documented Python objects')),
-    ('githubpages',
-     __('create .nojekyll file to publish the document on GitHub pages')),
+    ('viewcode', __('include links to the source code of documented Python objects')),
+    ('githubpages', __('create .nojekyll file to publish the document on GitHub pages')),
 ])
 
 DEFAULTS = {
@@ -129,8 +127,7 @@ def boolean(x: str) -> bool:
 
 def suffix(x: str) -> str:
     if not (x[0:1] == '.' and len(x) > 1):
-        raise ValidationError(__("Please enter a file suffix, "
-                                 "e.g. '.rst' or '.txt'."))
+        raise ValidationError(__("Please enter a file suffix, e.g. '.rst' or '.txt'."))
     return x
 
 
@@ -190,7 +187,7 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
 def convert_python_source(source: str, rex: Pattern = re.compile(r"[uU]('.*?')")) -> str:
     # remove Unicode literal prefixes
     warnings.warn('convert_python_source() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return rex.sub('\\1', source)
 
 
@@ -228,16 +225,16 @@ def ask_user(d: Dict) -> None:
     """
 
     print(bold(__('Welcome to the Sphinx %s quickstart utility.')) % __display_version__)
-    print(__('''
-Please enter values for the following settings (just press Enter to
-accept a default value, if one is given in brackets).'''))
+    print()
+    print(__('Please enter values for the following settings (just press Enter to\n'
+             'accept a default value, if one is given in brackets).'))
 
     if 'path' in d:
-        print(bold(__('''
-Selected root path: %s''') % d['path']))
+        print()
+        print(bold(__('Selected root path: %s')) % d['path'])
     else:
-        print(__('''
-Enter the root path for documentation.'''))
+        print()
+        print(__('Enter the root path for documentation.'))
         d['path'] = do_prompt(__('Root path for the documentation'), '.', is_path)
 
     while path.isfile(path.join(d['path'], 'conf.py')) or \
@@ -247,70 +244,68 @@ Enter the root path for documentation.'''))
                       'selected root path.')))
         print(__('sphinx-quickstart will not overwrite existing Sphinx projects.'))
         print()
-        d['path'] = do_prompt(__('Please enter a new root path (or just Enter '
-                                 'to exit)'), '', is_path)
+        d['path'] = do_prompt(__('Please enter a new root path (or just Enter to exit)'),
+                              '', is_path)
         if not d['path']:
             sys.exit(1)
 
     if 'sep' not in d:
-        print(__('''
-You have two options for placing the build directory for Sphinx output.
-Either, you use a directory "_build" within the root path, or you separate
-"source" and "build" directories within the root path.'''))
-        d['sep'] = do_prompt(__('Separate source and build directories (y/n)'),
-                             'n', boolean)
+        print()
+        print(__('You have two options for placing the build directory for Sphinx output.\n'
+                 'Either, you use a directory "_build" within the root path, or you separate\n'
+                 '"source" and "build" directories within the root path.'))
+        d['sep'] = do_prompt(__('Separate source and build directories (y/n)'), 'n', boolean)
 
     if 'dot' not in d:
-        print(__('''
-Inside the root directory, two more directories will be created; "_templates"
-for custom HTML templates and "_static" for custom stylesheets and other static
-files. You can enter another prefix (such as ".") to replace the underscore.'''))
+        print()
+        print(__('Inside the root directory, two more directories will be created; "_templates"\n'      # NOQA
+                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'    # NOQA
+                 'files. You can enter another prefix (such as ".") to replace the underscore.'))       # NOQA
         d['dot'] = do_prompt(__('Name prefix for templates and static dir'), '_', ok)
 
     if 'project' not in d:
-        print(__('''
-The project name will occur in several places in the built documentation.'''))
+        print()
+        print(__('The project name will occur in several places in the built documentation.'))
         d['project'] = do_prompt(__('Project name'))
     if 'author' not in d:
         d['author'] = do_prompt(__('Author name(s)'))
 
     if 'version' not in d:
-        print(__('''
-Sphinx has the notion of a "version" and a "release" for the
-software. Each version can have multiple releases. For example, for
-Python the version is something like 2.5 or 3.0, while the release is
-something like 2.5.1 or 3.0a1.  If you don't need this dual structure,
-just set both to the same value.'''))
+        print()
+        print(__('Sphinx has the notion of a "version" and a "release" for the\n'
+                 'software. Each version can have multiple releases. For example, for\n'
+                 'Python the version is something like 2.5 or 3.0, while the release is\n'
+                 'something like 2.5.1 or 3.0a1. If you don\'t need this dual structure,\n'
+                 'just set both to the same value.'))
         d['version'] = do_prompt(__('Project version'), '', allow_empty)
     if 'release' not in d:
         d['release'] = do_prompt(__('Project release'), d['version'], allow_empty)
 
     if 'language' not in d:
-        print(__('''
-If the documents are to be written in a language other than English,
-you can select a language here by its language code. Sphinx will then
-translate text that it generates into that language.
-
-For a list of supported codes, see
-https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.'''))
+        print()
+        print(__('If the documents are to be written in a language other than English,\n'
+                 'you can select a language here by its language code. Sphinx will then\n'
+                 'translate text that it generates into that language.\n'
+                 '\n'
+                 'For a list of supported codes, see\n'
+                 'https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.'))  # NOQA
         d['language'] = do_prompt(__('Project language'), 'en')
         if d['language'] == 'en':
             d['language'] = None
 
     if 'suffix' not in d:
-        print(__('''
-The file name suffix for source files. Commonly, this is either ".txt"
-or ".rst".  Only files with this suffix are considered documents.'''))
+        print()
+        print(__('The file name suffix for source files. Commonly, this is either ".txt"\n'
+                 'or ".rst". Only files with this suffix are considered documents.'))
         d['suffix'] = do_prompt(__('Source file suffix'), '.rst', suffix)
 
     if 'master' not in d:
-        print(__('''
-One document is special in that it is considered the top node of the
-"contents tree", that is, it is the root of the hierarchical structure
-of the documents. Normally, this is "index", but if your "index"
-document is a custom template, you can also set this to another filename.'''))
-        d['master'] = do_prompt(__('Name of your master document (without suffix)'),
-                                'index')
+        print()
+        print(__('One document is special in that it is considered the top node of the\n'
+                 '"contents tree", that is, it is the root of the hierarchical structure\n'
+                 'of the documents. Normally, this is "index", but if your "index"\n'
+                 'document is a custom template, you can also set this to another filename.'))
+        d['master'] = do_prompt(__('Name of your master document (without suffix)'), 'index')
 
     while path.isfile(path.join(d['path'], d['master'] + d['suffix'])) or \
             path.isfile(path.join(d['path'], 'source', d['master'] + d['suffix'])):
@@ -323,8 +318,7 @@ document is a custom template, you can also set this to another filename.'''))
                                    'existing file and press Enter'), d['master'])
 
     if 'extensions' not in d:
-        print(__('Indicate which of the following Sphinx extensions should be '
-                 'enabled:'))
+        print(__('Indicate which of the following Sphinx extensions should be enabled:'))
         d['extensions'] = []
         for name, description in EXTENSIONS.items():
             if do_prompt('%s: %s (y/n)' % (name, description), 'n', boolean):
@@ -332,20 +326,19 @@ document is a custom template, you can also set this to another filename.'''))
 
         # Handle conflicting options
         if {'sphinx.ext.imgmath', 'sphinx.ext.mathjax'}.issubset(d['extensions']):
-            print(__('Note: imgmath and mathjax cannot be enabled at the same '
-                     'time. imgmath has been deselected.'))
+            print(__('Note: imgmath and mathjax cannot be enabled at the same time. '
+                     'imgmath has been deselected.'))
             d['extensions'].remove('sphinx.ext.imgmath')
 
     if 'makefile' not in d:
-        print(__('''
-A Makefile and a Windows command file can be generated for you so that you
-only have to run e.g. `make html' instead of invoking sphinx-build
-directly.'''))
+        print()
+        print(__('A Makefile and a Windows command file can be generated for you so that you\n'
+                 'only have to run e.g. `make html\' instead of invoking sphinx-build\n'
+                 'directly.'))
         d['makefile'] = do_prompt(__('Create Makefile? (y/n)'), 'y', boolean)
 
     if 'batchfile' not in d:
-        d['batchfile'] = do_prompt(__('Create Windows command file? (y/n)'),
-                                   'y', boolean)
+        d['batchfile'] = do_prompt(__('Create Windows command file? (y/n)'), 'y', boolean)
     print()
 
 
@@ -364,6 +357,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     d.setdefault('extensions', [])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
 
+    d["path"] = os.path.abspath(d['path'])
     ensuredir(d['path'])
 
     srcdir = path.join(d['path'], 'source') if d['sep'] else d['path']
@@ -428,17 +422,18 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
         return
     print()
     print(bold(__('Finished: An initial directory structure has been created.')))
-    print(__('''
-You should now populate your master file %s and create other documentation
-source files. ''') % masterfile + ((d['makefile'] or d['batchfile']) and __('''\
-Use the Makefile to build the docs, like so:
-   make builder
-''') or __('''\
-Use the sphinx-build command to build the docs, like so:
-   sphinx-build -b builder %s %s
-''') % (srcdir, builddir)) + __('''\
-where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
-'''))
+    print()
+    print(__('You should now populate your master file %s and create other documentation\n'
+             'source files. ') % masterfile, end='')
+    if d['makefile'] or d['batchfile']:
+        print(__('Use the Makefile to build the docs, like so:\n'
+                 '   make builder'))
+    else:
+        print(__('Use the sphinx-build command to build the docs, like so:\n'
+                 '   sphinx-build -b builder %s %s') % (srcdir, builddir))
+    print(__('where "builder" is one of the supported builders, '
+             'e.g. html, latex or linkcheck.'))
+    print()
 
 
 def valid_dir(d: Dict) -> bool:
@@ -471,16 +466,18 @@ def valid_dir(d: Dict) -> bool:
 
 
 def get_parser() -> argparse.ArgumentParser:
+    description = __(
+        "\n"
+        "Generate required files for a Sphinx project.\n"
+        "\n"
+        "sphinx-quickstart is an interactive tool that asks some questions about your\n"
+        "project and then generates a complete documentation directory and sample\n"
+        "Makefile to be used with sphinx-build.\n"
+    )
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
         epilog=__("For more information, visit <http://sphinx-doc.org/>."),
-        description=__("""
-Generate required files for a Sphinx project.
-
-sphinx-quickstart is an interactive tool that asks some questions about your
-project and then generates a complete documentation directory and sample
-Makefile to be used with sphinx-build.
-"""))
+        description=description)
 
     parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',
                         default=None,
@@ -579,8 +576,8 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
     try:
         if 'quiet' in d:
             if not {'project', 'author'}.issubset(d):
-                print(__('''"quiet" is specified, but any of "project" or \
-"author" is not specified.'''))
+                print(__('"quiet" is specified, but any of "project" or '
+                         '"author" is not specified.'))
                 return 1
 
         if {'quiet', 'project', 'author'}.issubset(d):

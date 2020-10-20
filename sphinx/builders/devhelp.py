@@ -23,7 +23,10 @@ deprecated_alias('sphinx.builders.devhelp',
                  {
                      'DevhelpBuilder': DevhelpBuilder,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'DevhelpBuilder': 'sphinxcontrib.devhelp.DevhelpBuilder'
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

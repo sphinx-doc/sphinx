@@ -52,7 +52,7 @@ Documentation using the classic theme
 * `Arb <http://arblib.org/>`__
 * `Bazaar <http://doc.bazaar.canonical.com/>`__ (customized)
 * `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`__
-* `Blender <https://docs.blender.org/api/current/>`__
+* `Blender API <https://docs.blender.org/api/current/>`__
 * `Bugzilla <https://bugzilla.readthedocs.io/>`__
 * `Buildbot <https://docs.buildbot.net/latest/>`__
 * `CMake <https://cmake.org/documentation/>`__ (customized)
@@ -114,6 +114,7 @@ Documentation using the sphinxdoc theme
 * `ABRT <https://abrt.readthedocs.io/>`__
 * `cartopy <https://scitools.org.uk/cartopy/docs/latest/>`__
 * `Jython <http://www.jython.org/docs/>`__
+* `LLVM <https://llvm.org/docs/>`__
 * `Matplotlib <https://matplotlib.org/>`__
 * `MDAnalysis Tutorial <https://www.mdanalysis.org/MDAnalysisTutorial/>`__
 * `NetworkX <https://networkx.github.io/>`__
@@ -123,6 +124,7 @@ Documentation using the sphinxdoc theme
 * `Pysparse <http://pysparse.sourceforge.net/>`__
 * `PyTango <https://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/pytango/latest/>`__
 * `Python Wild Magic <https://vmlaker.github.io/pythonwildmagic/>`__ (customized)
+* `RDKit <https://www.rdkit.org/docs/>`__
 * `Reteisi <http://www.reteisi.org/contents.html>`__ (customized)
 * `Sqlkit <http://sqlkit.argolinux.org/>`__ (customized)
 * `Turbulenz <http://docs.turbulenz.com/>`__
@@ -167,6 +169,7 @@ Documentation using sphinx_rtd_theme
 * `ASE <https://wiki.fysik.dtu.dk/ase/>`__
 * `Autofac <http://docs.autofac.org/>`__
 * `BigchainDB <https://docs.bigchaindb.com/>`__
+* `Blender Reference Manual <https://docs.blender.org/manual/>`__
 * `Blocks <https://blocks.readthedocs.io/>`__
 * `bootstrap-datepicker <https://bootstrap-datepicker.readthedocs.io/>`__
 * `Certbot <https://letsencrypt.readthedocs.io/>`__
@@ -180,17 +183,20 @@ Documentation using sphinx_rtd_theme
 * `Databricks <https://docs.databricks.com/>`__ (customized)
 * `Dataiku DSS <https://doc.dataiku.com/>`__
 * `DNF <https://dnf.readthedocs.io/>`__
+* `Django-cas-ng <https://djangocas.dev/docs/>`__
 * `edX <https://docs.edx.org/>`__
 * `Electrum <http://docs.electrum.org/>`__
 * `Elemental <http://libelemental.org/documentation/dev/>`__
 * `ESWP3 <https://eswp3.readthedocs.io/>`__
 * `Ethereum Homestead <http://www.ethdocs.org/>`__
+* `Exhale <https://exhale.readthedocs.io/>`__
 * `Faker <https://faker.readthedocs.io/>`__
 * `Fidimag <https://fidimag.readthedocs.io/>`__
 * `Flake8 <http://flake8.pycqa.org/>`__
 * `Flatpak <http://docs.flatpak.org/>`__
 * `FluidDyn <https://fluiddyn.readthedocs.io/>`__
 * `Fluidsim <https://fluidsim.readthedocs.io/>`__
+* `Gallium <https://gallium.readthedocs.io/>`__
 * `GeoNode <http://docs.geonode.org/>`__
 * `Glances <https://glances.readthedocs.io/>`__
 * `Godot <https://godot.readthedocs.io/>`__
@@ -206,11 +212,14 @@ Documentation using sphinx_rtd_theme
 * `Jupyter Notebook <https://jupyter-notebook.readthedocs.io/>`__
 * `Lasagne <https://lasagne.readthedocs.io/>`__
 * `latexindent.pl <https://latexindentpl.readthedocs.io/>`__
+* `Learning Apache Spark with Python <https://runawayhorse001.github.io/LearningApacheSpark>`__
+* `LibCEED <https://libceed.readthedocs.io/>`__
 * `Linguistica <https://linguistica-uchicago.github.io/lxa5/>`__
 * `Linux kernel <https://www.kernel.org/doc/html/latest/index.html>`__
+* `Mailman <http://docs.list.org/>`__
 * `MathJax <https://docs.mathjax.org/>`__
 * `MDTraj <http://mdtraj.org/latest/>`__ (customized)
-* `MICrobial Community Analysis (micca) <http://micca.org/docs/latest/>`__
+* `micca - MICrobial Community Analysis <https://micca.readthedocs.io/>`__
 * `MicroPython <https://docs.micropython.org/>`__
 * `Minds <https://www.minds.org/docs/>`__ (customized)
 * `Mink <http://mink.behat.org/>`__
@@ -235,6 +244,7 @@ Documentation using sphinx_rtd_theme
 * `PyPy <http://doc.pypy.org/>`__
 * `python-sqlparse <https://sqlparse.readthedocs.io/>`__
 * `PyVISA <https://pyvisa.readthedocs.io/>`__
+* `pyvista <https://docs.pyvista.org/>`__
 * `Read The Docs <https://docs.readthedocs.io/>`__
 * `Free your information from their silos (French) <http://redaction-technique.org/>`__ (customized)
 * `Releases Sphinx extension <https://releases.readthedocs.io/>`__
@@ -252,6 +262,7 @@ Documentation using sphinx_rtd_theme
 * `Sphinx AutoAPI <https://sphinx-autoapi.readthedocs.io/>`__
 * `sphinx-argparse <https://sphinx-argparse.readthedocs.io/>`__
 * `Sphinx-Gallery <https://sphinx-gallery.readthedocs.io/>`__ (customized)
+* `Sphinx with Github Webpages <https://runawayhorse001.github.io/SphinxGithub>`__
 * `SpotBugs <https://spotbugs.readthedocs.io/>`__
 * `StarUML <https://docs.staruml.io/>`__
 * `Sublime Text Unofficial Documentation <http://docs.sublimetext.info/>`__
@@ -285,6 +296,7 @@ Documentation using sphinx_bootstrap_theme
 * `Hedge <https://documen.tician.de/hedge/>`__
 * `ObsPy <https://docs.obspy.org/>`__
 * `Open Dylan <https://opendylan.org/documentation/>`__
+* `OPNFV <https://docs.opnfv.org/>`__
 * `Pootle <http://docs.translatehouse.org/projects/pootle/>`__
 * `PyUblas <https://documen.tician.de/pyublas/>`__
 * `seaborn <https://seaborn.pydata.org/>`__
@@ -318,9 +330,11 @@ Documentation using a custom theme or integrated in a website
 * `Lasso <http://lassoguide.com/>`__
 * `Mako <http://docs.makotemplates.org/>`__
 * `MirrorBrain <http://mirrorbrain.org/docs/>`__
+* `Mitiq <https://mitiq.readthedocs.io/>`__
 * `MongoDB <https://docs.mongodb.com/>`__
 * `Music21 <https://web.mit.edu/music21/doc/>`__
 * `MyHDL <http://docs.myhdl.org/>`__
+* `ndnSIM <https://ndnsim.net/current/>`__
 * `nose <https://nose.readthedocs.io/>`__
 * `ns-3 <https://www.nsnam.org/documentation/>`__
 * `NumPy <https://docs.scipy.org/doc/numpy/reference/>`__
@@ -342,7 +356,7 @@ Documentation using a custom theme or integrated in a website
 * `Roundup <http://www.roundup-tracker.org/>`__
 * `SaltStack <https://docs.saltstack.com/>`__
 * `scikit-learn <http://scikit-learn.org/stable/>`__
-* `SciPy <https://docs.scipy.org/doc/scipy/refrence/>`__
+* `SciPy <https://docs.scipy.org/doc/scipy/reference/>`__
 * `Scrapy <https://doc.scrapy.org/>`__
 * `Seaborn <https://seaborn.pydata.org/>`__
 * `Selenium <https://docs.seleniumhq.org/docs/>`__
@@ -369,6 +383,7 @@ Homepages and other non-documentation sites
 * `Pylearn2 <http://www.deeplearning.net/software/pylearn2/>`__ (sphinxdoc, customized)
 * `PyXLL <https://www.pyxll.com/>`__ (sphinx_bootstrap_theme, customized)
 * `SciPy Cookbook <https://scipy-cookbook.readthedocs.io/>`__ (sphinx_rtd_theme)
+* `Tech writer at work blog <https://blog.documatt.com/>`__ (custom theme)
 * `The Wine Cellar Book <https://www.thewinecellarbook.com/doc/en/>`__ (sphinxdoc)
 * `Thomas Cokelaer's Python, Sphinx and reStructuredText tutorials <https://thomas-cokelaer.info/tutorials/>`__ (standard)
 * `UC Berkeley ME233 Advanced Control Systems II course <https://berkeley-me233.github.io/>`__ (sphinxdoc)
@@ -394,6 +409,7 @@ Books produced using Sphinx
 * `"Python Professional Programming" (in Japanese) <http://www.amazon.co.jp/dp/4798032948/>`__
 * `"Python Professional Programming 2nd Edition" (in Japanese) <https://www.amazon.co.jp/dp/479804315X/>`__
 * `"Python Professional Programming 3rd Edition" (in Japanese) <https://www.amazon.co.jp/dp/4798053821/>`__
+* `Python Course by Yuri Petrov (Russian) <https://www.yuripetrov.ru/edu/python>`__
 * `"Real World HTTP -- Learning The Internet and Web Technology via its history and code (Japanese)" <https://www.oreilly.co.jp/books/9784873118048/>`__
 * `"Redmine Primer 5th Edition (in Japanese)" <https://www.shuwasystem.co.jp/products/7980html/4825.html>`__
 * `"The repoze.bfg Web Application Framework" <https://www.amazon.com/repoze-bfg-Web-Application-Framework-Version/dp/0615345379>`__

@@ -12,13 +12,40 @@ import warnings
 from typing import Any, Dict, List, Sequence
 
 from docutils import nodes
-from docutils.nodes import Node
+from docutils.nodes import Element, Node
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 
 if False:
     # For type annotation
     from sphinx.application import Sphinx
+
+
+class document(nodes.document):
+    """The document root element patched by Sphinx.
+
+    This fixes that document.set_id() does not support a node having multiple node Ids.
+    see https://sourceforge.net/p/docutils/patches/167/
+
+    .. important:: This is only for Sphinx internal use.  Please don't use this
+                   in your extensions.  It will be removed without deprecation period.
+    """
+
+    def set_id(self, node: Element, msgnode: Element = None,
+               suggested_prefix: str = '') -> str:
+        from sphinx.util import docutils
+        if docutils.__version_info__ >= (0, 16):
+            ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
+        else:
+            ret = super().set_id(node, msgnode)
+
+        if docutils.__version_info__ < (0, 17):
+            # register other node IDs forcedly
+            for node_id in node['ids']:
+                if node_id not in self.ids:
+                    self.ids[node_id] = node
+
+        return ret
 
 
 class translatable(nodes.Node):
@@ -112,6 +139,13 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
     In that case all child nodes must be ``desc_signature_line`` nodes.
     """
 
+    @property
+    def child_text_separator(self):
+        if self.get('is_multiline'):
+            return ' '
+        else:
+            return super().child_text_separator
+
 
 class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a line in a multi-line object signatures.
@@ -119,7 +153,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     It should only be used in a ``desc_signature`` with ``is_multiline`` set.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
-    sphinx_cpp_tagname = ''
+    sphinx_line_type = ''
 
 
 # nodes to use within a desc_signature or desc_signature_line
@@ -150,6 +184,9 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general parameter list."""
     child_text_separator = ', '
 
+    def astext(self):
+        return '({})'.format(super().astext())
+
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
@@ -172,6 +209,31 @@ class desc_content(nodes.General, nodes.Element):
 
     This is the "definition" part of the custom Sphinx definition list.
     """
+
+
+class desc_sig_element(nodes.inline):
+    """Common parent class of nodes for inline text of a signature."""
+    classes = []  # type: List[str]
+
+    def __init__(self, rawsource: str = '', text: str = '',
+                 *children: Element, **attributes: Any) -> None:
+        super().__init__(rawsource, text, *children, **attributes)
+        self['classes'].extend(self.classes)
+
+
+class desc_sig_name(desc_sig_element):
+    """Node for a name in a signature."""
+    classes = ["n"]
+
+
+class desc_sig_operator(desc_sig_element):
+    """Node for an operator in a signature."""
+    classes = ["o"]
+
+
+class desc_sig_punctuation(desc_sig_element):
+    """Node for a punctuation in a signature."""
+    classes = ["p"]
 
 
 # new admonition-like constructs
@@ -197,59 +259,6 @@ class productionlist(nodes.Admonition, nodes.Element):
 
 class production(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single grammar production rule."""
-
-
-# math nodes
-
-
-class math(nodes.math):
-    """Node for inline equations.
-
-    .. warning:: This node is provided to keep compatibility only.
-                 It will be removed in nearly future.  Don't use this from your extension.
-
-    .. deprecated:: 1.8
-       Use ``docutils.nodes.math`` instead.
-    """
-
-    def __getitem__(self, key):
-        """Special accessor for supporting ``node['latex']``."""
-        if key == 'latex' and 'latex' not in self.attributes:
-            warnings.warn("math node for Sphinx was replaced by docutils'. "
-                          "Therefore please use ``node.astext()`` to get an equation instead.",
-                          RemovedInSphinx30Warning, stacklevel=2)
-            return self.astext()
-        else:
-            return super().__getitem__(key)
-
-
-class math_block(nodes.math_block):
-    """Node for block level equations.
-
-    .. warning:: This node is provided to keep compatibility only.
-                 It will be removed in nearly future.  Don't use this from your extension.
-
-    .. deprecated:: 1.8
-    """
-
-    def __getitem__(self, key):
-        if key == 'latex' and 'latex' not in self.attributes:
-            warnings.warn("displaymath node for Sphinx was replaced by docutils'. "
-                          "Therefore please use ``node.astext()`` to get an equation instead.",
-                          RemovedInSphinx30Warning, stacklevel=2)
-            return self.astext()
-        else:
-            return super().__getitem__(key)
-
-
-class displaymath(math_block):
-    """Node for block level equations.
-
-    .. warning:: This node is provided to keep compatibility only.
-                 It will be removed in nearly future.  Don't use this from your extension.
-
-    .. deprecated:: 1.8
-    """
 
 
 # other directive-level nodes
@@ -385,11 +394,13 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
     app.add_node(desc_content)
+    app.add_node(desc_sig_name)
+    app.add_node(desc_sig_operator)
+    app.add_node(desc_sig_punctuation)
     app.add_node(versionmodified)
     app.add_node(seealso)
     app.add_node(productionlist)
     app.add_node(production)
-    app.add_node(displaymath)
     app.add_node(index)
     app.add_node(centered)
     app.add_node(acks)

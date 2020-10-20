@@ -1,0 +1,9 @@
+# Ref: https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository#configuring-the-template-chooser
+blank_issues_enabled: false  # default: true
+contact_links:
+- name: Question
+  url: https://stackoverflow.com/questions/tagged/python-sphinx
+  about: For Q&A purpose, please use Stackoverflow with the tag python-sphinx
+- name: Discussion
+  url: https://groups.google.com/forum/#!forum/sphinx-users
+  about: For general discussion, please use sphinx-users mailing list.

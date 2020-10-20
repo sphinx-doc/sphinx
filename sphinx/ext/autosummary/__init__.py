@@ -72,16 +72,16 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.ext.autodoc import Documenter, get_documenters
+from sphinx.ext.autodoc import Documenter, INSTANCEATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.util import import_object, rst, logging
+from sphinx.util import rst, logging
 from sphinx.util.docutils import (
     NullReporter, SphinxDirective, SphinxRole, new_document, switch_source_input
 )
@@ -99,6 +99,8 @@ logger = logging.getLogger(__name__)
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
 
+WELL_KNOWN_ABBREVIATIONS = (' i.e.',)
+
 
 # -- autosummary_toc node ------------------------------------------------------
 
@@ -110,6 +112,8 @@ def process_autosummary_toc(app: Sphinx, doctree: nodes.document) -> None:
     """Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
     """
+    warnings.warn('process_autosummary_toc() is deprecated',
+                  RemovedInSphinx50Warning, stacklevel=2)
     env = app.builder.env
     crawled = {}
 
@@ -203,7 +207,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
         parent_doc = parent_doc_cls(FakeDirective(), "")
 
     # Get the corrent documenter class for *obj*
-    classes = [cls for cls in get_documenters(app).values()
+    classes = [cls for cls in app.registry.documenters.values()
                if cls.can_document_member(obj, '', False, parent_doc)]
     if classes:
         classes.sort(key=lambda cls: cls.priority)
@@ -226,8 +230,10 @@ class Autosummary(SphinxDirective):
     final_argument_whitespace = False
     has_content = True
     option_spec = {
+        'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
+        'recursive': directives.flag,
         'template': directives.unchanged,
     }
 
@@ -246,18 +252,19 @@ class Autosummary(SphinxDirective):
             tree_prefix = self.options['toctree'].strip()
             docnames = []
             excluded = Matcher(self.config.exclude_patterns)
+            filename_map = self.config.autosummary_filename_map
             for name, sig, summary, real_name in items:
+                real_name = filename_map.get(real_name, real_name)
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    location = self.state_machine.get_source_and_line(self.lineno)
                     if excluded(self.env.doc2path(docname, None)):
                         msg = __('autosummary references excluded document %r. Ignored.')
                     else:
                         msg = __('autosummary: stub file not found %r. '
                                  'Check your autosummary_generate setting.')
 
-                    logger.warning(msg, real_name, location=location)
+                    logger.warning(msg, real_name, location=self.get_source_info())
                     continue
 
                 docnames.append(docname)
@@ -268,10 +275,38 @@ class Autosummary(SphinxDirective):
                 tocnode['entries'] = [(None, docn) for docn in docnames]
                 tocnode['maxdepth'] = -1
                 tocnode['glob'] = None
+                tocnode['caption'] = self.options.get('caption')
 
                 nodes.append(autosummary_toc('', '', tocnode))
 
+        if 'toctree' not in self.options and 'caption' in self.options:
+            logger.warning(__('A captioned autosummary requires :toctree: option. ignored.'),
+                           location=nodes[-1])
+
         return nodes
+
+    def import_by_name(self, name: str, prefixes: List[str]) -> Tuple[str, Any, Any, str]:
+        with mock(self.config.autosummary_mock_imports):
+            try:
+                return import_by_name(name, prefixes)
+            except ImportError as exc:
+                # check existence of instance attribute
+                try:
+                    return import_ivar_by_name(name, prefixes)
+                except ImportError:
+                    pass
+
+                raise exc  # re-raise ImportError if instance attribute not found
+
+    def create_documenter(self, app: Sphinx, obj: Any,
+                          parent: Any, full_name: str) -> "Documenter":
+        """Get an autodoc.Documenter class suitable for documenting the given
+        object.
+
+        Wraps get_documenter and is meant as a hook for extensions.
+        """
+        doccls = get_documenter(app, obj, parent)
+        return doccls(self.bridge, full_name)
 
     def get_items(self, names: List[str]) -> List[Tuple[str, str, str, str]]:
         """Try to import the given names, and return a list of
@@ -290,11 +325,10 @@ class Autosummary(SphinxDirective):
                 display_name = name.split('.')[-1]
 
             try:
-                with mock(self.config.autosummary_mock_imports):
-                    real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
+                real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
             except ImportError:
-                logger.warning(__('failed to import %s'), name)
-                items.append((name, '', '', name))
+                logger.warning(__('autosummary: failed to import %s'), name,
+                               location=self.get_source_info())
                 continue
 
             self.bridge.result = StringList()  # initialize for each documenter
@@ -305,14 +339,15 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            doccls = get_documenter(self.env.app, obj, parent)
-            documenter = doccls(self.bridge, full_name)
+            documenter = self.create_documenter(self.env.app, obj, parent, full_name)
             if not documenter.parse_name():
-                logger.warning(__('failed to parse name %s'), real_name)
+                logger.warning(__('failed to parse name %s'), real_name,
+                               location=self.get_source_info())
                 items.append((display_name, '', '', real_name))
                 continue
             if not documenter.import_object():
-                logger.warning(__('failed to import object %s'), real_name)
+                logger.warning(__('failed to import object %s'), real_name,
+                               location=self.get_source_info())
                 items.append((display_name, '', '', real_name))
                 continue
             if documenter.options.members and not documenter.check_module():
@@ -487,6 +522,13 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
 
 def extract_summary(doc: List[str], document: Any) -> str:
     """Extract summary from docstring."""
+    def parse(doc: List[str], settings: Any) -> nodes.document:
+        state_machine = RSTStateMachine(state_classes, 'Body')
+        node = new_document('', settings)
+        node.reporter = NullReporter()
+        state_machine.run(doc, node)
+
+        return node
 
     # Skip a blank lines at the top
     while doc and not doc[0].strip():
@@ -504,11 +546,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
         return ''
 
     # parse the docstring
-    state_machine = RSTStateMachine(state_classes, 'Body')
-    node = new_document('', document.settings)
-    node.reporter = NullReporter()
-    state_machine.run(doc, node)
-
+    node = parse(doc, document.settings)
     if not isinstance(node[0], nodes.paragraph):
         # document starts with non-paragraph: pick up the first line
         summary = doc[0].strip()
@@ -519,11 +557,13 @@ def extract_summary(doc: List[str], document: Any) -> str:
             summary = sentences[0].strip()
         else:
             summary = ''
-            while sentences:
-                summary += sentences.pop(0) + '.'
+            for i in range(len(sentences)):
+                summary = ". ".join(sentences[:i + 1]).rstrip(".") + "."
                 node[:] = []
-                state_machine.run([summary], node)
-                if not node.traverse(nodes.system_message):
+                node = parse(doc, document.settings)
+                if summary.endswith(WELL_KNOWN_ABBREVIATIONS):
+                    pass
+                elif not node.traverse(nodes.system_message):
                     # considered as that splitting by period does not break inline markups
                     break
 
@@ -637,7 +677,24 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
         else:
             return sys.modules[modname], None, modname
     except (ValueError, ImportError, AttributeError, KeyError) as e:
-        raise ImportError(*e.args)
+        raise ImportError(*e.args) from e
+
+
+def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, Any, str]:
+    """Import an instance variable that has the given *name*, under one of the
+    *prefixes*.  The first name that succeeds is used.
+    """
+    try:
+        name, attr = name.rsplit(".", 1)
+        real_name, obj, parent, modname = import_by_name(name, prefixes)
+        qualname = real_name.replace(modname + ".", "")
+        analyzer = ModuleAnalyzer.for_module(modname)
+        if (qualname, attr) in analyzer.find_attr_docs():
+            return real_name + "." + attr, INSTANCEATTR, obj, modname
+    except (ImportError, ValueError):
+        pass
+
+    raise ImportError
 
 
 # -- :autolink: (smart default role) -------------------------------------------
@@ -650,7 +707,7 @@ def autolink_role(typ: str, rawtext: str, etext: str, lineno: int, inliner: Inli
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
-    warnings.warn('autolink_role() is deprecated.', RemovedInSphinx40Warning)
+    warnings.warn('autolink_role() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
     env = inliner.document.settings.env
     pyobj_role = env.get_domain('py').role('obj')
     objects, msg = pyobj_role('obj', rawtext, etext, lineno, inliner, options, content)
@@ -701,8 +758,6 @@ def get_rst_suffix(app: Sphinx) -> str:
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)
-        if isinstance(parser_class, str):
-            parser_class = import_object(parser_class, 'source parser')
         return parser_class.supported
 
     suffix = None  # type: str
@@ -720,6 +775,8 @@ def process_generate_options(app: Sphinx) -> None:
         env = app.builder.env
         genfiles = [env.doc2path(x, base=None) for x in env.found_docs
                     if os.path.isfile(env.doc2path(x))]
+    elif genfiles is False:
+        pass
     else:
         ext = list(app.config.source_suffix)
         genfiles = [genfile + (ext[0] if not genfile.endswith(tuple(ext)) else '')
@@ -743,9 +800,10 @@ def process_generate_options(app: Sphinx) -> None:
 
     imported_members = app.config.autosummary_imported_members
     with mock(app.config.autosummary_mock_imports):
-        generate_autosummary_docs(genfiles, builder=app.builder,
-                                  suffix=suffix, base_path=app.srcdir,
-                                  app=app, imported_members=imported_members)
+        generate_autosummary_docs(genfiles, suffix=suffix, base_path=app.srcdir,
+                                  app=app, imported_members=imported_members,
+                                  overwrite=app.config.autosummary_generate_overwrite,
+                                  encoding=app.config.source_encoding)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -765,9 +823,11 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                  texinfo=(autosummary_noop, autosummary_noop))
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', AutoLink())
-    app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
+    app.add_config_value('autosummary_context', {}, True)
+    app.add_config_value('autosummary_filename_map', {}, 'html')
     app.add_config_value('autosummary_generate', [], True, [bool])
+    app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')
     app.add_config_value('autosummary_imported_members', [], False, [bool])

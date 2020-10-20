@@ -13,12 +13,15 @@ import re
 import pytest
 from docutils import frontend, utils, nodes
 from docutils.parsers.rst import Parser as RstParser
-from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
+from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.builders.latex.theming import ThemeFactory
 from sphinx.roles import XRefRole
 from sphinx.testing.util import Struct, assert_node
+from sphinx.transforms import SphinxSmartQuotes
+from sphinx.util import docutils
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
@@ -65,7 +68,7 @@ def parse(new_document):
         document = new_document()
         parser = RstParser()
         parser.parse(rst, document)
-        SmartQuotes(document, startnode=None).apply()
+        SphinxSmartQuotes(document, startnode=None).apply()
         for msg in document.traverse(nodes.system_message):
             if msg['level'] == 1:
                 msg.replace_self([])
@@ -94,6 +97,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 def verify_re_html(app, parse):
     def verify(rst, html_expected):
         document = parse(rst)
+        KeyboardTransform(document).apply()
         html_translator = ForgivingHTMLTranslator(document, app.builder)
         document.walkabout(html_translator)
         html_translated = ''.join(html_translator.fragment).strip()
@@ -108,7 +112,8 @@ def verify_re_latex(app, parse):
         app.builder = LaTeXBuilder(app)
         app.builder.set_environment(app.env)
         app.builder.init()
-        latex_translator = ForgivingLaTeXTranslator(document, app.builder)
+        theme = app.builder.themes.get('manual')
+        latex_translator = ForgivingLaTeXTranslator(document, app.builder, theme)
         latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)
         latex_translated = ''.join(latex_translator.body).strip()
@@ -231,6 +236,39 @@ def get_verifier(verify, verify_re):
         r'\sphinxguilabel{Foo}',
     ),
     (
+        # kbd role
+        'verify',
+        ':kbd:`space`',
+        '<p><kbd class="kbd docutils literal notranslate">space</kbd></p>',
+        '\\sphinxkeyboard{\\sphinxupquote{space}}',
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`Control+X`',
+        ('<p><kbd class="kbd docutils literal notranslate">'
+         '<kbd class="kbd docutils literal notranslate">Control</kbd>'
+         '+'
+         '<kbd class="kbd docutils literal notranslate">X</kbd>'
+         '</kbd></p>'),
+        '\\sphinxkeyboard{\\sphinxupquote{Control+X}}',
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`M-x  M-s`',
+        ('<p><kbd class="kbd docutils literal notranslate">'
+         '<kbd class="kbd docutils literal notranslate">M</kbd>'
+         '-'
+         '<kbd class="kbd docutils literal notranslate">x</kbd>'
+         '  '
+         '<kbd class="kbd docutils literal notranslate">M</kbd>'
+         '-'
+         '<kbd class="kbd docutils literal notranslate">s</kbd>'
+         '</kbd></p>'),
+        '\\sphinxkeyboard{\\sphinxupquote{M\\sphinxhyphen{}x  M\\sphinxhyphen{}s}}',
+    ),
+    (
         # non-interpolation of dashes in option role
         'verify_re',
         ':option:`--with-option`',
@@ -308,6 +346,21 @@ def get_verifier(verify, verify_re):
     ),
 ])
 def test_inline(get_verifier, type, rst, html_expected, latex_expected):
+    verifier = get_verifier(type)
+    verifier(rst, html_expected, latex_expected)
+
+
+@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+    (
+        'verify',
+        r'4 backslashes \\\\',
+        r'<p>4 backslashes \\</p>',
+        None,
+    ),
+])
+@pytest.mark.skipif(docutils.__version_info__ < (0, 16),
+                    reason='docutils-0.16 or above is required')
+def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expected):
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
 

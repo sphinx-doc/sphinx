@@ -9,6 +9,7 @@
 .mypy_cache/
 .pytest_cache/
 .ropeproject/
+.vscode/
 TAGS
 .tags
 .tox/
@@ -24,6 +25,7 @@ distribute-*
 env/
 build/
 dist/
+docker/
 Sphinx.egg-info/
 doc/_build/
 doc/locale/

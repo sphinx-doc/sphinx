@@ -10,7 +10,7 @@
 
 import os
 import posixpath
-import sys
+import re
 import warnings
 from typing import Any, Iterable, Tuple
 from typing import cast
@@ -21,7 +21,7 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -36,6 +36,19 @@ logger = logging.getLogger(__name__)
 
 # A good overview of the purpose behind these classes can be found here:
 # http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
+
+
+def multiply_length(length: str, scale: int) -> str:
+    """Multiply *length* (width or height) by *scale*."""
+    matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
+    if not matched:
+        return length
+    elif scale == 100:
+        return length
+    else:
+        amount, unit = matched.groups()
+        result = float(amount) * scale / 100
+        return "%s%s" % (int(result), unit)
 
 
 class HTML5Translator(SphinxTranslator, BaseTranslator):
@@ -88,10 +101,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def visit_desc_signature(self, node: Element) -> None:
         # the id is set automatically
         self.body.append(self.starttag(node, 'dt'))
-        # anchor for per-desc interactive data
-        if node.parent['objtype'] != 'describe' \
-           and node['ids'] and node['first']:
-            self.body.append('<!--[%s]-->' % node['ids'][0])
 
     def depart_desc_signature(self, node: Element) -> None:
         if not node.get('is_multiline'):
@@ -388,9 +397,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         else:
             opts = {}
 
+        if linenos and self.builder.config.html_codeblock_linenos_style:
+            linenos = self.builder.config.html_codeblock_linenos_style
+
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
-            location=(self.builder.current_docname, node.line), **highlight_args
+            location=node, **highlight_args
         )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s notranslate' % lang)
@@ -543,18 +555,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             if 'height' in node:
                 atts['height'] = node['height']
             if 'scale' in node:
-                scale = node['scale'] / 100.0
                 if 'width' in atts:
-                    atts['width'] = int(atts['width']) * scale
+                    atts['width'] = multiply_length(atts['width'], node['scale'])
                 if 'height' in atts:
-                    atts['height'] = int(atts['height']) * scale
+                    atts['height'] = multiply_length(atts['height'], node['scale'])
             atts['alt'] = node.get('alt', uri)
             if 'align' in node:
-                self.body.append('<div align="%s" class="align-%s">' %
-                                 (node['align'], node['align']))
-                self.context.append('</div>\n')
-            else:
-                self.context.append('')
+                atts['class'] = 'align-%s' % node['align']
             self.body.append(self.emptytag(node, 'img', '', **atts))
             return
 
@@ -563,7 +570,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     # overwritten
     def depart_image(self, node: Element) -> None:
         if node['uri'].lower().endswith(('svg', 'svgz')):
-            self.body.append(self.context.pop())
+            pass
         else:
             super().depart_image(node)
 
@@ -730,11 +737,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         self._table_row_index = 0
 
+        atts = {}
         classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
         classes.insert(0, "docutils")  # compat
         if 'align' in node:
             classes.append('align-%s' % node['align'])
-        tag = self.starttag(node, 'table', CLASS=' '.join(classes))
+        if 'width' in node:
+            atts['style'] = 'width: %s' % node['width']
+        tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
         self.body.append(tag)
 
     def visit_row(self, node: Element) -> None:
@@ -781,29 +791,3 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
-    # --------- METHODS FOR COMPATIBILITY --------------------------------------
-
-    @property
-    def highlightlang(self) -> str:
-        warnings.warn('HTMLTranslator.highlightlang is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.builder.config.highlight_language
-
-    @property
-    def highlightlang_base(self) -> str:
-        warnings.warn('HTMLTranslator.highlightlang_base is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.builder.config.highlight_language
-
-    @property
-    def highlightopts(self) -> str:
-        warnings.warn('HTMLTranslator.highlightopts is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return self.builder.config.highlight_options
-
-    @property
-    def highlightlinenothreshold(self) -> int:
-        warnings.warn('HTMLTranslator.highlightlinenothreshold is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return sys.maxsize

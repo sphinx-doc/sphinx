@@ -31,8 +31,15 @@ logger = logging.getLogger(__name__)
 # convert_with_2to3():
 # support for running 2to3 over config files
 def convert_with_2to3(filepath: str) -> str:
-    from lib2to3.refactor import RefactoringTool, get_fixers_from_package
-    from lib2to3.pgen2.parse import ParseError
+    try:
+        from lib2to3.refactor import RefactoringTool, get_fixers_from_package
+        from lib2to3.pgen2.parse import ParseError
+    except ImportError as exc:
+        # python 3.9.0a6+ emits PendingDeprecationWarning for lib2to3.
+        # Additionally, removal of the module is still discussed at PEP-594.
+        # To support future python, this catches ImportError for lib2to3.
+        raise SyntaxError from exc
+
     fixers = get_fixers_from_package('lib2to3.fixes')
     refactoring_tool = RefactoringTool(fixers)
     source = refactoring_tool._read_python_source(filepath)[0]
@@ -42,7 +49,8 @@ def convert_with_2to3(filepath: str) -> str:
         # do not propagate lib2to3 exceptions
         lineno, offset = err.context[1]
         # try to match ParseError details with SyntaxError details
-        raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
+
+        raise SyntaxError(err.msg, (filepath, lineno, offset, err.value)) from err
     return str(tree)
 
 
@@ -52,7 +60,7 @@ class UnicodeMixin:
 
     .. deprecated:: 2.0
     """
-    def __str__(self):
+    def __str__(self) -> str:
         warnings.warn('UnicodeMixin is deprecated',
                       RemovedInSphinx40Warning, stacklevel=2)
         return self.__unicode__()  # type: ignore
@@ -83,7 +91,7 @@ def execfile_(filepath: str, _globals: Any, open: Callable = open) -> None:
 
 deprecated_alias('sphinx.util.pycompat',
                  {
-                     'NoneType': NoneType,  # type: ignore
+                     'NoneType': NoneType,
                      'TextIOWrapper': io.TextIOWrapper,
                      'htmlescape': html.escape,
                      'indent': textwrap.indent,
@@ -91,4 +99,12 @@ deprecated_alias('sphinx.util.pycompat',
                      'sys_encoding': sys.getdefaultencoding(),
                      'u': '',
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'NoneType': 'sphinx.util.typing.NoneType',
+                     'TextIOWrapper': 'io.TextIOWrapper',
+                     'htmlescape': 'html.escape',
+                     'indent': 'textwrap.indent',
+                     'terminal_safe': 'sphinx.util.console.terminal_safe',
+                     'sys_encoding': 'sys.getdefaultencoding',
+                 })

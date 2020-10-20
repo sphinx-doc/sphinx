@@ -15,7 +15,6 @@ from docutils import nodes
 from docutils.nodes import Element, Node, system_message
 from docutils.nodes import make_id
 
-from sphinx.addnodes import math_block as displaymath
 from sphinx.addnodes import pending_xref
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain
@@ -54,7 +53,6 @@ class MathDomain(Domain):
         'eq': 'equation not found: %(target)s',
     }
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
-        displaymath: ('displaymath', None),
         nodes.math_block: ('displaymath', None),
     }
     roles = {
@@ -144,7 +142,7 @@ class MathDomain(Domain):
 
     def add_equation(self, env: BuildEnvironment, docname: str, labelid: str) -> int:
         warnings.warn('MathDomain.add_equation() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         if labelid in self.equations:
             path = env.doc2path(self.equations[labelid][0])
             msg = __('duplicate label of equation %s, other instance in %s') % (labelid, path)
@@ -156,7 +154,7 @@ class MathDomain(Domain):
 
     def get_next_equation_number(self, docname: str) -> int:
         warnings.warn('MathDomain.get_next_equation_number() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         targets = [eq for eq in self.equations.values() if eq[0] == docname]
         return len(targets) + 1
 

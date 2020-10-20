@@ -14,13 +14,13 @@ import warnings
 from collections import namedtuple
 from datetime import datetime, timezone
 from os import path
-from typing import Callable, Generator, List, Set, Tuple
+from typing import Callable, Generator, List, Set, Tuple, Union
 
 import babel.dates
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -128,8 +128,10 @@ def find_catalog(docname: str, compaction: bool) -> str:
     return ret
 
 
-def docname_to_domain(docname: str, compation: bool) -> str:
+def docname_to_domain(docname: str, compation: Union[bool, str]) -> str:
     """Convert docname to domain for catalogs."""
+    if isinstance(compation, str):
+        return compation
     if compation:
         return docname.split(SEP, 1)[0]
     else:
@@ -151,9 +153,8 @@ def find_catalog_files(docname: str, srcdir: str, locale_dirs: List[str],
 
 
 def find_catalog_source_files(locale_dirs: List[str], locale: str, domains: List[str] = None,
-                              gettext_compact: bool = None, charset: str = 'utf-8',
-                              force_all: bool = False, excluded: Matcher = Matcher([])
-                              ) -> Set[CatalogInfo]:
+                              charset: str = 'utf-8', force_all: bool = False,
+                              excluded: Matcher = Matcher([])) -> Set[CatalogInfo]:
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -169,9 +170,6 @@ def find_catalog_source_files(locale_dirs: List[str], locale: str, domains: List
     """
     warnings.warn('find_catalog_source_files() is deprecated.',
                   RemovedInSphinx40Warning, stacklevel=2)
-    if gettext_compact is not None:
-        warnings.warn('gettext_compact argument for find_catalog_source_files() '
-                      'is deprecated.', RemovedInSphinx30Warning, stacklevel=2)
 
     catalogs = set()  # type: Set[CatalogInfo]
 
@@ -310,13 +308,17 @@ def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> s
     dirname = path.dirname(d['root'])
     if dirname and not dirname.endswith(path.sep):
         dirname += path.sep
+    docpath = path.dirname(env.docname)
+    if docpath and not docpath.endswith(path.sep):
+        docpath += path.sep
     d['path'] = dirname
     d['basename'] = path.basename(d['root'])
+    d['docpath'] = docpath
     d['language'] = env.config.language
     try:
         return filename_format.format(**d)
     except KeyError as exc:
-        raise SphinxError('Invalid figure_language_filename: %r' % exc)
+        raise SphinxError('Invalid figure_language_filename: %r' % exc) from exc
 
 
 def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:
@@ -324,8 +326,8 @@ def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:
         return filename
 
     translated = get_image_filename_for_language(filename, env)
-    dirname = path.dirname(env.docname)
-    if path.exists(path.join(env.srcdir, dirname, translated)):
+    _, abspath = env.relfn2path(translated)
+    if path.exists(abspath):
         return translated
     else:
         return filename

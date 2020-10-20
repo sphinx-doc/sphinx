@@ -7,6 +7,7 @@
 
 {%- macro toctree(docnames) -%}
 .. toctree::
+   :maxdepth: {{ maxdepth }}
 {% for docname in docnames %}
    {{ docname }}
 {%- endfor %}
@@ -34,7 +35,7 @@ Submodules
 ----------
 {% if separatemodules %}
 {{ toctree(submodules) }}
-{%- else %}
+{% else %}
 {%- for submodule in submodules %}
 {% if show_headings %}
 {{- [submodule, "module"] | join(" ") | e | heading(2) }}
@@ -42,7 +43,7 @@ Submodules
 {{ automodule(submodule, automodule_options) }}
 {% endfor %}
 {%- endif %}
-{% endif %}
+{%- endif %}
 
 {%- if not modulefirst and not is_namespace %}
 Module contents

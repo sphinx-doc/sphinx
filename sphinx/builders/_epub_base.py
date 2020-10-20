@@ -173,7 +173,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Replace all characters not allowed in text an attribute values."""
         warnings.warn(
             '%s.esc() is deprecated. Use html.escape() instead.' % self.__class__.__name__,
-            RemovedInSphinx40Warning)
+            RemovedInSphinx40Warning, stacklevel=2)
         name = name.replace('&', '&amp;')
         name = name.replace('<', '&lt;')
         name = name.replace('>', '&gt;')
@@ -259,6 +259,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Some readers crash because they interpret the part as a
         transport protocol specification.
         """
+        def update_node_id(node: Element) -> None:
+            """Update IDs of given *node*."""
+            new_ids = []
+            for node_id in node['ids']:
+                new_id = self.fix_fragment('', node_id)
+                if new_id not in new_ids:
+                    new_ids.append(new_id)
+            node['ids'] = new_ids
+
         for reference in tree.traverse(nodes.reference):
             if 'refuri' in reference:
                 m = self.refuri_re.match(reference['refuri'])
@@ -268,22 +277,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 reference['refid'] = self.fix_fragment('', reference['refid'])
 
         for target in tree.traverse(nodes.target):
-            for i, node_id in enumerate(target['ids']):
-                if ':' in node_id:
-                    target['ids'][i] = self.fix_fragment('', node_id)
+            update_node_id(target)
 
             next_node = target.next_node(ascend=True)  # type: Node
             if isinstance(next_node, nodes.Element):
-                for i, node_id in enumerate(next_node['ids']):
-                    if ':' in node_id:
-                        next_node['ids'][i] = self.fix_fragment('', node_id)
+                update_node_id(next_node)
 
         for desc_signature in tree.traverse(addnodes.desc_signature):
-            ids = desc_signature.attributes['ids']
-            newids = []
-            for id in ids:
-                newids.append(self.fix_fragment('', id))
-            desc_signature.attributes['ids'] = newids
+            update_node_id(desc_signature)
 
     def add_visible_links(self, tree: nodes.document, show_urls: str = 'inline') -> None:
         """Add visible link targets for external links"""
@@ -387,7 +388,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return ext in VECTOR_GRAPHICS_EXTENSIONS
 
     def copy_image_files_pil(self) -> None:
-        """Copy images using Pillow, the Python Imaging Libary.
+        """Copy images using Pillow, the Python Imaging Library.
         The method tries to read and write the files with Pillow, converting
         the format and resizing the image if necessary/possible.
         """

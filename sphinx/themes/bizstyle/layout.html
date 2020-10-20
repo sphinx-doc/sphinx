@@ -14,17 +14,13 @@
     <script src="{{ pathto('_static/bizstyle.js', 1) }}"></script>
 {%- endblock %}
 
-{# put the sidebar before the body #}
-{% block sidebar1 %}{{ sidebar() }}{% endblock %}
-{% block sidebar2 %}{% endblock %}
-
 {# doctype override #}
 {%- block doctype %}
 <!doctype html>
 {%- endblock %}
 
 {%- block extrahead %}
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
     <![endif]-->

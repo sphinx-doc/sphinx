@@ -9,9 +9,11 @@
 """
 
 import argparse
+import bdb
 import locale
 import multiprocessing
 import os
+import pdb
 import sys
 import traceback
 from typing import Any, IO, List
@@ -29,8 +31,10 @@ from sphinx.util.docutils import docutils_namespace, patch_docutils
 
 
 def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
+    if isinstance(exception, bdb.BdbQuit):
+        return
+
     if args.pdb:
-        import pdb
         print(red(__('Exception occurred while building, starting debugger:')),
               file=stderr)
         traceback.print_exc()
@@ -60,7 +64,7 @@ def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: I
             print(terminal_safe(str(exception)), file=stderr)
             print(file=stderr)
             print(__('This can happen with very large or deeply nested source '
-                     'files.  You can carefully increase the default Python '
+                     'files. You can carefully increase the default Python '
                      'recursion limit of 1000 in conf.py with e.g.:'), file=stderr)
             print('    import sys; sys.setrecursionlimit(1500)', file=stderr)
         else:
@@ -103,7 +107,7 @@ Generate documentation from source files.
 
 sphinx-build generates documentation from the files in SOURCEDIR and places it
 in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
-settings.  The 'sphinx-quickstart' tool may be used to generate template files,
+settings. The 'sphinx-quickstart' tool may be used to generate template files,
 including 'conf.py'
 
 sphinx-build can create documentation in different formats. A format is
@@ -180,7 +184,7 @@ files can be built by specifying individual filenames.
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       help=__("With -W, keep going when getting warnings"))
+                       help=__("with -W, keep going when getting warnings"))
     group.add_argument('-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('-P', action='store_true', dest='pdb',

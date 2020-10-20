@@ -61,6 +61,13 @@ def purge_todos(app, env, docname):
                           if todo['docname'] != docname]
 
 
+def merge_todos(app, env, docnames, other):
+    if not hasattr(env, 'todo_all_todos'):
+        env.todo_all_todos = []
+    if hasattr(other, 'todo_all_todos'):
+        env.todo_all_todos.extend(other.todo_all_todos)
+
+
 def process_todo_nodes(app, doctree, fromdocname):
     if not app.config.todo_include_todos:
         for node in doctree.traverse(todo):
@@ -69,6 +76,9 @@ def process_todo_nodes(app, doctree, fromdocname):
     # Replace all todolist nodes with a list of the collected todos.
     # Augment each todo with a backlink to the original location.
     env = app.builder.env
+
+    if not hasattr(env, 'todo_all_todos'):
+        env.todo_all_todos = []
 
     for node in doctree.traverse(todolist):
         if not app.config.todo_include_todos:
@@ -116,6 +126,7 @@ def setup(app):
     app.add_directive('todolist', TodolistDirective)
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
+    app.connect('env-merge-info', merge_todos)
 
     return {
         'version': '0.1',

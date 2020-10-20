@@ -28,7 +28,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxDirective, new_document
 from sphinx.util.nodes import make_refnode
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
@@ -105,7 +105,7 @@ class TodoDomain(Domain):
 
 
 def process_todos(app: Sphinx, doctree: nodes.document) -> None:
-    warnings.warn('process_todos() is deprecated.', RemovedInSphinx40Warning)
+    warnings.warn('process_todos() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
     # collect all todos in the environment
     # this is not done in the directive itself because it some transformations
     # must have already been run, e.g. substitutions
@@ -159,6 +159,7 @@ class TodoListProcessor:
 
     def process(self, doctree: nodes.document, docname: str) -> None:
         todos = sum(self.domain.todos.values(), [])  # type: List[todo_node]
+        document = new_document('')
         for node in doctree.traverse(todolist):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
@@ -175,7 +176,11 @@ class TodoListProcessor:
                 new_todo['ids'].clear()
 
                 # (Recursively) resolve references in the todo content
-                self.env.resolve_references(new_todo, todo['docname'], self.builder)  # type: ignore  # NOQA
+                #
+                # Note: To resolve references, it is needed to wrap it with document node
+                document += new_todo
+                self.env.resolve_references(document, todo['docname'], self.builder)
+                document.remove(new_todo)
                 content.append(new_todo)
 
                 todo_ref = self.create_todo_reference(todo, docname)
@@ -216,7 +221,8 @@ def process_todo_nodes(app: Sphinx, doctree: nodes.document, fromdocname: str) -
     """Replace all todolist nodes with a list of the collected todos.
     Augment each todo with a backlink to the original location.
     """
-    warnings.warn('process_todo_nodes() is deprecated.', RemovedInSphinx40Warning)
+    warnings.warn('process_todo_nodes() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
 
     domain = cast(TodoDomain, app.env.get_domain('todo'))
     todos = sum(domain.todos.values(), [])  # type: List[todo_node]
@@ -268,7 +274,7 @@ def process_todo_nodes(app: Sphinx, doctree: nodes.document, fromdocname: str) -
 
 
 def purge_todos(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
-    warnings.warn('purge_todos() is deprecated.', RemovedInSphinx40Warning)
+    warnings.warn('purge_todos() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
     if not hasattr(env, 'todo_all_todos'):
         return
     env.todo_all_todos = [todo for todo in env.todo_all_todos  # type: ignore
@@ -277,7 +283,7 @@ def purge_todos(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
 
 def merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
                other: BuildEnvironment) -> None:
-    warnings.warn('merge_info() is deprecated.', RemovedInSphinx40Warning)
+    warnings.warn('merge_info() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
     if not hasattr(other, 'todo_all_todos'):
         return
     if not hasattr(env, 'todo_all_todos'):

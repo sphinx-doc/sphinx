@@ -14,7 +14,8 @@ Sphinx is a maintained by a group of volunteers.  We value every contribution!
 * There is also the #sphinx-doc IRC channel on `freenode
   <https://freenode.net/>`_.
 
-For more about our development process and methods, see the :doc:`devguide`.
+For more about our development process and methods, refer to
+:doc:`/internals/index`.
 
 Extensions
 ==========
@@ -139,14 +140,14 @@ started with writing your own extensions.
 .. _slideshare: https://www.slideshare.net/
 .. _TikZ/PGF LaTeX package: https://sourceforge.net/projects/pgf/
 .. _MATLAB: https://www.mathworks.com/products/matlab.html
-.. _swf: https://bitbucket.org/klorenz/sphinxcontrib-swf
-.. _findanything: https://bitbucket.org/klorenz/sphinxcontrib-findanything
-.. _cmakedomain: https://bitbucket.org/klorenz/sphinxcontrib-cmakedomain
+.. _swf: https://github.com/sphinx-contrib/swf
+.. _findanything: https://github.com/sphinx-contrib/findanything
+.. _cmakedomain: https://github.com/sphinx-contrib/cmakedomain
 .. _GNU Make: https://www.gnu.org/software/make/
-.. _makedomain: https://bitbucket.org/klorenz/sphinxcontrib-makedomain
+.. _makedomain: https://github.com/sphinx-contrib/makedomain
 .. _inlinesyntaxhighlight: https://sphinxcontrib-inlinesyntaxhighlight.readthedocs.io/
 .. _CMake: https://cmake.org
-.. _domaintools: https://bitbucket.org/klorenz/sphinxcontrib-domaintools
+.. _domaintools: https://github.com/sphinx-contrib/domaintools
 .. _restbuilder: https://pypi.org/project/sphinxcontrib-restbuilder/
 .. _Lasso: http://www.lassosoft.com/
 .. _beamer: https://pypi.org/project/sphinxcontrib-beamer/

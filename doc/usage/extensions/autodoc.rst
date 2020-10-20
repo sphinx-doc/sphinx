@@ -136,9 +136,51 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            :undoc-members:
 
    * "Private" members (that is, those named like ``_private`` or ``__private``)
-     will be included if the ``private-members`` flag option is given.
+     will be included if the ``private-members`` flag option is given::
+
+        .. automodule:: noodle
+           :members:
+           :private-members:
+
+     It can also take an explicit list of member names to be documented as
+     arguments::
+
+        .. automodule:: noodle
+           :members:
+           :private-members: _spicy, _garlickly
 
      .. versionadded:: 1.1
+     .. versionchanged:: 3.2
+        The option can now take arguments.
+
+   * autodoc considers a member private if its docstring contains
+     ``:meta private:`` in its :ref:`info-field-lists`.
+     For example:
+
+     .. code-block:: rst
+
+        def my_function(my_arg, my_other_arg):
+            """blah blah blah
+
+            :meta private:
+            """
+
+     .. versionadded:: 3.0
+
+   * autodoc considers a member public if its docstring contains
+     ``:meta public:`` in its :ref:`info-field-lists`, even if it starts with
+     an underscore.
+     For example:
+
+     .. code-block:: rst
+
+        def _my_function(my_arg, my_other_arg):
+            """blah blah blah
+
+            :meta public:
+            """
+
+     .. versionadded:: 3.1
 
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
@@ -157,7 +199,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
-     ``inherited-members`` flag option, in addition to ``members``::
+     ``inherited-members`` option, in addition to ``members``::
 
         .. autoclass:: Noodle
            :members:
@@ -166,10 +208,28 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      This can be combined with ``undoc-members`` to document *all* available
      members of the class or module.
 
+     It can take an ancestor class not to document inherited members from it.
+     By default, members of ``object`` class are not documented.  To show them
+     all, give ``None`` to the option.
+
+     For example; If your class ``Foo`` is derived from ``list`` class and
+     you don't want to document ``list.__len__()``, you should specify a
+     option ``:inherited-members: list`` to avoid special members of list
+     class.
+
+     Another example; If your class Foo has ``__str__`` special method and
+     autodoc directive has both ``inherited-members`` and ``special-members``,
+     ``__str__`` will be documented as in the past, but other special method
+     that are not implemented in your class ``Foo``.
+
      Note: this will lead to markup errors if the inherited members come from a
      module whose docstrings are not reST formatted.
 
      .. versionadded:: 0.3
+
+     .. versionchanged:: 3.0
+
+        It takes an ancestor class name as an argument.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
@@ -232,6 +292,12 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      are not importable at build time.
 
      .. versionadded:: 1.3
+
+   * As a hint to autodoc extension, you can put a ``::`` separator in between
+     module name and object name to let autodoc know the correct module name if
+     it is ambiguous. ::
+
+        .. autoclass:: module.name::Noodle
 
 
 .. rst:directive:: autofunction
@@ -307,9 +373,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       ``__doc__`` attribute of the given function or method.  That means that if
       a decorator replaces the decorated function with another, it must copy the
       original ``__doc__`` to the new function.
-
-      From Python 2.5, :func:`functools.wraps` can be used to create
-      well-behaved decorating functions.
 
 
 Configuration
@@ -410,7 +473,14 @@ There are also config values that you can set:
    looks like a signature, use the line as the signature and remove it from the
    docstring content.
 
+   If the signature line ends with backslash, autodoc considers the function has
+   multiple signatures and look at the next line of the docstring.  It is useful
+   for overloaded function.
+
    .. versionadded:: 1.1
+   .. versionchanged:: 3.1
+
+      Support overloaded signatures
 
 .. confval:: autodoc_mock_imports
 
@@ -437,9 +507,51 @@ There are also config values that you can set:
    following values:
 
    * ``'signature'`` -- Show typehints as its signature (default)
+   * ``'description'`` -- Show typehints as content of function or method
    * ``'none'`` -- Do not show typehints
 
    .. versionadded:: 2.1
+   .. versionadded:: 3.0
+
+      New option ``'description'`` is added.
+
+.. confval:: autodoc_type_aliases
+
+   A dictionary for users defined `type aliases`__ that maps a type name to the
+   full-qualified object name.  It is used to keep type aliases not evaluated in
+   the document.  Defaults to empty (``{}``).
+
+   The type aliases are only available if your program enables `Postponed
+   Evaluation of Annotations (PEP 563)`__ feature via ``from __future__ import
+   annotations``.
+
+   For example, there is code using a type alias::
+
+     from __future__ import annotations
+
+     AliasType = Union[List[Dict[Tuple[int, str], Set[int]]], Tuple[str, List[str]]]
+
+     def f() -> AliasType:
+         ...
+
+   If ``autodoc_type_aliases`` is not set, autodoc will generate internal mark-up
+   from this code as following::
+
+     .. py:function:: f() -> Union[List[Dict[Tuple[int, str], Set[int]]], Tuple[str, List[str]]]
+
+        ...
+
+   If you set ``autodoc_type_aliases`` as
+   ``{'AliasType': 'your.module.TypeAlias'}``, it generates a following document
+   internally::
+
+     .. py:function:: f() -> your.module.AliasType:
+
+        ...
+
+   .. __: https://www.python.org/dev/peps/pep-0563/
+   .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
+   .. versionadded:: 3.3
 
 .. confval:: autodoc_warningiserror
 

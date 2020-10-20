@@ -49,7 +49,7 @@ def test_texinfo_warnings(app, status, warning):
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
-    result = (app.outdir / 'sphinxtests.texi').text(encoding='utf8')
+    result = (app.outdir / 'sphinxtests.texi').read_text()
     assert ('@anchor{markup doc}@anchor{11}'
             '@anchor{markup id1}@anchor{12}'
             '@anchor{markup testing-various-markup}@anchor{13}' in result)
@@ -58,8 +58,8 @@ def test_texinfo(app, status, warning):
     try:
         args = ['makeinfo', '--no-split', 'sphinxtests.texi']
         subprocess.run(args, stdout=PIPE, stderr=PIPE, cwd=app.outdir, check=True)
-    except OSError:
-        raise pytest.skip.Exception  # most likely makeinfo was not found
+    except OSError as exc:
+        raise pytest.skip.Exception from exc  # most likely makeinfo was not found
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
@@ -70,7 +70,7 @@ def test_texinfo(app, status, warning):
 def test_texinfo_rubric(app, status, warning):
     app.build()
 
-    output = (app.outdir / 'python.texi').text()
+    output = (app.outdir / 'python.texi').read_text()
     assert '@heading This is a rubric' in output
     assert '@heading This is a multiline rubric' in output
 
@@ -79,7 +79,7 @@ def test_texinfo_rubric(app, status, warning):
 def test_texinfo_citation(app, status, warning):
     app.builder.build_all()
 
-    output = (app.outdir / 'python.texi').text()
+    output = (app.outdir / 'python.texi').read_text()
     assert 'This is a citation ref; @ref{1,,[CITE1]} and @ref{2,,[CITE2]}.' in output
     assert ('@anchor{index cite1}@anchor{1}@w{(CITE1)} \n'
             'This is a citation\n') in output

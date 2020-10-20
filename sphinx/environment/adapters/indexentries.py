@@ -7,7 +7,7 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import bisect
+
 import re
 import unicodedata
 from itertools import groupby
@@ -52,8 +52,7 @@ class IndexEntries:
                 except NoUri:
                     pass
                 else:
-                    # maintain links in sorted/deterministic order
-                    bisect.insort(entry[0], (main, uri))
+                    entry[0].append((main, uri))
 
         domain = cast(IndexDomain, self.env.get_domain('index'))
         for fn, entries in domain.entries.items():
@@ -89,9 +88,18 @@ class IndexEntries:
                 except ValueError as err:
                     logger.warning(str(err), location=fn)
 
-        # sort the index entries; put all symbols at the front, even those
-        # following the letters in ASCII, this is where the chr(127) comes from
-        def keyfunc(entry: Tuple[str, List]) -> Tuple[str, str]:
+        # sort the index entries for same keyword.
+        def keyfunc0(entry: Tuple[str, str]) -> Tuple[bool, str]:
+            main, uri = entry
+            return (not main, uri)  # show main entries at first
+
+        for indexentry in new.values():
+            indexentry[0].sort(key=keyfunc0)
+            for subentry in indexentry[1].values():
+                subentry[0].sort(key=keyfunc0)  # type: ignore
+
+        # sort the index entries
+        def keyfunc(entry: Tuple[str, List]) -> Tuple[Tuple[int, str], str]:
             key, (void, void, category_key) = entry
             if category_key:
                 # using specified category key to sort
@@ -99,11 +107,16 @@ class IndexEntries:
             lckey = unicodedata.normalize('NFD', key.lower())
             if lckey.startswith('\N{RIGHT-TO-LEFT MARK}'):
                 lckey = lckey[1:]
+
             if lckey[0:1].isalpha() or lckey.startswith('_'):
-                lckey = chr(127) + lckey
+                # put non-symbol characters at the folloing group (1)
+                sortkey = (1, lckey)
+            else:
+                # put symbols at the front of the index (0)
+                sortkey = (0, lckey)
             # ensure a determinstic order *within* letters by also sorting on
             # the entry itself
-            return (lckey, entry[0])
+            return (sortkey, entry[0])
         newlist = sorted(new.items(), key=keyfunc)
 
         if group_entries:

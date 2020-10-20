@@ -11,6 +11,7 @@
 import abc
 import sys
 from importlib import import_module
+from typing import TypeVar
 
 import pytest
 
@@ -18,7 +19,7 @@ from sphinx.ext.autodoc.mock import _MockModule, _MockObject, mock
 
 
 def test_MockModule():
-    mock = _MockModule('mocked_module', None)
+    mock = _MockModule('mocked_module')
     assert isinstance(mock.some_attr, _MockObject)
     assert isinstance(mock.some_method, _MockObject)
     assert isinstance(mock.attr1.attr2, _MockObject)
@@ -39,6 +40,7 @@ def test_MockObject():
     assert isinstance(mock.attr1.attr2, _MockObject)
     assert isinstance(mock.attr1.attr2.meth(), _MockObject)
 
+    # subclassing
     class SubClass(mock.SomeClass):
         """docstring of SubClass"""
 
@@ -50,6 +52,16 @@ def test_MockObject():
     assert isinstance(obj, SubClass)
     assert obj.method() == "string"
     assert isinstance(obj.other_method(), SubClass)
+
+    # parametrized type
+    T = TypeVar('T')
+
+    class SubClass2(mock.SomeClass[T]):
+        """docstring of SubClass"""
+
+    obj2 = SubClass2()
+    assert SubClass2.__doc__ == "docstring of SubClass"
+    assert isinstance(obj2, SubClass2)
 
 
 def test_mock():

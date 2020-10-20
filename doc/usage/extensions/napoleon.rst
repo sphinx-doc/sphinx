@@ -115,6 +115,7 @@ All of the following section headers are supported:
     * ``Parameters``
     * ``Return`` *(alias of Returns)*
     * ``Returns``
+    * ``Raise`` *(alias of Raises)*
     * ``Raises``
     * ``References``
     * ``See Also``
@@ -122,6 +123,7 @@ All of the following section headers are supported:
     * ``Todo``
     * ``Warning``
     * ``Warnings`` *(alias of Warning)*
+    * ``Warn`` *(alias of Warns)*
     * ``Warns``
     * ``Yield`` *(alias of Yields)*
     * ``Yields``
@@ -272,11 +274,12 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
     napoleon_use_ivar = False
     napoleon_use_param = True
     napoleon_use_rtype = True
+    napoleon_type_aliases = None
 
 .. _Google style:
    https://google.github.io/styleguide/pyguide.html
 .. _NumPy style:
-   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+   https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 .. confval:: napoleon_google_docstring
 
@@ -433,7 +436,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
        :param arg1: Description of `arg1`
        :type arg1: str
        :param arg2: Description of `arg2`, defaults to 0
-       :type arg2: int, optional
+       :type arg2: :class:`int`, *optional*
 
    **If False**::
 
@@ -478,3 +481,33 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    **If False**::
 
        :returns: *bool* -- True if successful, False otherwise
+
+.. confval:: napoleon_type_aliases
+
+   A mapping to translate type names to other names or references. Works
+   only when ``napoleon_use_param = True``. *Defaults to None.*
+
+   With::
+
+       napoleon_type_aliases = {
+           "CustomType": "mypackage.CustomType",
+           "dict-like": ":term:`dict-like <mapping>`",
+       }
+
+   This `NumPy style`_ snippet::
+
+       Parameters
+       ----------
+       arg1 : CustomType
+           Description of `arg1`
+       arg2 : dict-like
+           Description of `arg2`
+
+   becomes::
+
+       :param arg1: Description of `arg1`
+       :type arg1: mypackage.CustomType
+       :param arg2: Description of `arg2`
+       :type arg2: :term:`dict-like <mapping>`
+
+   .. versionadded:: 3.2

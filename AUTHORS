@@ -64,6 +64,7 @@ Other contributors, listed alphabetically, are:
 * \T. Powers -- HTML output improvements
 * Jeppe Pihl -- literalinclude improvements
 * Rob Ruana -- napoleon extension
+* Vince Salvino -- JavaScript search improvements
 * Stefan Seefeld -- toctree improvements
 * Gregory Szorc -- performance improvements
 * Taku Shimizu -- epub3 builder
@@ -84,6 +85,7 @@ Other contributors, listed alphabetically, are:
 * Daniel Pizetta -- inheritance diagram improvements
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Adrián Chaves (Gallaecio) -- coverage builder improvements
+* Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
 
 Many thanks for all contributions!
 

@@ -25,12 +25,14 @@ def test_create_single_index(app):
             ".. index:: ёлка\n"
             ".. index:: ‏תירבע‎\n"
             ".. index:: 9-symbol\n"
-            ".. index:: &-symbol\n")
+            ".. index:: &-symbol\n"
+            ".. index:: £100\n")
     restructuredtext.parse(app, text)
     index = IndexEntries(app.env).create_index(app.builder)
     assert len(index) == 6
     assert index[0] == ('Symbols', [('&-symbol', [[('', '#index-9')], [], None]),
-                                    ('9-symbol', [[('', '#index-8')], [], None])])
+                                    ('9-symbol', [[('', '#index-8')], [], None]),
+                                    ('£100', [[('', '#index-10')], [], None])])
     assert index[1] == ('D', [('docutils', [[('', '#index-0')], [], None])])
     assert index[2] == ('P', [('pip', [[], [('install', [('', '#index-2')]),
                                             ('upgrade', [('', '#index-3')])], None]),
@@ -113,6 +115,43 @@ def test_create_seealso_index(app):
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
+def test_create_main_index(app):
+    text = (".. index:: !docutils\n"
+            ".. index:: docutils\n"
+            ".. index:: pip; install\n"
+            ".. index:: !pip; install\n")
+    restructuredtext.parse(app, text)
+    index = IndexEntries(app.env).create_index(app.builder)
+    assert len(index) == 2
+    assert index[0] == ('D', [('docutils', [[('main', '#index-0'),
+                                             ('', '#index-1')], [], None])])
+    assert index[1] == ('P', [('pip', [[], [('install', [('main', '#index-3'),
+                                                         ('', '#index-2')])], None])])
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_create_index_with_name(app):
+    text = (".. index:: single: docutils\n"
+            "   :name: ref1\n"
+            ".. index:: single: Python\n"
+            "   :name: ref2\n"
+            ".. index:: Sphinx\n")
+    restructuredtext.parse(app, text)
+    index = IndexEntries(app.env).create_index(app.builder)
+
+    # check index is created correctly
+    assert len(index) == 3
+    assert index[0] == ('D', [('docutils', [[('', '#ref1')], [], None])])
+    assert index[1] == ('P', [('Python', [[('', '#ref2')], [], None])])
+    assert index[2] == ('S', [('Sphinx', [[('', '#index-0')], [], None])])
+
+    # check the reference labels are created correctly
+    std = app.env.get_domain('std')
+    assert std.anonlabels['ref1'] == ('index', 'ref1')
+    assert std.anonlabels['ref2'] == ('index', 'ref2')
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
 def test_create_index_by_key(app):
     # At present, only glossary directive is able to create index key
     text = (".. glossary::\n"
@@ -124,5 +163,5 @@ def test_create_index_by_key(app):
     index = IndexEntries(app.env).create_index(app.builder)
     assert len(index) == 3
     assert index[0] == ('D', [('docutils', [[('main', '#term-docutils')], [], None])])
-    assert index[1] == ('P', [('Python', [[('main', '#term-python')], [], None])])
+    assert index[1] == ('P', [('Python', [[('main', '#term-Python')], [], None])])
     assert index[2] == ('ス', [('スフィンクス', [[('main', '#term-0')], [], 'ス'])])

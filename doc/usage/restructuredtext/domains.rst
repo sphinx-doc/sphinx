@@ -42,9 +42,22 @@ Basic Markup
 Most domains provide a number of :dfn:`object description directives`, used to
 describe specific objects provided by modules.  Each directive requires one or
 more signatures to provide basic information about what is being described, and
-the content should be the description.  The basic version makes entries in the
-general index; if no index entry is desired, you can give the directive option
-flag ``:noindex:``.  An example using a Python domain directive::
+the content should be the description.  A domain will typically keep an
+internal index of all entites to aid cross-referencing. Typically it will
+also add entries in the shown general index.
+If you want to suppress the addition of an entry in the shown index, you can
+give the directive option flag ``:noindexentry:``.
+If you want to typeset an object description, without even making it available
+for cross-referencing, you can give the directive option flag ``:noindex:``
+(which implies ``:noindexentry:``).
+Though, note that not every directive en every domain may support these
+options.
+
+.. versionadded:: 3.2
+   The directive option ``noindexentry`` in the Python, C, C++, and Javascript
+   domains.
+
+An example using a Python domain directive::
 
    .. py:function:: spam(eggs)
                     ham(eggs)
@@ -195,10 +208,31 @@ The following directives are provided for module and class contents:
    as "defined constants."  Class and object attributes are not documented
    using this environment.
 
+   .. rubric:: options
+
+   .. rst:directive:option:: type: type of the variable
+      :type: text
+
+      .. versionadded:: 2.4
+
+   .. rst:directive:option:: value: initial value of the variable
+      :type: text
+
+      .. versionadded:: 2.4
+
 .. rst:directive:: .. py:exception:: name
 
    Describes an exception class.  The signature can, but need not include
    parentheses with constructor arguments.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: final
+      :type: no value
+
+      Indicate the class is a final class.
+
+      .. versionadded:: 3.1
 
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
@@ -223,11 +257,32 @@ The following directives are provided for module and class contents:
 
    The first way is the preferred one.
 
+   .. rubric:: options
+
+   .. rst:directive:option:: final
+      :type: no value
+
+      Indicate the class is a final class.
+
+      .. versionadded:: 3.1
+
 .. rst:directive:: .. py:attribute:: name
 
    Describes an object data attribute.  The description should include
    information about the type of the data to be expected and whether it may be
    changed directly.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: type: type of the attribute
+      :type: text
+
+      .. versionadded:: 2.4
+
+   .. rst:directive:option:: value: initial value of the attribute
+      :type: text
+
+      .. versionadded:: 2.4
 
 .. rst:directive:: .. py:method:: name(parameters)
 
@@ -258,6 +313,13 @@ The following directives are provided for module and class contents:
       Indicate the method is a class method.
 
       .. versionadded:: 2.1
+
+   .. rst:directive:option:: final
+      :type: no value
+
+      Indicate the class is a final method.
+
+      .. versionadded:: 3.1
 
    .. rst:directive:option:: property
       :type: no value
@@ -354,6 +416,9 @@ Info field lists
 ~~~~~~~~~~~~~~~~
 
 .. versionadded:: 0.4
+.. versionchanged:: 3.0
+
+   meta fields are added.
 
 Inside Python object description directives, reST field lists with these fields
 are recognized and formatted nicely:
@@ -367,6 +432,10 @@ are recognized and formatted nicely:
 * ``vartype``: Type of a variable.  Creates a link if possible.
 * ``returns``, ``return``: Description of the return value.
 * ``rtype``: Return type.  Creates a link if possible.
+* ``meta``: Add metadata to description of the python object.  The metadata will
+  not be shown on output document.  For example, ``:meta private:`` indicates
+  the python object is private member.  It is used in
+  :py:mod:`sphinx.ext.autodoc` for filtering members.
 
 .. note::
 
@@ -521,47 +590,62 @@ The C Domain
 
 The C domain (name **c**) is suited for documentation of C API.
 
+.. rst:directive:: .. c:member:: declaration
+                   .. c:var:: declaration
+
+   Describes a C struct member or variable. Example signature::
+
+      .. c:member:: PyObject *PyTypeObject.tp_bases
+
+   The difference between the two directives is only cosmetic.
+
 .. rst:directive:: .. c:function:: function prototype
 
    Describes a C function. The signature should be given as in C, e.g.::
 
-      .. c:function:: PyObject* PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
-
-   This is also used to describe function-like preprocessor macros.  The names
-   of the arguments should be given so they may be used in the description.
+      .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
 
    Note that you don't have to backslash-escape asterisks in the signature, as
    it is not parsed by the reST inliner.
 
-.. rst:directive:: .. c:member:: declaration
-
-   Describes a C struct member. Example signature::
-
-      .. c:member:: PyObject* PyTypeObject.tp_bases
-
-   The text of the description should include the range of values allowed, how
-   the value should be interpreted, and whether the value can be changed.
-   References to structure members in text should use the ``member`` role.
-
 .. rst:directive:: .. c:macro:: name
+                   .. c:macro:: name(arg list)
 
-   Describes a "simple" C macro.  Simple macros are macros which are used for
-   code expansion, but which do not take arguments so cannot be described as
-   functions.  This is a simple C-language ``#define``.  Examples of its use in
-   the Python documentation include :c:macro:`PyObject_HEAD` and
-   :c:macro:`Py_BEGIN_ALLOW_THREADS`.
+   Describes a C macro, i.e., a C-language ``#define``, without the replacement
+   text.
 
-.. rst:directive:: .. c:type:: name
+   .. versionadded:: 3.0
+      The function style variant.
 
-   Describes a C type (whether defined by a typedef or struct). The signature
-   should just be the type name.
+.. rst:directive:: .. c:struct:: name
 
-.. rst:directive:: .. c:var:: declaration
+   Describes a C struct.
 
-   Describes a global C variable.  The signature should include the type, such
-   as::
+   .. versionadded:: 3.0
 
-      .. c:var:: PyObject* PyClass_Type
+.. rst:directive:: .. c:union:: name
+
+   Describes a C union.
+
+   .. versionadded:: 3.0
+
+.. rst:directive:: .. c:enum:: name
+
+   Describes a C enum.
+
+   .. versionadded:: 3.0
+
+.. rst:directive:: .. c:enumerator:: name
+
+   Describes a C enumerator.
+
+   .. versionadded:: 3.0
+
+.. rst:directive:: .. c:type:: typedef-like declaration
+                   .. c:type:: name
+
+   Describes a C type, either as a typedef, or the alias for an unspecified
+   type.
 
 .. _c-roles:
 
@@ -571,25 +655,211 @@ Cross-referencing C constructs
 The following roles create cross-references to C-language constructs if they
 are defined in the documentation:
 
-.. rst:role:: c:func
-
-   Reference a C-language function. Should include trailing parentheses.
-
 .. rst:role:: c:member
+              c:data
+              c:var
+              c:func
+              c:macro
+              c:struct
+              c:union
+              c:enum
+              c:enumerator
+              c:type
 
-   Reference a C-language member of a struct.
+   Reference a C declaration, as defined above.
+   Note that :rst:role:`c:member`, :rst:role:`c:data`, and
+   :rst:role:`c:var` are equivalent.
 
-.. rst:role:: c:macro
+   .. versionadded:: 3.0
+      The var, struct, union, enum, and enumerator roles.
 
-   Reference a "simple" C macro, as defined above.
 
-.. rst:role:: c:type
+Anonymous Entities
+~~~~~~~~~~~~~~~~~~
 
-   Reference a C-language type.
+C supports anonymous structs, enums, and unions.
+For the sake of documentation they must be given some name that starts with
+``@``, e.g., ``@42`` or ``@data``.
+These names can also be used in cross-references,
+though nested symbols will be found even when omitted.
+The ``@...`` name will always be rendered as **[anonymous]** (possibly as a
+link).
 
-.. rst:role:: c:data
+Example::
 
-   Reference a C-language variable.
+   .. c:struct:: Data
+
+      .. c:union:: @data
+
+         .. c:var:: int a
+
+         .. c:var:: double b
+
+   Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
+
+This will be rendered as:
+
+.. c:struct:: Data
+
+   .. c:union:: @data
+
+      .. c:var:: int a
+
+      .. c:var:: double b
+
+Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
+
+.. versionadded:: 3.0
+
+
+Aliasing Declarations
+~~~~~~~~~~~~~~~~~~~~~
+
+.. c:namespace-push:: @alias
+
+Sometimes it may be helpful list declarations elsewhere than their main
+documentation, e.g., when creating a synopsis of an interface.
+The following directive can be used for this purpose.
+
+.. rst:directive:: .. c:alias:: name
+
+   Insert one or more alias declarations. Each entity can be specified
+   as they can in the :rst:role:`c:any` role.
+
+   For example::
+
+       .. c:var:: int data
+       .. c:function:: int f(double k)
+
+       .. c:alias:: data
+                    f
+
+   becomes
+
+   .. c:var:: int data
+   .. c:function:: int f(double k)
+
+   .. c:alias:: data
+                f
+
+   .. versionadded:: 3.2
+
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: maxdepth: int
+
+      Insert nested declarations as well, up to the total depth given.
+      Use 0 for infinite depth and 1 for just the mentioned declaration.
+      Defaults to 1.
+
+      .. versionadded:: 3.3
+
+
+.. c:namespace-pop::
+
+
+Inline Expressions and Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. rst:role:: c:expr
+              c:texpr
+
+   Insert a C expression or type either as inline code (``cpp:expr``)
+   or inline text (``cpp:texpr``). For example::
+
+      .. c:var:: int a = 42
+
+      .. c:function:: int f(int i)
+
+      An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
+
+      A type: :c:expr:`const Data*`
+      (or as text :c:texpr:`const Data*`).
+
+   will be rendered as follows:
+
+   .. c:var:: int a = 42
+
+   .. c:function:: int f(int i)
+
+   An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
+
+   A type: :c:expr:`const Data*`
+   (or as text :c:texpr:`const Data*`).
+
+   .. versionadded:: 3.0
+
+
+Namespacing
+~~~~~~~~~~~
+
+.. versionadded:: 3.1
+
+The C language it self does not support namespacing, but it can sometimes be
+useful to emulate it in documentation, e.g., to show alternate declarations.
+The feature may also be used to document members of structs/unions/enums
+separate from their parent declaration.
+
+The current scope can be changed using three namespace directives.  They manage
+a stack declarations where ``c:namespace`` resets the stack and changes a given
+scope.
+
+The ``c:namespace-push`` directive changes the scope to a given inner scope
+of the current one.
+
+The ``c:namespace-pop`` directive undoes the most recent
+``c:namespace-push`` directive.
+
+.. rst:directive:: .. c:namespace:: scope specification
+
+   Changes the current scope for the subsequent objects to the given scope, and
+   resets the namespace directive stack. Note that nested scopes can be
+   specified by separating with a dot, e.g.::
+
+      .. c:namespace:: Namespace1.Namespace2.SomeStruct.AnInnerStruct
+
+   All subsequent objects will be defined as if their name were declared with
+   the scope prepended. The subsequent cross-references will be searched for
+   starting in the current scope.
+
+   Using ``NULL`` or ``0`` as the scope will change to global scope.
+
+.. rst:directive:: .. c:namespace-push:: scope specification
+
+   Change the scope relatively to the current scope. For example, after::
+
+      .. c:namespace:: A.B
+
+      .. c:namespace-push:: C.D
+
+   the current scope will be ``A.B.C.D``.
+
+.. rst:directive:: .. c:namespace-pop::
+
+   Undo the previous ``c:namespace-push`` directive (*not* just pop a scope).
+   For example, after::
+
+      .. c:namespace:: A.B
+
+      .. c:namespace-push:: C.D
+
+      .. c:namespace-pop::
+
+   the current scope will be ``A.B`` (*not* ``A.B.C``).
+
+   If no previous ``c:namespace-push`` directive has been used, but only a
+   ``c:namespace`` directive, then the current scope will be reset to global
+   scope.  That is, ``.. c:namespace:: A.B`` is equivalent to::
+
+      .. c:namespace:: NULL
+
+      .. c:namespace-push:: A.B
+
+Configuration Variables
+~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`c-config`.
 
 
 .. _cpp-domain:
@@ -828,7 +1098,7 @@ Options
 
 Some directives support options:
 
-- ``:noindex:``, see :ref:`basic-domain-markup`.
+- ``:noindexentry:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 

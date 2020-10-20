@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="223px" preserveAspectRatio="none" style="width:637px;height:223px;" version="1.1" viewBox="0 0 637 223" width="637px" zoomAndPan="magnify"><defs><filter height="300%" id="fh7abla96c8rb" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[631d54569d64dd7be7afb1602a233020]
+entity SphinxProject--><polygon fill="#FEFECE" filter="url(#fh7abla96c8rb)" points="6,30.5,6,66.7969,120,66.7969,120,40.5,110,30.5,6,30.5" style="stroke: #000000; stroke-width: 1.5;"/><path d="M110,30.5 L110,40.5 L120,40.5 " fill="#FEFECE" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="94" x="16" y="53.4951">SphinxProject</text><!--MD5=[61096c0d57626e43fed95496d4441932]
+entity .rst--><polygon fill="#FEFECE" filter="url(#fh7abla96c8rb)" points="155,30.5,155,66.7969,197,66.7969,197,40.5,187,30.5,155,30.5" style="stroke: #000000; stroke-width: 1.5;"/><path d="M187,30.5 L187,40.5 L197,40.5 " fill="#FEFECE" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="22" x="165" y="53.4951">.rst</text><!--MD5=[08ed079d9b091f9ed2d220f9f6abc033]
+entity .pot--><path d="M359.5,36 C359.5,26 383,26 383,26 C383,26 406.5,26 406.5,36 L406.5,61.2969 C406.5,71.2969 383,71.2969 383,71.2969 C383,71.2969 359.5,71.2969 359.5,61.2969 L359.5,36 " fill="#FEFECE" filter="url(#fh7abla96c8rb)" style="stroke: #000000; stroke-width: 1.5;"/><path d="M359.5,36 C359.5,46 383,46 383,46 C383,46 406.5,46 406.5,36 " fill="none" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="27" x="369.5" y="62.9951">.pot</text><!--MD5=[66eca29884632d3929c321eae20b9288]
+entity .po--><path d="M483,36 C483,26 504,26 504,26 C504,26 525,26 525,36 L525,61.2969 C525,71.2969 504,71.2969 504,71.2969 C504,71.2969 483,71.2969 483,61.2969 L483,36 " fill="#FEFECE" filter="url(#fh7abla96c8rb)" style="stroke: #000000; stroke-width: 1.5;"/><path d="M483,36 C483,46 504,46 504,46 C504,46 525,46 525,36 " fill="none" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="22" x="493" y="62.9951">.po</text><!--MD5=[fad5092d1b513ed9e4cd2391fb0fb212]
+entity .mo--><path d="M398,176 C398,166 421,166 421,166 C421,166 444,166 444,176 L444,201.2969 C444,211.2969 421,211.2969 421,211.2969 C421,211.2969 398,211.2969 398,201.2969 L398,176 " fill="#FEFECE" filter="url(#fh7abla96c8rb)" style="stroke: #000000; stroke-width: 1.5;"/><path d="M398,176 C398,186 421,186 421,186 C421,186 444,186 444,176 " fill="none" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="26" x="408" y="202.9951">.mo</text><!--MD5=[8f276d451ff344d4b5b89d896332ffcd]
+entity translator--><ellipse cx="593" cy="17.5" fill="#FEFECE" filter="url(#fh7abla96c8rb)" rx="8" ry="8" style="stroke: #A80036; stroke-width: 1.5;"/><path d="M593,25.5 L593,52.5 M580,33.5 L606,33.5 M593,52.5 L580,67.5 M593,52.5 L606,67.5 " fill="none" filter="url(#fh7abla96c8rb)" style="stroke: #A80036; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="65" x="560.5" y="85.9951">translator</text><!--MD5=[ba0f3816bcb6df458d88626e193b44ee]
+entity TranslatedBuild--><polygon fill="#FEFECE" filter="url(#fh7abla96c8rb)" points="214.5,170.5,214.5,206.7969,341.5,206.7969,341.5,180.5,331.5,170.5,214.5,170.5" style="stroke: #000000; stroke-width: 1.5;"/><path d="M331.5,170.5 L331.5,180.5 L341.5,180.5 " fill="#FEFECE" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="107" x="224.5" y="193.4951">TranslatedBuild</text><!--MD5=[2a0f0d8c54238b3eb600ae284aca39d2]
+reverse link .po to translator--><path d="M530.44,48.5 C540.43,48.5 550.43,48.5 560.43,48.5 " fill="none" id=".po&lt;-translator" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="525.21,48.5,534.21,52.5,530.21,48.5,534.21,44.5,525.21,48.5" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[25ad71f3d3609323ec521914d1dc498d]
+link SphinxProject to .rst--><path d="M120.38,48.5 C130.13,48.5 139.87,48.5 149.61,48.5 " fill="none" id="SphinxProject-&gt;.rst" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="154.71,48.5,145.71,44.5,149.71,48.5,145.71,52.5,154.71,48.5" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[1109e8764a7297dc8aca732b1794aa90]
+link .rst to .pot--><path d="M197.37,48.5 C234.72,48.5 311.88,48.5 354,48.5 " fill="none" id=".rst-&gt;.pot" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="359.21,48.5,350.21,44.5,354.21,48.5,350.21,52.5,359.21,48.5" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="126" x="215.25" y="41.5669">sphinx-build gettext</text><!--MD5=[c2d0ba229470f335ea07ab2ed6b28ec0]
+link .pot to .po--><path d="M406.62,48.5 C427.03,48.5 456.51,48.5 477.68,48.5 " fill="none" id=".pot-&gt;.po" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="482.87,48.5,473.87,44.5,477.87,48.5,473.87,52.5,482.87,48.5" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="40" x="424.75" y="41.5669">Pootle</text><!--MD5=[06651b5914fbf4764a077bbac7efe19a]
+link .po to .mo--><path d="M491.03,71.06 C476.38,95.43 452.52,135.09 436.8,161.24 " fill="none" id=".po-&gt;.mo" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="434.15,165.63,442.2104,159.9705,436.7225,161.3425,435.3505,155.8546,434.15,165.63" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="50" x="462" y="132.0669">msgfmt</text><!--MD5=[02fa75427086f2cebad4a5f1b2dd96dd]
+reverse link TranslatedBuild to .mo--><path d="M346.94,188.5 C363.88,188.5 380.82,188.5 397.76,188.5 " fill="none" id="TranslatedBuild&lt;-.mo" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="341.68,188.5,350.68,192.5,346.68,188.5,350.68,184.5,341.68,188.5" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[e72b6258a50343d4926d984a36170cf2]
+link .rst to TranslatedBuild--><path d="M188.71,66.7 C207.27,91.8 241.75,138.46 262,165.86 " fill="none" id=".rst-&gt;TranslatedBuild" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="265.13,170.08,262.9905,160.4663,262.1552,166.0612,256.5604,165.226,265.13,170.08" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="165" x="241" y="132.0669">sphinx-build -Dlanguage=</text><!--MD5=[30dba34f254541587149d90abdb00688]
+@startuml
+file "SphinxProject"
+file ".rst"
+database ".pot"
+database ".po"
+database ".mo"
+actor translator
+file TranslatedBuild
+translator -l-> .po
+SphinxProject -r-> .rst
+.rst -r-> .pot : sphinx-build gettext
+.pot -r-> .po : Pootle
+.po -d-> .mo : msgfmt
+.mo -l-> TranslatedBuild
+.rst -d-> TranslatedBuild : "sphinx-build -Dlanguage="
+@enduml
+
+PlantUML version 1.2020.00(Sat Jan 11 12:30:53 GMT 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 1.8.0_252-b09
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: null
+--></g></svg>

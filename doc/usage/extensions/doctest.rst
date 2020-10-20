@@ -11,11 +11,15 @@
            pair: testing; snippets
 
 
-This extension allows you to test snippets in the documentation in a natural
-way.  It works by collecting specially-marked up code blocks and running them as
-doctest tests.
+It is often helpful to include snippets of code in your documentation and
+demonstrate the results of executing them. But it is important to ensure that
+the documentation stays up-to-date with the code.
 
-Within one document, test code is partitioned in *groups*, where each group
+This extension allows you to test such code snippets in the documentation in
+a natural way.  If you mark the code blocks as shown here, the ``doctest``
+builder will collect them and run them as doctest tests.
+
+Within each document, you can assign each snippet to a *group*. Each group
 consists of:
 
 * zero or more *setup code* blocks (e.g. importing the module to test)
@@ -63,7 +67,7 @@ a comma-separated list of group names.
    default set of flags is specified by the :confval:`doctest_default_flags`
    configuration variable.
 
-   This directive supports three options:
+   This directive supports five options:
 
    * ``hide``, a flag option, hides the doctest block in other builders.  By
      default it is shown as a highlighted doctest block.
@@ -98,6 +102,11 @@ a comma-separated list of group names.
 
         Supported PEP-440 operands and notations
 
+   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
+     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
+     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
+     individually.  Default is ``trim-doctest-flags``.
+
    Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
    signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed
    when building presentation output (HTML, LaTeX etc.).
@@ -115,10 +124,15 @@ a comma-separated list of group names.
 
    A code block for a code-output-style test.
 
-   This directive supports one option:
+   This directive supports three options:
 
    * ``hide``, a flag option, hides the code block in other builders.  By
      default it is shown as a highlighted code block.
+
+   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
+     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
+     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
+     individually.  Default is ``trim-doctest-flags``.
 
    .. note::
 
@@ -128,8 +142,8 @@ a comma-separated list of group names.
 
           .. testcode::
 
-             1+1        # this will give no output!
-             print 2+2  # this will give output
+             1+1         # this will give no output!
+             print(2+2)  # this will give output
 
           .. testoutput::
 
@@ -145,7 +159,7 @@ a comma-separated list of group names.
    The corresponding output, or the exception message, for the last
    :rst:dir:`testcode` block.
 
-   This directive supports two options:
+   This directive supports four options:
 
    * ``hide``, a flag option, hides the output block in other builders.  By
      default it is shown as a literal block without highlighting.
@@ -153,11 +167,16 @@ a comma-separated list of group names.
    * ``options``, a string option, can be used to give doctest flags
      (comma-separated) just like in normal doctest blocks.
 
+   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
+     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
+     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
+     individually.  Default is ``trim-doctest-flags``.
+
    Example::
 
       .. testcode::
 
-         print 'Output     text.'
+         print('Output     text.')
 
       .. testoutput::
          :hide:
@@ -324,7 +343,7 @@ The doctest extension uses the following configuration values:
 
       Some documentation text.
 
-      >>> print 1
+      >>> print(1)
       1
 
       Some more documentation text.
@@ -340,7 +359,7 @@ The doctest extension uses the following configuration values:
 
       .. doctest::
 
-         >>> print 1
+         >>> print(1)
          1
 
       Some more documentation text.

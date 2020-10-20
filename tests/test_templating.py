@@ -20,7 +20,7 @@ def test_layout_overloading(make_app, app_params):
     setup_documenters(app)
     app.builder.build_update()
 
-    result = (app.outdir / 'index.html').text()
+    result = (app.outdir / 'index.html').read_text()
     assert '<!-- layout overloading -->' in result
 
 
@@ -31,5 +31,19 @@ def test_autosummary_class_template_overloading(make_app, app_params):
     setup_documenters(app)
     app.builder.build_update()
 
-    result = (app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html').text()
+    result = (app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html').read_text()
     assert 'autosummary/class.rst method block overloading' in result
+    assert 'foobar' not in result
+
+
+@pytest.mark.sphinx('html', testroot='templating',
+                    confoverrides={'autosummary_context': {'sentence': 'foobar'}})
+def test_autosummary_context(make_app, app_params):
+    args, kwargs = app_params
+    app = make_app(*args, **kwargs)
+    setup_documenters(app)
+    app.builder.build_update()
+
+    result = (app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html').read_text()
+    assert 'autosummary/class.rst method block overloading' in result
+    assert 'foobar' in result

@@ -11,7 +11,7 @@
 """
 
 import collections
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional
 
 
 class peek_iter:
@@ -60,11 +60,9 @@ class peek_iter:
         return self
 
     def __next__(self, n: int = None) -> Any:
-        # note: prevent 2to3 to transform self.next() in next(self) which
-        # causes an infinite loop !
-        return getattr(self, 'next')(n)
+        return self.next(n)
 
-    def _fillcache(self, n: int) -> None:
+    def _fillcache(self, n: Optional[int]) -> None:
         """Cache `n` items. If `n` is 0 or None, then 1 item is cached."""
         if not n:
             n = 1
@@ -125,7 +123,7 @@ class peek_iter:
             result = [self._cache.popleft() for i in range(n)]
         return result
 
-    def peek(self, n: int = None) -> Any:
+    def peek(self, n: Optional[int] = None) -> Any:
         """Preview the next item or `n` items of the iterator.
 
         The iterator is not advanced when peek is called.
@@ -222,7 +220,7 @@ class modify_iter(peek_iter):
                             'modifier must be callable')
         super().__init__(*args)
 
-    def _fillcache(self, n: int) -> None:
+    def _fillcache(self, n: Optional[int]) -> None:
         """Cache `n` modified items. If `n` is 0 or None, 1 item is cached.
 
         Each item returned by the iterator is passed through the

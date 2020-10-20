@@ -69,4 +69,4 @@ subsubsection
 
    otherdoc
 
-* Embeded standalone hyperlink reference(refs: #5948): `subsection <section1_>`_.
+* Embedded standalone hyperlink reference(refs: #5948): `subsection <section1_>`_.

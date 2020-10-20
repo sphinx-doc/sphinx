@@ -10,17 +10,14 @@
 
 import gettext
 import locale
-import warnings
 from collections import UserString, defaultdict
 from gettext import NullTranslations
-from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
-
-from sphinx.deprecation import RemovedInSphinx30Warning
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
 class _TranslationProxy(UserString):
     """
-    Class for proxy strings from gettext translations.  This is a helper for the
+    Class for proxy strings from gettext translations. This is a helper for the
     lazy_* functions from this module.
 
     The proxy implementation attempts to be as complete as possible, so that
@@ -106,31 +103,13 @@ class _TranslationProxy(UserString):
             return '<%s broken>' % self.__class__.__name__
 
 
-def mygettext(string: str) -> str:
-    """Used instead of _ when creating TranslationProxies, because _ is
-    not bound yet at that time.
-    """
-    warnings.warn('sphinx.locale.mygettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    return _(string)
-
-
-def lazy_gettext(string: str) -> str:
-    """A lazy version of `gettext`."""
-    # if isinstance(string, _TranslationProxy):
-    #     return string
-    warnings.warn('sphinx.locale.laxy_gettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    return _TranslationProxy(mygettext, string)  # type: ignore
-
-
 translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
 
 
-def init(locale_dirs: List[str], language: str,
+def init(locale_dirs: List[Optional[str]], language: str,
          catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
-    least a NullTranslations catalog set in `translators`.  If called multiple
+    least a NullTranslations catalog set in `translators`. If called multiple
     times or if several ``.mo`` files are found, their contents are merged
     together (thus making ``init`` reentrant).
     """
@@ -194,7 +173,7 @@ def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]
     """
     try:
         # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)
+        language, _ = locale.getlocale(locale.LC_MESSAGES)  # type: Tuple[Optional[str], Any]
     except AttributeError:
         # LC_MESSAGES is not always defined. Fallback to the default language
         # in case it is not.
@@ -218,7 +197,7 @@ def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
     return translator.gettext(message)
 
 
-def get_translation(catalog, namespace='general'):
+def get_translation(catalog: str, namespace: str = 'general') -> Callable:
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the
@@ -264,12 +243,6 @@ _ = get_translation('sphinx')
 #: Translation function for console messages
 #: This function follows locale setting (`LC_ALL`, `LC_MESSAGES` and so on).
 __ = get_translation('sphinx', 'console')
-
-
-def l_(*args):
-    warnings.warn('sphinx.locale.l_() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning, stacklevel=2)
-    return _(*args)
 
 
 # labels

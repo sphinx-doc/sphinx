@@ -31,4 +31,4 @@ def test_no_cname_for_github_io_domain(app, status, warning):
 def test_cname_for_custom_domain(app, status, warning):
     app.builder.build_all()
     assert (app.outdir / '.nojekyll').exists()
-    assert (app.outdir / 'CNAME').text() == 'sphinx-doc.org'
+    assert (app.outdir / 'CNAME').read_text() == 'sphinx-doc.org'

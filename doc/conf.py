@@ -7,6 +7,7 @@ import sphinx
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
+              'sphinx.ext.intersphinx',
               'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
 
 master_doc = 'contents'
@@ -14,7 +15,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2019, Georg Brandl and the Sphinx team'
+copyright = '2007-2020, Georg Brandl and the Sphinx team'
 version = sphinx.__display_version__
 release = version
 show_authors = True
@@ -25,7 +26,8 @@ modindex_common_prefix = ['sphinx.']
 html_static_path = ['_static']
 html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 html_additional_pages = {'index': 'index.html'}
-html_use_opensearch = 'http://sphinx-doc.org'
+html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
+html_baseurl = 'https://www.sphinx-doc.org/en/master/'
 
 htmlhelp_basename = 'Sphinxdoc'
 
@@ -108,8 +110,6 @@ texinfo_documents = [
      1),
 ]
 
-# We're not using intersphinx right now, but if we did, this would be part of
-# the mapping:
 intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)}
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
@@ -146,6 +146,9 @@ def setup(app):
     app.add_object_type('confval', 'confval',
                         objname='configuration value',
                         indextemplate='pair: %s; configuration value')
+    app.add_object_type('setuptools-confval', 'setuptools-confval',
+                        objname='setuptools configuration value',
+                        indextemplate='pair: %s; setuptools configuration value')
     fdesc = GroupedField('parameter', label='Parameters',
                          names=['param'], can_collapse=True)
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,

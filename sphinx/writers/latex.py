@@ -12,11 +12,10 @@
 """
 
 import re
-import sys
 import warnings
 from collections import defaultdict
 from os import path
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Pattern, Tuple, Set, Union
+from typing import Any, Dict, Iterable, Iterator, List, Tuple, Set, Union
 from typing import cast
 
 from docutils import nodes, writers
@@ -25,7 +24,7 @@ from docutils.nodes import Element, Node, Text
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.deprecation import (
-    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
+    RemovedInSphinx40Warning, RemovedInSphinx50Warning, deprecated_alias
 )
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
@@ -46,16 +45,10 @@ except ImportError:
 if False:
     # For type annotation
     from sphinx.builders.latex import LaTeXBuilder
+    from sphinx.builders.latex.theming import Theme
 
 
 logger = logging.getLogger(__name__)
-
-SHORTHANDOFF = r'''
-\ifdefined\shorthandoff
-  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
-  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
-\fi
-'''
 
 MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
@@ -68,182 +61,6 @@ ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
                                        'lowerroman': r'\roman',
                                        'upperroman': r'\Roman',
                                    })
-PDFLATEX_DEFAULT_FONTPKG = r'''
-\usepackage{times}
-\expandafter\ifx\csname T@LGR\endcsname\relax
-\else
-% LGR was declared as font encoding
-  \substitutefont{LGR}{\rmdefault}{cmr}
-  \substitutefont{LGR}{\sfdefault}{cmss}
-  \substitutefont{LGR}{\ttdefault}{cmtt}
-\fi
-\expandafter\ifx\csname T@X2\endcsname\relax
-  \expandafter\ifx\csname T@T2A\endcsname\relax
-  \else
-  % T2A was declared as font encoding
-    \substitutefont{T2A}{\rmdefault}{cmr}
-    \substitutefont{T2A}{\sfdefault}{cmss}
-    \substitutefont{T2A}{\ttdefault}{cmtt}
-  \fi
-\else
-% X2 was declared as font encoding
-  \substitutefont{X2}{\rmdefault}{cmr}
-  \substitutefont{X2}{\sfdefault}{cmss}
-  \substitutefont{X2}{\ttdefault}{cmtt}
-\fi
-'''
-XELATEX_DEFAULT_FONTPKG = r'''
-\setmainfont{FreeSerif}[
-  Extension      = .otf,
-  UprightFont    = *,
-  ItalicFont     = *Italic,
-  BoldFont       = *Bold,
-  BoldItalicFont = *BoldItalic
-]
-\setsansfont{FreeSans}[
-  Extension      = .otf,
-  UprightFont    = *,
-  ItalicFont     = *Oblique,
-  BoldFont       = *Bold,
-  BoldItalicFont = *BoldOblique,
-]
-\setmonofont{FreeMono}[
-  Extension      = .otf,
-  UprightFont    = *,
-  ItalicFont     = *Oblique,
-  BoldFont       = *Bold,
-  BoldItalicFont = *BoldOblique,
-]
-'''
-XELATEX_GREEK_DEFAULT_FONTPKG = (XELATEX_DEFAULT_FONTPKG +
-                                 '\n\\newfontfamily\\greekfont{FreeSerif}' +
-                                 '\n\\newfontfamily\\greekfontsf{FreeSans}' +
-                                 '\n\\newfontfamily\\greekfonttt{FreeMono}')
-LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
-
-DEFAULT_SETTINGS = {
-    'latex_engine':    'pdflatex',
-    'papersize':       'letterpaper',
-    'pointsize':       '10pt',
-    'pxunit':          '.75bp',
-    'classoptions':    '',
-    'extraclassoptions': '',
-    'maxlistdepth':    '',
-    'sphinxpkgoptions':     '',
-    'sphinxsetup':     '',
-    'fvset':           '\\fvset{fontsize=\\small}',
-    'passoptionstopackages': '',
-    'geometry':        '\\usepackage{geometry}',
-    'inputenc':        '',
-    'utf8extra':       '',
-    'cmappkg':         '\\usepackage{cmap}',
-    'fontenc':         '\\usepackage[T1]{fontenc}',
-    'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
-    'multilingual':    '',
-    'babel':           '\\usepackage{babel}',
-    'polyglossia':     '',
-    'fontpkg':         PDFLATEX_DEFAULT_FONTPKG,
-    'substitutefont':  '',
-    'textcyrillic':    '',
-    'textgreek':       '\\usepackage{textalpha}',
-    'fncychap':        '\\usepackage[Bjarne]{fncychap}',
-    'hyperref':        ('% Include hyperref last.\n'
-                        '\\usepackage{hyperref}\n'
-                        '% Fix anchor placement for figures with captions.\n'
-                        '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
-                        '% Set up styles of URL: it should be placed after hyperref.\n'
-                        '\\urlstyle{same}'),
-    'contentsname':    '',
-    'extrapackages':   '',
-    'preamble':        '',
-    'title':           '',
-    'release':         '',
-    'author':          '',
-    'releasename':     '',
-    'makeindex':       '\\makeindex',
-    'shorthandoff':    '',
-    'maketitle':       '\\sphinxmaketitle',
-    'tableofcontents': '\\sphinxtableofcontents',
-    'atendofbody':     '',
-    'printindex':      '\\printindex',
-    'transition':      '\n\n\\bigskip\\hrule\\bigskip\n\n',
-    'figure_align':    'htbp',
-    'tocdepth':        '',
-    'secnumdepth':     '',
-}  # type: Dict[str, Any]
-
-ADDITIONAL_SETTINGS = {
-    'pdflatex': {
-        'inputenc':     '\\usepackage[utf8]{inputenc}',
-        'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
-                        '% support both utf8 and utf8x syntaxes\n'
-                        '  \\ifdefined\\DeclareUnicodeCharacterAsOptional\n'
-                        '    \\def\\sphinxDUC#1{\\DeclareUnicodeCharacter{"#1}}\n'
-                        '  \\else\n'
-                        '    \\let\\sphinxDUC\\DeclareUnicodeCharacter\n'
-                        '  \\fi\n'
-                        '  \\sphinxDUC{00A0}{\\nobreakspace}\n'
-                        '  \\sphinxDUC{2500}{\\sphinxunichar{2500}}\n'
-                        '  \\sphinxDUC{2502}{\\sphinxunichar{2502}}\n'
-                        '  \\sphinxDUC{2514}{\\sphinxunichar{2514}}\n'
-                        '  \\sphinxDUC{251C}{\\sphinxunichar{251C}}\n'
-                        '  \\sphinxDUC{2572}{\\textbackslash}\n'
-                        '\\fi'),
-    },
-    'xelatex': {
-        'latex_engine': 'xelatex',
-        'polyglossia':  '\\usepackage{polyglossia}',
-        'babel':        '',
-        'fontenc':     ('\\usepackage{fontspec}\n'
-                        '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
-        'fontpkg':      XELATEX_DEFAULT_FONTPKG,
-        'textgreek':    '',
-        'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
-                        '{\\leavevmode\\nobreak\\ }'),
-    },
-    'lualatex': {
-        'latex_engine': 'lualatex',
-        'polyglossia':  '\\usepackage{polyglossia}',
-        'babel':        '',
-        'fontenc':     ('\\usepackage{fontspec}\n'
-                        '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
-        'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
-        'textgreek':    '',
-        'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
-                        '{\\leavevmode\\nobreak\\ }'),
-    },
-    'platex': {
-        'latex_engine': 'platex',
-        'babel':        '',
-        'classoptions': ',dvipdfmx',
-        'fontpkg':      '\\usepackage{times}',
-        'textgreek':    '',
-        'fncychap':     '',
-        'geometry':     '\\usepackage[dvipdfm]{geometry}',
-    },
-    'uplatex': {
-        'latex_engine': 'uplatex',
-        'babel':        '',
-        'classoptions': ',dvipdfmx',
-        'fontpkg':      '\\usepackage{times}',
-        'textgreek':    '',
-        'fncychap':     '',
-        'geometry':     '\\usepackage[dvipdfm]{geometry}',
-    },
-
-    # special settings for latex_engine + language_code
-    ('xelatex', 'fr'): {
-        # use babel instead of polyglossia by default
-        'polyglossia':  '',
-        'babel':        '\\usepackage{babel}',
-    },
-    ('xelatex', 'zh'): {
-        'fontenc':      '\\usepackage{xeCJK}',
-    },
-    ('xelatex', 'el'): {
-        'fontpkg':      XELATEX_GREEK_DEFAULT_FONTPKG,
-    },
-}  # type: Dict[Any, Dict[str, Any]]
 
 EXTRA_RE = re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')
 
@@ -272,9 +89,16 @@ class LaTeXWriter(writers.Writer):
     def __init__(self, builder: "LaTeXBuilder") -> None:
         super().__init__()
         self.builder = builder
+        self.theme = None  # type: Theme
 
     def translate(self) -> None:
-        visitor = self.builder.create_translator(self.document, self.builder)
+        try:
+            visitor = self.builder.create_translator(self.document, self.builder, self.theme)
+        except TypeError:
+            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
+                          RemovedInSphinx50Warning, stacklevel=2)
+            visitor = self.builder.create_translator(self.document, self.builder)
+
         self.document.walkabout(visitor)
         self.output = cast(LaTeXTranslator, visitor).astext()
 
@@ -307,18 +131,6 @@ class Table:
                                                 # it maps table location to cell_id
                                                 # (cell = rectangular area)
         self.cell_id = 0                        # last assigned cell_id
-
-    @property
-    def caption_footnotetexts(self) -> List[str]:
-        warnings.warn('table.caption_footnotetexts is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
-
-    @property
-    def header_footnotetexts(self) -> List[str]:
-        warnings.warn('table.header_footnotetexts is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
 
     def is_longtable(self) -> bool:
         """True if and only if table uses longtable environment."""
@@ -472,9 +284,15 @@ class LaTeXTranslator(SphinxTranslator):
     # sphinx specific document classes
     docclasses = ('howto', 'manual')
 
-    def __init__(self, document: nodes.document, builder: "LaTeXBuilder") -> None:
+    def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
+                 theme: "Theme" = None) -> None:
         super().__init__(document, builder)
         self.body = []  # type: List[str]
+        self.theme = theme
+
+        if theme is None:
+            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
+                          RemovedInSphinx50Warning, stacklevel=2)
 
         # flags
         self.in_title = 0
@@ -492,24 +310,37 @@ class LaTeXTranslator(SphinxTranslator):
         self.compact_list = 0
         self.first_param = 0
 
+        sphinxpkgoptions = []
+
         # sort out some elements
         self.elements = self.builder.context.copy()
 
-        # but some have other interface in config file
-        self.elements['wrapperclass'] = self.format_docclass(self.settings.docclass)
-
-        # we assume LaTeX class provides \chapter command except in case
-        # of non-Japanese 'howto' case
+        # initial section names
         self.sectionnames = LATEXSECTIONNAMES[:]
-        if self.settings.docclass == 'howto':
-            docclass = self.config.latex_docclass.get('howto', 'article')
-            if docclass[0] == 'j':  # Japanese class...
-                pass
-            else:
+
+        if self.theme:
+            # new style: control sectioning via theme's setting
+            #
+            # .. note:: template variables(elements) are already assigned in builder
+            docclass = self.theme.docclass
+            if self.theme.toplevel_sectioning == 'section':
                 self.sectionnames.remove('chapter')
         else:
-            docclass = self.config.latex_docclass.get('manual', 'report')
-        self.elements['docclass'] = docclass
+            # old style: sectioning control is hard-coded
+            # but some have other interface in config file
+            self.elements['wrapperclass'] = self.format_docclass(self.settings.docclass)
+
+            # we assume LaTeX class provides \chapter command except in case
+            # of non-Japanese 'howto' case
+            if document.get('docclass') == 'howto':
+                docclass = self.config.latex_docclass.get('howto', 'article')
+                if docclass[0] == 'j':  # Japanese class...
+                    pass
+                else:
+                    self.sectionnames.remove('chapter')
+            else:
+                docclass = self.config.latex_docclass.get('manual', 'report')
+            self.elements['docclass'] = docclass
 
         # determine top section level
         self.top_sectionlevel = 1
@@ -535,15 +366,12 @@ class LaTeXTranslator(SphinxTranslator):
                 self.numfig_secnum_depth = min(self.numfig_secnum_depth,
                                                len(LATEXSECTIONNAMES) - 1)
                 # if passed key value is < 1 LaTeX will act as if 0; see sphinx.sty
-                self.elements['sphinxpkgoptions'] += \
-                    (',numfigreset=%s' % self.numfig_secnum_depth)
+                sphinxpkgoptions.append('numfigreset=%s' % self.numfig_secnum_depth)
             else:
-                self.elements['sphinxpkgoptions'] += ',nonumfigreset'
-            try:
-                if self.config.math_numfig:
-                    self.elements['sphinxpkgoptions'] += ',mathnumfig'
-            except AttributeError:
-                pass
+                sphinxpkgoptions.append('nonumfigreset')
+
+        if self.config.numfig and self.config.math_numfig:
+            sphinxpkgoptions.append('mathnumfig')
 
         if (self.config.language not in {None, 'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
@@ -560,44 +388,6 @@ class LaTeXTranslator(SphinxTranslator):
             logger.warning(__('no Babel option known for language %r'),
                            self.config.language)
 
-        # set up multilingual module...
-        if self.elements['latex_engine'] == 'pdflatex':
-            if not self.babel.uses_cyrillic():
-                if 'X2' in self.elements['fontenc']:
-                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.elements['textcyrillic'] = ('\\usepackage[Xtwo]'
-                                                     '{sphinxcyrillic}')
-                elif 'T2A' in self.elements['fontenc']:
-                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.elements['textcyrillic'] = ('\\usepackage[TtwoA]'
-                                                     '{sphinxcyrillic}')
-            if 'LGR' in self.elements['fontenc']:
-                self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-            else:
-                self.elements['textgreek'] = ''
-        # 'babel' key is public and user setting must be obeyed
-        if self.elements['babel']:
-            self.elements['classoptions'] += ',' + self.babel.get_language()
-            # this branch is not taken for xelatex/lualatex if default settings
-            self.elements['multilingual'] = self.elements['babel']
-            if self.config.language:
-                self.elements['shorthandoff'] = SHORTHANDOFF
-
-                # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
-                    self.elements['fontpkg'] = ''
-        elif self.elements['polyglossia']:
-            self.elements['classoptions'] += ',' + self.babel.get_language()
-            options = self.babel.get_mainlanguage_options()
-            if options:
-                mainlanguage = r'\setmainlanguage[%s]{%s}' % (options,
-                                                              self.babel.get_language())
-            else:
-                mainlanguage = r'\setmainlanguage{%s}' % self.babel.get_language()
-
-            self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
-                                                        mainlanguage)
-
         minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
         if self.document.get('tocdepth'):
             # reduce tocdepth if `part` or `chapter` is used for top_sectionlevel
@@ -606,7 +396,7 @@ class LaTeXTranslator(SphinxTranslator):
             #   tocdepth =  1: show parts, chapters and sections
             #   tocdepth =  2: show parts, chapters, sections and subsections
             #   ...
-            tocdepth = self.document['tocdepth'] + self.top_sectionlevel - 2
+            tocdepth = self.document.get('tocdepth', 999) + self.top_sectionlevel - 2
             if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
                self.top_sectionlevel > 0:
                 tocdepth += 1  # because top_sectionlevel is shifted by -1
@@ -624,17 +414,15 @@ class LaTeXTranslator(SphinxTranslator):
             self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' %\
                                            minsecnumdepth
 
-        contentsname = self.settings.contentsname
+        contentsname = document.get('contentsname')
         if contentsname:
             self.elements['contentsname'] = self.babel_renewcommand('\\contentsname',
                                                                     contentsname)
 
         if self.elements['maxlistdepth']:
-            self.elements['sphinxpkgoptions'] += (',maxlistdepth=%s' %
-                                                  self.elements['maxlistdepth'])
-        if self.elements['sphinxpkgoptions']:
-            self.elements['sphinxpkgoptions'] = ('[%s]' %
-                                                 self.elements['sphinxpkgoptions'])
+            sphinxpkgoptions.append('maxlistdepth=%s' % self.elements['maxlistdepth'])
+        if sphinxpkgoptions:
+            self.elements['sphinxpkgoptions'] = '[,%s]' % ','.join(sphinxpkgoptions)
         if self.elements['sphinxsetup']:
             self.elements['sphinxsetup'] = ('\\sphinxsetup{%s}' %
                                             self.elements['sphinxsetup'])
@@ -663,28 +451,11 @@ class LaTeXTranslator(SphinxTranslator):
         self.body = self.bodystack.pop()
         return body
 
-    def restrict_footnote(self, node: Element) -> None:
-        warnings.warn('LaTeXWriter.restrict_footnote() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        if self.footnote_restricted is None:
-            self.footnote_restricted = node
-            self.pending_footnotes = []
-
-    def unrestrict_footnote(self, node: Element) -> None:
-        warnings.warn('LaTeXWriter.unrestrict_footnote() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        if self.footnote_restricted == node:
-            self.footnote_restricted = None
-            for footnode in self.pending_footnotes:
-                footnode['footnotetext'] = True
-                footnode.walkabout(self)
-            self.pending_footnotes = []
-
     def format_docclass(self, docclass: str) -> str:
         """ prepends prefix to sphinx document classes
         """
+        warnings.warn('LaTeXWriter.format_docclass() is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
         if docclass in self.docclasses:
             docclass = 'sphinx' + docclass
         return docclass
@@ -880,7 +651,7 @@ class LaTeXTranslator(SphinxTranslator):
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
                     logger.warning(__('document title is not a single Text node'),
-                                   location=(self.curfilestack[-1], node.line))
+                                   location=node)
                 if not self.elements['title']:
                     # text needs to be escaped since it is inserted into
                     # the output literally
@@ -913,7 +684,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
-                           location=(self.curfilestack[-1], node.line or ''))
+                           location=node)
             self.body.append('\\sphinxstyleothertitle{')
             self.context.append('}\n')
         self.in_title = 1
@@ -1542,6 +1313,8 @@ class LaTeXTranslator(SphinxTranslator):
                 length = self.latex_image_length(node['width'])
             elif isinstance(node[0], nodes.image) and 'width' in node[0]:
                 length = self.latex_image_length(node[0]['width'])
+            self.body.append('\n\n')    # Insert a blank line to prevent infinite loop
+                                        # https://github.com/sphinx-doc/sphinx/issues/7059
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              ('r' if node['align'] == 'right' else 'l', length or '0pt'))
             self.context.append('\\end{wrapfigure}\n')
@@ -1658,6 +1431,8 @@ class LaTeXTranslator(SphinxTranslator):
 
         if 'refuri' in node:
             return
+        if 'anonymous' in node:
+            return
         if node.get('refid'):
             prev_node = get_prev_node(node)
             if isinstance(prev_node, nodes.reference) and node['refid'] == prev_node['refid']:
@@ -1678,8 +1453,8 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_attribution(self, node: Element) -> None:
         self.body.append('\n\\end{flushright}\n')
 
-    def visit_index(self, node: Element, scre: Pattern = None) -> None:
-        def escape(value):
+    def visit_index(self, node: Element) -> None:
+        def escape(value: str) -> str:
             value = self.encode(value)
             value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
             value = value.replace(r'\}', r'\sphinxrightcurlybrace{}')
@@ -1689,17 +1464,13 @@ class LaTeXTranslator(SphinxTranslator):
             value = value.replace('|', r'\textbar{}')
             return value
 
-        def style(string):
+        def style(string: str) -> str:
             match = EXTRA_RE.match(string)
             if match:
                 return match.expand(r'\\spxentry{\1}\\spxextra{\2}')
             else:
                 return '\\spxentry{%s}' % string
 
-        if scre:
-            warnings.warn(('LaTeXTranslator.visit_index() optional argument '
-                           '"scre" is deprecated. It is ignored.'),
-                          RemovedInSphinx30Warning, stacklevel=2)
         if not node.get('inline', True):
             self.body.append('\n')
         entries = node['entries']
@@ -1935,6 +1706,8 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_literal(self, node: Element) -> None:
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
+        elif 'kbd' in node['classes']:
+            self.body.append(r'\sphinxkeyboard{\sphinxupquote{')
         else:
             self.body.append(r'\sphinxcode{\sphinxupquote{')
 
@@ -1989,7 +1762,7 @@ class LaTeXTranslator(SphinxTranslator):
 
             hlcode = self.highlighter.highlight_block(
                 node.rawsource, lang, opts=opts, linenos=linenos,
-                location=(self.curfilestack[-1], node.line), **highlight_args
+                location=node, **highlight_args
             )
             if self.in_footnote:
                 self.body.append('\n\\sphinxSetupCodeBlockInFootnote')
@@ -2204,7 +1977,8 @@ class LaTeXTranslator(SphinxTranslator):
         #       mainly, %, #, {, } and \ need escaping via a \ escape
         # in \href, the tilde is allowed and must be represented literally
         return self.encode(text).replace('\\textasciitilde{}', '~').\
-            replace('\\sphinxhyphen{}', '-')
+            replace('\\sphinxhyphen{}', '-').\
+            replace('\\textquotesingle{}', "'")
 
     def visit_Text(self, node: Text) -> None:
         text = self.encode(node.astext())
@@ -2299,64 +2073,9 @@ class LaTeXTranslator(SphinxTranslator):
                       RemovedInSphinx40Warning, stacklevel=2)
         return 0
 
-    @property
-    def footnotestack(self) -> List[Dict[str, List[Union[collected_footnote, bool]]]]:
-        warnings.warn('LaTeXWriter.footnotestack is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
-
-    @property
-    def bibitems(self) -> List[List[str]]:
-        warnings.warn('LaTeXTranslator.bibitems() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return []
-
-    @property
-    def in_container_literal_block(self) -> int:
-        warnings.warn('LaTeXTranslator.in_container_literal_block is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return 0
-
-    @property
-    def next_section_ids(self) -> Set[str]:
-        warnings.warn('LaTeXTranslator.next_section_ids is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return set()
-
-    @property
-    def next_hyperlink_ids(self) -> Dict:
-        warnings.warn('LaTeXTranslator.next_hyperlink_ids is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return {}
-
-    def push_hyperlink_ids(self, figtype: str, ids: Set[str]) -> None:
-        warnings.warn('LaTeXTranslator.push_hyperlink_ids() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        pass
-
-    def pop_hyperlink_ids(self, figtype: str) -> Set[str]:
-        warnings.warn('LaTeXTranslator.pop_hyperlink_ids() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return set()
-
-    @property
-    def hlsettingstack(self) -> List[List[Union[str, int]]]:
-        warnings.warn('LaTeXTranslator.hlsettingstack is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return [[self.builder.config.highlight_language, sys.maxsize]]
-
-    def check_latex_elements(self) -> None:
-        warnings.warn('check_latex_elements() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
-        for key in self.builder.config.latex_elements:
-            if key not in self.elements:
-                msg = __("Unknown configure key: latex_elements[%r] is ignored.")
-                logger.warning(msg % key)
-
     def babel_defmacro(self, name: str, definition: str) -> str:
         warnings.warn('babel_defmacro() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
         if self.elements['babel']:
             prefix = '\\addto\\extras%s{' % self.babel.get_language()
@@ -2367,18 +2086,9 @@ class LaTeXTranslator(SphinxTranslator):
 
         return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
 
-    def _make_visit_admonition(name: str) -> Callable[["LaTeXTranslator", Element], None]:  # type: ignore  # NOQA
-        warnings.warn('LaTeXTranslator._make_visit_admonition() is deprecated.',
-                      RemovedInSphinx30Warning)
-
-        def visit_admonition(self: "LaTeXTranslator", node: Element) -> None:
-            self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
-                             (name, admonitionlabels[name]))
-        return visit_admonition
-
     def generate_numfig_format(self, builder: "LaTeXBuilder") -> str:
         warnings.warn('generate_numfig_format() is deprecated.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         ret = []  # type: List[str]
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
@@ -2415,21 +2125,39 @@ class LaTeXTranslator(SphinxTranslator):
 
 
 # Import old modules here for compatibility
-from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA
+from sphinx.builders.latex import constants  # NOQA
 from sphinx.builders.latex.util import ExtBabel  # NOQA
 
 
 deprecated_alias('sphinx.writers.latex',
                  {
-                     'ShowUrlsTransform': ShowUrlsTransform,
-                     'URI_SCHEMES': URI_SCHEMES,
-                 },
-                 RemovedInSphinx30Warning)
-deprecated_alias('sphinx.writers.latex',
-                 {
+                     'ADDITIONAL_SETTINGS': constants.ADDITIONAL_SETTINGS,
+                     'DEFAULT_SETTINGS': constants.DEFAULT_SETTINGS,
+                     'LUALATEX_DEFAULT_FONTPKG': constants.LUALATEX_DEFAULT_FONTPKG,
+                     'PDFLATEX_DEFAULT_FONTPKG': constants.PDFLATEX_DEFAULT_FONTPKG,
+                     'SHORTHANDOFF': constants.SHORTHANDOFF,
+                     'XELATEX_DEFAULT_FONTPKG': constants.XELATEX_DEFAULT_FONTPKG,
+                     'XELATEX_GREEK_DEFAULT_FONTPKG': constants.XELATEX_GREEK_DEFAULT_FONTPKG,
                      'ExtBabel': ExtBabel,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'ADDITIONAL_SETTINGS':
+                     'sphinx.builders.latex.constants.ADDITIONAL_SETTINGS',
+                     'DEFAULT_SETTINGS':
+                     'sphinx.builders.latex.constants.DEFAULT_SETTINGS',
+                     'LUALATEX_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.LUALATEX_DEFAULT_FONTPKG',
+                     'PDFLATEX_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.PDFLATEX_DEFAULT_FONTPKG',
+                     'SHORTHANDOFF':
+                     'sphinx.builders.latex.constants.SHORTHANDOFF',
+                     'XELATEX_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.XELATEX_DEFAULT_FONTPKG',
+                     'XELATEX_GREEK_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.XELATEX_GREEK_DEFAULT_FONTPKG',
+                     'ExtBabel': 'sphinx.builders.latex.util.ExtBabel',
+                 })
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433

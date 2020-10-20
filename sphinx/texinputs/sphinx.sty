@@ -881,52 +881,62 @@
        \g@addto@macro\spx@preBthefigure{\fi}}%
 \fi
 \ifnum\spx@opt@numfigreset>1
+  \AtBeginDocument{%
     \@addtoreset{figure}{section}%
     \@addtoreset{table}{section}%
     \@addtoreset{literalblock}{section}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{section}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>2
+  \AtBeginDocument{%
     \@addtoreset{figure}{subsection}%
     \@addtoreset{table}{subsection}%
     \@addtoreset{literalblock}{subsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsection}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>3
+  \AtBeginDocument{%
     \@addtoreset{figure}{subsubsection}%
     \@addtoreset{table}{subsubsection}%
     \@addtoreset{literalblock}{subsubsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsubsection}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>4
+  \AtBeginDocument{%
     \@addtoreset{figure}{paragraph}%
     \@addtoreset{table}{paragraph}%
     \@addtoreset{literalblock}{paragraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{paragraph}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>5
+  \AtBeginDocument{%
     \@addtoreset{figure}{subparagraph}%
     \@addtoreset{table}{subparagraph}%
     \@addtoreset{literalblock}{subparagraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subparagraph}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -1407,7 +1417,8 @@
 % \sphinxcode). Sphinx uses \#, \%, \& ... always inside \sphinxhref.
 \protected\def\sphinxhref#1#2{{%
     \sphinxunactivateextrasandspace % never do \scantokens with active space!
-    \endlinechar\m@ne\everyeof{{#2}}% keep catcode regime for #2
+% for the \endlinechar business, https://github.com/latex3/latex2e/issues/286
+    \endlinechar\m@ne\everyeof{{\endlinechar13 #2}}% keep catcode regime for #2
     \scantokens{\href{#1}}% normalise it for #1 during \href expansion
 }}
 % Same for \url. And also \nolinkurl for coherence.
@@ -1812,7 +1823,7 @@
    % fix a space-gobbling issue due to LaTeX's original \do@noligs
 % TODO: using \@noligs as patched by upquote.sty is now unneeded because
 % either ` and ' are escaped (non-unicode engines) or they don't build
-% ligatures (unicode engines). Thus remove this and unify handling of `, <, >, 
+% ligatures (unicode engines). Thus remove this and unify handling of `, <, >,
 % ' and - with the characters . , ; ? ! / as handled via
 % \sphinxbreaksviaactive.
 % Hence \sphinx@do@noligs will be removed, or rather replaced  with code
@@ -1836,6 +1847,7 @@
 \protected\def\sphinxtitleref#1{\emph{#1}}
 \protected\def\sphinxmenuselection#1{\emph{#1}}
 \protected\def\sphinxguilabel#1{\emph{#1}}
+\protected\def\sphinxkeyboard#1{\sphinxcode{#1}}
 \protected\def\sphinxaccelerator#1{\underline{#1}}
 \protected\def\sphinxcrossref#1{\emph{#1}}
 \protected\def\sphinxtermref#1{\emph{#1}}
@@ -1893,7 +1905,7 @@
 % Special characters
 %
 % This definition prevents en-dash and em-dash TeX ligatures.
-% 
+%
 % It inserts a potential breakpoint after the hyphen. This is to keep in sync
 % with behavior in code-blocks, parsed and inline literals. For a breakpoint
 % before the hyphen use \leavevmode\kern\z@- (within \makeatletter/\makeatother)

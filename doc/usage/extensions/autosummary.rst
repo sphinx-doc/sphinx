@@ -32,7 +32,8 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
    The :rst:dir:`autosummary` directive can also optionally serve as a
    :rst:dir:`toctree` entry for the included items. Optionally, stub
-   ``.rst`` files for these items can also be automatically generated.
+   ``.rst`` files for these items can also be automatically generated
+   when :confval:`autosummary_generate` is `True`.
 
    For example, ::
 
@@ -76,6 +77,12 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
      directory. If no argument is given, output is placed in the same directory
      as the file that contains the directive.
 
+     You can also use ``caption`` option to give a caption to the toctree.
+
+     .. versionadded:: 3.1
+
+        caption option added.
+
    * If you don't want the :rst:dir:`autosummary` to show function signatures in
      the listing, include the ``nosignatures`` option::
 
@@ -98,6 +105,17 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
      listed. See `Customizing templates`_ below.
 
      .. versionadded:: 1.0
+
+   * You can specify the ``recursive`` option to generate documents for
+     modules and sub-packages recursively.  It defaults to disabled.
+     For example, ::
+
+         .. autosummary::
+            :recursive:
+
+            sphinx.environment.BuildEnvironment
+
+     .. versionadded:: 3.1
 
 
 :program:`sphinx-autogen` -- generate autodoc stub pages
@@ -133,10 +151,17 @@ Generating stub pages automatically
 If you do not want to create stub pages with :program:`sphinx-autogen`, you can
 also use these config values:
 
+.. confval:: autosummary_context
+
+   A dictionary of values to pass into the template engine's context for
+   autosummary stubs files.
+
+   .. versionadded:: 3.1
+
 .. confval:: autosummary_generate
 
    Boolean indicating whether to scan all found documents for autosummary
-   directives, and to generate stub pages for each.
+   directives, and to generate stub pages for each. It is disabled by default.
 
    Can also be a list of documents for which stub pages should be generated.
 
@@ -147,6 +172,13 @@ also use these config values:
 
       Emits :event:`autodoc-skip-member` event as :mod:`~sphinx.ext.autodoc`
       does.
+
+.. confval:: autosummary_generate_overwrite
+
+   If true, autosummary overwrites existing files by generated stub pages.
+   Defaults to true (enabled).
+
+   .. versionadded:: 3.0
 
 .. confval:: autosummary_mock_imports
 
@@ -162,6 +194,15 @@ also use these config values:
    in modules. Default is ``False``
 
    .. versionadded:: 2.1
+
+.. confval:: autosummary_filename_map
+
+   A dict mapping object names to filenames. This is necessary to avoid
+   filename conflicts where multiple objects have names that are
+   indistinguishable when case is ignored, on file systems where filenames
+   are case-insensitive.
+
+   .. versionadded:: 3.2
 
 
 Customizing templates
@@ -253,9 +294,19 @@ The following variables available in the templates:
 
 .. data:: attributes
 
-   List containing names of "public" attributes in the class.  Only available
-   for classes.
+   List containing names of "public" attributes in the class/module.  Only
+   available for classes and modules.
 
+    .. versionchanged:: 3.1
+
+       Attributes of modules are supported.
+
+.. data:: modules
+
+   List containing names of "public" modules in the package.  Only available for
+   modules that are packages.
+
+   .. versionadded:: 3.1
 
 Additionally, the following filters are available
 
@@ -266,6 +317,7 @@ Additionally, the following filters are available
    replaces the builtin Jinja `escape filter`_ that does html-escaping.
 
 .. function:: underline(s, line='=')
+   :noindex:
 
    Add a title underline to a piece of text.
 

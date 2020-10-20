@@ -48,6 +48,12 @@ tables of contents.  The ``toctree`` directive is the central element.
    to the source directory.  A numeric ``maxdepth`` option may be given to
    indicate the depth of the tree; by default, all levels are included. [#]_
 
+   The representation of "TOC tree" is changed in each output format.  The
+   builders that output multiple files (ex. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   LaTeX, man page, etc.) replace it with the content of the documents on the
+   TOC tree.
+
    Consider this example (taken from the Python docs' library reference index)::
 
       .. toctree::
@@ -108,9 +114,9 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    **Additional options**
 
-   You can use ``caption`` option to provide a toctree caption and you can use
-   ``name`` option to provide implicit target name that can be referenced by
-   using :rst:role:`ref`::
+   You can use the ``caption`` option to provide a toctree caption and you can
+   use the ``name`` option to provide an implicit target name that can be
+   referenced by using :rst:role:`ref`::
 
       .. toctree::
          :caption: Table of Contents
@@ -240,7 +246,7 @@ The special document names (and pages generated for them) are:
 
 * every name beginning with ``_``
 
-  Though only few such names are currently used by Sphinx, you should not
+  Though few such names are currently used by Sphinx, you should not
   create documents or document-containing directories with such names.  (Using
   ``_`` as a prefix for a custom template directory is fine.)
 
@@ -441,7 +447,7 @@ If highlighting with the selected language fails (i.e. Pygments emits an
    want to ensure consistent highlighting, you should fix your version of
    Pygments.
 
-__ http://pygments.org/docs/lexers/
+__ http://pygments.org/docs/lexers
 
 .. rst:directive:: .. highlight:: language
 
@@ -675,9 +681,43 @@ __ http://pygments.org/docs/lexers/
    string are included. The ``start-at`` and ``end-at`` options behave in a
    similar way, but the lines containing the matched string are included.
 
-   With lines selected using ``start-after`` it is still possible to use
-   ``lines``, the first allowed line having by convention the line number
-   ``1``.
+   ``start-after``/``start-at`` and ``end-before``/``end-at`` can have same string.
+   ``start-after``/``start-at`` filter lines before the line that contains
+   option string (``start-at`` will keep the line). Then ``end-before``/``end-at``
+   filter lines after the line that contains option string (``end-at`` will keep
+   the line and ``end-before`` skip the first line).
+
+   .. note::
+
+      If you want to select only ``[second-section]`` of ini file like the
+      following, you can use ``:start-at: [second-section]`` and
+      ``:end-before: [third-section]``:
+
+      .. code-block:: ini
+
+         [first-section]
+
+         var_in_first=true
+
+         [second-section]
+
+         var_in_second=true
+
+         [third-section]
+
+         var_in_third=true
+
+      Useful cases of these option is working with tag comments.
+      ``:start-after: [initialized]`` and ``:end-before: [initialized]`` options
+      keep lines between comments:
+
+      .. code-block:: py
+
+         if __name__ == "__main__":
+             # [initialize]
+             app.start(":8000")
+             # [initialize]
+
 
    When lines have been selected in any of the ways described above, the line
    numbers in ``emphasize-lines`` refer to those selected lines, counted
@@ -898,6 +938,19 @@ mainly contained in information units, such as the language reference.
 
    .. versionchanged:: 1.1
       Added ``see`` and ``seealso`` types, as well as marking main entries.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.  For example::
+
+        .. index:: Python
+           :name: py-index
+
+   .. versionadded:: 3.0
 
 .. rst:role:: index
 
@@ -1164,7 +1217,7 @@ derived forms), but provides enough to allow context-free grammars to be
 displayed in a way that causes uses of a symbol to be rendered as hyperlinks to
 the definition of the symbol.  There is this directive:
 
-.. rst:directive:: .. productionlist:: [name]
+.. rst:directive:: .. productionlist:: [productionGroup]
 
    This directive is used to enclose a group of productions.  Each production
    is given on a single line and consists of a name, separated by a colon from
@@ -1172,16 +1225,24 @@ the definition of the symbol.  There is this directive:
    continuation line must begin with a colon placed at the same column as in
    the first line.
 
-   The argument to :rst:dir:`productionlist` serves to distinguish different
-   sets of production lists that belong to different grammars.
+   The *productionGroup* argument to :rst:dir:`productionlist` serves to
+   distinguish different sets of production lists that belong to different
+   grammars.  Multiple production lists with the same *productionGroup* thus
+   define rules in the same scope.
 
    Blank lines are not allowed within ``productionlist`` directive arguments.
 
    The definition can contain token names which are marked as interpreted text
-   (e.g. ``sum ::= `integer` "+" `integer```) -- this generates
+   (e.g. "``sum ::= `integer` "+" `integer```") -- this generates
    cross-references to the productions of these tokens.  Outside of the
    production list, you can reference to token productions using
    :rst:role:`token`.
+   However, if you have given a *productionGroup* argument you must prefix the
+   token name in the cross-reference with the group name and a colon,
+   e.g., "``myGroup:sum``" instead of just "``sum``".
+   If the group should not be shown in the title of the link either
+   an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
+   or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
 
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.

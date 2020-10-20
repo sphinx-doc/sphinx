@@ -37,6 +37,11 @@ div.document {
     background-repeat: repeat-x;
 }
 
+div.documentwrapper {
+    float: left;
+    width: 100%;
+}
+
 div.bodywrapper {
     margin: 0 calc({{ theme_sidebarwidth|todim }} + 10px) 0 0;
     border-right: 1px solid #ccc;
@@ -86,7 +91,6 @@ div.sphinxsidebarwrapper {
 }
 
 div.sphinxsidebar {
-    margin: 0;
     padding: 0.5em 15px 15px 0;
     width: calc({{ theme_sidebarwidth|todim }} - 20px);
     float: right;
@@ -134,7 +138,7 @@ div.footer a {
 
 /* -- body styles ----------------------------------------------------------- */
 
-p {    
+p {
     margin: 0.8em 0 0.5em 0;
 }
 
@@ -243,7 +247,6 @@ pre {
     line-height: 120%;
     padding: 0.5em;
     border: 1px solid #ccc;
-    background-color: #f8f8f8;
 }
 
 pre a {

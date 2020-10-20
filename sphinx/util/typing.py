@@ -10,10 +10,25 @@
 
 import sys
 import typing
-from typing import Any, Callable, Dict, List, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, Generator, List, Tuple, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
+
+
+if sys.version_info > (3, 7):
+    from typing import ForwardRef
+else:
+    from typing import _ForwardRef  # type: ignore
+
+    class ForwardRef:
+        """A pseudo ForwardRef class for py35 and py36."""
+        def __init__(self, arg: Any, is_argument: bool = True) -> None:
+            self.arg = arg
+
+        def _evaluate(self, globalns: Dict, localns: Dict) -> Any:
+            ref = _ForwardRef(self.arg)
+            return ref._eval_type(globalns, localns)
 
 
 # An entry of Directive.option_spec
@@ -39,17 +54,28 @@ TitleGetter = Callable[[nodes.Node], str]
 Inventory = Dict[str, Dict[str, Tuple[str, str, str, str]]]
 
 
+def is_system_TypeVar(typ: Any) -> bool:
+    """Check *typ* is system defined TypeVar."""
+    modname = getattr(typ, '__module__', '')
+    return modname == 'typing' and isinstance(typ, TypeVar)  # type: ignore
+
+
 def stringify(annotation: Any) -> str:
     """Stringify type annotation object."""
     if isinstance(annotation, str):
-        return annotation
+        if annotation.startswith("'") and annotation.endswith("'"):
+            # might be a double Forward-ref'ed type.  Go unquoting.
+            return annotation[1:-2]
+        else:
+            return annotation
     elif isinstance(annotation, TypeVar):  # type: ignore
         return annotation.__name__
     elif not annotation:
         return repr(annotation)
-    elif annotation is NoneType:  # type: ignore
+    elif annotation is NoneType:
         return 'None'
-    elif getattr(annotation, '__module__', None) == 'builtins':
+    elif (getattr(annotation, '__module__', None) == 'builtins' and
+          hasattr(annotation, '__qualname__')):
         return annotation.__qualname__
     elif annotation is Ellipsis:
         return '...'
@@ -74,21 +100,36 @@ def _stringify_py37(annotation: Any) -> str:
             qualname = stringify(annotation.__origin__)  # ex. Union
     elif hasattr(annotation, '__qualname__'):
         qualname = '%s.%s' % (module, annotation.__qualname__)
+    elif hasattr(annotation, '__origin__'):
+        # instantiated generic provided by a user
+        qualname = stringify(annotation.__origin__)
     else:
-        qualname = repr(annotation)
+        # we weren't able to extract the base type, appending arguments would
+        # only make them appear twice
+        return repr(annotation)
 
     if getattr(annotation, '__args__', None):
-        if qualname == 'Union':
-            if len(annotation.__args__) == 2 and annotation.__args__[1] is NoneType:  # type: ignore  # NOQA
-                return 'Optional[%s]' % stringify(annotation.__args__[0])
+        if not isinstance(annotation.__args__, (list, tuple)):
+            # broken __args__ found
+            pass
+        elif qualname == 'Union':
+            if len(annotation.__args__) > 1 and annotation.__args__[-1] is NoneType:
+                if len(annotation.__args__) > 2:
+                    args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
+                    return 'Optional[Union[%s]]' % args
+                else:
+                    return 'Optional[%s]' % stringify(annotation.__args__[0])
             else:
                 args = ', '.join(stringify(a) for a in annotation.__args__)
-                return '%s[%s]' % (qualname, args)
+                return 'Union[%s]' % args
         elif qualname == 'Callable':
             args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
             returns = stringify(annotation.__args__[-1])
             return '%s[[%s], %s]' % (qualname, args, returns)
-        elif annotation._special:
+        elif str(annotation).startswith('typing.Annotated'):  # for py39+
+            return stringify(annotation.__args__[0])
+        elif all(is_system_TypeVar(a) for a in annotation.__args__):
+            # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
             return qualname
         else:
             args = ', '.join(stringify(a) for a in annotation.__args__)
@@ -130,6 +171,8 @@ def _stringify_py36(annotation: Any) -> str:
             # for Python 3.5.2+
             if annotation.__args__ is None or len(annotation.__args__) <= 2:  # type: ignore  # NOQA
                 params = annotation.__args__  # type: ignore
+            elif annotation.__origin__ == Generator:  # type: ignore
+                params = annotation.__args__  # type: ignore
             else:  # typing.Callable
                 args = ', '.join(stringify(arg) for arg
                                  in annotation.__args__[:-1])  # type: ignore
@@ -146,7 +189,7 @@ def _stringify_py36(annotation: Any) -> str:
           hasattr(annotation, '__union_params__')):  # for Python 3.5
         params = annotation.__union_params__
         if params is not None:
-            if len(params) == 2 and params[1] is NoneType:  # type: ignore
+            if len(params) == 2 and params[1] is NoneType:
                 return 'Optional[%s]' % stringify(params[0])
             else:
                 param_str = ', '.join(stringify(p) for p in params)
@@ -155,8 +198,12 @@ def _stringify_py36(annotation: Any) -> str:
           annotation.__origin__ is typing.Union):  # for Python 3.5.2+
         params = annotation.__args__
         if params is not None:
-            if len(params) == 2 and params[1] is NoneType:  # type: ignore
-                return 'Optional[%s]' % stringify(params[0])
+            if len(params) > 1 and params[-1] is NoneType:
+                if len(params) > 2:
+                    param_str = ", ".join(stringify(p) for p in params[:-1])
+                    return 'Optional[Union[%s]]' % param_str
+                else:
+                    return 'Optional[%s]' % stringify(params[0])
             else:
                 param_str = ', '.join(stringify(p) for p in params)
                 return 'Union[%s]' % param_str

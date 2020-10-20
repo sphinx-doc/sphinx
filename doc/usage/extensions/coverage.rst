@@ -51,4 +51,11 @@ should check:
 
    .. versionadded:: 1.1
 
+.. confval:: coverage_show_missing_items
+
+   Print objects that are missing to standard output also.
+   ``False`` by default.
+
+   .. versionadded:: 3.1
+
 .. _Python regular expressions: https://docs.python.org/library/re

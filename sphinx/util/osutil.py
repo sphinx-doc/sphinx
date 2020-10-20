@@ -15,13 +15,12 @@ import os
 import re
 import shutil
 import sys
-import time
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Tuple
+from typing import Any, Generator, Iterator, List, Optional, Tuple
 
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning
 
 try:
     # for ALT Linux (#6712)
@@ -60,8 +59,8 @@ def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split(SEP)
-    t2 = to.split(SEP)
+    b2 = base.split('#')[0].split(SEP)
+    t2 = to.split('#')[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:
@@ -87,7 +86,7 @@ def ensuredir(path: str) -> None:
 def walk(top: str, topdown: bool = True, followlinks: bool = False) -> Iterator[Tuple[str, List[str], List[str]]]:  # NOQA
     warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
                   'Please use os.walk() instead.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return os.walk(top, topdown=topdown, followlinks=followlinks)
 
 
@@ -144,27 +143,6 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def ustrftime(format: str, *args: Any) -> str:
-    """[DEPRECATED] strftime for unicode strings."""
-    warnings.warn('sphinx.util.osutil.ustrtime is deprecated for removal',
-                  RemovedInSphinx30Warning, stacklevel=2)
-
-    if not args:
-        # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
-        # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
-        source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
-        if source_date_epoch is not None:
-            time_struct = time.gmtime(float(source_date_epoch))
-            args = [time_struct]  # type: ignore
-    # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
-    # https://bugs.python.org/issue8304
-    try:
-        return time.strftime(format, *args)
-    except UnicodeEncodeError:
-        r = time.strftime(format.encode('unicode-escape').decode(), *args)
-        return r.encode().decode('unicode-escape')
-
-
 def relpath(path: str, start: str = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
@@ -190,17 +168,17 @@ def abspath(pathdir: str) -> str:
         if isinstance(pathdir, bytes):
             try:
                 pathdir = pathdir.decode(fs_encoding)
-            except UnicodeDecodeError:
+            except UnicodeDecodeError as exc:
                 raise UnicodeDecodeError('multibyte filename not supported on '
                                          'this filesystem encoding '
-                                         '(%r)' % fs_encoding)
+                                         '(%r)' % fs_encoding) from exc
         return pathdir
 
 
 def getcwd() -> str:
     warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
                   'Please use os.getcwd() instead.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return os.getcwd()
 
 
@@ -228,7 +206,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: StringIO
+        self._io = None  # type: Optional[StringIO]
 
     def write(self, data: str) -> None:
         if not self._io:

@@ -28,8 +28,8 @@ msgstr "SAME TYPE LINKS"
 msgid "link to :term:`Some term` and :term:`Some other term`."
 msgstr "LINK TO :term:`SOME OTHER NEW TERM` AND :term:`SOME NEW TERM`."
 
-msgid "link to :ref:`i18n-role-xref` and :ref:`same-type-links`."
-msgstr "LINK TO :ref:`same-type-links` AND :ref:`i18n-role-xref`."
+msgid "link to :ref:`i18n-role-xref`, :ref:`same-type-links` and :ref:`label <same-type-links>`."
+msgstr "LINK TO :ref:`LABEL <i18n-role-xref>` AND :ref:`same-type-links` AND :ref:`same-type-links`."
 
 msgid "link to :doc:`index` and :doc:`glossary_terms`."
 msgstr "LINK TO :doc:`glossary_terms` AND :doc:`index`."
