@@ -495,7 +495,9 @@ Keys that don't need to be overridden unless in special cases are:
    "printindex" call, the last thing in the file. Override if you want to
    generate the index differently or append some content after the index. For
    example ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
-   index is full of long entries.
+   index is full of long entries and
+   ``'\\let\\oldtwocolumn\\twocolumn\\renewcommand{\\twocolumn}[1][]{#1}\\printindex\\renewcommand{\\twocolumn}[1][]{\\oldtwocolumn}'``
+   will make the index be single column.
 
    Default: ``'\\printindex'``
 
