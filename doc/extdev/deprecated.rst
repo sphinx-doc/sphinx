@@ -26,6 +26,26 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.builders.latex.LaTeXBuilder.usepackages``
+     - 3.3
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.latex.LaTeXBuilder.usepackages_afger_hyperref``
+     - 3.3
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.SingledispatchFunctionDocumenter``
+     - 3.3
+     - 5.0
+     - ``sphinx.ext.autodoc.FunctionDocumenter``
+
+   * - ``sphinx.ext.autodoc.SingledispatchMethodDocumenter``
+     - 3.3
+     - 5.0
+     - ``sphinx.ext.autodoc.MethodDocumenter``
+
    * - ``sphinx.ext.autodoc.members_set_option()``
      - 3.2
      - 5.0

@@ -171,7 +171,7 @@ Docker images for Sphinx are published on the `Docker Hub <https://hub.docker.co
 - `sphinxdoc/sphinx <https://hub.docker.com/repository/docker/sphinxdoc/sphinx>`_
 - `sphinxdoc/sphinx-latexpdf <https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf>`_
 
-Former one is used for standard usage of Sphinx, and latter one is mainly used for PDF builds using LaTeX. 
+Former one is used for standard usage of Sphinx, and latter one is mainly used for PDF builds using LaTeX.
 Please choose one for your purpose.
 
 .. note::

@@ -2245,6 +2245,12 @@ These options influence manual page output.
 
    .. versionadded:: 1.1
 
+.. confval:: man_make_section_directory
+
+   If true, make a section directory on build man page.  Default is False.
+
+   .. versionadded:: 3.3
+
 
 .. _texinfo-options:
 

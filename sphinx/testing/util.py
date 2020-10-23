@@ -21,7 +21,6 @@ from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
-from sphinx.builders.latex import LaTeXBuilder
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
@@ -109,7 +108,7 @@ class SphinxTestApp(application.Sphinx):
 
     def __init__(self, buildername: str = 'html', srcdir: path = None, freshenv: bool = False,
                  confoverrides: Dict = None, status: IO = None, warning: IO = None,
-                 tags: List[str] = None, docutilsconf: str = None) -> None:
+                 tags: List[str] = None, docutilsconf: str = None, parallel: int = 0) -> None:
 
         if docutilsconf is not None:
             (srcdir / 'docutils.conf').write_text(docutilsconf)
@@ -134,14 +133,13 @@ class SphinxTestApp(application.Sphinx):
         try:
             super().__init__(srcdir, confdir, outdir, doctreedir,
                              buildername, confoverrides, status, warning,
-                             freshenv, warningiserror, tags)
+                             freshenv, warningiserror, tags, parallel=parallel)
         except Exception:
             self.cleanup()
             raise
 
     def cleanup(self, doctrees: bool = False) -> None:
         ModuleAnalyzer.cache.clear()
-        LaTeXBuilder.usepackages = []
         locale.translators.clear()
         sys.path[:] = self._saved_path
         sys.modules.pop('autodoc_fodder', None)

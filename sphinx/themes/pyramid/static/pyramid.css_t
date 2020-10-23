@@ -8,11 +8,11 @@
  * :license: BSD, see LICENSE for details.
  *
  */
- 
+
 @import url("basic.css");
- 
+
 /* -- page layout ----------------------------------------------------------- */
- 
+
 body {
     font-family: "Nobile", sans-serif;
     font-size: 100%;
@@ -34,7 +34,7 @@ div.bodywrapper {
 hr {
     border: 1px solid #B1B4B6;
 }
- 
+
 div.document {
     background-color: #eee;
 }
@@ -59,7 +59,7 @@ div.body {
     border-right-style: none;
     overflow: auto;
 }
- 
+
 div.footer {
     color: #ffffff;
     width: 100%;
@@ -69,7 +69,7 @@ div.footer {
     background: transparent;
     clear:both;
 }
- 
+
 div.footer a {
     color: #ffffff;
     text-decoration: none;
@@ -79,14 +79,14 @@ div.footer a:hover {
     color: #e88f00;
     text-decoration: underline;
 }
- 
+
 div.related {
     line-height: 30px;
     color: #373839;
     font-size: 0.8em;
     background-color: #eee;
 }
- 
+
 div.related a {
     color: #1b61d6;
 }
@@ -94,7 +94,7 @@ div.related a {
 div.related ul {
     padding-left: calc({{ theme_sidebarwidth|todim }} + 10px);
 }
- 
+
 div.sphinxsidebar {
     font-size: 0.75em;
     line-height: 1.5em;
@@ -103,7 +103,7 @@ div.sphinxsidebar {
 div.sphinxsidebarwrapper{
     padding: 10px 0;
 }
- 
+
 div.sphinxsidebar h3,
 div.sphinxsidebar h4 {
     font-family: "Neuton", sans-serif;
@@ -118,30 +118,30 @@ div.sphinxsidebar h4 {
 div.sphinxsidebar h4{
     font-size: 1.3em;
 }
- 
+
 div.sphinxsidebar h3 a {
     color: #000000;
 }
- 
- 
+
+
 div.sphinxsidebar p {
     color: #888;
     padding: 5px 20px;
 }
- 
+
 div.sphinxsidebar p.topless {
 }
- 
+
 div.sphinxsidebar ul {
     margin: 10px 20px;
     padding: 0;
     color: #373839;
 }
- 
+
 div.sphinxsidebar a {
     color: #444;
 }
- 
+
 div.sphinxsidebar input {
     border: 1px solid #ccc;
     font-family: sans-serif;
@@ -171,16 +171,16 @@ p.sidebar-title {
 }
 
 /* -- body styles ----------------------------------------------------------- */
- 
+
 a, a .pre {
     color: #1b61d6;
     text-decoration: none;
 }
- 
+
 a:hover, a:hover .pre {
     text-decoration: underline;
 }
- 
+
 div.body h1,
 div.body h2,
 div.body h3,
@@ -194,29 +194,29 @@ div.body h6 {
     margin: 30px 0px 10px 0px;
     padding: 5px 0;
 }
- 
+
 div.body h1 { border-top: 20px solid white; margin-top: 0; font-size: 200%; }
 div.body h2 { font-size: 150%; background-color: #ffffff; }
 div.body h3 { font-size: 120%; background-color: #ffffff; }
 div.body h4 { font-size: 110%; background-color: #ffffff; }
 div.body h5 { font-size: 100%; background-color: #ffffff; }
 div.body h6 { font-size: 100%; background-color: #ffffff; }
- 
+
 a.headerlink {
     color: #1b61d6;
     font-size: 0.8em;
     padding: 0 4px 0 4px;
     text-decoration: none;
 }
- 
+
 a.headerlink:hover {
     text-decoration: underline;
 }
- 
+
 div.body p, div.body dd, div.body li {
     line-height: 1.5em;
 }
- 
+
 div.admonition p.admonition-title + p {
     display: inline;
 }
@@ -236,7 +236,7 @@ div.note {
     padding: 10px 20px 10px 60px;
     background: #e1ecfe url(dialog-note.png) no-repeat 10px 8px;
 }
- 
+
 div.seealso {
     background: #fff6bf url(dialog-seealso.png) no-repeat 10px 8px;
     border: 2px solid #ffd324;
@@ -244,7 +244,7 @@ div.seealso {
     border-right-style: none;
     padding: 10px 20px 10px 60px;
 }
- 
+
 div.topic {
     background: #eeeeee;
     border: 2px solid #C6C9CB;
@@ -252,7 +252,7 @@ div.topic {
     border-right-style: none;
     border-left-style: none;
 }
- 
+
 div.warning {
     background: #fbe3e4 url(dialog-warning.png) no-repeat 10px 8px;
     border: 2px solid #fbc2c4;
@@ -268,18 +268,18 @@ div.admonition-todo {
     border-left-style: none;
     padding: 10px 20px 10px 60px;
 }
- 
+
 div.note p.admonition-title,
 div.warning p.admonition-title,
 div.seealso p.admonition-title,
 div.admonition-todo p.admonition-title {
     display: none;
 }
- 
+
 p.admonition-title:after {
     content: ":";
 }
- 
+
 pre {
     padding: 10px;
     line-height: 1.2em;
@@ -289,7 +289,7 @@ pre {
     border-right-style: none;
     border-left-style: none;
 }
- 
+
 code {
     background-color: transparent;
     color: #222;

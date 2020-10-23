@@ -143,7 +143,7 @@ JSX.resetProfileResults = function () {
 	return $__jsx_profiler.resetResults();
 };
 JSX.DEBUG = false;
-var GeneratorFunction$0 = 
+var GeneratorFunction$0 =
 (function () {
   try {
     return Function('import {GeneratorFunction} from "std:iteration"; return GeneratorFunction')();
@@ -151,7 +151,7 @@ var GeneratorFunction$0 =
     return function GeneratorFunction () {};
   }
 })();
-var __jsx_generator_object$0 = 
+var __jsx_generator_object$0 =
 (function () {
   function __jsx_generator_object() {
   	this.__next = 0;

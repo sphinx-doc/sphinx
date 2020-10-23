@@ -1826,7 +1826,7 @@
    % fix a space-gobbling issue due to LaTeX's original \do@noligs
 % TODO: using \@noligs as patched by upquote.sty is now unneeded because
 % either ` and ' are escaped (non-unicode engines) or they don't build
-% ligatures (unicode engines). Thus remove this and unify handling of `, <, >, 
+% ligatures (unicode engines). Thus remove this and unify handling of `, <, >,
 % ' and - with the characters . , ; ? ! / as handled via
 % \sphinxbreaksviaactive.
 % Hence \sphinx@do@noligs will be removed, or rather replaced  with code
@@ -1908,7 +1908,7 @@
 % Special characters
 %
 % This definition prevents en-dash and em-dash TeX ligatures.
-% 
+%
 % It inserts a potential breakpoint after the hyphen. This is to keep in sync
 % with behavior in code-blocks, parsed and inline literals. For a breakpoint
 % before the hyphen use \leavevmode\kern\z@- (within \makeatletter/\makeatother)
