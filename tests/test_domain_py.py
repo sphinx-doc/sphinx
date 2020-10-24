@@ -313,7 +313,7 @@ def test_pyfunction_signature(app):
 
 def test_pyfunction_signature_full(app):
     text = (".. py:function:: hello(a: str, b = 1, *args: str, "
-            "c: bool = True, **kwargs: str) -> str")
+            "c: bool = True, d: tuple = (1, 2), **kwargs: str) -> str")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "hello"],
@@ -343,6 +343,14 @@ def test_pyfunction_signature_full(app):
                                                         [desc_sig_operator, "="],
                                                         " ",
                                                         [nodes.inline, "True"])],
+                                      [desc_parameter, ([desc_sig_name, "d"],
+                                                        [desc_sig_punctuation, ":"],
+                                                        " ",
+                                                        [desc_sig_name, pending_xref, "tuple"],
+                                                        " ",
+                                                        [desc_sig_operator, "="],
+                                                        " ",
+                                                        [nodes.inline, "(1, 2)"])],
                                       [desc_parameter, ([desc_sig_operator, "**"],
                                                         [desc_sig_name, "kwargs"],
                                                         [desc_sig_punctuation, ":"],
