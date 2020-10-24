@@ -1236,3 +1236,18 @@ def test_noindexentry(app):
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
+
+
+def test_mix_decl_duplicate(app, warning):
+    # Issue 8270
+    text = (".. cpp:struct:: A\n"
+            ".. cpp:function:: void A()\n"
+            ".. cpp:struct:: A\n")
+    restructuredtext.parse(app, text)
+    ws = warning.getvalue().split("\n")
+    assert len(ws) == 5
+    assert "index.rst:2: WARNING: Duplicate C++ declaration, also defined in 'index'." in ws[0]
+    assert "Declaration is 'void A()'." in ws[1]
+    assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined in 'index'." in ws[2]
+    assert "Declaration is 'A'." in ws[3]
+    assert ws[4] == ""
