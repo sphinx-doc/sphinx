@@ -206,7 +206,10 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     if isclass(subject) and getattr(subject, '__slots__', None) is not None:
         from sphinx.ext.autodoc import SLOTSATTR
 
-        for name in subject.__slots__:
+        slots = subject.__slots__
+        if isinstance(slots, str):
+            slots = [slots]
+        for name in slots:
             members[name] = Attribute(name, True, SLOTSATTR)
 
     # other members
