@@ -258,7 +258,7 @@ def stringify(annotation: Any) -> str:
     if isinstance(annotation, str):
         if annotation.startswith("'") and annotation.endswith("'"):
             # might be a double Forward-ref'ed type.  Go unquoting.
-            return annotation[1:-2]
+            return annotation[1:-1]
         else:
             return annotation
     elif isinstance(annotation, TypeVar):
