@@ -18,10 +18,11 @@ import warnings
 from collections import deque
 from io import StringIO
 from os import path
-from typing import Any, Callable, Dict, IO, List, Tuple, Union
+from typing import Any, Callable, Dict, IO, List, Optional, Tuple, Union
 
 from docutils import nodes
 from docutils.nodes import Element, TextElement
+from docutils.parsers import Parser
 from docutils.parsers.rst import Directive, roles
 from docutils.transforms import Transform
 from pygments.lexer import Lexer
@@ -293,7 +294,10 @@ class Sphinx:
                 if catalog.domain == 'sphinx' and catalog.is_outdated():
                     catalog.write_mo(self.config.language)
 
-            locale_dirs = [None, path.join(package_dir, 'locale')] + list(repo.locale_dirs)
+            locale_dirs = [None]  # type: List[Optional[str]]
+            locale_dirs += list(repo.locale_dirs)
+            locale_dirs += [path.join(package_dir, 'locale')]
+
             self.translator, has_translation = locale.init(locale_dirs, self.config.language)
             if has_translation or self.config.language == 'en':
                 # "en" never needs to be translated
@@ -468,8 +472,10 @@ class Sphinx:
     def add_builder(self, builder: "Type[Builder]", override: bool = False) -> None:
         """Register a new builder.
 
-        *builder* must be a class that inherits from
-        :class:`~sphinx.builders.Builder`.
+        *builder* must be a class that inherits from :class:`~sphinx.builders.Builder`.
+
+        If *override* is True, the given *builder* is forcedly installed even if
+        a builder having the same name is already installed.
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -526,6 +532,9 @@ class Sphinx:
         builtin translator.  This allows extensions to use custom translator
         and define custom nodes for the translator (see :meth:`add_node`).
 
+        If *override* is True, the given *translator_class* is forcedly installed even if
+        a translator for *name* is already installed.
+
         .. versionadded:: 1.3
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -559,6 +568,9 @@ class Sphinx:
 
         Obviously, translators for which you don't specify visitor methods will
         choke on the node when encountered in a document to translate.
+
+        If *override* is True, the given *node* is forcedly installed even if
+        a node having the same name is already installed.
 
         .. versionchanged:: 0.5
            Added the support for keyword arguments giving visit functions.
@@ -595,6 +607,9 @@ class Sphinx:
         Other keyword arguments are used for node visitor functions. See the
         :meth:`.Sphinx.add_node` for details.
 
+        If *override* is True, the given *node* is forcedly installed even if
+        a node having the same name is already installed.
+
         .. versionadded:: 1.4
         """
         self.registry.add_enumerable_node(node, figtype, title_getter, override=override)
@@ -608,14 +623,14 @@ class Sphinx:
         details, see `the Docutils docs
         <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_ .
 
-        For example, the (already existing) :rst:dir:`literalinclude` directive
-        would be added like this:
+        For example, a custom directive named ``my-directive`` would be added
+        like this:
 
         .. code-block:: python
 
            from docutils.parsers.rst import Directive, directives
 
-           class LiteralIncludeDirective(Directive):
+           class MyDirective(Directive):
                has_content = True
                required_arguments = 1
                optional_arguments = 0
@@ -628,7 +643,11 @@ class Sphinx:
                def run(self):
                    ...
 
-           add_directive('literalinclude', LiteralIncludeDirective)
+           def setup(app):
+               add_directive('my-directive', MyDirective)
+
+        If *override* is True, the given *cls* is forcedly installed even if
+        a directive named as *name* is already installed.
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
@@ -652,6 +671,9 @@ class Sphinx:
         <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`_ for
         more information.
 
+        If *override* is True, the given *role* is forcedly installed even if
+        a role named as *name* is already installed.
+
         .. versionchanged:: 1.8
            Add *override* keyword.
         """
@@ -666,6 +688,9 @@ class Sphinx:
 
         Register a Docutils role that does nothing but wrap its contents in the
         node given by *nodeclass*.
+
+        If *override* is True, the given *nodeclass* is forcedly installed even if
+        a role named as *name* is already installed.
 
         .. versionadded:: 0.6
         .. versionchanged:: 1.8
@@ -686,6 +711,9 @@ class Sphinx:
         Make the given *domain* (which must be a class; more precisely, a
         subclass of :class:`~sphinx.domains.Domain`) known to Sphinx.
 
+        If *override* is True, the given *domain* is forcedly installed even if
+        a domain having the same name is already installed.
+
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -698,6 +726,9 @@ class Sphinx:
 
         Like :meth:`add_directive`, but the directive is added to the domain
         named *domain*.
+
+        If *override* is True, the given *directive* is forcedly installed even if
+        a directive named as *name* is already installed.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -712,6 +743,9 @@ class Sphinx:
         Like :meth:`add_role`, but the role is added to the domain named
         *domain*.
 
+        If *override* is True, the given *role* is forcedly installed even if
+        a role named as *name* is already installed.
+
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -724,6 +758,9 @@ class Sphinx:
 
         Add a custom *index* class to the domain named *domain*.  *index* must
         be a subclass of :class:`~sphinx.domains.Index`.
+
+        If *override* is True, the given *index* is forcedly installed even if
+        an index having the same name is already installed.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -788,6 +825,9 @@ class Sphinx:
         For the role content, you have the same syntactical possibilities as
         for standard Sphinx roles (see :ref:`xref-syntax`).
 
+        If *override* is True, the given object_type is forcedly installed even if
+        an object_type having the same name is already installed.
+
         .. versionchanged:: 1.8
            Add *override* keyword.
         """
@@ -823,6 +863,9 @@ class Sphinx:
 
         (Of course, the element following the ``topic`` directive needn't be a
         section.)
+
+        If *override* is True, the given crossref_type is forcedly installed even if
+        a crossref_type having the same name is already installed.
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -1004,7 +1047,7 @@ class Sphinx:
         logger.debug('[app] adding lexer: %r', (alias, lexer))
         if isinstance(lexer, Lexer):
             warnings.warn('app.add_lexer() API changed; '
-                          'Please give lexer class instead instance',
+                          'Please give lexer class instead of instance',
                           RemovedInSphinx40Warning, stacklevel=2)
             lexers[alias] = lexer
         else:
@@ -1018,6 +1061,9 @@ class Sphinx:
         :class:`sphinx.ext.autodoc.Documenter`.  This allows to auto-document
         new types of objects.  See the source of the autodoc module for
         examples on how to subclass :class:`Documenter`.
+
+        If *override* is True, the given *cls* is forcedly installed even if
+        a documenter having the same name is already installed.
 
         .. todo:: Add real docs for Documenter and subclassing
 
@@ -1067,12 +1113,18 @@ class Sphinx:
         Same as :confval:`source_suffix`.  The users can override this
         using the setting.
 
+        If *override* is True, the given *suffix* is forcedly installed even if
+        a same suffix is already installed.
+
         .. versionadded:: 1.8
         """
         self.registry.add_source_suffix(suffix, filetype, override=override)
 
-    def add_source_parser(self, *args: Any, **kwargs: Any) -> None:
+    def add_source_parser(self, parser: "Type[Parser]", override: bool = False) -> None:
         """Register a parser class.
+
+        If *override* is True, the given *parser* is forcedly installed even if
+        a parser for the same suffix is already installed.
 
         .. versionadded:: 1.4
         .. versionchanged:: 1.8
@@ -1081,7 +1133,7 @@ class Sphinx:
         .. versionchanged:: 1.8
            Add *override* keyword.
         """
-        self.registry.add_source_parser(*args, **kwargs)
+        self.registry.add_source_parser(parser, override=override)
 
     def add_env_collector(self, collector: "Type[EnvironmentCollector]") -> None:
         """Register an environment collector class.

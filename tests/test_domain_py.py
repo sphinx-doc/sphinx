@@ -386,6 +386,19 @@ def test_pyfunction_signature_full_py38(app):
                                       [desc_parameter, desc_sig_operator, "/"])])
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+def test_pyfunction_with_number_literals(app):
+    text = ".. py:function:: hello(age=0x10, height=1_6_0)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "age"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "0x10"])],
+                                      [desc_parameter, ([desc_sig_name, "height"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "1_6_0"])])])
+
+
 def test_optional_pyfunction_signature(app):
     text = ".. py:function:: compile(source [, filename [, symbol]]) -> ast object"
     doctree = restructuredtext.parse(app, text)

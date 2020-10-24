@@ -641,17 +641,17 @@ class StandaloneHTMLBuilder(Builder):
     def gen_additional_pages(self) -> None:
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            logger.info(' ' + pagename, nonl=True)
+            logger.info(pagename + ' ', nonl=True)
             self.handle_page(pagename, {}, template)
 
         # the search page
         if self.search:
-            logger.info(' search', nonl=True)
+            logger.info('search ', nonl=True)
             self.handle_page('search', {}, 'search.html')
 
         # the opensearch xml file
         if self.config.html_use_opensearch and self.search:
-            logger.info(' opensearch', nonl=True)
+            logger.info('opensearch ', nonl=True)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
@@ -669,7 +669,7 @@ class StandaloneHTMLBuilder(Builder):
             'genindexcounts': indexcounts,
             'split_index': self.config.html_split_index,
         }
-        logger.info(' genindex', nonl=True)
+        logger.info('genindex ', nonl=True)
 
         if self.config.html_split_index:
             self.handle_page('genindex', genindexcontext,
@@ -691,7 +691,7 @@ class StandaloneHTMLBuilder(Builder):
                 'content': content,
                 'collapse_index': collapse,
             }
-            logger.info(' ' + indexname, nonl=True)
+            logger.info(indexname + ' ', nonl=True)
             self.handle_page(indexname, indexcontext, 'domainindex.html')
 
     def copy_image_files(self) -> None:
@@ -751,18 +751,27 @@ class StandaloneHTMLBuilder(Builder):
                 copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
 
     def copy_theme_static_files(self, context: Dict) -> None:
+        def onerror(filename: str, error: Exception) -> None:
+            logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
+                           filename, error)
+
         if self.theme:
             for entry in self.theme.get_theme_dirs()[::-1]:
                 copy_asset(path.join(entry, 'static'),
                            path.join(self.outdir, '_static'),
-                           excluded=DOTFILES, context=context, renderer=self.templates)
+                           excluded=DOTFILES, context=context,
+                           renderer=self.templates, onerror=onerror)
 
     def copy_html_static_files(self, context: Dict) -> None:
+        def onerror(filename: str, error: Exception) -> None:
+            logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
+                           filename, error)
+
         excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
         for entry in self.config.html_static_path:
             copy_asset(path.join(self.confdir, entry),
                        path.join(self.outdir, '_static'),
-                       excluded, context=context, renderer=self.templates)
+                       excluded, context=context, renderer=self.templates, onerror=onerror)
 
     def copy_html_logo(self) -> None:
         if self.config.html_logo:
@@ -776,7 +785,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_static_files(self) -> None:
         try:
-            with progress_message(__('copying static files... ')):
+            with progress_message(__('copying static files')):
                 ensuredir(path.join(self.outdir, '_static'))
 
                 # prepare context for templates

@@ -229,7 +229,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionchanged:: 3.0
 
-        It takes an anchestor class name as an argument.
+        It takes an ancestor class name as an argument.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
@@ -514,6 +514,44 @@ There are also config values that you can set:
    .. versionadded:: 3.0
 
       New option ``'description'`` is added.
+
+.. confval:: autodoc_type_aliases
+
+   A dictionary for users defined `type aliases`__ that maps a type name to the
+   full-qualified object name.  It is used to keep type aliases not evaluated in
+   the document.  Defaults to empty (``{}``).
+
+   The type aliases are only available if your program enables `Postponed
+   Evaluation of Annotations (PEP 563)`__ feature via ``from __future__ import
+   annotations``.
+
+   For example, there is code using a type alias::
+
+     from __future__ import annotations
+
+     AliasType = Union[List[Dict[Tuple[int, str], Set[int]]], Tuple[str, List[str]]]
+
+     def f() -> AliasType:
+         ...
+
+   If ``autodoc_type_aliases`` is not set, autodoc will generate internal mark-up
+   from this code as following::
+
+     .. py:function:: f() -> Union[List[Dict[Tuple[int, str], Set[int]]], Tuple[str, List[str]]]
+
+        ...
+
+   If you set ``autodoc_type_aliases`` as
+   ``{'AliasType': 'your.module.TypeAlias'}``, it generates a following document
+   internally::
+
+     .. py:function:: f() -> your.module.AliasType:
+
+        ...
+
+   .. __: https://www.python.org/dev/peps/pep-0563/
+   .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
+   .. versionadded:: 3.3
 
 .. confval:: autodoc_warningiserror
 

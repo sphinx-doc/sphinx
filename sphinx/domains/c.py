@@ -140,8 +140,8 @@ class ASTIdentifier(ASTBaseBase):
                                           reftype='identifier',
                                           reftarget=targetText, modname=None,
                                           classname=None)
-            # key = symbol.get_lookup_key()
-            # pnode['c:parent_key'] = key
+            key = symbol.get_lookup_key()
+            pnode['c:parent_key'] = key
             if self.is_anon():
                 pnode += nodes.strong(text="[anonymous]")
             else:
@@ -1582,6 +1582,11 @@ class Symbol:
         for sChild in self._children:
             for s in sChild.get_all_symbols():
                 yield s
+
+    @property
+    def children(self) -> Iterator["Symbol"]:
+        for c in self._children:
+            yield c
 
     @property
     def children_recurse_anon(self) -> Iterator["Symbol"]:
@@ -3425,10 +3430,13 @@ class CNamespacePopObject(SphinxDirective):
 
 
 class AliasNode(nodes.Element):
-    def __init__(self, sig: str, env: "BuildEnvironment" = None,
+    def __init__(self, sig: str, maxdepth: int, document: Any, env: "BuildEnvironment" = None,
                  parentKey: LookupKey = None) -> None:
         super().__init__()
         self.sig = sig
+        self.maxdepth = maxdepth
+        assert maxdepth >= 0
+        self.document = document
         if env is not None:
             if 'c:parent_symbol' not in env.temp_data:
                 root = env.domaindata['c']['root_symbol']
@@ -3444,6 +3452,37 @@ class AliasNode(nodes.Element):
 
 class AliasTransform(SphinxTransform):
     default_priority = ReferencesResolver.default_priority - 1
+
+    def _render_symbol(self, s: Symbol, maxdepth: int, document: Any) -> List[Node]:
+        nodes = []  # type: List[Node]
+        options = dict()  # type: ignore
+        signode = addnodes.desc_signature('', '')
+        nodes.append(signode)
+        s.declaration.describe_signature(signode, 'markName', self.env, options)
+        if maxdepth == 0:
+            recurse = True
+        elif maxdepth == 1:
+            recurse = False
+        else:
+            maxdepth -= 1
+            recurse = True
+        if recurse:
+            content = addnodes.desc_content()
+            desc = addnodes.desc()
+            content.append(desc)
+            desc.document = document
+            desc['domain'] = 'c'
+            # 'desctype' is a backwards compatible attribute
+            desc['objtype'] = desc['desctype'] = 'alias'
+            desc['noindex'] = True
+
+            for sChild in s.children:
+                childNodes = self._render_symbol(sChild, maxdepth, document)
+                desc.extend(childNodes)
+
+            if len(desc.children) != 0:
+                nodes.append(content)
+        return nodes
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(AliasNode):
@@ -3485,17 +3524,16 @@ class AliasTransform(SphinxTransform):
                 logger.warning("Could not find C declaration for alias '%s'." % name,
                                location=node)
                 node.replace_self(signode)
-            else:
-                nodes = []
-                options = dict()  # type: ignore
-                signode = addnodes.desc_signature(sig, '')
-                nodes.append(signode)
-                s.declaration.describe_signature(signode, 'markName', self.env, options)
-                node.replace_self(nodes)
+                continue
+
+            nodes = self._render_symbol(s, maxdepth=node.maxdepth, document=node.document)
+            node.replace_self(nodes)
 
 
 class CAliasObject(ObjectDescription):
-    option_spec = {}  # type: Dict
+    option_spec = {
+        'maxdepth': directives.nonnegative_int
+    }  # type: Dict
 
     def run(self) -> List[Node]:
         if ':' in self.name:
@@ -3511,16 +3549,10 @@ class CAliasObject(ObjectDescription):
         node['noindex'] = True
 
         self.names = []  # type: List[str]
+        maxdepth = self.options.get('maxdepth', 1)
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
-            node.append(AliasNode(sig, env=self.env))
-
-        contentnode = addnodes.desc_content()
-        node.append(contentnode)
-        self.before_content()
-        self.state.nested_parse(self.content, self.content_offset, contentnode)
-        self.env.temp_data['object'] = None
-        self.after_content()
+            node.append(AliasNode(sig, maxdepth, self.state.document, env=self.env))
         return [node]
 
 

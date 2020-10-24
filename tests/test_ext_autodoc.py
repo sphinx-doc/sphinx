@@ -290,6 +290,21 @@ def test_format_signature(app):
         '(b, c=42, *d, **e)'
 
 
+@pytest.mark.skipif(sys.version_info < (3, 5), reason='typing is available since python3.5.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_process_signature_typing_generic(app):
+    actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
+
+    assert list(actual) == [
+        '',
+        '.. py:class:: A(a, b=None)',
+        '   :module: target.generic_class',
+        '',
+        '   docstring for A',
+        '',
+    ]
+
+
 def test_autodoc_process_signature_typehints(app):
     captured = []
 
@@ -878,6 +893,26 @@ def test_autodoc_descriptor(app):
         '',
         '      Property.',
         ''
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='cached_property is available since python3.8.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_cached_property(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'class', 'target.cached_property.Foo', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.cached_property',
+        '',
+        '',
+        '   .. py:method:: Foo.prop',
+        '      :module: target.cached_property',
+        '      :property:',
+        '',
     ]
 
 
@@ -1963,6 +1998,22 @@ def test_overload(app):
         '   :module: target.overload',
         '',
         '   docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload2(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.overload2', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload2',
+        '',
+        '',
+        '.. py:class:: Baz(x: int, y: int)',
+        '              Baz(x: str, y: str)',
+        '   :module: target.overload2',
         '',
     ]
 

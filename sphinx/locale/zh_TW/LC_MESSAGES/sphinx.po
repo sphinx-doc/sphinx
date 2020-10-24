@@ -1,7 +1,7 @@
 # Translations template for Sphinx.
 # Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# 
+#
 # Translators:
 # Adrian Liaw <adrianliaw2000@gmail.com>, 2018
 # Fred Lin <gasolin@gmail.com>, 2008

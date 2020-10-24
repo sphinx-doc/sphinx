@@ -304,6 +304,11 @@ def iscoroutinefunction(obj: Any) -> bool:
 
 def isproperty(obj: Any) -> bool:
     """Check if the object is property."""
+    if sys.version_info > (3, 8):
+        from functools import cached_property  # cached_property is available since py3.8
+        if isinstance(obj, cached_property):
+            return True
+
     return isinstance(obj, property)
 
 
@@ -434,8 +439,8 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False
-              ) -> inspect.Signature:
+def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False,
+              type_aliases: Dict = {}) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
@@ -465,7 +470,7 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
 
     try:
         # Update unresolved annotations using ``get_type_hints()``.
-        annotations = typing.get_type_hints(subject)
+        annotations = typing.get_type_hints(subject, None, type_aliases)
         for i, param in enumerate(parameters):
             if isinstance(param.annotation, str) and param.name in annotations:
                 parameters[i] = param.replace(annotation=annotations[param.name])
@@ -595,13 +600,14 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 
 def signature_from_str(signature: str) -> inspect.Signature:
     """Create a Signature object from string."""
-    module = ast.parse('def func' + signature + ': pass')
+    code = 'def func' + signature + ': pass'
+    module = ast.parse(code)
     function = cast(ast.FunctionDef, module.body[0])  # type: ignore
 
-    return signature_from_ast(function)
+    return signature_from_ast(function, code)
 
 
-def signature_from_ast(node: ast.FunctionDef) -> inspect.Signature:
+def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signature:
     """Create a Signature object from AST *node*."""
     args = node.args
     defaults = list(args.defaults)
@@ -621,9 +627,9 @@ def signature_from_ast(node: ast.FunctionDef) -> inspect.Signature:
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:
-                default = ast_unparse(defaults[i])
+                default = ast_unparse(defaults[i], code)
 
-            annotation = ast_unparse(arg.annotation) or Parameter.empty
+            annotation = ast_unparse(arg.annotation, code) or Parameter.empty
             params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
                                     default=default, annotation=annotation))
 
@@ -631,29 +637,29 @@ def signature_from_ast(node: ast.FunctionDef) -> inspect.Signature:
         if defaults[i + posonlyargs] is Parameter.empty:
             default = Parameter.empty
         else:
-            default = ast_unparse(defaults[i + posonlyargs])
+            default = ast_unparse(defaults[i + posonlyargs], code)
 
-        annotation = ast_unparse(arg.annotation) or Parameter.empty
+        annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
                                 default=default, annotation=annotation))
 
     if args.vararg:
-        annotation = ast_unparse(args.vararg.annotation) or Parameter.empty
+        annotation = ast_unparse(args.vararg.annotation, code) or Parameter.empty
         params.append(Parameter(args.vararg.arg, Parameter.VAR_POSITIONAL,
                                 annotation=annotation))
 
     for i, arg in enumerate(args.kwonlyargs):
-        default = ast_unparse(args.kw_defaults[i]) or Parameter.empty
-        annotation = ast_unparse(arg.annotation) or Parameter.empty
+        default = ast_unparse(args.kw_defaults[i], code) or Parameter.empty
+        annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))
 
     if args.kwarg:
-        annotation = ast_unparse(args.kwarg.annotation) or Parameter.empty
+        annotation = ast_unparse(args.kwarg.annotation, code) or Parameter.empty
         params.append(Parameter(args.kwarg.arg, Parameter.VAR_KEYWORD,
                                 annotation=annotation))
 
-    return_annotation = ast_unparse(node.returns) or Parameter.empty
+    return_annotation = ast_unparse(node.returns, code) or Parameter.empty
 
     return inspect.Signature(params, return_annotation=return_annotation)
 

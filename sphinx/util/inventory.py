@@ -122,11 +122,16 @@ class InventoryFile:
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
-            m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+?(\S*)\s+(.*)',
+            m = re.match(r'(?x)(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
                          line.rstrip())
             if not m:
                 continue
             name, type, prio, location, dispname = m.groups()
+            if ':' not in type:
+                # wrong type value. type should be in the form of "{domain}:{objtype}"
+                #
+                # Note: To avoid the regex DoS, this is implemented in python (refs: #8175)
+                continue
             if type == 'py:module' and type in invdata and name in invdata[type]:
                 # due to a bug in 1.1 and below,
                 # two inventory entries are created

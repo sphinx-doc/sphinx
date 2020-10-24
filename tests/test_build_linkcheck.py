@@ -8,8 +8,10 @@
     :license: BSD, see LICENSE for details.
 """
 
+import http.server
 import json
 import re
+import threading
 from unittest import mock
 import pytest
 
@@ -106,6 +108,21 @@ def test_anchors_ignored(app, status, warning):
     # expect all ok when excluding #top
     assert not content
 
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_raises_for_invalid_status(app, status, warning):
+    server_thread = HttpServerThread(InternalServerErrorHandler, daemon=True)
+    server_thread.start()
+    try:
+        app.builder.build_all()
+    finally:
+        server_thread.terminate()
+    content = (app.outdir / 'output.txt').read_text()
+    assert content == (
+        "index.rst:1: [broken] http://localhost:7777/#anchor: "
+        "500 Server Error: Internal Server Error "
+        "for url: http://localhost:7777/\n"
+    )
+
 
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck', freshenv=True,
@@ -160,3 +177,22 @@ def test_linkcheck_request_headers(app, status, warning):
                 assert headers["X-Secret"] == "open sesami"
             else:
                 assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
+
+
+class HttpServerThread(threading.Thread):
+    def __init__(self, handler, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.server = http.server.HTTPServer(("localhost", 7777), handler)
+
+    def run(self):
+        self.server.serve_forever(poll_interval=0.01)
+
+    def terminate(self):
+        self.server.shutdown()
+        self.server.server_close()
+        self.join()
+
+
+class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_error(500, "Internal Server Error")

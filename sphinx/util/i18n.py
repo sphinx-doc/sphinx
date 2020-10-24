@@ -14,7 +14,7 @@ import warnings
 from collections import namedtuple
 from datetime import datetime, timezone
 from os import path
-from typing import Callable, Generator, List, Set, Tuple
+from typing import Callable, Generator, List, Set, Tuple, Union
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -128,8 +128,10 @@ def find_catalog(docname: str, compaction: bool) -> str:
     return ret
 
 
-def docname_to_domain(docname: str, compation: bool) -> str:
+def docname_to_domain(docname: str, compation: Union[bool, str]) -> str:
     """Convert docname to domain for catalogs."""
+    if isinstance(compation, str):
+        return compation
     if compation:
         return docname.split(SEP, 1)[0]
     else:
