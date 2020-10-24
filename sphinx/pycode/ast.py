@@ -157,12 +157,12 @@ class _UnparseVisitor(ast.NodeVisitor):
                 ["%s=%s" % (k.arg, self.visit(k.value)) for k in node.keywords])
         return "%s(%s)" % (self.visit(node.func), ", ".join(args))
 
-    def visit_Constant(self, node: ast.Constant) -> str:
+    def visit_Constant(self, node: ast.Constant) -> str:  # type: ignore
         if node.value is Ellipsis:
             return "..."
         elif isinstance(node.value, (int, float, complex)):
             if self.code and sys.version_info > (3, 8):
-                return ast.get_source_segment(self.code, node)
+                return ast.get_source_segment(self.code, node)  # type: ignore
             else:
                 return repr(node.value)
         else:
