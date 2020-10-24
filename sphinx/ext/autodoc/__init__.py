@@ -1456,22 +1456,14 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return ''
 
         sig = super().format_signature()
-
-        overloaded = False
-        qualname = None
-        # TODO: recreate analyzer for the module of class (To be clear, owner of the method)
-        if self._signature_class and self._signature_method_name and self.analyzer:
-            qualname = '.'.join([self._signature_class.__qualname__,
-                                 self._signature_method_name])
-            if qualname in self.analyzer.overloads:
-                overloaded = True
-
         sigs = []
-        if overloaded:
+
+        overloads = self.get_overloaded_signatures()
+        if overloads:
             # Use signatures for overloaded methods instead of the implementation method.
             method = safe_getattr(self._signature_class, self._signature_method_name, None)
             __globals__ = safe_getattr(method, '__globals__', {})
-            for overload in self.analyzer.overloads.get(qualname):
+            for overload in overloads:
                 overload = evaluate_signature(overload, __globals__,
                                               self.env.config.autodoc_type_aliases)
 
@@ -1484,6 +1476,20 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             sigs.append(sig)
 
         return "\n".join(sigs)
+
+    def get_overloaded_signatures(self) -> List[Signature]:
+        if self._signature_class and self._signature_method_name:
+            for cls in self._signature_class.__mro__:
+                try:
+                    analyzer = ModuleAnalyzer.for_module(cls.__module__)
+                    analyzer.parse()
+                    qualname = '.'.join([cls.__qualname__, self._signature_method_name])
+                    if qualname in analyzer.overloads:
+                        return analyzer.overloads.get(qualname)
+                except PycodeError:
+                    pass
+
+        return []
 
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
@@ -1714,7 +1720,8 @@ class GenericAliasDocumenter(DataDocumenter):
         return inspect.isgenericalias(member)
 
     def add_directive_header(self, sig: str) -> None:
-        self.options.annotation = SUPPRESS  # type: ignore
+        self.options = Options(self.options)
+        self.options['annotation'] = SUPPRESS
         super().add_directive_header(sig)
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
@@ -1735,10 +1742,11 @@ class TypeVarDocumenter(DataDocumenter):
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        return isinstance(member, TypeVar) and isattr  # type: ignore
+        return isinstance(member, TypeVar) and isattr
 
     def add_directive_header(self, sig: str) -> None:
-        self.options.annotation = SUPPRESS  # type: ignore
+        self.options = Options(self.options)
+        self.options['annotation'] = SUPPRESS
         super().add_directive_header(sig)
 
     def get_doc(self, ignore: int = None) -> List[List[str]]:

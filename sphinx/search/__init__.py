@@ -288,8 +288,8 @@ class IndexBuilder:
            frozen.get('envversion') != self.env.version:
             raise ValueError('old format')
         index2fn = frozen['docnames']
-        self._filenames = dict(zip(index2fn, frozen['filenames']))  # type: ignore
-        self._titles = dict(zip(index2fn, frozen['titles']))  # type: ignore
+        self._filenames = dict(zip(index2fn, frozen['filenames']))
+        self._titles = dict(zip(index2fn, frozen['titles']))
 
         def load_terms(mapping: Dict[str, Any]) -> Dict[str, Set[str]]:
             rv = {}
@@ -350,13 +350,13 @@ class IndexBuilder:
     def get_terms(self, fn2index: Dict) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
         rvs = {}, {}  # type: Tuple[Dict[str, List[str]], Dict[str, List[str]]]
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
-            for k, v in mapping.items():  # type: ignore
+            for k, v in mapping.items():
                 if len(v) == 1:
                     fn, = v
                     if fn in fn2index:
-                        rv[k] = fn2index[fn]  # type: ignore
+                        rv[k] = fn2index[fn]
                 else:
-                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])  # type: ignore  # NOQA
+                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
         return rvs
 
     def freeze(self) -> Dict[str, Any]:

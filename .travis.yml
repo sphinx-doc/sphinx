@@ -24,9 +24,6 @@ jobs:
     - python: '3.9-dev'
       env:
         - TOXENV=py39
-    - python: 'nightly'
-      env:
-        - TOXENV=py310
 
     - language: node_js
       node_js: '10.7'

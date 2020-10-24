@@ -258,12 +258,12 @@ class SphinxComponentRegistry:
         else:
             self.source_suffix[suffix] = filetype
 
-    def add_source_parser(self, parser: "Type[Parser]", **kwargs: Any) -> None:
+    def add_source_parser(self, parser: "Type[Parser]", override: bool = False) -> None:
         logger.debug('[app] adding search source_parser: %r', parser)
 
         # create a map from filetype to parser
         for filetype in parser.supported:
-            if filetype in self.source_parsers and not kwargs.get('override'):
+            if filetype in self.source_parsers and not override:
                 raise ExtensionError(__('source_parser for %r is already registered') %
                                      filetype)
             else:

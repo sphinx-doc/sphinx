@@ -1836,7 +1836,7 @@ class ASTFunctionParameter(ASTBase):
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
-            return symbol.parent.declaration.get_id(version, prefixed=None)
+            return symbol.parent.declaration.get_id(version, prefixed=False)
         # else, do the usual
         if self.ellipsis:
             return 'z'
@@ -4107,7 +4107,7 @@ class Symbol:
             Symbol.debug_print("self:")
             print(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_print("nestedName:        ", nestedName)
-            Symbol.debug_print("templateDecls:     ", templateDecls)
+            Symbol.debug_print("templateDecls:     ", ",".join(str(t) for t in templateDecls))
             Symbol.debug_print("strictTemplateParamArgLists:", strictTemplateParamArgLists)
             Symbol.debug_print("ancestorLookupType:", ancestorLookupType)
             Symbol.debug_print("templateShorthand: ", templateShorthand)
@@ -4231,7 +4231,7 @@ class Symbol:
             Symbol.debug_indent += 1
             Symbol.debug_print("_add_symbols:")
             Symbol.debug_indent += 1
-            Symbol.debug_print("tdecls:", templateDecls)
+            Symbol.debug_print("tdecls:", ",".join(str(t) for t in templateDecls))
             Symbol.debug_print("nn:    ", nestedName)
             Symbol.debug_print("decl:  ", declaration)
             Symbol.debug_print("doc:   ", docname)
@@ -4360,6 +4360,11 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print("candId:", candId)
             for symbol in withDecl:
+                # but all existing must be functions as well,
+                # otherwise we declare it to be a duplicate
+                if symbol.declaration.objectType != 'function':
+                    handleDuplicateDeclaration(symbol, candSymbol)
+                    # (not reachable)
                 oldId = symbol.declaration.get_newest_id()
                 if Symbol.debug_lookup:
                     Symbol.debug_print("oldId: ", oldId)
@@ -4370,7 +4375,11 @@ class Symbol:
         # if there is an empty symbol, fill that one
         if len(noDecl) == 0:
             if Symbol.debug_lookup:
-                Symbol.debug_print("no match, no empty, candSybmol is not None?:", candSymbol is not None)  # NOQA
+                Symbol.debug_print("no match, no empty")
+                if candSymbol is not None:
+                    Symbol.debug_print("result is already created candSymbol")
+                else:
+                    Symbol.debug_print("result is makeCandSymbol()")
                 Symbol.debug_indent -= 2
             if candSymbol is not None:
                 return candSymbol
@@ -6814,10 +6823,12 @@ class CPPObject(ObjectDescription):
         parentSymbol = env.temp_data['cpp:parent_symbol']
         parentDecl = parentSymbol.declaration
         if parentDecl is not None and parentDecl.objectType == 'function':
-            logger.warning("C++ declarations inside functions are not supported." +
-                           " Parent function is " +
-                           str(parentSymbol.get_full_nested_name()),
-                           location=self.get_source_info())
+            msg = "C++ declarations inside functions are not supported." \
+                  " Parent function: {}\nDirective name: {}\nDirective arg: {}"
+            logger.warning(msg.format(
+                str(parentSymbol.get_full_nested_name()),
+                self.name, self.arguments[0]
+            ), location=self.get_source_info())
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             env.temp_data['cpp:last_symbol'] = symbol
