@@ -236,6 +236,7 @@ Documentation using sphinx_rtd_theme
 * `MyHDL <http://docs.myhdl.org/>`__
 * `Nextflow <https://www.nextflow.io/docs/latest/index.html>`__
 * `NICOS <https://forge.frm2.tum.de/nicos/doc/nicos-master/>`__ (customized)
+* `OpenFAST <https://openfast.readthedocs.io/>`__ 
 * `Pelican <http://docs.getpelican.com/>`__
 * `picamera <https://picamera.readthedocs.io/>`__
 * `Pillow <https://pillow.readthedocs.io/>`__
