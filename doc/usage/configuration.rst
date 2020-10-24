@@ -316,6 +316,7 @@ General configuration
    * ``toc.circular``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
+   * ``epub.duplicated_toc_entry``
    * ``autosectionlabel.*``
 
    You can choose from these types.
@@ -339,6 +340,10 @@ General configuration
    .. versionchanged:: 2.1
 
       Added ``autosectionlabel.*``
+
+   .. versionchanged:: 3.3.0
+
+      Added ``epub.duplicated_toc_entry``
 
 .. confval:: needs_sphinx
 
