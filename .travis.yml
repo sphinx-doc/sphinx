@@ -24,9 +24,6 @@ jobs:
       env:
         - TOXENV=du15
         - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
-    - python: 'nightly'
-      env:
-        - TOXENV=du16
 
     - language: node_js
       node_js: '10.7'
