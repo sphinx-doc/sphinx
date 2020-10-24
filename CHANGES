@@ -57,6 +57,7 @@ Bugs fixed
 * #8239: Failed to refer a token in productionlist if it is indented
 * #8268: linkcheck: Report HTTP errors when ``linkcheck_anchors`` is ``True``
 * #8245: linkcheck: take source directory into account for local files
+* #8321: linkcheck: ``tel:`` schema hyperlinks are detected as errors
 * #6914: figure numbers are unexpectedly assigned to uncaptioned items
 
 Testing
