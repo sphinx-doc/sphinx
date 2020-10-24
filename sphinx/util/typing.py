@@ -57,14 +57,14 @@ Inventory = Dict[str, Dict[str, Tuple[str, str, str, str]]]
 def is_system_TypeVar(typ: Any) -> bool:
     """Check *typ* is system defined TypeVar."""
     modname = getattr(typ, '__module__', '')
-    return modname == 'typing' and isinstance(typ, TypeVar)  # type: ignore
+    return modname == 'typing' and isinstance(typ, TypeVar)
 
 
 def stringify(annotation: Any) -> str:
     """Stringify type annotation object."""
     if isinstance(annotation, str):
         return annotation
-    elif isinstance(annotation, TypeVar):  # type: ignore
+    elif isinstance(annotation, TypeVar):
         return annotation.__name__
     elif not annotation:
         return repr(annotation)
