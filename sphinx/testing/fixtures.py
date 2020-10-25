@@ -22,7 +22,7 @@ from sphinx.testing import util
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
 
-markers = [
+PUBLIC_MARKERS = [
     (
         'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None,'
         ' docutilsconf=None, parallel=0): arguments to initialize the sphinx test application.'
@@ -33,7 +33,7 @@ markers = [
 
 def pytest_configure(config):
     # register custom markers
-    for marker in markers:
+    for marker in PUBLIC_MARKERS:
         config.addinivalue_line('markers', marker)
 
 
