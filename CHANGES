@@ -45,6 +45,7 @@ Bugs fixed
 * #7964: autodoc: Tuple in default value is wrongly rendered
 * #8200: autodoc: type aliases break type formatting of autoattribute
 * #7786: autodoc: can't detect overloaded methods defined in other file
+* #8294: autodoc: single-string __slots__ is not handled correctly
 * #8192: napoleon: description is disappeared when it contains inline literals
 * #8142: napoleon: Potential of regex denial of service in google style docs
 * #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
