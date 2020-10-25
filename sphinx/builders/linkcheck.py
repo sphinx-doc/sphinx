@@ -226,6 +226,7 @@ class CheckExternalLinksBuilder(Builder):
                             if rex.match(uri):
                                 return 'ignored', '', 0
                         else:
+                            self.broken[uri] = ''
                             return 'broken', '', 0
             elif uri in self.good:
                 return 'working', 'old', 0
