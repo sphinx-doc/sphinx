@@ -60,6 +60,7 @@ Bugs fixed
 * #8268: linkcheck: Report HTTP errors when ``linkcheck_anchors`` is ``True``
 * #8245: linkcheck: take source directory into account for local files
 * #6914: figure numbers are unexpectedly assigned to uncaptioned items
+* #8320: make "inline" line numbers un-selectable
 
 Testing
 --------
