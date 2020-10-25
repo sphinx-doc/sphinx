@@ -1205,6 +1205,14 @@ def test_slots(app):
         '   .. py:attribute:: Foo.attr',
         '      :module: target.slots',
         '',
+        '',
+        '.. py:class:: FooSingleString()',
+        '   :module: target.slots',
+        '',
+        '',
+        '   .. py:attribute:: FooSingleString.attr',
+        '      :module: target.slots',
+        '',
     ]
 
 
