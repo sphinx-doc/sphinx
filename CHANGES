@@ -29,6 +29,7 @@ Features added
 * #8289: epub: Allow to suppress "duplicated ToC entry found" warnings from epub
   builder using :confval:`suppress_warnings`.
 * #8298: sphinx-quickstart: Add :option:`sphinx-quickstart --no-sep` option
+* #8304: sphinx.testing: Register public markers in sphinx.testing.fixtures
 
 Bugs fixed
 ----------
