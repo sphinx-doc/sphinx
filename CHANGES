@@ -28,6 +28,7 @@ Features added
   directory on build man page
 * #8289: epub: Allow to suppress "duplicated ToC entry found" warnings from epub
   builder using :confval:`suppress_warnings`.
+* #8298: sphinx-quickstart: Add :option:`sphinx-quickstart --no-sep` option
 
 Bugs fixed
 ----------
