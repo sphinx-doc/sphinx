@@ -451,8 +451,10 @@ def get_parser() -> argparse.ArgumentParser:
                         help=__('project root'))
 
     group = parser.add_argument_group(__('Structure options'))
-    group.add_argument('--sep', action='store_true', default=None,
+    group.add_argument('--sep', action='store_true', dest='sep', default=None,
                        help=__('if specified, separate source and build dirs'))
+    group.add_argument('--no-sep', action='store_false', dest='sep',
+                       help=__('if specified, create build dir under source dir'))
     group.add_argument('--dot', metavar='DOT', default='_',
                        help=__('replacement for dot in _templates etc.'))
 

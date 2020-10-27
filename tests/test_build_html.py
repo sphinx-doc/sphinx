@@ -258,7 +258,7 @@ def test_html4_output(app, status, warning):
         (".//pre/strong", 'try_stmt'),
         (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
-        (".//p", 'A global substitution.'),
+        (".//p", 'A global substitution!'),
         (".//p", 'In HTML.'),
         (".//p", 'In both.'),
         (".//p", 'Always present'),

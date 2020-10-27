@@ -32,8 +32,6 @@ pygments_style = 'sphinx'
 show_authors = True
 numfig = True
 
-rst_epilog = '.. |subst| replace:: global substitution'
-
 html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
                         'customsb.html', 'searchbox.html'],
                  'index': ['contentssb.html', 'localtoc.html', 'globaltoc.html']}
