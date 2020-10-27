@@ -28,6 +28,7 @@ from docutils.statemachine import StateMachine, State, StringList
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.typing import RoleFunction
 
@@ -208,6 +209,8 @@ class sphinx_domains:
                 element = getattr(domain, type)(name)
                 if element is not None:
                     return element, []
+            else:
+                logger.warning(_('unknown directive or role name: %s:%s'), domain_name, name)
         # else look in the default domain
         else:
             def_domain = self.env.temp_data.get('default_domain')

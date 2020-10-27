@@ -41,6 +41,9 @@ Features added
 Bugs fixed
 ----------
 
+* #8342: Emit a warning if a unknown domain is given for directive or role (ex.
+  ``:unknown:doc:``)
+
 Testing
 --------
 
