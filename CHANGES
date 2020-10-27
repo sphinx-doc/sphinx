@@ -58,6 +58,7 @@ Bugs fixed
 * #8255: py domain: number in default argument value is changed from hexadecimal
   to decimal
 * #8343: html search: Fix unnecessary load of images when parsing the document
+* #8254: html theme: Line numbers misalign with code lines
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
 * #8215: Eliminate Fancyhdr build warnings for oneside documents
