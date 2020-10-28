@@ -16,6 +16,8 @@ Incompatible changes
   MathJax configuration may have to set the old MathJax path or update their
   configuration for version 3. See :mod:`sphinx.ext.mathjax`.
 * #7784: i18n: The msgid for alt text of image is changed
+* #7996: manpage: Make a section directory on build manpage by default (see
+  :confval:`man_make_section_directory`)
 
 Deprecated
 ----------
