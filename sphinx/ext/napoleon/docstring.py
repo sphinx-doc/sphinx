@@ -1240,14 +1240,13 @@ class NumpyDocstring(GoogleDocstring):
             for func, description, role in items
         ]
 
-        func_role = 'obj'
         lines = []  # type: List[str]
         last_had_desc = True
-        for func, desc, role in items:
+        for name, desc, role in items:
             if role:
-                link = ':%s:`%s`' % (role, func)
+                link = ':%s:`%s`' % (role, name)
             else:
-                link = ':%s:`%s`' % (func_role, func)
+                link = ':obj:`%s`' % name
             if desc or last_had_desc:
                 lines += ['']
                 lines += [link]
