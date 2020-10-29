@@ -30,6 +30,7 @@ Features added
   builder using :confval:`suppress_warnings`.
 * #8298: sphinx-quickstart: Add :option:`sphinx-quickstart --no-sep` option
 * #8304: sphinx.testing: Register public markers in sphinx.testing.fixtures
+* #8051: napoleon: use the obj role for all See Also items
 
 Bugs fixed
 ----------
