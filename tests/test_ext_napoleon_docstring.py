@@ -1177,7 +1177,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :returns: *str* -- Extended
+        :returns: :class:`str` -- Extended
                   description of return value
         """
     ), (
@@ -1193,7 +1193,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :returns: *str* -- Extended
+        :returns: :class:`str` -- Extended
                   description of return value
         """
     ), (
@@ -1246,7 +1246,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Yields: *str* -- Extended
+        :Yields: :class:`str` -- Extended
                  description of yielded value
         """
     ), (
@@ -1262,7 +1262,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Yields: *str* -- Extended
+        :Yields: :class:`str` -- Extended
                  description of yielded value
         """
     )]
@@ -1555,6 +1555,52 @@ arg_ : type
 
         self.assertEqual(expected, actual)
 
+    def test_return_types(self):
+        docstring = dedent("""
+            Returns
+            -------
+            DataFrame
+                a dataframe
+        """)
+        expected = dedent("""
+           :returns: a dataframe
+           :rtype: :class:`~pandas.DataFrame`
+        """)
+        translations = {
+            "DataFrame": "~pandas.DataFrame",
+        }
+        config = Config(
+            napoleon_use_param=True,
+            napoleon_use_rtype=True,
+            napoleon_preprocess_types=True,
+            napoleon_type_aliases=translations,
+        )
+        actual = str(NumpyDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
+    def test_yield_types(self):
+        docstring = dedent("""
+            Example Function
+
+            Yields
+            ------
+            scalar or array-like
+                The result of the computation
+        """)
+        expected = dedent("""
+            Example Function
+
+            :Yields: :term:`scalar` or :class:`array-like <numpy.ndarray>` -- The result of the computation
+        """)
+        translations = {
+            "scalar": ":term:`scalar`",
+            "array-like": ":class:`array-like <numpy.ndarray>`",
+        }
+        config = Config(napoleon_type_aliases=translations, napoleon_preprocess_types=True)
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
+        self.assertEqual(expected, actual)
+
     def test_raises_types(self):
         docstrings = [("""
 Example Function
@@ -1721,6 +1767,34 @@ Example Function
 
 Raises
 ------
+CustomError
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises package.CustomError: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+AnotherError
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises ~package.AnotherError: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
 :class:`exc.InvalidDimensionsError`
 :class:`exc.InvalidArgumentsError`
 
@@ -1731,7 +1805,11 @@ Example Function
 :raises exc.InvalidArgumentsError:
 """)]
         for docstring, expected in docstrings:
-            config = Config()
+            translations = {
+                "CustomError": "package.CustomError",
+                "AnotherError": ":py:exc:`~package.AnotherError`",
+            }
+            config = Config(napoleon_type_aliases=translations, napoleon_preprocess_types=True)
             app = mock.Mock()
             actual = str(NumpyDocstring(docstring, config, app, "method"))
             self.assertEqual(expected, actual)
