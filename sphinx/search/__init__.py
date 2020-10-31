@@ -365,7 +365,7 @@ class IndexBuilder:
                     if fn in fn2index:
                         rv[k] = fn2index[fn]
                 else:
-                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])  # NOQA
+                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
         return rvs
 
     def freeze(self) -> Dict[str, Any]:

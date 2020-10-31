@@ -33,6 +33,10 @@ Options
 
    If specified, separate source and build directories.
 
+.. option:: --no-sep
+
+   If specified, create build directroy under source directroy.
+
 .. option:: --dot=DOT
 
    Inside the root directory, two more directories will be created;

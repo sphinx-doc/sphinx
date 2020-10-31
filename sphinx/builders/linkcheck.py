@@ -106,8 +106,7 @@ class CheckExternalLinksBuilder(Builder):
         self.rqueue = queue.Queue()  # type: queue.Queue
         self.workers = []  # type: List[threading.Thread]
         for i in range(self.app.config.linkcheck_workers):
-            thread = threading.Thread(target=self.check_thread)
-            thread.setDaemon(True)
+            thread = threading.Thread(target=self.check_thread, daemon=True)
             thread.start()
             self.workers.append(thread)
 
@@ -213,7 +212,7 @@ class CheckExternalLinksBuilder(Builder):
 
         def check(docname: str) -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
-            if len(uri) == 0 or uri.startswith(('#', 'mailto:')):
+            if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
                 return 'unchecked', '', 0
             elif not uri.startswith(('http:', 'https:')):
                 if uri_re.match(uri):

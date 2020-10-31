@@ -369,7 +369,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Return an escaped string suitable for use as an argument
         to a Texinfo command."""
         s = self.escape(s)
-        # commas are the argument delimeters
+        # commas are the argument delimiters
         s = s.replace(',', '@comma{}')
         # normalize white space
         s = ' '.join(s.split()).strip()

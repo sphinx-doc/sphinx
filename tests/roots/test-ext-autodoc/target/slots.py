@@ -2,6 +2,10 @@ class Foo:
     __slots__ = ['attr']
 
 
+class FooSingleString:
+    __slots__ = 'attr'
+
+
 class Bar:
     __slots__ = {'attr1': 'docstring of attr1',
                  'attr2': 'docstring of attr2',

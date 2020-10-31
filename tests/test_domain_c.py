@@ -9,6 +9,8 @@
 """
 import pytest
 
+from xml.etree import ElementTree
+
 from sphinx import addnodes
 from sphinx.addnodes import desc
 from sphinx.domains.c import DefinitionParser, DefinitionError
@@ -529,6 +531,25 @@ def filter_warnings(warning, file):
     return res
 
 
+def extract_role_links(app, filename):
+    t = (app.outdir / filename).read_text()
+    lis = [l for l in t.split('\n') if l.startswith("<li")]
+    entries = []
+    for l in lis:
+        li = ElementTree.fromstring(l)
+        aList = list(li.iter('a'))
+        assert len(aList) == 1
+        a = aList[0]
+        target = a.attrib['href'].lstrip('#')
+        title = a.attrib['title']
+        assert len(a) == 1
+        code = a[0]
+        assert code.tag == 'code'
+        text = ''.join(code.itertext())
+        entries.append((target, title, text))
+    return entries
+
+
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_build_domain_c(app, status, warning):
     app.builder.build_all()
@@ -562,6 +583,26 @@ def test_build_domain_c_semicolon(app, status, warning):
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_function_param_target(app, warning):
+    # the anchor for function parameters should be the function
+    app.builder.build_all()
+    ws = filter_warnings(warning, "function_param_target")
+    assert len(ws) == 0
+    entries = extract_role_links(app, "function_param_target.html")
+    assert entries == [
+        ('c.f', 'i', 'i'),
+        ('c.f', 'f.i', 'f.i'),
+    ]
+
+
+def _get_obj(app, queryName):
+    domain = app.env.get_domain('c')
+    for name, dispname, objectType, docname, anchor, prio in domain.get_objects():
+        if name == queryName:
+            return (docname, anchor, objectType)
+    return (queryName, "not", "found")
+
 def test_cfunction(app):
     text = (".. c:function:: PyObject* "
             "PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)")
@@ -569,8 +610,7 @@ def test_cfunction(app):
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="c", objtype="function", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyType_GenericAlloc')
+    entry = _get_obj(app, 'PyType_GenericAlloc')
     assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
 
 
@@ -580,8 +620,7 @@ def test_cmember(app):
     assert_node(doctree[1], addnodes.desc, desctype="member",
                 domain="c", objtype="member", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyTypeObject.tp_bases')
+    entry = _get_obj(app, 'PyTypeObject.tp_bases')
     assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
 
 
@@ -591,9 +630,8 @@ def test_cvar(app):
     assert_node(doctree[1], addnodes.desc, desctype="var",
                 domain="c", objtype="var", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyClass_Type')
-    assert entry == ('index', 'c.PyClass_Type', 'var')
+    entry = _get_obj(app, 'PyClass_Type')
+    assert entry == ('index', 'c.PyClass_Type', 'member')
 
 
 def test_noindexentry(app):

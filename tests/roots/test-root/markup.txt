@@ -22,7 +22,9 @@ Meta markup
 Generic reST
 ------------
 
-A |subst| (the definition is in rst_epilog).
+A |subst|!
+
+.. |subst| replace:: global substitution
 
 .. highlight:: none
 
