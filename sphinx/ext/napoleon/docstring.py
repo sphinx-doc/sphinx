@@ -1193,25 +1193,6 @@ class NumpyDocstring(GoogleDocstring):
             items.append((name, list(rest), role))
             del rest[:]
 
-        def search_inventory(inventory, name, hint=None):
-            roles = list(inventory.keys())
-            if hint is not None:
-                preferred = [
-                    role
-                    for role in roles
-                    if role.split(":", 1)[-1].startswith(hint)
-                ]
-                roles = preferred + [role for role in roles if role not in preferred]
-
-            for role in roles:
-                objects = inventory[role]
-                found = objects.get(name, None)
-                if found is not None:
-                    domain, role = role.split(":", 1)
-                    return role
-
-            return None
-
         def translate(func, description, role):
             translations = self._config.napoleon_type_aliases
             if role is not None or not translations:
@@ -1264,14 +1245,13 @@ class NumpyDocstring(GoogleDocstring):
             for func, description, role in items
         ]
 
-        func_role = 'obj'
         lines = []  # type: List[str]
         last_had_desc = True
-        for func, desc, role in items:
+        for name, desc, role in items:
             if role:
-                link = ':%s:`%s`' % (role, func)
+                link = ':%s:`%s`' % (role, name)
             else:
-                link = ':%s:`%s`' % (func_role, func)
+                link = ':obj:`%s`' % name
             if desc or last_had_desc:
                 lines += ['']
                 lines += [link]
