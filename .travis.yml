@@ -21,7 +21,7 @@ jobs:
       env:
         - TOXENV=du16
         - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
-    - python: '3.9-dev'
+    - python: '3.9'
       env:
         - TOXENV=py39
 
