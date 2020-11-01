@@ -1013,6 +1013,9 @@ class TextTranslator(SphinxTranslator):
     def visit_toctree(self, node: Element) -> None:
         raise nodes.SkipNode
 
+    def visit_substitution_definition(self, node: Element) -> None:
+        raise nodes.SkipNode
+
     def visit_pending_xref(self, node: Element) -> None:
         pass
 
