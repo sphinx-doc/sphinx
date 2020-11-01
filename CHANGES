@@ -32,6 +32,7 @@ Features added
 * #8304: sphinx.testing: Register public markers in sphinx.testing.fixtures
 * #8051: napoleon: use the obj role for all See Also items
 * #8050: napoleon: Apply :confval:`napoleon_preprocess_types` to every field
+* #8183: Remove substitution_reference nodes from doctree only on LaTeX builds
 
 Bugs fixed
 ----------
