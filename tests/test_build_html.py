@@ -10,8 +10,10 @@
 
 import os
 import re
+from distutils.version import LooseVersion
 from itertools import cycle, chain
 
+import pygments
 import pytest
 from html5lib import HTMLParser
 
@@ -256,7 +258,7 @@ def test_html4_output(app, status, warning):
         (".//pre/strong", 'try_stmt'),
         (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
-        (".//p", 'A global substitution.'),
+        (".//p", 'A global substitution!'),
         (".//p", 'In HTML.'),
         (".//p", 'In both.'),
         (".//p", 'Always present'),
@@ -417,6 +419,11 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     app.build()
     print(app.outdir / fname)
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', parallel=2)
+def test_html_parallel(app):
+    app.build()
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -1591,4 +1598,8 @@ def test_html_codeblock_linenos_style_inline(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    assert '<span class="lineno">1 </span>' in content
+    pygments_version = tuple(LooseVersion(pygments.__version__).version)
+    if pygments_version > (2, 7):
+        assert '<span class="linenos">1</span>' in content
+    else:
+        assert '<span class="lineno">1 </span>' in content

@@ -32,6 +32,10 @@ class MyList(List[T]):
     pass
 
 
+class BrokenType:
+    __args__ = int
+
+
 def test_stringify():
     assert stringify(int) == "int"
     assert stringify(str) == "str"
@@ -113,3 +117,7 @@ def test_stringify_type_hints_alias():
     MyTuple = Tuple[str, str]
     assert stringify(MyStr) == "str"
     assert stringify(MyTuple) == "Tuple[str, str]"  # type: ignore
+
+
+def test_stringify_broken_type_hints():
+    assert stringify(BrokenType) == 'test_util_typing.BrokenType'

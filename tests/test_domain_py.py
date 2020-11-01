@@ -313,7 +313,7 @@ def test_pyfunction_signature(app):
 
 def test_pyfunction_signature_full(app):
     text = (".. py:function:: hello(a: str, b = 1, *args: str, "
-            "c: bool = True, **kwargs: str) -> str")
+            "c: bool = True, d: tuple = (1, 2), **kwargs: str) -> str")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "hello"],
@@ -343,6 +343,14 @@ def test_pyfunction_signature_full(app):
                                                         [desc_sig_operator, "="],
                                                         " ",
                                                         [nodes.inline, "True"])],
+                                      [desc_parameter, ([desc_sig_name, "d"],
+                                                        [desc_sig_punctuation, ":"],
+                                                        " ",
+                                                        [desc_sig_name, pending_xref, "tuple"],
+                                                        " ",
+                                                        [desc_sig_operator, "="],
+                                                        " ",
+                                                        [nodes.inline, "(1, 2)"])],
                                       [desc_parameter, ([desc_sig_operator, "**"],
                                                         [desc_sig_name, "kwargs"],
                                                         [desc_sig_punctuation, ":"],
@@ -384,6 +392,19 @@ def test_pyfunction_signature_full_py38(app):
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, desc_sig_name, "a"],
                                       [desc_parameter, desc_sig_operator, "/"])])
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+def test_pyfunction_with_number_literals(app):
+    text = ".. py:function:: hello(age=0x10, height=1_6_0)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "age"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "0x10"])],
+                                      [desc_parameter, ([desc_sig_name, "height"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "1_6_0"])])])
 
 
 def test_optional_pyfunction_signature(app):

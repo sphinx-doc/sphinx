@@ -500,7 +500,8 @@ class ProductionList(SphinxDirective):
             except ValueError:
                 break
             subnode = addnodes.production(rule)
-            subnode['tokenname'] = name.strip()
+            name = name.strip()
+            subnode['tokenname'] = name
             if subnode['tokenname']:
                 prefix = 'grammar-token-%s' % productionGroup
                 node_id = make_id(self.env, self.state.document, prefix, name)
