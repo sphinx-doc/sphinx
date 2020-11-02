@@ -1,11 +1,5 @@
-Release 3.3.0 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
+Release 3.3.0 (released Nov 02, 2020)
+=====================================
 
 Deprecated
 ----------
@@ -90,9 +84,6 @@ Testing
 --------
 
 * #8257: Support parallel build in sphinx.testing
-
-Testing
---------
 
 Release 3.2.1 (released Aug 14, 2020)
 =====================================
