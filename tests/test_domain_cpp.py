@@ -59,8 +59,8 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Result:   ", res)
         print("Expected: ", outputAst)
         raise DefinitionError("")
-    rootSymbol = Symbol(None, None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
+    rootSymbol = Symbol(None, None, None, None, None, None, None)
+    symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42)
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
@@ -1241,8 +1241,8 @@ def test_mix_decl_duplicate(app, warning):
     restructuredtext.parse(app, text)
     ws = warning.getvalue().split("\n")
     assert len(ws) == 5
-    assert "index.rst:2: WARNING: Duplicate C++ declaration, also defined in 'index'." in ws[0]
-    assert "Declaration is 'void A()'." in ws[1]
-    assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined in 'index'." in ws[2]
-    assert "Declaration is 'A'." in ws[3]
+    assert "index.rst:2: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[0]
+    assert "Declaration is '.. cpp:function:: void A()'." in ws[1]
+    assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[2]
+    assert "Declaration is '.. cpp:struct:: A'." in ws[3]
     assert ws[4] == ""

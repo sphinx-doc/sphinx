@@ -695,6 +695,9 @@ class GoogleDocstring:
             m = self._name_rgx.match(_type)
             if m and m.group('name'):
                 _type = m.group('name')
+            elif _xref_regex.match(_type):
+                pos = _type.find('`')
+                _type = _type[pos + 1:-1]
             _type = ' ' + _type if _type else ''
             _desc = self._strip_empty(_desc)
             _descs = ' ' + '\n    '.join(_desc) if any(_desc) else ''
@@ -1100,6 +1103,10 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
+
+        if prefer_type and not _type:
+            _type, _name = _name, _type
+
         if self._config.napoleon_preprocess_types:
             _type = _convert_numpy_type_spec(
                 _type,
@@ -1107,8 +1114,6 @@ class NumpyDocstring(GoogleDocstring):
                 translations=self._config.napoleon_type_aliases or {},
             )
 
-        if prefer_type and not _type:
-            _type, _name = _name, _type
         indent = self._get_indent(line) + 1
         _desc = self._dedent(self._consume_indented_block(indent))
         _desc = self.__class__(_desc, self._config).lines()
@@ -1184,6 +1189,22 @@ class NumpyDocstring(GoogleDocstring):
             items.append((name, list(rest), role))
             del rest[:]
 
+        def translate(func, description, role):
+            translations = self._config.napoleon_type_aliases
+            if role is not None or not translations:
+                return func, description, role
+
+            translated = translations.get(func, func)
+            match = self._name_rgx.match(translated)
+            if not match:
+                return translated, description, role
+
+            groups = match.groupdict()
+            role = groups["role"]
+            new_func = groups["name"] or groups["name2"]
+
+            return new_func, description, role
+
         current_func = None
         rest = []  # type: List[str]
 
@@ -1214,37 +1235,19 @@ class NumpyDocstring(GoogleDocstring):
         if not items:
             return []
 
-        roles = {
-            'method': 'meth',
-            'meth': 'meth',
-            'function': 'func',
-            'func': 'func',
-            'class': 'class',
-            'exception': 'exc',
-            'exc': 'exc',
-            'object': 'obj',
-            'obj': 'obj',
-            'module': 'mod',
-            'mod': 'mod',
-            'data': 'data',
-            'constant': 'const',
-            'const': 'const',
-            'attribute': 'attr',
-            'attr': 'attr'
-        }
-        if self._what is None:
-            func_role = 'obj'
-        else:
-            func_role = roles.get(self._what, '')
+        # apply type aliases
+        items = [
+            translate(func, description, role)
+            for func, description, role in items
+        ]
+
         lines = []  # type: List[str]
         last_had_desc = True
-        for func, desc, role in items:
+        for name, desc, role in items:
             if role:
-                link = ':%s:`%s`' % (role, func)
-            elif func_role:
-                link = ':%s:`%s`' % (func_role, func)
+                link = ':%s:`%s`' % (role, name)
             else:
-                link = "`%s`_" % func
+                link = ':obj:`%s`' % name
             if desc or last_had_desc:
                 lines += ['']
                 lines += [link]

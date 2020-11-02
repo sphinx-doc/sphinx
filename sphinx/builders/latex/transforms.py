@@ -13,6 +13,7 @@ from typing import cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
+from docutils.transforms.references import Substitutions
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
@@ -36,6 +37,18 @@ class FootnoteDocnameUpdater(SphinxTransform):
         matcher = NodeMatcher(*self.TARGET_NODES)
         for node in self.document.traverse(matcher):  # type: nodes.Element
             node['docname'] = self.env.docname
+
+
+class SubstitutionDefinitionsRemover(SphinxPostTransform):
+    """Remove ``substitution_definition node from doctrees."""
+
+    # should be invoked after Substitutions process
+    default_priority = Substitutions.default_priority + 1
+    builders = ('latex',)
+
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.traverse(nodes.substitution_definition):
+            node.parent.remove(node)
 
 
 class ShowUrlsTransform(SphinxPostTransform):
@@ -602,6 +615,7 @@ class IndexInSectionTitleTransform(SphinxTransform):
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_transform(FootnoteDocnameUpdater)
+    app.add_post_transform(SubstitutionDefinitionsRemover)
     app.add_post_transform(BibliographyTransform)
     app.add_post_transform(CitationReferenceTransform)
     app.add_post_transform(DocumentTargetTransform)
