@@ -32,6 +32,8 @@ Features added
 * #8304: sphinx.testing: Register public markers in sphinx.testing.fixtures
 * #8051: napoleon: use the obj role for all See Also items
 * #8050: napoleon: Apply :confval:`napoleon_preprocess_types` to every field
+* C and C++, show line numbers for previous declarations when duplicates are
+  detected.
 * #8183: Remove substitution_reference nodes from doctree only on LaTeX builds
 
 Bugs fixed
@@ -74,35 +76,6 @@ Bugs fixed
 * #8321: linkcheck: ``tel:`` schema hyperlinks are detected as errors
 * #8323: linkcheck: An exit status is incorrect when links having unsupported
   schema found
-* #6914: figure numbers are unexpectedly assigned to uncaptioned items
-* #8320: make "inline" line numbers un-selectable
-
-Testing
---------
-
-* #8257: Support parallel build in sphinx.testing
-
-Release 3.2.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-- C and C++, show line numbers for previous declarations when duplicates are
-  detected.
-
-Bugs fixed
-----------
-
 * #8188: C, add missing items to internal object types dictionary,
   e.g., preventing intersphinx from resolving them.
 * C, fix anon objects in intersphinx.
@@ -110,7 +83,13 @@ Bugs fixed
   non-function declaration of the same name already exists.
 * C, fix references to function parameters.
   Link to the function instead of a non-existing anchor.
+* #6914: figure numbers are unexpectedly assigned to uncaptioned items
+* #8320: make "inline" line numbers un-selectable
 
+Testing
+--------
+
+* #8257: Support parallel build in sphinx.testing
 
 Testing
 --------
