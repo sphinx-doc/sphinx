@@ -439,14 +439,20 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False,
+def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = None,
               type_aliases: Dict = {}) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
     :param follow_wrapped: Same as ``inspect.signature()``.
-                           Defaults to ``False`` (get a signature of *subject*).
     """
+
+    if follow_wrapped is None:
+        follow_wrapped = True
+    else:
+        warnings.warn('The follow_wrapped argument of sphinx.util.inspect.signature() is '
+                      'deprecated', RemovedInSphinx50Warning, stacklevel=2)
+
     try:
         try:
             if _should_unwrap(subject):

@@ -7,8 +7,13 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #8105: autodoc: the signature of class constructor will be shown for decorated
+  classes, not a signature of decorator
+
 Deprecated
 ----------
+
+* The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
 
 Features added
 --------------
@@ -21,6 +26,8 @@ Bugs fixed
 ----------
 
 * #7613: autodoc: autodoc does not respect __signature__ of the class
+* #8105: autodoc: the signature of class constructor is incorrect if the class
+  is decorated
 
 Testing
 --------
