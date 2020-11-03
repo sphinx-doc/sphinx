@@ -22,9 +22,9 @@ Extensions
 
 To learn how to write your own extension, see :ref:`dev-extensions`.
 
-The `sphinx-contrib <https://bitbucket.org/birkenfeld/sphinx-contrib/>`_
-repository contains many contributed extensions.  Some of them have their own
-releases on PyPI, others you can install from a checkout.
+The `sphinx-contrib <https://github.com/sphinx-contrib>`_ repository contains many
+contributed extensions.  Some of them have their own releases on PyPI, others you
+can install from a checkout.
 
 This is the current list of contributed extensions in that repository:
 
