@@ -41,6 +41,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7613: autodoc: autodoc does not respect __signature__ of the class
+
 Testing
 --------
 
@@ -94,7 +96,6 @@ Bugs fixed
 * #7786: autodoc: can't detect overloaded methods defined in other file
 * #8294: autodoc: single-string __slots__ is not handled correctly
 * #7785: autodoc: autodoc_typehints='none' does not effect to overloaded functions
-* #7613: autodoc: autodoc does not respect __signature__ of the class
 * #8192: napoleon: description is disappeared when it contains inline literals
 * #8142: napoleon: Potential of regex denial of service in google style docs
 * #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
