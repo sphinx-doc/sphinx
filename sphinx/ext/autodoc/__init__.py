@@ -543,9 +543,18 @@ class Documenter:
             yield from docstringlines
 
     def get_sourcename(self) -> str:
+        if (getattr(self.object, '__module__', None) and
+                getattr(self.object, '__qualname__', None)):
+            # Get the correct location of docstring from self.object
+            # to support inherited methods
+            fullname = '%s.%s' % (self.object.__module__, self.object.__qualname__)
+        else:
+            fullname = self.fullname
+
         if self.analyzer:
-            return '%s:docstring of %s' % (self.analyzer.srcname, self.fullname)
-        return 'docstring of %s' % self.fullname
+            return '%s:docstring of %s' % (self.analyzer.srcname, fullname)
+        else:
+            return 'docstring of %s' % fullname
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         """Add content from docstrings, attribute documentation and user."""

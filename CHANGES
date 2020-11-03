@@ -20,6 +20,8 @@ Features added
 Bugs fixed
 ----------
 
+* #4606: autodoc: the location of the warning is incorrect for inherited method
+
 Testing
 --------
 
