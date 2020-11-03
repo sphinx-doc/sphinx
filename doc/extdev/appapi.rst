@@ -186,6 +186,7 @@ type for that event::
       13. apply post-transforms (by priority): docutils.document -> docutils.document
       14. event.doctree-resolved(app, doctree, docname)
           - (for any reference node that fails to resolve) event.missing-reference(env, node, contnode)
+          - (for any reference node that fails to resolve) event.warn-missing-reference(domain, node)
 
    15. Generate output files
    16. event.build-finished(app, exception)
@@ -283,6 +284,14 @@ Here is a more detailed list of these events.
       future reference and should be a child of the returned reference node.
 
    .. versionadded:: 0.5
+
+.. event:: warn-missing-reference (app, domain, node)
+
+   Emitted when a cross-reference to an object cannot be resolved even after
+   :event:`missing-reference`.  If the event handler can emit warnings for
+   the missing reference, it should return ``True``.
+
+   .. versionadded:: 3.4
 
 .. event:: doctree-resolved (app, doctree, docname)
 
