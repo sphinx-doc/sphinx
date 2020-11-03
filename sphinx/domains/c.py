@@ -1533,6 +1533,7 @@ class Symbol:
         self.declaration = declaration
         self.declaration.symbol = self
         self.docname = docname
+        self.line = line
         self._assert_invariants()
         # and symbol addition should be done as well
         self._add_function_params()
