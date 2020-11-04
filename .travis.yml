@@ -1,29 +1,11 @@
 os: linux
 dist: xenial
-language: python
-cache: pip
-
-env:
-  global:
-    - PYTHONFAULTHANDLER=x
-    - SKIP_LATEX_BUILD=1
-    - IS_PYTHON=true
-
-jobs:
-  include:
-    - language: node_js
-      node_js: '10.7'
-      env: IS_PYTHON=false
-      services: xvfb
+language: node_js
+node_js: '10.7'
+services: xvfb
 
 install:
-  - "sudo apt-get install graphviz"
-  - if [ $IS_PYTHON = true ]; then pip install -U tox codecov; fi
-  - if [ $IS_PYTHON = false ]; then npm install; fi
+  - npm install
 
 script:
-  - if [ $IS_PYTHON = true ]; then tox -- -vv; fi
-  - if [ $IS_PYTHON = false ]; then npm test; fi
-
-after_success:
-  - if [[ -e .coverage ]]; then codecov -e $TOXENV; fi
+  - npm test
