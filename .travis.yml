@@ -11,11 +11,6 @@ env:
 
 jobs:
   include:
-    - python: '3.8'
-      env:
-        - TOXENV=du15
-        - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
-
     - language: node_js
       node_js: '10.7'
       env: IS_PYTHON=false
