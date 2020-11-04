@@ -20,6 +20,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7613: autodoc: autodoc does not respect __signature__ of the class
+
 Testing
 --------
 
@@ -40,8 +42,6 @@ Features added
 
 Bugs fixed
 ----------
-
-* #7613: autodoc: autodoc does not respect __signature__ of the class
 
 Testing
 --------
