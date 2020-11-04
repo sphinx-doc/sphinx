@@ -8,8 +8,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [py36, py37]
+        name: [py35, py36, py37]
         include:
+        - name: py35
+          python: 3.5
+          docutils: du12
         - name: py36
           python: 3.6
           docutils: du13

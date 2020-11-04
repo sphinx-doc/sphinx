@@ -1832,19 +1832,26 @@ def test_autodoc_for_egged_code(app):
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: target.singledispatch',
-        '',
-        '',
-        '.. py:function:: func(arg, kwarg=None)',
-        '                 func(arg: int, kwarg=None)',
-        '                 func(arg: str, kwarg=None)',
-        '   :module: target.singledispatch',
-        '',
-        '   A function for general use.',
-        '',
-    ]
+    if sys.version_info < (3, 6):
+        # check the result via "in" because the order of singledispatch signatures is
+        # usually changed (because dict is not OrderedDict yet!)
+        assert '.. py:function:: func(arg, kwarg=None)' in actual
+        assert '                 func(arg: int, kwarg=None)' in actual
+        assert '                 func(arg: str, kwarg=None)' in actual
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:module:: target.singledispatch',
+            '',
+            '',
+            '.. py:function:: func(arg, kwarg=None)',
+            '                 func(arg: int, kwarg=None)',
+            '                 func(arg: str, kwarg=None)',
+            '   :module: target.singledispatch',
+            '',
+            '   A function for general use.',
+            '',
+        ]
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
