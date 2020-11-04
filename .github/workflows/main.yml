@@ -1,9 +1,41 @@
-name: CI on Windows
+name: CI
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  ubuntu:
+    runs-on: ubuntu-16.04
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [py35, py36, py37]
+        include:
+        - name: py35
+          python: 3.5
+          docutils: du12
+        - name: py36
+          python: 3.6
+          docutils: du13
+        - name: py37
+          python: 3.7
+          docutils: du14
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Check Python version
+      run: python --version
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+    - name: Install dependencies
+      run: pip install -U tox
+    - name: Run Tox
+      run: tox -e ${{ matrix.docutils }} -- -vv
+
+  windows:
     runs-on: windows-latest
     strategy:
       matrix:
