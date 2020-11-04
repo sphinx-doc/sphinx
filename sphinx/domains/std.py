@@ -595,8 +595,6 @@ class StandardDomain(Domain):
 
     dangling_warnings = {
         'term': 'term not in glossary: %(target)s',
-        'ref':  'undefined label: %(target)s (if the link has no caption '
-                'the label must precede a section header)',
         'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
         'doc': 'unknown document: %(target)s',
@@ -1075,8 +1073,23 @@ class StandardDomain(Domain):
             return None
 
 
+def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref) -> bool:
+    if domain.name != 'std' or node['reftype'] != 'ref':
+        return None
+    else:
+        target = node['reftarget']
+        if target not in domain.anonlabels:  # type: ignore
+            msg = __('undefined label: %s')
+        else:
+            msg = __('Failed to create a cross reference. A title or caption not found: %s')
+
+        logger.warning(msg % target, location=node, type='ref', subtype=node['reftype'])
+        return True
+
+
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_domain(StandardDomain)
+    app.connect('warn-missing-reference', warn_missing_reference)
 
     return {
         'version': 'builtin',

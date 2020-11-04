@@ -1,9 +1,47 @@
-name: CI on Windows
+name: CI
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  ubuntu:
+    runs-on: ubuntu-16.04
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [py36, py37, py38]
+        include:
+        - name: py36
+          python: 3.6
+          docutils: du13
+        - name: py37
+          python: 3.7
+          docutils: du14
+        - name: py38
+          python: 3.8
+          docutils: du15
+          coverage: "--cov ./ --cov-append --cov-config setup.cfg"
+    env:
+      PYTEST_ADDOPTS: ${{ matrix.coverage }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Check Python version
+      run: python --version
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+    - name: Install dependencies
+      run: pip install -U tox codecov
+    - name: Run Tox
+      run: tox -e ${{ matrix.docutils }} -- -vv
+    - name: codecov
+      uses: codecov/codecov-action@v1
+      if: matrix.coverage
+
+  windows:
     runs-on: windows-latest
     strategy:
       matrix:

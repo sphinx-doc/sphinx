@@ -64,8 +64,14 @@ Deprecated
 Features added
 --------------
 
+* #6914: Add a new event :event:`warn-missing-reference` to custom warning
+  messages when failed to resolve a cross-reference
+* #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
+
 Bugs fixed
 ----------
+
+* #7613: autodoc: autodoc does not respect __signature__ of the class
 
 Testing
 --------

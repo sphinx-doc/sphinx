@@ -1376,7 +1376,12 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # This sequence is copied from inspect._signature_from_callable.
         # ValueError means that no signature could be found, so we keep going.
 
-        # First, let's see if it has an overloaded __call__ defined
+        # First, we check the obj has a __signature__ attribute
+        if (hasattr(self.object, '__signature__') and
+                isinstance(self.object.__signature__, Signature)):
+            return None, None, self.object.__signature__
+
+        # Next, let's see if it has an overloaded __call__ defined
         # in its metaclass
         call = get_user_defined_function_or_method(type(self.object), '__call__')
 
