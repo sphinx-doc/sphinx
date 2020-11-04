@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [py35, py36, py37, py38]
+        name: [py35, py36, py37, py38, py39]
         include:
         - name: py35
           python: 3.5
@@ -22,6 +22,9 @@ jobs:
         - name: py38
           python: 3.8
           docutils: du15
+        - name: py39
+          python: 3.9
+          docutils: du16
           coverage: "--cov ./ --cov-append --cov-config setup.cfg"
     env:
       PYTEST_ADDOPTS: ${{ matrix.coverage }}
