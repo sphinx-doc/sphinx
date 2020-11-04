@@ -42,6 +42,14 @@ def test_classes(app):
         '',
     ]
 
+    actual = do_autodoc(app, 'function', 'target.classes.Qux')
+    assert list(actual) == [
+        '',
+        '.. py:function:: Qux(foo, bar)',
+        '   :module: target.classes',
+        '',
+    ]
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_callable(app):
