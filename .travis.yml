@@ -11,9 +11,6 @@ env:
 
 jobs:
   include:
-    - python: '3.5'
-      env:
-        - TOXENV=du12
     - python: '3.8'
       env:
         - TOXENV=du15
