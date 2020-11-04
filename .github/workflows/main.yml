@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [py35, py36, py37]
+        name: [py35, py36, py37, py38]
         include:
         - name: py35
           python: 3.5
@@ -19,6 +19,12 @@ jobs:
         - name: py37
           python: 3.7
           docutils: du14
+        - name: py38
+          python: 3.8
+          docutils: du15
+          coverage: "--cov ./ --cov-append --cov-config setup.cfg"
+    env:
+      PYTEST_ADDOPTS: ${{ matrix.coverage }}
 
     steps:
     - uses: actions/checkout@v2
@@ -31,9 +37,12 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install graphviz
     - name: Install dependencies
-      run: pip install -U tox
+      run: pip install -U tox codecov
     - name: Run Tox
       run: tox -e ${{ matrix.docutils }} -- -vv
+    - name: codecov
+      uses: codecov/codecov-action@v1
+      if: matrix.coverage
 
   windows:
     runs-on: windows-latest
