@@ -12,13 +12,16 @@ jobs:
         include:
         - name: py35
           python: 3.5
-          docutils: du12
+          env:
+          - TOXENV: du12
         - name: py36
           python: 3.6
-          docutils: du13
+          env:
+          - TOXENV: du13
         - name: py37
           python: 3.7
-          docutils: du14
+          env:
+          - TOXENV: du14
 
     steps:
     - uses: actions/checkout@v2
@@ -33,7 +36,7 @@ jobs:
     - name: Install dependencies
       run: pip install -U tox
     - name: Run Tox
-      run: tox -e ${{ matrix.docutils }} -- -vv
+      run: tox -- -vv
 
   windows:
     runs-on: windows-latest
