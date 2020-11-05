@@ -27,12 +27,6 @@ indent_re = re.compile('^\\s*$')
 emptyline_re = re.compile('^\\s*(#.*)?$')
 
 
-if sys.version_info >= (3, 6):
-    ASSIGN_NODES = (ast.Assign, ast.AnnAssign)
-else:
-    ASSIGN_NODES = (ast.Assign)
-
-
 def filter_whitespace(code: str) -> str:
     return code.replace('\f', ' ')  # replace FF (form feed) with whitespace
 
@@ -408,7 +402,8 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
-        if (isinstance(self.previous, ASSIGN_NODES) and isinstance(node.value, ast.Str)):
+        if (isinstance(self.previous, (ast.Assign, ast.AnnAssign)) and
+                isinstance(node.value, ast.Str)):
             try:
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
