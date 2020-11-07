@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8364: C, properly initialize attributes in empty symbols.
+
 Testing
 --------
 
