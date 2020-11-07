@@ -10,7 +10,6 @@
 import inspect
 import itertools
 import re
-import sys
 import tokenize
 from collections import OrderedDict
 from inspect import Signature
