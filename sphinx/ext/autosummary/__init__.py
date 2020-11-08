@@ -72,6 +72,7 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
@@ -177,8 +178,10 @@ class FakeDirective(DocumenterBridge):
     def __init__(self) -> None:
         settings = Struct(tab_width=8)
         document = Struct(settings=settings)
+        env = BuildEnvironment()
+        env.config = Config()
         state = Struct(document=document)
-        super().__init__({}, None, Options(), 0, state)  # type: ignore
+        super().__init__(env, None, Options(), 0, state)
 
 
 def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
