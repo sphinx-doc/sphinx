@@ -22,7 +22,7 @@ else:
     from typing import _ForwardRef  # type: ignore
 
     class ForwardRef:
-        """A pseudo ForwardRef class for py35 and py36."""
+        """A pseudo ForwardRef class for py36."""
         def __init__(self, arg: Any, is_argument: bool = True) -> None:
             self.arg = arg
 

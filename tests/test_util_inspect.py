@@ -220,10 +220,7 @@ def test_signature_annotations():
 
     # type hints by string
     sig = inspect.signature(Node.children)
-    if (3, 5, 0) <= sys.version_info < (3, 5, 3):
-        assert stringify_signature(sig) == '(self) -> List[Node]'
-    else:
-        assert stringify_signature(sig) == '(self) -> List[typing_test_data.Node]'
+    assert stringify_signature(sig) == '(self) -> List[typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
     assert stringify_signature(sig) == '(self, parent: Optional[Node]) -> None'

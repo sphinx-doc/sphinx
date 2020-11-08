@@ -95,8 +95,7 @@ def test_comment_picker_location():
                                ('Foo', 'attr3'): 'comment for attr3(3)'}
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='tests for py36+ syntax')
-def test_annotated_assignment_py36():
+def test_annotated_assignment():
     source = ('a: str = "Sphinx"  #: comment\n'
               'b: int = 1\n'
               '"""string on next line"""\n'

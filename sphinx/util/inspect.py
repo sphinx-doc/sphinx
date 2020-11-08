@@ -271,7 +271,7 @@ def is_singledispatch_method(obj: Any) -> bool:
     try:
         from functools import singledispatchmethod  # type: ignore
         return isinstance(obj, singledispatchmethod)
-    except ImportError:  # py35-37
+    except ImportError:  # py36-37
         return False
 
 
