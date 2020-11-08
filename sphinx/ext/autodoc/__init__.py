@@ -37,7 +37,7 @@ from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import (
     evaluate_signature, getdoc, object_description, safe_getattr, stringify_signature
 )
-from sphinx.util.typing import stringify as stringify_typehint
+from sphinx.util.typing import restify, stringify as stringify_typehint
 
 if TYPE_CHECKING:
     from sphinx.ext.autodoc.directive import DocumenterBridge
@@ -254,6 +254,32 @@ class Options(dict):
             return self[name.replace('_', '-')]
         except KeyError:
             return None
+
+
+class ObjectMember(tuple):
+    """A member of object.
+
+    This is used for the result of `Documenter.get_object_members()` to
+    represent each member of the object.
+
+    .. Note::
+
+       An instance of this class behaves as a tuple of (name, object)
+       for compatibility to old Sphinx.  The behavior will be dropped
+       in the future.  Therefore extensions should not use the tuple
+       interface.
+    """
+
+    def __new__(cls, name: str, obj: Any, **kwargs: Any) -> Any:
+        return super().__new__(cls, (name, obj))  # type: ignore
+
+    def __init__(self, name: str, obj: Any, skipped: bool = False) -> None:
+        self.__name__ = name
+        self.object = obj
+        self.skipped = skipped
+
+
+ObjectMembers = Union[List[ObjectMember], List[Tuple[str, Any]]]
 
 
 class Documenter:
@@ -537,9 +563,18 @@ class Documenter:
             yield from docstringlines
 
     def get_sourcename(self) -> str:
+        if (getattr(self.object, '__module__', None) and
+                getattr(self.object, '__qualname__', None)):
+            # Get the correct location of docstring from self.object
+            # to support inherited methods
+            fullname = '%s.%s' % (self.object.__module__, self.object.__qualname__)
+        else:
+            fullname = self.fullname
+
         if self.analyzer:
-            return '%s:docstring of %s' % (self.analyzer.srcname, self.fullname)
-        return 'docstring of %s' % self.fullname
+            return '%s:docstring of %s' % (self.analyzer.srcname, fullname)
+        else:
+            return 'docstring of %s' % fullname
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         """Add content from docstrings, attribute documentation and user."""
@@ -574,7 +609,7 @@ class Documenter:
             for line, src in zip(more_content.data, more_content.items):
                 self.add_line(line, src[0], src[1])
 
-    def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
+    def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
         """Return `(members_check_module, members)` where `members` is a
         list of `(membername, member)` pairs of the members of *self.object*.
 
@@ -584,10 +619,10 @@ class Documenter:
         members = get_object_members(self.object, self.objpath, self.get_attr, self.analyzer)
         if not want_all:
             if not self.options.members:
-                return False, []
+                return False, []  # type: ignore
             # specific members given
             selected = []
-            for name in self.options.members:
+            for name in self.options.members:  # type: str
                 if name in members:
                     selected.append((name, members[name].value))
                 else:
@@ -600,7 +635,7 @@ class Documenter:
             return False, [(m.name, m.value) for m in members.values()
                            if m.directly_defined]
 
-    def filter_members(self, members: List[Tuple[str, Any]], want_all: bool
+    def filter_members(self, members: ObjectMembers, want_all: bool
                        ) -> List[Tuple[str, Any, bool]]:
         """Filter the given member list.
 
@@ -639,7 +674,8 @@ class Documenter:
             attr_docs = {}
 
         # process members and determine which to skip
-        for (membername, member) in members:
+        for obj in members:
+            membername, member = obj
             # if isattr is True, the member is documented as an attribute
             if member is INSTANCEATTR:
                 isattr = True
@@ -715,6 +751,10 @@ class Documenter:
                 else:
                     # ignore undocumented members if :undoc-members: is not given
                     keep = has_doc or self.options.undoc_members
+
+            if isinstance(obj, ObjectMember) and obj.skipped:
+                # forcedly skipped member (ex. a module attribute not defined in __all__)
+                keep = False
 
             # give the user a chance to decide whether this member
             # should be skipped
@@ -977,28 +1017,35 @@ class ModuleDocumenter(Documenter):
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
 
-    def get_object_members(self, want_all: bool) -> Tuple[bool, List[Tuple[str, Any]]]:
+    def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
         if want_all:
-            if self.__all__:
-                memberlist = self.__all__
-            else:
+            members = get_module_members(self.object)
+            if not self.__all__:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
-                return True, get_module_members(self.object)
+                return True, members
+            else:
+                ret = []
+                for name, value in members:
+                    if name in self.__all__:
+                        ret.append(ObjectMember(name, value))
+                    else:
+                        ret.append(ObjectMember(name, value, skipped=True))
+
+                return False, ret
         else:
             memberlist = self.options.members or []
-        ret = []
-        for mname in memberlist:
-            try:
-                ret.append((mname, safe_getattr(self.object, mname)))
-            except AttributeError:
-                logger.warning(
-                    __('missing attribute mentioned in :members: or __all__: '
-                       'module %s, attribute %s') %
-                    (safe_getattr(self.object, '__name__', '???'), mname),
-                    type='autodoc'
-                )
-        return False, ret
+            ret = []
+            for name in memberlist:
+                try:
+                    value = safe_getattr(self.object, name)
+                    ret.append(ObjectMember(name, value))
+                except AttributeError:
+                    logger.warning(__('missing attribute mentioned in :members: option: '
+                                      'module %s, attribute %s') %
+                                   (safe_getattr(self.object, '__name__', '???'), name),
+                                   type='autodoc')
+            return False, ret
 
     def sort_members(self, documenters: List[Tuple["Documenter", bool]],
                      order: str) -> List[Tuple["Documenter", bool]]:
@@ -1198,7 +1245,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         try:
             self.env.app.emit('autodoc-before-process-signature', self.object, False)
-            sig = inspect.signature(self.object, follow_wrapped=True,
+            sig = inspect.signature(self.object,
                                     type_aliases=self.env.config.autodoc_type_aliases)
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
@@ -1512,13 +1559,16 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if not self.doc_as_attr and self.options.show_inheritance:
             sourcename = self.get_sourcename()
             self.add_line('', sourcename)
-            if hasattr(self.object, '__bases__') and len(self.object.__bases__):
-                bases = [':class:`%s`' % b.__name__
-                         if b.__module__ in ('__builtin__', 'builtins')
-                         else ':class:`%s.%s`' % (b.__module__, b.__qualname__)
-                         for b in self.object.__bases__]
-                self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
-                              sourcename)
+
+            if hasattr(self.object, '__orig_bases__') and len(self.object.__orig_bases__):
+                # A subclass of generic types
+                # refs: PEP-560 <https://www.python.org/dev/peps/pep-0560/>
+                bases = [restify(cls) for cls in self.object.__orig_bases__]
+                self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
+            elif hasattr(self.object, '__bases__') and len(self.object.__bases__):
+                # A normal class
+                bases = [restify(cls) for cls in self.object.__bases__]
+                self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
 
     def get_doc(self, ignore: int = None) -> List[List[str]]:
         lines = getattr(self, '_new_docstrings', None)
@@ -1831,7 +1881,6 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 else:
                     self.env.app.emit('autodoc-before-process-signature', self.object, True)
                     sig = inspect.signature(self.object, bound_method=True,
-                                            follow_wrapped=True,
                                             type_aliases=self.env.config.autodoc_type_aliases)
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:

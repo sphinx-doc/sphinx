@@ -29,3 +29,25 @@ class Bar:
     @deco1
     def meth(self, name=None, age=None):
         pass
+
+
+class Baz:
+    @deco1
+    def __init__(self, name=None, age=None):
+        pass
+
+
+class Qux:
+    @deco1
+    def __new__(self, name=None, age=None):
+        pass
+
+
+class _Metaclass(type):
+    @deco1
+    def __call__(self, name=None, age=None):
+        pass
+
+
+class Quux(metaclass=_Metaclass):
+    pass
