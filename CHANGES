@@ -18,6 +18,9 @@ Deprecated
 Features added
 --------------
 
+* #8119: autodoc: Allow to determine whether a member not included in
+  ``__all__`` attribute of the module should be documented or not via
+  :event:`autodoc-skip-member` event
 * #6914: Add a new event :event:`warn-missing-reference` to custom warning
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
