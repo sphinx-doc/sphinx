@@ -48,3 +48,28 @@ def test_classes(app):
         '',
     ]
 
+
+def test_decorators(app):
+    actual = do_autodoc(app, 'class', 'target.decorator.Baz')
+    assert list(actual) == [
+        '',
+        '.. py:class:: Baz(name=None, age=None)',
+        '   :module: target.decorator',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'class', 'target.decorator.Qux')
+    assert list(actual) == [
+        '',
+        '.. py:class:: Qux(name=None, age=None)',
+        '   :module: target.decorator',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'class', 'target.decorator.Quux')
+    assert list(actual) == [
+        '',
+        '.. py:class:: Quux(name=None, age=None)',
+        '   :module: target.decorator',
+        '',
+    ]
