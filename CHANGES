@@ -22,6 +22,8 @@ Features added
   ``__all__`` attribute of the module should be documented or not via
   :event:`autodoc-skip-member` event
 * autodoc: Add ``Documenter.config`` as a shortcut to access the config object
+* autodoc: Add Optional[t] to annotation of function and method if a default
+  value equal to None is set.
 * #6914: Add a new event :event:`warn-missing-reference` to custom warning
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference

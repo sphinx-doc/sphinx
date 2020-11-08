@@ -470,10 +470,10 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
             raise
 
     try:
-        # Update unresolved annotations using ``get_type_hints()``.
+        # Resolve forwared reference annotations using ``get_type_hints()`` and type_aliases.
         annotations = typing.get_type_hints(subject, None, type_aliases)
         for i, param in enumerate(parameters):
-            if isinstance(param.annotation, str) and param.name in annotations:
+            if param.name in annotations:
                 parameters[i] = param.replace(annotation=annotations[param.name])
         if 'return' in annotations:
             return_annotation = annotations['return']

@@ -490,7 +490,7 @@ def test_autodoc_typehints_signature(app):
         '.. py:module:: target.typehints',
         '',
         '',
-        '.. py:class:: Math(s: str, o: Any = None)',
+        '.. py:class:: Math(s: str, o: Optional[Any] = None)',
         '   :module: target.typehints',
         '',
         '',
