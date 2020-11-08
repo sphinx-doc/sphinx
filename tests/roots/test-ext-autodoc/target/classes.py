@@ -1,4 +1,5 @@
 from inspect import Parameter, Signature
+from typing import List, Union
 
 
 class Foo:
@@ -21,3 +22,8 @@ class Qux:
 
     def __init__(self, x, y):
         pass
+
+
+class Quux(List[Union[int, float]]):
+    """A subclass of List[Union[int, float]]"""
+    pass

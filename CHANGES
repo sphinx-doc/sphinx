@@ -54,6 +54,9 @@ Features added
 Bugs fixed
 ----------
 
+* #8219: autodoc: Parameters for generic class are not shown when super class is
+  a generic class and show-inheritance option is given (in Python 3.7 or above)
+
 Testing
 --------
 

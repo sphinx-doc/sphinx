@@ -312,6 +312,9 @@ def isgenericalias(obj: Any) -> bool:
     elif (hasattr(types, 'GenericAlias') and  # only for py39+
           isinstance(obj, types.GenericAlias)):  # type: ignore
         return True
+    elif (hasattr(typing, '_SpecialGenericAlias') and  # for py39+
+            isinstance(obj, typing._SpecialGenericAlias)):  # type: ignore
+        return True
     else:
         return False
 

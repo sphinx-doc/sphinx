@@ -16,7 +16,7 @@ from typing import (
 
 import pytest
 
-from sphinx.util.typing import stringify
+from sphinx.util.typing import restify, stringify
 
 
 class MyClass1:
@@ -34,6 +34,80 @@ class MyList(List[T]):
 
 class BrokenType:
     __args__ = int
+
+
+def test_restify():
+    assert restify(int) == ":class:`int`"
+    assert restify(str) == ":class:`str`"
+    assert restify(None) == ":obj:`None`"
+    assert restify(Integral) == ":class:`numbers.Integral`"
+    assert restify(Any) == ":obj:`Any`"
+
+
+def test_restify_type_hints_containers():
+    assert restify(List) == ":class:`List`"
+    assert restify(Dict) == ":class:`Dict`"
+    assert restify(List[int]) == ":class:`List`\\ [:class:`int`]"
+    assert restify(List[str]) == ":class:`List`\\ [:class:`str`]"
+    assert restify(Dict[str, float]) == ":class:`Dict`\\ [:class:`str`, :class:`float`]"
+    assert restify(Tuple[str, str, str]) == ":class:`Tuple`\\ [:class:`str`, :class:`str`, :class:`str`]"
+    assert restify(Tuple[str, ...]) == ":class:`Tuple`\\ [:class:`str`, ...]"
+    assert restify(List[Dict[str, Tuple]]) == ":class:`List`\\ [:class:`Dict`\\ [:class:`str`, :class:`Tuple`]]"
+    assert restify(MyList[Tuple[int, int]]) == ":class:`test_util_typing.MyList`\\ [:class:`Tuple`\\ [:class:`int`, :class:`int`]]"
+    assert restify(Generator[None, None, None]) == ":class:`Generator`\\ [:obj:`None`, :obj:`None`, :obj:`None`]"
+
+
+def test_restify_type_hints_Callable():
+    assert restify(Callable) == ":class:`Callable`"
+
+    if sys.version_info >= (3, 7):
+        assert restify(Callable[[str], int]) == ":class:`Callable`\\ [[:class:`str`], :class:`int`]"
+        assert restify(Callable[..., int]) == ":class:`Callable`\\ [[...], :class:`int`]"
+    else:
+        assert restify(Callable[[str], int]) == ":class:`Callable`\\ [:class:`str`, :class:`int`]"
+        assert restify(Callable[..., int]) == ":class:`Callable`\\ [..., :class:`int`]"
+
+
+def test_restify_type_hints_Union():
+    assert restify(Optional[int]) == ":obj:`Optional`\\ [:class:`int`]"
+    assert restify(Union[str, None]) == ":obj:`Optional`\\ [:class:`str`]"
+    assert restify(Union[int, str]) == ":obj:`Union`\\ [:class:`int`, :class:`str`]"
+
+    if sys.version_info >= (3, 7):
+        assert restify(Union[int, Integral]) == ":obj:`Union`\\ [:class:`int`, :class:`numbers.Integral`]"
+        assert (restify(Union[MyClass1, MyClass2]) ==
+                ":obj:`Union`\\ [:class:`test_util_typing.MyClass1`, :class:`test_util_typing.<MyClass2>`]")
+    else:
+        assert restify(Union[int, Integral]) == ":class:`numbers.Integral`"
+        assert restify(Union[MyClass1, MyClass2]) == ":class:`test_util_typing.MyClass1`"
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
+def test_restify_type_hints_typevars():
+    T = TypeVar('T')
+    T_co = TypeVar('T_co', covariant=True)
+    T_contra = TypeVar('T_contra', contravariant=True)
+
+    assert restify(T) == ":obj:`test_util_typing.T`"
+    assert restify(T_co) == ":obj:`test_util_typing.T_co`"
+    assert restify(T_contra) == ":obj:`test_util_typing.T_contra`"
+    assert restify(List[T]) == ":class:`List`\\ [:obj:`test_util_typing.T`]"
+
+
+def test_restify_type_hints_custom_class():
+    assert restify(MyClass1) == ":class:`test_util_typing.MyClass1`"
+    assert restify(MyClass2) == ":class:`test_util_typing.<MyClass2>`"
+
+
+def test_restify_type_hints_alias():
+    MyStr = str
+    MyTuple = Tuple[str, str]
+    assert restify(MyStr) == ":class:`str`"
+    assert restify(MyTuple) == ":class:`Tuple`\\ [:class:`str`, :class:`str`]"  # type: ignore
+
+
+def test_restify_broken_type_hints():
+    assert restify(BrokenType) == ':class:`test_util_typing.BrokenType`'
 
 
 def test_stringify():
