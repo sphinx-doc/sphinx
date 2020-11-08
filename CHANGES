@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #7727: autosummary: raise PycodeError when documenting python package
+  without __init__.py
 * #8364: C, properly initialize attributes in empty symbols.
 
 Testing
