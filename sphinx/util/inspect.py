@@ -62,14 +62,6 @@ def getargspec(func: Callable) -> Any:
     methods."""
     warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
                   RemovedInSphinx50Warning, stacklevel=2)
-    # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
-    # succeeds with a bogus signature. We want a TypeError uniformly, to
-    # match historical behavior.
-    if (isinstance(func, type) and
-            is_builtin_class_method(func, "__new__") and
-            is_builtin_class_method(func, "__init__")):
-        raise TypeError(
-            "can't compute signature for built-in type {}".format(func))
 
     sig = inspect.signature(func)
 
