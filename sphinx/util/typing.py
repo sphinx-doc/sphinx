@@ -151,7 +151,7 @@ def _restify_py36(cls: Optional["Type"]) -> str:
         qualname = repr(cls)
 
     if (isinstance(cls, typing.TupleMeta) and  # type: ignore
-            not hasattr(cls, '__tuple_params__')):  # for Python 3.6
+            not hasattr(cls, '__tuple_params__')):
         params = cls.__args__
         if params:
             param_str = ', '.join(restify(p) for p in params)
@@ -159,40 +159,22 @@ def _restify_py36(cls: Optional["Type"]) -> str:
         else:
             return ':class:`%s`' % qualname
     elif isinstance(cls, typing.GenericMeta):
-        params = None
-        if hasattr(cls, '__args__'):
-            # for Python 3.5.2+
-            if cls.__args__ is None or len(cls.__args__) <= 2:  # type: ignore  # NOQA
-                params = cls.__args__  # type: ignore
-            elif cls.__origin__ == Generator:  # type: ignore
-                params = cls.__args__  # type: ignore
-            else:  # typing.Callable
-                args = ', '.join(restify(arg) for arg in cls.__args__[:-1])  # type: ignore
-                result = restify(cls.__args__[-1])  # type: ignore
-                return ':class:`%s`\\ [[%s], %s]' % (qualname, args, result)
-        elif hasattr(cls, '__parameters__'):
-            # for Python 3.5.0 and 3.5.1
-            params = cls.__parameters__  # type: ignore
+        if cls.__args__ is None or len(cls.__args__) <= 2:  # type: ignore  # NOQA
+            params = cls.__args__  # type: ignore
+        elif cls.__origin__ == Generator:  # type: ignore
+            params = cls.__args__  # type: ignore
+        else:  # typing.Callable
+            args = ', '.join(restify(arg) for arg in cls.__args__[:-1])  # type: ignore
+            result = restify(cls.__args__[-1])  # type: ignore
+            return ':class:`%s`\\ [[%s], %s]' % (qualname, args, result)
 
         if params:
             param_str = ', '.join(restify(p) for p in params)
             return ':class:`%s`\\ [%s]' % (qualname, param_str)
         else:
             return ':class:`%s`' % qualname
-    elif (hasattr(typing, 'UnionMeta') and
-            isinstance(cls, typing.UnionMeta) and  # type: ignore
-            hasattr(cls, '__union_params__')):  # for Python 3.5
-        params = cls.__union_params__
-        if params is not None:
-            if len(params) == 2 and params[1] is NoneType:
-                return ':obj:`Optional`\\ [%s]' % restify(params[0])
-            else:
-                param_str = ', '.join(restify(p) for p in params)
-                return ':obj:`%s`\\ [%s]' % (qualname, param_str)
-        else:
-            return ':obj:`%s`' % qualname
     elif (hasattr(cls, '__origin__') and
-          cls.__origin__ is typing.Union):  # for Python 3.5.2+
+          cls.__origin__ is typing.Union):
         params = cls.__args__
         if params is not None:
             if len(params) > 1 and params[-1] is NoneType:
@@ -206,31 +188,6 @@ def _restify_py36(cls: Optional["Type"]) -> str:
                 return ':obj:`Union`\\ [%s]' % param_str
         else:
             return ':obj:`Union`'
-    elif (isinstance(cls, typing.CallableMeta) and  # type: ignore
-          getattr(cls, '__args__', None) is not None and
-          hasattr(cls, '__result__')):  # for Python 3.5
-        # Skipped in the case of plain typing.Callable
-        args = cls.__args__
-        if args is None:
-            return qualname
-        elif args is Ellipsis:
-            args_str = '...'
-        else:
-            formatted_args = (restify(a) for a in args)  # type: ignore
-            args_str = '[%s]' % ', '.join(formatted_args)
-
-        return ':class:`%s`\\ [%s, %s]' % (qualname, args_str, stringify(cls.__result__))
-    elif (isinstance(cls, typing.TupleMeta) and  # type: ignore
-          hasattr(cls, '__tuple_params__') and
-          hasattr(cls, '__tuple_use_ellipsis__')):  # for Python 3.5
-        params = cls.__tuple_params__
-        if params is not None:
-            param_strings = [restify(p) for p in params]
-            if cls.__tuple_use_ellipsis__:
-                param_strings.append('...')
-            return ':class:`%s`\\ [%s]' % (qualname, ', '.join(param_strings))
-        else:
-            return ':class:`%s`' % qualname
     elif hasattr(cls, '__qualname__'):
         if cls.__module__ == 'typing':
             return ':class:`%s`' % cls.__qualname__
