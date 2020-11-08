@@ -7,8 +7,13 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #8105: autodoc: the signature of class constructor will be shown for decorated
+  classes, not a signature of decorator
+
 Deprecated
 ----------
+
+* The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
 
 Features added
 --------------
@@ -16,9 +21,17 @@ Features added
 * #8119: autodoc: Allow to determine whether a member not included in
   ``__all__`` attribute of the module should be documented or not via
   :event:`autodoc-skip-member` event
+* #6914: Add a new event :event:`warn-missing-reference` to custom warning
+  messages when failed to resolve a cross-reference
+* #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
 
 Bugs fixed
 ----------
+
+* #7613: autodoc: autodoc does not respect __signature__ of the class
+* #4606: autodoc: the location of the warning is incorrect for inherited method
+* #8105: autodoc: the signature of class constructor is incorrect if the class
+  is decorated
 
 Testing
 --------

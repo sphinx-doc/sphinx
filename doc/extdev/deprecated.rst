@@ -26,6 +26,12 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+
+   * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+     - 3.4
+     - 5.0
+     - N/A
+
    * - ``sphinx.builders.latex.LaTeXBuilder.usepackages``
      - 3.3
      - 5.0

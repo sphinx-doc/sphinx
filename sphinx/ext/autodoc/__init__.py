@@ -569,9 +569,18 @@ class Documenter:
             yield from docstringlines
 
     def get_sourcename(self) -> str:
+        if (getattr(self.object, '__module__', None) and
+                getattr(self.object, '__qualname__', None)):
+            # Get the correct location of docstring from self.object
+            # to support inherited methods
+            fullname = '%s.%s' % (self.object.__module__, self.object.__qualname__)
+        else:
+            fullname = self.fullname
+
         if self.analyzer:
-            return '%s:docstring of %s' % (self.analyzer.srcname, self.fullname)
-        return 'docstring of %s' % self.fullname
+            return '%s:docstring of %s' % (self.analyzer.srcname, fullname)
+        else:
+            return 'docstring of %s' % fullname
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         """Add content from docstrings, attribute documentation and user."""
@@ -1251,7 +1260,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         try:
             self.env.app.emit('autodoc-before-process-signature', self.object, False)
-            sig = inspect.signature(self.object, follow_wrapped=True,
+            sig = inspect.signature(self.object,
                                     type_aliases=self.env.config.autodoc_type_aliases)
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
@@ -1429,7 +1438,12 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # This sequence is copied from inspect._signature_from_callable.
         # ValueError means that no signature could be found, so we keep going.
 
-        # First, let's see if it has an overloaded __call__ defined
+        # First, we check the obj has a __signature__ attribute
+        if (hasattr(self.object, '__signature__') and
+                isinstance(self.object.__signature__, Signature)):
+            return None, None, self.object.__signature__
+
+        # Next, let's see if it has an overloaded __call__ defined
         # in its metaclass
         call = get_user_defined_function_or_method(type(self.object), '__call__')
 
@@ -1886,7 +1900,6 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 else:
                     self.env.app.emit('autodoc-before-process-signature', self.object, True)
                     sig = inspect.signature(self.object, bound_method=True,
-                                            follow_wrapped=True,
                                             type_aliases=self.env.config.autodoc_type_aliases)
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:

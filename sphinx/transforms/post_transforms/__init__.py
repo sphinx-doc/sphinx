@@ -166,7 +166,10 @@ class ReferencesResolver(SphinxPostTransform):
                     warn = False
         if not warn:
             return
-        if domain and typ in domain.dangling_warnings:
+
+        if self.app.emit_firstresult('warn-missing-reference', domain, node):
+            return
+        elif domain and typ in domain.dangling_warnings:
             msg = domain.dangling_warnings[typ]
         elif node.get('refdomain', 'std') not in ('', 'std'):
             msg = (__('%s:%s reference target not found: %%(target)s') %

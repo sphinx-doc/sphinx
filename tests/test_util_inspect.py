@@ -100,7 +100,7 @@ def test_signature_methods():
 
     # wrapped bound method
     sig = inspect.signature(wrapped_bound_method)
-    assert stringify_signature(sig) == '(*args, **kwargs)'
+    assert stringify_signature(sig) == '(arg1, **kwargs)'
 
 
 def test_signature_partialmethod():

@@ -62,14 +62,6 @@ def getargspec(func: Callable) -> Any:
     methods."""
     warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
                   RemovedInSphinx50Warning, stacklevel=2)
-    # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
-    # succeeds with a bogus signature. We want a TypeError uniformly, to
-    # match historical behavior.
-    if (isinstance(func, type) and
-            is_builtin_class_method(func, "__new__") and
-            is_builtin_class_method(func, "__init__")):
-        raise TypeError(
-            "can't compute signature for built-in type {}".format(func))
 
     sig = inspect.signature(func)
 
@@ -439,14 +431,20 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False,
+def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = None,
               type_aliases: Dict = {}) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
     :param follow_wrapped: Same as ``inspect.signature()``.
-                           Defaults to ``False`` (get a signature of *subject*).
     """
+
+    if follow_wrapped is None:
+        follow_wrapped = True
+    else:
+        warnings.warn('The follow_wrapped argument of sphinx.util.inspect.signature() is '
+                      'deprecated', RemovedInSphinx50Warning, stacklevel=2)
+
     try:
         try:
             if _should_unwrap(subject):
