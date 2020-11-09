@@ -21,6 +21,7 @@ Features added
 * #8119: autodoc: Allow to determine whether a member not included in
   ``__all__`` attribute of the module should be documented or not via
   :event:`autodoc-skip-member` event
+* autodoc: Add ``Documenter.config`` as a shortcut to access the config object
 * #6914: Add a new event :event:`warn-missing-reference` to custom warning
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
