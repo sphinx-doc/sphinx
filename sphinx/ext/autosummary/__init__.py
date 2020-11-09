@@ -691,7 +691,7 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, A
         analyzer = ModuleAnalyzer.for_module(modname)
         if (qualname, attr) in analyzer.find_attr_docs():
             return real_name + "." + attr, INSTANCEATTR, obj, modname
-    except (ImportError, ValueError):
+    except (ImportError, ValueError, PycodeError):
         pass
 
     raise ImportError
