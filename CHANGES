@@ -16,6 +16,7 @@ Features added
 Bugs fixed
 ----------
 
+* #8372: autodoc: autoclass directive became slower than Sphinx-3.2
 * #7727: autosummary: raise PycodeError when documenting python package
   without __init__.py
 * #8364: C, properly initialize attributes in empty symbols.
