@@ -470,7 +470,7 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
             raise
 
     try:
-        # Resolve forwared reference annotations using ``get_type_hints()`` and type_aliases.
+        # Resolve annotations using ``get_type_hints()`` and type_aliases.
         annotations = typing.get_type_hints(subject, None, type_aliases)
         for i, param in enumerate(parameters):
             if param.name in annotations:
