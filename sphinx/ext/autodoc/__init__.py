@@ -1554,6 +1554,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                     qualname = '.'.join([cls.__qualname__, self._signature_method_name])
                     if qualname in analyzer.overloads:
                         return analyzer.overloads.get(qualname)
+                    elif qualname in analyzer.tagorder:
+                        # the constructor is defined in the class, but not overrided.
+                        return []
                 except PycodeError:
                     pass
 
