@@ -8,13 +8,13 @@
     :license: BSD, see LICENSE for details.
 """
 
+import http.server
 import os
 import unittest
 from io import BytesIO
 from unittest import mock
 
 import pytest
-import requests
 from docutils import nodes
 from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
@@ -24,6 +24,8 @@ from sphinx.ext.intersphinx import (
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME, inspect_main
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+
+from utils import http_server
 
 
 def fake_node(domain, type, target, content, **attrs):
@@ -433,24 +435,22 @@ def test_inspect_main_file(capsys, tempdir):
     assert stderr == ""
 
 
-@mock.patch('requests.get')
-def test_inspect_main_url(fake_get, capsys):
+def test_inspect_main_url(capsys):
     """inspect_main interface, with url argument"""
-    raw = BytesIO(inventory_v2)
-    real_read = raw.read
+    class InventoryHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(inventory_v2)
 
-    def fake_read(*args, **kwargs):
-        return real_read()
+        def log_message(*args, **kwargs):
+            # Silenced.
+            pass
 
-    raw.read = fake_read
-    url = 'http://hostname/' + INVENTORY_FILENAME
-    resp = requests.Response()
-    resp.status_code = 200
-    resp.url = url
-    resp.raw = raw
-    fake_get.return_value = resp
+    url = 'http://localhost:7777/' + INVENTORY_FILENAME
 
-    inspect_main([url])
+    with http_server(InventoryHandler):
+        inspect_main([url])
 
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")

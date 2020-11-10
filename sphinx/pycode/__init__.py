@@ -139,9 +139,13 @@ class ModuleAnalyzer:
         self.overloads = None    # type: Dict[str, List[Signature]]
         self.tagorder = None     # type: Dict[str, int]
         self.tags = None         # type: Dict[str, Tuple[str, int, int]]
+        self._parsed = False
 
     def parse(self) -> None:
         """Parse the source code."""
+        if self._parsed:
+            return None
+
         try:
             parser = Parser(self.code)
             parser.parse()
@@ -158,19 +162,16 @@ class ModuleAnalyzer:
             self.overloads = parser.overloads
             self.tags = parser.definitions
             self.tagorder = parser.deforders
+            self._parsed = True
         except Exception as exc:
             raise PycodeError('parsing %r failed: %r' % (self.srcname, exc)) from exc
 
     def find_attr_docs(self) -> Dict[Tuple[str, str], List[str]]:
         """Find class and module-level attributes and their documentation."""
-        if self.attr_docs is None:
-            self.parse()
-
+        self.parse()
         return self.attr_docs
 
     def find_tags(self) -> Dict[str, Tuple[str, int, int]]:
         """Find class, function and method definitions and their location."""
-        if self.tags is None:
-            self.parse()
-
+        self.parse()
         return self.tags

@@ -4,11 +4,12 @@ on: [push, pull_request]
 
 jobs:
   ubuntu:
-    runs-on: ubuntu-16.04
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         name: [py36, py37, py38, py39]
+        os: [ubuntu-16.04]
         include:
         - name: py36
           python: 3.6
@@ -23,6 +24,10 @@ jobs:
           python: 3.9
           docutils: du16
           coverage: "--cov ./ --cov-append --cov-config setup.cfg"
+        - name: py310-dev
+          python: 3.10-dev
+          docutils: du16
+          os: ubuntu-latest  # required
     env:
       PYTEST_ADDOPTS: ${{ matrix.coverage }}
 
@@ -30,6 +35,12 @@ jobs:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python }}
       uses: actions/setup-python@v2
+      if: "!endsWith(matrix.python, '-dev')"
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Set up Python ${{ matrix.python }} (deadsnakes)
+      uses: deadsnakes/action@v1.0.0
+      if: endsWith(matrix.python, '-dev')
       with:
         python-version: ${{ matrix.python }}
     - name: Check Python version

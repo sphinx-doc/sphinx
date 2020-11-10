@@ -162,7 +162,7 @@ def test_signature_annotations():
 
     # Space around '=' for defaults
     sig = inspect.signature(f7)
-    assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
+    assert stringify_signature(sig) == '(x: Optional[int] = None, y: dict = {}) -> None'
 
     # Callable types
     sig = inspect.signature(f8)
@@ -177,7 +177,10 @@ def test_signature_annotations():
 
     # Instance annotations
     sig = inspect.signature(f11)
-    assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
+    if sys.version_info < (3, 10):
+        assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
+    else:
+        assert stringify_signature(sig) == '(x: CustomAnnotation(), y: 123) -> None'
 
     # tuple with more than two items
     sig = inspect.signature(f12)
@@ -223,7 +226,7 @@ def test_signature_annotations():
     assert stringify_signature(sig) == '(self) -> List[typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
-    assert stringify_signature(sig) == '(self, parent: Optional[Node]) -> None'
+    assert stringify_signature(sig) == '(self, parent: Optional[typing_test_data.Node]) -> None'
 
     # show_annotation is False
     sig = inspect.signature(f7)
@@ -231,7 +234,7 @@ def test_signature_annotations():
 
     # show_return_annotation is False
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
+    assert stringify_signature(sig, show_return_annotation=False) == '(x: Optional[int] = None, y: dict = {})'
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
