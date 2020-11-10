@@ -28,7 +28,6 @@ from sphinx.locale import __
 from sphinx.util import encode_uri, logging, requests
 from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise  # type: ignore
 from sphinx.util.nodes import get_node_line
-from sphinx.util.requests import is_ssl_error
 
 logger = logging.getLogger(__name__)
 
@@ -189,10 +188,7 @@ class CheckExternalLinksBuilder(Builder):
                 else:
                     return 'broken', str(err), 0
             except Exception as err:
-                if is_ssl_error(err):
-                    return 'ignored', str(err), 0
-                else:
-                    return 'broken', str(err), 0
+                return 'broken', str(err), 0
             if response.url.rstrip('/') == req_url.rstrip('/'):
                 return 'working', '', 0
             else:

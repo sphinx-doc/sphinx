@@ -13,6 +13,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* The ``is_ssl_error()`` function of ``sphinx.util.requests``
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
 
 Features added

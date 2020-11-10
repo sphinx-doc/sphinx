@@ -18,6 +18,7 @@ import requests
 
 import sphinx
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx50Warning
 
 try:
     from requests.packages.urllib3.exceptions import SSLError
@@ -43,6 +44,10 @@ useragent_header = [('User-Agent',
 
 def is_ssl_error(exc: Exception) -> bool:
     """Check an exception is SSLError."""
+    warnings.warn(
+        "is_ssl_error() is outdated and likely returns incorrect results "
+        "for modern versions of Requests.",
+        RemovedInSphinx50Warning)
     if isinstance(exc, SSLError):
         return True
     else:
