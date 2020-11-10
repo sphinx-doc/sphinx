@@ -24,6 +24,8 @@ Features added
 * #8219: autodoc: Parameters for generic class are not shown when super class is
   a generic class and show-inheritance option is given (in Python 3.7 or above)
 * autodoc: Add ``Documenter.config`` as a shortcut to access the config object
+* autodoc: Add Optional[t] to annotation of function and method if a default
+  value equal to None is set.
 * #6914: Add a new event :event:`warn-missing-reference` to custom warning
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
