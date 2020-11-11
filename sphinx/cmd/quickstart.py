@@ -34,7 +34,7 @@ from docutils.utils import column_width
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.locale import __
-from sphinx.util.console import colorize, bold, red, nocolor, color_terminal  # type: ignore
+from sphinx.util.console import bold, color_terminal, colorize, nocolor, red  # type: ignore
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 

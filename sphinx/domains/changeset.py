@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, NamedTuple
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Dict, List, NamedTuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -18,7 +17,6 @@ from sphinx import addnodes
 from sphinx.domains import Domain
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
-
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx

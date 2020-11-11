@@ -11,9 +11,7 @@
 from docutils.statemachine import StringList
 from jinja2 import Environment
 
-from sphinx.util.rst import (
-    append_epilog, escape, heading, prepend_prolog, textwidth
-)
+from sphinx.util.rst import append_epilog, escape, heading, prepend_prolog, textwidth
 
 
 def test_escape():

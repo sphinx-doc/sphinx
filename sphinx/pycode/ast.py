@@ -9,8 +9,7 @@
 """
 
 import sys
-from typing import Dict, List, Type, Optional
-from typing import overload
+from typing import Dict, List, Optional, Type, overload
 
 if sys.version_info > (3, 8):
     import ast

@@ -11,8 +11,8 @@
 import os
 
 import alabaster
-
 import pytest
+
 from sphinx.theming import ThemeError
 
 

@@ -17,18 +17,18 @@ from docutils.frontend import OptionParser
 from docutils.nodes import Node
 
 import sphinx.builders.latex.nodes  # NOQA  # Workaround: import this before writer to avoid ImportError
-from sphinx import package_dir, addnodes, highlighting
+from sphinx import addnodes, highlighting, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, SHORTHANDOFF
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
-from sphinx.config import Config, ENUM
+from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
-from sphinx.util import texescape, logging, progress_message, status_iterator
+from sphinx.util import logging, progress_message, status_iterator, texescape
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -36,11 +36,10 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename_from_project
 from sphinx.util.template import LaTeXRenderer
-from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 # load docutils.nodes after loading sphinx.builders.latex.nodes
-from docutils import nodes  # NOQA
-
+from docutils import nodes  # isort:skip
 
 XINDY_LANG_OPTIONS = {
     # language codes from docutils.writers.latex2e.Babel

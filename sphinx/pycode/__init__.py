@@ -15,7 +15,7 @@ from importlib import import_module
 from inspect import Signature
 from io import StringIO
 from os import path
-from typing import Any, Dict, IO, List, Tuple, Optional
+from typing import IO, Any, Dict, List, Optional, Tuple
 from zipfile import ZipFile
 
 from sphinx.errors import PycodeError

@@ -22,27 +22,25 @@ from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Type
-from typing import TYPE_CHECKING
-from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
+from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Pattern,
+                    Set, Tuple, Type)
+from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
+
 
 from sphinx.deprecation import RemovedInSphinx50Warning
-from sphinx.errors import SphinxParallelError, ExtensionError, FiletypeNotFoundError
+from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
-from sphinx.util.typing import PathMatcher
 from sphinx.util import smartypants  # noqa
-
+from sphinx.util import logging
+from sphinx.util.console import bold, colorize, strip_colors, term_width_line  # type: ignore
+from sphinx.util.matching import patfilter  # noqa
+from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
+                               nested_parse_with_titles, split_explicit_title)
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (  # noqa
-    SEP, os_path, relative_uri, ensuredir, mtimes_of_files, movefile,
-    copyfile, copytimes, make_filename)
-from sphinx.util.nodes import (   # noqa
-    nested_parse_with_titles, split_explicit_title, explicit_title_re,
-    caption_ref_re)
-from sphinx.util.matching import patfilter  # noqa
+from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
+                                movefile, mtimes_of_files, os_path, relative_uri)
+from sphinx.util.typing import PathMatcher
 
 
 if TYPE_CHECKING:
@@ -218,10 +216,12 @@ _DEBUG_HEADER = '''\
 
 def save_traceback(app: "Sphinx") -> str:
     """Save the current exception's traceback in a temporary file."""
-    import sphinx
-    import jinja2
-    import docutils
     import platform
+
+    import docutils
+    import jinja2
+
+    import sphinx
     exc = sys.exc_info()[1]
     if isinstance(exc, SphinxParallelError):
         exc_format = '(Error in parallel process)\n' + exc.traceback

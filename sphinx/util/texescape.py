@@ -11,7 +11,6 @@
 import re
 from typing import Dict
 
-
 tex_replacements = [
     # map TeX special chars
     ('$', r'\$'),

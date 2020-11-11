@@ -19,8 +19,7 @@ from docutils.statemachine import StringList
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import parselinenos
+from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:

@@ -14,13 +14,13 @@
 import os
 import sys
 from distutils.cmd import Command
-from distutils.errors import DistutilsOptionError, DistutilsExecError
+from distutils.errors import DistutilsExecError, DistutilsOptionError
 from io import StringIO
 from typing import TYPE_CHECKING
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
-from sphinx.util.console import nocolor, color_terminal
+from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 

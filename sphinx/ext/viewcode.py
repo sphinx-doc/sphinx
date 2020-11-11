@@ -23,7 +23,6 @@ from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
 
-
 logger = logging.getLogger(__name__)
 
 

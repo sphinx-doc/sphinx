@@ -11,8 +11,7 @@
 from datetime import datetime, timedelta
 from itertools import islice
 from operator import itemgetter
-from typing import Any, Dict, List
-from typing import cast
+from typing import Any, Dict, List, cast
 
 from docutils import nodes
 

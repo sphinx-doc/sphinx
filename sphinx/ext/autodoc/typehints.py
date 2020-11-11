@@ -10,8 +10,7 @@
 
 import re
 from collections import OrderedDict
-from typing import Any, Dict, Iterable
-from typing import cast
+from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element

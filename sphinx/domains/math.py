@@ -12,8 +12,7 @@ from typing import Any, Dict, Iterable, List, Tuple
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Element, Node, system_message
-from docutils.nodes import make_id
+from docutils.nodes import Element, Node, make_id, system_message
 
 from sphinx.addnodes import pending_xref
 from sphinx.domains import Domain

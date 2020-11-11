@@ -9,7 +9,6 @@
 """
 
 import pytest
-
 from test_ext_autodoc import do_autodoc
 
 

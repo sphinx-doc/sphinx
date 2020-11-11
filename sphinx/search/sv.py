@@ -14,7 +14,6 @@ import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-
 swedish_stopwords = parse_stop_word('''
 | source: http://snowball.tartarus.org/algorithms/swedish/stop.txt
 och            | and

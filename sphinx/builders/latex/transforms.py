@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Set, Tuple
-from typing import cast
+from typing import Any, Dict, List, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -17,9 +16,8 @@ from docutils.transforms.references import Substitutions
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.builders.latex.nodes import (
-    captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
-)
+from sphinx.builders.latex.nodes import (captioned_literal_block, footnotemark, footnotetext,
+                                         math_reference, thebibliography)
 from sphinx.domains.citation import CitationDomain
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import SphinxPostTransform

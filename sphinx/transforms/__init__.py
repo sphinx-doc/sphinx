@@ -23,8 +23,7 @@ from docutils.utils.smartquotes import smartchars
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.locale import _, __
-from sphinx.util import docutils
-from sphinx.util import logging
+from sphinx.util import docutils, logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable

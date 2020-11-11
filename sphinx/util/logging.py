@@ -12,8 +12,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, IO, List, Tuple, Type, Union
-from typing import TYPE_CHECKING
+from typing import IO, TYPE_CHECKING, Any, Dict, Generator, List, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.nodes import Node

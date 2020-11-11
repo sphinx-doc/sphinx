@@ -10,8 +10,7 @@
 
 import re
 import unicodedata
-from typing import Any, Callable, Iterable, List, Set, Tuple, Type
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Set, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node

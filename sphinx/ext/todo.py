@@ -11,8 +11,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple
-from typing import cast
+from typing import Any, Dict, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node

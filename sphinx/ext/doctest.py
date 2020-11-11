@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
 from docutils.parsers.rst import directives
-from packaging.specifiers import SpecifierSet, InvalidSpecifier
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 
 import sphinx

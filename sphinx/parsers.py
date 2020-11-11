@@ -24,6 +24,7 @@ from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
     from docutils.transforms import Transform  # NOQA
+
     from sphinx.application import Sphinx
 
 
