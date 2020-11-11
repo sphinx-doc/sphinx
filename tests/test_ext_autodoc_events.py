@@ -9,9 +9,9 @@
 """
 
 import pytest
+from test_ext_autodoc import do_autodoc
 
 from sphinx.ext.autodoc import between, cut_lines
-from test_ext_autodoc import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

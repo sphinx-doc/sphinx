@@ -12,11 +12,9 @@ import re
 import traceback
 import types
 from collections import OrderedDict
-from os import path, getenv
-from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple, Union
-)
-from typing import TYPE_CHECKING
+from os import getenv, path
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, NamedTuple,
+                    Set, Tuple, Union)
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __

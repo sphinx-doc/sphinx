@@ -13,7 +13,7 @@ import re
 import subprocess
 from itertools import product
 from shutil import copyfile
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 
 import pytest
 from test_build_html import ENV_WARNINGS
@@ -24,7 +24,6 @@ from sphinx.errors import SphinxError, ThemeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
-
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']

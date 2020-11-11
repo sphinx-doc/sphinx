@@ -12,7 +12,7 @@ import gettext
 import os
 import re
 import subprocess
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 
 import pytest
 

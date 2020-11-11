@@ -11,8 +11,7 @@
 import traceback
 from importlib import import_module
 from types import MethodType
-from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.io import Input

@@ -39,8 +39,7 @@ import builtins
 import inspect
 import re
 from importlib import import_module
-from typing import Any, Dict, Iterable, List, Tuple
-from typing import cast
+from typing import Any, Dict, Iterable, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -50,16 +49,13 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.graphviz import (
-    graphviz, figure_wrapper,
-    render_dot_html, render_dot_latex, render_dot_texinfo
-)
+from sphinx.ext.graphviz import (figure_wrapper, graphviz, render_dot_html, render_dot_latex,
+                                 render_dot_texinfo)
 from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
-
 
 module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
                            (\w+)  \s* $          # class/final module name

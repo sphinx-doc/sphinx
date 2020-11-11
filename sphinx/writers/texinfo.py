@@ -12,18 +12,18 @@ import re
 import textwrap
 import warnings
 from os import path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set, Tuple, Union
-from typing import TYPE_CHECKING, cast
+from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set,
+                    Tuple, Union, cast)
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
-from sphinx import addnodes, __display_version__
+from sphinx import __display_version__, addnodes
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
-from sphinx.locale import admonitionlabels, _, __
+from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date

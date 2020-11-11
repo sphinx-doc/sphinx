@@ -10,12 +10,10 @@
 import os
 import re
 import zlib
-from typing import Callable, IO, Iterator
-from typing import TYPE_CHECKING
+from typing import IO, TYPE_CHECKING, Callable, Iterator
 
 from sphinx.util import logging
 from sphinx.util.typing import Inventory
-
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)

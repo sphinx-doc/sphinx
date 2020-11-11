@@ -20,7 +20,6 @@ import pytest
 from sphinx.testing import util
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
-
 DEFAULT_ENABLED_MARKERS = [
     (
         'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None,'

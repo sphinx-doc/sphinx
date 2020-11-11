@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Sequence
 
 from docutils import nodes
 from docutils.nodes import Element

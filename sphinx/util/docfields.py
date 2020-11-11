@@ -9,8 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple, Type, Union
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -19,8 +18,8 @@ from sphinx import addnodes
 from sphinx.util.typing import TextlikeNode
 
 if TYPE_CHECKING:
-    from sphinx.environment import BuildEnvironment
     from sphinx.directive import ObjectDescription
+    from sphinx.environment import BuildEnvironment
 
 
 def _is_single_paragraph(node: nodes.field_body) -> bool:

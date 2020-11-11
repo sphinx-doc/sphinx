@@ -13,8 +13,8 @@ import docutils
 import pytest
 
 import sphinx
-from sphinx.testing.path import path
 from sphinx.testing import comparer
+from sphinx.testing.path import path
 
 pytest_plugins = 'sphinx.testing.fixtures'
 

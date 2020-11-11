@@ -10,8 +10,7 @@
 
 import os
 import posixpath
-from typing import Callable, Dict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Dict
 
 from docutils.utils import relative_path
 

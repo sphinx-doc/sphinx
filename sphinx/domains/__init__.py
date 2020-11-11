@@ -10,8 +10,8 @@
 """
 
 import copy
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Type, Union
-from typing import TYPE_CHECKING, cast
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, NamedTuple, Tuple,
+                    Type, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message

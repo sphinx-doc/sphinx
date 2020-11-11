@@ -9,11 +9,12 @@
 """
 import os
 import shutil
+
 import pytest
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.environment import CONFIG_OK, CONFIG_CHANGED, CONFIG_EXTENSIONS_CHANGED, CONFIG_NEW
+from sphinx.environment import CONFIG_CHANGED, CONFIG_EXTENSIONS_CHANGED, CONFIG_NEW, CONFIG_OK
 from sphinx.testing.comparer import PathComparer
 
 

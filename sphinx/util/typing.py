@@ -15,7 +15,6 @@ from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, TypeVa
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
-
 if sys.version_info > (3, 7):
     from typing import ForwardRef
 else:

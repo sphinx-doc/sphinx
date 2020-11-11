@@ -60,8 +60,7 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple, Type
-from typing import cast
+from typing import Any, Dict, List, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -76,19 +75,17 @@ from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.ext.autodoc import Documenter, INSTANCEATTR
+from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.util import rst, logging
-from sphinx.util.docutils import (
-    NullReporter, SphinxDirective, SphinxRole, new_document, switch_source_input
-)
+from sphinx.util import logging, rst
+from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new_document,
+                                  switch_source_input)
 from sphinx.util.matching import Matcher
 from sphinx.writers.html import HTMLTranslator
-
 
 logger = logging.getLogger(__name__)
 

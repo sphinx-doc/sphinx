@@ -15,20 +15,18 @@ import re
 import warnings
 from collections import defaultdict
 from os import path
-from typing import Any, Dict, Iterable, List, Tuple, Set
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Set, Tuple, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
-from sphinx import addnodes
-from sphinx import highlighting
+from sphinx import addnodes, highlighting
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
-from sphinx.locale import admonitionlabels, _, __
-from sphinx.util import split_into, logging, texescape
+from sphinx.locale import _, __, admonitionlabels
+from sphinx.util import logging, split_into, texescape
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
@@ -2043,4 +2041,6 @@ class LaTeXTranslator(SphinxTranslator):
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext  # NOQA
+from sphinx.builders.latex.nodes import ( # NOQA isort:skip
+    HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext,
+)

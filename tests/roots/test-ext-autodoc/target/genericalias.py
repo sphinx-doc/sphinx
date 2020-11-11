@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import Callable, List
 
 #: A list of int
 T = List[int]

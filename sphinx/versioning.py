@@ -12,8 +12,7 @@ import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
-from typing import Any, Dict, Iterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Iterator
 from uuid import uuid4
 
 from docutils.nodes import Node

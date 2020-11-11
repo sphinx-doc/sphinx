@@ -10,8 +10,8 @@
 
 from pygments.style import Style
 from pygments.styles.friendly import FriendlyStyle
-from pygments.token import Generic, Comment, Number, Whitespace, Keyword, \
-    Operator, Name, String, Error
+from pygments.token import (Comment, Error, Generic, Keyword, Name, Number, Operator, String,
+                            Whitespace)
 
 
 class NoneStyle(Style):

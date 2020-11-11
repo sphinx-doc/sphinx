@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Dict, List, Set
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Set
 
 from docutils import nodes
 

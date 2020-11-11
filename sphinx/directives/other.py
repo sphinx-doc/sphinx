@@ -7,8 +7,7 @@
 """
 
 import re
-from typing import Any, Dict, List
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Dict, List, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -20,7 +19,7 @@ from docutils.parsers.rst.directives.misc import Include as BaseInclude
 from sphinx import addnodes
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
-from sphinx.util import url_re, docname_join
+from sphinx.util import docname_join, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re

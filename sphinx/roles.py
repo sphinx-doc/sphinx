@@ -9,8 +9,7 @@
 """
 
 import re
-from typing import Any, Dict, List, Tuple, Type
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type
 
 from docutils import nodes, utils
 from docutils.nodes import Element, Node, TextElement, system_message

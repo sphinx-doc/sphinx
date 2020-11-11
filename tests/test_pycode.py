@@ -10,11 +10,12 @@
 
 import os
 import sys
+
 import pytest
 
 import sphinx
-from sphinx.pycode import ModuleAnalyzer
 from sphinx.errors import PycodeError
+from sphinx.pycode import ModuleAnalyzer
 
 SPHINX_MODULE_PATH = os.path.splitext(sphinx.__file__)[0] + '.py'
 

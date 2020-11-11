@@ -11,7 +11,7 @@
 import pytest
 from docutils.utils import column_width
 
-from sphinx.writers.text import MAXWIDTH, Table, Cell
+from sphinx.writers.text import MAXWIDTH, Cell, Table
 
 
 def with_text_app(*args, **kw):

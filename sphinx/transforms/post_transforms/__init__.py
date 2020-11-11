@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple, Type
-from typing import cast
+from typing import Any, Dict, List, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -24,7 +23,6 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import process_only_nodes
-
 
 logger = logging.getLogger(__name__)
 

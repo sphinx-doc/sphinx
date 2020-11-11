@@ -11,7 +11,7 @@
 import re
 
 import pytest
-from docutils import frontend, utils, nodes
+from docutils import frontend, nodes, utils
 from docutils.parsers.rst import Parser as RstParser
 
 from sphinx import addnodes
@@ -21,11 +21,10 @@ from sphinx.builders.latex.theming import ThemeFactory
 from sphinx.roles import XRefRole
 from sphinx.testing.util import Struct, assert_node
 from sphinx.transforms import SphinxSmartQuotes
-from sphinx.util import docutils
-from sphinx.util import texescape
+from sphinx.util import docutils, texescape
 from sphinx.util.docutils import sphinx_domains
-from sphinx.writers.html import HTMLWriter, HTMLTranslator
-from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+from sphinx.writers.html import HTMLTranslator, HTMLWriter
+from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 
 @pytest.fixture

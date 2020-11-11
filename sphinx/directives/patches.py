@@ -7,13 +7,12 @@
 """
 
 import warnings
-from typing import Any, Dict, List, Tuple
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id, system_message
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives import images, html, tables
+from docutils.parsers.rst.directives import html, images, tables
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx60Warning

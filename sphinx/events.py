@@ -12,8 +12,7 @@
 
 from collections import defaultdict
 from operator import attrgetter
-from typing import Any, Callable, Dict, List, NamedTuple, Tuple, Type
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Tuple, Type
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __

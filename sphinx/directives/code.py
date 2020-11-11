@@ -8,8 +8,7 @@
 
 import sys
 from difflib import unified_diff
-from typing import Any, Dict, List, Tuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -19,8 +18,7 @@ from docutils.statemachine import StringList
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import parselinenos
+from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:

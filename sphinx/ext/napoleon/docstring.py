@@ -22,7 +22,6 @@ from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
 
-
 logger = logging.getLogger(__name__)
 
 _directive_regex = re.compile(r'\.\. \S+::')

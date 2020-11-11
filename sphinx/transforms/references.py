@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict
 
 from docutils.transforms.references import DanglingReferences
 

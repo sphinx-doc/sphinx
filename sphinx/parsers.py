@@ -9,8 +9,7 @@
 """
 
 import warnings
-from typing import Any, Dict, List, Type, Union
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
 
 import docutils.parsers
 import docutils.parsers.rst
@@ -24,6 +23,7 @@ from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
     from docutils.transforms import Transform  # NOQA
+
     from sphinx.application import Sphinx
 
 

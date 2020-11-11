@@ -11,7 +11,7 @@
 import os
 import re
 from distutils.version import LooseVersion
-from itertools import cycle, chain
+from itertools import chain, cycle
 
 import pygments
 import pytest
@@ -22,7 +22,6 @@ from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
-
 
 ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \

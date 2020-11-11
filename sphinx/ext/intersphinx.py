@@ -29,7 +29,7 @@ import posixpath
 import sys
 import time
 from os import path
-from typing import Any, Dict, IO, List, Tuple
+from typing import IO, Any, Dict, List, Tuple
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -42,10 +42,9 @@ from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
-from sphinx.util import requests, logging
+from sphinx.util import logging, requests
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.typing import Inventory
-
 
 logger = logging.getLogger(__name__)
 

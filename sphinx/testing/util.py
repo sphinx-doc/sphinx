@@ -13,7 +13,7 @@ import re
 import sys
 import warnings
 from io import StringIO
-from typing import Any, Dict, Generator, IO, List, Pattern
+from typing import IO, Any, Dict, Generator, List, Pattern
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -24,7 +24,6 @@ from sphinx import application, locale
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
-
 
 __all__ = [
     'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
