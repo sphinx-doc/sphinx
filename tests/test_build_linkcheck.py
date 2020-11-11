@@ -11,6 +11,7 @@
 import http.server
 import json
 import re
+import textwrap
 from unittest import mock
 
 import pytest
@@ -110,7 +111,7 @@ def test_anchors_ignored(app):
     # expect all ok when excluding #top
     assert not content
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
@@ -179,3 +180,61 @@ def test_linkcheck_request_headers(app):
                 assert headers["X-Secret"] == "open sesami"
             else:
                 assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
+
+def make_redirect_handler(*, support_head):
+    class RedirectOnceHandler(http.server.BaseHTTPRequestHandler):
+        def do_HEAD(self):
+            if support_head:
+                self.do_GET()
+            else:
+                self.send_response(405, "Method Not Allowed")
+                self.end_headers()
+
+        def do_GET(self):
+            if self.path == "/?redirected=1":
+                self.send_response(204, "No content")
+            else:
+                self.send_response(302, "Found")
+                self.send_header("Location", "http://localhost:7777/?redirected=1")
+            self.end_headers()
+
+        def log_date_time_string(self):
+            """Strip date and time from logged messages for assertions."""
+            return ""
+
+    return RedirectOnceHandler
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_follows_redirects_on_HEAD(app, capsys):
+    with http_server(make_redirect_handler(support_head=True)):
+        app.builder.build_all()
+    stdout, stderr = capsys.readouterr()
+    content = (app.outdir / 'output.txt').read_text()
+    assert content == (
+        "index.rst:1: [redirected with Found] "
+        "http://localhost:7777/ to http://localhost:7777/?redirected=1\n"
+    )
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
+        127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
+        """
+    )
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_follows_redirects_on_GET(app, capsys):
+    with http_server(make_redirect_handler(support_head=False)):
+        app.builder.build_all()
+    stdout, stderr = capsys.readouterr()
+    content = (app.outdir / 'output.txt').read_text()
+    assert content == (
+        "index.rst:1: [redirected with Found] "
+        "http://localhost:7777/ to http://localhost:7777/?redirected=1\n"
+    )
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 405 -
+        127.0.0.1 - - [] "GET / HTTP/1.1" 302 -
+        127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
+        """
+    )

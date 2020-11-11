@@ -108,9 +108,7 @@ class CheckExternalLinksBuilder(Builder):
             self.workers.append(thread)
 
     def check_thread(self) -> None:
-        kwargs = {
-            'allow_redirects': True,
-        }  # type: Dict
+        kwargs = {}
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
@@ -171,8 +169,9 @@ class CheckExternalLinksBuilder(Builder):
                     try:
                         # try a HEAD request first, which should be easier on
                         # the server and the network
-                        response = requests.head(req_url, config=self.app.config,
-                                                 auth=auth_info, **kwargs)
+                        response = requests.head(req_url, allow_redirects=True,
+                                                 config=self.app.config, auth=auth_info,
+                                                 **kwargs)
                         response.raise_for_status()
                     except HTTPError:
                         # retry with GET request if that fails, some servers
