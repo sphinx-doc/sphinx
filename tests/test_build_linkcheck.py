@@ -10,6 +10,7 @@
 
 import http.server
 import json
+import os
 import re
 import textwrap
 from unittest import mock
@@ -17,7 +18,7 @@ from unittest import mock
 import pytest
 import requests
 
-from utils import http_server
+from utils import CERT_FILE, http_server, https_server
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
@@ -270,15 +271,19 @@ def test_follows_redirects_on_GET(app, capsys):
         """
     )
 
+
+class OKHandler(http.server.BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        self.send_response(200, "OK")
+        self.end_headers()
+
+    def do_GET(self):
+        self.do_HEAD()
+        self.wfile.write(b"ok\n")
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_invalid_ssl(app, status, warning):
     # Link indicates SSL should be used (https) but the server does not handle it.
-    class OKHandler(http.server.BaseHTTPRequestHandler):
-        def do_GET(self):
-            self.send_response(200, "OK")
-            self.end_headers()
-            self.wfile.write(b"ok\n")
-
     with http_server(OKHandler):
         app.builder.build_all()
 
@@ -289,3 +294,67 @@ def test_invalid_ssl(app, status, warning):
     assert content["lineno"] == 1
     assert content["uri"] == "https://localhost:7777/"
     assert "SSLError" in content["info"]
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_fails(app):
+    with https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content["status"] == "broken"
+    assert content["filename"] == "index.rst"
+    assert content["lineno"] == 1
+    assert content["uri"] == "https://localhost:7777/"
+    assert "[SSL: CERTIFICATE_VERIFY_FAILED]" in content["info"]
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_with_tls_verify_false(app):
+    app.config.tls_verify = False
+    with https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "working",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "https://localhost:7777/",
+        "info": "",
+    }
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_with_tls_cacerts(app):
+    app.config.tls_cacerts = CERT_FILE
+    with https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "working",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "https://localhost:7777/",
+        "info": "",
+    }
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_with_requests_env_var(app):
+    os.environ["REQUESTS_CA_BUNDLE"] = CERT_FILE
+    with https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "working",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "https://localhost:7777/",
+        "info": "",
+    }
