@@ -163,36 +163,54 @@ def test_auth_header_no_match(app, capsys):
 
 
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck', freshenv=True,
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_request_headers': {
-        "https://localhost:7777/": {
+        "http://localhost:7777/": {
             "Accept": "text/html",
-        },
-        "http://www.sphinx-doc.org": {  # no slash at the end
-            "Accept": "application/json",
         },
         "*": {
             "X-Secret": "open sesami",
         }
     }})
-def test_linkcheck_request_headers(app):
-    mock_req = mock.MagicMock()
-    mock_req.return_value = 'fake-response'
-
-    with mock.patch.multiple('requests', get=mock_req, head=mock_req):
+def test_linkcheck_request_headers(app, capsys):
+    with http_server(HeadersDumperHandler):
         app.builder.build_all()
-        for args, kwargs in mock_req.call_args_list:
-            url = args[0]
-            headers = kwargs.get('headers', {})
-            if "https://localhost:7777" in url:
-                assert headers["Accept"] == "text/html"
-            elif 'http://www.sphinx-doc.org' in url:
-                assert headers["Accept"] == "application/json"
-            elif 'https://www.google.com' in url:
-                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
-                assert headers["X-Secret"] == "open sesami"
-            else:
-                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
+
+    stdout, _stderr = capsys.readouterr()
+    assert "Accept: text/html\n" in stdout
+    assert "X-Secret" not in stdout
+    assert "sesami" not in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_request_headers': {
+        "http://localhost:7777": {"Accept": "application/json"},
+        "*": {"X-Secret": "open sesami"}
+    }})
+def test_linkcheck_request_headers_no_slash(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+
+    stdout, _stderr = capsys.readouterr()
+    assert "Accept: application/json\n" in stdout
+    assert "X-Secret" not in stdout
+    assert "sesami" not in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_request_headers': {
+        "http://do.not.match.org": {"Accept": "application/json"},
+        "*": {"X-Secret": "open sesami"}
+    }})
+def test_linkcheck_request_headers_default(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+
+    stdout, _stderr = capsys.readouterr()
+    assert "Accepts: application/json\n" not in stdout
+    assert "X-Secret: open sesami\n" in stdout
 
 def make_redirect_handler(*, support_head):
     class RedirectOnceHandler(http.server.BaseHTTPRequestHandler):
