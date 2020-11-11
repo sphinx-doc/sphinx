@@ -109,7 +109,7 @@ def test_anchors_ignored(app, status, warning):
     # expect all ok when excluding #top
     assert not content
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app, status, warning):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
