@@ -19,7 +19,7 @@ from utils import http_server
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
-def test_defaults(app, status, warning):
+def test_defaults(app):
     app.builder.build_all()
 
     assert (app.outdir / 'output.txt').exists()
@@ -40,7 +40,7 @@ def test_defaults(app, status, warning):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
-def test_defaults_json(app, status, warning):
+def test_defaults_json(app):
     app.builder.build_all()
 
     assert (app.outdir / 'output.json').exists()
@@ -101,7 +101,7 @@ def test_defaults_json(app, status, warning):
                        'https://www.google.com/image2.png',
                        'path/to/notfound']
                    })
-def test_anchors_ignored(app, status, warning):
+def test_anchors_ignored(app):
     app.builder.build_all()
 
     assert (app.outdir / 'output.txt').exists()
@@ -111,7 +111,7 @@ def test_anchors_ignored(app, status, warning):
     assert not content
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
-def test_raises_for_invalid_status(app, status, warning):
+def test_raises_for_invalid_status(app):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_error(500, "Internal Server Error")
@@ -133,7 +133,7 @@ def test_raises_for_invalid_status(app, status, warning):
                         (r'.+google\.com.+', 'authinfo2'),
                    ]
                   })
-def test_auth(app, status, warning):
+def test_auth(app):
     mock_req = mock.MagicMock()
     mock_req.return_value = 'fake-response'
 
@@ -161,7 +161,7 @@ def test_auth(app, status, warning):
             "X-Secret": "open sesami",
         }
     }})
-def test_linkcheck_request_headers(app, status, warning):
+def test_linkcheck_request_headers(app):
     mock_req = mock.MagicMock()
     mock_req.return_value = 'fake-response'
 
