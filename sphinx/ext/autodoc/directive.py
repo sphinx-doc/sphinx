@@ -21,7 +21,6 @@ from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
 
-
 logger = logging.getLogger(__name__)
 
 

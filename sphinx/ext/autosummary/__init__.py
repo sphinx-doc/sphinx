@@ -87,7 +87,6 @@ from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new
 from sphinx.util.matching import Matcher
 from sphinx.writers.html import HTMLTranslator
 
-
 logger = logging.getLogger(__name__)
 
 

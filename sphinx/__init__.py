@@ -19,7 +19,6 @@ from subprocess import PIPE
 
 from .deprecation import RemovedInNextVersionWarning
 
-
 # by default, all DeprecationWarning under sphinx package will be emit.
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
 if 'PYTHONWARNINGS' not in os.environ:

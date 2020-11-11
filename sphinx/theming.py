@@ -13,8 +13,7 @@ import os
 import shutil
 import tempfile
 from os import path
-from typing import Any, Dict, List
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 from zipfile import ZipFile
 
 import pkg_resources

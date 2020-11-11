@@ -9,8 +9,7 @@
 """
 
 import warnings
-from typing import Any, Dict, List, Type, Union
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
 
 import docutils.parsers
 import docutils.parsers.rst

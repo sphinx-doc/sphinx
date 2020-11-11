@@ -40,7 +40,6 @@ from sphinx.util.inspect import signature_from_str
 from sphinx.util.nodes import make_id, make_refnode
 from sphinx.util.typing import TextlikeNode
 
-
 logger = logging.getLogger(__name__)
 
 

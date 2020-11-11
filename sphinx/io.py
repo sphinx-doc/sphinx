@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 import codecs
-from typing import Any, List, Type
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, List, Type
 
 from docutils import nodes
 from docutils.core import Publisher

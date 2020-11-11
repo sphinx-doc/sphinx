@@ -13,7 +13,6 @@ from typing import Any, Callable
 
 from sphinx.deprecation import RemovedInSphinx60Warning
 
-
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
 

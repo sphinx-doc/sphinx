@@ -49,7 +49,6 @@ from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -13,7 +13,7 @@ from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import Any, DefaultDict, Dict, Iterable, Generator, List, Set, Tuple, Union
+from typing import Any, DefaultDict, Dict, Generator, Iterable, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes

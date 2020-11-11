@@ -47,7 +47,6 @@ from sphinx.util.osutil import copyfile, ensuredir, movefile, os_path, relative_
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLTranslator, HTMLWriter
 
-
 # HTML5 Writer is available or not
 if is_html5_writer_available():
     from sphinx.writers.html5 import HTML5Translator

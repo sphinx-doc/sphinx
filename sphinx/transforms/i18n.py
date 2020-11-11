@@ -10,8 +10,7 @@
 
 from os import path
 from textwrap import indent
-from typing import Any, Dict, List, Tuple, Type, TypeVar
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, TypeVar
 
 from docutils import nodes
 from docutils.io import StringInput

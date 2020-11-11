@@ -15,8 +15,8 @@ import sys
 import time
 from io import StringIO
 from os import path
-from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type
-from typing import TYPE_CHECKING
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple,
+                    Type)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement

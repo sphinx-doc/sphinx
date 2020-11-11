@@ -22,7 +22,6 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import logging, url_re
 
-
 N = TypeVar('N')
 
 logger = logging.getLogger(__name__)

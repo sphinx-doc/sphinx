@@ -8,8 +8,7 @@
 
 import sys
 from difflib import unified_diff
-from typing import Any, Dict, List, Tuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node

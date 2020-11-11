@@ -26,7 +26,6 @@ from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, 
                     Set, Tuple, Type)
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
 from sphinx.locale import __
@@ -41,7 +40,6 @@ from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
 from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
                                 movefile, mtimes_of_files, os_path, relative_uri)
 from sphinx.util.typing import PathMatcher
-
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx

@@ -12,8 +12,7 @@ import os
 import re
 from datetime import datetime, timezone
 from os import path
-from typing import Callable, Generator, List, NamedTuple, Tuple, Union
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Generator, List, NamedTuple, Tuple, Union
 
 import babel.dates
 from babel.messages.mofile import write_mo

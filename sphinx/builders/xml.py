@@ -23,7 +23,6 @@ from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.xml import PseudoXMLWriter, XMLWriter
 
-
 logger = logging.getLogger(__name__)
 
 
