@@ -9,9 +9,8 @@
 """
 
 import re
-from typing import (
-    Any, Callable, cast, Dict, Generator, Iterator, List, Type, TypeVar, Tuple, Union
-)
+from typing import (Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar,
+                    Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -30,15 +29,13 @@ from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
-from sphinx.util.cfamily import (
-    NoOldIdError, ASTBaseBase, ASTAttribute, ASTBaseParenExprList,
-    verify_description_mode, StringifyTransform,
-    BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
-    identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
-    hex_literal_re, binary_literal_re, integers_literal_suffix_re,
-    float_literal_re, float_literal_suffix_re,
-    char_literal_re
-)
+from sphinx.util.cfamily import (ASTAttribute, ASTBaseBase, ASTBaseParenExprList, BaseParser,
+                                 DefinitionError, NoOldIdError, StringifyTransform,
+                                 UnsupportedMultiCharacterCharLiteral, anon_identifier_re,
+                                 binary_literal_re, char_literal_re, float_literal_re,
+                                 float_literal_suffix_re, hex_literal_re, identifier_re,
+                                 integer_literal_re, integers_literal_suffix_re,
+                                 octal_literal_re, verify_description_mode)
 from sphinx.util.docfields import Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode

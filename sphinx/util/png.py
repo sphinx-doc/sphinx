@@ -12,7 +12,6 @@ import binascii
 import struct
 from typing import Optional
 
-
 LEN_IEND = 12
 LEN_DEPTH = 22
 

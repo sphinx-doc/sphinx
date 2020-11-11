@@ -9,8 +9,7 @@
 """
 
 import re
-from typing import Any, Dict, Iterator, List, Tuple
-from typing import cast
+from typing import Any, Dict, Iterator, List, Tuple, cast
 
 from docutils.nodes import Element
 from docutils.parsers.rst import directives
@@ -26,7 +25,6 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_id, make_refnode
-
 
 logger = logging.getLogger(__name__)
 

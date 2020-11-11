@@ -8,15 +8,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Iterable, List
-from typing import cast
+from typing import Any, Iterable, List, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes
 from sphinx.locale import __
-from sphinx.util import url_re, logging
+from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
 from sphinx.util.nodes import clean_astext, process_only_nodes
 

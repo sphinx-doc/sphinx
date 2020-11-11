@@ -10,8 +10,8 @@
 import os
 from collections import Counter
 
-from docutils import nodes
 import pytest
+from docutils import nodes
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
 

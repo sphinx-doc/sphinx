@@ -10,7 +10,7 @@
 """
 
 import re
-from typing import Any, Dict, IO, List, Match, Union
+from typing import IO, Any, Dict, List, Match, Union
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')

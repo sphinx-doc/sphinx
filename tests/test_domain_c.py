@@ -7,14 +7,13 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import pytest
-
 from xml.etree import ElementTree
+
+import pytest
 
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.c import DefinitionParser, DefinitionError
-from sphinx.domains.c import _max_id, _id_prefix, Symbol
+from sphinx.domains.c import DefinitionError, DefinitionParser, Symbol, _id_prefix, _max_id
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 

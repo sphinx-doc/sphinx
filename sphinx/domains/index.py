@@ -17,8 +17,7 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
-from sphinx.util import logging
-from sphinx.util import split_index_msg
+from sphinx.util import logging, split_index_msg
 from sphinx.util.docutils import ReferenceRole, SphinxDirective
 from sphinx.util.nodes import process_index_entry
 

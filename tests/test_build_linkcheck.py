@@ -12,6 +12,7 @@ import http.server
 import json
 import re
 from unittest import mock
+
 import pytest
 
 from utils import http_server

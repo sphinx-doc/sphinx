@@ -15,33 +15,31 @@ import re
 import warnings
 from inspect import Parameter, Signature
 from types import ModuleType
-from typing import (
-    Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type, TypeVar, Union
-)
-from typing import get_type_hints
+from typing import (Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type,
+                    TypeVar, Union, get_type_hints)
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.application import Sphinx
-from sphinx.config import Config, ENUM
+from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc.importer import import_object, get_module_members, get_object_members
+from sphinx.ext.autodoc.importer import get_module_members, get_object_members, import_object
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.util import inspect
-from sphinx.util import logging
+from sphinx.util import inspect, logging
 from sphinx.util.docstrings import extract_metadata, prepare_docstring
-from sphinx.util.inspect import (
-    evaluate_signature, getdoc, object_description, safe_getattr, stringify_signature
-)
-from sphinx.util.typing import restify, stringify as stringify_typehint
+from sphinx.util.inspect import (evaluate_signature, getdoc, object_description, safe_getattr,
+                                 stringify_signature)
+from sphinx.util.typing import restify
+from sphinx.util.typing import stringify as stringify_typehint
 
 if False:
     # For type annotation
     from typing import Type  # NOQA # for python3.5.1
+
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
 

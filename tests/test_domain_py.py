@@ -15,15 +15,13 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.addnodes import (
-    desc, desc_addname, desc_annotation, desc_content, desc_name, desc_optional,
-    desc_parameter, desc_parameterlist, desc_returns, desc_signature,
-    desc_sig_name, desc_sig_operator, desc_sig_punctuation, pending_xref,
-)
+from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
+                             desc_optional, desc_parameter, desc_parameterlist, desc_returns,
+                             desc_sig_name, desc_sig_operator, desc_sig_punctuation,
+                             desc_signature, pending_xref)
 from sphinx.domains import IndexEntry
-from sphinx.domains.python import (
-    py_sig_re, _parse_annotation, _pseudo_parse_arglist, PythonDomain, PythonModuleIndex
-)
+from sphinx.domains.python import (PythonDomain, PythonModuleIndex, _parse_annotation,
+                                   _pseudo_parse_arglist, py_sig_re)
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 

@@ -15,7 +15,7 @@ import pickle
 import re
 from importlib import import_module
 from os import path
-from typing import Any, Dict, IO, List, Pattern, Set, Tuple
+from typing import IO, Any, Dict, List, Pattern, Set, Tuple
 
 import sphinx
 from sphinx.application import Sphinx

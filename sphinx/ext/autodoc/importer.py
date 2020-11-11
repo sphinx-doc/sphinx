@@ -240,9 +240,8 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     return members
 
 
-from sphinx.ext.autodoc.mock import (  # NOQA
-    _MockModule, _MockObject, MockFinder, MockLoader, mock
-)
+from sphinx.ext.autodoc.mock import (MockFinder, MockLoader, _MockModule, _MockObject,  # NOQA
+                                     mock)
 
 deprecated_alias('sphinx.ext.autodoc.importer',
                  {

@@ -11,8 +11,7 @@
 """
 
 import json
-from typing import Any, Dict
-from typing import cast
+from typing import Any, Dict, cast
 
 from docutils import nodes
 

@@ -10,7 +10,6 @@
 
 from typing import Any, Dict
 
-
 PDFLATEX_DEFAULT_FONTPKG = r'''
 \usepackage{times}
 \expandafter\ifx\csname T@LGR\endcsname\relax

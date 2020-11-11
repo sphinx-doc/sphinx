@@ -12,13 +12,11 @@
 import warnings
 from typing import Any, Dict
 
-from sphinxcontrib.htmlhelp import (
-    chm_locales, chm_htmlescape, HTMLHelpBuilder, default_htmlhelp_basename
-)
+from sphinxcontrib.htmlhelp import (HTMLHelpBuilder, chm_htmlescape, chm_locales,
+                                    default_htmlhelp_basename)
 
 from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
-
 
 deprecated_alias('sphinx.builders.htmlhelp',
                  {

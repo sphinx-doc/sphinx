@@ -10,9 +10,8 @@
 
 import sys
 from numbers import Integral
-from typing import (
-    Any, Dict, Generator, List, TypeVar, Union, Callable, Tuple, Optional, Generic
-)
+from typing import (Any, Callable, Dict, Generator, Generic, List, Optional, Tuple, TypeVar,
+                    Union)
 
 import pytest
 

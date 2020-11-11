@@ -38,6 +38,7 @@ from sphinx.util.typing import RoleFunction, TitleGetter
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
 

@@ -11,15 +11,11 @@
 import warnings
 from typing import Any, Dict
 
-from sphinxcontrib.applehelp import (
-    AppleHelpCodeSigningFailed,
-    AppleHelpIndexerFailed,
-    AppleHelpBuilder,
-)
+from sphinxcontrib.applehelp import (AppleHelpBuilder, AppleHelpCodeSigningFailed,
+                                     AppleHelpIndexerFailed)
 
 from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
-
 
 deprecated_alias('sphinx.builders.applehelp',
                  {
