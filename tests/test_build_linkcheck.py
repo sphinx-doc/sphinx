@@ -15,6 +15,7 @@ import textwrap
 from unittest import mock
 
 import pytest
+import requests
 
 from utils import http_server
 
@@ -127,26 +128,38 @@ def test_raises_for_invalid_status(app):
     )
 
 
-@pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck', freshenv=True,
-    confoverrides={'linkcheck_auth': [
-                        (r'.+google\.com/image.+', 'authinfo1'),
-                        (r'.+google\.com.+', 'authinfo2'),
-                   ]
-                  })
-def test_auth(app):
-    mock_req = mock.MagicMock()
-    mock_req.return_value = 'fake-response'
+class HeadersDumperHandler(http.server.BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        self.do_GET()
 
-    with mock.patch.multiple('requests', get=mock_req, head=mock_req):
+    def do_GET(self):
+        self.send_response(200, "OK")
+        self.end_headers()
+        print(self.headers.as_string())
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_auth': [
+        (r'^$', ('no', 'match')),
+        (r'^http://localhost:7777/$', ('user1', 'password')),
+        (r'.*local.*', ('user2', 'hunter2')),
+    ]})
+def test_auth_header_uses_first_match(app, capsys):
+    with http_server(HeadersDumperHandler):
         app.builder.build_all()
-        for c_args, c_kwargs in mock_req.call_args_list:
-            if 'google.com/image' in c_args[0]:
-                assert c_kwargs['auth'] == 'authinfo1'
-            elif 'google.com' in c_args[0]:
-                assert c_kwargs['auth'] == 'authinfo2'
-            else:
-                assert not c_kwargs['auth']
+    stdout, stderr = capsys.readouterr()
+    auth = requests.auth._basic_auth_str('user1', 'password')
+    assert "Authorization: %s\n" % auth in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
+def test_auth_header_no_match(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+    stdout, stderr = capsys.readouterr()
+    assert "Authorization" not in stdout
 
 
 @pytest.mark.sphinx(
