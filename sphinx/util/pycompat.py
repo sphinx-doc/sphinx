@@ -16,6 +16,7 @@ from sphinx.deprecation import RemovedInSphinx60Warning
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
 
+
 # convert_with_2to3():
 # support for running 2to3 over config files
 def convert_with_2to3(filepath: str) -> str:
