@@ -8,9 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.util.docstrings import (
-    extract_metadata, prepare_docstring, prepare_commentdoc
-)
+from sphinx.util.docstrings import extract_metadata, prepare_commentdoc, prepare_docstring
 
 
 def test_extract_metadata():

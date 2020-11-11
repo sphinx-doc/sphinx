@@ -23,6 +23,7 @@ from sphinx.util import logging
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
 
 

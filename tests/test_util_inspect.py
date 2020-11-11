@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import _testcapi
 import ast
 import datetime
 import functools
@@ -16,10 +15,11 @@ import sys
 import types
 from inspect import Parameter
 
+import _testcapi
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import stringify_signature, is_builtin_class_method
+from sphinx.util.inspect import is_builtin_class_method, stringify_signature
 
 
 def test_signature():
@@ -129,8 +129,8 @@ def test_signature_partialmethod():
 
 
 def test_signature_annotations():
-    from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                                  f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, Node)
+    from typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
+                                  f13, f14, f15, f16, f17, f18, f19, f20, f21)
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -243,7 +243,7 @@ def test_signature_annotations():
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_signature_annotations_py38(app):
-    from target.pep570 import foo, bar, baz, qux
+    from target.pep570 import bar, baz, foo, qux
 
     # case: separator at head
     sig = inspect.signature(foo)
@@ -531,8 +531,7 @@ def test_iscoroutinefunction(app):
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isfunction(app):
-    from target.functions import builtin_func, partial_builtin_func
-    from target.functions import func, partial_func
+    from target.functions import builtin_func, func, partial_builtin_func, partial_func
     from target.methods import Base
 
     assert inspect.isfunction(func) is True                     # function
@@ -546,8 +545,7 @@ def test_isfunction(app):
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isbuiltin(app):
-    from target.functions import builtin_func, partial_builtin_func
-    from target.functions import func, partial_func
+    from target.functions import builtin_func, func, partial_builtin_func, partial_func
     from target.methods import Base
 
     assert inspect.isbuiltin(builtin_func) is True          # builtin function

@@ -22,9 +22,8 @@ from typing import List
 
 import sphinx
 from sphinx.cmd.build import build_main
-from sphinx.util.console import color_terminal, nocolor, bold, blue  # type: ignore
+from sphinx.util.console import blue, bold, color_terminal, nocolor  # type: ignore
 from sphinx.util.osutil import cd, rmtree
-
 
 BUILDERS = [
     ("",      "html",        "to make standalone HTML files"),

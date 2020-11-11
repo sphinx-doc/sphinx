@@ -32,9 +32,9 @@ def terminal_safe(s: str) -> str:
 def get_terminal_width() -> int:
     """Borrowed from the py lib."""
     try:
-        import termios
         import fcntl
         import struct
+        import termios
         call = fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('hhhh', 0, 0, 0, 0))
         height, width = struct.unpack('hhhh', call)[:2]
         terminal_width = width

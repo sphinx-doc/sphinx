@@ -13,10 +13,9 @@ import traceback
 import types
 import warnings
 from collections import OrderedDict
-from os import path, getenv
-from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple, Union
-)
+from os import getenv, path
+from typing import (Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple,
+                    Union)
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError

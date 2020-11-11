@@ -11,7 +11,7 @@
 
 from unittest import TestCase
 
-from sphinx.ext.napoleon.iterators import peek_iter, modify_iter
+from sphinx.ext.napoleon.iterators import modify_iter, peek_iter
 
 
 class BaseIteratorsTest(TestCase):

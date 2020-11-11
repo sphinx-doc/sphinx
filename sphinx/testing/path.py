@@ -11,10 +11,9 @@ import os
 import shutil
 import sys
 import warnings
-from typing import Any, Callable, IO, List
+from typing import IO, Any, Callable, List
 
 from sphinx.deprecation import RemovedInSphinx50Warning
-
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 

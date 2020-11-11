@@ -13,16 +13,13 @@ import os
 import re
 
 import pytest
-from babel.messages import pofile, mofile
+from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
-from sphinx.testing.util import (
-    path, etree_parse, strip_escseq,
-    assert_re_search, assert_not_re_search, assert_startswith, assert_node
-)
-
+from sphinx.testing.util import (assert_node, assert_not_re_search, assert_re_search,
+                                 assert_startswith, etree_parse, path, strip_escseq)
 
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',

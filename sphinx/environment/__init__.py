@@ -14,8 +14,7 @@ import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
-from typing import cast
+from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -25,13 +24,12 @@ from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
+from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
 from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.transforms import SphinxTransformer
-from sphinx.util import DownloadFiles, FilenameUniqDict
-from sphinx.util import logging
+from sphinx.util import DownloadFiles, FilenameUniqDict, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable

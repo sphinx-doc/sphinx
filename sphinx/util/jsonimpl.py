@@ -11,10 +11,9 @@
 import json
 import warnings
 from collections import UserString
-from typing import Any, IO
+from typing import IO, Any
 
 from sphinx.deprecation import RemovedInSphinx40Warning
-
 
 warnings.warn('sphinx.util.jsonimpl is deprecated',
               RemovedInSphinx40Warning, stacklevel=2)

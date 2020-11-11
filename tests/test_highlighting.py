@@ -12,7 +12,7 @@ from unittest import mock
 
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer
-from pygments.token import Text, Name
+from pygments.token import Name, Text
 
 from sphinx.highlighting import PygmentsBridge
 

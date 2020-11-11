@@ -12,11 +12,8 @@
 import warnings
 from typing import Any, Dict
 
-from sphinxcontrib.jsmath import (  # NOQA
-    html_visit_math,
-    html_visit_displaymath,
-    install_jsmath,
-)
+from sphinxcontrib.jsmath import (html_visit_displaymath, html_visit_math,  # NOQA
+                                  install_jsmath)
 
 import sphinx
 from sphinx.application import Sphinx

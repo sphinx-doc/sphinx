@@ -33,7 +33,7 @@ try:
 except ImportError:
     janome_module = False
 
-from sphinx.errors import SphinxError, ExtensionError
+from sphinx.errors import ExtensionError, SphinxError
 from sphinx.search import SearchLanguage
 from sphinx.util import import_object
 

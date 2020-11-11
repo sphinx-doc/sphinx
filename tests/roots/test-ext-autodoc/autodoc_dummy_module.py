@@ -1,4 +1,4 @@
-from dummy import *   # NOQA
+from dummy import *  # NOQA
 
 
 def test():

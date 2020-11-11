@@ -18,12 +18,9 @@ import types
 import typing
 import warnings
 from functools import partial, partialmethod
-from inspect import (  # NOQA
-    Parameter, isclass, ismethod, ismethoddescriptor, ismodule
-)
+from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from typing import Any, Callable, Dict, Mapping, List, Optional, Tuple
-from typing import cast
+from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py35-37
@@ -33,11 +30,7 @@ from sphinx.util.typing import ForwardRef
 from sphinx.util.typing import stringify as stringify_annotation
 
 if sys.version_info > (3, 7):
-    from types import (
-        ClassMethodDescriptorType,
-        MethodDescriptorType,
-        WrapperDescriptorType
-    )
+    from types import ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType
 else:
     ClassMethodDescriptorType = type(object.__init__)
     MethodDescriptorType = type(str.join)
