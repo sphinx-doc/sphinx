@@ -107,7 +107,11 @@ def getargspec(func: Callable) -> Any:
 def unwrap(obj: Any) -> Any:
     """Get an original object from wrapped object (wrapped functions)."""
     try:
-        return inspect.unwrap(obj)
+        if hasattr(obj, '__sphinx_mock__'):
+            # Skip unwrapping mock object to avoid RecursionError
+            return obj
+        else:
+            return inspect.unwrap(obj)
     except ValueError:
         # might be a mock object
         return obj

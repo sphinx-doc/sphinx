@@ -41,7 +41,7 @@ Bugs fixed
 Testing
 --------
 
-Release 3.3.1 (in development)
+Release 3.3.2 (in development)
 ==============================
 
 Dependencies
@@ -59,13 +59,21 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 3.3.1 (released Nov 12, 2020)
+=====================================
+
+Bugs fixed
+----------
+
 * #8372: autodoc: autoclass directive became slower than Sphinx-3.2
 * #7727: autosummary: raise PycodeError when documenting python package
   without __init__.py
+* #8350: autosummary: autosummary_mock_imports causes slow down builds
 * #8364: C, properly initialize attributes in empty symbols.
-
-Testing
---------
+* #8399: i18n: Put system locale path after the paths specified by configuration
 
 Release 3.3.0 (released Nov 02, 2020)
 =====================================
