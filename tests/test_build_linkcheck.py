@@ -15,6 +15,7 @@ import textwrap
 from unittest import mock
 
 import pytest
+import requests
 
 from utils import http_server
 
@@ -127,59 +128,89 @@ def test_raises_for_invalid_status(app):
     )
 
 
+class HeadersDumperHandler(http.server.BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        self.do_GET()
+
+    def do_GET(self):
+        self.send_response(200, "OK")
+        self.end_headers()
+        print(self.headers.as_string())
+
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck', freshenv=True,
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_auth': [
-                        (r'.+google\.com/image.+', 'authinfo1'),
-                        (r'.+google\.com.+', 'authinfo2'),
-                   ]
-                  })
-def test_auth(app):
-    mock_req = mock.MagicMock()
-    mock_req.return_value = 'fake-response'
-
-    with mock.patch.multiple('requests', get=mock_req, head=mock_req):
+        (r'^$', ('no', 'match')),
+        (r'^http://localhost:7777/$', ('user1', 'password')),
+        (r'.*local.*', ('user2', 'hunter2')),
+    ]})
+def test_auth_header_uses_first_match(app, capsys):
+    with http_server(HeadersDumperHandler):
         app.builder.build_all()
-        for c_args, c_kwargs in mock_req.call_args_list:
-            if 'google.com/image' in c_args[0]:
-                assert c_kwargs['auth'] == 'authinfo1'
-            elif 'google.com' in c_args[0]:
-                assert c_kwargs['auth'] == 'authinfo2'
-            else:
-                assert not c_kwargs['auth']
+    stdout, stderr = capsys.readouterr()
+    auth = requests.auth._basic_auth_str('user1', 'password')
+    assert "Authorization: %s\n" % auth in stdout
 
 
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck', freshenv=True,
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
+def test_auth_header_no_match(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+    stdout, stderr = capsys.readouterr()
+    assert "Authorization" not in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_request_headers': {
-        "https://localhost:7777/": {
+        "http://localhost:7777/": {
             "Accept": "text/html",
-        },
-        "http://www.sphinx-doc.org": {  # no slash at the end
-            "Accept": "application/json",
         },
         "*": {
             "X-Secret": "open sesami",
         }
     }})
-def test_linkcheck_request_headers(app):
-    mock_req = mock.MagicMock()
-    mock_req.return_value = 'fake-response'
-
-    with mock.patch.multiple('requests', get=mock_req, head=mock_req):
+def test_linkcheck_request_headers(app, capsys):
+    with http_server(HeadersDumperHandler):
         app.builder.build_all()
-        for args, kwargs in mock_req.call_args_list:
-            url = args[0]
-            headers = kwargs.get('headers', {})
-            if "https://localhost:7777" in url:
-                assert headers["Accept"] == "text/html"
-            elif 'http://www.sphinx-doc.org' in url:
-                assert headers["Accept"] == "application/json"
-            elif 'https://www.google.com' in url:
-                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
-                assert headers["X-Secret"] == "open sesami"
-            else:
-                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
+
+    stdout, _stderr = capsys.readouterr()
+    assert "Accept: text/html\n" in stdout
+    assert "X-Secret" not in stdout
+    assert "sesami" not in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_request_headers': {
+        "http://localhost:7777": {"Accept": "application/json"},
+        "*": {"X-Secret": "open sesami"}
+    }})
+def test_linkcheck_request_headers_no_slash(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+
+    stdout, _stderr = capsys.readouterr()
+    assert "Accept: application/json\n" in stdout
+    assert "X-Secret" not in stdout
+    assert "sesami" not in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_request_headers': {
+        "http://do.not.match.org": {"Accept": "application/json"},
+        "*": {"X-Secret": "open sesami"}
+    }})
+def test_linkcheck_request_headers_default(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+
+    stdout, _stderr = capsys.readouterr()
+    assert "Accepts: application/json\n" not in stdout
+    assert "X-Secret: open sesami\n" in stdout
 
 def make_redirect_handler(*, support_head):
     class RedirectOnceHandler(http.server.BaseHTTPRequestHandler):
