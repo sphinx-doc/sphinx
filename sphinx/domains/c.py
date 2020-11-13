@@ -3754,6 +3754,15 @@ class CDomain(Domain):
                     ourObjects[fullname] = (fn, id_, objtype)
                 # no need to warn on duplicates, the symbol merge already does that
 
+    def _has_intersphinx_prefix(self, env: BuildEnvironment, target: str) -> bool:
+        if 'intersphinx_mapping' not in env.config:
+            return False
+        parts = target.split(':')
+        if len(parts) != 2 or parts[1].startswith(':') or \
+                parts[0] not in env.config.intersphinx_mapping:
+            return False
+        return True
+
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
                             contnode: Element) -> Tuple[Element, str]:
@@ -3761,8 +3770,9 @@ class CDomain(Domain):
         try:
             name = parser.parse_xref_object()
         except DefinitionError as e:
-            logger.warning('Unparseable C cross-reference: %r\n%s', target, e,
-                           location=node)
+            if not self._has_intersphinx_prefix(env, target):
+                logger.warning('Unparseable C cross-reference: %r\n%s', target, e,
+                               location=node)
             return None, None
         parentKey = node.get("c:parent_key", None)  # type: LookupKey
         rootSymbol = self.data['root_symbol']
