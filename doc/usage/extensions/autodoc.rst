@@ -326,13 +326,13 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
    By default, without ``annotation`` option, Sphinx tries to obtain the value of
    the variable and print it after the name.
 
-   The ``novalue`` option can be used instead of a blank ``annotation`` to show the
+   The ``no-value`` option can be used instead of a blank ``annotation`` to show the
    type hint but not the value::
 
       .. autodata:: CD_DRIVE
-         :novalue:
+         :no-value:
 
-   If both the ``annotation`` and ``novalue`` options are used, ``novalue`` has no
+   If both the ``annotation`` and ``no-value`` options are used, ``no-value`` has no
    effect.
 
    For module data members and class attributes, documentation can either be put
@@ -374,8 +374,8 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       option.
    .. versionchanged:: 2.0
       :rst:dir:`autodecorator` added.
-   .. versionchanged:: 3.3
-      :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``novalue``
+   .. versionchanged:: 3.4
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``no-value``
       option.
 
    .. note::
