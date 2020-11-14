@@ -26,13 +26,12 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
-
-   * - ``sphinx.util.requests.is_ssl_error()``
+   * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
      - 3.4
      - 5.0
      - N/A
 
-   * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+   * - ``sphinx.util.requests.is_ssl_error()``
      - 3.4
      - 5.0
      - N/A
