@@ -27,6 +27,11 @@ The following is a list of deprecated interfaces.
      - Alternatives
 
 
+   * - ``sphinx.util.requests.is_ssl_error()``
+     - 3.4
+     - 5.0
+     - N/A
+
    * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
      - 3.4
      - 5.0
