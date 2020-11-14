@@ -10,7 +10,6 @@
 
 import http.server
 import json
-import os
 import re
 import textwrap
 from unittest import mock
@@ -18,7 +17,7 @@ from unittest import mock
 import pytest
 import requests
 
-from utils import CERT_FILE, http_server, https_server
+from utils import CERT_FILE, http_server, https_server, modify_env
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
@@ -344,9 +343,8 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_requests_env_var(app):
-    os.environ["REQUESTS_CA_BUNDLE"] = CERT_FILE
-    with https_server(OKHandler):
-        app.builder.build_all()
+    with modify_env(REQUESTS_CA_BUNDLE=CERT_FILE), https_server(OKHandler):
+            app.builder.build_all()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -357,4 +355,21 @@ def test_connect_to_selfsigned_with_requests_env_var(app):
         "lineno": 1,
         "uri": "https://localhost:7777/",
         "info": "",
+    }
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_nonexistent_cert_file(app):
+    app.config.tls_cacerts = "does/not/exist"
+    with https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "broken",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "https://localhost:7777/",
+        "info": "Could not find a suitable TLS CA certificate bundle, invalid path: does/not/exist",
     }

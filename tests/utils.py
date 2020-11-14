@@ -1,5 +1,6 @@
 import contextlib
 import http.server
+import os
 import pathlib
 import ssl
 import threading
@@ -46,3 +47,16 @@ def create_server(thread_class):
 
 http_server = create_server(HttpServerThread)
 https_server = create_server(HttpsServerThread)
+
+
+@contextlib.contextmanager
+def modify_env(**env):
+    original_env = os.environ.copy()
+    for k, v in env.items():
+        os.environ[k] = v
+    yield
+    for k in env:
+        try:
+            os.environ[k] = original_env[k]
+        except KeyError:
+            os.unsetenv(k)
