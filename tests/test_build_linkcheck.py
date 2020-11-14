@@ -271,7 +271,7 @@ def test_follows_redirects_on_GET(app, capsys):
     )
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_invalid_ssl(app, status, warning):
+def test_invalid_ssl(app):
     # Link indicates SSL should be used (https) but the server does not handle it.
     class OKHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
