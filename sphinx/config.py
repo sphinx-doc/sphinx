@@ -106,7 +106,6 @@ class Config:
         'master_doc': ('index', 'env', []),
         'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
         'source_encoding': ('utf-8-sig', 'env', []),
-        'source_parsers': ({}, 'env', []),
         'exclude_patterns': ([], 'env', []),
         'default_role': (None, 'env', [str]),
         'add_function_parentheses': (True, 'env', []),
