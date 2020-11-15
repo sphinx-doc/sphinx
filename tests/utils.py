@@ -5,7 +5,8 @@ import ssl
 import threading
 
 # Generated with:
-# $ openssl req -new -x509 -days 3650 -nodes -out cert.pem -keyout cert.pem
+# $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
+#     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
 CERT_FILE = str(pathlib.Path(__file__).parent / "certs" / "cert.pem")
 
 
