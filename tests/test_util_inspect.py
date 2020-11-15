@@ -493,6 +493,28 @@ def test_dict_customtype():
     assert "<CustomType(2)>: 2" in description
 
 
+def test_getslots():
+    class Foo:
+        pass
+
+    class Bar:
+        __slots__ = ['attr']
+
+    class Baz:
+        __slots__ = {'attr': 'docstring'}
+
+    class Qux:
+        __slots__ = 'attr'
+
+    assert inspect.getslots(Foo) is None
+    assert inspect.getslots(Bar) == {'attr': None}
+    assert inspect.getslots(Baz) == {'attr': 'docstring'}
+    assert inspect.getslots(Qux) == {'attr': None}
+
+    with pytest.raises(TypeError):
+        inspect.getslots(Bar())
+
+
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isclassmethod(app):
     from target.methods import Base, Inherited

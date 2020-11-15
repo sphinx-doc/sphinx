@@ -2270,8 +2270,8 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
                           % self.__class__.__name__,
                           RemovedInSphinx50Warning, stacklevel=2)
         name = self.objpath[-1]
-        __slots__ = safe_getattr(self.parent, '__slots__', [])
-        if isinstance(__slots__, dict) and isinstance(__slots__.get(name), str):
+        __slots__ = inspect.getslots(self.parent)
+        if __slots__ and isinstance(__slots__.get(name, None), str):
             docstring = prepare_docstring(__slots__[name])
             return [docstring]
         else:
