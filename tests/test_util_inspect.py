@@ -19,7 +19,7 @@ import _testcapi
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import is_builtin_class_method, stringify_signature
+from sphinx.util.inspect import stringify_signature
 
 
 def test_signature():

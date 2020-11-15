@@ -182,9 +182,9 @@ def test_expressions():
                 expr = i + l + u
                 exprCheck(expr, 'L' + expr + 'E')
     decimalFloats = ['5e42', '5e+42', '5e-42',
-                  '5.', '5.e42', '5.e+42', '5.e-42',
-                  '.5', '.5e42', '.5e+42', '.5e-42',
-                  '5.0', '5.0e42', '5.0e+42', '5.0e-42']
+                     '5.', '5.e42', '5.e+42', '5.e-42',
+                     '.5', '.5e42', '.5e+42', '.5e-42',
+                     '5.0', '5.0e42', '5.0e+42', '5.0e-42']
     hexFloats = ['ApF', 'Ap+F', 'Ap-F',
                  'A.', 'A.pF', 'A.p+F', 'A.p-F',
                  '.A', '.ApF', '.Ap+F', '.Ap-F',
@@ -425,9 +425,9 @@ def test_member_definitions():
     check('member', 'int b : 8 = 42', {1: 'b__i', 2: '1b'})
     check('member', 'int b : 8{42}', {1: 'b__i', 2: '1b'})
     # TODO: enable once the ternary operator is supported
-    #check('member', 'int b : true ? 8 : a = 42', {1: 'b__i', 2: '1b'})
+    # check('member', 'int b : true ? 8 : a = 42', {1: 'b__i', 2: '1b'})
     # TODO: enable once the ternary operator is supported
-    #check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
+    # check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
     check('member', 'int b : 1 || new int{0}', {1: 'b__i', 2: '1b'})
 
 
@@ -537,8 +537,8 @@ def test_function_definitions():
     check('function', 'int foo(const A*...)', {1: "foo__ACPDp", 2: "3fooDpPK1A"})
     check('function', 'int foo(const int A::*... a)', {2: "3fooDpM1AKi"})
     check('function', 'int foo(const int A::*...)', {2: "3fooDpM1AKi"})
-    #check('function', 'int foo(int (*a)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
-    #check('function', 'int foo(int (*)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
+    # check('function', 'int foo(int (*a)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
+    # check('function', 'int foo(int (*)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
     check('function', 'virtual void f()', {1: "f", 2: "1fv"})
     # test for ::nestedName, from issue 1738
     check("function", "result(int val, ::std::error_category const &cat)",
@@ -706,7 +706,6 @@ def test_class_definitions():
     check('class', 'template<class, class = std::void_t<>> {key}has_var', {2: 'I00E7has_var'})
     check('class', 'template<class T> {key}has_var<T, std::void_t<decltype(&T::var)>>',
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
-
 
     check('class', 'template<typename ...Ts> {key}T<int (*)(Ts)...>',
           {2: 'IDpE1TIJPFi2TsEEE'})

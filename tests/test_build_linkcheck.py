@@ -10,9 +10,7 @@
 
 import http.server
 import json
-import re
 import textwrap
-from unittest import mock
 
 import pytest
 import requests
@@ -59,7 +57,7 @@ def test_defaults_json(app):
     assert len(rows) == 10
     # the output order of the rows is not stable
     # due to possible variance in network latency
-    rowsby = {row["uri"]:row for row in rows}
+    rowsby = {row["uri"]: row for row in rows}
     assert rowsby["https://www.google.com#!bar"] == {
         'filename': 'links.txt',
         'lineno': 10,
@@ -112,6 +110,7 @@ def test_anchors_ignored(app):
     # expect all ok when excluding #top
     assert not content
 
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
@@ -136,6 +135,7 @@ class HeadersDumperHandler(http.server.BaseHTTPRequestHandler):
         self.send_response(200, "OK")
         self.end_headers()
         print(self.headers.as_string())
+
 
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
@@ -212,6 +212,7 @@ def test_linkcheck_request_headers_default(app, capsys):
     assert "Accepts: application/json\n" not in stdout
     assert "X-Secret: open sesami\n" in stdout
 
+
 def make_redirect_handler(*, support_head):
     class RedirectOnceHandler(http.server.BaseHTTPRequestHandler):
         def do_HEAD(self):
@@ -235,6 +236,7 @@ def make_redirect_handler(*, support_head):
 
     return RedirectOnceHandler
 
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_HEAD(app, capsys):
     with http_server(make_redirect_handler(support_head=True)):
@@ -251,6 +253,7 @@ def test_follows_redirects_on_HEAD(app, capsys):
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
         """
     )
+
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_GET(app, capsys):
@@ -280,6 +283,7 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
         self.do_HEAD()
         self.wfile.write(b"ok\n")
 
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_invalid_ssl(app):
     # Link indicates SSL should be used (https) but the server does not handle it.
@@ -294,6 +298,7 @@ def test_invalid_ssl(app):
     assert content["uri"] == "https://localhost:7777/"
     assert "SSLError" in content["info"]
 
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_fails(app):
     with https_server(OKHandler):
@@ -306,6 +311,7 @@ def test_connect_to_selfsigned_fails(app):
     assert content["lineno"] == 1
     assert content["uri"] == "https://localhost:7777/"
     assert "[SSL: CERTIFICATE_VERIFY_FAILED]" in content["info"]
+
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_verify_false(app):
@@ -324,6 +330,7 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
         "info": "",
     }
 
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_cacerts(app):
     app.config.tls_cacerts = CERT_FILE
@@ -341,10 +348,11 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
         "info": "",
     }
 
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_requests_env_var(app):
     with modify_env(REQUESTS_CA_BUNDLE=CERT_FILE), https_server(OKHandler):
-            app.builder.build_all()
+        app.builder.build_all()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -356,6 +364,7 @@ def test_connect_to_selfsigned_with_requests_env_var(app):
         "uri": "https://localhost:7777/",
         "info": "",
     }
+
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_nonexistent_cert_file(app):
