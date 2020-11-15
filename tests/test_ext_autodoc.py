@@ -177,7 +177,6 @@ def test_format_signature(app):
     for C in (D, E):
         assert formatsig('class', 'D', C, None, None) == '()'
 
-
     class SomeMeta(type):
         def __call__(cls, a, b=None):
             return type.__call__(cls, a, b)
@@ -209,7 +208,6 @@ def test_format_signature(app):
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
     assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
-
     class ListSubclass(list):
         pass
 
@@ -219,14 +217,12 @@ def test_format_signature(app):
     else:
         assert formatsig('class', 'C', ListSubclass, None, None) == ''
 
-
     class ExceptionSubclass(Exception):
         pass
 
     # Exception has no __text_signature__ at least in Python 3.8
     if getattr(Exception, '__text_signature__', None) is None:
         assert formatsig('class', 'C', ExceptionSubclass, None, None) == ''
-
 
     # __init__ have signature at first line of docstring
     directive.env.config.autoclass_content = 'both'

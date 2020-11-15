@@ -10,8 +10,7 @@
 
 import sys
 from numbers import Integral
-from typing import (Any, Callable, Dict, Generator, Generic, List, Optional, Tuple, TypeVar,
-                    Union)
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, TypeVar, Union
 
 import pytest
 
@@ -25,7 +24,9 @@ class MyClass1:
 class MyClass2(MyClass1):
     __qualname__ = '<MyClass2>'
 
+
 T = TypeVar('T')
+
 
 class MyList(List[T]):
     pass
@@ -132,8 +133,8 @@ def test_stringify_type_hints_containers():
 
 @pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
 def test_stringify_Annotated():
-    from typing import Annotated
-    assert stringify(Annotated[str, "foo", "bar"]) == "str"
+    from typing import Annotated  # type: ignore
+    assert stringify(Annotated[str, "foo", "bar"]) == "str"  # NOQA
 
 
 def test_stringify_type_hints_string():
