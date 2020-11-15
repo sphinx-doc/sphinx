@@ -54,9 +54,11 @@ def modify_env(**env):
     original_env = os.environ.copy()
     for k, v in env.items():
         os.environ[k] = v
-    yield
-    for k in env:
-        try:
-            os.environ[k] = original_env[k]
-        except KeyError:
-            os.unsetenv(k)
+    try:
+        yield
+    finally:
+        for k in env:
+            try:
+                os.environ[k] = original_env[k]
+            except KeyError:
+                os.unsetenv(k)
