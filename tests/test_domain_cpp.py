@@ -1000,7 +1000,7 @@ def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warnin
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_build_domain_cpp_backslash_ok(app, status, warning):
+def test_build_domain_cpp_backslash_ok_true(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 0
@@ -1015,7 +1015,7 @@ def test_build_domain_cpp_semicolon(app, status, warning):
 
 @pytest.mark.sphinx(testroot='domain-cpp',
                     confoverrides={'nitpicky': True, 'strip_signature_backslash': True})
-def test_build_domain_cpp_backslash_ok(app, status, warning):
+def test_build_domain_cpp_backslash_ok_false(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 1

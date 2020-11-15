@@ -422,7 +422,7 @@ def test_nested_name():
     check('function', 'void f(.A.B a)', {1: "f"})
 
 
-def test_union_definitions():
+def test_struct_definitions():
     check('struct', '{key}A', {1: 'A'})
 
 
