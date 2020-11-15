@@ -22,7 +22,7 @@ from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref
+from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.deprecation import RemovedInSphinx50Warning
@@ -37,7 +37,7 @@ from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.inspect import signature_from_str
-from sphinx.util.nodes import make_id, make_refnode
+from sphinx.util.nodes import find_pending_xref_condition, make_id, make_refnode
 from sphinx.util.typing import TextlikeNode
 
 logger = logging.getLogger(__name__)
@@ -92,7 +92,17 @@ def type_to_xref(text: str, env: BuildEnvironment = None) -> addnodes.pending_xr
     else:
         kwargs = {}
 
-    return pending_xref('', nodes.Text(text),
+    if env.config.python_use_unqualified_type_names:
+        # Note: It would be better to use qualname to describe the object to support support
+        # nested classes.  But python domain can't access the real python object because this
+        # module should work not-dynamically.
+        shortname = text.split('.')[-1]
+        contnodes = [pending_xref_condition('', shortname, condition='resolved'),
+                     pending_xref_condition('', text, condition='*')]  # type: List[Node]
+    else:
+        contnodes = [nodes.Text(text)]
+
+    return pending_xref('', *contnodes,
                         refdomain='py', reftype=reftype, reftarget=text, **kwargs)
 
 
@@ -1209,7 +1219,15 @@ class PythonDomain(Domain):
         if obj[2] == 'module':
             return self._make_module_refnode(builder, fromdocname, name, contnode)
         else:
-            return make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name)
+            # determine the content of the reference by conditions
+            content = find_pending_xref_condition(node, 'resolved')
+            if content:
+                children = content.children
+            else:
+                # if not found, use contnode
+                children = [contnode]
+
+            return make_refnode(builder, fromdocname, obj[0], obj[1], children, name)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
@@ -1226,9 +1244,17 @@ class PythonDomain(Domain):
                                 self._make_module_refnode(builder, fromdocname,
                                                           name, contnode)))
             else:
+                # determine the content of the reference by conditions
+                content = find_pending_xref_condition(node, 'resolved')
+                if content:
+                    children = content.children
+                else:
+                    # if not found, use contnode
+                    children = [contnode]
+
                 results.append(('py:' + self.role_for_objtype(obj[2]),
                                 make_refnode(builder, fromdocname, obj[0], obj[1],
-                                             contnode, name)))
+                                             children, name)))
         return results
 
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,
@@ -1295,6 +1321,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.setup_extension('sphinx.directives')
 
     app.add_domain(PythonDomain)
+    app.add_config_value('python_use_unqualified_type_names', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)
 

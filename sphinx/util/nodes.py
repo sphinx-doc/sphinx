@@ -10,7 +10,7 @@
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Set, Tuple, Type, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Set, Tuple, Type, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -542,7 +542,7 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str) -> 
 
 
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
-                 child: Node, title: str = None) -> nodes.reference:
+                 child: Union[Node, List[Node]], title: str = None) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
     if fromdocname == todocname and targetid:
@@ -555,7 +555,7 @@ def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid:
             node['refuri'] = builder.get_relative_uri(fromdocname, todocname)
     if title:
         node['reftitle'] = title
-    node.append(child)
+    node += child
     return node
 
 
