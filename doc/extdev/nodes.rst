@@ -37,6 +37,7 @@ New inline nodes
 
 .. autoclass:: index
 .. autoclass:: pending_xref
+.. autoclass:: pending_xref_condition
 .. autoclass:: literal_emphasis
 .. autoclass:: download_reference
 
