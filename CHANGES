@@ -38,6 +38,8 @@ Bugs fixed
 * #4606: autodoc: the location of the warning is incorrect for inherited method
 * #8105: autodoc: the signature of class constructor is incorrect if the class
   is decorated
+* #8434: autodoc: :confval:`autodoc_type_aliases` does not effect to variables
+  and attributes
 
 Testing
 --------
