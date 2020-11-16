@@ -10,10 +10,10 @@
 """
 
 import re
+import sys
 from collections import namedtuple
 from contextlib import contextmanager
 from inspect import cleandoc
-import sys
 from textwrap import dedent
 from unittest import TestCase, mock
 
