@@ -46,6 +46,8 @@ jobs:
       if: endsWith(matrix.python, '-dev')
       with:
         python-version: ${{ matrix.python }}
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - name: Check Python version
       run: python --version
     - name: Install graphviz
