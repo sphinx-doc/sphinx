@@ -2120,7 +2120,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             # data descriptors do not have useful values
             if not self._datadescriptor:
                 try:
-                    if self.object is INSTANCEATTR:
+                    if self.object is INSTANCEATTR or self.options.no_value:
                         pass
                     else:
                         objrepr = object_description(self.object)

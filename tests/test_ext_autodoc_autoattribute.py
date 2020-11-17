@@ -35,7 +35,6 @@ def test_autoattribute_novalue(app):
         '',
         '.. py:attribute:: Class.attr',
         '   :module: target',
-        "   :value: 'bar'",
         '',
         '   should be documented -- süß',
         '',
