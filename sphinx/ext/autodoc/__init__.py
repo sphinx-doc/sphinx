@@ -16,7 +16,7 @@ import warnings
 from inspect import Parameter, Signature
 from types import ModuleType
 from typing import (Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type,
-                    TypeVar, Union, get_type_hints)
+                    TypeVar, Union)
 
 from docutils.statemachine import StringList
 
@@ -33,7 +33,7 @@ from sphinx.util import inspect, logging
 from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import (evaluate_signature, getdoc, object_description, safe_getattr,
                                  stringify_signature)
-from sphinx.util.typing import restify
+from sphinx.util.typing import get_type_hints, restify
 from sphinx.util.typing import stringify as stringify_typehint
 
 if False:
@@ -1701,21 +1701,7 @@ class DataDocumenter(ModuleLevelDocumenter):
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             # obtain annotation for this data
-            try:
-                annotations = get_type_hints(self.parent, None,
-                                             self.config.autodoc_type_aliases)
-            except NameError:
-                # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
-                annotations = safe_getattr(self.parent, '__annotations__', {})
-            except TypeError:
-                annotations = {}
-            except KeyError:
-                # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
-                annotations = {}
-            except AttributeError:
-                # AttributeError is raised on 3.5.2 (fixed by 3.5.3)
-                annotations = {}
-
+            annotations = get_type_hints(self.parent, None, self.config.autodoc_type_aliases)
             if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
@@ -2093,21 +2079,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             # obtain type annotation for this attribute
-            try:
-                annotations = get_type_hints(self.parent, None,
-                                             self.config.autodoc_type_aliases)
-            except NameError:
-                # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
-                annotations = safe_getattr(self.parent, '__annotations__', {})
-            except TypeError:
-                annotations = {}
-            except KeyError:
-                # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
-                annotations = {}
-            except AttributeError:
-                # AttributeError is raised on 3.5.2 (fixed by 3.5.3)
-                annotations = {}
-
+            annotations = get_type_hints(self.parent, None, self.config.autodoc_type_aliases)
             if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
