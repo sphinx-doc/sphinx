@@ -1703,7 +1703,8 @@ class DataDocumenter(ModuleLevelDocumenter):
         if not self.options.annotation:
             # obtain annotation for this data
             try:
-                annotations = get_type_hints(self.parent)
+                annotations = get_type_hints(self.parent, None,
+                                             self.config.autodoc_type_aliases)
             except NameError:
                 # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
                 annotations = safe_getattr(self.parent, '__annotations__', {})
@@ -2095,7 +2096,8 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         if not self.options.annotation:
             # obtain type annotation for this attribute
             try:
-                annotations = get_type_hints(self.parent)
+                annotations = get_type_hints(self.parent, None,
+                                             self.config.autodoc_type_aliases)
             except NameError:
                 # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
                 annotations = safe_getattr(self.parent, '__annotations__', {})
@@ -2272,8 +2274,8 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
                           % self.__class__.__name__,
                           RemovedInSphinx50Warning, stacklevel=2)
         name = self.objpath[-1]
-        __slots__ = safe_getattr(self.parent, '__slots__', [])
-        if isinstance(__slots__, dict) and isinstance(__slots__.get(name), str):
+        __slots__ = inspect.getslots(self.parent)
+        if __slots__ and isinstance(__slots__.get(name, None), str):
             docstring = prepare_docstring(__slots__[name])
             return [docstring]
         else:

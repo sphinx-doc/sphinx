@@ -14,8 +14,7 @@ from unittest.mock import patch
 
 import pytest
 
-import sphinx
-from sphinx.errors import ExtensionError, PycodeError
+from sphinx.errors import ExtensionError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (SkipProgressMessage, display_chunk, encode_uri, ensuredir,
                          import_object, logging, parselinenos, progress_message,

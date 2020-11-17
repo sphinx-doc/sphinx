@@ -1,11 +1,13 @@
 import contextlib
 import http.server
+import os
 import pathlib
 import ssl
 import threading
 
 # Generated with:
-# $ openssl req -new -x509 -days 3650 -nodes -out cert.pem -keyout cert.pem
+# $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
+#     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
 CERT_FILE = str(pathlib.Path(__file__).parent / "certs" / "cert.pem")
 
 
@@ -46,3 +48,18 @@ def create_server(thread_class):
 
 http_server = create_server(HttpServerThread)
 https_server = create_server(HttpsServerThread)
+
+
+@contextlib.contextmanager
+def modify_env(**env):
+    original_env = os.environ.copy()
+    for k, v in env.items():
+        os.environ[k] = v
+    try:
+        yield
+    finally:
+        for k in env:
+            try:
+                os.environ[k] = original_env[k]
+            except KeyError:
+                os.unsetenv(k)

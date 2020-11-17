@@ -19,6 +19,7 @@ from sphinx.pycode import ModuleAnalyzer
 
 SPHINX_MODULE_PATH = os.path.splitext(sphinx.__file__)[0] + '.py'
 
+
 def test_ModuleAnalyzer_get_module_source():
     assert ModuleAnalyzer.get_module_source('sphinx') == (sphinx.__file__, sphinx.__loader__.get_source('sphinx'))
 

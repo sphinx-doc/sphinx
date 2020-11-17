@@ -11,7 +11,6 @@
 import http.server
 import os
 import unittest
-from io import BytesIO
 from unittest import mock
 
 import pytest
