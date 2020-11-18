@@ -73,3 +73,18 @@ def test_autodata_type_comment(app):
         '   attr3',
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodata_NewType(app):
+    actual = do_autodoc(app, 'data', 'target.typevar.T6')
+    assert list(actual) == [
+        '',
+        '.. py:data:: T6',
+        '   :module: target.typevar',
+        '',
+        '   T6',
+        '',
+        '   alias of :class:`int`',
+        '',
+    ]

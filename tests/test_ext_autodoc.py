@@ -1758,6 +1758,14 @@ def test_autodoc_TypeVar(app):
         '   T5',
         '',
         "   alias of TypeVar('T5', contravariant=True)",
+        '',
+        '.. py:data:: T6',
+        '   :module: target.typevar',
+        '',
+        '   T6',
+        '',
+        '   alias of :class:`int`',
+        '',
     ]
 
 

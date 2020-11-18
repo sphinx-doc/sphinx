@@ -1714,7 +1714,12 @@ class DataDocumenter(ModuleLevelDocumenter):
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
-        if not self.options.annotation:
+        if self.options.annotation is SUPPRESS or inspect.isNewType(self.object):
+            pass
+        elif self.options.annotation:
+            self.add_line('   :annotation: %s' % self.options.annotation,
+                          sourcename)
+        else:
             # obtain annotation for this data
             annotations = get_type_hints(self.parent, None, self.config.autodoc_type_aliases)
             if self.objpath[-1] in annotations:
@@ -1734,11 +1739,6 @@ class DataDocumenter(ModuleLevelDocumenter):
                     self.add_line('   :value: ' + objrepr, sourcename)
             except ValueError:
                 pass
-        elif self.options.annotation is SUPPRESS:
-            pass
-        else:
-            self.add_line('   :annotation: %s' % self.options.annotation,
-                          sourcename)
 
     def document_members(self, all_members: bool = False) -> None:
         pass
@@ -1753,7 +1753,17 @@ class DataDocumenter(ModuleLevelDocumenter):
             # suppress docstring of the value
             super().add_content(more_content, no_docstring=True)
         else:
+            if not more_content:
+                more_content = StringList()
+
+            if inspect.isNewType(self.object):
+                self.update_content_for_NewType(more_content)
             super().add_content(more_content, no_docstring=no_docstring)
+
+    def update_content_for_NewType(self, more_content: StringList) -> None:
+        supertype = restify(self.object.__supertype__)
+        more_content.append(_('alias of %s') % supertype, '')
+        more_content.append('', '')
 
 
 class DataDeclarationDocumenter(DataDocumenter):
@@ -1798,6 +1808,24 @@ class GenericAliasDocumenter(DataDocumenter):
         name = stringify_typehint(self.object)
         content = StringList([_('alias of %s') % name], source='')
         super().add_content(content)
+
+
+class NewTypeDataDocumenter(DataDocumenter):
+    """
+    Specialized Documenter subclass for NewTypes.
+
+    Note: This must be invoked before FunctionDocumenter because NewType is a kind of
+    function object.
+    """
+
+    objtype = 'newtypedata'
+    directivetype = 'data'
+    priority = FunctionDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        return inspect.isNewType(member) and isattr
 
 
 class TypeVarDocumenter(DataDocumenter):
@@ -2307,6 +2335,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ExceptionDocumenter)
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(GenericAliasDocumenter)
+    app.add_autodocumenter(NewTypeDataDocumenter)
     app.add_autodocumenter(TypeVarDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
