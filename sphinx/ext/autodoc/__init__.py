@@ -1690,6 +1690,7 @@ class DataDocumenter(ModuleLevelDocumenter):
     priority = -10
     option_spec = dict(ModuleLevelDocumenter.option_spec)
     option_spec["annotation"] = annotation_option
+    option_spec["no-value"] = bool_option
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -1712,7 +1713,7 @@ class DataDocumenter(ModuleLevelDocumenter):
                                   sourcename)
 
             try:
-                if self.object is UNINITIALIZED_ATTR:
+                if self.object is UNINITIALIZED_ATTR or self.options.no_value:
                     pass
                 else:
                     objrepr = object_description(self.object)
@@ -2008,6 +2009,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     member_order = 60
     option_spec = dict(ModuleLevelDocumenter.option_spec)
     option_spec["annotation"] = annotation_option
+    option_spec["no-value"] = bool_option
 
     # must be higher than the MethodDocumenter, else it will recognize
     # some non-data descriptors as methods
@@ -2092,7 +2094,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             # data descriptors do not have useful values
             if not self._datadescriptor:
                 try:
-                    if self.object is INSTANCEATTR:
+                    if self.object is INSTANCEATTR or self.options.no_value:
                         pass
                     else:
                         objrepr = object_description(self.object)
