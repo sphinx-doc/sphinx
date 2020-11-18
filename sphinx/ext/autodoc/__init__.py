@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+from functools import partial, partialmethod
 import importlib
 import re
 import warnings
@@ -344,6 +345,47 @@ class Documenter:
         self.analyzer = None        # type: ModuleAnalyzer
 
     @property
+    def canonical_fullname(self):
+        """Returns a mapped canonical fullname of this object.
+
+        The canonical fullname is a name in the form of
+        ``package.module::Class.InnerClass.meth`` that represents where
+        the documented subject is actualy defined, after the resolution
+        imports, aliasing and renaming.
+
+        This method will return None unless *self.objpath* and
+        *self.real_modname* are set.
+        """
+        if self.real_modname is None or self.objpath is None:
+            # We require the real module name.
+            return None
+
+        subject = self.object
+        if isinstance(subject, ModuleType):
+            # modules do not have object paths
+            canonical_objpath = []
+        elif hasattr(subject, "_partialmethod"):
+            # we don't try to resolve to the original func of a partial
+            # we give up and re-use self.objpath
+            canonical_objpath = self.objpath
+        else:
+            # for methods, classes and function, __qualname__ is our object path
+            # for attributes and primitives, __name__ will do
+            # else, we give up and re-use self.objpath
+            canonical_objpath = safe_getattr(
+                subject, "__qualname__",
+                safe_getattr(subject, "__name__", ".".join(self.objpath))
+            ).split(".")
+
+        if canonical_objpath:
+            canonical_fullname = '%s::%s' % (self.real_modname,
+                                             ".".join(canonical_objpath))
+        else:
+            canonical_fullname = self.real_modname
+
+        return canonical_fullname
+
+    @property
     def documenters(self) -> Dict[str, Type["Documenter"]]:
         """Returns registered Documenter classes"""
         return self.env.app.registry.documenters
@@ -530,6 +572,9 @@ class Documenter:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
             self.add_line('   :module: %s' % self.modname, sourcename)
+        if self.fullname != self.canonical_fullname.replace("::", "."):
+            self.add_line('   :canonical: %s' % self.canonical_fullname,
+                          sourcename)
 
     def get_doc(self, ignore: int = None) -> List[List[str]]:
         """Decode and return lines of the docstring(s) for the object."""

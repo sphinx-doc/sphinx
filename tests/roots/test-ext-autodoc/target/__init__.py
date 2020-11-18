@@ -21,14 +21,15 @@ class CustomEx(Exception):
         """Exception method."""
 
 
-def _funky_classmethod(name, b, c, d, docstring=None):
+def _funky_classmethod(qualname, b, c, d, docstring=None):
     """Generates a classmethod for a class from a template by filling out
     some arguments."""
     def template(cls, a, b, c, d=4, e=5, f=6):
         return a, b, c, d, e, f
     from functools import partial
     function = partial(template, b=b, c=c, d=d)
-    function.__name__ = name
+    function.__qualname__ = qualname
+    function.__name__ = qualname.split(".")[-1]
     function.__doc__ = docstring
     return classmethod(function)
 
@@ -64,9 +65,9 @@ class Class(object):
     mdocattr = StringIO()
     """should be documented as well - süß"""
 
-    roger = _funky_classmethod("roger", 2, 3, 4)
+    roger = _funky_classmethod("Class.roger", 2, 3, 4)
 
-    moore = _funky_classmethod("moore", 9, 8, 7,
+    moore = _funky_classmethod("Class.moore", 9, 8, 7,
                                docstring="moore(a, e, f) -> happiness")
 
     def __init__(self, arg):

@@ -808,6 +808,7 @@ def test_autodoc_inner_class(app):
         '',
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
+        '      :canonical: builtins::dict',
         '',
         '      alias of :class:`builtins.dict`'
     ]
@@ -1434,6 +1435,7 @@ def test_bound_method(app):
         '',
         '.. py:function:: bound_method()',
         '   :module: target.bound_method',
+        '   :canonical: target.bound_method::Cls.method',
         '',
         '   Method docstring',
         '',
@@ -1489,6 +1491,7 @@ def test_coroutine(app):
         '',
         '.. py:function:: sync_func()',
         '   :module: target.coroutine',
+        '   :canonical: target.coroutine::_other_coro_func',
         '',
     ]
 
@@ -1704,6 +1707,7 @@ def test_autodoc_GenericAlias(app):
             '',
             '.. py:attribute:: T',
             '   :module: target.genericalias',
+            '   :canonical: typing.T',
             '',
             '   alias of :class:`typing.List`',
         ]
@@ -2144,4 +2148,68 @@ def test_name_mangling(app):
         '',
         '      name of Foo',
         '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_generate_canonical_option(app):
+    # An object imported from a submodule into its package's __init__.py
+    # has the :canonical: option.
+    actual = do_autodoc(app, 'class', 'target.canonical.bar')
+    assert list(actual) == [
+        '',
+        '.. py:class:: bar()',
+        '   :module: target.canonical',
+        '   :canonical: target.canonical.foo::bar',
+        '',
+        '   docstring of target.canonical.foo::bar.',
+        '',
+    ]
+
+    # An object imported from a submodule into its package's __init__.py
+    # has the :canonical: option.
+    actual = do_autodoc(app, 'class', 'target.canonical.foo.baz')
+    assert list(actual) == [
+        '',
+        '.. py:class:: baz()',
+        '   :module: target.canonical.foo',
+        '',
+        '   docstring of target.canonical.foo::baz.',
+        '',
+    ]
+
+    # An object imported _as_ from a submodule into its package's __init__.py
+    # has the :canonical: option.
+    actual = do_autodoc(app, 'class', 'target.canonical.RenamedQux')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: RenamedQux',
+        '   :module: target.canonical',
+        '   :canonical: target.canonical.foo::qux',
+        '',
+        '   alias of :class:`target.canonical.foo.qux`',
+    ]
+
+    # An object which the value is an object imported from a submodule into
+    # its package's __init__.py has the :canonical: option.
+    actual = do_autodoc(app, 'class', 'target.canonical.AliasedOuter')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: AliasedOuter',
+        '   :module: target.canonical',
+        '   :canonical: target.canonical.foo::Outer',
+        '',
+        '   alias of :class:`target.canonical.foo.Outer`',
+    ]
+
+    # An object which the value is an inner class of an object imported from
+    # a submodule into its package's __init__.py has the :canonical: option.
+    actual = do_autodoc(app, 'class', 'target.canonical.AliasedInner')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: AliasedInner',
+        '   :module: target.canonical',
+        '   :canonical: target.canonical.foo::Outer.Inner',
+        '',
+        '   alias of :class:`target.canonical.foo.Outer.Inner`',
     ]

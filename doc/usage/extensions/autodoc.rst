@@ -299,6 +299,11 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
         .. autoclass:: module.name::Noodle
 
+   * For objects defined in multiple modules, autodoc will generate specific
+     directives for each one.
+
+     .. versionadded:: 4.0
+
 
 .. rst:directive:: autofunction
                    autodecorator

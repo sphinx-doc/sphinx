@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
+import os
 
 import pytest
 from test_ext_autodoc import do_autodoc
@@ -70,6 +70,7 @@ def test_method(app):
         '',
         '.. py:function:: method(arg1, arg2)',
         '   :module: target.callable',
+        '   :canonical: target.callable::Callable.method',
         '',
         '   docstring of Callable.method().',
         '',
@@ -83,6 +84,7 @@ def test_builtin_function(app):
         '',
         '.. py:function:: umask(mask, /)',
         '   :module: os',
+        '   :canonical: %s::umask' % os.umask.__module__,
         '',
         '   Set the current numeric umask and return the previous umask.',
         '',
@@ -96,6 +98,7 @@ def test_methoddescriptor(app):
         '',
         '.. py:function:: __add__(self, value, /)',
         '   :module: builtins.int',
+        '   :canonical: builtins.int::int.__add__',
         '',
         '   Return self+value.',
         '',
