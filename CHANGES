@@ -45,6 +45,8 @@ Bugs fixed
   and attributes
 * #8443: autodoc: autodata directive can't create document for PEP-526 based
   type annotated variables
+* #8443: autodoc: autoattribute directive can't create document for PEP-526
+  based uninitalized variables
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
 
 Testing
