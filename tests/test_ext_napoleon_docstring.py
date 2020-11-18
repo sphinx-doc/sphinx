@@ -25,7 +25,11 @@ from sphinx.ext.napoleon.docstring import (GoogleDocstring, NumpyDocstring,
                                            _token_type, _tokenize_type_spec)
 
 if sys.version_info >= (3, 6):
-    from ext_napoleon_docstring_data import PEP526Class
+    # TODO: enable imports when used
+    # import ext_napoleon_pep526_data_google
+    # import ext_napoleon_pep526_data_numpy
+    from ext_napoleon_pep526_data_google import PEP526GoogleClass
+    from ext_napoleon_pep526_data_numpy import PEP526NumpyClass
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -1095,16 +1099,17 @@ Do as you please
 :kwtype gotham_is_yours: None
 """
         self.assertEqual(expected, actual)
-    
+
     def test_pep_526_annotations(self):
         if sys.version_info >= (3, 6):
+            # Test class attributes annotations
             config = Config(
-                napoleon_google_attr_annotations=True
+                napoleon_attr_annotations=True
             )
-            actual = str(GoogleDocstring(cleandoc(PEP526Class.__doc__), config, app=None, what="class",
-                                        obj=PEP526Class))
+            actual = str(GoogleDocstring(cleandoc(PEP526GoogleClass.__doc__), config, app=None, what="class",
+                                         obj=PEP526GoogleClass))
             expected = """\
-Sample class with PEP 526 annotations
+Sample class with PEP 526 annotations and google docstring
 
 .. attribute:: attr1
 
@@ -1119,6 +1124,9 @@ Sample class with PEP 526 annotations
    :type: str
 """
             self.assertEqual(expected, actual)
+
+            # test module-level variables documentation
+            # TODO: use the ext_napoleon_pep526_data_google.module_level_var for that
 
 
 class NumpyDocstringTest(BaseDocstringTest):
@@ -2430,3 +2438,29 @@ class TestNumpyDocstring:
         actual = numpy_docstring._escape_args_and_kwargs(name)
 
         assert actual == expected
+
+    def test_pep_526_annotations(self):
+        if sys.version_info >= (3, 6):
+            # test class attributes annotations
+            # TODO: change this test after implementation in Numpy doc style
+            config = Config(
+                napoleon_attr_annotations=True
+            )
+            actual = str(NumpyDocstring(cleandoc(PEP526NumpyClass.__doc__), config, app=None, what="class",
+                                        obj=PEP526NumpyClass))
+            expected = """\
+Sample class with PEP 526 annotations and numpy docstring
+
+.. attribute:: attr 1
+
+   Attr1 description
+
+.. attribute:: attr 2
+
+   Attr2 description
+"""
+            print(actual)
+            assert expected == actual
+
+            # test module-level variables documentation
+            # TODO: use the ext_napoleon_pep526_data_google.module_level_var for that

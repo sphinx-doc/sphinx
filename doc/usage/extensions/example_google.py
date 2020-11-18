@@ -300,7 +300,7 @@ class ExamplePEP526Class:
 
     If the class has public attributes, they may be documented here
     in an ``Attributes`` section and follow the same formatting as a
-    function's ``Args`` section. If ``napoleon_google_attr_annotations``
+    function's ``Args`` section. If ``napoleon_attr_annotations``
     is True, types can be specified in the class body using ``PEP 526``
     annotations.
 

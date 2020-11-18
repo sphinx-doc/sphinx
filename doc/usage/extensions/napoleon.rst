@@ -302,7 +302,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
     napoleon_use_param = True
     napoleon_use_rtype = True
     napoleon_type_aliases = None
-    napoleon_google_attr_annotations = False
+    napoleon_attr_annotations = True
 
 .. _Google style:
    https://google.github.io/styleguide/pyguide.html
@@ -540,8 +540,10 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
    .. versionadded:: 3.2
 
-.. confval:: napoleon_google_attr_annotations
+.. confval:: napoleon_attr_annotations
 
-    True to allow using `PEP 526`_ attributes annotations in classes.
-    If an attribute is documented in the docstring without a type and
-    has an annotation in the class body, that type is used.
+   True to allow using `PEP 526`_ attributes annotations in classes.
+   If an attribute is documented in the docstring without a type and
+   has an annotation in the class body, that type is used.
+
+   .. versionadded:: 3.4
