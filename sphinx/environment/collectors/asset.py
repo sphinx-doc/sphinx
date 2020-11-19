@@ -26,7 +26,6 @@ from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
 
-
 logger = logging.getLogger(__name__)
 
 

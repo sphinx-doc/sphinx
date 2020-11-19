@@ -13,7 +13,6 @@ from collections import OrderedDict
 import pytest
 
 from sphinx.project import Project
-from sphinx.testing.comparer import PathComparer
 
 
 def test_project_discover(rootdir):

@@ -443,8 +443,8 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
             if cls_path:
                 try:
                     if '.' in cls_path:
-                        import importlib
                         import functools
+                        import importlib
 
                         mod = importlib.import_module(obj.__module__)
                         mod_path = cls_path.split('.')

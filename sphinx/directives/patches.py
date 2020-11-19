@@ -6,13 +6,12 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple
-from typing import cast
+from typing import Any, Dict, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id, system_message
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives import images, html, tables
+from docutils.parsers.rst.directives import html, images, tables
 
 from sphinx import addnodes
 from sphinx.directives import optional_int

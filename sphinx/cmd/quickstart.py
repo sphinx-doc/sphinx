@@ -37,9 +37,8 @@ import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util.console import (  # type: ignore
-    colorize, bold, red, turquoise, nocolor, color_terminal
-)
+from sphinx.util.console import (bold, color_terminal, colorize, nocolor, red,  # type: ignore
+                                 turquoise)
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 

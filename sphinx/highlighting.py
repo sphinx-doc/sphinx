@@ -17,17 +17,15 @@ from pygments.filters import ErrorToken
 from pygments.formatter import Formatter
 from pygments.formatters import HtmlFormatter, LatexFormatter
 from pygments.lexer import Lexer
-from pygments.lexers import get_lexer_by_name, guess_lexer
-from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
-    CLexer, TextLexer, RstLexer
+from pygments.lexers import (CLexer, Python3Lexer, PythonConsoleLexer, PythonLexer, RstLexer,
+                             TextLexer, get_lexer_by_name, guess_lexer)
 from pygments.style import Style
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 
 from sphinx.locale import __
-from sphinx.pygments_styles import SphinxStyle, NoneStyle
+from sphinx.pygments_styles import NoneStyle, SphinxStyle
 from sphinx.util import logging, texescape
-
 
 logger = logging.getLogger(__name__)
 

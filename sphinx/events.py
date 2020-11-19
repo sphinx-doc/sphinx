@@ -23,6 +23,7 @@ from sphinx.util import logging
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
 
 
@@ -46,6 +47,7 @@ core_events = {
     'doctree-read': 'the doctree before being pickled',
     'env-merge-info': 'env, read docnames, other env instance',
     'missing-reference': 'env, node, contnode',
+    'warn-missing-reference': 'domain, node',
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
     'html-collect-pages': 'builder',

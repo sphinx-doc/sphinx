@@ -12,10 +12,9 @@ import platform
 import sys
 
 import pytest
+from test_ext_autodoc import do_autodoc
 
 from sphinx.testing import restructuredtext
-
-from test_ext_autodoc import do_autodoc
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
 
@@ -490,7 +489,7 @@ def test_autodoc_typehints_signature(app):
         '.. py:module:: target.typehints',
         '',
         '',
-        '.. py:class:: Math(s: str, o: object = None)',
+        '.. py:class:: Math(s: str, o: Optional[Any] = None)',
         '   :module: target.typehints',
         '',
         '',
@@ -701,6 +700,19 @@ def test_autodoc_type_aliases(app):
         '.. py:module:: target.annotations',
         '',
         '',
+        '.. py:class:: Foo()',
+        '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.attr',
+        '      :module: target.annotations',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+        '',
         '.. py:function:: mult(x: int, y: int) -> int',
         '                 mult(x: float, y: float) -> float',
         '   :module: target.annotations',
@@ -710,6 +722,13 @@ def test_autodoc_type_aliases(app):
         '',
         '.. py:function:: sum(x: int, y: int) -> int',
         '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: variable',
+        '   :module: target.annotations',
+        '   :type: int',
         '',
         '   docstring',
         '',
@@ -723,6 +742,19 @@ def test_autodoc_type_aliases(app):
         '.. py:module:: target.annotations',
         '',
         '',
+        '.. py:class:: Foo()',
+        '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.attr',
+        '      :module: target.annotations',
+        '      :type: myint',
+        '',
+        '      docstring',
+        '',
+        '',
         '.. py:function:: mult(x: myint, y: myint) -> myint',
         '                 mult(x: float, y: float) -> float',
         '   :module: target.annotations',
@@ -732,6 +764,13 @@ def test_autodoc_type_aliases(app):
         '',
         '.. py:function:: sum(x: myint, y: myint) -> myint',
         '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: variable',
+        '   :module: target.annotations',
+        '   :type: myint',
         '',
         '   docstring',
         '',

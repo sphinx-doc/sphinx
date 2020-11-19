@@ -20,8 +20,7 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util import logging, parselinenos_textref
-from sphinx.util import parselinenos
+from sphinx.util import logging, parselinenos, parselinenos_textref
 from sphinx.util.docutils import SphinxDirective
 
 if False:

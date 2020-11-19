@@ -17,7 +17,6 @@ from docutils.parsers.rst.states import Body
 
 from sphinx.deprecation import RemovedInSphinx50Warning
 
-
 field_list_item_re = re.compile(Body.patterns['field_marker'])
 
 

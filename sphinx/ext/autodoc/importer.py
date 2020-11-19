@@ -16,7 +16,7 @@ from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tup
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
-from sphinx.util.inspect import isclass, isenumclass, safe_getattr
+from sphinx.util.inspect import getslots, isclass, isenumclass, safe_getattr
 
 if False:
     # For type annotation
@@ -203,14 +203,15 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                 members[name] = Attribute(name, True, value)
 
     # members in __slots__
-    if isclass(subject) and getattr(subject, '__slots__', None) is not None:
-        from sphinx.ext.autodoc import SLOTSATTR
+    try:
+        __slots__ = getslots(subject)
+        if __slots__:
+            from sphinx.ext.autodoc import SLOTSATTR
 
-        slots = subject.__slots__
-        if isinstance(slots, str):
-            slots = [slots]
-        for name in slots:
-            members[name] = Attribute(name, True, SLOTSATTR)
+            for name in __slots__:
+                members[name] = Attribute(name, True, SLOTSATTR)
+    except (TypeError, ValueError):
+        pass
 
     # other members
     for name in dir(subject):
@@ -240,9 +241,8 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     return members
 
 
-from sphinx.ext.autodoc.mock import (  # NOQA
-    _MockModule, _MockObject, MockFinder, MockLoader, mock
-)
+from sphinx.ext.autodoc.mock import (MockFinder, MockLoader, _MockModule, _MockObject,  # NOQA
+                                     mock)
 
 deprecated_alias('sphinx.ext.autodoc.importer',
                  {

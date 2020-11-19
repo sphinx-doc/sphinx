@@ -10,9 +10,8 @@
 
 import pytest
 
-from sphinx.util.images import (
-    get_image_size, guess_mimetype, get_image_extension, parse_data_uri
-)
+from sphinx.util.images import (get_image_extension, get_image_size, guess_mimetype,
+                                parse_data_uri)
 
 GIF_FILENAME = 'img.gif'
 PNG_FILENAME = 'img.png'

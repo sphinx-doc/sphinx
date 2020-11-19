@@ -14,7 +14,7 @@ import re
 import sys
 import warnings
 from os import path
-from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
+from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple
 from urllib.parse import quote
 
 from docutils import nodes
@@ -24,10 +24,10 @@ from docutils.io import DocTreeInput, StringOutput
 from docutils.nodes import Node
 from docutils.utils import relative_path
 
-from sphinx import package_dir, __display_version__
+from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.config import Config, ENUM
+from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -38,15 +38,15 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import logging, progress_message, status_iterator, md5
+from sphinx.util import logging, md5, progress_message, status_iterator
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
-from sphinx.util.matching import patmatch, Matcher, DOTFILES
-from sphinx.util.osutil import os_path, relative_uri, ensuredir, movefile, copyfile
+from sphinx.util.matching import DOTFILES, Matcher, patmatch
+from sphinx.util.osutil import copyfile, ensuredir, movefile, os_path, relative_uri
 from sphinx.util.tags import Tags
-from sphinx.writers.html import HTMLWriter, HTMLTranslator
+from sphinx.writers.html import HTMLTranslator, HTMLWriter
 
 if False:
     # For type annotation
@@ -1190,9 +1190,10 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
 
 
 # for compatibility
+import sphinxcontrib.serializinghtml  # NOQA
+
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
-import sphinxcontrib.serializinghtml  # NOQA
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

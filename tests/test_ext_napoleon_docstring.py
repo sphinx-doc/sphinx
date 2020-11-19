@@ -19,13 +19,9 @@ from unittest import TestCase, mock
 import pytest
 
 from sphinx.ext.napoleon import Config
-from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-from sphinx.ext.napoleon.docstring import (
-    _tokenize_type_spec,
-    _recombine_set_tokens,
-    _convert_numpy_type_spec,
-    _token_type
-)
+from sphinx.ext.napoleon.docstring import (GoogleDocstring, NumpyDocstring,
+                                           _convert_numpy_type_spec, _recombine_set_tokens,
+                                           _token_type, _tokenize_type_spec)
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -1074,7 +1070,7 @@ Methods:
 
    
    description
-"""
+"""  # NOQA
         config = Config()
         actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
                                      options={'noindex': True}))
@@ -2226,7 +2222,7 @@ definition_after_normal_text : int
             ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
             ["str", ", ", "default", ": ", "'F or C'"],
             ["int", ", ", "default", ": ", "None"],
-            ["int", ", " , "default", " ", "None"],
+            ["int", ", ", "default", " ", "None"],
             ["int", ", ", "default", " ", ":obj:`None`"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],

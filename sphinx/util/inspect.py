@@ -18,12 +18,9 @@ import types
 import typing
 import warnings
 from functools import partial, partialmethod
-from inspect import (  # NOQA
-    Parameter, isclass, ismethod, ismethoddescriptor, ismodule
-)
+from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from typing import Any, Callable, Dict, Mapping, List, Optional, Tuple
-from typing import cast
+from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py35-37
@@ -33,11 +30,7 @@ from sphinx.util.typing import ForwardRef
 from sphinx.util.typing import stringify as stringify_annotation
 
 if sys.version_info > (3, 7):
-    from types import (
-        ClassMethodDescriptorType,
-        MethodDescriptorType,
-        WrapperDescriptorType
-    )
+    from types import ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType
 else:
     ClassMethodDescriptorType = type(object.__init__)
     MethodDescriptorType = type(str.join)
@@ -62,14 +55,6 @@ def getargspec(func: Callable) -> Any:
     methods."""
     warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
                   RemovedInSphinx50Warning, stacklevel=2)
-    # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
-    # succeeds with a bogus signature. We want a TypeError uniformly, to
-    # match historical behavior.
-    if (isinstance(func, type) and
-            is_builtin_class_method(func, "__new__") and
-            is_builtin_class_method(func, "__init__")):
-        raise TypeError(
-            "can't compute signature for built-in type {}".format(func))
 
     sig = inspect.signature(func)
 
@@ -122,7 +107,11 @@ def getargspec(func: Callable) -> Any:
 def unwrap(obj: Any) -> Any:
     """Get an original object from wrapped object (wrapped functions)."""
     try:
-        return inspect.unwrap(obj)
+        if hasattr(obj, '__sphinx_mock__'):
+            # Skip unwrapping mock object to avoid RecursionError
+            return obj
+        else:
+            return inspect.unwrap(obj)
     except ValueError:
         # might be a mock object
         return obj
@@ -146,6 +135,27 @@ def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
             obj = obj.__func__
         else:
             return obj
+
+
+def getslots(obj: Any) -> Optional[Dict]:
+    """Get __slots__ attribute of the class as dict.
+
+    Return None if gienv *obj* does not have __slots__.
+    """
+    if not inspect.isclass(obj):
+        raise TypeError
+
+    __slots__ = safe_getattr(obj, '__slots__', None)
+    if __slots__ is None:
+        return None
+    elif isinstance(__slots__, dict):
+        return __slots__
+    elif isinstance(__slots__, str):
+        return {__slots__: None}
+    elif isinstance(__slots__, (list, tuple)):
+        return {e: None for e in __slots__}
+    else:
+        raise ValueError
 
 
 def isenumclass(x: Any) -> bool:
@@ -320,6 +330,9 @@ def isgenericalias(obj: Any) -> bool:
     elif (hasattr(types, 'GenericAlias') and  # only for py39+
           isinstance(obj, types.GenericAlias)):  # type: ignore
         return True
+    elif (hasattr(typing, '_SpecialGenericAlias') and  # for py39+
+            isinstance(obj, typing._SpecialGenericAlias)):  # type: ignore
+        return True
     else:
         return False
 
@@ -439,14 +452,20 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False,
+def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = None,
               type_aliases: Dict = {}) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
     :param follow_wrapped: Same as ``inspect.signature()``.
-                           Defaults to ``False`` (get a signature of *subject*).
     """
+
+    if follow_wrapped is None:
+        follow_wrapped = True
+    else:
+        warnings.warn('The follow_wrapped argument of sphinx.util.inspect.signature() is '
+                      'deprecated', RemovedInSphinx50Warning, stacklevel=2)
+
     try:
         try:
             if _should_unwrap(subject):
@@ -469,10 +488,10 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
             raise
 
     try:
-        # Update unresolved annotations using ``get_type_hints()``.
+        # Resolve annotations using ``get_type_hints()`` and type_aliases.
         annotations = typing.get_type_hints(subject, None, type_aliases)
         for i, param in enumerate(parameters):
-            if isinstance(param.annotation, str) and param.name in annotations:
+            if param.name in annotations:
                 parameters[i] = param.replace(annotation=annotations[param.name])
         if 'return' in annotations:
             return_annotation = annotations['return']

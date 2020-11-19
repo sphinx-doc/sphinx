@@ -14,7 +14,6 @@ import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-
 spanish_stopwords = parse_stop_word('''
 |source: http://snowball.tartarus.org/algorithms/spanish/stop.txt
 de             |  from, of

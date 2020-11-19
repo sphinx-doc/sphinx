@@ -15,9 +15,8 @@ import pytest
 
 from sphinx import application
 from sphinx.cmd import quickstart as qs
-from sphinx.util.console import nocolor, coloron
+from sphinx.util.console import coloron, nocolor
 from sphinx.util.pycompat import execfile_
-
 
 warnfile = StringIO()
 

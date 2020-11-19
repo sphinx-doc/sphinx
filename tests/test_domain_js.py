@@ -14,10 +14,8 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.addnodes import (
-    desc, desc_annotation, desc_content, desc_name,
-    desc_parameter, desc_parameterlist, desc_signature
-)
+from sphinx.addnodes import (desc, desc_annotation, desc_content, desc_name, desc_parameter,
+                             desc_parameterlist, desc_signature)
 from sphinx.domains.javascript import JavaScriptDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node

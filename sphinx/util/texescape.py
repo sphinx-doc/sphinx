@@ -13,7 +13,6 @@ from typing import Dict
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
-
 tex_replacements = [
     # map TeX special chars
     ('$', r'\$'),

@@ -13,16 +13,13 @@ import os
 import re
 
 import pytest
-from babel.messages import pofile, mofile
+from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
-from sphinx.testing.util import (
-    path, etree_parse, strip_escseq,
-    assert_re_search, assert_not_re_search, assert_startswith, assert_node
-)
-
+from sphinx.testing.util import (assert_node, assert_not_re_search, assert_re_search,
+                                 assert_startswith, etree_parse, path, strip_escseq)
 
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
@@ -90,15 +87,6 @@ def assert_elem(elem, texts=None, refs=None, names=None):
 def assert_count(expected_expr, result, count):
     find_pair = (expected_expr, result)
     assert len(re.findall(*find_pair)) == count, find_pair
-
-
-@sphinx_intl
-@pytest.mark.sphinx('text')
-@pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_toctree(app):
-    app.build()
-    result = (app.outdir / 'index.txt').read_text()
-    assert_startswith(result, "CONTENTS\n********\n\nTABLE OF CONTENTS\n")
 
 
 @sphinx_intl
@@ -439,9 +427,14 @@ def test_text_admonitions(app):
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_toctree(app):
     app.build()
-    # --- toctree
+    # --- toctree (index.rst)
     expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'index.po')
     actual = read_po(app.outdir / 'index.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.id in [m.id for m in actual if m.id]
+    # --- toctree (toctree.rst)
+    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
+    actual = read_po(app.outdir / 'toctree.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
 
@@ -471,23 +464,16 @@ def test_text_table(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
-@pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_toctree(app):
-    app.build()
-    # --- toctree
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
-    actual = read_po(app.outdir / 'toctree.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
-
-
-@sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_toctree(app):
     app.build()
-    # --- toctree
+    # --- toctree (index.rst)
+    # Note: index.rst contains contents that is not shown in text.
+    result = (app.outdir / 'index.txt').read_text()
+    assert 'CONTENTS' in result
+    assert 'TABLE OF CONTENTS' in result
+    # --- toctree (toctree.rst)
     result = (app.outdir / 'toctree.txt').read_text()
     expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
     for expect_msg in [m for m in expect if m.id]:
