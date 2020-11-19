@@ -129,12 +129,13 @@ def test_parselinenos():
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
 
+
 def test_parselinenos_textref():
     document = """
     one
     two
     end
-    
+
     two
     one
     end
