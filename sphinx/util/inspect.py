@@ -20,7 +20,7 @@ import warnings
 from functools import partial, partialmethod
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py35-37
@@ -135,6 +135,22 @@ def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
             obj = obj.__func__
         else:
             return obj
+
+
+def getall(obj: Any) -> Optional[Sequence[str]]:
+    """Get __all__ attribute of the module as dict.
+
+    Return None if given *obj* does not have __all__.
+    Raises ValueError if given *obj* have invalid __all__.
+    """
+    __all__ = safe_getattr(obj, '__all__', None)
+    if __all__ is None:
+        return None
+    else:
+        if (isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__)):
+            return __all__
+        else:
+            raise ValueError(__all__)
 
 
 def getslots(obj: Any) -> Optional[Dict]:

@@ -961,7 +961,7 @@ class ModuleDocumenter(Documenter):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_members_option(self.options)
-        self.__all__ = None
+        self.__all__ = None  # type: Optional[Sequence[str]]
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -985,26 +985,16 @@ class ModuleDocumenter(Documenter):
         return ret
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        def is_valid_module_all(__all__: Any) -> bool:
-            """Check the given *__all__* is valid for a module."""
-            if (isinstance(__all__, (list, tuple)) and
-                    all(isinstance(e, str) for e in __all__)):
-                return True
-            else:
-                return False
-
         ret = super().import_object(raiseerror)
 
-        if not self.options.ignore_module_all:
-            __all__ = getattr(self.object, '__all__', None)
-            if is_valid_module_all(__all__):
-                # valid __all__ found. copy it to self.__all__
-                self.__all__ = __all__
-            elif __all__:
-                # invalid __all__ found.
-                logger.warning(__('__all__ should be a list of strings, not %r '
-                                  '(in module %s) -- ignoring __all__') %
-                               (__all__, self.fullname), type='autodoc')
+        try:
+            if not self.options.ignore_module_all:
+                self.__all__ = inspect.getall(self.object)
+        except ValueError as exc:
+            # invalid __all__ found.
+            logger.warning(__('__all__ should be a list of strings, not %r '
+                              '(in module %s) -- ignoring __all__') %
+                           (exc.args[0], self.fullname), type='autodoc')
 
         return ret
 
