@@ -961,7 +961,7 @@ class ModuleDocumenter(Documenter):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_members_option(self.options)
-        self.__all__ = None
+        self.__all__ = None  # type: Optional[Sequence[str]]
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -985,26 +985,16 @@ class ModuleDocumenter(Documenter):
         return ret
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        def is_valid_module_all(__all__: Any) -> bool:
-            """Check the given *__all__* is valid for a module."""
-            if (isinstance(__all__, (list, tuple)) and
-                    all(isinstance(e, str) for e in __all__)):
-                return True
-            else:
-                return False
-
         ret = super().import_object(raiseerror)
 
-        if not self.options.ignore_module_all:
-            __all__ = getattr(self.object, '__all__', None)
-            if is_valid_module_all(__all__):
-                # valid __all__ found. copy it to self.__all__
-                self.__all__ = __all__
-            elif __all__:
-                # invalid __all__ found.
-                logger.warning(__('__all__ should be a list of strings, not %r '
-                                  '(in module %s) -- ignoring __all__') %
-                               (__all__, self.fullname), type='autodoc')
+        try:
+            if not self.options.ignore_module_all:
+                self.__all__ = inspect.getall(self.object)
+        except ValueError as exc:
+            # invalid __all__ found.
+            logger.warning(__('__all__ should be a list of strings, not %r '
+                              '(in module %s) -- ignoring __all__') %
+                           (exc.args[0], self.fullname), type='autodoc')
 
         return ret
 
@@ -1697,6 +1687,28 @@ class DataDocumenter(ModuleLevelDocumenter):
                             ) -> bool:
         return isinstance(parent, ModuleDocumenter) and isattr
 
+    def import_object(self, raiseerror: bool = False) -> bool:
+        try:
+            return super().import_object(raiseerror=True)
+        except ImportError as exc:
+            # annotation only instance variable (PEP-526)
+            try:
+                self.parent = importlib.import_module(self.modname)
+                annotations = get_type_hints(self.parent, None,
+                                             self.config.autodoc_type_aliases)
+                if self.objpath[-1] in annotations:
+                    self.object = UNINITIALIZED_ATTR
+                    return True
+            except ImportError:
+                pass
+
+            if raiseerror:
+                raise
+            else:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return False
+
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
@@ -1733,6 +1745,13 @@ class DataDocumenter(ModuleLevelDocumenter):
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
 
+    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+        if self.object is UNINITIALIZED_ATTR:
+            # suppress docstring of the value
+            super().add_content(more_content, no_docstring=True)
+        else:
+            super().add_content(more_content, no_docstring=no_docstring)
+
 
 class DataDeclarationDocumenter(DataDocumenter):
     """
@@ -1746,30 +1765,10 @@ class DataDeclarationDocumenter(DataDocumenter):
     # must be higher than AttributeDocumenter
     priority = 11
 
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        """This documents only INSTANCEATTR members."""
-        return (isinstance(parent, ModuleDocumenter) and
-                isattr and
-                member is INSTANCEATTR)
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        """Never import anything."""
-        # disguise as a data
-        self.objtype = 'data'
-        self.object = UNINITIALIZED_ATTR
-        try:
-            # import module to obtain type annotation
-            self.parent = importlib.import_module(self.modname)
-        except ImportError:
-            pass
-
-        return True
-
-    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
-        """Never try to get a docstring from the object."""
-        super().add_content(more_content, no_docstring=True)
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn("%s is deprecated." % self.__class__.__name__,
+                      RemovedInSphinx50Warning, stacklevel=2)
+        super().__init__(*args, **kwargs)
 
 
 class GenericAliasDocumenter(DataDocumenter):
@@ -2036,6 +2035,22 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
 
     def isinstanceattribute(self) -> bool:
         """Check the subject is an instance attribute."""
+        # uninitialized instance variable (PEP-526)
+        with mock(self.config.autodoc_mock_imports):
+            try:
+                ret = import_object(self.modname, self.objpath[:-1], 'class',
+                                    attrgetter=self.get_attr,
+                                    warningiserror=self.config.autodoc_warningiserror)
+                self.parent = ret[3]
+                annotations = get_type_hints(self.parent, None,
+                                             self.config.autodoc_type_aliases)
+                if self.objpath[-1] in annotations:
+                    self.object = UNINITIALIZED_ATTR
+                    return True
+            except ImportError:
+                pass
+
+        # An instance variable defined inside __init__().
         try:
             analyzer = ModuleAnalyzer.for_module(self.modname)
             attr_docs = analyzer.find_attr_docs()
@@ -2046,7 +2061,9 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
 
             return False
         except PycodeError:
-            return False
+            pass
+
+        return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
@@ -2282,7 +2299,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ClassDocumenter)
     app.add_autodocumenter(ExceptionDocumenter)
     app.add_autodocumenter(DataDocumenter)
-    app.add_autodocumenter(DataDeclarationDocumenter)
     app.add_autodocumenter(GenericAliasDocumenter)
     app.add_autodocumenter(TypeVarDocumenter)
     app.add_autodocumenter(FunctionDocumenter)

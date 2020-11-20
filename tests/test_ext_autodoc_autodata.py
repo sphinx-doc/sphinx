@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
+
 import pytest
 from test_ext_autodoc import do_autodoc
 
@@ -37,5 +39,36 @@ def test_autodata_novalue(app):
         '   :module: target',
         '',
         '   documentation for the integer',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodata_typed_variable(app):
+    actual = do_autodoc(app, 'data', 'target.typed_vars.attr2')
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr2',
+        '   :module: target.typed_vars',
+        '   :type: str',
+        '',
+        '   attr2',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodata_type_comment(app):
+    actual = do_autodoc(app, 'data', 'target.typed_vars.attr3')
+    assert list(actual) == [
+        '',
+        '.. py:data:: attr3',
+        '   :module: target.typed_vars',
+        '   :type: str',
+        "   :value: ''",
+        '',
+        '   attr3',
         '',
     ]

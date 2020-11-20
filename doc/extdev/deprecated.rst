@@ -31,6 +31,11 @@ The following is a list of deprecated interfaces.
      - 5.0
      - N/A
 
+   * - ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.DataDocumenter``
+
    * - ``sphinx.util.requests.is_ssl_error()``
      - 3.4
      - 5.0
