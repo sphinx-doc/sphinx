@@ -25,9 +25,6 @@ from sphinx.ext.napoleon.docstring import (GoogleDocstring, NumpyDocstring,
                                            _token_type, _tokenize_type_spec)
 
 if sys.version_info >= (3, 6):
-    # TODO: enable imports when used
-    # import ext_napoleon_pep526_data_google
-    # import ext_napoleon_pep526_data_numpy
     from ext_napoleon_pep526_data_google import PEP526GoogleClass
     from ext_napoleon_pep526_data_numpy import PEP526NumpyClass
 
@@ -1100,7 +1097,7 @@ Do as you please
 """
         self.assertEqual(expected, actual)
 
-    def test_pep_526_annotations(self):
+    def test_pep526_annotations(self):
         if sys.version_info >= (3, 6):
             # Test class attributes annotations
             config = Config(
@@ -1124,9 +1121,6 @@ Sample class with PEP 526 annotations and google docstring
    :type: str
 """
             self.assertEqual(expected, actual)
-
-            # test module-level variables documentation
-            # TODO: use the ext_napoleon_pep526_data_google.module_level_var for that
 
 
 class NumpyDocstringTest(BaseDocstringTest):
@@ -2439,10 +2433,9 @@ class TestNumpyDocstring:
 
         assert actual == expected
 
-    def test_pep_526_annotations(self):
+    def test_pep526_annotations(self):
         if sys.version_info >= (3, 6):
             # test class attributes annotations
-            # TODO: change this test after implementation in Numpy doc style
             config = Config(
                 napoleon_attr_annotations=True
             )
@@ -2451,16 +2444,17 @@ class TestNumpyDocstring:
             expected = """\
 Sample class with PEP 526 annotations and numpy docstring
 
-.. attribute:: attr 1
+.. attribute:: attr1
 
    Attr1 description
 
-.. attribute:: attr 2
+   :type: int
+
+.. attribute:: attr2
 
    Attr2 description
+
+   :type: str
 """
             print(actual)
             assert expected == actual
-
-            # test module-level variables documentation
-            # TODO: use the ext_napoleon_pep526_data_google.module_level_var for that

@@ -12,10 +12,10 @@ class PEP526NumpyClass:
 
     Attributes
     ----------
-    attr 1:
+    attr1:
         Attr1 description
 
-    attr 2:
+    attr2:
         Attr2 description
     """
     attr1: int
