@@ -47,6 +47,8 @@ Bugs fixed
   type annotated variables
 * #8443: autodoc: autoattribute directive can't create document for PEP-526
   based uninitalized variables
+* #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
+  set to "description"
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
 * #8454: graphviz: The layout option for graph and digraph directives don't work
 
