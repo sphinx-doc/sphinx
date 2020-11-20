@@ -75,9 +75,6 @@ def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dic
     except KeyError:
         # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
         return {}
-    except AttributeError:
-        # AttributeError is raised on 3.5.2 (fixed by 3.5.3)
-        return {}
 
 
 def is_system_TypeVar(typ: Any) -> bool:
