@@ -14,6 +14,7 @@ Deprecated
 ----------
 
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+* ``sphinx.ext.autodoc.DataDeclarationDocumenter``
 * ``sphinx.util.requests.is_ssl_error()``
 
 Features added
@@ -42,6 +43,10 @@ Bugs fixed
   is decorated
 * #8434: autodoc: :confval:`autodoc_type_aliases` does not effect to variables
   and attributes
+* #8443: autodoc: autodata directive can't create document for PEP-526 based
+  type annotated variables
+* #8443: autodoc: autoattribute directive can't create document for PEP-526
+  based uninitalized variables
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
 
 Testing
