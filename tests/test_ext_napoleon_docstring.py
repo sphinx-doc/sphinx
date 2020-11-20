@@ -1070,7 +1070,7 @@ Methods:
 
    
    description
-"""
+"""  # NOQA
         config = Config()
         actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
                                      options={'noindex': True}))
@@ -2222,7 +2222,7 @@ definition_after_normal_text : int
             ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
             ["str", ", ", "default", ": ", "'F or C'"],
             ["int", ", ", "default", ": ", "None"],
-            ["int", ", " , "default", " ", "None"],
+            ["int", ", ", "default", " ", "None"],
             ["int", ", ", "default", " ", ":obj:`None`"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],

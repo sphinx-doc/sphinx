@@ -75,12 +75,12 @@ def _check(name, input, idDict, output, key, asTextOutput):
             idExpected.append(idExpected[i - 1])
     idActual = [None]
     for i in range(1, _max_id + 1):
-        #try:
+        # try:
         id = ast.get_id(version=i)
         assert id is not None
         idActual.append(id[len(_id_prefix[i]):])
-        #except NoOldIdError:
-        #    idActual.append(None)
+        # except NoOldIdError:
+        #     idActual.append(None)
 
     res = [True]
     for i in range(1, _max_id + 1):
@@ -94,7 +94,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
             print("Error in id version %d." % i)
             print("result:   %s" % idActual[i])
             print("expected: %s" % idExpected[i])
-        #print(rootSymbol.dump(0))
+        # print(rootSymbol.dump(0))
         raise DefinitionError("")
 
 
@@ -106,7 +106,7 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
     if name != 'macro':
         # Second, check with semicolon
         _check(name, input + ' ;', idDict, output + ';', key,
-           asTextOutput + ';' if asTextOutput is not None else None)
+               asTextOutput + ';' if asTextOutput is not None else None)
 
 
 def test_expressions():
@@ -422,7 +422,7 @@ def test_nested_name():
     check('function', 'void f(.A.B a)', {1: "f"})
 
 
-def test_union_definitions():
+def test_struct_definitions():
     check('struct', '{key}A', {1: 'A'})
 
 
@@ -482,7 +482,7 @@ def test_attributes():
     # style: user-defined paren
     check('member', 'paren_attr() int f', {1: 'f'})
     check('member', 'paren_attr(a) int f', {1: 'f'})
-    check('member', 'paren_attr("") int f',{1: 'f'})
+    check('member', 'paren_attr("") int f', {1: 'f'})
     check('member', 'paren_attr(()[{}][]{}) int f', {1: 'f'})
     with pytest.raises(DefinitionError):
         parse('member', 'paren_attr(() int f')
@@ -521,7 +521,7 @@ def test_attributes():
 
 
 def filter_warnings(warning, file):
-    lines = warning.getvalue().split("\n");
+    lines = warning.getvalue().split("\n")
     res = [l for l in lines if "domain-c" in l and "{}.rst".format(file) in l and
            "WARNING: document isn't included in any toctree" not in l]
     print("Filtered warnings for file '{}':".format(file))
@@ -601,6 +601,7 @@ def _get_obj(app, queryName):
         if name == queryName:
             return (docname, anchor, objectType)
     return (queryName, "not", "found")
+
 
 def test_cfunction(app):
     text = (".. c:function:: PyObject* "

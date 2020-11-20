@@ -4,6 +4,9 @@ from typing import overload
 
 myint = int
 
+#: docstring
+variable: myint
+
 
 def sum(x: myint, y: myint) -> myint:
     """docstring"""
@@ -23,3 +26,10 @@ def mult(x: float, y: float) -> float:
 def mult(x, y):
     """docstring"""
     return x, y
+
+
+class Foo:
+    """docstring"""
+
+    #: docstring
+    attr: myint

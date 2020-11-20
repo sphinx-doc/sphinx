@@ -20,7 +20,7 @@ import warnings
 from functools import partial, partialmethod
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from typing import Any, Callable, Dict, cast
+from typing import Any, Callable, Dict, Optional, Sequence, cast
 
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py36-37
@@ -107,7 +107,11 @@ def getargspec(func: Callable) -> Any:
 def unwrap(obj: Any) -> Any:
     """Get an original object from wrapped object (wrapped functions)."""
     try:
-        return inspect.unwrap(obj)
+        if hasattr(obj, '__sphinx_mock__'):
+            # Skip unwrapping mock object to avoid RecursionError
+            return obj
+        else:
+            return inspect.unwrap(obj)
     except ValueError:
         # might be a mock object
         return obj
@@ -131,6 +135,43 @@ def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
             obj = obj.__func__
         else:
             return obj
+
+
+def getall(obj: Any) -> Optional[Sequence[str]]:
+    """Get __all__ attribute of the module as dict.
+
+    Return None if given *obj* does not have __all__.
+    Raises ValueError if given *obj* have invalid __all__.
+    """
+    __all__ = safe_getattr(obj, '__all__', None)
+    if __all__ is None:
+        return None
+    else:
+        if (isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__)):
+            return __all__
+        else:
+            raise ValueError(__all__)
+
+
+def getslots(obj: Any) -> Optional[Dict]:
+    """Get __slots__ attribute of the class as dict.
+
+    Return None if gienv *obj* does not have __slots__.
+    """
+    if not inspect.isclass(obj):
+        raise TypeError
+
+    __slots__ = safe_getattr(obj, '__slots__', None)
+    if __slots__ is None:
+        return None
+    elif isinstance(__slots__, dict):
+        return __slots__
+    elif isinstance(__slots__, str):
+        return {__slots__: None}
+    elif isinstance(__slots__, (list, tuple)):
+        return {e: None for e in __slots__}
+    else:
+        raise ValueError
 
 
 def isenumclass(x: Any) -> bool:

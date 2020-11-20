@@ -17,7 +17,6 @@ from docutils.parsers.rst import Parser as RstParser
 from sphinx import addnodes
 from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.builders.latex.theming import ThemeFactory
 from sphinx.roles import XRefRole
 from sphinx.testing.util import Struct, assert_node
 from sphinx.transforms import SphinxSmartQuotes
