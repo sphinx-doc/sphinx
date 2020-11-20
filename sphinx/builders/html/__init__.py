@@ -301,7 +301,6 @@ class StandaloneHTMLBuilder(Builder):
         self.add_js_file('jquery.js')
         self.add_js_file('underscore.js')
         self.add_js_file('doctools.js')
-        self.add_js_file('language_data.js')
 
         for filename, attrs in self.app.registry.js_files:
             self.add_js_file(filename, **attrs)
