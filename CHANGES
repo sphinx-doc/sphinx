@@ -42,6 +42,7 @@ Bugs fixed
   is decorated
 * #8434: autodoc: :confval:`autodoc_type_aliases` does not effect to variables
   and attributes
+* #8419: html search: Do not load ``language_data.js`` in non-search pages
 
 Testing
 --------
