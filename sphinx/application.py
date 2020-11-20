@@ -130,7 +130,7 @@ class Sphinx:
     :ivar outdir: Directory for storing build documents.
     """
 
-    def __init__(self, srcdir: str, confdir: str, outdir: str, doctreedir: str,
+    def __init__(self, srcdir: str, confdir: Optional[str], outdir: str, doctreedir: str,
                  buildername: str, confoverrides: Dict = None,
                  status: IO = sys.stdout, warning: IO = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False, tags: List[str] = None,
@@ -289,8 +289,8 @@ class Sphinx:
                 if catalog.domain == 'sphinx' and catalog.is_outdated():
                     catalog.write_mo(self.config.language)
 
-            locale_dirs = [None]  # type: List[Optional[str]]
-            locale_dirs += list(repo.locale_dirs)
+            locale_dirs = list(repo.locale_dirs)  # type: List[Optional[str]]
+            locale_dirs += [None]
             locale_dirs += [path.join(package_dir, 'locale')]
 
             self.translator, has_translation = locale.init(locale_dirs, self.config.language)

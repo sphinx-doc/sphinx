@@ -330,7 +330,7 @@ def test_multiple_cmdoptions(app):
 def test_productionlist(app, status, warning):
     app.builder.build_all()
 
-    warnings = warning.getvalue().split("\n");
+    warnings = warning.getvalue().split("\n")
     assert len(warnings) == 2
     assert warnings[-1] == ''
     assert "Dup2.rst:4: WARNING: duplicate token description of Dup, other instance in Dup1" in warnings[0]

@@ -19,7 +19,7 @@ import _testcapi
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import is_builtin_class_method, stringify_signature
+from sphinx.util.inspect import stringify_signature
 
 
 def test_signature():
@@ -488,6 +488,28 @@ def test_dict_customtype():
     description = inspect.object_description(dictionary)
     # Type is unsortable, just check that it does not crash
     assert "<CustomType(2)>: 2" in description
+
+
+def test_getslots():
+    class Foo:
+        pass
+
+    class Bar:
+        __slots__ = ['attr']
+
+    class Baz:
+        __slots__ = {'attr': 'docstring'}
+
+    class Qux:
+        __slots__ = 'attr'
+
+    assert inspect.getslots(Foo) is None
+    assert inspect.getslots(Bar) == {'attr': None}
+    assert inspect.getslots(Baz) == {'attr': 'docstring'}
+    assert inspect.getslots(Qux) == {'attr': None}
+
+    with pytest.raises(TypeError):
+        inspect.getslots(Bar())
 
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
