@@ -15,13 +15,14 @@ from subprocess import PIPE, CalledProcessError
 from unittest.mock import Mock
 
 import pytest
-from test_build_html import ENV_WARNINGS
 
 from sphinx.builders.texinfo import default_texinfo_documents
 from sphinx.config import Config
 from sphinx.testing.util import strip_escseq
 from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
+
+from .test_build_html import ENV_WARNINGS
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option

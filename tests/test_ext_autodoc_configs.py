@@ -12,9 +12,10 @@ import platform
 import sys
 
 import pytest
-from test_ext_autodoc import do_autodoc
 
 from sphinx.testing import restructuredtext
+
+from .test_ext_autodoc import do_autodoc
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
 

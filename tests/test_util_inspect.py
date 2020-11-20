@@ -129,8 +129,8 @@ def test_signature_partialmethod():
 
 
 def test_signature_annotations():
-    from typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
-                                  f13, f14, f15, f16, f17, f18, f19, f20, f21)
+    from .typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
+                                   f13, f14, f15, f16, f17, f18, f19, f20, f21)
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -226,10 +226,10 @@ def test_signature_annotations():
     if (3, 5, 0) <= sys.version_info < (3, 5, 3):
         assert stringify_signature(sig) == '(self) -> List[Node]'
     else:
-        assert stringify_signature(sig) == '(self) -> List[typing_test_data.Node]'
+        assert stringify_signature(sig) == '(self) -> List[tests.typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
-    assert stringify_signature(sig) == '(self, parent: Optional[typing_test_data.Node]) -> None'
+    assert stringify_signature(sig) == '(self, parent: Optional[tests.typing_test_data.Node]) -> None'
 
     # show_annotation is False
     sig = inspect.signature(f7)
