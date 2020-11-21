@@ -1677,25 +1677,76 @@ class ExceptionDocumenter(ClassDocumenter):
         return isinstance(member, type) and issubclass(member, BaseException)
 
 
-class NewTypeMixin:
+class DataDocumenterMixinBase:
+    def should_suppress_directive_header(self) -> bool:
+        """Check directive header should be suppressed."""
+        return False
+
+    def update_content(self, more_content: StringList) -> None:
+        """Update docstring for the NewType object."""
+        pass
+
+
+class NewTypeMixin(DataDocumenterMixinBase):
     """
     Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
     supporting NewTypes.
     """
 
     def should_suppress_directive_header(self) -> bool:
-        """Check directive header should be suppressed."""
-        return inspect.isNewType(self.object)  # type: ignore
+        return (inspect.isNewType(self.object) or  # type: ignore
+                super().should_suppress_directive_header())
 
     def update_content(self, more_content: StringList) -> None:
-        """Update docstring for the NewType object."""
         if inspect.isNewType(self.object):  # type: ignore
             supertype = restify(self.object.__supertype__)  # type: ignore
             more_content.append(_('alias of %s') % supertype, '')
             more_content.append('', '')
 
+        super().update_content(more_content)
 
-class DataDocumenter(ModuleLevelDocumenter, NewTypeMixin):
+
+class TypeVarMixin(DataDocumenterMixinBase):
+    """
+    Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
+    supporting TypeVars.
+    """
+
+    def should_suppress_directive_header(self) -> bool:
+        return (isinstance(self.object, TypeVar) or  # type: ignore
+                super().should_suppress_directive_header())
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        if ignore is not None:
+            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx50Warning, stacklevel=2)
+
+        if isinstance(self.object, TypeVar):  # type: ignore
+            if self.object.__doc__ != TypeVar.__doc__:  # type: ignore
+                return super().get_doc()  # type: ignore
+            else:
+                return []
+        else:
+            return super().get_doc()  # type: ignore
+
+    def update_content(self, more_content: StringList) -> None:
+        if isinstance(self.object, TypeVar):  # type: ignore
+            attrs = [repr(self.object.__name__)]  # type: ignore
+            for constraint in self.object.__constraints__:  # type: ignore
+                attrs.append(stringify_typehint(constraint))
+            if self.object.__covariant__:  # type: ignore
+                attrs.append("covariant=True")
+            if self.object.__contravariant__:  # type: ignore
+                attrs.append("contravariant=True")
+
+            more_content.append(_('alias of TypeVar(%s)') % ", ".join(attrs), '')
+            more_content.append('', '')
+
+        super().update_content(more_content)
+
+
+class DataDocumenter(ModuleLevelDocumenter, NewTypeMixin, TypeVarMixin):
     """
     Specialized Documenter subclass for data items.
     """
@@ -1853,39 +1904,10 @@ class TypeVarDocumenter(DataDocumenter):
     directivetype = 'data'
     priority = DataDocumenter.priority + 1
 
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        return isinstance(member, TypeVar) and isattr
-
-    def add_directive_header(self, sig: str) -> None:
-        self.options = Options(self.options)
-        self.options['annotation'] = SUPPRESS
-        super().add_directive_header(sig)
-
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
-        if ignore is not None:
-            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx50Warning, stacklevel=2)
-
-        if self.object.__doc__ != TypeVar.__doc__:
-            return super().get_doc()
-        else:
-            return []
-
-    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
-                    ) -> None:
-        attrs = [repr(self.object.__name__)]
-        for constraint in self.object.__constraints__:
-            attrs.append(stringify_typehint(constraint))
-        if self.object.__covariant__:
-            attrs.append("covariant=True")
-        if self.object.__contravariant__:
-            attrs.append("contravariant=True")
-
-        content = StringList([_('alias of TypeVar(%s)') % ", ".join(attrs)], source='')
-        super().add_content(content)
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn("%s is deprecated." % self.__class__.__name__,
+                      RemovedInSphinx50Warning, stacklevel=2)
+        super().__init__(*args, **kwargs)
 
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
@@ -2049,7 +2071,7 @@ class SingledispatchMethodDocumenter(MethodDocumenter):
         super().__init__(*args, **kwargs)
 
 
-class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter, NewTypeMixin):  # type: ignore  # NOQA
+class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter, NewTypeMixin, TypeVarMixin):  # type: ignore  # NOQA
     """
     Specialized Documenter subclass for attributes.
     """
@@ -2380,7 +2402,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(GenericAliasDocumenter)
     app.add_autodocumenter(NewTypeDataDocumenter)
-    app.add_autodocumenter(TypeVarDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
