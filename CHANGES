@@ -52,6 +52,8 @@ Bugs fixed
   type annotated variables
 * #8443: autodoc: autoattribute directive can't create document for PEP-526
   based uninitalized variables
+* #8480: autodoc: autoattribute could not create document for __slots__
+  attributes
 * #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
   set to "description"
 * #8460: autodoc: autodata and autoattribute directives do not display type

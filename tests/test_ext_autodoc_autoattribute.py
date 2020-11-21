@@ -73,6 +73,41 @@ def test_autoattribute_instance_variable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_slots_variable_list(app):
+    actual = do_autodoc(app, 'attribute', 'target.slots.Foo.attr')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Foo.attr',
+        '   :module: target.slots',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_slots_variable_dict(app):
+    actual = do_autodoc(app, 'attribute', 'target.slots.Bar.attr1')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Bar.attr1',
+        '   :module: target.slots',
+        '',
+        '   docstring of attr1',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_slots_variable_str(app):
+    actual = do_autodoc(app, 'attribute', 'target.slots.Baz.attr')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Baz.attr',
+        '   :module: target.slots',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_NewType(app):
     actual = do_autodoc(app, 'attribute', 'target.typevar.Class.T6')
     assert list(actual) == [

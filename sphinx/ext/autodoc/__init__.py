@@ -1702,7 +1702,9 @@ class ExceptionDocumenter(ClassDocumenter):
 
 class DataDocumenterMixinBase:
     # define types of instance variables
+    parent = None  # type: Any
     object = None  # type: Any
+    objpath = None  # type: List[str]
 
     def should_suppress_directive_header(self) -> bool:
         """Check directive header should be suppressed."""
@@ -2097,7 +2099,54 @@ class SingledispatchMethodDocumenter(MethodDocumenter):
         super().__init__(*args, **kwargs)
 
 
-class AttributeDocumenter(NewTypeMixin, TypeVarMixin,  # type: ignore
+class SlotsMixin(DataDocumenterMixinBase):
+    """
+    Mixin for AttributeDocumenter to provide the feature for supporting __slots__.
+    """
+
+    def isslotsattribute(self) -> bool:
+        """Check the subject is an attribute in __slots__."""
+        try:
+            __slots__ = inspect.getslots(self.parent)
+            if __slots__ and self.objpath[-1] in __slots__:
+                return True
+            else:
+                return False
+        except (AttributeError, ValueError):
+            return False
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        ret = super().import_object(raiseerror)  # type: ignore
+        if self.isslotsattribute():
+            self.object = SLOTSATTR
+
+        return ret
+
+    def should_suppress_directive_header(self) -> bool:
+        if self.object is SLOTSATTR:
+            self._datadescriptor = True
+            return True
+        else:
+            return super().should_suppress_directive_header()
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        if self.object is SLOTSATTR:
+            try:
+                __slots__ = inspect.getslots(self.parent)
+                if __slots__ and __slots__.get(self.objpath[-1]):
+                    docstring = prepare_docstring(__slots__[self.objpath[-1]])
+                    return [docstring]
+                else:
+                    return []
+            except (AttributeError, ValueError) as exc:
+                logger.warning(__('Invalid __slots__ found on %s. Ignored.'),
+                               (self.parent.__qualname__, exc), type='autodoc')
+                return []
+        else:
+            return super().get_doc(encoding, ignore)  # type: ignore
+
+
+class AttributeDocumenter(NewTypeMixin, SlotsMixin, TypeVarMixin,  # type: ignore
                           DocstringStripSignatureMixin, ClassLevelDocumenter):
     """
     Specialized Documenter subclass for attributes.
@@ -2333,52 +2382,10 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
     # must be higher than AttributeDocumenter
     priority = 11
 
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        """This documents only SLOTSATTR members."""
-        return member is SLOTSATTR
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        """Never import anything."""
-        # disguise as an attribute
-        self.objtype = 'attribute'
-        self._datadescriptor = True
-
-        with mock(self.config.autodoc_mock_imports):
-            try:
-                ret = import_object(self.modname, self.objpath[:-1], 'class',
-                                    attrgetter=self.get_attr,
-                                    warningiserror=self.config.autodoc_warningiserror)
-                self.module, _, _, self.parent = ret
-                return True
-            except ImportError as exc:
-                if raiseerror:
-                    raise
-                else:
-                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                    self.env.note_reread()
-                    return False
-
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
-        """Decode and return lines of the docstring(s) for the object."""
-        if ignore is not None:
-            warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx50Warning, stacklevel=2)
-        name = self.objpath[-1]
-
-        try:
-            __slots__ = inspect.getslots(self.parent)
-            if __slots__ and isinstance(__slots__.get(name, None), str):
-                docstring = prepare_docstring(__slots__[name])
-                return [docstring]
-            else:
-                return []
-        except (AttributeError, ValueError) as exc:
-            logger.warning(__('Invalid __slots__ found on %s. Ignored.'),
-                           (self.parent.__qualname__, exc), type='autodoc')
-            return []
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn("%s is deprecated." % self.__class__.__name__,
+                      RemovedInSphinx50Warning, stacklevel=2)
+        super().__init__(*args, **kwargs)
 
 
 class NewTypeAttributeDocumenter(AttributeDocumenter):
@@ -2435,7 +2442,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)
-    app.add_autodocumenter(SlotsAttributeDocumenter)
     app.add_autodocumenter(NewTypeAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
