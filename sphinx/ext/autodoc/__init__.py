@@ -580,7 +580,8 @@ class Documenter:
         else:
             return 'docstring of %s' % fullname
 
-    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
+                    ) -> None:
         """Add content from docstrings, attribute documentation and user."""
         # set sourcename and add content from attribute documentation
         sourcename = self.get_sourcename()
@@ -851,7 +852,7 @@ class Documenter:
 
         return documenters
 
-    def generate(self, more_content: Any = None, real_modname: str = None,
+    def generate(self, more_content: Optional[StringList] = None, real_modname: str = None,
                  check_module: bool = False, all_members: bool = False) -> None:
         """Generate reST for the object given by *self.name*, and possibly for
         its members.
@@ -1623,7 +1624,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         tab_width = self.directive.state.document.settings.tab_width
         return [prepare_docstring(docstring, ignore, tab_width) for docstring in docstrings]
 
-    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
+                    ) -> None:
         if self.doc_as_attr:
             classname = safe_getattr(self.object, '__qualname__', None)
             if not classname:
@@ -1643,7 +1645,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return
         super().document_members(all_members)
 
-    def generate(self, more_content: Any = None, real_modname: str = None,
+    def generate(self, more_content: Optional[StringList] = None, real_modname: str = None,
                  check_module: bool = False, all_members: bool = False) -> None:
         # Do not pass real_modname and use the name from the __module__
         # attribute of the class.
@@ -1745,7 +1747,8 @@ class DataDocumenter(ModuleLevelDocumenter):
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
 
-    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
+                    ) -> None:
         if self.object is UNINITIALIZED_ATTR:
             # suppress docstring of the value
             super().add_content(more_content, no_docstring=True)
@@ -1790,7 +1793,8 @@ class GenericAliasDocumenter(DataDocumenter):
         self.options['annotation'] = SUPPRESS
         super().add_directive_header(sig)
 
-    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
+                    ) -> None:
         name = stringify_typehint(self.object)
         content = StringList([_('alias of %s') % name], source='')
         super().add_content(content)
@@ -1826,7 +1830,8 @@ class TypeVarDocumenter(DataDocumenter):
         else:
             return []
 
-    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
+                    ) -> None:
         attrs = [repr(self.object.__name__)]
         for constraint in self.object.__constraints__:
             attrs.append(stringify_typehint(constraint))
@@ -2134,7 +2139,8 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         finally:
             self.config.autodoc_inherit_docstrings = orig  # type: ignore
 
-    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
+                    ) -> None:
         if not self._datadescriptor:
             # if it's not a data descriptor, its docstring is very probably the
             # wrong thing to display
@@ -2212,7 +2218,8 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         self._datadescriptor = False
         return True
 
-    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
+    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
+                    ) -> None:
         """Never try to get a docstring from the object."""
         super().add_content(more_content, no_docstring=True)
 
