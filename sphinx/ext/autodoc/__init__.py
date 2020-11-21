@@ -990,6 +990,10 @@ class ModuleDocumenter(Documenter):
         try:
             if not self.options.ignore_module_all:
                 self.__all__ = inspect.getall(self.object)
+        except AttributeError as exc:
+            # __all__ raises an error.
+            logger.warning(__('%s.__all__ raises an error. Ignored: %r'),
+                           (self.fullname, exc), type='autodoc')
         except ValueError as exc:
             # invalid __all__ found.
             logger.warning(__('__all__ should be a list of strings, not %r '
@@ -2263,11 +2267,17 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
                           % self.__class__.__name__,
                           RemovedInSphinx50Warning, stacklevel=2)
         name = self.objpath[-1]
-        __slots__ = inspect.getslots(self.parent)
-        if __slots__ and isinstance(__slots__.get(name, None), str):
-            docstring = prepare_docstring(__slots__[name])
-            return [docstring]
-        else:
+
+        try:
+            __slots__ = inspect.getslots(self.parent)
+            if __slots__ and isinstance(__slots__.get(name, None), str):
+                docstring = prepare_docstring(__slots__[name])
+                return [docstring]
+            else:
+                return []
+        except (AttributeError, ValueError) as exc:
+            logger.warning(__('Invalid __slots__ found on %s. Ignored.'),
+                           (self.parent.__qualname__, exc), type='autodoc')
             return []
 
 
