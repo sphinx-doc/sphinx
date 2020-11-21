@@ -16,3 +16,10 @@ T5 = TypeVar("T5", contravariant=True)
 
 #: T6
 T6 = NewType("T6", int)
+
+
+class Class:
+    # TODO: TypeVar
+
+    #: T6
+    T6 = NewType("T6", int)
