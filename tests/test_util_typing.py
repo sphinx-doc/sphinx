@@ -53,7 +53,7 @@ def test_restify_type_hints_containers():
     assert restify(Tuple[str, str, str]) == ":class:`Tuple`\\ [:class:`str`, :class:`str`, :class:`str`]"
     assert restify(Tuple[str, ...]) == ":class:`Tuple`\\ [:class:`str`, ...]"
     assert restify(List[Dict[str, Tuple]]) == ":class:`List`\\ [:class:`Dict`\\ [:class:`str`, :class:`Tuple`]]"
-    assert restify(MyList[Tuple[int, int]]) == ":class:`test_util_typing.MyList`\\ [:class:`Tuple`\\ [:class:`int`, :class:`int`]]"
+    assert restify(MyList[Tuple[int, int]]) == ":class:`tests.test_util_typing.MyList`\\ [:class:`Tuple`\\ [:class:`int`, :class:`int`]]"
     assert restify(Generator[None, None, None]) == ":class:`Generator`\\ [:obj:`None`, :obj:`None`, :obj:`None`]"
 
 
@@ -76,10 +76,10 @@ def test_restify_type_hints_Union():
     if sys.version_info >= (3, 7):
         assert restify(Union[int, Integral]) == ":obj:`Union`\\ [:class:`int`, :class:`numbers.Integral`]"
         assert (restify(Union[MyClass1, MyClass2]) ==
-                ":obj:`Union`\\ [:class:`test_util_typing.MyClass1`, :class:`test_util_typing.<MyClass2>`]")
+                ":obj:`Union`\\ [:class:`tests.test_util_typing.MyClass1`, :class:`tests.test_util_typing.<MyClass2>`]")
     else:
         assert restify(Union[int, Integral]) == ":class:`numbers.Integral`"
-        assert restify(Union[MyClass1, MyClass2]) == ":class:`test_util_typing.MyClass1`"
+        assert restify(Union[MyClass1, MyClass2]) == ":class:`tests.test_util_typing.MyClass1`"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
@@ -88,15 +88,15 @@ def test_restify_type_hints_typevars():
     T_co = TypeVar('T_co', covariant=True)
     T_contra = TypeVar('T_contra', contravariant=True)
 
-    assert restify(T) == ":obj:`test_util_typing.T`"
-    assert restify(T_co) == ":obj:`test_util_typing.T_co`"
-    assert restify(T_contra) == ":obj:`test_util_typing.T_contra`"
-    assert restify(List[T]) == ":class:`List`\\ [:obj:`test_util_typing.T`]"
+    assert restify(T) == ":obj:`tests.test_util_typing.T`"
+    assert restify(T_co) == ":obj:`tests.test_util_typing.T_co`"
+    assert restify(T_contra) == ":obj:`tests.test_util_typing.T_contra`"
+    assert restify(List[T]) == ":class:`List`\\ [:obj:`tests.test_util_typing.T`]"
 
 
 def test_restify_type_hints_custom_class():
-    assert restify(MyClass1) == ":class:`test_util_typing.MyClass1`"
-    assert restify(MyClass2) == ":class:`test_util_typing.<MyClass2>`"
+    assert restify(MyClass1) == ":class:`tests.test_util_typing.MyClass1`"
+    assert restify(MyClass2) == ":class:`tests.test_util_typing.<MyClass2>`"
 
 
 def test_restify_type_hints_alias():
@@ -107,7 +107,7 @@ def test_restify_type_hints_alias():
 
 
 def test_restify_broken_type_hints():
-    assert restify(BrokenType) == ':class:`test_util_typing.BrokenType`'
+    assert restify(BrokenType) == ':class:`tests.test_util_typing.BrokenType`'
 
 
 def test_stringify():
@@ -127,7 +127,7 @@ def test_stringify_type_hints_containers():
     assert stringify(Tuple[str, str, str]) == "Tuple[str, str, str]"
     assert stringify(Tuple[str, ...]) == "Tuple[str, ...]"
     assert stringify(List[Dict[str, Tuple]]) == "List[Dict[str, Tuple]]"
-    assert stringify(MyList[Tuple[int, int]]) == "test_util_typing.MyList[Tuple[int, int]]"
+    assert stringify(MyList[Tuple[int, int]]) == "tests.test_util_typing.MyList[Tuple[int, int]]"
     assert stringify(Generator[None, None, None]) == "Generator[None, None, None]"
 
 
@@ -164,10 +164,10 @@ def test_stringify_type_hints_Union():
     if sys.version_info >= (3, 7):
         assert stringify(Union[int, Integral]) == "Union[int, numbers.Integral]"
         assert (stringify(Union[MyClass1, MyClass2]) ==
-                "Union[test_util_typing.MyClass1, test_util_typing.<MyClass2>]")
+                "Union[tests.test_util_typing.MyClass1, tests.test_util_typing.<MyClass2>]")
     else:
         assert stringify(Union[int, Integral]) == "numbers.Integral"
-        assert stringify(Union[MyClass1, MyClass2]) == "test_util_typing.MyClass1"
+        assert stringify(Union[MyClass1, MyClass2]) == "tests.test_util_typing.MyClass1"
 
 
 def test_stringify_type_hints_typevars():
@@ -182,8 +182,8 @@ def test_stringify_type_hints_typevars():
 
 
 def test_stringify_type_hints_custom_class():
-    assert stringify(MyClass1) == "test_util_typing.MyClass1"
-    assert stringify(MyClass2) == "test_util_typing.<MyClass2>"
+    assert stringify(MyClass1) == "tests.test_util_typing.MyClass1"
+    assert stringify(MyClass2) == "tests.test_util_typing.<MyClass2>"
 
 
 def test_stringify_type_hints_alias():
@@ -194,4 +194,4 @@ def test_stringify_type_hints_alias():
 
 
 def test_stringify_broken_type_hints():
-    assert stringify(BrokenType) == 'test_util_typing.BrokenType'
+    assert stringify(BrokenType) == 'tests.test_util_typing.BrokenType'
