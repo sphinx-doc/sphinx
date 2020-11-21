@@ -36,6 +36,11 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.ext.autodoc.DataDocumenter``
 
+   * - ``sphinx.pycode.ModuleAnalyzer.parse()``
+     - 3.4
+     - 5.0
+     - ``sphinx.pycode.ModuleAnalyzer.analyze()``
+
    * - ``sphinx.util.requests.is_ssl_error()``
      - 3.4
      - 5.0

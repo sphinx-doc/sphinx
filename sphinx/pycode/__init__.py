@@ -19,7 +19,7 @@ from os import path
 from typing import IO, Any, Dict, List, Optional, Tuple
 from zipfile import ZipFile
 
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
 
@@ -143,18 +143,24 @@ class ModuleAnalyzer:
             self._encoding = None
             self.code = source.read()
 
-        # will be filled by parse()
+        # will be filled by analyze()
         self.annotations = None  # type: Dict[Tuple[str, str], str]
         self.attr_docs = None    # type: Dict[Tuple[str, str], List[str]]
         self.finals = None       # type: List[str]
         self.overloads = None    # type: Dict[str, List[Signature]]
         self.tagorder = None     # type: Dict[str, int]
         self.tags = None         # type: Dict[str, Tuple[str, int, int]]
-        self._parsed = False
+        self._analyzed = False
 
     def parse(self) -> None:
         """Parse the source code."""
-        if self._parsed:
+        warnings.warn('ModuleAnalyzer.parse() is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        self.analyze()
+
+    def analyze(self) -> None:
+        """Analyze the source code."""
+        if self._analyzed:
             return None
 
         try:
@@ -179,12 +185,12 @@ class ModuleAnalyzer:
 
     def find_attr_docs(self) -> Dict[Tuple[str, str], List[str]]:
         """Find class and module-level attributes and their documentation."""
-        self.parse()
+        self.analyze()
         return self.attr_docs
 
     def find_tags(self) -> Dict[str, Tuple[str, int, int]]:
         """Find class, function and method definitions and their location."""
-        self.parse()
+        self.analyze()
         return self.tags
 
     @property
