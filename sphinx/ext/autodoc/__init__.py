@@ -1673,7 +1673,25 @@ class ExceptionDocumenter(ClassDocumenter):
         return isinstance(member, type) and issubclass(member, BaseException)
 
 
-class DataDocumenter(ModuleLevelDocumenter):
+class NewTypeMixin:
+    """
+    Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
+    supporting NewTypes.
+    """
+
+    def should_suppress_directive_header(self) -> bool:
+        """Check directive header should be suppressed."""
+        return inspect.isNewType(self.object)  # type: ignore
+
+    def update_content(self, more_content: StringList) -> None:
+        """Update docstring for the NewType object."""
+        if inspect.isNewType(self.object):  # type: ignore
+            supertype = restify(self.object.__supertype__)  # type: ignore
+            more_content.append(_('alias of %s') % supertype, '')
+            more_content.append('', '')
+
+
+class DataDocumenter(ModuleLevelDocumenter, NewTypeMixin):
     """
     Specialized Documenter subclass for data items.
     """
@@ -1714,7 +1732,7 @@ class DataDocumenter(ModuleLevelDocumenter):
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
-        if self.options.annotation is SUPPRESS or inspect.isNewType(self.object):
+        if self.options.annotation is SUPPRESS or self.should_suppress_directive_header():
             pass
         elif self.options.annotation:
             self.add_line('   :annotation: %s' % self.options.annotation,
@@ -1756,14 +1774,8 @@ class DataDocumenter(ModuleLevelDocumenter):
             if not more_content:
                 more_content = StringList()
 
-            if inspect.isNewType(self.object):
-                self.update_content_for_NewType(more_content)
+            self.update_content(more_content)
             super().add_content(more_content, no_docstring=no_docstring)
-
-    def update_content_for_NewType(self, more_content: StringList) -> None:
-        supertype = restify(self.object.__supertype__)
-        more_content.append(_('alias of %s') % supertype, '')
-        more_content.append('', '')
 
 
 class DataDeclarationDocumenter(DataDocumenter):
