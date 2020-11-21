@@ -1594,7 +1594,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return False, [(m.name, m.value) for m in members.values()]
         else:
             return False, [(m.name, m.value) for m in members.values()
-                           if m.directly_defined]
+                           if m.class_ == self.object]
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         if encoding is not None:

@@ -241,27 +241,37 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     return members
 
 
+class ClassAttribute:
+    """The attribute of the class."""
+
+    def __init__(self, cls: Any, name: str, value: Any, docstring: Optional[str] = None):
+        self.class_ = cls
+        self.name = name
+        self.value = value
+        self.docstring = docstring
+
+
 def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
-                      analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
+                      analyzer: ModuleAnalyzer = None) -> Dict[str, ClassAttribute]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR
 
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    members = {}  # type: Dict[str, Attribute]
+    members = {}  # type: Dict[str, ClassAttribute]
 
     # enum members
     if isenumclass(subject):
         for name, value in subject.__members__.items():
             if name not in members:
-                members[name] = Attribute(name, True, value)
+                members[name] = ClassAttribute(subject, name, value)
 
         superclass = subject.__mro__[1]
         for name in obj_dict:
             if name not in superclass.__dict__:
                 value = safe_getattr(subject, name)
-                members[name] = Attribute(name, True, value)
+                members[name] = ClassAttribute(subject, name, value)
 
     # members in __slots__
     try:
@@ -269,8 +279,8 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
         if __slots__:
             from sphinx.ext.autodoc import SLOTSATTR
 
-            for name in __slots__:
-                members[name] = Attribute(name, True, SLOTSATTR)
+            for name, docstring in __slots__.items():
+                members[name] = ClassAttribute(subject, name, SLOTSATTR, docstring)
     except (AttributeError, TypeError, ValueError):
         pass
 
@@ -278,20 +288,22 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
     for name in dir(subject):
         try:
             value = attrgetter(subject, name)
-            directly_defined = name in obj_dict
-            name = unmangle(subject, name)
-            if name and name not in members:
-                members[name] = Attribute(name, directly_defined, value)
+            unmangled = unmangle(subject, name)
+            if unmangled and unmangled not in members:
+                if name in obj_dict:
+                    members[unmangled] = ClassAttribute(subject, unmangled, value)
+                else:
+                    members[unmangled] = ClassAttribute(None, unmangled, value)
         except AttributeError:
             continue
 
     # annotation only member (ex. attr: int)
-    for i, cls in enumerate(getmro(subject)):
+    for cls in getmro(subject):
         try:
             for name in getannotations(cls):
                 name = unmangle(cls, name)
                 if name and name not in members:
-                    members[name] = Attribute(name, i == 0, INSTANCEATTR)
+                    members[name] = ClassAttribute(cls, name, INSTANCEATTR)
         except AttributeError:
             pass
 
@@ -300,7 +312,7 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
         namespace = '.'.join(objpath)
         for (ns, name) in analyzer.find_attr_docs():
             if namespace == ns and name not in members:
-                members[name] = Attribute(name, True, INSTANCEATTR)
+                members[name] = ClassAttribute(subject, name, INSTANCEATTR)
 
     return members
 
