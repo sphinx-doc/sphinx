@@ -154,6 +154,18 @@ def getall(obj: Any) -> Optional[Sequence[str]]:
             raise ValueError(__all__)
 
 
+def getannotations(obj: Any) -> Mapping[str, Any]:
+    """Get __annotations__ from given *obj* safely.
+
+    Raises AttributeError if given *obj* raises an error on accessing __attribute__.
+    """
+    __annotations__ = safe_getattr(obj, '__annotations__', None)
+    if isinstance(__annotations__, Mapping):
+        return __annotations__
+    else:
+        return {}
+
+
 def getslots(obj: Any) -> Optional[Dict]:
     """Get __slots__ attribute of the class as dict.
 
