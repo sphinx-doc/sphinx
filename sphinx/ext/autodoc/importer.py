@@ -210,7 +210,7 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
 
             for name in __slots__:
                 members[name] = Attribute(name, True, SLOTSATTR)
-    except (TypeError, ValueError):
+    except (AttributeError, TypeError, ValueError):
         pass
 
     # other members

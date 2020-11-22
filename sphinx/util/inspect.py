@@ -141,6 +141,7 @@ def getall(obj: Any) -> Optional[Sequence[str]]:
     """Get __all__ attribute of the module as dict.
 
     Return None if given *obj* does not have __all__.
+    Raises AttributeError if given *obj* raises an error on accessing __all__.
     Raises ValueError if given *obj* have invalid __all__.
     """
     __all__ = safe_getattr(obj, '__all__', None)
@@ -157,6 +158,8 @@ def getslots(obj: Any) -> Optional[Dict]:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
+    Raises AttributeError if given *obj* raises an error on accessing __slots__.
+    Raises ValueError if given *obj* have invalid __slots__.
     """
     if not inspect.isclass(obj):
         raise TypeError
