@@ -15,6 +15,7 @@ Deprecated
 
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
 * ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.pycode.ModuleAnalyzer.parse()``
 * ``sphinx.util.requests.is_ssl_error()``
 
 Features added

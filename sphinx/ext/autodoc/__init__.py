@@ -1539,7 +1539,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             for cls in self._signature_class.__mro__:
                 try:
                     analyzer = ModuleAnalyzer.for_module(cls.__module__)
-                    analyzer.parse()
+                    analyzer.analyze()
                     qualname = '.'.join([cls.__qualname__, self._signature_method_name])
                     if qualname in analyzer.overloads:
                         return analyzer.overloads.get(qualname)
