@@ -1677,7 +1677,25 @@ class ExceptionDocumenter(ClassDocumenter):
         return isinstance(member, type) and issubclass(member, BaseException)
 
 
-class DataDocumenter(ModuleLevelDocumenter):
+class NewTypeMixin:
+    """
+    Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
+    supporting NewTypes.
+    """
+
+    def should_suppress_directive_header(self) -> bool:
+        """Check directive header should be suppressed."""
+        return inspect.isNewType(self.object)  # type: ignore
+
+    def update_content(self, more_content: StringList) -> None:
+        """Update docstring for the NewType object."""
+        if inspect.isNewType(self.object):  # type: ignore
+            supertype = restify(self.object.__supertype__)  # type: ignore
+            more_content.append(_('alias of %s') % supertype, '')
+            more_content.append('', '')
+
+
+class DataDocumenter(ModuleLevelDocumenter, NewTypeMixin):
     """
     Specialized Documenter subclass for data items.
     """
@@ -1718,7 +1736,12 @@ class DataDocumenter(ModuleLevelDocumenter):
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
-        if not self.options.annotation:
+        if self.options.annotation is SUPPRESS or self.should_suppress_directive_header():
+            pass
+        elif self.options.annotation:
+            self.add_line('   :annotation: %s' % self.options.annotation,
+                          sourcename)
+        else:
             # obtain annotation for this data
             annotations = get_type_hints(self.parent, None, self.config.autodoc_type_aliases)
             if self.objpath[-1] in annotations:
@@ -1738,11 +1761,6 @@ class DataDocumenter(ModuleLevelDocumenter):
                     self.add_line('   :value: ' + objrepr, sourcename)
             except ValueError:
                 pass
-        elif self.options.annotation is SUPPRESS:
-            pass
-        else:
-            self.add_line('   :annotation: %s' % self.options.annotation,
-                          sourcename)
 
     def document_members(self, all_members: bool = False) -> None:
         pass
@@ -1757,6 +1775,10 @@ class DataDocumenter(ModuleLevelDocumenter):
             # suppress docstring of the value
             super().add_content(more_content, no_docstring=True)
         else:
+            if not more_content:
+                more_content = StringList()
+
+            self.update_content(more_content)
             super().add_content(more_content, no_docstring=no_docstring)
 
 
@@ -1802,6 +1824,24 @@ class GenericAliasDocumenter(DataDocumenter):
         name = stringify_typehint(self.object)
         content = StringList([_('alias of %s') % name], source='')
         super().add_content(content)
+
+
+class NewTypeDataDocumenter(DataDocumenter):
+    """
+    Specialized Documenter subclass for NewTypes.
+
+    Note: This must be invoked before FunctionDocumenter because NewType is a kind of
+    function object.
+    """
+
+    objtype = 'newtypedata'
+    directivetype = 'data'
+    priority = FunctionDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        return inspect.isNewType(member) and isattr
 
 
 class TypeVarDocumenter(DataDocumenter):
@@ -2009,7 +2049,7 @@ class SingledispatchMethodDocumenter(MethodDocumenter):
         super().__init__(*args, **kwargs)
 
 
-class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore
+class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter, NewTypeMixin):  # type: ignore  # NOQA
     """
     Specialized Documenter subclass for attributes.
     """
@@ -2105,7 +2145,11 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
-        if not self.options.annotation:
+        if self.options.annotation is SUPPRESS or self.should_suppress_directive_header():
+            pass
+        elif self.options.annotation:
+            self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
+        else:
             # obtain type annotation for this attribute
             annotations = get_type_hints(self.parent, None, self.config.autodoc_type_aliases)
             if self.objpath[-1] in annotations:
@@ -2127,10 +2171,6 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
                         self.add_line('   :value: ' + objrepr, sourcename)
                 except ValueError:
                     pass
-        elif self.options.annotation is SUPPRESS:
-            pass
-        else:
-            self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         try:
@@ -2149,6 +2189,10 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             # if it's not a data descriptor, its docstring is very probably the
             # wrong thing to display
             no_docstring = True
+
+        if more_content is None:
+            more_content = StringList()
+        self.update_content(more_content)
         super().add_content(more_content, no_docstring)
 
 
@@ -2288,6 +2332,24 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
             return []
 
 
+class NewTypeAttributeDocumenter(AttributeDocumenter):
+    """
+    Specialized Documenter subclass for NewTypes.
+
+    Note: This must be invoked before MethodDocumenter because NewType is a kind of
+    function object.
+    """
+
+    objtype = 'newvarattribute'
+    directivetype = 'attribute'
+    priority = MethodDocumenter.priority + 1
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        return not isinstance(parent, ModuleDocumenter) and inspect.isNewType(member)
+
+
 def get_documenters(app: Sphinx) -> Dict[str, "Type[Documenter]"]:
     """Returns registered Documenter classes"""
     warnings.warn("get_documenters() is deprecated.", RemovedInSphinx50Warning, stacklevel=2)
@@ -2317,6 +2379,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ExceptionDocumenter)
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(GenericAliasDocumenter)
+    app.add_autodocumenter(NewTypeDataDocumenter)
     app.add_autodocumenter(TypeVarDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
@@ -2325,6 +2388,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(PropertyDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)
     app.add_autodocumenter(SlotsAttributeDocumenter)
+    app.add_autodocumenter(NewTypeAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
     app.add_config_value('autodoc_member_order', 'alphabetical', True,

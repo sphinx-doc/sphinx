@@ -10,7 +10,8 @@
 
 import sys
 from numbers import Integral
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, TypeVar, Union
+from typing import (Any, Callable, Dict, Generator, List, NewType, Optional, Tuple, TypeVar,
+                    Union)
 
 import pytest
 
@@ -26,6 +27,7 @@ class MyClass2(MyClass1):
 
 
 T = TypeVar('T')
+MyInt = NewType('MyInt', int)
 
 
 class MyList(List[T]):
@@ -92,6 +94,7 @@ def test_restify_type_hints_typevars():
     assert restify(T_co) == ":obj:`tests.test_util_typing.T_co`"
     assert restify(T_contra) == ":obj:`tests.test_util_typing.T_contra`"
     assert restify(List[T]) == ":class:`List`\\ [:obj:`tests.test_util_typing.T`]"
+    assert restify(MyInt) == ":class:`MyInt`"
 
 
 def test_restify_type_hints_custom_class():
@@ -179,6 +182,7 @@ def test_stringify_type_hints_typevars():
     assert stringify(T_co) == "T_co"
     assert stringify(T_contra) == "T_contra"
     assert stringify(List[T]) == "List[T]"
+    assert stringify(MyInt) == "MyInt"
 
 
 def test_stringify_type_hints_custom_class():

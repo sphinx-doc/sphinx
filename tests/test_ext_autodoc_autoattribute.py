@@ -70,3 +70,18 @@ def test_autoattribute_instance_variable(app):
         '   attr4',
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_NewType(app):
+    actual = do_autodoc(app, 'attribute', 'target.typevar.Class.T6')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Class.T6',
+        '   :module: target.typevar',
+        '',
+        '   T6',
+        '',
+        '   alias of :class:`int`',
+        '',
+    ]

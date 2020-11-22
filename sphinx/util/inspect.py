@@ -177,6 +177,16 @@ def getslots(obj: Any) -> Optional[Dict]:
         raise ValueError
 
 
+def isNewType(obj: Any) -> bool:
+    """Check the if object is a kind of NewType."""
+    __module__ = safe_getattr(obj, '__module__', None)
+    __qualname__ = safe_getattr(obj, '__qualname__', None)
+    if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
+        return True
+    else:
+        return False
+
+
 def isenumclass(x: Any) -> bool:
     """Check if the object is subclass of enum."""
     return inspect.isclass(x) and issubclass(x, enum.Enum)
