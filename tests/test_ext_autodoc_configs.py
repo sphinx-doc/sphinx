@@ -15,7 +15,7 @@ import pytest
 
 from sphinx.testing import restructuredtext
 
-from test_ext_autodoc import do_autodoc
+from .test_ext_autodoc import do_autodoc
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
 
@@ -490,7 +490,7 @@ def test_autodoc_typehints_signature(app):
         '.. py:module:: target.typehints',
         '',
         '',
-        '.. py:class:: Math(s: str, o: object = None)',
+        '.. py:class:: Math(s: str, o: Optional[Any] = None)',
         '   :module: target.typehints',
         '',
         '',
@@ -610,6 +610,54 @@ def test_autodoc_typehints_none(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': 'none'})
+def test_autodoc_typehints_none_for_overload(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.overload', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload',
+        '',
+        '',
+        '.. py:class:: Bar(x, y)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Baz(x, y)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Foo(x, y)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Math()',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Math.sum(x, y)',
+        '      :module: target.overload',
+        '',
+        '      docstring',
+        '',
+        '',
+        '.. py:function:: sum(x, y)',
+        '   :module: target.overload',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description(app):
@@ -640,6 +688,116 @@ def test_autodoc_typehints_description(app):
 def test_autodoc_typehints_description_for_invalid_node(app):
     text = ".. py:function:: hello; world"
     restructuredtext.parse(app, text)  # raises no error
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
+@pytest.mark.sphinx('text', testroot='ext-autodoc')
+def test_autodoc_type_aliases(app):
+    # default
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.annotations', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.annotations',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.attr',
+        '      :module: target.annotations',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+        '',
+        '.. py:function:: mult(x: int, y: int) -> int',
+        '                 mult(x: float, y: float) -> float',
+        '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:function:: sum(x: int, y: int) -> int',
+        '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: variable',
+        '   :module: target.annotations',
+        '   :type: int',
+        '',
+        '   docstring',
+        '',
+    ]
+
+    # define aliases
+    app.config.autodoc_type_aliases = {'myint': 'myint'}
+    actual = do_autodoc(app, 'module', 'target.annotations', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.annotations',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.attr',
+        '      :module: target.annotations',
+        '      :type: myint',
+        '',
+        '      docstring',
+        '',
+        '',
+        '.. py:function:: mult(x: myint, y: myint) -> myint',
+        '                 mult(x: float, y: float) -> float',
+        '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:function:: sum(x: myint, y: myint) -> myint',
+        '   :module: target.annotations',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: variable',
+        '   :module: target.annotations',
+        '   :type: myint',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    srcdir='autodoc_typehints_description_and_type_aliases',
+                    confoverrides={'autodoc_typehints': "description",
+                                   'autodoc_type_aliases': {'myint': 'myint'}})
+def test_autodoc_typehints_description_and_type_aliases(app):
+    (app.srcdir / 'annotations.rst').write_text('.. autofunction:: target.annotations.sum')
+    app.build()
+    context = (app.outdir / 'annotations.txt').read_text()
+    assert ('target.annotations.sum(x, y)\n'
+            '\n'
+            '   docstring\n'
+            '\n'
+            '   Parameters:\n'
+            '      * **x** (*myint*) --\n'
+            '\n'
+            '      * **y** (*myint*) --\n'
+            '\n'
+            '   Return type:\n'
+            '      myint\n' == context)
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

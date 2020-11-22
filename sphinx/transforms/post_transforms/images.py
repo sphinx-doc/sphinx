@@ -11,18 +11,16 @@
 import os
 import re
 from math import ceil
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from docutils import nodes
 
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch, sha1
-from sphinx.util import logging, requests
-from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
+from sphinx.util import epoch_to_rfc1123, logging, requests, rfc1123_to_epoch, sha1
+from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
 from sphinx.util.osutil import ensuredir, movefile
-
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +173,13 @@ class ImageConverter(BaseImageConverter):
     """
     default_priority = 200
 
+    #: The converter is available or not.  Will be filled at the first call of
+    #: the build.  The result is shared in the same process.
+    #:
+    #: .. todo:: This should be refactored not to store the state without class
+    #:           variable.
+    available = None  # type: Optional[bool]
+
     #: A conversion rules the image converter supports.
     #: It is represented as a list of pair of source image format (mimetype) and
     #: destination one::
@@ -187,16 +192,14 @@ class ImageConverter(BaseImageConverter):
     conversion_rules = []  # type: List[Tuple[str, str]]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.available = None   # type: bool
-                                # the converter is available or not.
-                                # Will be checked at first conversion
         super().__init__(*args, **kwargs)
 
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
         elif self.available is None:
-            self.available = self.is_available()
+            # store the value to the class variable to share it during the build
+            self.__class__.available = self.is_available()
 
         if not self.available:
             return False

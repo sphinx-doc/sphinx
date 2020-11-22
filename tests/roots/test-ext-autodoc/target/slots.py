@@ -9,3 +9,7 @@ class Bar:
 
     def __init__(self):
         self.attr2 = None  #: docstring of instance attr2
+
+
+class Baz:
+    __slots__ = 'attr'

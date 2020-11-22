@@ -17,7 +17,7 @@ import pytest
 from docutils.statemachine import ViewList
 
 from sphinx import addnodes
-from sphinx.ext.autodoc import ModuleLevelDocumenter, ALL, Options
+from sphinx.ext.autodoc import ALL, ModuleLevelDocumenter, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util.docutils import LoggingReporter
@@ -177,7 +177,6 @@ def test_format_signature(app):
     for C in (D, E):
         assert formatsig('class', 'D', C, None, None) == '()'
 
-
     class SomeMeta(type):
         def __call__(cls, a, b=None):
             return type.__call__(cls, a, b)
@@ -209,7 +208,6 @@ def test_format_signature(app):
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
     assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
-
     class ListSubclass(list):
         pass
 
@@ -219,14 +217,12 @@ def test_format_signature(app):
     else:
         assert formatsig('class', 'C', ListSubclass, None, None) == ''
 
-
     class ExceptionSubclass(Exception):
         pass
 
     # Exception has no __text_signature__ at least in Python 3.8
     if getattr(Exception, '__text_signature__', None) is None:
         assert formatsig('class', 'C', ExceptionSubclass, None, None) == ''
-
 
     # __init__ have signature at first line of docstring
     directive.env.config.autoclass_content = 'both'
@@ -288,6 +284,21 @@ def test_format_signature(app):
     curried4 = partial(lambda a, b, c=42, *d, **e: None, 'A')
     assert formatsig('function', 'curried4', curried4, None, None) == \
         '(b, c=42, *d, **e)'
+
+
+@pytest.mark.skipif(sys.version_info < (3, 5), reason='typing is available since python3.5.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_process_signature_typing_generic(app):
+    actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
+
+    assert list(actual) == [
+        '',
+        '.. py:class:: A(a, b=None)',
+        '   :module: target.generic_class',
+        '',
+        '   docstring for A',
+        '',
+    ]
 
 
 def test_autodoc_process_signature_typehints(app):
@@ -881,6 +892,26 @@ def test_autodoc_descriptor(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='cached_property is available since python3.8.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_cached_property(app):
+    options = {"members": None,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'class', 'target.cached_property.Foo', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.cached_property',
+        '',
+        '',
+        '   .. py:method:: Foo.prop',
+        '      :module: target.cached_property',
+        '      :property:',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_member_order(app):
     # case member-order='bysource'
@@ -1160,6 +1191,14 @@ def test_slots(app):
         '',
         '',
         '   .. py:attribute:: Bar.attr3',
+        '      :module: target.slots',
+        '',
+        '',
+        '.. py:class:: Baz()',
+        '   :module: target.slots',
+        '',
+        '',
+        '   .. py:attribute:: Baz.attr',
         '      :module: target.slots',
         '',
         '',
@@ -1692,6 +1731,18 @@ def test_autodoc_TypeVar(app):
         '.. py:module:: target.typevar',
         '',
         '',
+        '.. py:class:: Class()',
+        '   :module: target.typevar',
+        '',
+        '',
+        '   .. py:attribute:: Class.T6',
+        '      :module: target.typevar',
+        '',
+        '      T6',
+        '',
+        '      alias of :class:`int`',
+        '',
+        '',
         '.. py:data:: T1',
         '   :module: target.typevar',
         '',
@@ -1719,6 +1770,14 @@ def test_autodoc_TypeVar(app):
         '   T5',
         '',
         "   alias of TypeVar('T5', contravariant=True)",
+        '',
+        '.. py:data:: T6',
+        '   :module: target.typevar',
+        '',
+        '   T6',
+        '',
+        '   alias of :class:`int`',
+        '',
     ]
 
 
@@ -1789,19 +1848,26 @@ def test_autodoc_for_egged_code(app):
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: target.singledispatch',
-        '',
-        '',
-        '.. py:function:: func(arg, kwarg=None)',
-        '                 func(arg: int, kwarg=None)',
-        '                 func(arg: str, kwarg=None)',
-        '   :module: target.singledispatch',
-        '',
-        '   A function for general use.',
-        '',
-    ]
+    if sys.version_info < (3, 6):
+        # check the result via "in" because the order of singledispatch signatures is
+        # usually changed (because dict is not OrderedDict yet!)
+        assert '.. py:function:: func(arg, kwarg=None)' in actual
+        assert '                 func(arg: int, kwarg=None)' in actual
+        assert '                 func(arg: str, kwarg=None)' in actual
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:module:: target.singledispatch',
+            '',
+            '',
+            '.. py:function:: func(arg, kwarg=None)',
+            '                 func(arg: int, kwarg=None)',
+            '                 func(arg: str, kwarg=None)',
+            '   :module: target.singledispatch',
+            '',
+            '   A function for general use.',
+            '',
+        ]
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
@@ -1963,6 +2029,22 @@ def test_overload(app):
         '   :module: target.overload',
         '',
         '   docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload2(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.overload2', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload2',
+        '',
+        '',
+        '.. py:class:: Baz(x: int, y: int)',
+        '              Baz(x: str, y: str)',
+        '   :module: target.overload2',
         '',
     ]
 

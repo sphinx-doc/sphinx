@@ -10,7 +10,7 @@
 
 import os
 import subprocess
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 from xml.etree import ElementTree
 
 import pytest

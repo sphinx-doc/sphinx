@@ -18,8 +18,7 @@ from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
-from sphinx.util import split_index_msg, logging
-
+from sphinx.util import logging, split_index_msg
 
 logger = logging.getLogger(__name__)
 

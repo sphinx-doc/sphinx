@@ -53,12 +53,12 @@ from sphinx.pycode import ast
     ("+ a", "+ a"),                             # UAdd
     ("- 1", "- 1"),                             # UnaryOp
     ("- a", "- a"),                             # USub
-    ("(1, 2, 3)", "1, 2, 3"),                   # Tuple
+    ("(1, 2, 3)", "(1, 2, 3)"),                   # Tuple
     ("()", "()"),                               # Tuple (empty)
 ])
 def test_unparse(source, expected):
     module = ast.parse(source)
-    assert ast.unparse(module.body[0].value) == expected
+    assert ast.unparse(module.body[0].value, source) == expected
 
 
 def test_unparse_None():
@@ -66,8 +66,12 @@ def test_unparse_None():
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
-def test_unparse_py38():
-    source = "lambda x=0, /, y=1, *args, z, **kwargs: x + y + z"
-    expected = "lambda x=0, /, y=1, *args, z, **kwargs: ..."
+@pytest.mark.parametrize('source,expected', [
+    ("lambda x=0, /, y=1, *args, z, **kwargs: x + y + z",
+     "lambda x=0, /, y=1, *args, z, **kwargs: ..."),    # posonlyargs
+    ("0x1234", "0x1234"),                               # Constant
+    ("1_000_000", "1_000_000"),                         # Constant
+])
+def test_unparse_py38(source, expected):
     module = ast.parse(source)
-    assert ast.unparse(module.body[0].value) == expected
+    assert ast.unparse(module.body[0].value, source) == expected

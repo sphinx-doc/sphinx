@@ -4,7 +4,6 @@ import re
 
 import sphinx
 
-
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
               'sphinx.ext.intersphinx',
@@ -28,6 +27,7 @@ html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 html_additional_pages = {'index': 'index.html'}
 html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
 html_baseurl = 'https://www.sphinx-doc.org/en/master/'
+html_favicon = '_static/favicon.svg'
 
 htmlhelp_basename = 'Sphinxdoc'
 
@@ -110,8 +110,6 @@ texinfo_documents = [
      1),
 ]
 
-# We're not using intersphinx right now, but if we did, this would be part of
-# the mapping:
 intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)}
 
 # Sphinx document translation with sphinx gettext feature uses these settings:

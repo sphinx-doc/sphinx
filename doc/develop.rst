@@ -22,9 +22,9 @@ Extensions
 
 To learn how to write your own extension, see :ref:`dev-extensions`.
 
-The `sphinx-contrib <https://bitbucket.org/birkenfeld/sphinx-contrib/>`_
-repository contains many contributed extensions.  Some of them have their own
-releases on PyPI, others you can install from a checkout.
+The `sphinx-contrib <https://github.com/sphinx-contrib>`_ repository contains many
+contributed extensions.  Some of them have their own releases on PyPI, others you
+can install from a checkout.
 
 This is the current list of contributed extensions in that repository:
 
@@ -140,14 +140,14 @@ started with writing your own extensions.
 .. _slideshare: https://www.slideshare.net/
 .. _TikZ/PGF LaTeX package: https://sourceforge.net/projects/pgf/
 .. _MATLAB: https://www.mathworks.com/products/matlab.html
-.. _swf: https://bitbucket.org/klorenz/sphinxcontrib-swf
-.. _findanything: https://bitbucket.org/klorenz/sphinxcontrib-findanything
-.. _cmakedomain: https://bitbucket.org/klorenz/sphinxcontrib-cmakedomain
+.. _swf: https://github.com/sphinx-contrib/swf
+.. _findanything: https://github.com/sphinx-contrib/findanything
+.. _cmakedomain: https://github.com/sphinx-contrib/cmakedomain
 .. _GNU Make: https://www.gnu.org/software/make/
-.. _makedomain: https://bitbucket.org/klorenz/sphinxcontrib-makedomain
+.. _makedomain: https://github.com/sphinx-contrib/makedomain
 .. _inlinesyntaxhighlight: https://sphinxcontrib-inlinesyntaxhighlight.readthedocs.io/
 .. _CMake: https://cmake.org
-.. _domaintools: https://bitbucket.org/klorenz/sphinxcontrib-domaintools
+.. _domaintools: https://github.com/sphinx-contrib/domaintools
 .. _restbuilder: https://pypi.org/project/sphinxcontrib-restbuilder/
 .. _Lasso: http://www.lassosoft.com/
 .. _beamer: https://pypi.org/project/sphinxcontrib-beamer/

@@ -10,8 +10,10 @@
 
 import os
 import re
-from itertools import cycle, chain
+from distutils.version import LooseVersion
+from itertools import chain, cycle
 
+import pygments
 import pytest
 from html5lib import HTMLParser
 
@@ -20,7 +22,6 @@ from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils, md5
 from sphinx.util.inventory import InventoryFile
-
 
 ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
@@ -256,7 +257,7 @@ def test_html4_output(app, status, warning):
         (".//pre/strong", 'try_stmt'),
         (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
-        (".//p", 'A global substitution.'),
+        (".//p", 'A global substitution!'),
         (".//p", 'In HTML.'),
         (".//p", 'In both.'),
         (".//p", 'Always present'),
@@ -417,6 +418,11 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     app.build()
     print(app.outdir / fname)
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', parallel=2)
+def test_html_parallel(app):
+    app.build()
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -1591,4 +1597,8 @@ def test_html_codeblock_linenos_style_inline(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    assert '<span class="lineno">1 </span>' in content
+    pygments_version = tuple(LooseVersion(pygments.__version__).version)
+    if pygments_version > (2, 7):
+        assert '<span class="linenos">1</span>' in content
+    else:
+        assert '<span class="lineno">1 </span>' in content

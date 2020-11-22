@@ -32,7 +32,6 @@ from docutils.utils import smartquotes
 
 from sphinx.util.docutils import __version_info__ as docutils_version
 
-
 langquotes = {'af':           '“”‘’',
               'af-x-altquot': '„”‚’',
               'bg':           '„“‚‘',  # Bulgarian, https://bg.wikipedia.org/wiki/Кавички

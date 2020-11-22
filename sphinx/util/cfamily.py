@@ -11,9 +11,7 @@
 import re
 import warnings
 from copy import deepcopy
-from typing import (
-    Any, Callable, List, Match, Optional, Pattern, Tuple, Union
-)
+from typing import Any, Callable, List, Match, Optional, Pattern, Tuple, Union
 
 from docutils import nodes
 from docutils.nodes import TextElement

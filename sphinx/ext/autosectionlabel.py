@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict
-from typing import cast
+from typing import Any, Dict, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -19,7 +18,6 @@ from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
-
 
 logger = logging.getLogger(__name__)
 

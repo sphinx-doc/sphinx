@@ -17,7 +17,6 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
-
 deprecated_alias('sphinx.builders.qthelp',
                  {
                      'render_file': render_file,

@@ -1,7 +1,7 @@
 # Translations template for Sphinx.
 # Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# 
+#
 # Translators:
 # shirou - しろう <shirou.faw@gmail.com>, 2013
 # Akitoshi Ohta <fire.kuma8@gmail.com>, 2011

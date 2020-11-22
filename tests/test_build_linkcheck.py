@@ -8,14 +8,18 @@
     :license: BSD, see LICENSE for details.
 """
 
+import http.server
 import json
-import re
-from unittest import mock
+import textwrap
+
 import pytest
+import requests
+
+from .utils import CERT_FILE, http_server, https_server, modify_env
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
-def test_defaults(app, status, warning):
+def test_defaults(app):
     app.builder.build_all()
 
     assert (app.outdir / 'output.txt').exists()
@@ -36,7 +40,7 @@ def test_defaults(app, status, warning):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
-def test_defaults_json(app, status, warning):
+def test_defaults_json(app):
     app.builder.build_all()
 
     assert (app.outdir / 'output.json').exists()
@@ -53,7 +57,7 @@ def test_defaults_json(app, status, warning):
     assert len(rows) == 10
     # the output order of the rows is not stable
     # due to possible variance in network latency
-    rowsby = {row["uri"]:row for row in rows}
+    rowsby = {row["uri"]: row for row in rows}
     assert rowsby["https://www.google.com#!bar"] == {
         'filename': 'links.txt',
         'lineno': 10,
@@ -97,7 +101,7 @@ def test_defaults_json(app, status, warning):
                        'https://www.google.com/image2.png',
                        'path/to/notfound']
                    })
-def test_anchors_ignored(app, status, warning):
+def test_anchors_ignored(app):
     app.builder.build_all()
 
     assert (app.outdir / 'output.txt').exists()
@@ -107,56 +111,274 @@ def test_anchors_ignored(app, status, warning):
     assert not content
 
 
-@pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck', freshenv=True,
-    confoverrides={'linkcheck_auth': [
-                        (r'.+google\.com/image.+', 'authinfo1'),
-                        (r'.+google\.com.+', 'authinfo2'),
-                   ]
-                  })
-def test_auth(app, status, warning):
-    mock_req = mock.MagicMock()
-    mock_req.return_value = 'fake-response'
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
+def test_raises_for_invalid_status(app):
+    class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_error(500, "Internal Server Error")
 
-    with mock.patch.multiple('requests', get=mock_req, head=mock_req):
+    with http_server(InternalServerErrorHandler):
         app.builder.build_all()
-        for c_args, c_kwargs in mock_req.call_args_list:
-            if 'google.com/image' in c_args[0]:
-                assert c_kwargs['auth'] == 'authinfo1'
-            elif 'google.com' in c_args[0]:
-                assert c_kwargs['auth'] == 'authinfo2'
-            else:
-                assert not c_kwargs['auth']
+    content = (app.outdir / 'output.txt').read_text()
+    assert content == (
+        "index.rst:1: [broken] http://localhost:7777/#anchor: "
+        "500 Server Error: Internal Server Error "
+        "for url: http://localhost:7777/\n"
+    )
+
+
+class HeadersDumperHandler(http.server.BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        self.do_GET()
+
+    def do_GET(self):
+        self.send_response(200, "OK")
+        self.end_headers()
+        print(self.headers.as_string())
 
 
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck', freshenv=True,
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_auth': [
+        (r'^$', ('no', 'match')),
+        (r'^http://localhost:7777/$', ('user1', 'password')),
+        (r'.*local.*', ('user2', 'hunter2')),
+    ]})
+def test_auth_header_uses_first_match(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+    stdout, stderr = capsys.readouterr()
+    auth = requests.auth._basic_auth_str('user1', 'password')
+    assert "Authorization: %s\n" % auth in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
+def test_auth_header_no_match(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+    stdout, stderr = capsys.readouterr()
+    assert "Authorization" not in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_request_headers': {
-        "https://localhost:7777/": {
+        "http://localhost:7777/": {
             "Accept": "text/html",
-        },
-        "http://www.sphinx-doc.org": {  # no slash at the end
-            "Accept": "application/json",
         },
         "*": {
             "X-Secret": "open sesami",
         }
     }})
-def test_linkcheck_request_headers(app, status, warning):
-    mock_req = mock.MagicMock()
-    mock_req.return_value = 'fake-response'
-
-    with mock.patch.multiple('requests', get=mock_req, head=mock_req):
+def test_linkcheck_request_headers(app, capsys):
+    with http_server(HeadersDumperHandler):
         app.builder.build_all()
-        for args, kwargs in mock_req.call_args_list:
-            url = args[0]
-            headers = kwargs.get('headers', {})
-            if "https://localhost:7777" in url:
-                assert headers["Accept"] == "text/html"
-            elif 'http://www.sphinx-doc.org' in url:
-                assert headers["Accept"] == "application/json"
-            elif 'https://www.google.com' in url:
-                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
-                assert headers["X-Secret"] == "open sesami"
+
+    stdout, _stderr = capsys.readouterr()
+    assert "Accept: text/html\n" in stdout
+    assert "X-Secret" not in stdout
+    assert "sesami" not in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_request_headers': {
+        "http://localhost:7777": {"Accept": "application/json"},
+        "*": {"X-Secret": "open sesami"}
+    }})
+def test_linkcheck_request_headers_no_slash(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+
+    stdout, _stderr = capsys.readouterr()
+    assert "Accept: application/json\n" in stdout
+    assert "X-Secret" not in stdout
+    assert "sesami" not in stdout
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_request_headers': {
+        "http://do.not.match.org": {"Accept": "application/json"},
+        "*": {"X-Secret": "open sesami"}
+    }})
+def test_linkcheck_request_headers_default(app, capsys):
+    with http_server(HeadersDumperHandler):
+        app.builder.build_all()
+
+    stdout, _stderr = capsys.readouterr()
+    assert "Accepts: application/json\n" not in stdout
+    assert "X-Secret: open sesami\n" in stdout
+
+
+def make_redirect_handler(*, support_head):
+    class RedirectOnceHandler(http.server.BaseHTTPRequestHandler):
+        def do_HEAD(self):
+            if support_head:
+                self.do_GET()
             else:
-                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
+                self.send_response(405, "Method Not Allowed")
+                self.end_headers()
+
+        def do_GET(self):
+            if self.path == "/?redirected=1":
+                self.send_response(204, "No content")
+            else:
+                self.send_response(302, "Found")
+                self.send_header("Location", "http://localhost:7777/?redirected=1")
+            self.end_headers()
+
+        def log_date_time_string(self):
+            """Strip date and time from logged messages for assertions."""
+            return ""
+
+    return RedirectOnceHandler
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_follows_redirects_on_HEAD(app, capsys):
+    with http_server(make_redirect_handler(support_head=True)):
+        app.builder.build_all()
+    stdout, stderr = capsys.readouterr()
+    content = (app.outdir / 'output.txt').read_text()
+    assert content == (
+        "index.rst:1: [redirected with Found] "
+        "http://localhost:7777/ to http://localhost:7777/?redirected=1\n"
+    )
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
+        127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
+        """
+    )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_follows_redirects_on_GET(app, capsys):
+    with http_server(make_redirect_handler(support_head=False)):
+        app.builder.build_all()
+    stdout, stderr = capsys.readouterr()
+    content = (app.outdir / 'output.txt').read_text()
+    assert content == (
+        "index.rst:1: [redirected with Found] "
+        "http://localhost:7777/ to http://localhost:7777/?redirected=1\n"
+    )
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 405 -
+        127.0.0.1 - - [] "GET / HTTP/1.1" 302 -
+        127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
+        """
+    )
+
+
+class OKHandler(http.server.BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        self.send_response(200, "OK")
+        self.end_headers()
+
+    def do_GET(self):
+        self.do_HEAD()
+        self.wfile.write(b"ok\n")
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_invalid_ssl(app):
+    # Link indicates SSL should be used (https) but the server does not handle it.
+    with http_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content["status"] == "broken"
+    assert content["filename"] == "index.rst"
+    assert content["lineno"] == 1
+    assert content["uri"] == "https://localhost:7777/"
+    assert "SSLError" in content["info"]
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_fails(app):
+    with https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content["status"] == "broken"
+    assert content["filename"] == "index.rst"
+    assert content["lineno"] == 1
+    assert content["uri"] == "https://localhost:7777/"
+    assert "[SSL: CERTIFICATE_VERIFY_FAILED]" in content["info"]
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_with_tls_verify_false(app):
+    app.config.tls_verify = False
+    with https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "working",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "https://localhost:7777/",
+        "info": "",
+    }
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_with_tls_cacerts(app):
+    app.config.tls_cacerts = CERT_FILE
+    with https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "working",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "https://localhost:7777/",
+        "info": "",
+    }
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_with_requests_env_var(app):
+    with modify_env(REQUESTS_CA_BUNDLE=CERT_FILE), https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "working",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "https://localhost:7777/",
+        "info": "",
+    }
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+def test_connect_to_selfsigned_nonexistent_cert_file(app):
+    app.config.tls_cacerts = "does/not/exist"
+    with https_server(OKHandler):
+        app.builder.build_all()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "broken",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "https://localhost:7777/",
+        "info": "Could not find a suitable TLS CA certificate bundle, invalid path: does/not/exist",
+    }

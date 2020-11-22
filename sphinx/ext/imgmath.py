@@ -15,7 +15,7 @@ import subprocess
 import sys
 import tempfile
 from os import path
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 from typing import Any, Dict, List, Tuple
 
 from docutils import nodes

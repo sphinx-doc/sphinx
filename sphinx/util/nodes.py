@@ -11,8 +11,7 @@
 import re
 import unicodedata
 import warnings
-from typing import Any, Callable, Iterable, List, Set, Tuple
-from typing import cast
+from typing import Any, Callable, Iterable, List, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -28,6 +27,7 @@ from sphinx.util import logging
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.builders import Builder
     from sphinx.domain import IndexEntry
     from sphinx.environment import BuildEnvironment

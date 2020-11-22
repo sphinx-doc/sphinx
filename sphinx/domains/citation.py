@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Set, Tuple
-from typing import cast
+from typing import Any, Dict, List, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element

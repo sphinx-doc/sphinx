@@ -14,7 +14,7 @@ import re
 import sys
 import warnings
 from os import path
-from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple
+from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple
 from urllib.parse import quote
 
 from docutils import nodes
@@ -24,10 +24,10 @@ from docutils.io import DocTreeInput, StringOutput
 from docutils.nodes import Node
 from docutils.utils import relative_path
 
-from sphinx import package_dir, __display_version__
+from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.config import Config, ENUM
+from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -38,15 +38,15 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import logging, progress_message, status_iterator, md5
+from sphinx.util import logging, md5, progress_message, status_iterator
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
-from sphinx.util.matching import patmatch, Matcher, DOTFILES
-from sphinx.util.osutil import os_path, relative_uri, ensuredir, movefile, copyfile
+from sphinx.util.matching import DOTFILES, Matcher, patmatch
+from sphinx.util.osutil import copyfile, ensuredir, movefile, os_path, relative_uri
 from sphinx.util.tags import Tags
-from sphinx.writers.html import HTMLWriter, HTMLTranslator
+from sphinx.writers.html import HTMLTranslator, HTMLWriter
 
 if False:
     # For type annotation
@@ -301,7 +301,6 @@ class StandaloneHTMLBuilder(Builder):
         self.add_js_file('jquery.js')
         self.add_js_file('underscore.js')
         self.add_js_file('doctools.js')
-        self.add_js_file('language_data.js')
 
         for filename, attrs in self.app.registry.js_files:
             self.add_js_file(filename, **attrs)
@@ -641,17 +640,17 @@ class StandaloneHTMLBuilder(Builder):
     def gen_additional_pages(self) -> None:
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            logger.info(' ' + pagename, nonl=True)
+            logger.info(pagename + ' ', nonl=True)
             self.handle_page(pagename, {}, template)
 
         # the search page
         if self.search:
-            logger.info(' search', nonl=True)
+            logger.info('search ', nonl=True)
             self.handle_page('search', {}, 'search.html')
 
         # the opensearch xml file
         if self.config.html_use_opensearch and self.search:
-            logger.info(' opensearch', nonl=True)
+            logger.info('opensearch ', nonl=True)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
@@ -669,7 +668,7 @@ class StandaloneHTMLBuilder(Builder):
             'genindexcounts': indexcounts,
             'split_index': self.config.html_split_index,
         }
-        logger.info(' genindex', nonl=True)
+        logger.info('genindex ', nonl=True)
 
         if self.config.html_split_index:
             self.handle_page('genindex', genindexcontext,
@@ -691,7 +690,7 @@ class StandaloneHTMLBuilder(Builder):
                 'content': content,
                 'collapse_index': collapse,
             }
-            logger.info(' ' + indexname, nonl=True)
+            logger.info(indexname + ' ', nonl=True)
             self.handle_page(indexname, indexcontext, 'domainindex.html')
 
     def copy_image_files(self) -> None:
@@ -751,18 +750,27 @@ class StandaloneHTMLBuilder(Builder):
                 copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
 
     def copy_theme_static_files(self, context: Dict) -> None:
+        def onerror(filename: str, error: Exception) -> None:
+            logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
+                           filename, error)
+
         if self.theme:
             for entry in self.theme.get_theme_dirs()[::-1]:
                 copy_asset(path.join(entry, 'static'),
                            path.join(self.outdir, '_static'),
-                           excluded=DOTFILES, context=context, renderer=self.templates)
+                           excluded=DOTFILES, context=context,
+                           renderer=self.templates, onerror=onerror)
 
     def copy_html_static_files(self, context: Dict) -> None:
+        def onerror(filename: str, error: Exception) -> None:
+            logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
+                           filename, error)
+
         excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
         for entry in self.config.html_static_path:
             copy_asset(path.join(self.confdir, entry),
                        path.join(self.outdir, '_static'),
-                       excluded, context=context, renderer=self.templates)
+                       excluded, context=context, renderer=self.templates, onerror=onerror)
 
     def copy_html_logo(self) -> None:
         if self.config.html_logo:
@@ -776,7 +784,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_static_files(self) -> None:
         try:
-            with progress_message(__('copying static files... ')):
+            with progress_message(__('copying static files')):
                 ensuredir(path.join(self.outdir, '_static'))
 
                 # prepare context for templates
@@ -1181,9 +1189,10 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
 
 
 # for compatibility
+import sphinxcontrib.serializinghtml  # NOQA
+
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
-import sphinxcontrib.serializinghtml  # NOQA
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

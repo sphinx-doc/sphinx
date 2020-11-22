@@ -8,20 +8,16 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pytest
-
 from unittest import mock
 
+import pytest
 from docutils import nodes
 from docutils.nodes import definition, definition_list, definition_list_item, term
-
 from html5lib import HTMLParser
 
 from sphinx import addnodes
-from sphinx.addnodes import (
-    desc, desc_addname, desc_content, desc_name, desc_signature, glossary, index,
-    pending_xref
-)
+from sphinx.addnodes import (desc, desc_addname, desc_content, desc_name, desc_signature,
+                             glossary, index, pending_xref)
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -337,7 +333,7 @@ def test_multiple_cmdoptions(app):
 def test_productionlist(app, status, warning):
     app.builder.build_all()
 
-    warnings = warning.getvalue().split("\n");
+    warnings = warning.getvalue().split("\n")
     assert len(warnings) == 2
     assert warnings[-1] == ''
     assert "Dup2.rst:4: WARNING: duplicate token description of Dup, other instance in Dup1" in warnings[0]

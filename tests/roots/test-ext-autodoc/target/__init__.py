@@ -3,7 +3,6 @@ from io import StringIO
 
 from sphinx.util import save_traceback  # NOQA
 
-
 __all__ = ['Class']
 
 #: documentation for the integer

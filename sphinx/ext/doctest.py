@@ -21,7 +21,7 @@ from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
 from docutils.parsers.rst import directives
-from packaging.specifiers import SpecifierSet, InvalidSpecifier
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 
 import sphinx
@@ -36,6 +36,7 @@ from sphinx.util.osutil import relpath
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
 
 

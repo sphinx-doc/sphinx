@@ -20,8 +20,7 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import parselinenos
+from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
 
 if False:
@@ -72,7 +71,7 @@ def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None
         return lines
 
     if any(s[:dedent].strip() for s in lines):
-        logger.warning(__('Over dedent has detected'), location=location)
+        logger.warning(__('non-whitespace stripped by dedent'), location=location)
 
     new_lines = []
     for line in lines:

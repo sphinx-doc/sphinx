@@ -25,13 +25,9 @@ from requests.exceptions import HTTPError, TooManyRedirects
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
-from sphinx.util import encode_uri, requests, logging
-from sphinx.util.console import (  # type: ignore
-    purple, red, darkgreen, darkgray, turquoise
-)
+from sphinx.util import encode_uri, logging, requests
+from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise  # type: ignore
 from sphinx.util.nodes import get_node_line
-from sphinx.util.requests import is_ssl_error
-
 
 logger = logging.getLogger(__name__)
 
@@ -106,15 +102,12 @@ class CheckExternalLinksBuilder(Builder):
         self.rqueue = queue.Queue()  # type: queue.Queue
         self.workers = []  # type: List[threading.Thread]
         for i in range(self.app.config.linkcheck_workers):
-            thread = threading.Thread(target=self.check_thread)
-            thread.setDaemon(True)
+            thread = threading.Thread(target=self.check_thread, daemon=True)
             thread.start()
             self.workers.append(thread)
 
     def check_thread(self) -> None:
-        kwargs = {
-            'allow_redirects': True,
-        }  # type: Dict
+        kwargs = {}
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
@@ -166,6 +159,7 @@ class CheckExternalLinksBuilder(Builder):
                     # Read the whole document and see if #anchor exists
                     response = requests.get(req_url, stream=True, config=self.app.config,
                                             auth=auth_info, **kwargs)
+                    response.raise_for_status()
                     found = check_anchor(response, unquote(anchor))
 
                     if not found:
@@ -174,8 +168,9 @@ class CheckExternalLinksBuilder(Builder):
                     try:
                         # try a HEAD request first, which should be easier on
                         # the server and the network
-                        response = requests.head(req_url, config=self.app.config,
-                                                 auth=auth_info, **kwargs)
+                        response = requests.head(req_url, allow_redirects=True,
+                                                 config=self.app.config, auth=auth_info,
+                                                 **kwargs)
                         response.raise_for_status()
                     except (HTTPError, TooManyRedirects):
                         # retry with GET request if that fails, some servers
@@ -193,10 +188,7 @@ class CheckExternalLinksBuilder(Builder):
                 else:
                     return 'broken', str(err), 0
             except Exception as err:
-                if is_ssl_error(err):
-                    return 'ignored', str(err), 0
-                else:
-                    return 'broken', str(err), 0
+                return 'broken', str(err), 0
             if response.url.rstrip('/') == req_url.rstrip('/'):
                 return 'working', '', 0
             else:
@@ -210,22 +202,24 @@ class CheckExternalLinksBuilder(Builder):
                 else:
                     return 'redirected', new_url, 0
 
-        def check() -> Tuple[str, str, int]:
+        def check(docname: str) -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
-            if len(uri) == 0 or uri.startswith(('#', 'mailto:')):
+            if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
                 return 'unchecked', '', 0
             elif not uri.startswith(('http:', 'https:')):
                 if uri_re.match(uri):
                     # non supported URI schemes (ex. ftp)
                     return 'unchecked', '', 0
                 else:
-                    if path.exists(path.join(self.srcdir, uri)):
+                    srcdir = path.dirname(self.env.doc2path(docname))
+                    if path.exists(path.join(srcdir, uri)):
                         return 'working', '', 0
                     else:
                         for rex in self.to_ignore:
                             if rex.match(uri):
                                 return 'ignored', '', 0
                         else:
+                            self.broken[uri] = ''
                             return 'broken', '', 0
             elif uri in self.good:
                 return 'working', 'old', 0
@@ -256,7 +250,7 @@ class CheckExternalLinksBuilder(Builder):
             uri, docname, lineno = self.wqueue.get()
             if uri is None:
                 break
-            status, info, code = check()
+            status, info, code = check(docname)
             self.rqueue.put((uri, docname, lineno, status, info, code))
 
     def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:

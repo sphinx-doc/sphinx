@@ -12,18 +12,18 @@ import re
 import textwrap
 import warnings
 from os import path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set, Tuple, Union
-from typing import cast
+from typing import (Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set, Tuple, Union,
+                    cast)
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
-from sphinx import addnodes, __display_version__
+from sphinx import __display_version__, addnodes
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
-from sphinx.locale import admonitionlabels, _, __
+from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
@@ -369,7 +369,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Return an escaped string suitable for use as an argument
         to a Texinfo command."""
         s = self.escape(s)
-        # commas are the argument delimeters
+        # commas are the argument delimiters
         s = s.replace(',', '@comma{}')
         # normalize white space
         s = ' '.join(s.split()).strip()
@@ -628,7 +628,7 @@ class TexinfoTranslator(SphinxTranslator):
         elif not isinstance(parent, nodes.section):
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
-                           location=(self.curfilestack[-1], node.line))
+                           location=node)
             self.visit_rubric(node)
         else:
             try:
@@ -1186,7 +1186,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.body.append('\n@caption{')
         else:
             logger.warning(__('caption not inside a figure.'),
-                           location=(self.curfilestack[-1], node.line))
+                           location=node)
 
     def depart_caption(self, node: Element) -> None:
         if (isinstance(node.parent, nodes.figure) or
@@ -1242,6 +1242,15 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_legend(self, node: Element) -> None:
         pass
 
+    def visit_substitution_reference(self, node: Element) -> None:
+        pass
+
+    def depart_substitution_reference(self, node: Element) -> None:
+        pass
+
+    def visit_substitution_definition(self, node: Element) -> None:
+        raise nodes.SkipNode
+
     def visit_system_message(self, node: Element) -> None:
         self.body.append('\n@verbatim\n'
                          '<SYSTEM MESSAGE: %s>\n'
@@ -1262,11 +1271,11 @@ class TexinfoTranslator(SphinxTranslator):
 
     def unimplemented_visit(self, node: Element) -> None:
         logger.warning(__("unimplemented node type: %r"), node,
-                       location=(self.curfilestack[-1], node.line))
+                       location=node)
 
     def unknown_visit(self, node: Node) -> None:
         logger.warning(__("unknown node type: %r"), node,
-                       location=(self.curfilestack[-1], node.line))
+                       location=node)
 
     def unknown_departure(self, node: Node) -> None:
         pass

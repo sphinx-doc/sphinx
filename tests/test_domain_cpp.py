@@ -15,8 +15,8 @@ import pytest
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
-from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
+from sphinx.domains.cpp import (DefinitionError, DefinitionParser, NoOldIdError, Symbol,
+                                _id_prefix, _max_id)
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util import docutils
@@ -60,8 +60,8 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Result:   ", res)
         print("Expected: ", outputAst)
         raise DefinitionError("")
-    rootSymbol = Symbol(None, None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
+    rootSymbol = Symbol(None, None, None, None, None, None, None)
+    symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42)
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
@@ -182,9 +182,9 @@ def test_expressions():
                 expr = i + l + u
                 exprCheck(expr, 'L' + expr + 'E')
     decimalFloats = ['5e42', '5e+42', '5e-42',
-                  '5.', '5.e42', '5.e+42', '5.e-42',
-                  '.5', '.5e42', '.5e+42', '.5e-42',
-                  '5.0', '5.0e42', '5.0e+42', '5.0e-42']
+                     '5.', '5.e42', '5.e+42', '5.e-42',
+                     '.5', '.5e42', '.5e+42', '.5e-42',
+                     '5.0', '5.0e42', '5.0e+42', '5.0e-42']
     hexFloats = ['ApF', 'Ap+F', 'Ap-F',
                  'A.', 'A.pF', 'A.p+F', 'A.p-F',
                  '.A', '.ApF', '.Ap+F', '.Ap-F',
@@ -425,9 +425,9 @@ def test_member_definitions():
     check('member', 'int b : 8 = 42', {1: 'b__i', 2: '1b'})
     check('member', 'int b : 8{42}', {1: 'b__i', 2: '1b'})
     # TODO: enable once the ternary operator is supported
-    #check('member', 'int b : true ? 8 : a = 42', {1: 'b__i', 2: '1b'})
+    # check('member', 'int b : true ? 8 : a = 42', {1: 'b__i', 2: '1b'})
     # TODO: enable once the ternary operator is supported
-    #check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
+    # check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
     check('member', 'int b : 1 || new int{0}', {1: 'b__i', 2: '1b'})
 
 
@@ -537,8 +537,8 @@ def test_function_definitions():
     check('function', 'int foo(const A*...)', {1: "foo__ACPDp", 2: "3fooDpPK1A"})
     check('function', 'int foo(const int A::*... a)', {2: "3fooDpM1AKi"})
     check('function', 'int foo(const int A::*...)', {2: "3fooDpM1AKi"})
-    #check('function', 'int foo(int (*a)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
-    #check('function', 'int foo(int (*)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
+    # check('function', 'int foo(int (*a)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
+    # check('function', 'int foo(int (*)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
     check('function', 'virtual void f()', {1: "f", 2: "1fv"})
     # test for ::nestedName, from issue 1738
     check("function", "result(int val, ::std::error_category const &cat)",
@@ -706,7 +706,6 @@ def test_class_definitions():
     check('class', 'template<class, class = std::void_t<>> {key}has_var', {2: 'I00E7has_var'})
     check('class', 'template<class T> {key}has_var<T, std::void_t<decltype(&T::var)>>',
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
-
 
     check('class', 'template<typename ...Ts> {key}T<int (*)(Ts)...>',
           {2: 'IDpE1TIJPFi2TsEEE'})
@@ -1001,7 +1000,7 @@ def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warnin
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_build_domain_cpp_backslash_ok(app, status, warning):
+def test_build_domain_cpp_backslash_ok_true(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 0
@@ -1016,7 +1015,7 @@ def test_build_domain_cpp_semicolon(app, status, warning):
 
 @pytest.mark.sphinx(testroot='domain-cpp',
                     confoverrides={'nitpicky': True, 'strip_signature_backslash': True})
-def test_build_domain_cpp_backslash_ok(app, status, warning):
+def test_build_domain_cpp_backslash_ok_false(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 1
@@ -1236,3 +1235,18 @@ def test_noindexentry(app):
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
+
+
+def test_mix_decl_duplicate(app, warning):
+    # Issue 8270
+    text = (".. cpp:struct:: A\n"
+            ".. cpp:function:: void A()\n"
+            ".. cpp:struct:: A\n")
+    restructuredtext.parse(app, text)
+    ws = warning.getvalue().split("\n")
+    assert len(ws) == 5
+    assert "index.rst:2: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[0]
+    assert "Declaration is '.. cpp:function:: void A()'." in ws[1]
+    assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[2]
+    assert "Declaration is '.. cpp:struct:: A'." in ws[3]
+    assert ws[4] == ""

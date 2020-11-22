@@ -15,22 +15,19 @@ import re
 import warnings
 from collections import defaultdict
 from os import path
-from typing import Any, Dict, Iterable, Iterator, List, Tuple, Set, Union
-from typing import cast
+from typing import Any, Dict, Iterable, Iterator, List, Set, Tuple, Union, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
-from sphinx import addnodes
-from sphinx import highlighting
-from sphinx.deprecation import (
-    RemovedInSphinx40Warning, RemovedInSphinx50Warning, deprecated_alias
-)
+from sphinx import addnodes, highlighting
+from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
+                                deprecated_alias)
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
-from sphinx.locale import admonitionlabels, _, __
-from sphinx.util import split_into, logging, texescape
+from sphinx.locale import _, __, admonitionlabels
+from sphinx.util import logging, split_into, texescape
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
@@ -651,7 +648,7 @@ class LaTeXTranslator(SphinxTranslator):
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
                     logger.warning(__('document title is not a single Text node'),
-                                   location=(self.curfilestack[-1], node.line))
+                                   location=node)
                 if not self.elements['title']:
                     # text needs to be escaped since it is inserted into
                     # the output literally
@@ -684,7 +681,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
-                           location=(self.curfilestack[-1], node.line or ''))
+                           location=node)
             self.body.append('\\sphinxstyleothertitle{')
             self.context.append('}\n')
         self.in_title = 1
@@ -1762,7 +1759,7 @@ class LaTeXTranslator(SphinxTranslator):
 
             hlcode = self.highlighter.highlight_block(
                 node.rawsource, lang, opts=opts, linenos=linenos,
-                location=(self.curfilestack[-1], node.line), **highlight_args
+                location=node, **highlight_args
             )
             if self.in_footnote:
                 self.body.append('\n\\sphinxSetupCodeBlockInFootnote')
@@ -2128,7 +2125,6 @@ class LaTeXTranslator(SphinxTranslator):
 from sphinx.builders.latex import constants  # NOQA
 from sphinx.builders.latex.util import ExtBabel  # NOQA
 
-
 deprecated_alias('sphinx.writers.latex',
                  {
                      'ADDITIONAL_SETTINGS': constants.ADDITIONAL_SETTINGS,
@@ -2161,4 +2157,6 @@ deprecated_alias('sphinx.writers.latex',
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext  # NOQA
+from sphinx.builders.latex.nodes import ( # NOQA isort:skip
+    HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext,
+)

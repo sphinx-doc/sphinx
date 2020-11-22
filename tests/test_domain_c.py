@@ -7,12 +7,13 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from xml.etree import ElementTree
+
 import pytest
 
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.c import DefinitionParser, DefinitionError
-from sphinx.domains.c import _max_id, _id_prefix, Symbol
+from sphinx.domains.c import DefinitionError, DefinitionParser, Symbol, _id_prefix, _max_id
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
@@ -52,8 +53,8 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Result:   ", res)
         print("Expected: ", outputAst)
         raise DefinitionError("")
-    rootSymbol = Symbol(None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
+    rootSymbol = Symbol(None, None, None, None, None)
+    symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42)
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
@@ -74,12 +75,12 @@ def _check(name, input, idDict, output, key, asTextOutput):
             idExpected.append(idExpected[i - 1])
     idActual = [None]
     for i in range(1, _max_id + 1):
-        #try:
+        # try:
         id = ast.get_id(version=i)
         assert id is not None
         idActual.append(id[len(_id_prefix[i]):])
-        #except NoOldIdError:
-        #    idActual.append(None)
+        # except NoOldIdError:
+        #     idActual.append(None)
 
     res = [True]
     for i in range(1, _max_id + 1):
@@ -93,7 +94,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
             print("Error in id version %d." % i)
             print("result:   %s" % idActual[i])
             print("expected: %s" % idExpected[i])
-        #print(rootSymbol.dump(0))
+        # print(rootSymbol.dump(0))
         raise DefinitionError("")
 
 
@@ -105,7 +106,7 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
     if name != 'macro':
         # Second, check with semicolon
         _check(name, input + ' ;', idDict, output + ';', key,
-           asTextOutput + ';' if asTextOutput is not None else None)
+               asTextOutput + ';' if asTextOutput is not None else None)
 
 
 def test_expressions():
@@ -421,7 +422,7 @@ def test_nested_name():
     check('function', 'void f(.A.B a)', {1: "f"})
 
 
-def test_union_definitions():
+def test_struct_definitions():
     check('struct', '{key}A', {1: 'A'})
 
 
@@ -481,7 +482,7 @@ def test_attributes():
     # style: user-defined paren
     check('member', 'paren_attr() int f', {1: 'f'})
     check('member', 'paren_attr(a) int f', {1: 'f'})
-    check('member', 'paren_attr("") int f',{1: 'f'})
+    check('member', 'paren_attr("") int f', {1: 'f'})
     check('member', 'paren_attr(()[{}][]{}) int f', {1: 'f'})
     with pytest.raises(DefinitionError):
         parse('member', 'paren_attr(() int f')
@@ -520,13 +521,32 @@ def test_attributes():
 
 
 def filter_warnings(warning, file):
-    lines = warning.getvalue().split("\n");
+    lines = warning.getvalue().split("\n")
     res = [l for l in lines if "domain-c" in l and "{}.rst".format(file) in l and
            "WARNING: document isn't included in any toctree" not in l]
     print("Filtered warnings for file '{}':".format(file))
     for w in res:
         print(w)
     return res
+
+
+def extract_role_links(app, filename):
+    t = (app.outdir / filename).read_text()
+    lis = [l for l in t.split('\n') if l.startswith("<li")]
+    entries = []
+    for l in lis:
+        li = ElementTree.fromstring(l)
+        aList = list(li.iter('a'))
+        assert len(aList) == 1
+        a = aList[0]
+        target = a.attrib['href'].lstrip('#')
+        title = a.attrib['title']
+        assert len(a) == 1
+        code = a[0]
+        assert code.tag == 'code'
+        text = ''.join(code.itertext())
+        entries.append((target, title, text))
+    return entries
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
@@ -562,6 +582,27 @@ def test_build_domain_c_semicolon(app, status, warning):
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_function_param_target(app, warning):
+    # the anchor for function parameters should be the function
+    app.builder.build_all()
+    ws = filter_warnings(warning, "function_param_target")
+    assert len(ws) == 0
+    entries = extract_role_links(app, "function_param_target.html")
+    assert entries == [
+        ('c.f', 'i', 'i'),
+        ('c.f', 'f.i', 'f.i'),
+    ]
+
+
+def _get_obj(app, queryName):
+    domain = app.env.get_domain('c')
+    for name, dispname, objectType, docname, anchor, prio in domain.get_objects():
+        if name == queryName:
+            return (docname, anchor, objectType)
+    return (queryName, "not", "found")
+
+
 def test_cfunction(app):
     text = (".. c:function:: PyObject* "
             "PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)")
@@ -569,8 +610,7 @@ def test_cfunction(app):
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="c", objtype="function", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyType_GenericAlloc')
+    entry = _get_obj(app, 'PyType_GenericAlloc')
     assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
 
 
@@ -580,8 +620,7 @@ def test_cmember(app):
     assert_node(doctree[1], addnodes.desc, desctype="member",
                 domain="c", objtype="member", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyTypeObject.tp_bases')
+    entry = _get_obj(app, 'PyTypeObject.tp_bases')
     assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
 
 
@@ -591,9 +630,8 @@ def test_cvar(app):
     assert_node(doctree[1], addnodes.desc, desctype="var",
                 domain="c", objtype="var", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyClass_Type')
-    assert entry == ('index', 'c.PyClass_Type', 'var')
+    entry = _get_obj(app, 'PyClass_Type')
+    assert entry == ('index', 'c.PyClass_Type', 'member')
 
 
 def test_noindexentry(app):

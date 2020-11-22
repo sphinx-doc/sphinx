@@ -76,7 +76,7 @@
   \endgroup
   \noindent\rule{\textwidth}{1pt}\par
   \vspace{12pt}%
-}  
+}
 \newcommand\sphinxtableofcontentshook{}
 \pagenumbering{arabic}
 

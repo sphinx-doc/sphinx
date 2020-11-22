@@ -23,8 +23,10 @@ from sphinx.util.rst import append_epilog, prepend_prolog
 
 if False:
     # For type annotation
-    from docutils.transforms import Transform  # NOQA
     from typing import Type  # NOQA # for python3.5.1
+
+    from docutils.transforms import Transform  # NOQA
+
     from sphinx.application import Sphinx
 
 

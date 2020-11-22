@@ -177,17 +177,19 @@ type for that event::
    9. (if running in parallel mode, for each process) event.env-merged-info(app, env, docnames, other)
    10. event.env-updated(app, env)
    11. event.env-get-updated(app, env)
-   11. event.env-check-consistency(app, env)
+   12. event.env-check-consistency(app, env)
 
+   # The updated-docs list can be builder dependent, but generally includes all new/changed documents,
+   # plus any output from `env-get-updated`, and then all "parent" documents in the ToC tree
    # For builders that output a single page, they are first joined into a single doctree before post-transforms/doctree-resolved
-   for docname in docnames:
-      12. apply post-transforms (by priority): docutils.document -> docutils.document
-      13. event.doctree-resolved(app, doctree, docname)
+   for docname in updated-docs:
+      13. apply post-transforms (by priority): docutils.document -> docutils.document
+      14. event.doctree-resolved(app, doctree, docname)
           - (for any reference node that fails to resolve) event.missing-reference(env, node, contnode)
+          - (for any reference node that fails to resolve) event.warn-missing-reference(domain, node)
 
-   14. Generate output files
-
-   15. event.build-finished(app, exception)
+   15. Generate output files
+   16. event.build-finished(app, exception)
 
 Here is a more detailed list of these events.
 
@@ -282,6 +284,14 @@ Here is a more detailed list of these events.
       future reference and should be a child of the returned reference node.
 
    .. versionadded:: 0.5
+
+.. event:: warn-missing-reference (app, domain, node)
+
+   Emitted when a cross-reference to an object cannot be resolved even after
+   :event:`missing-reference`.  If the event handler can emit warnings for
+   the missing reference, it should return ``True``.
+
+   .. versionadded:: 3.4
 
 .. event:: doctree-resolved (app, doctree, docname)
 

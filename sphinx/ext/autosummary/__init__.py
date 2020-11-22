@@ -60,8 +60,7 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple
-from typing import cast
+from typing import Any, Dict, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -72,19 +71,19 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.ext.autodoc import Documenter, INSTANCEATTR
+from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.util import rst, logging
-from sphinx.util.docutils import (
-    NullReporter, SphinxDirective, SphinxRole, new_document, switch_source_input
-)
+from sphinx.util import logging, rst
+from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new_document,
+                                  switch_source_input)
 from sphinx.util.matching import Matcher
 from sphinx.writers.html import HTMLTranslator
 
@@ -177,8 +176,10 @@ class FakeDirective(DocumenterBridge):
     def __init__(self) -> None:
         settings = Struct(tab_width=8)
         document = Struct(settings=settings)
+        env = BuildEnvironment()
+        env.config = Config()
         state = Struct(document=document)
-        super().__init__({}, None, Options(), 0, state)  # type: ignore
+        super().__init__(env, None, Options(), 0, state)
 
 
 def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
@@ -691,7 +692,7 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, A
         analyzer = ModuleAnalyzer.for_module(modname)
         if (qualname, attr) in analyzer.find_attr_docs():
             return real_name + "." + attr, INSTANCEATTR, obj, modname
-    except (ImportError, ValueError):
+    except (ImportError, ValueError, PycodeError):
         pass
 
     raise ImportError

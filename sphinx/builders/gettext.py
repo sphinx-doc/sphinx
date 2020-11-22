@@ -9,28 +9,27 @@
 """
 
 from codecs import open
-from collections import defaultdict, OrderedDict
-from datetime import datetime, tzinfo, timedelta
-from os import path, walk, getenv
+from collections import OrderedDict, defaultdict
+from datetime import datetime, timedelta, tzinfo
+from os import getenv, path, walk
 from time import time
-from typing import Any, Dict, Iterable, Generator, List, Set, Tuple, Union
+from typing import Any, Dict, Generator, Iterable, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes
 from docutils.nodes import Element
 
-from sphinx import addnodes
-from sphinx import package_dir
+from sphinx import addnodes, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
 from sphinx.errors import ThemeError
 from sphinx.locale import __
-from sphinx.util import split_index_msg, logging, status_iterator
+from sphinx.util import logging, split_index_msg, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import ensuredir, canon_path, relpath
+from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 
@@ -316,7 +315,7 @@ class MessageCatalogBuilder(I18nBuilder):
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(MessageCatalogBuilder)
 
-    app.add_config_value('gettext_compact', True, 'gettext')
+    app.add_config_value('gettext_compact', True, 'gettext', Any)
     app.add_config_value('gettext_location', True, 'gettext')
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')

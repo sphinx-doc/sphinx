@@ -18,12 +18,9 @@ import types
 import typing
 import warnings
 from functools import partial, partialmethod
-from inspect import (  # NOQA
-    Parameter, isclass, ismethod, ismethoddescriptor, ismodule
-)
+from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from typing import Any, Callable, Dict, Mapping, List, Optional, Tuple
-from typing import cast
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, cast
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py35-37
@@ -33,11 +30,7 @@ from sphinx.util.typing import ForwardRef
 from sphinx.util.typing import stringify as stringify_annotation
 
 if sys.version_info > (3, 7):
-    from types import (
-        ClassMethodDescriptorType,
-        MethodDescriptorType,
-        WrapperDescriptorType
-    )
+    from types import ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType
 else:
     ClassMethodDescriptorType = type(object.__init__)
     MethodDescriptorType = type(str.join)
@@ -62,14 +55,6 @@ def getargspec(func: Callable) -> Any:
     methods."""
     warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
                   RemovedInSphinx50Warning, stacklevel=2)
-    # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
-    # succeeds with a bogus signature. We want a TypeError uniformly, to
-    # match historical behavior.
-    if (isinstance(func, type) and
-            is_builtin_class_method(func, "__new__") and
-            is_builtin_class_method(func, "__init__")):
-        raise TypeError(
-            "can't compute signature for built-in type {}".format(func))
 
     sig = inspect.signature(func)
 
@@ -122,7 +107,11 @@ def getargspec(func: Callable) -> Any:
 def unwrap(obj: Any) -> Any:
     """Get an original object from wrapped object (wrapped functions)."""
     try:
-        return inspect.unwrap(obj)
+        if hasattr(obj, '__sphinx_mock__'):
+            # Skip unwrapping mock object to avoid RecursionError
+            return obj
+        else:
+            return inspect.unwrap(obj)
     except ValueError:
         # might be a mock object
         return obj
@@ -146,6 +135,68 @@ def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
             obj = obj.__func__
         else:
             return obj
+
+
+def getall(obj: Any) -> Optional[Sequence[str]]:
+    """Get __all__ attribute of the module as dict.
+
+    Return None if given *obj* does not have __all__.
+    Raises AttributeError if given *obj* raises an error on accessing __all__.
+    Raises ValueError if given *obj* have invalid __all__.
+    """
+    __all__ = safe_getattr(obj, '__all__', None)
+    if __all__ is None:
+        return None
+    else:
+        if (isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__)):
+            return __all__
+        else:
+            raise ValueError(__all__)
+
+
+def getannotations(obj: Any) -> Mapping[str, Any]:
+    """Get __annotations__ from given *obj* safely.
+
+    Raises AttributeError if given *obj* raises an error on accessing __attribute__.
+    """
+    __annotations__ = safe_getattr(obj, '__annotations__', None)
+    if isinstance(__annotations__, Mapping):
+        return __annotations__
+    else:
+        return {}
+
+
+def getslots(obj: Any) -> Optional[Dict]:
+    """Get __slots__ attribute of the class as dict.
+
+    Return None if gienv *obj* does not have __slots__.
+    Raises AttributeError if given *obj* raises an error on accessing __slots__.
+    Raises ValueError if given *obj* have invalid __slots__.
+    """
+    if not inspect.isclass(obj):
+        raise TypeError
+
+    __slots__ = safe_getattr(obj, '__slots__', None)
+    if __slots__ is None:
+        return None
+    elif isinstance(__slots__, dict):
+        return __slots__
+    elif isinstance(__slots__, str):
+        return {__slots__: None}
+    elif isinstance(__slots__, (list, tuple)):
+        return {e: None for e in __slots__}
+    else:
+        raise ValueError
+
+
+def isNewType(obj: Any) -> bool:
+    """Check the if object is a kind of NewType."""
+    __module__ = safe_getattr(obj, '__module__', None)
+    __qualname__ = safe_getattr(obj, '__qualname__', None)
+    if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
+        return True
+    else:
+        return False
 
 
 def isenumclass(x: Any) -> bool:
@@ -304,6 +355,11 @@ def iscoroutinefunction(obj: Any) -> bool:
 
 def isproperty(obj: Any) -> bool:
     """Check if the object is property."""
+    if sys.version_info > (3, 8):
+        from functools import cached_property  # cached_property is available since py3.8
+        if isinstance(obj, cached_property):
+            return True
+
     return isinstance(obj, property)
 
 
@@ -314,6 +370,9 @@ def isgenericalias(obj: Any) -> bool:
         return True
     elif (hasattr(types, 'GenericAlias') and  # only for py39+
           isinstance(obj, types.GenericAlias)):  # type: ignore
+        return True
+    elif (hasattr(typing, '_SpecialGenericAlias') and  # for py39+
+            isinstance(obj, typing._SpecialGenericAlias)):  # type: ignore
         return True
     else:
         return False
@@ -434,14 +493,20 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = False
-              ) -> inspect.Signature:
+def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = None,
+              type_aliases: Dict = {}) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
     :param follow_wrapped: Same as ``inspect.signature()``.
-                           Defaults to ``False`` (get a signature of *subject*).
     """
+
+    if follow_wrapped is None:
+        follow_wrapped = True
+    else:
+        warnings.warn('The follow_wrapped argument of sphinx.util.inspect.signature() is '
+                      'deprecated', RemovedInSphinx50Warning, stacklevel=2)
+
     try:
         try:
             if _should_unwrap(subject):
@@ -464,10 +529,10 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
             raise
 
     try:
-        # Update unresolved annotations using ``get_type_hints()``.
-        annotations = typing.get_type_hints(subject)
+        # Resolve annotations using ``get_type_hints()`` and type_aliases.
+        annotations = typing.get_type_hints(subject, None, type_aliases)
         for i, param in enumerate(parameters):
-            if isinstance(param.annotation, str) and param.name in annotations:
+            if param.name in annotations:
                 parameters[i] = param.replace(annotation=annotations[param.name])
         if 'return' in annotations:
             return_annotation = annotations['return']
@@ -595,13 +660,14 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 
 def signature_from_str(signature: str) -> inspect.Signature:
     """Create a Signature object from string."""
-    module = ast.parse('def func' + signature + ': pass')
+    code = 'def func' + signature + ': pass'
+    module = ast.parse(code)
     function = cast(ast.FunctionDef, module.body[0])  # type: ignore
 
-    return signature_from_ast(function)
+    return signature_from_ast(function, code)
 
 
-def signature_from_ast(node: ast.FunctionDef) -> inspect.Signature:
+def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signature:
     """Create a Signature object from AST *node*."""
     args = node.args
     defaults = list(args.defaults)
@@ -621,9 +687,9 @@ def signature_from_ast(node: ast.FunctionDef) -> inspect.Signature:
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:
-                default = ast_unparse(defaults[i])
+                default = ast_unparse(defaults[i], code)
 
-            annotation = ast_unparse(arg.annotation) or Parameter.empty
+            annotation = ast_unparse(arg.annotation, code) or Parameter.empty
             params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
                                     default=default, annotation=annotation))
 
@@ -631,29 +697,29 @@ def signature_from_ast(node: ast.FunctionDef) -> inspect.Signature:
         if defaults[i + posonlyargs] is Parameter.empty:
             default = Parameter.empty
         else:
-            default = ast_unparse(defaults[i + posonlyargs])
+            default = ast_unparse(defaults[i + posonlyargs], code)
 
-        annotation = ast_unparse(arg.annotation) or Parameter.empty
+        annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
                                 default=default, annotation=annotation))
 
     if args.vararg:
-        annotation = ast_unparse(args.vararg.annotation) or Parameter.empty
+        annotation = ast_unparse(args.vararg.annotation, code) or Parameter.empty
         params.append(Parameter(args.vararg.arg, Parameter.VAR_POSITIONAL,
                                 annotation=annotation))
 
     for i, arg in enumerate(args.kwonlyargs):
-        default = ast_unparse(args.kw_defaults[i]) or Parameter.empty
-        annotation = ast_unparse(arg.annotation) or Parameter.empty
+        default = ast_unparse(args.kw_defaults[i], code) or Parameter.empty
+        annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))
 
     if args.kwarg:
-        annotation = ast_unparse(args.kwarg.annotation) or Parameter.empty
+        annotation = ast_unparse(args.kwarg.annotation, code) or Parameter.empty
         params.append(Parameter(args.kwarg.arg, Parameter.VAR_KEYWORD,
                                 annotation=annotation))
 
-    return_annotation = ast_unparse(node.returns) or Parameter.empty
+    return_annotation = ast_unparse(node.returns, code) or Parameter.empty
 
     return inspect.Signature(params, return_annotation=return_annotation)
 

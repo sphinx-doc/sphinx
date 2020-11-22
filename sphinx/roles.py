@@ -21,14 +21,13 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import _
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
-from sphinx.util.nodes import (
-    split_explicit_title, process_index_entry, set_role_source_info
-)
+from sphinx.util.nodes import process_index_entry, set_role_source_info, split_explicit_title
 from sphinx.util.typing import RoleFunction
 
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 

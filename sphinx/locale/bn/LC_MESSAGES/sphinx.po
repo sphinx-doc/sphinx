@@ -1,7 +1,7 @@
 # Translations template for Sphinx.
 # Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# 
+#
 # Translators:
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009
 msgid ""

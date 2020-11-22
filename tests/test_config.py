@@ -14,8 +14,8 @@ from unittest import mock
 import pytest
 
 import sphinx
-from sphinx.config import Config, ENUM, check_confval_types
-from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
+from sphinx.config import ENUM, Config, check_confval_types
+from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.testing.path import path
 
 

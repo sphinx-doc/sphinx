@@ -19,13 +19,9 @@ from unittest import TestCase, mock
 import pytest
 
 from sphinx.ext.napoleon import Config
-from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-from sphinx.ext.napoleon.docstring import (
-    _tokenize_type_spec,
-    _recombine_set_tokens,
-    _convert_numpy_type_spec,
-    _token_type
-)
+from sphinx.ext.napoleon.docstring import (GoogleDocstring, NumpyDocstring,
+                                           _convert_numpy_type_spec, _recombine_set_tokens,
+                                           _token_type, _tokenize_type_spec)
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -1074,7 +1070,7 @@ Methods:
 
    
    description
-"""
+"""  # NOQA
         config = Config()
         actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
                                      options={'noindex': True}))
@@ -1177,7 +1173,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :returns: *str* -- Extended
+        :returns: :class:`str` -- Extended
                   description of return value
         """
     ), (
@@ -1193,7 +1189,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :returns: *str* -- Extended
+        :returns: :class:`str` -- Extended
                   description of return value
         """
     ), (
@@ -1246,7 +1242,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Yields: *str* -- Extended
+        :Yields: :class:`str` -- Extended
                  description of yielded value
         """
     ), (
@@ -1262,7 +1258,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Yields: *str* -- Extended
+        :Yields: :class:`str` -- Extended
                  description of yielded value
         """
     )]
@@ -1455,9 +1451,38 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
 .. seealso::
 
-   :meth:`some`, :meth:`other`, :meth:`funcs`
+   :obj:`some`, :obj:`other`, :obj:`funcs`
    \n\
-   :meth:`otherfunc`
+   :obj:`otherfunc`
+       relationship
+"""
+        self.assertEqual(expected, actual)
+
+        docstring = """\
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+See Also
+--------
+some, other, :func:`funcs`
+otherfunc : relationship
+
+"""
+        translations = {
+            "other": "MyClass.other",
+            "otherfunc": ":func:`~my_package.otherfunc`",
+        }
+        config = Config(napoleon_type_aliases=translations)
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
+
+        expected = """\
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+.. seealso::
+
+   :obj:`some`, :obj:`MyClass.other`, :func:`funcs`
+   \n\
+   :func:`~my_package.otherfunc`
        relationship
 """
         self.assertEqual(expected, actual)
@@ -1524,6 +1549,52 @@ arg_ : type
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "class"))
 
+        self.assertEqual(expected, actual)
+
+    def test_return_types(self):
+        docstring = dedent("""
+            Returns
+            -------
+            DataFrame
+                a dataframe
+        """)
+        expected = dedent("""
+           :returns: a dataframe
+           :rtype: :class:`~pandas.DataFrame`
+        """)
+        translations = {
+            "DataFrame": "~pandas.DataFrame",
+        }
+        config = Config(
+            napoleon_use_param=True,
+            napoleon_use_rtype=True,
+            napoleon_preprocess_types=True,
+            napoleon_type_aliases=translations,
+        )
+        actual = str(NumpyDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
+    def test_yield_types(self):
+        docstring = dedent("""
+            Example Function
+
+            Yields
+            ------
+            scalar or array-like
+                The result of the computation
+        """)
+        expected = dedent("""
+            Example Function
+
+            :Yields: :term:`scalar` or :class:`array-like <numpy.ndarray>` -- The result of the computation
+        """)
+        translations = {
+            "scalar": ":term:`scalar`",
+            "array-like": ":class:`array-like <numpy.ndarray>`",
+        }
+        config = Config(napoleon_type_aliases=translations, napoleon_preprocess_types=True)
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
         self.assertEqual(expected, actual)
 
     def test_raises_types(self):
@@ -1692,6 +1763,34 @@ Example Function
 
 Raises
 ------
+CustomError
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises package.CustomError: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+AnotherError
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises ~package.AnotherError: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
 :class:`exc.InvalidDimensionsError`
 :class:`exc.InvalidArgumentsError`
 
@@ -1702,7 +1801,11 @@ Example Function
 :raises exc.InvalidArgumentsError:
 """)]
         for docstring, expected in docstrings:
-            config = Config()
+            translations = {
+                "CustomError": "package.CustomError",
+                "AnotherError": ":py:exc:`~package.AnotherError`",
+            }
+            config = Config(napoleon_type_aliases=translations, napoleon_preprocess_types=True)
             app = mock.Mock()
             actual = str(NumpyDocstring(docstring, config, app, "method"))
             self.assertEqual(expected, actual)
@@ -2119,7 +2222,7 @@ definition_after_normal_text : int
             ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
             ["str", ", ", "default", ": ", "'F or C'"],
             ["int", ", ", "default", ": ", "None"],
-            ["int", ", " , "default", " ", "None"],
+            ["int", ", ", "default", " ", "None"],
             ["int", ", ", "default", " ", ":obj:`None`"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],

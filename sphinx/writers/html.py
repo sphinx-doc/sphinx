@@ -13,17 +13,17 @@ import os
 import posixpath
 import re
 import warnings
-from typing import Any, Iterable, Tuple
-from typing import cast
+from typing import Any, Iterable, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
-from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
+from docutils.writers.html4css1 import HTMLTranslator as BaseTranslator
+from docutils.writers.html4css1 import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.locale import admonitionlabels, _, __
+from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
@@ -450,7 +450,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
-            location=(self.builder.current_docname, node.line), **highlight_args
+            location=node, **highlight_args
         )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s notranslate' % lang)

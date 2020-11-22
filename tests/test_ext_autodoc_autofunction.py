@@ -9,9 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
+
 import pytest
 
-from test_ext_autodoc import do_autodoc
+from .test_ext_autodoc import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -36,6 +38,14 @@ def test_classes(app):
     assert list(actual) == [
         '',
         '.. py:function:: Baz(x, y)',
+        '   :module: target.classes',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'function', 'target.classes.Qux')
+    assert list(actual) == [
+        '',
+        '.. py:function:: Qux(foo, bar)',
         '   :module: target.classes',
         '',
     ]
@@ -108,16 +118,23 @@ def test_decorated(app):
 def test_singledispatch(app):
     options = {}
     actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
-    assert list(actual) == [
-        '',
-        '.. py:function:: func(arg, kwarg=None)',
-        '                 func(arg: int, kwarg=None)',
-        '                 func(arg: str, kwarg=None)',
-        '   :module: target.singledispatch',
-        '',
-        '   A function for general use.',
-        '',
-    ]
+    if sys.version_info < (3, 6):
+        # check the result via "in" because the order of singledispatch signatures is
+        # usually changed (because dict is not OrderedDict yet!)
+        assert '.. py:function:: func(arg, kwarg=None)' in actual
+        assert '                 func(arg: int, kwarg=None)' in actual
+        assert '                 func(arg: str, kwarg=None)' in actual
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:function:: func(arg, kwarg=None)',
+            '                 func(arg: int, kwarg=None)',
+            '                 func(arg: str, kwarg=None)',
+            '   :module: target.singledispatch',
+            '',
+            '   A function for general use.',
+            '',
+        ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

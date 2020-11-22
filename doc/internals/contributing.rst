@@ -12,6 +12,9 @@ Getting help
 
 The Sphinx community maintains a number of mailing lists and IRC channels.
 
+Stack Overflow with tag `python-sphinx`_
+    Questions and answers about use and development.
+
 sphinx-users <sphinx-users@googlegroups.com>
     Mailing list for user support.
 
@@ -21,6 +24,7 @@ sphinx-dev <sphinx-dev@googlegroups.com>
 #sphinx-doc on irc.freenode.net
     IRC channel for development questions and user support.
 
+.. _python-sphinx: https://stackoverflow.com/questions/tagged/python-sphinx
 
 Bug Reports and Feature Requests
 --------------------------------
@@ -268,9 +272,9 @@ identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
 values for :confval:`language` in ``doc/usage/configuration.rst``.
 
 The Sphinx core messages can also be translated on `Transifex
-<https://www.transifex.com/sphinx-doc/>`_.  There ``tx`` client tool, which is
-provided by the ``transifex_client`` Python package, can be used to pull
-translations in ``.po`` format from Transifex.  To do this, go to
+<https://www.transifex.com/sphinx-doc/sphinx-1/>`_.  There ``tx`` client tool,
+which is provided by the ``transifex_client`` Python package, can be used to
+pull translations in ``.po`` format from Transifex.  To do this, go to
 ``sphinx/locale`` and then run ``tx pull -f -l LANG`` where ``LANG`` is an
 existing language identifier.  It is good practice to run ``python setup.py
 update_catalog`` afterwards to make sure the ``.po`` file has the canonical

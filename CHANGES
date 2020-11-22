@@ -1,4 +1,65 @@
-Release 3.2.2 (in development)
+Release 3.4.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+* #8105: autodoc: the signature of class constructor will be shown for decorated
+  classes, not a signature of decorator
+
+Deprecated
+----------
+
+* The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+* ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.ext.autodoc.importer._getannotations()``
+* ``sphinx.pycode.ModuleAnalyzer.parse()``
+* ``sphinx.util.requests.is_ssl_error()``
+
+Features added
+--------------
+
+* #8119: autodoc: Allow to determine whether a member not included in
+  ``__all__`` attribute of the module should be documented or not via
+  :event:`autodoc-skip-member` event
+* #8219: autodoc: Parameters for generic class are not shown when super class is
+  a generic class and show-inheritance option is given (in Python 3.7 or above)
+* autodoc: Add ``Documenter.config`` as a shortcut to access the config object
+* autodoc: Add Optional[t] to annotation of function and method if a default
+  value equal to None is set.
+* #8209: autodoc: Add ``:no-value:`` option to :rst:dir:`autoattribute` and
+  :rst:dir:`autodata` directive to suppress the default value of the variable
+* #8460: autodoc: Support custom types defined by typing.NewType
+* #6914: Add a new event :event:`warn-missing-reference` to custom warning
+  messages when failed to resolve a cross-reference
+* #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
+
+Bugs fixed
+----------
+
+* #7613: autodoc: autodoc does not respect __signature__ of the class
+* #4606: autodoc: the location of the warning is incorrect for inherited method
+* #8105: autodoc: the signature of class constructor is incorrect if the class
+  is decorated
+* #8434: autodoc: :confval:`autodoc_type_aliases` does not effect to variables
+  and attributes
+* #8443: autodoc: autodata directive can't create document for PEP-526 based
+  type annotated variables
+* #8443: autodoc: autoattribute directive can't create document for PEP-526
+  based uninitalized variables
+* #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
+  set to "description"
+* #8419: html search: Do not load ``language_data.js`` in non-search pages
+* #8454: graphviz: The layout option for graph and digraph directives don't work
+* #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
+
+Testing
+--------
+
+Release 3.3.2 (in development)
 ==============================
 
 Dependencies
@@ -18,6 +79,106 @@ Bugs fixed
 
 Testing
 --------
+
+Release 3.3.1 (released Nov 12, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #8372: autodoc: autoclass directive became slower than Sphinx-3.2
+* #7727: autosummary: raise PycodeError when documenting python package
+  without __init__.py
+* #8350: autosummary: autosummary_mock_imports causes slow down builds
+* #8364: C, properly initialize attributes in empty symbols.
+* #8399: i18n: Put system locale path after the paths specified by configuration
+
+Release 3.3.0 (released Nov 02, 2020)
+=====================================
+
+Deprecated
+----------
+
+* ``sphinx.builders.latex.LaTeXBuilder.usepackages``
+* ``sphinx.builders.latex.LaTeXBuilder.usepackages_afger_hyperref``
+* ``sphinx.ext.autodoc.SingledispatchFunctionDocumenter``
+* ``sphinx.ext.autodoc.SingledispatchMethodDocumenter``
+
+Features added
+--------------
+
+* #8100: html: Show a better error message for failures on copying
+  html_static_files
+* #8141: C: added a ``maxdepth`` option to :rst:dir:`c:alias` to insert
+  nested declarations.
+* #8081: LaTeX: Allow to add LaTeX package via ``app.add_latex_package()`` until
+  just before writing .tex file
+* #7996: manpage: Add :confval:`man_make_section_directory` to make a section
+  directory on build man page
+* #8289: epub: Allow to suppress "duplicated ToC entry found" warnings from epub
+  builder using :confval:`suppress_warnings`.
+* #8298: sphinx-quickstart: Add :option:`sphinx-quickstart --no-sep` option
+* #8304: sphinx.testing: Register public markers in sphinx.testing.fixtures
+* #8051: napoleon: use the obj role for all See Also items
+* #8050: napoleon: Apply :confval:`napoleon_preprocess_types` to every field
+* C and C++, show line numbers for previous declarations when duplicates are
+  detected.
+* #8183: Remove substitution_reference nodes from doctree only on LaTeX builds
+
+Bugs fixed
+----------
+
+* #8085: i18n: Add support for having single text domain
+* #6640: i18n: Failed to override system message translation
+* #8143: autodoc: AttributeError is raised when False value is passed to
+  autodoc_default_options
+* #8103: autodoc: functools.cached_property is not considered as a property
+* #8190: autodoc: parsing error is raised if some extension replaces docstring
+  by string not ending with blank lines
+* #8142: autodoc: Wrong constructor signature for the class derived from
+  typing.Generic
+* #8157: autodoc: TypeError is raised when annotation has invalid __args__
+* #7964: autodoc: Tuple in default value is wrongly rendered
+* #8200: autodoc: type aliases break type formatting of autoattribute
+* #7786: autodoc: can't detect overloaded methods defined in other file
+* #8294: autodoc: single-string __slots__ is not handled correctly
+* #7785: autodoc: autodoc_typehints='none' does not effect to overloaded functions
+* #8192: napoleon: description is disappeared when it contains inline literals
+* #8142: napoleon: Potential of regex denial of service in google style docs
+* #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
+* #8215: LaTeX: 'oneside' classoption causes build warning
+* #8175: intersphinx: Potential of regex denial of service by broken inventory
+* #8277: sphinx-build: missing and redundant spacing (and etc) for console
+  output on building
+* #7973: imgconverter: Check availability of imagemagick many times
+* #8255: py domain: number in default argument value is changed from hexadecimal
+  to decimal
+* #8316: html: Prevent arrow keys changing page when button elements are focused
+* #8343: html search: Fix unnecessary load of images when parsing the document
+* #8254: html theme: Line numbers misalign with code lines
+* #8093: The highlight warning has wrong location in some builders (LaTeX,
+  singlehtml and so on)
+* #8215: Eliminate Fancyhdr build warnings for oneside documents
+* #8239: Failed to refer a token in productionlist if it is indented
+* #8268: linkcheck: Report HTTP errors when ``linkcheck_anchors`` is ``True``
+* #8245: linkcheck: take source directory into account for local files
+* #8321: linkcheck: ``tel:`` schema hyperlinks are detected as errors
+* #8323: linkcheck: An exit status is incorrect when links having unsupported
+  schema found
+* #8188: C, add missing items to internal object types dictionary,
+  e.g., preventing intersphinx from resolving them.
+* C, fix anon objects in intersphinx.
+* #8270, C++, properly reject functions as duplicate declarations if a
+  non-function declaration of the same name already exists.
+* C, fix references to function parameters.
+  Link to the function instead of a non-existing anchor.
+* #6914: figure numbers are unexpectedly assigned to uncaptioned items
+* #8320: make "inline" line numbers un-selectable
+
+Testing
+--------
+
+* #8257: Support parallel build in sphinx.testing
 
 Release 3.2.1 (released Aug 14, 2020)
 =====================================
@@ -118,7 +279,7 @@ Bugs fixed
   contains a hyperlink target
 * #7469: autosummary: "Module attributes" header is not translatable
 * #7940: apidoc: An extra newline is generated at the end of the rst file if a
-  module has submodules 
+  module has submodules
 * #4258: napoleon: decorated special methods are not shown
 * #7799: napoleon: parameters are not escaped for combined params in numpydoc
 * #7780: napoleon: multiple paramaters declaration in numpydoc was wrongly
@@ -285,7 +446,7 @@ Features added
 * #7543: html theme: Add top and bottom margins to tables
 * #7695: html theme: Add viewport meta tag for basic theme
 * #7721: html theme: classic: default codetextcolor/codebgcolor doesn't override
-  Pygments 
+  Pygments
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
 * #7294: C++, parse expressions with user-defined literals.

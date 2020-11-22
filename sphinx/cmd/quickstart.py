@@ -37,9 +37,8 @@ import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util.console import (  # type: ignore
-    colorize, bold, red, turquoise, nocolor, color_terminal
-)
+from sphinx.util.console import (bold, color_terminal, colorize, nocolor, red,  # type: ignore
+                                 turquoise)
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
@@ -489,8 +488,10 @@ def get_parser() -> argparse.ArgumentParser:
                         help=__('project root'))
 
     group = parser.add_argument_group(__('Structure options'))
-    group.add_argument('--sep', action='store_true', default=None,
+    group.add_argument('--sep', action='store_true', dest='sep', default=None,
                        help=__('if specified, separate source and build dirs'))
+    group.add_argument('--no-sep', action='store_false', dest='sep',
+                       help=__('if specified, create build dir under source dir'))
     group.add_argument('--dot', metavar='DOT', default='_',
                        help=__('replacement for dot in _templates etc.'))
 

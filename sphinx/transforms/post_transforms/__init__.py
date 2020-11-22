@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple, Type
-from typing import cast
+from typing import Any, Dict, List, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -24,7 +23,6 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import process_only_nodes
-
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +164,10 @@ class ReferencesResolver(SphinxPostTransform):
                     warn = False
         if not warn:
             return
-        if domain and typ in domain.dangling_warnings:
+
+        if self.app.emit_firstresult('warn-missing-reference', domain, node):
+            return
+        elif domain and typ in domain.dangling_warnings:
             msg = domain.dangling_warnings[typ]
         elif node.get('refdomain', 'std') not in ('', 'std'):
             msg = (__('%s:%s reference target not found: %%(target)s') %
