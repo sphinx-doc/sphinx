@@ -177,8 +177,8 @@ def test_html4_output(app, status, warning):
     ],
     'autodoc.html': [
         (".//dl[@class='py class']/dt[@id='autodoc_target.Class']", ''),
-        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'\*\*'),
-        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'kwds'),
+        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span/span", r'\*\*'),
+        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span/span", r'kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
@@ -277,8 +277,10 @@ def test_html4_output(app, status, warning):
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
         (".//dt[@id='errmod.Error']", ''),
-        (".//dt/code", r'long\(parameter,\s* list\)'),
-        (".//dt/code", 'another one'),
+        (".//dt/code/span", r'long\(parameter,'),
+        (".//dt/code/span", r'list\)'),
+        (".//dt/code/span", 'another'),
+        (".//dt/code/span", 'one'),
         (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
         (".//dl[@class='std userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
