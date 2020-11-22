@@ -15,7 +15,7 @@ import textwrap
 import pytest
 import requests
 
-from utils import CERT_FILE, http_server, https_server, modify_env
+from .utils import CERT_FILE, http_server, https_server, modify_env
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)

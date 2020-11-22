@@ -69,6 +69,8 @@ Deprecated
 
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
 * ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.ext.autodoc.importer._getannotations()``
+* ``sphinx.pycode.ModuleAnalyzer.parse()``
 * ``sphinx.util.requests.is_ssl_error()``
 
 Features added
@@ -84,6 +86,7 @@ Features added
   value equal to None is set.
 * #8209: autodoc: Add ``:no-value:`` option to :rst:dir:`autoattribute` and
   :rst:dir:`autodata` directive to suppress the default value of the variable
+* #8460: autodoc: Support custom types defined by typing.NewType
 * #6914: Add a new event :event:`warn-missing-reference` to custom warning
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
@@ -101,7 +104,11 @@ Bugs fixed
   type annotated variables
 * #8443: autodoc: autoattribute directive can't create document for PEP-526
   based uninitalized variables
+* #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
+  set to "description"
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
+* #8454: graphviz: The layout option for graph and digraph directives don't work
+* #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
 
 Testing
 --------

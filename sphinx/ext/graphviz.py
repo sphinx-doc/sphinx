@@ -182,7 +182,8 @@ class GraphvizSimple(SphinxDirective):
         'alt': directives.unchanged,
         'align': align_spec,
         'caption': directives.unchanged,
-        'graphviz_dot': directives.unchanged,
+        'layout': directives.unchanged,
+        'graphviz_dot': directives.unchanged,  # an old alias of `layout` option
         'name': directives.unchanged,
         'class': directives.class_option,
     }
@@ -194,6 +195,8 @@ class GraphvizSimple(SphinxDirective):
         node['options'] = {'docname': self.env.docname}
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
+        if 'layout' in self.options:
+            node['options']['graphviz_dot'] = self.options['layout']
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
         if 'align' in self.options:

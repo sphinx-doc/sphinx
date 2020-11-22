@@ -141,6 +141,7 @@ def getall(obj: Any) -> Optional[Sequence[str]]:
     """Get __all__ attribute of the module as dict.
 
     Return None if given *obj* does not have __all__.
+    Raises AttributeError if given *obj* raises an error on accessing __all__.
     Raises ValueError if given *obj* have invalid __all__.
     """
     __all__ = safe_getattr(obj, '__all__', None)
@@ -153,10 +154,24 @@ def getall(obj: Any) -> Optional[Sequence[str]]:
             raise ValueError(__all__)
 
 
+def getannotations(obj: Any) -> Mapping[str, Any]:
+    """Get __annotations__ from given *obj* safely.
+
+    Raises AttributeError if given *obj* raises an error on accessing __attribute__.
+    """
+    __annotations__ = safe_getattr(obj, '__annotations__', None)
+    if isinstance(__annotations__, Mapping):
+        return __annotations__
+    else:
+        return {}
+
+
 def getslots(obj: Any) -> Optional[Dict]:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
+    Raises AttributeError if given *obj* raises an error on accessing __slots__.
+    Raises ValueError if given *obj* have invalid __slots__.
     """
     if not inspect.isclass(obj):
         raise TypeError
@@ -172,6 +187,16 @@ def getslots(obj: Any) -> Optional[Dict]:
         return {e: None for e in __slots__}
     else:
         raise ValueError
+
+
+def isNewType(obj: Any) -> bool:
+    """Check the if object is a kind of NewType."""
+    __module__ = safe_getattr(obj, '__module__', None)
+    __qualname__ = safe_getattr(obj, '__qualname__', None)
+    if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
+        return True
+    else:
+        return False
 
 
 def isenumclass(x: Any) -> bool:

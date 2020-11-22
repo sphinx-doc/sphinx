@@ -85,10 +85,14 @@ def is_system_TypeVar(typ: Any) -> bool:
 
 def restify(cls: Optional["Type"]) -> str:
     """Convert python class to a reST reference."""
+    from sphinx.util import inspect  # lazy loading
+
     if cls is None or cls is NoneType:
         return ':obj:`None`'
     elif cls is Ellipsis:
         return '...'
+    elif inspect.isNewType(cls):
+        return ':class:`%s`' % cls.__name__
     elif cls.__module__ in ('__builtin__', 'builtins'):
         return ':class:`%s`' % cls.__name__
     else:
@@ -231,6 +235,8 @@ def _restify_py36(cls: Optional["Type"]) -> str:
 
 def stringify(annotation: Any) -> str:
     """Stringify type annotation object."""
+    from sphinx.util import inspect  # lazy loading
+
     if isinstance(annotation, str):
         if annotation.startswith("'") and annotation.endswith("'"):
             # might be a double Forward-ref'ed type.  Go unquoting.
@@ -238,6 +244,9 @@ def stringify(annotation: Any) -> str:
         else:
             return annotation
     elif isinstance(annotation, TypeVar):
+        return annotation.__name__
+    elif inspect.isNewType(annotation):
+        # Could not get the module where it defiend
         return annotation.__name__
     elif not annotation:
         return repr(annotation)
