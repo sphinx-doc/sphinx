@@ -26,6 +26,10 @@ class RemovedInSphinx50Warning(PendingDeprecationWarning):
     pass
 
 
+class RemovedInSphinx60Warning(PendingDeprecationWarning):
+    pass
+
+
 RemovedInNextVersionWarning = RemovedInSphinx40Warning
 
 
