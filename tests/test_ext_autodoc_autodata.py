@@ -88,3 +88,18 @@ def test_autodata_NewType(app):
         '   alias of :class:`int`',
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodata_TypeVar(app):
+    actual = do_autodoc(app, 'data', 'target.typevar.T1')
+    assert list(actual) == [
+        '',
+        '.. py:data:: T1',
+        '   :module: target.typevar',
+        '',
+        '   T1',
+        '',
+        "   alias of TypeVar('T1')",
+        '',
+    ]
