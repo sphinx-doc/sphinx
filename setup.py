@@ -51,7 +51,7 @@ extras_require = {
         'pytest',
         'pytest-cov',
         'html5lib',
-        'typed_ast',  # for py35-37
+        "typed_ast; python_version < '3.8'",
         'cython',
     ],
 }
