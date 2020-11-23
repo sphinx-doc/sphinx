@@ -1701,6 +1701,9 @@ class ExceptionDocumenter(ClassDocumenter):
 
 
 class DataDocumenterMixinBase:
+    # define types of instance variables
+    object = None  # type: Any
+
     def should_suppress_directive_header(self) -> bool:
         """Check directive header should be suppressed."""
         return False
@@ -1717,12 +1720,12 @@ class NewTypeMixin(DataDocumenterMixinBase):
     """
 
     def should_suppress_directive_header(self) -> bool:
-        return (inspect.isNewType(self.object) or  # type: ignore
+        return (inspect.isNewType(self.object) or
                 super().should_suppress_directive_header())
 
     def update_content(self, more_content: StringList) -> None:
-        if inspect.isNewType(self.object):  # type: ignore
-            supertype = restify(self.object.__supertype__)  # type: ignore
+        if inspect.isNewType(self.object):
+            supertype = restify(self.object.__supertype__)
             more_content.append(_('alias of %s') % supertype, '')
             more_content.append('', '')
 
@@ -1736,7 +1739,7 @@ class TypeVarMixin(DataDocumenterMixinBase):
     """
 
     def should_suppress_directive_header(self) -> bool:
-        return (isinstance(self.object, TypeVar) or  # type: ignore
+        return (isinstance(self.object, TypeVar) or
                 super().should_suppress_directive_header())
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
@@ -1745,8 +1748,8 @@ class TypeVarMixin(DataDocumenterMixinBase):
                           % self.__class__.__name__,
                           RemovedInSphinx50Warning, stacklevel=2)
 
-        if isinstance(self.object, TypeVar):  # type: ignore
-            if self.object.__doc__ != TypeVar.__doc__:  # type: ignore
+        if isinstance(self.object, TypeVar):
+            if self.object.__doc__ != TypeVar.__doc__:
                 return super().get_doc()  # type: ignore
             else:
                 return []
@@ -1754,13 +1757,13 @@ class TypeVarMixin(DataDocumenterMixinBase):
             return super().get_doc()  # type: ignore
 
     def update_content(self, more_content: StringList) -> None:
-        if isinstance(self.object, TypeVar):  # type: ignore
-            attrs = [repr(self.object.__name__)]  # type: ignore
-            for constraint in self.object.__constraints__:  # type: ignore
+        if isinstance(self.object, TypeVar):
+            attrs = [repr(self.object.__name__)]
+            for constraint in self.object.__constraints__:
                 attrs.append(stringify_typehint(constraint))
-            if self.object.__covariant__:  # type: ignore
+            if self.object.__covariant__:
                 attrs.append("covariant=True")
-            if self.object.__contravariant__:  # type: ignore
+            if self.object.__contravariant__:
                 attrs.append("contravariant=True")
 
             more_content.append(_('alias of TypeVar(%s)') % ", ".join(attrs), '')
