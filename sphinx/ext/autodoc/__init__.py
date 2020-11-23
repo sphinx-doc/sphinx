@@ -1746,7 +1746,7 @@ class TypeVarMixin(DataDocumenterMixinBase):
         super().update_content(more_content)
 
 
-class DataDocumenter(ModuleLevelDocumenter, NewTypeMixin, TypeVarMixin):
+class DataDocumenter(NewTypeMixin, TypeVarMixin, ModuleLevelDocumenter):
     """
     Specialized Documenter subclass for data items.
     """
@@ -2071,7 +2071,8 @@ class SingledispatchMethodDocumenter(MethodDocumenter):
         super().__init__(*args, **kwargs)
 
 
-class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter, NewTypeMixin, TypeVarMixin):  # type: ignore  # NOQA
+class AttributeDocumenter(NewTypeMixin, TypeVarMixin,  # type: ignore
+                          DocstringStripSignatureMixin, ClassLevelDocumenter):
     """
     Specialized Documenter subclass for attributes.
     """
