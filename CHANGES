@@ -54,7 +54,7 @@ Bugs fixed
   set to "description"
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
 * #8454: graphviz: The layout option for graph and digraph directives don't work
-* #8131: linkcheck: Too Many Redirects on HEAD request is treated as broken
+* #8131: linkcheck: Use GET when HEAD requests cause Too Many Redirects, to accommodate infinite redirect loops on HEAD
 * #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
 
 Testing
