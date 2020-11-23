@@ -23,7 +23,8 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
+                                RemovedInSphinx60Warning)
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import get_module_members, get_object_members, import_object
 from sphinx.ext.autodoc.mock import mock
@@ -621,6 +622,8 @@ class Documenter:
         If *want_all* is True, return all members.  Else, only return those
         members given by *self.options.members* (which may also be none).
         """
+        warnings.warn('The implementation of Documenter.get_object_members() will be '
+                      'removed from Sphinx-6.0.', RemovedInSphinx60Warning)
         members = get_object_members(self.object, self.objpath, self.get_attr, self.analyzer)
         if not want_all:
             if not self.options.members:
@@ -1579,6 +1582,26 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 # A normal class
                 bases = [restify(cls) for cls in self.object.__bases__]
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
+
+    def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
+        members = get_object_members(self.object, self.objpath, self.get_attr, self.analyzer)
+        if not want_all:
+            if not self.options.members:
+                return False, []  # type: ignore
+            # specific members given
+            selected = []
+            for name in self.options.members:  # type: str
+                if name in members:
+                    selected.append((name, members[name].value))
+                else:
+                    logger.warning(__('missing attribute %s in object %s') %
+                                   (name, self.fullname), type='autodoc')
+            return False, selected
+        elif self.options.inherited_members:
+            return False, [(m.name, m.value) for m in members.values()]
+        else:
+            return False, [(m.name, m.value) for m in members.values()
+                           if m.directly_defined]
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         if encoding is not None:
