@@ -852,8 +852,9 @@ class StandardDomain(Domain):
             if fignumber is None:
                 return contnode
         except ValueError:
-            logger.warning(__("no number is assigned for %s: %s"), figtype, labelid,
-                           location=node)
+            logger.warning(__("Failed to create a cross reference. Any number is not "
+                              "assigned: %s"),
+                           labelid, location=node)
             return contnode
 
         try:
