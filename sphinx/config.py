@@ -105,6 +105,7 @@ class Config:
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
 
         'master_doc': ('index', 'env', []),
+        'root_doc': (lambda config: config.master_doc, 'env', []),
         'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
         'source_encoding': ('utf-8-sig', 'env', []),
         'exclude_patterns': ([], 'env', []),
@@ -461,17 +462,17 @@ def check_primary_domain(app: "Sphinx", config: Config) -> None:
         config.primary_domain = None  # type: ignore
 
 
-def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
-                     changed: Set[str], removed: Set[str]) -> Set[str]:
-    """Adjust master_doc to 'contents' to support an old project which does not have
-    no master_doc setting.
+def check_root_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
+                   changed: Set[str], removed: Set[str]) -> Set[str]:
+    """Adjust root_doc to 'contents' to support an old project which does not have
+    no root_doc setting.
     """
-    if (app.config.master_doc == 'index' and
+    if (app.config.root_doc == 'index' and
             'index' not in app.project.docnames and
             'contents' in app.project.docnames):
-        logger.warning(__('Since v2.0, Sphinx uses "index" as master_doc by default. '
-                          'Please add "master_doc = \'contents\'" to your conf.py.'))
-        app.config.master_doc = "contents"  # type: ignore
+        logger.warning(__('Since v2.0, Sphinx uses "index" as root_doc by default. '
+                          'Please add "root_doc = \'contents\'" to your conf.py.'))
+        app.config.root_doc = "contents"  # type: ignore
 
     return changed
 
@@ -483,7 +484,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)
     app.connect('config-inited', check_primary_domain, priority=800)
-    app.connect('env-get-outdated', check_master_doc)
+    app.connect('env-get-outdated', check_root_doc)
 
     return {
         'version': 'builtin',

@@ -281,7 +281,7 @@ class TocTreeCollector(EnvironmentCollector):
                 _walk_doctree(docname, doctree, secnum)
 
         if env.config.numfig:
-            _walk_doc(env.config.master_doc, tuple())
+            _walk_doc(env.config.root_doc, tuple())
             for docname, fignums in env.toc_fignumbers.items():
                 if fignums != old_fignumbers.get(docname):
                     rewrite_needed.append(docname)

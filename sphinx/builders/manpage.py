@@ -109,7 +109,7 @@ class ManualPageBuilder(Builder):
 def default_man_pages(config: Config) -> List[Tuple[str, str, str, List[str], int]]:
     """ Better default man_pages settings. """
     filename = make_filename_from_project(config.project)
-    return [(config.master_doc, filename, '%s %s' % (config.project, config.release),
+    return [(config.root_doc, filename, '%s %s' % (config.project, config.release),
              [config.author], 1)]
 
 
