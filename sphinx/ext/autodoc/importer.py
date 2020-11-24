@@ -11,7 +11,7 @@
 import importlib
 import traceback
 import warnings
-from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
@@ -171,12 +171,6 @@ def _getmro(obj: Any) -> Tuple["Type", ...]:
         return __mro__
     else:
         return tuple()
-
-
-def _getannotations(obj: Any) -> Mapping[str, Any]:
-    warnings.warn('sphinx.ext.autodoc.importer._getannotations() is deprecated.',
-                  RemovedInSphinx40Warning)
-    return getannotations(obj)
 
 
 def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,

@@ -10,6 +10,7 @@
 
 import re
 import tokenize
+import warnings
 from collections import OrderedDict
 from importlib import import_module
 from inspect import Signature
