@@ -61,6 +61,26 @@ The following is a list of deprecated interfaces.
      - 5.0
      - N/A
 
+   * - ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.DataDocumenter``
+
+   * - ``sphinx.ext.autodoc.importer._getannotations()``
+     - 3.4
+     - 4.0
+     - ``sphinx.util.inspect.getannotations()``
+
+   * - ``sphinx.pycode.ModuleAnalyzer.parse()``
+     - 3.4
+     - 5.0
+     - ``sphinx.pycode.ModuleAnalyzer.analyze()``
+
+   * - ``sphinx.util.requests.is_ssl_error()``
+     - 3.4
+     - 5.0
+     - N/A
+
    * - ``sphinx.builders.latex.LaTeXBuilder.usepackages``
      - 3.3
      - 5.0

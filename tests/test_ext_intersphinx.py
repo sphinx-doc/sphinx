@@ -11,19 +11,19 @@
 import http.server
 import os
 import unittest
-from io import BytesIO
 from unittest import mock
 
 import pytest
 from docutils import nodes
-from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import (INVENTORY_FILENAME, _get_safe_url, _strip_basic_auth,
                                     fetch_inventory, inspect_main, load_mappings,
                                     missing_reference, normalize_intersphinx_mapping)
 from sphinx.ext.intersphinx import setup as intersphinx_setup
-from utils import http_server
+
+from .test_util_inventory import inventory_v2, inventory_v2_not_having_version
+from .utils import http_server
 
 
 def fake_node(domain, type, target, content, **attrs):

@@ -16,14 +16,15 @@ from shutil import copyfile
 from subprocess import PIPE, CalledProcessError
 
 import pytest
-from test_build_html import ENV_WARNINGS
 
 from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
-from sphinx.errors import SphinxError, ThemeError
+from sphinx.errors import SphinxError
 from sphinx.testing.util import strip_escseq
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
+
+from .test_build_html import ENV_WARNINGS
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']
@@ -762,7 +763,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert ('\\caption{This is the figure caption with a footnote to '
             '\\sphinxfootnotemark[7].}\\label{\\detokenize{index:id29}}\\end{figure}\n'
             '%\n\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
-            'Footnote in caption\n%\n\\end{footnotetext}')in result
+            'Footnote in caption\n%\n\\end{footnotetext}') in result
     assert ('\\sphinxcaption{footnote \\sphinxfootnotemark[8] in '
             'caption of normal table}\\label{\\detokenize{index:id30}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[9] '

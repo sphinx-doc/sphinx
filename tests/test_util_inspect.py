@@ -19,7 +19,7 @@ import _testcapi
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import is_builtin_class_method, stringify_signature
+from sphinx.util.inspect import stringify_signature
 
 
 def test_signature():
@@ -129,8 +129,8 @@ def test_signature_partialmethod():
 
 
 def test_signature_annotations():
-    from typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
-                                  f13, f14, f15, f16, f17, f18, f19, f20, f21)
+    from .typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
+                                   f13, f14, f15, f16, f17, f18, f19, f20, f21)
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -223,10 +223,10 @@ def test_signature_annotations():
 
     # type hints by string
     sig = inspect.signature(Node.children)
-    assert stringify_signature(sig) == '(self) -> List[typing_test_data.Node]'
+    assert stringify_signature(sig) == '(self) -> List[tests.typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
-    assert stringify_signature(sig) == '(self, parent: Optional[typing_test_data.Node]) -> None'
+    assert stringify_signature(sig) == '(self, parent: Optional[tests.typing_test_data.Node]) -> None'
 
     # show_annotation is False
     sig = inspect.signature(f7)
@@ -488,6 +488,28 @@ def test_dict_customtype():
     description = inspect.object_description(dictionary)
     # Type is unsortable, just check that it does not crash
     assert "<CustomType(2)>: 2" in description
+
+
+def test_getslots():
+    class Foo:
+        pass
+
+    class Bar:
+        __slots__ = ['attr']
+
+    class Baz:
+        __slots__ = {'attr': 'docstring'}
+
+    class Qux:
+        __slots__ = 'attr'
+
+    assert inspect.getslots(Foo) is None
+    assert inspect.getslots(Bar) == {'attr': None}
+    assert inspect.getslots(Baz) == {'attr': 'docstring'}
+    assert inspect.getslots(Qux) == {'attr': None}
+
+    with pytest.raises(TypeError):
+        inspect.getslots(Bar())
 
 
 @pytest.mark.sphinx(testroot='ext-autodoc')

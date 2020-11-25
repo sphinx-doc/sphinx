@@ -18,6 +18,8 @@ Incompatible changes
 * #7784: i18n: The msgid for alt text of image is changed
 * #7996: manpage: Make a section directory on build manpage by default (see
   :confval:`man_make_section_directory`)
+* #8380: html search: search results are wrapped with ``<p>`` instead of
+  ``<div>``
 
 Deprecated
 ----------
@@ -44,6 +46,7 @@ Features added
 Bugs fixed
 ----------
 
+* #8380: html search: Paragraphs in search results are not identified as ``<p>``
 * #8342: Emit a warning if a unknown domain is given for directive or role (ex.
   ``:unknown:doc:``)
 
@@ -66,6 +69,10 @@ Deprecated
 ----------
 
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+* ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.ext.autodoc.importer._getannotations()``
+* ``sphinx.pycode.ModuleAnalyzer.parse()``
+* ``sphinx.util.requests.is_ssl_error()``
 
 Features added
 --------------
@@ -78,6 +85,9 @@ Features added
 * autodoc: Add ``Documenter.config`` as a shortcut to access the config object
 * autodoc: Add Optional[t] to annotation of function and method if a default
   value equal to None is set.
+* #8209: autodoc: Add ``:no-value:`` option to :rst:dir:`autoattribute` and
+  :rst:dir:`autodata` directive to suppress the default value of the variable
+* #8460: autodoc: Support custom types defined by typing.NewType
 * #6914: Add a new event :event:`warn-missing-reference` to custom warning
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
@@ -89,11 +99,22 @@ Bugs fixed
 * #4606: autodoc: the location of the warning is incorrect for inherited method
 * #8105: autodoc: the signature of class constructor is incorrect if the class
   is decorated
+* #8434: autodoc: :confval:`autodoc_type_aliases` does not effect to variables
+  and attributes
+* #8443: autodoc: autodata directive can't create document for PEP-526 based
+  type annotated variables
+* #8443: autodoc: autoattribute directive can't create document for PEP-526
+  based uninitalized variables
+* #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
+  set to "description"
+* #8419: html search: Do not load ``language_data.js`` in non-search pages
+* #8454: graphviz: The layout option for graph and digraph directives don't work
+* #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
 
 Testing
 --------
 
-Release 3.3.1 (in development)
+Release 3.3.2 (in development)
 ==============================
 
 Dependencies
@@ -111,13 +132,21 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 3.3.1 (released Nov 12, 2020)
+=====================================
+
+Bugs fixed
+----------
+
 * #8372: autodoc: autoclass directive became slower than Sphinx-3.2
 * #7727: autosummary: raise PycodeError when documenting python package
   without __init__.py
+* #8350: autosummary: autosummary_mock_imports causes slow down builds
 * #8364: C, properly initialize attributes in empty symbols.
-
-Testing
---------
+* #8399: i18n: Put system locale path after the paths specified by configuration
 
 Release 3.3.0 (released Nov 02, 2020)
 =====================================

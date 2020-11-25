@@ -11,11 +11,11 @@
 import importlib
 import traceback
 import warnings
-from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
-from sphinx.util.inspect import isclass, isenumclass, safe_getattr
+from sphinx.util.inspect import getannotations, getslots, isclass, isenumclass, safe_getattr
 
 if False:
     # For type annotation
@@ -148,10 +148,12 @@ def get_module_members(module: Any) -> List[Tuple[str, Any]]:
             continue
 
     # annotation only member (ex. attr: int)
-    if hasattr(module, '__annotations__'):
-        for name in module.__annotations__:
+    try:
+        for name in getannotations(module):
             if name not in members:
                 members[name] = (name, INSTANCEATTR)
+    except AttributeError:
+        pass
 
     return sorted(list(members.values()))
 
@@ -169,15 +171,6 @@ def _getmro(obj: Any) -> Tuple["Type", ...]:
         return __mro__
     else:
         return tuple()
-
-
-def _getannotations(obj: Any) -> Mapping[str, Any]:
-    """Get __annotations__ from given *obj* safely."""
-    __annotations__ = safe_getattr(obj, '__annotations__', None)
-    if isinstance(__annotations__, Mapping):
-        return __annotations__
-    else:
-        return {}
 
 
 def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
@@ -203,14 +196,15 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                 members[name] = Attribute(name, True, value)
 
     # members in __slots__
-    if isclass(subject) and getattr(subject, '__slots__', None) is not None:
-        from sphinx.ext.autodoc import SLOTSATTR
+    try:
+        __slots__ = getslots(subject)
+        if __slots__:
+            from sphinx.ext.autodoc import SLOTSATTR
 
-        slots = subject.__slots__
-        if isinstance(slots, str):
-            slots = [slots]
-        for name in slots:
-            members[name] = Attribute(name, True, SLOTSATTR)
+            for name in __slots__:
+                members[name] = Attribute(name, True, SLOTSATTR)
+    except (AttributeError, TypeError, ValueError):
+        pass
 
     # other members
     for name in dir(subject):
@@ -225,10 +219,13 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
 
     # annotation only member (ex. attr: int)
     for i, cls in enumerate(_getmro(subject)):
-        for name in _getannotations(cls):
-            name = unmangle(cls, name)
-            if name and name not in members:
-                members[name] = Attribute(name, i == 0, INSTANCEATTR)
+        try:
+            for name in getannotations(cls):
+                name = unmangle(cls, name)
+                if name and name not in members:
+                    members[name] = Attribute(name, i == 0, INSTANCEATTR)
+        except AttributeError:
+            pass
 
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows
