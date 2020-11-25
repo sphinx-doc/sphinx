@@ -1702,12 +1702,19 @@ class ExceptionDocumenter(ClassDocumenter):
 
 class DataDocumenterMixinBase:
     # define types of instance variables
+    config = None  # type: Config
+    env = None  # type: BuildEnvironment
+    modname = None  # type: str
     parent = None  # type: Any
     object = None  # type: Any
     objpath = None  # type: List[str]
 
     def should_suppress_directive_header(self) -> bool:
         """Check directive header should be suppressed."""
+        return False
+
+    def should_suppress_value_header(self) -> bool:
+        """Check :value: header should be suppressed."""
         return False
 
     def update_content(self, more_content: StringList) -> None:
@@ -1774,25 +1781,15 @@ class TypeVarMixin(DataDocumenterMixinBase):
         super().update_content(more_content)
 
 
-class DataDocumenter(NewTypeMixin, TypeVarMixin, ModuleLevelDocumenter):
+class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
     """
-    Specialized Documenter subclass for data items.
+    Mixin for DataDocumenter to provide the feature for supporting uninitialized
+    (type annotation only) global variables.
     """
-    objtype = 'data'
-    member_order = 40
-    priority = -10
-    option_spec = dict(ModuleLevelDocumenter.option_spec)
-    option_spec["annotation"] = annotation_option
-    option_spec["no-value"] = bool_option
-
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        return isinstance(parent, ModuleDocumenter) and isattr
 
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
-            return super().import_object(raiseerror=True)
+            return super().import_object(raiseerror=True)  # type: ignore
         except ImportError as exc:
             # annotation only instance variable (PEP-526)
             try:
@@ -1811,6 +1808,36 @@ class DataDocumenter(NewTypeMixin, TypeVarMixin, ModuleLevelDocumenter):
                 logger.warning(exc.args[0], type='autodoc', subtype='import_object')
                 self.env.note_reread()
                 return False
+
+    def should_suppress_value_header(self) -> bool:
+        return (self.object == UNINITIALIZED_ATTR or
+                super().should_suppress_value_header())
+
+    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
+                    ) -> None:
+        if self.object is UNINITIALIZED_ATTR:
+            # suppress docstring of the value
+            super().add_content(more_content, no_docstring=True)  # type: ignore
+        else:
+            super().add_content(more_content, no_docstring=no_docstring)  # type: ignore
+
+
+class DataDocumenter(NewTypeMixin, TypeVarMixin, UninitializedGlobalVariableMixin,
+                     ModuleLevelDocumenter):
+    """
+    Specialized Documenter subclass for data items.
+    """
+    objtype = 'data'
+    member_order = 40
+    priority = -10
+    option_spec = dict(ModuleLevelDocumenter.option_spec)
+    option_spec["annotation"] = annotation_option
+    option_spec["no-value"] = bool_option
+
+    @classmethod
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+                            ) -> bool:
+        return isinstance(parent, ModuleDocumenter) and isattr
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
@@ -1833,7 +1860,7 @@ class DataDocumenter(NewTypeMixin, TypeVarMixin, ModuleLevelDocumenter):
                                   sourcename)
 
             try:
-                if self.object is UNINITIALIZED_ATTR or self.options.no_value:
+                if self.options.no_value or self.should_suppress_value_header():
                     pass
                 else:
                     objrepr = object_description(self.object)
@@ -1850,15 +1877,11 @@ class DataDocumenter(NewTypeMixin, TypeVarMixin, ModuleLevelDocumenter):
 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
-        if self.object is UNINITIALIZED_ATTR:
-            # suppress docstring of the value
-            super().add_content(more_content, no_docstring=True)
-        else:
-            if not more_content:
-                more_content = StringList()
+        if not more_content:
+            more_content = StringList()
 
-            self.update_content(more_content)
-            super().add_content(more_content, no_docstring=no_docstring)
+        self.update_content(more_content)
+        super().add_content(more_content, no_docstring=no_docstring)
 
 
 class DataDeclarationDocumenter(DataDocumenter):
