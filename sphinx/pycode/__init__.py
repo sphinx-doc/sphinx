@@ -179,7 +179,7 @@ class ModuleAnalyzer:
             self.overloads = parser.overloads
             self.tags = parser.definitions
             self.tagorder = parser.deforders
-            self._parsed = True
+            self._analyzed = True
         except Exception as exc:
             raise PycodeError('parsing %r failed: %r' % (self.srcname, exc)) from exc
 
