@@ -2337,37 +2337,10 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
     # must be higher than AttributeDocumenter
     priority = 11
 
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        """This documents only INSTANCEATTR members."""
-        return (not isinstance(parent, ModuleDocumenter) and
-                isattr and
-                member is INSTANCEATTR)
-
-    def import_parent(self) -> Any:
-        try:
-            parent = importlib.import_module(self.modname)
-            for name in self.objpath[:-1]:
-                parent = self.get_attr(parent, name)
-
-            return parent
-        except (ImportError, AttributeError):
-            return None
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        """Never import anything."""
-        # disguise as an attribute
-        self.objtype = 'attribute'
-        self.object = INSTANCEATTR
-        self.parent = self.import_parent()
-        self._datadescriptor = False
-        return True
-
-    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
-                    ) -> None:
-        """Never try to get a docstring from the object."""
-        super().add_content(more_content, no_docstring=True)
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn("%s is deprecated." % self.__class__.__name__,
+                      RemovedInSphinx50Warning, stacklevel=2)
+        super().__init__(*args, **kwargs)
 
 
 class SlotsAttributeDocumenter(AttributeDocumenter):
@@ -2441,7 +2414,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(MethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
-    app.add_autodocumenter(InstanceAttributeDocumenter)
     app.add_autodocumenter(NewTypeAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))

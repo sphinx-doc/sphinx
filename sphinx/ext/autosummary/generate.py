@@ -88,16 +88,14 @@ def setup_documenters(app: Any) -> None:
     from sphinx.ext.autodoc import (AttributeDocumenter, ClassDocumenter, DataDocumenter,
                                     DecoratorDocumenter, ExceptionDocumenter,
                                     FunctionDocumenter, GenericAliasDocumenter,
-                                    InstanceAttributeDocumenter, MethodDocumenter,
-                                    ModuleDocumenter, NewTypeAttributeDocumenter,
-                                    NewTypeDataDocumenter, PropertyDocumenter,
-                                    SingledispatchFunctionDocumenter)
+                                    MethodDocumenter, ModuleDocumenter,
+                                    NewTypeAttributeDocumenter, NewTypeDataDocumenter,
+                                    PropertyDocumenter, SingledispatchFunctionDocumenter)
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, NewTypeAttributeDocumenter,
-        NewTypeDataDocumenter, AttributeDocumenter, InstanceAttributeDocumenter,
-        DecoratorDocumenter, PropertyDocumenter, GenericAliasDocumenter,
-        SingledispatchFunctionDocumenter,
+        NewTypeDataDocumenter, AttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
+        GenericAliasDocumenter, SingledispatchFunctionDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
