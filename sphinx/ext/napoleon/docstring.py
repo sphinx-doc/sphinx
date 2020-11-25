@@ -813,7 +813,7 @@ class GoogleDocstring:
             if self._what in ("module", "class", "exception") and self._obj:
                 # cache the class annotations
                 if not hasattr(self, "_annotations"):
-                    localns = getattr(self._config, "autodoc_type_aliases", {}) or {}
+                    localns = getattr(self._config, "autodoc_type_aliases", {})
                     localns.update(getattr(
                                    self._config, "napoleon_type_aliases", {}
                                    ) or {})
