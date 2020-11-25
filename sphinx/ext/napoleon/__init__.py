@@ -44,7 +44,7 @@ class Config:
         napoleon_preprocess_types = False
         napoleon_type_aliases = None
         napoleon_custom_sections = None
-        napoleon_attr_annotations = False
+        napoleon_attr_annotations = True
 
     .. _Google style:
        https://google.github.io/styleguide/pyguide.html
