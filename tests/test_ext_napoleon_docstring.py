@@ -25,8 +25,8 @@ from sphinx.ext.napoleon.docstring import (GoogleDocstring, NumpyDocstring,
                                            _token_type, _tokenize_type_spec)
 
 if sys.version_info >= (3, 6):
-    from ext_napoleon_pep526_data_google import PEP526GoogleClass
-    from ext_napoleon_pep526_data_numpy import PEP526NumpyClass
+    from .ext_napoleon_pep526_data_google import PEP526GoogleClass
+    from .ext_napoleon_pep526_data_numpy import PEP526NumpyClass
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
