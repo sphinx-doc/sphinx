@@ -10,12 +10,23 @@
 
 import http.server
 import json
+import re
 import textwrap
+import time
+import wsgiref.handlers
+from datetime import datetime
+from typing import Dict
+from unittest import mock
 
 import pytest
 import requests
 
+from sphinx.builders.linkcheck import CheckExternalLinksBuilder, RateLimit
+from sphinx.util.console import strip_colors
+
 from .utils import CERT_FILE, http_server, https_server, modify_env
+
+ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
@@ -410,3 +421,154 @@ def test_TooManyRedirects_on_HEAD(app):
         "uri": "http://localhost:7777/",
         "info": "",
     }
+
+
+def make_retry_after_handler(responses):
+    class RetryAfterHandler(http.server.BaseHTTPRequestHandler):
+        def do_HEAD(self):
+            status, retry_after = responses.pop(0)
+            self.send_response(status)
+            if retry_after:
+                self.send_header('Retry-After', retry_after)
+            self.end_headers()
+
+        def log_date_time_string(self):
+            """Strip date and time from logged messages for assertions."""
+            return ""
+
+    return RetryAfterHandler
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_too_many_requests_retry_after_int_delay(app, capsys, status):
+    with http_server(make_retry_after_handler([(429, "0"), (200, None)])), \
+         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0), \
+         mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01):
+        app.builder.build_all()
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
+    rate_limit_log = "-rate limited-   http://localhost:7777/ | sleeping...\n"
+    assert rate_limit_log in strip_colors(status.getvalue())
+    _stdout, stderr = capsys.readouterr()
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
+        """
+    )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_too_many_requests_retry_after_HTTP_date(app, capsys):
+    now = datetime.now().timetuple()
+    retry_after = wsgiref.handlers.format_date_time(time.mktime(now))
+    with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
+        app.builder.build_all()
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
+    _stdout, stderr = capsys.readouterr()
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
+        """
+    )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_too_many_requests_retry_after_without_header(app, capsys):
+    with http_server(make_retry_after_handler([(429, None), (200, None)])),\
+         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0):
+        app.builder.build_all()
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
+    _stdout, stderr = capsys.readouterr()
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
+        """
+    )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_too_many_requests_user_timeout(app, capsys):
+    app.config.linkcheck_rate_limit_timeout = 0.0
+    with http_server(make_retry_after_handler([(429, None)])):
+        app.builder.build_all()
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "broken",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "429 Client Error: Too Many Requests for url: http://localhost:7777/",
+    }
+
+
+class FakeResponse:
+    headers = {}  # type: Dict[str, str]
+    url = "http://localhost/"
+
+
+def test_limit_rate_default_sleep(app):
+    checker = CheckExternalLinksBuilder(app)
+    checker.rate_limits = {}
+    with mock.patch('time.time', return_value=0.0):
+        next_check = checker.limit_rate(FakeResponse())
+    assert next_check == 60.0
+
+
+def test_limit_rate_user_max_delay(app):
+    app.config.linkcheck_rate_limit_timeout = 0.0
+    checker = CheckExternalLinksBuilder(app)
+    checker.rate_limits = {}
+    next_check = checker.limit_rate(FakeResponse())
+    assert next_check is None
+
+
+def test_limit_rate_doubles_previous_wait_time(app):
+    checker = CheckExternalLinksBuilder(app)
+    checker.rate_limits = {"localhost": RateLimit(60.0, 0.0)}
+    with mock.patch('time.time', return_value=0.0):
+        next_check = checker.limit_rate(FakeResponse())
+    assert next_check == 120.0
+
+
+def test_limit_rate_clips_wait_time_to_max_time(app):
+    checker = CheckExternalLinksBuilder(app)
+    app.config.linkcheck_rate_limit_timeout = 90.0
+    checker.rate_limits = {"localhost": RateLimit(60.0, 0.0)}
+    with mock.patch('time.time', return_value=0.0):
+        next_check = checker.limit_rate(FakeResponse())
+    assert next_check == 90.0
+
+
+def test_limit_rate_bails_out_after_waiting_max_time(app):
+    checker = CheckExternalLinksBuilder(app)
+    app.config.linkcheck_rate_limit_timeout = 90.0
+    checker.rate_limits = {"localhost": RateLimit(90.0, 0.0)}
+    next_check = checker.limit_rate(FakeResponse())
+    assert next_check is None
