@@ -1582,13 +1582,11 @@ class Symbol:
     def get_all_symbols(self) -> Iterator["Symbol"]:
         yield self
         for sChild in self._children:
-            for s in sChild.get_all_symbols():
-                yield s
+            yield from sChild.get_all_symbols()
 
     @property
     def children(self) -> Iterator["Symbol"]:
-        for c in self._children:
-            yield c
+        yield from self._children
 
     @property
     def children_recurse_anon(self) -> Iterator["Symbol"]:

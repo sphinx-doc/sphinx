@@ -3927,8 +3927,7 @@ class Symbol:
     def get_all_symbols(self) -> Iterator[Any]:
         yield self
         for sChild in self._children:
-            for s in sChild.get_all_symbols():
-                yield s
+            yield from sChild.get_all_symbols()
 
     @property
     def children_recurse_anon(self) -> Generator["Symbol", None, None]:

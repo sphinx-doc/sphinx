@@ -14,20 +14,20 @@ from io import BytesIO
 
 from sphinx.ext.intersphinx import InventoryFile
 
-inventory_v1 = '''\
+inventory_v1 = b'''\
 # Sphinx inventory version 1
 # Project: foo
 # Version: 1.0
 module mod foo.html
 module.cls class foo.html
-'''.encode()
+'''
 
-inventory_v2 = '''\
+inventory_v2 = b'''\
 # Sphinx inventory version 2
 # Project: foo
 # Version: 2.0
 # The remainder of this file is compressed with zlib.
-'''.encode() + zlib.compress('''\
+''' + zlib.compress(b'''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
 module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
@@ -47,16 +47,16 @@ foo.bar js:class 1 index.html#foo.bar -
 foo.bar.baz js:method 1 index.html#foo.bar.baz -
 foo.bar.qux js:data 1 index.html#foo.bar.qux -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
-'''.encode())
+''')
 
-inventory_v2_not_having_version = '''\
+inventory_v2_not_having_version = b'''\
 # Sphinx inventory version 2
 # Project: foo
 # Version:
 # The remainder of this file is compressed with zlib.
-'''.encode() + zlib.compress('''\
+''' + zlib.compress(b'''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
-'''.encode())
+''')
 
 
 def test_read_inventory_v1():
