@@ -810,7 +810,7 @@ class GoogleDocstring:
 
     def _lookup_annotation(self, _name: str) -> str:
         if self._config.napoleon_attr_annotations:
-            if self._what in ("class", "exception") and self._obj:
+            if self._what in ("module", "class", "exception") and self._obj:
                 # cache the class annotations
                 if not hasattr(self, "_annotations"):
                     localns = getattr(self._config, "autodoc_type_aliases", {}) or {}
