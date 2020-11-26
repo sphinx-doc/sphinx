@@ -1106,7 +1106,7 @@ class StandardDomain(Domain):
 
 
 def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref) -> bool:
-    if domain.name != 'std' or node['reftype'] != 'ref':
+    if (domain and domain.name != 'std') or node['reftype'] != 'ref':
         return None
     else:
         target = node['reftarget']
