@@ -62,4 +62,4 @@ def modify_env(**env):
             try:
                 os.environ[k] = original_env[k]
             except KeyError:
-                os.unsetenv(k)
+                del os.environ[k]
