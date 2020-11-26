@@ -16,6 +16,7 @@ Deprecated
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
 * ``sphinx.ext.autodoc.Documenter.get_object_members()``
 * ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.ext.autodoc.InstanceAttributeDocumenter``
 * ``sphinx.ext.autodoc.SlotsAttributeDocumenter``
 * ``sphinx.ext.autodoc.TypeVarDocumenter``
 * ``sphinx.ext.autodoc.importer._getannotations()``

@@ -41,6 +41,11 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.ext.autodoc.DataDocumenter``
 
+   * - ``sphinx.ext.autodoc.InstanceAttributeDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.AttributeDocumenter``
+
    * - ``sphinx.ext.autodoc.SlotsAttributeDocumenter``
      - 3.4
      - 5.0
