@@ -806,7 +806,7 @@ def test_autodoc_inner_class(app):
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
         '',
-        '      alias of :class:`builtins.dict`'
+        '      alias of :class:`dict`'
     ]
 
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
@@ -1704,7 +1704,7 @@ def test_autodoc_GenericAlias(app):
             '.. py:attribute:: T',
             '   :module: target.genericalias',
             '',
-            '   alias of :class:`typing.List`',
+            '   alias of :class:`List`\\ [:class:`int`]',
         ]
     else:
         assert list(actual) == [

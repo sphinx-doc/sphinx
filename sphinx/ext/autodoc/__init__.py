@@ -1654,16 +1654,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
         if self.doc_as_attr:
-            classname = safe_getattr(self.object, '__qualname__', None)
-            if not classname:
-                classname = safe_getattr(self.object, '__name__', None)
-            if classname:
-                module = safe_getattr(self.object, '__module__', None)
-                parentmodule = safe_getattr(self.parent, '__module__', None)
-                if module and module != parentmodule:
-                    classname = str(module) + '.' + str(classname)
-                content = StringList([_('alias of :class:`%s`') % classname], source='')
-                super().add_content(content, no_docstring=True)
+            content = StringList([_('alias of %s') % restify(self.object)], source='')
+            super().add_content(content, no_docstring=True)
         else:
             super().add_content(more_content)
 

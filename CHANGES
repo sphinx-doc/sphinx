@@ -69,6 +69,7 @@ Bugs fixed
 * #8131: linkcheck: Use GET when HEAD requests cause Too Many Redirects, to
   accommodate infinite redirect loops on HEAD
 * #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
+* #8493: autodoc: references to builtins not working in class aliases
 
 Testing
 --------
