@@ -64,6 +64,7 @@ Bugs fixed
   information of TypeVars
 * #8477: autosummary: non utf-8 reST files are generated when template contains
   multibyte characters
+* #8501: autosummary: summary extraction splits text after "el at." unexpectedly
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
 * #8454: graphviz: The layout option for graph and digraph directives don't work
 * #8131: linkcheck: Use GET when HEAD requests cause Too Many Redirects, to
