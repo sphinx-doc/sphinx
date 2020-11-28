@@ -24,7 +24,7 @@ import requests
 from sphinx.builders.linkcheck import CheckExternalLinksBuilder, RateLimit
 from sphinx.util.console import strip_colors
 
-from .utils import CERT_FILE, http_server, https_server, modify_env
+from .utils import CERT_FILE, http_server, https_server
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
@@ -361,8 +361,9 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_connect_to_selfsigned_with_requests_env_var(app):
-    with modify_env(REQUESTS_CA_BUNDLE=CERT_FILE), https_server(OKHandler):
+def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
+    monkeypatch.setenv("REQUESTS_CA_BUNDLE", CERT_FILE)
+    with https_server(OKHandler):
         app.builder.build_all()
 
     with open(app.outdir / 'output.json') as fp:
