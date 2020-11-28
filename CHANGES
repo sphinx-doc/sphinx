@@ -62,6 +62,7 @@ Bugs fixed
   set to "description"
 * #8460: autodoc: autodata and autoattribute directives do not display type
   information of TypeVars
+* #8493: autodoc: references to builtins not working in class aliases
 * #8477: autosummary: non utf-8 reST files are generated when template contains
   multibyte characters
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
@@ -69,7 +70,6 @@ Bugs fixed
 * #8131: linkcheck: Use GET when HEAD requests cause Too Many Redirects, to
   accommodate infinite redirect loops on HEAD
 * #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
-* #8493: autodoc: references to builtins not working in class aliases
 
 Testing
 --------
