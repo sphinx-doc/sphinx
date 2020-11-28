@@ -66,7 +66,7 @@ def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dic
     from sphinx.util.inspect import safe_getattr  # lazy loading
 
     try:
-        return typing.get_type_hints(obj, None, localns)
+        return typing.get_type_hints(obj, globalns, localns)
     except NameError:
         # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
         return safe_getattr(obj, '__annotations__', {})
