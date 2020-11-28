@@ -15,7 +15,7 @@ import sys
 import warnings
 from os import path
 from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -444,8 +444,8 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.last_updated = None
 
-        logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
-        favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
+        logo = self.proc_resource_ref(self.config.html_logo)
+        favicon = self.proc_resource_ref(self.config.html_favicon)
 
         if not isinstance(self.config.html_use_opensearch, str):
             logger.warning(__('html_use_opensearch config value must now be a string'))
@@ -773,12 +773,12 @@ class StandaloneHTMLBuilder(Builder):
                        excluded, context=context, renderer=self.templates, onerror=onerror)
 
     def copy_html_logo(self) -> None:
-        if self.config.html_logo:
+        if self.config.html_logo and not urlparse(self.config.html_logo).scheme:
             copy_asset(path.join(self.confdir, self.config.html_logo),
                        path.join(self.outdir, '_static'))
 
     def copy_html_favicon(self) -> None:
-        if self.config.html_favicon:
+        if self.config.html_favicon and not urlparse(self.config.html_favicon).scheme:
             copy_asset(path.join(self.confdir, self.config.html_favicon),
                        path.join(self.outdir, '_static'))
 
@@ -952,6 +952,18 @@ class StandaloneHTMLBuilder(Builder):
 
         ctx['sidebars'] = sidebars
         ctx['customsidebar'] = customsidebar
+
+    def proc_resource_ref(self, uri: str) -> str:
+        """Parse uri of a resource file and return its reference. If its a local file,
+        return the name of the file.
+        """
+        parse_result = urlparse(uri)
+        ref = ''
+        if parse_result.scheme:
+            ref = uri
+        elif parse_result.path:
+            ref = path.basename(parse_result.path)
+        return ref
 
     # --------- these are overwritten by the serialization builder
 
