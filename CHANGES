@@ -16,6 +16,7 @@ Deprecated
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
 * ``sphinx.ext.autodoc.Documenter.get_object_members()``
 * ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.ext.autodoc.GenericAliasDocumenter``
 * ``sphinx.ext.autodoc.InstanceAttributeDocumenter``
 * ``sphinx.ext.autodoc.SlotsAttributeDocumenter``
 * ``sphinx.ext.autodoc.TypeVarDocumenter``
@@ -60,6 +61,8 @@ Bugs fixed
   based uninitalized variables
 * #8480: autodoc: autoattribute could not create document for __slots__
   attributes
+* #8503: autodoc: autoattribute could not create document for a GenericAlias as
+  class attributes correctly
 * #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
   set to "description"
 * #8460: autodoc: autodata and autoattribute directives do not display type

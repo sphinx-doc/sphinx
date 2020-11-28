@@ -108,6 +108,32 @@ def test_autoattribute_slots_variable_str(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_GenericAlias(app):
+    actual = do_autodoc(app, 'attribute', 'target.genericalias.Class.T')
+    if sys.version_info < (3, 7):
+        assert list(actual) == [
+            '',
+            '.. py:attribute:: Class.T',
+            '   :module: target.genericalias',
+            '   :value: typing.List[int]',
+            '',
+            '   A list of int',
+            '',
+        ]
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:attribute:: Class.T',
+            '   :module: target.genericalias',
+            '',
+            '   A list of int',
+            '',
+            '   alias of List[int]',
+            '',
+        ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_NewType(app):
     actual = do_autodoc(app, 'attribute', 'target.typevar.Class.T6')
     assert list(actual) == [

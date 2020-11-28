@@ -76,6 +76,32 @@ def test_autodata_type_comment(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodata_GenericAlias(app):
+    actual = do_autodoc(app, 'data', 'target.genericalias.T')
+    if sys.version_info < (3, 7):
+        assert list(actual) == [
+            '',
+            '.. py:data:: T',
+            '   :module: target.genericalias',
+            '   :value: typing.List[int]',
+            '',
+            '   A list of int',
+            '',
+        ]
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:data:: T',
+            '   :module: target.genericalias',
+            '',
+            '   A list of int',
+            '',
+            '   alias of List[int]',
+            '',
+        ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodata_NewType(app):
     actual = do_autodoc(app, 'data', 'target.typevar.T6')
     assert list(actual) == [

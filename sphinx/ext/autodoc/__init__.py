@@ -1701,6 +1701,25 @@ class DataDocumenterMixinBase:
         pass
 
 
+class GenericAliasMixin(DataDocumenterMixinBase):
+    """
+    Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
+    supporting GenericAliases.
+    """
+
+    def should_suppress_directive_header(self) -> bool:
+        return (inspect.isgenericalias(self.object) or
+                super().should_suppress_directive_header())
+
+    def update_content(self, more_content: StringList) -> None:
+        if inspect.isgenericalias(self.object):
+            alias = stringify_typehint(self.object)
+            more_content.append(_('alias of %s') % alias, '')
+            more_content.append('', '')
+
+        super().update_content(more_content)
+
+
 class NewTypeMixin(DataDocumenterMixinBase):
     """
     Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
@@ -1801,8 +1820,8 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
             super().add_content(more_content, no_docstring=no_docstring)  # type: ignore
 
 
-class DataDocumenter(NewTypeMixin, TypeVarMixin, UninitializedGlobalVariableMixin,
-                     ModuleLevelDocumenter):
+class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
+                     UninitializedGlobalVariableMixin, ModuleLevelDocumenter):
     """
     Specialized Documenter subclass for data items.
     """
@@ -1861,32 +1880,6 @@ class DataDocumenter(NewTypeMixin, TypeVarMixin, UninitializedGlobalVariableMixi
 
         self.update_content(more_content)
         super().add_content(more_content, no_docstring=no_docstring)
-
-
-class GenericAliasDocumenter(DataDocumenter):
-    """
-    Specialized Documenter subclass for GenericAliases.
-    """
-
-    objtype = 'genericalias'
-    directivetype = 'data'
-    priority = DataDocumenter.priority + 1
-
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        return inspect.isgenericalias(member)
-
-    def add_directive_header(self, sig: str) -> None:
-        self.options = Options(self.options)
-        self.options['annotation'] = SUPPRESS
-        super().add_directive_header(sig)
-
-    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
-                    ) -> None:
-        name = stringify_typehint(self.object)
-        content = StringList([_('alias of %s') % name], source='')
-        super().add_content(content)
 
 
 class NewTypeDataDocumenter(DataDocumenter):
@@ -2102,8 +2095,8 @@ class SlotsMixin(DataDocumenterMixinBase):
             return super().get_doc(encoding, ignore)  # type: ignore
 
 
-class AttributeDocumenter(NewTypeMixin, SlotsMixin, TypeVarMixin,  # type: ignore
-                          DocstringStripSignatureMixin, ClassLevelDocumenter):
+class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
+                          TypeVarMixin, DocstringStripSignatureMixin, ClassLevelDocumenter):
     """
     Specialized Documenter subclass for attributes.
     """
@@ -2324,6 +2317,7 @@ def migrate_autodoc_member_order(app: Sphinx, config: Config) -> None:
 
 # for compatibility
 from sphinx.ext.autodoc.deprecated import DataDeclarationDocumenter  # NOQA
+from sphinx.ext.autodoc.deprecated import GenericAliasDocumenter  # NOQA
 from sphinx.ext.autodoc.deprecated import InstanceAttributeDocumenter  # NOQA
 from sphinx.ext.autodoc.deprecated import SingledispatchFunctionDocumenter  # NOQA
 from sphinx.ext.autodoc.deprecated import SingledispatchMethodDocumenter  # NOQA
@@ -2336,7 +2330,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ClassDocumenter)
     app.add_autodocumenter(ExceptionDocumenter)
     app.add_autodocumenter(DataDocumenter)
-    app.add_autodocumenter(GenericAliasDocumenter)
     app.add_autodocumenter(NewTypeDataDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)

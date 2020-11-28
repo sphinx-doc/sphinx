@@ -87,15 +87,14 @@ AutosummaryEntry = NamedTuple('AutosummaryEntry', [('name', str),
 def setup_documenters(app: Any) -> None:
     from sphinx.ext.autodoc import (AttributeDocumenter, ClassDocumenter, DataDocumenter,
                                     DecoratorDocumenter, ExceptionDocumenter,
-                                    FunctionDocumenter, GenericAliasDocumenter,
-                                    MethodDocumenter, ModuleDocumenter,
+                                    FunctionDocumenter, MethodDocumenter, ModuleDocumenter,
                                     NewTypeAttributeDocumenter, NewTypeDataDocumenter,
                                     PropertyDocumenter, SingledispatchFunctionDocumenter)
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, NewTypeAttributeDocumenter,
         NewTypeDataDocumenter, AttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        GenericAliasDocumenter, SingledispatchFunctionDocumenter,
+        SingledispatchFunctionDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
