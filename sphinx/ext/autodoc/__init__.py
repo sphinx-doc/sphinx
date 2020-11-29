@@ -1339,19 +1339,6 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 return
 
 
-class SingledispatchFunctionDocumenter(FunctionDocumenter):
-    """
-    Used to be a specialized Documenter subclass for singledispatch'ed functions.
-
-    Retained for backwards compatibility, now does the same as the FunctionDocumenter
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn("%s is deprecated." % self.__class__.__name__,
-                      RemovedInSphinx50Warning, stacklevel=2)
-        super().__init__(*args, **kwargs)
-
-
 class DecoratorDocumenter(FunctionDocumenter):
     """
     Specialized Documenter subclass for decorator functions.
@@ -1876,24 +1863,6 @@ class DataDocumenter(NewTypeMixin, TypeVarMixin, UninitializedGlobalVariableMixi
         super().add_content(more_content, no_docstring=no_docstring)
 
 
-class DataDeclarationDocumenter(DataDocumenter):
-    """
-    Specialized Documenter subclass for data that cannot be imported
-    because they are declared without initial value (refs: PEP-526).
-    """
-    objtype = 'datadecl'
-    directivetype = 'data'
-    member_order = 60
-
-    # must be higher than AttributeDocumenter
-    priority = 11
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn("%s is deprecated." % self.__class__.__name__,
-                      RemovedInSphinx50Warning, stacklevel=2)
-        super().__init__(*args, **kwargs)
-
-
 class GenericAliasDocumenter(DataDocumenter):
     """
     Specialized Documenter subclass for GenericAliases.
@@ -1936,21 +1905,6 @@ class NewTypeDataDocumenter(DataDocumenter):
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
         return inspect.isNewType(member) and isattr
-
-
-class TypeVarDocumenter(DataDocumenter):
-    """
-    Specialized Documenter subclass for TypeVars.
-    """
-
-    objtype = 'typevar'
-    directivetype = 'data'
-    priority = DataDocumenter.priority + 1
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn("%s is deprecated." % self.__class__.__name__,
-                      RemovedInSphinx50Warning, stacklevel=2)
-        super().__init__(*args, **kwargs)
 
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
@@ -2099,19 +2053,6 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             except TypeError:
                 # failed to update signature (ex. built-in or extension types)
                 return
-
-
-class SingledispatchMethodDocumenter(MethodDocumenter):
-    """
-    Used to be a specialized Documenter subclass for singledispatch'ed methods.
-
-    Retained for backwards compatibility, now does the same as the MethodDocumenter
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn("%s is deprecated." % self.__class__.__name__,
-                      RemovedInSphinx50Warning, stacklevel=2)
-        super().__init__(*args, **kwargs)
 
 
 class SlotsMixin(DataDocumenterMixinBase):
@@ -2340,42 +2281,6 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         self.add_line('   :property:', sourcename)
 
 
-class InstanceAttributeDocumenter(AttributeDocumenter):
-    """
-    Specialized Documenter subclass for attributes that cannot be imported
-    because they are instance attributes (e.g. assigned in __init__).
-    """
-    objtype = 'instanceattribute'
-    directivetype = 'attribute'
-    member_order = 60
-
-    # must be higher than AttributeDocumenter
-    priority = 11
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn("%s is deprecated." % self.__class__.__name__,
-                      RemovedInSphinx50Warning, stacklevel=2)
-        super().__init__(*args, **kwargs)
-
-
-class SlotsAttributeDocumenter(AttributeDocumenter):
-    """
-    Specialized Documenter subclass for attributes that cannot be imported
-    because they are attributes in __slots__.
-    """
-    objtype = 'slotsattribute'
-    directivetype = 'attribute'
-    member_order = 60
-
-    # must be higher than AttributeDocumenter
-    priority = 11
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn("%s is deprecated." % self.__class__.__name__,
-                      RemovedInSphinx50Warning, stacklevel=2)
-        super().__init__(*args, **kwargs)
-
-
 class NewTypeAttributeDocumenter(AttributeDocumenter):
     """
     Specialized Documenter subclass for NewTypes.
@@ -2415,6 +2320,15 @@ def migrate_autodoc_member_order(app: Sphinx, config: Config) -> None:
         logger.warning(__('autodoc_member_order now accepts "alphabetical" '
                           'instead of "alphabetic". Please update your setting.'))
         config.autodoc_member_order = 'alphabetical'  # type: ignore
+
+
+# for compatibility
+from sphinx.ext.autodoc.deprecated import DataDeclarationDocumenter  # NOQA
+from sphinx.ext.autodoc.deprecated import InstanceAttributeDocumenter  # NOQA
+from sphinx.ext.autodoc.deprecated import SingledispatchFunctionDocumenter  # NOQA
+from sphinx.ext.autodoc.deprecated import SingledispatchMethodDocumenter  # NOQA
+from sphinx.ext.autodoc.deprecated import SlotsAttributeDocumenter  # NOQA
+from sphinx.ext.autodoc.deprecated import TypeVarDocumenter  # NOQA
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
