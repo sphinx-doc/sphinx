@@ -109,3 +109,18 @@ class SlotsAttributeDocumenter(AttributeDocumenter):
         warnings.warn("%s is deprecated." % self.__class__.__name__,
                       RemovedInSphinx50Warning, stacklevel=2)
         super().__init__(*args, **kwargs)
+
+
+class GenericAliasDocumenter(DataDocumenter):
+    """
+    Specialized Documenter subclass for GenericAliases.
+    """
+
+    objtype = 'genericalias'
+    directivetype = 'data'
+    priority = DataDocumenter.priority + 1  # type: ignore
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn("%s is deprecated." % self.__class__.__name__,
+                      RemovedInSphinx50Warning, stacklevel=2)
+        super().__init__(*args, **kwargs)
