@@ -55,7 +55,7 @@
           {%- block sidebarlogo %}
           {%- if logo %}
             <p class="logo"><a href="{{ pathto(master_doc)|e }}">
-              <img class="logo" src="{{ pathto('_static/' + logo, 1)|e }}" alt="Logo"/>
+              <img class="logo" src="{{ pathto(logo, 1)|e }}" alt="Logo"/>
             </a></p>
           {%- endif %}
           {%- endblock %}
@@ -141,7 +141,7 @@
           href="{{ pathto('_static/opensearch.xml', 1) }}"/>
     {%- endif %}
     {%- if favicon %}
-    <link rel="shortcut icon" href="{{ pathto('_static/' + favicon, 1)|e }}"/>
+    <link rel="shortcut icon" href="{{ pathto(favicon, 1)|e }}"/>
     {%- endif %}
     {%- endif %}
 {%- block linktags %}

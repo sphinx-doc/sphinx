@@ -962,7 +962,7 @@ class StandaloneHTMLBuilder(Builder):
         if parse_result.scheme:
             ref = uri
         elif parse_result.path:
-            ref = path.basename(parse_result.path)
+            ref = path.join('_static', path.basename(parse_result.path))
         return ref
 
     # --------- these are overwritten by the serialization builder
@@ -1188,14 +1188,14 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
 
 def validate_html_logo(app: Sphinx, config: Config) -> None:
     """Check html_logo setting."""
-    if config.html_logo and not path.isfile(path.join(app.confdir, config.html_logo)):
+    if config.html_logo and not path.isfile(path.join(app.confdir, config.html_logo)) and not urlparse(config.html_logo).scheme:
         logger.warning(__('logo file %r does not exist'), config.html_logo)
         config.html_logo = None  # type: ignore
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
     """Check html_favicon setting."""
-    if config.html_favicon and not path.isfile(path.join(app.confdir, config.html_favicon)):
+    if config.html_favicon and not path.isfile(path.join(app.confdir, config.html_favicon)) and not urlparse(config.html_favicon).scheme:
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
         config.html_favicon = None  # type: ignore
 
