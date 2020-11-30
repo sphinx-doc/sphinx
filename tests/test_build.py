@@ -37,6 +37,8 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
             (rootdir / 'test-root').copytree(srcdir)
     except UnicodeEncodeError:
         srcdir = basedir / 'all'
+        if not srcdir.exists():
+            (rootdir / 'test-root').copytree(srcdir)
     else:
         # add a doc with a non-ASCII file name to the source dir
         (srcdir / (test_name + '.txt')).write_text(dedent("""
