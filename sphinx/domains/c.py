@@ -3452,7 +3452,8 @@ class AliasNode(nodes.Element):
             self.parentKey = parentKey
 
     def copy(self: T) -> T:
-        return self.__class__(self.sig, env=None, parentKey=self.parentKey)  # type: ignore
+        return self.__class__(self.sig, self.maxdepth, self.document,
+                              env=None, parentKey=self.parentKey)  # type: ignore
 
 
 class AliasTransform(SphinxTransform):
