@@ -2324,7 +2324,7 @@ msgstr "une table des matières auto-référencée a été trouvée. Elle sera i
 
 #: sphinx/environment/__init__.py:636
 msgid "document isn't included in any toctree"
-msgstr "Le document n'est inclut dans aucune table des matières de l'arborescence."
+msgstr "Le document n'est inclus dans aucune table des matières de l'arborescence."
 
 #: sphinx/environment/adapters/indexentries.py:80
 #, python-format
