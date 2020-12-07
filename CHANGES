@@ -97,8 +97,8 @@ Features added
 
 Bugs fixed
 ----------
-* #8522: ``__bool__`` method isn't called now by autodoc module, so it won't lead to
-side effect or direct failure in case it generate an error.
+* #8522: ``__bool__`` method isn't called now by autodoc module, so it won't
+    lead to side effect or direct failure in case it generate an error.
 
 Testing
 --------
