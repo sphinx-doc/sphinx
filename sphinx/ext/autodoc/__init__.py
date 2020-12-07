@@ -716,7 +716,7 @@ class Documenter:
                 isprivate = membername.startswith('_')
 
             keep = False
-            if safe_getattr(member, '__sphinx_mock__', False):
+            if safe_getattr(member, '__sphinx_mock__', None) is not None:
                 # mocked module or object
                 pass
             elif self.options.exclude_members and membername in self.options.exclude_members:
