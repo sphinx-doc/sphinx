@@ -1,5 +1,6 @@
 Release 3.4.0 (in development)
 ==============================
+
 Dependencies
 ------------
 
@@ -76,6 +77,7 @@ Bugs fixed
   accommodate infinite redirect loops on HEAD
 * #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
 * #8352: std domain: Failed to parse an option that starts with bracket
+* #8522: fix ``__bool__`` method could be called by autodoc module.
 
 Testing
 --------
@@ -97,8 +99,6 @@ Features added
 
 Bugs fixed
 ----------
-* #8522: ``__bool__`` method isn't called now by autodoc module, so it won't
-    lead to side effect or direct failure in case it generates an error.
 
 Testing
 --------
