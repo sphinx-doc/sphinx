@@ -77,6 +77,7 @@ Bugs fixed
   accommodate infinite redirect loops on HEAD
 * #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
 * #8352: std domain: Failed to parse an option that starts with bracket
+* #8519: LaTeX: Prevent page brake in the middle of a seealso
 * #8522: fix ``__bool__`` method could be called by autodoc module.
 
 Testing
