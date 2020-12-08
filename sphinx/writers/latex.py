@@ -815,7 +815,8 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_seealso(self, node: Element) -> None:
-        self.body.append('\n\n\\sphinxstrong{%s:}\n\\nopagebreak\n\n' % admonitionlabels['seealso'])
+        self.body.append('\n\n\\sphinxstrong{%s:}\n\\nopagebreak\n\n'
+                         % admonitionlabels['seealso'])
 
     def depart_seealso(self, node: Element) -> None:
         self.body.append("\n\n")
