@@ -584,6 +584,11 @@ class Documenter:
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
         """Add content from docstrings, attribute documentation and user."""
+        if no_docstring:
+            warnings.warn("The 'no_docstring' argument to %s.add_content() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx50Warning, stacklevel=2)
+
         # set sourcename and add content from attribute documentation
         sourcename = self.get_sourcename()
         if self.analyzer:
@@ -1595,6 +1600,10 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
                           RemovedInSphinx40Warning, stacklevel=2)
+        if self.doc_as_attr:
+            # Don't show the docstring of the class when it is an alias.
+            return []
+
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
             return lines
@@ -1641,10 +1650,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
         if self.doc_as_attr:
-            content = StringList([_('alias of %s') % restify(self.object)], source='')
-            super().add_content(content, no_docstring=True)
-        else:
-            super().add_content(more_content)
+            more_content = StringList([_('alias of %s') % restify(self.object)], source='')
+
+        super().add_content(more_content)
 
     def document_members(self, all_members: bool = False) -> None:
         if self.doc_as_attr:
@@ -1811,13 +1819,11 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
         return (self.object == UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
-    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
-                    ) -> None:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         if self.object is UNINITIALIZED_ATTR:
-            # suppress docstring of the value
-            super().add_content(more_content, no_docstring=True)  # type: ignore
+            return []
         else:
-            super().add_content(more_content, no_docstring=no_docstring)  # type: ignore
+            return super().get_doc(encoding, ignore)  # type: ignore
 
 
 class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
@@ -2220,6 +2226,11 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                     pass
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        if not self._datadescriptor:
+            # if it's not a data descriptor, its docstring is very probably the
+            # wrong thing to display
+            return []
+
         try:
             # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
             # a docstring from the value which descriptor returns unexpectedly.
@@ -2232,11 +2243,6 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
-        if not self._datadescriptor:
-            # if it's not a data descriptor, its docstring is very probably the
-            # wrong thing to display
-            no_docstring = True
-
         if more_content is None:
             more_content = StringList()
         self.update_content(more_content)

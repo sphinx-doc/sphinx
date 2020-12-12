@@ -31,6 +31,12 @@ The following is a list of deprecated interfaces.
      - 5.0
      - N/A
 
+   * - The ``no_docstring`` argument of
+       ``sphinx.ext.autodoc.Documenter.add_content()``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.Documenter.get_doc()``
+
    * - ``sphinx.ext.autodoc.Documenter.get_object_members()``
      - 3.4
      - 6.0
