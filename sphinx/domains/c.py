@@ -3456,8 +3456,9 @@ class AliasNode(nodes.Element):
             assert parentKey is not None
             self.parentKey = parentKey
 
-    def copy(self: T) -> T:
-        return self.__class__(self.sig, env=None, parentKey=self.parentKey)  # type: ignore
+    def copy(self) -> 'AliasNode':
+        return self.__class__(self.sig, self.maxdepth, self.document,
+                              env=None, parentKey=self.parentKey)
 
 
 class AliasTransform(SphinxTransform):
