@@ -14,7 +14,7 @@
 import os
 import sys
 from distutils.cmd import Command
-from distutils.errors import DistutilsExecError, DistutilsOptionError
+from distutils.errors import DistutilsExecError
 from io import StringIO
 
 from sphinx.application import Sphinx
@@ -120,20 +120,6 @@ class BuildDoc(Command):
                 if 'conf.py' in filenames:
                     return root
         return os.curdir
-
-    # Overriding distutils' Command._ensure_stringlike which doesn't support
-    # unicode, causing finalize_options to fail if invoked again. Workaround
-    # for https://bugs.python.org/issue19570
-    def _ensure_stringlike(self, option, what, default=None):
-        # type: (str, str, Any) -> Any
-        val = getattr(self, option)
-        if val is None:
-            setattr(self, option, default)
-            return default
-        elif not isinstance(val, str):
-            raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
-                                       % (option, what, val))
-        return val
 
     def finalize_options(self):
         # type: () -> None
