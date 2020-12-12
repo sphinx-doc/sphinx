@@ -20,6 +20,8 @@ Incompatible changes
   :confval:`man_make_section_directory`)
 * #8380: html search: search results are wrapped with ``<p>`` instead of
   ``<div>``
+* #8508: LaTeX: uplatex becomes a default setting of latex_engine for Japanese
+  documents
 
 Deprecated
 ----------

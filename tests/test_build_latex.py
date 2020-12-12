@@ -197,7 +197,7 @@ def test_latex_basic_manual_ja(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').read_text(encoding='utf8')
     print(result)
-    assert r'\def\sphinxdocclass{jsbook}' in result
+    assert r'\def\sphinxdocclass{ujbook}' in result
     assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
 
 
@@ -210,7 +210,7 @@ def test_latex_basic_howto_ja(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').read_text(encoding='utf8')
     print(result)
-    assert r'\def\sphinxdocclass{jreport}' in result
+    assert r'\def\sphinxdocclass{ujreport}' in result
     assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxhowto}' in result
 
 
