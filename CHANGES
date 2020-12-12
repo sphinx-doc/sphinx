@@ -68,6 +68,7 @@ Bugs fixed
 * #8460: autodoc: autodata and autoattribute directives do not display type
   information of TypeVars
 * #8493: autodoc: references to builtins not working in class aliases
+* #8522: autodoc:  ``__bool__`` method could be called
 * #8477: autosummary: non utf-8 reST files are generated when template contains
   multibyte characters
 * #8501: autosummary: summary extraction splits text after "el at." unexpectedly
@@ -78,7 +79,6 @@ Bugs fixed
 * #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
 * #8352: std domain: Failed to parse an option that starts with bracket
 * #8519: LaTeX: Prevent page brake in the middle of a seealso
-* #8522: fix ``__bool__`` method could be called by autodoc module.
 
 Testing
 --------
