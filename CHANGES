@@ -101,6 +101,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8520: C, fix copying of AliasNode.
+
 Testing
 --------
 
