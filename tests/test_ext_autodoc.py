@@ -367,11 +367,6 @@ def test_get_doc(app):
         """Döcstring"""
     assert getdocl('function', f) == ['Döcstring']
 
-    # already-unicode docstrings must be taken literally
-    def f():
-        """Döcstring"""
-    assert getdocl('function', f) == ['Döcstring']
-
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
     class J:  # NOQA
