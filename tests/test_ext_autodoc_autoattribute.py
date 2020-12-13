@@ -73,6 +73,67 @@ def test_autoattribute_instance_variable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_slots_variable_list(app):
+    actual = do_autodoc(app, 'attribute', 'target.slots.Foo.attr')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Foo.attr',
+        '   :module: target.slots',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_slots_variable_dict(app):
+    actual = do_autodoc(app, 'attribute', 'target.slots.Bar.attr1')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Bar.attr1',
+        '   :module: target.slots',
+        '',
+        '   docstring of attr1',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_slots_variable_str(app):
+    actual = do_autodoc(app, 'attribute', 'target.slots.Baz.attr')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Baz.attr',
+        '   :module: target.slots',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_GenericAlias(app):
+    actual = do_autodoc(app, 'attribute', 'target.genericalias.Class.T')
+    if sys.version_info < (3, 7):
+        assert list(actual) == [
+            '',
+            '.. py:attribute:: Class.T',
+            '   :module: target.genericalias',
+            '   :value: typing.List[int]',
+            '',
+            '   A list of int',
+            '',
+        ]
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:attribute:: Class.T',
+            '   :module: target.genericalias',
+            '',
+            '   A list of int',
+            '',
+            '   alias of List[int]',
+            '',
+        ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_NewType(app):
     actual = do_autodoc(app, 'attribute', 'target.typevar.Class.T6')
     assert list(actual) == [

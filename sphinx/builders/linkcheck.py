@@ -13,14 +13,18 @@ import queue
 import re
 import socket
 import threading
+import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from os import path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
 from urllib.parse import unquote, urlparse
 
 from docutils import nodes
 from docutils.nodes import Node
-from requests.exceptions import HTTPError
+from requests import Response
+from requests.exceptions import HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
@@ -33,10 +37,14 @@ logger = logging.getLogger(__name__)
 
 uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
 
+RateLimit = NamedTuple('RateLimit', (('delay', float), ('next_check', float)))
 
 DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
 }
+CHECK_IMMEDIATELY = 0
+QUEUE_POLL_SECS = 1
+DEFAULT_DELAY = 60.0
 
 
 class AnchorCheckParser(HTMLParser):
@@ -98,7 +106,8 @@ class CheckExternalLinksBuilder(Builder):
         open(path.join(self.outdir, 'output.json'), 'w').close()
 
         # create queues and worker threads
-        self.wqueue = queue.Queue()  # type: queue.Queue
+        self.rate_limits = {}  # type: Dict[str, RateLimit]
+        self.wqueue = queue.PriorityQueue()  # type: queue.PriorityQueue
         self.rqueue = queue.Queue()  # type: queue.Queue
         self.workers = []  # type: List[threading.Thread]
         for i in range(self.app.config.linkcheck_workers):
@@ -172,16 +181,25 @@ class CheckExternalLinksBuilder(Builder):
                                                  config=self.app.config, auth=auth_info,
                                                  **kwargs)
                         response.raise_for_status()
-                    except HTTPError:
+                    except (HTTPError, TooManyRedirects) as err:
+                        if isinstance(err, HTTPError) and err.response.status_code == 429:
+                            raise
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
-                        response = requests.get(req_url, stream=True, config=self.app.config,
+                        response = requests.get(req_url, stream=True,
+                                                config=self.app.config,
                                                 auth=auth_info, **kwargs)
                         response.raise_for_status()
             except HTTPError as err:
                 if err.response.status_code == 401:
                     # We'll take "Unauthorized" as working.
                     return 'working', ' - unauthorized', 0
+                elif err.response.status_code == 429:
+                    next_check = self.limit_rate(err.response)
+                    if next_check is not None:
+                        self.wqueue.put((next_check, uri, docname, lineno), False)
+                        return 'rate-limited', '', 0
+                    return 'broken', str(err), 0
                 elif err.response.status_code == 503:
                     # We'll take "Service Unavailable" as ignored.
                     return 'ignored', str(err), 0
@@ -189,6 +207,12 @@ class CheckExternalLinksBuilder(Builder):
                     return 'broken', str(err), 0
             except Exception as err:
                 return 'broken', str(err), 0
+            else:
+                netloc = urlparse(req_url).netloc
+                try:
+                    del self.rate_limits[netloc]
+                except KeyError:
+                    pass
             if response.url.rstrip('/') == req_url.rstrip('/'):
                 return 'working', '', 0
             else:
@@ -247,11 +271,69 @@ class CheckExternalLinksBuilder(Builder):
             return (status, info, code)
 
         while True:
-            uri, docname, lineno = self.wqueue.get()
+            next_check, uri, docname, lineno = self.wqueue.get()
             if uri is None:
                 break
+            netloc = urlparse(uri).netloc
+            try:
+                # Refresh rate limit.
+                # When there are many links in the queue, workers are all stuck waiting
+                # for responses, but the builder keeps queuing. Links in the queue may
+                # have been queued before rate limits were discovered.
+                next_check = self.rate_limits[netloc].next_check
+            except KeyError:
+                pass
+            if next_check > time.time():
+                # Sleep before putting message back in the queue to avoid
+                # waking up other threads.
+                time.sleep(QUEUE_POLL_SECS)
+                self.wqueue.put((next_check, uri, docname, lineno), False)
+                self.wqueue.task_done()
+                continue
             status, info, code = check(docname)
-            self.rqueue.put((uri, docname, lineno, status, info, code))
+            if status == 'rate-limited':
+                logger.info(darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...'))
+            else:
+                self.rqueue.put((uri, docname, lineno, status, info, code))
+            self.wqueue.task_done()
+
+    def limit_rate(self, response: Response) -> Optional[float]:
+        next_check = None
+        retry_after = response.headers.get("Retry-After")
+        if retry_after:
+            try:
+                # Integer: time to wait before next attempt.
+                delay = float(retry_after)
+            except ValueError:
+                try:
+                    # An HTTP-date: time of next attempt.
+                    until = parsedate_to_datetime(retry_after)
+                except (TypeError, ValueError):
+                    # TypeError: Invalid date format.
+                    # ValueError: Invalid date, e.g. Oct 52th.
+                    pass
+                else:
+                    next_check = datetime.timestamp(until)
+                    delay = (until - datetime.now(timezone.utc)).total_seconds()
+            else:
+                next_check = time.time() + delay
+        netloc = urlparse(response.url).netloc
+        if next_check is None:
+            max_delay = self.app.config.linkcheck_rate_limit_timeout
+            try:
+                rate_limit = self.rate_limits[netloc]
+            except KeyError:
+                delay = DEFAULT_DELAY
+            else:
+                last_wait_time = rate_limit.delay
+                delay = 2.0 * last_wait_time
+                if delay > max_delay and last_wait_time < max_delay:
+                    delay = max_delay
+            if delay > max_delay:
+                return None
+            next_check = time.time() + delay
+        self.rate_limits[netloc] = RateLimit(delay, next_check)
+        return next_check
 
     def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
         uri, docname, lineno, status, info, code = result
@@ -325,7 +407,8 @@ class CheckExternalLinksBuilder(Builder):
                 continue
             uri = refnode['refuri']
             lineno = get_node_line(refnode)
-            self.wqueue.put((uri, docname, lineno), False)
+            uri_info = (CHECK_IMMEDIATELY, uri, docname, lineno)
+            self.wqueue.put(uri_info, False)
             n += 1
 
         # image nodes
@@ -333,7 +416,8 @@ class CheckExternalLinksBuilder(Builder):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
                 lineno = get_node_line(imgnode)
-                self.wqueue.put((uri, docname, lineno), False)
+                uri_info = (CHECK_IMMEDIATELY, uri, docname, lineno)
+                self.wqueue.put(uri_info, False)
                 n += 1
 
         done = 0
@@ -355,8 +439,10 @@ class CheckExternalLinksBuilder(Builder):
             output.write('\n')
 
     def finish(self) -> None:
+        self.wqueue.join()
+        # Shutdown threads.
         for worker in self.workers:
-            self.wqueue.put((None, None, None), False)
+            self.wqueue.put((CHECK_IMMEDIATELY, None, None, None), False)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -372,6 +458,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)
+    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, None)
 
     return {
         'version': 'builtin',

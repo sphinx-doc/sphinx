@@ -195,14 +195,14 @@ class FileAvoidWrite:
         self._io.close()
 
         try:
-            with open(self._path) as old_f:
+            with open(self._path, encoding='utf-8') as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
         except OSError:
             pass
 
-        with open(self._path, 'w') as f:
+        with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)
 
     def __enter__(self) -> "FileAvoidWrite":

@@ -90,6 +90,28 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'ls.-l'
 
 
+def test_cmd_option_with_optional_value(app):
+    text = ".. option:: -j[=N]"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (index,
+                          [desc, ([desc_signature, ([desc_name, '-j'],
+                                                    [desc_addname, '[=N]'])],
+                                  [desc_content, ()])]))
+    objects = list(app.env.get_domain("std").get_objects())
+    assert ('-j', '-j', 'cmdoption', 'index', 'cmdoption-j', 1) in objects
+
+
+def test_cmd_option_starting_with_bracket(app):
+    text = ".. option:: [enable=]PATTERN"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (index,
+                          [desc, ([desc_signature, ([desc_name, '[enable'],
+                                                    [desc_addname, '=]PATTERN'])],
+                                  [desc_content, ()])]))
+    objects = list(app.env.get_domain("std").get_objects())
+    assert ('[enable', '[enable', 'cmdoption', 'index', 'cmdoption-arg-enable', 1) in objects
+
+
 def test_glossary(app):
     text = (".. glossary::\n"
             "\n"

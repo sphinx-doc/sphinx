@@ -366,11 +366,6 @@ def test_get_doc(app):
         """Döcstring"""
     assert getdocl('function', f) == ['Döcstring']
 
-    # already-unicode docstrings must be taken literally
-    def f():
-        """Döcstring"""
-    assert getdocl('function', f) == ['Döcstring']
-
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
     class J:  # NOQA
@@ -805,7 +800,7 @@ def test_autodoc_inner_class(app):
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
         '',
-        '      alias of :class:`builtins.dict`'
+        '      alias of :class:`dict`'
     ]
 
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
@@ -1698,15 +1693,36 @@ def test_autodoc_GenericAlias(app):
             '.. py:module:: target.genericalias',
             '',
             '',
+            '.. py:class:: Class()',
+            '   :module: target.genericalias',
+            '',
+            '',
+            '   .. py:attribute:: Class.T',
+            '      :module: target.genericalias',
+            '',
+            '      alias of :class:`List`\\ [:class:`int`]',
+            '',
             '.. py:attribute:: T',
             '   :module: target.genericalias',
             '',
-            '   alias of :class:`typing.List`',
+            '   alias of :class:`List`\\ [:class:`int`]',
         ]
     else:
         assert list(actual) == [
             '',
             '.. py:module:: target.genericalias',
+            '',
+            '',
+            '.. py:class:: Class()',
+            '   :module: target.genericalias',
+            '',
+            '',
+            '   .. py:attribute:: Class.T',
+            '      :module: target.genericalias',
+            '',
+            '      A list of int',
+            '',
+            '      alias of List[int]',
             '',
             '',
             '.. py:data:: T',
@@ -1715,6 +1731,7 @@ def test_autodoc_GenericAlias(app):
             '   A list of int',
             '',
             '   alias of List[int]',
+            '',
         ]
 
 
