@@ -9,6 +9,7 @@
 """
 
 import html
+import os
 import posixpath
 import re
 import sys
@@ -44,7 +45,7 @@ from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
-from sphinx.util.osutil import copyfile, ensuredir, movefile, os_path, relative_uri
+from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLTranslator, HTMLWriter
 
@@ -1070,7 +1071,7 @@ class StandaloneHTMLBuilder(Builder):
             else:
                 with open(searchindexfn + '.tmp', 'wb') as fb:
                     self.indexer.dump(fb, self.indexer_format)
-            movefile(searchindexfn + '.tmp', searchindexfn)
+            os.replace(searchindexfn + '.tmp', searchindexfn)
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
