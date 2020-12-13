@@ -66,6 +66,8 @@ Bugs fixed
   attributes
 * #8503: autodoc: autoattribute could not create document for a GenericAlias as
   class attributes correctly
+* #8534: autodoc: autoattribute could not create document for a commented
+  attribute in alias class
 * #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
   set to "description"
 * #8460: autodoc: autodata and autoattribute directives do not display type
