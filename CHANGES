@@ -70,7 +70,9 @@ Deprecated
 ----------
 
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+* ``sphinx.ext.autodoc.Documenter.get_object_members()``
 * ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.ext.autodoc.TypeVarDocumenter``
 * ``sphinx.ext.autodoc.importer._getannotations()``
 * ``sphinx.pycode.ModuleAnalyzer.parse()``
 * ``sphinx.util.requests.is_ssl_error()``
@@ -108,6 +110,8 @@ Bugs fixed
   based uninitalized variables
 * #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
   set to "description"
+* #8460: autodoc: autodata and autoattribute directives do not display type
+  information of TypeVars
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
 * #8454: graphviz: The layout option for graph and digraph directives don't work
 * #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous

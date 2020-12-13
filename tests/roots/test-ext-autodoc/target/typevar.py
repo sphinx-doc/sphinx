@@ -19,7 +19,8 @@ T6 = NewType("T6", int)
 
 
 class Class:
-    # TODO: TypeVar
+    #: T1
+    T1 = TypeVar("T1")
 
     #: T6
     T6 = NewType("T6", int)
