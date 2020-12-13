@@ -1237,6 +1237,10 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
 
+    # events
+    app.add_event('html-collect-pages')
+    app.add_event('html-page-context')
+
     # event handlers
     app.connect('config-inited', convert_html_css_files, priority=800)
     app.connect('config-inited', convert_html_js_files, priority=800)

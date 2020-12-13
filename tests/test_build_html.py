@@ -648,7 +648,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
 
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
@@ -754,7 +754,7 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
@@ -857,7 +857,7 @@ def test_numfig_with_prefix_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
@@ -961,7 +961,7 @@ def test_numfig_with_secnum_depth_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 

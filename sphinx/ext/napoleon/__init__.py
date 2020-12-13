@@ -44,6 +44,7 @@ class Config:
         napoleon_preprocess_types = False
         napoleon_type_aliases = None
         napoleon_custom_sections = None
+        napoleon_attr_annotations = True
 
     .. _Google style:
        https://google.github.io/styleguide/pyguide.html
@@ -257,6 +258,9 @@ class Config:
         section. If the entry is a tuple/list/indexed container, the first entry
         is the name of the section, the second is the section key to emulate.
 
+    napoleon_attr_annotations : :obj:`bool` (Defaults to True)
+        Use the type annotations of class attributes that are documented in the docstring
+        but do not have a type in the docstring.
 
     """
     _config_values = {
@@ -274,7 +278,8 @@ class Config:
         'napoleon_use_keyword': (True, 'env'),
         'napoleon_preprocess_types': (False, 'env'),
         'napoleon_type_aliases': (None, 'env'),
-        'napoleon_custom_sections': (None, 'env')
+        'napoleon_custom_sections': (None, 'env'),
+        'napoleon_attr_annotations': (True, 'env'),
     }
 
     def __init__(self, **settings: Any) -> None:

@@ -21,6 +21,8 @@ from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.inspect import stringify_annotation
+from sphinx.util.typing import get_type_hints
 
 logger = logging.getLogger(__name__)
 
@@ -595,6 +597,8 @@ class GoogleDocstring:
     def _parse_attributes_section(self, section: str) -> List[str]:
         lines = []
         for _name, _type, _desc in self._consume_fields():
+            if not _type:
+                _type = self._lookup_annotation(_name)
             if self._config.napoleon_use_ivar:
                 _name = self._qualify_name(_name, self._obj)
                 field = ':ivar %s: ' % _name
@@ -798,6 +802,21 @@ class GoogleDocstring:
             if start > 0 or end + 1 < len(lines):
                 lines = lines[start:end + 1]
         return lines
+
+    def _lookup_annotation(self, _name: str) -> str:
+        if self._config.napoleon_attr_annotations:
+            if self._what in ("module", "class", "exception") and self._obj:
+                # cache the class annotations
+                if not hasattr(self, "_annotations"):
+                    localns = getattr(self._config, "autodoc_type_aliases", {})
+                    localns.update(getattr(
+                                   self._config, "napoleon_type_aliases", {}
+                                   ) or {})
+                    self._annotations = get_type_hints(self._obj, None, localns)
+                if _name in self._annotations:
+                    return stringify_annotation(self._annotations[_name])
+        # No annotation found
+        return ""
 
 
 def _recombine_set_tokens(tokens: List[str]) -> List[str]:
@@ -1102,6 +1121,9 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
+
+        if parse_type and not _type:
+            _type = self._lookup_annotation(_name)
 
         if prefer_type and not _type:
             _type, _name = _name, _type

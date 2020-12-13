@@ -70,7 +70,14 @@ Deprecated
 ----------
 
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+* The ``no_docstring`` argument of
+  ``sphinx.ext.autodoc.Documenter.add_content()``
+* ``sphinx.ext.autodoc.Documenter.get_object_members()``
 * ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.ext.autodoc.GenericAliasDocumenter``
+* ``sphinx.ext.autodoc.InstanceAttributeDocumenter``
+* ``sphinx.ext.autodoc.SlotsAttributeDocumenter``
+* ``sphinx.ext.autodoc.TypeVarDocumenter``
 * ``sphinx.ext.autodoc.importer._getannotations()``
 * ``sphinx.pycode.ModuleAnalyzer.parse()``
 * ``sphinx.util.requests.is_ssl_error()``
@@ -89,9 +96,13 @@ Features added
 * #8209: autodoc: Add ``:no-value:`` option to :rst:dir:`autoattribute` and
   :rst:dir:`autodata` directive to suppress the default value of the variable
 * #8460: autodoc: Support custom types defined by typing.NewType
+* #8285: napoleon: Add :confval:`napoleon_attr_annotations` to merge type hints
+  on source code automatically if any type is specified in docstring
 * #6914: Add a new event :event:`warn-missing-reference` to custom warning
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
+* #6629: linkcheck: The builder now handles rate limits. See
+  :confval:`linkcheck_retry_on_rate_limit` for details.
 
 Bugs fixed
 ----------
@@ -106,11 +117,26 @@ Bugs fixed
   type annotated variables
 * #8443: autodoc: autoattribute directive can't create document for PEP-526
   based uninitalized variables
+* #8480: autodoc: autoattribute could not create document for __slots__
+  attributes
+* #8503: autodoc: autoattribute could not create document for a GenericAlias as
+  class attributes correctly
 * #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
   set to "description"
+* #8460: autodoc: autodata and autoattribute directives do not display type
+  information of TypeVars
+* #8493: autodoc: references to builtins not working in class aliases
+* #8522: autodoc:  ``__bool__`` method could be called
+* #8477: autosummary: non utf-8 reST files are generated when template contains
+  multibyte characters
+* #8501: autosummary: summary extraction splits text after "el at." unexpectedly
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
 * #8454: graphviz: The layout option for graph and digraph directives don't work
+* #8131: linkcheck: Use GET when HEAD requests cause Too Many Redirects, to
+  accommodate infinite redirect loops on HEAD
 * #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
+* #8352: std domain: Failed to parse an option that starts with bracket
+* #8519: LaTeX: Prevent page brake in the middle of a seealso
 
 Testing
 --------
@@ -132,6 +158,8 @@ Features added
 
 Bugs fixed
 ----------
+
+* #8520: C, fix copying of AliasNode.
 
 Testing
 --------

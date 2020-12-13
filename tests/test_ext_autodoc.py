@@ -366,11 +366,6 @@ def test_get_doc(app):
         """Döcstring"""
     assert getdocl('function', f) == ['Döcstring']
 
-    # already-unicode docstrings must be taken literally
-    def f():
-        """Döcstring"""
-    assert getdocl('function', f) == ['Döcstring']
-
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
     class J:  # NOQA
@@ -805,7 +800,7 @@ def test_autodoc_inner_class(app):
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
         '',
-        '      alias of :class:`builtins.dict`'
+        '      alias of :class:`dict`'
     ]
 
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
@@ -1698,15 +1693,36 @@ def test_autodoc_GenericAlias(app):
             '.. py:module:: target.genericalias',
             '',
             '',
+            '.. py:class:: Class()',
+            '   :module: target.genericalias',
+            '',
+            '',
+            '   .. py:attribute:: Class.T',
+            '      :module: target.genericalias',
+            '',
+            '      alias of :class:`List`\\ [:class:`int`]',
+            '',
             '.. py:attribute:: T',
             '   :module: target.genericalias',
             '',
-            '   alias of :class:`typing.List`',
+            '   alias of :class:`List`\\ [:class:`int`]',
         ]
     else:
         assert list(actual) == [
             '',
             '.. py:module:: target.genericalias',
+            '',
+            '',
+            '.. py:class:: Class()',
+            '   :module: target.genericalias',
+            '',
+            '',
+            '   .. py:attribute:: Class.T',
+            '      :module: target.genericalias',
+            '',
+            '      A list of int',
+            '',
+            '      alias of List[int]',
             '',
             '',
             '.. py:data:: T',
@@ -1715,6 +1731,7 @@ def test_autodoc_GenericAlias(app):
             '   A list of int',
             '',
             '   alias of List[int]',
+            '',
         ]
 
 
@@ -1732,6 +1749,14 @@ def test_autodoc_TypeVar(app):
         '   :module: target.typevar',
         '',
         '',
+        '   .. py:attribute:: Class.T1',
+        '      :module: target.typevar',
+        '',
+        '      T1',
+        '',
+        "      alias of TypeVar('T1')",
+        '',
+        '',
         '   .. py:attribute:: Class.T6',
         '      :module: target.typevar',
         '',
@@ -1747,12 +1772,14 @@ def test_autodoc_TypeVar(app):
         '',
         "   alias of TypeVar('T1')",
         '',
+        '',
         '.. py:data:: T3',
         '   :module: target.typevar',
         '',
         '   T3',
         '',
         "   alias of TypeVar('T3', int, str)",
+        '',
         '',
         '.. py:data:: T4',
         '   :module: target.typevar',
@@ -1761,12 +1788,14 @@ def test_autodoc_TypeVar(app):
         '',
         "   alias of TypeVar('T4', covariant=True)",
         '',
+        '',
         '.. py:data:: T5',
         '   :module: target.typevar',
         '',
         '   T5',
         '',
         "   alias of TypeVar('T5', contravariant=True)",
+        '',
         '',
         '.. py:data:: T6',
         '   :module: target.typevar',
