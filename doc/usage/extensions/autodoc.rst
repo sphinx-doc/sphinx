@@ -571,6 +571,19 @@ There are also config values that you can set:
 
       New option ``'description'`` is added.
 
+.. confval:: autodoc_typehints_description_target
+
+   This value controls whether the types of undocumented parameters and return
+   values are documented when ``autodoc_typehints`` is set to ``description``.
+
+   The default value is ``"all"``, meaning that types are documented for all
+   parameters and return values, whether they are documented or not.
+
+   When set to ``"documented"``, types will only be documented for a parameter
+   or a return value that is already documented by the docstring.
+
+   .. versionadded:: 4.0
+
 .. confval:: autodoc_type_aliases
 
    A dictionary for users defined `type aliases`__ that maps a type name to the
