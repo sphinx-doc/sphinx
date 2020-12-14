@@ -24,6 +24,7 @@ Deprecated
 * ``sphinx.ext.autodoc.TypeVarDocumenter``
 * ``sphinx.ext.autodoc.importer._getannotations()``
 * ``sphinx.pycode.ModuleAnalyzer.parse()``
+* ``sphinx.util.osutil.movefile()``
 * ``sphinx.util.requests.is_ssl_error()``
 
 Features added

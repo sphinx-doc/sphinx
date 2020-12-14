@@ -20,7 +20,7 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import epoch_to_rfc1123, logging, requests, rfc1123_to_epoch, sha1
 from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
-from sphinx.util.osutil import ensuredir, movefile
+from sphinx.util.osutil import ensuredir
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +99,7 @@ class ImageDownloader(BaseImageConverter):
                     # append a suffix if URI does not contain suffix
                     ext = get_image_extension(mimetype)
                     newpath = os.path.join(self.imagedir, dirname, basename + ext)
-                    movefile(path, newpath)
+                    os.replace(path, newpath)
                     self.app.env.original_image_uri.pop(path)
                     self.app.env.original_image_uri[newpath] = node['uri']
                     path = newpath

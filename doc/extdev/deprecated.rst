@@ -77,6 +77,11 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.pycode.ModuleAnalyzer.analyze()``
 
+   * - ``sphinx.util.osutil.movefile()``
+     - 3.4
+     - 5.0
+     - ``os.replace()``
+
    * - ``sphinx.util.requests.is_ssl_error()``
      - 3.4
      - 5.0

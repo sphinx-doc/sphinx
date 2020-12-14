@@ -20,7 +20,7 @@ from io import StringIO
 from os import path
 from typing import Any, Generator, Iterator, List, Optional, Tuple
 
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 
 try:
     # for ALT Linux (#6712)
@@ -103,6 +103,9 @@ def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
 
 def movefile(source: str, dest: str) -> None:
     """Move a file, removing the destination if it exists."""
+    warnings.warn('sphinx.util.osutil.movefile() is deprecated for removal. '
+                  'Please use os.replace() instead.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     if os.path.exists(dest):
         try:
             os.unlink(dest)
