@@ -2054,6 +2054,28 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 return
 
 
+class NonDataDescriptorMixin(DataDocumenterMixinBase):
+    """
+    Mixin for AttributeDocumenter to provide the feature for supporting non
+    data-descriptors.
+
+    .. note:: This mix-in must be inherited after other mix-ins.  Otherwise, docstring
+              and :value: header will be suppressed unexpectedly.
+    """
+
+    def should_suppress_value_header(self) -> bool:
+        return (inspect.isattributedescriptor(self.object) or
+                super().should_suppress_directive_header())
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        if not inspect.isattributedescriptor(self.object):
+            # the docstring of non datadescriptor is very probably the wrong thing
+            # to display
+            return []
+        else:
+            return super().get_doc(encoding, ignore)  # type: ignore
+
+
 class SlotsMixin(DataDocumenterMixinBase):
     """
     Mixin for AttributeDocumenter to provide the feature for supporting __slots__.
@@ -2102,7 +2124,8 @@ class SlotsMixin(DataDocumenterMixinBase):
 
 
 class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
-                          TypeVarMixin, DocstringStripSignatureMixin, ClassLevelDocumenter):
+                          TypeVarMixin, NonDataDescriptorMixin, DocstringStripSignatureMixin,
+                          ClassLevelDocumenter):
     """
     Specialized Documenter subclass for attributes.
     """
@@ -2172,15 +2195,9 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             ret = super().import_object(raiseerror=True)
             if inspect.isenumattribute(self.object):
                 self.object = self.object.value
-            if inspect.isattributedescriptor(self.object):
-                self._datadescriptor = True
-            else:
-                # if it's not a data descriptor
-                self._datadescriptor = False
         except ImportError as exc:
             if self.isinstanceattribute():
                 self.object = INSTANCEATTR
-                self._datadescriptor = False
                 ret = True
             elif raiseerror:
                 raise
@@ -2214,21 +2231,18 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                     self.add_line('   :type: ' + self.analyzer.annotations[key],
                                   sourcename)
 
-            # data descriptors do not have useful values
-            if not self._datadescriptor:
-                try:
-                    if self.object is INSTANCEATTR or self.options.no_value:
-                        pass
-                    else:
-                        objrepr = object_description(self.object)
-                        self.add_line('   :value: ' + objrepr, sourcename)
-                except ValueError:
+            try:
+                if (self.object is INSTANCEATTR or self.options.no_value or
+                        self.should_suppress_value_header()):
                     pass
+                else:
+                    objrepr = object_description(self.object)
+                    self.add_line('   :value: ' + objrepr, sourcename)
+            except ValueError:
+                pass
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
-        if not self._datadescriptor:
-            # if it's not a data descriptor, its docstring is very probably the
-            # wrong thing to display
+        if self.object is INSTANCEATTR:
             return []
 
         try:
