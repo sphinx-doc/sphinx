@@ -1584,7 +1584,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
-        members = get_class_members(self.object, self.objpath, self.get_attr, self.analyzer)
+        members = get_class_members(self.object, self.objpath, self.get_attr)
         if not want_all:
             if not self.options.members:
                 return False, []  # type: ignore
