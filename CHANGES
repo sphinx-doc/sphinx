@@ -79,6 +79,7 @@ Bugs fixed
 * #8522: autodoc:  ``__bool__`` method could be called
 * #8067: autodoc: A typehint for the instance variable having type_comment on
   super class is not displayed
+* #8545: autodoc: a __slots__ attribute is not documented even having docstring
 * #8477: autosummary: non utf-8 reST files are generated when template contains
   multibyte characters
 * #8501: autosummary: summary extraction splits text after "el at." unexpectedly

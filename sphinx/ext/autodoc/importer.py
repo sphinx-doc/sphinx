@@ -310,9 +310,10 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows
         namespace = '.'.join(objpath)
-        for (ns, name) in analyzer.find_attr_docs():
+        for (ns, name), docstring in analyzer.attr_docs.items():
             if namespace == ns and name not in members:
-                members[name] = ClassAttribute(subject, name, INSTANCEATTR)
+                members[name] = ClassAttribute(subject, name, INSTANCEATTR,
+                                               '\n'.join(docstring))
 
     return members
 

@@ -275,9 +275,11 @@ class ObjectMember(tuple):
     def __new__(cls, name: str, obj: Any, **kwargs: Any) -> Any:
         return super().__new__(cls, (name, obj))  # type: ignore
 
-    def __init__(self, name: str, obj: Any, skipped: bool = False) -> None:
+    def __init__(self, name: str, obj: Any, docstring: Optional[str] = None,
+                 skipped: bool = False) -> None:
         self.__name__ = name
         self.object = obj
+        self.docstring = docstring
         self.skipped = skipped
 
 
@@ -709,6 +711,11 @@ class Documenter:
                 cls_doc = self.get_attr(cls, '__doc__', None)
                 if cls_doc == doc:
                     doc = None
+
+            if isinstance(obj, ObjectMember) and obj.docstring:
+                # hack for ClassDocumenter to inject docstring via ObjectMember
+                doc = obj.docstring
+
             has_doc = bool(doc)
 
             metadata = extract_metadata(doc)
@@ -1585,16 +1592,18 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             selected = []
             for name in self.options.members:  # type: str
                 if name in members:
-                    selected.append((name, members[name].value))
+                    selected.append(ObjectMember(name, members[name].value,
+                                                 docstring=members[name].docstring))
                 else:
                     logger.warning(__('missing attribute %s in object %s') %
                                    (name, self.fullname), type='autodoc')
             return False, selected
         elif self.options.inherited_members:
-            return False, [(m.name, m.value) for m in members.values()]
+            return False, [ObjectMember(m.name, m.value, docstring=m.docstring)
+                           for m in members.values()]
         else:
-            return False, [(m.name, m.value) for m in members.values()
-                           if m.class_ == self.object]
+            return False, [ObjectMember(m.name, m.value, docstring=m.docstring)
+                           for m in members.values() if m.class_ == self.object]
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         if encoding is not None:
