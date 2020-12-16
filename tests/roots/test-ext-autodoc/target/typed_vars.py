@@ -31,4 +31,4 @@ class Derived(Class):
     attr7: int
 
 
-Alias = Class
+Alias = Derived

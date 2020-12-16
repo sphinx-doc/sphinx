@@ -2152,14 +2152,19 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
     def get_attribute_comment(self, parent: Any) -> Optional[List[str]]:
         try:
-            analyzer = ModuleAnalyzer.for_module(self.modname)
-            analyzer.analyze()
+            for cls in inspect.getmro(parent):
+                try:
+                    module = safe_getattr(cls, '__module__')
+                    qualname = safe_getattr(cls, '__qualname__')
 
-            qualname = safe_getattr(parent, '__qualname__', None)
-            if qualname and self.objpath:
-                key = (qualname, self.objpath[-1])
-                if key in analyzer.attr_docs:
-                    return list(analyzer.attr_docs[key])
+                    analyzer = ModuleAnalyzer.for_module(module)
+                    analyzer.analyze()
+                    if qualname and self.objpath:
+                        key = (qualname, self.objpath[-1])
+                        if key in analyzer.attr_docs:
+                            return list(analyzer.attr_docs[key])
+                except (AttributeError, PycodeError):
+                    pass
         except (AttributeError, PycodeError):
             pass
 
