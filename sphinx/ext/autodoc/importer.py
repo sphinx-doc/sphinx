@@ -241,6 +241,70 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     return members
 
 
+def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
+                      analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
+    """Get members and attributes of target class."""
+    from sphinx.ext.autodoc import INSTANCEATTR
+
+    # the members directly defined in the class
+    obj_dict = attrgetter(subject, '__dict__', {})
+
+    members = {}  # type: Dict[str, Attribute]
+
+    # enum members
+    if isenumclass(subject):
+        for name, value in subject.__members__.items():
+            if name not in members:
+                members[name] = Attribute(name, True, value)
+
+        superclass = subject.__mro__[1]
+        for name in obj_dict:
+            if name not in superclass.__dict__:
+                value = safe_getattr(subject, name)
+                members[name] = Attribute(name, True, value)
+
+    # members in __slots__
+    try:
+        __slots__ = getslots(subject)
+        if __slots__:
+            from sphinx.ext.autodoc import SLOTSATTR
+
+            for name in __slots__:
+                members[name] = Attribute(name, True, SLOTSATTR)
+    except (AttributeError, TypeError, ValueError):
+        pass
+
+    # other members
+    for name in dir(subject):
+        try:
+            value = attrgetter(subject, name)
+            directly_defined = name in obj_dict
+            name = unmangle(subject, name)
+            if name and name not in members:
+                members[name] = Attribute(name, directly_defined, value)
+        except AttributeError:
+            continue
+
+    # annotation only member (ex. attr: int)
+    for i, cls in enumerate(getmro(subject)):
+        try:
+            for name in getannotations(cls):
+                name = unmangle(cls, name)
+                if name and name not in members:
+                    members[name] = Attribute(name, i == 0, INSTANCEATTR)
+        except AttributeError:
+            pass
+
+    if analyzer:
+        # append instance attributes (cf. self.attr1) if analyzer knows
+        namespace = '.'.join(objpath)
+        for (ns, name) in analyzer.find_attr_docs():
+            if namespace == ns and name not in members:
+                members[name] = Attribute(name, True, INSTANCEATTR)
+
+    return members
+
+
 from sphinx.ext.autodoc.mock import (MockFinder, MockLoader, _MockModule, _MockObject,  # NOQA
                                      mock)
 
