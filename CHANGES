@@ -71,6 +71,8 @@ Bugs fixed
   attribute in alias class
 * #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
   set to "description"
+* #8541: autodoc: autodoc_type_aliases doesn't work for the type annotation to
+  instance attributes
 * #8460: autodoc: autodata and autoattribute directives do not display type
   information of TypeVars
 * #8493: autodoc: references to builtins not working in class aliases
