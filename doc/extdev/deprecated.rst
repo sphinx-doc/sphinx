@@ -72,6 +72,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.util.inspect.getannotations()``
 
+   * - ``sphinx.ext.autodoc.importer._getmro()``
+     - 3.4
+     - 4.0
+     - ``sphinx.util.inspect.getmro()``
+
    * - ``sphinx.pycode.ModuleAnalyzer.parse()``
      - 3.4
      - 5.0
