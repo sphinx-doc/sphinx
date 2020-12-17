@@ -1843,6 +1843,26 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
                             ) -> bool:
         return isinstance(parent, ModuleDocumenter) and isattr
 
+    def update_annotations(self, parent: Any) -> None:
+        """Update __annotations__ to support type_comment and so on."""
+        try:
+            annotations = inspect.getannotations(parent)
+
+            analyzer = ModuleAnalyzer.for_module(self.modname)
+            analyzer.analyze()
+            for (classname, attrname), annotation in analyzer.annotations.items():
+                if classname == '' and attrname not in annotations:
+                    annotations[attrname] = annotation  # type: ignore
+        except AttributeError:
+            pass
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        ret = super().import_object(raiseerror)
+        if self.parent:
+            self.update_annotations(self.parent)
+
+        return ret
+
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
@@ -1857,11 +1877,6 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
             if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
-            else:
-                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
-                if self.analyzer and key in self.analyzer.annotations:
-                    self.add_line('   :type: ' + self.analyzer.annotations[key],
-                                  sourcename)
 
             try:
                 if self.options.no_value or self.should_suppress_value_header():
@@ -2259,6 +2274,26 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
 
         return False
 
+    def update_annotations(self, parent: Any) -> None:
+        """Update __annotations__ to support type_comment and so on."""
+        try:
+            annotations = inspect.getannotations(parent)
+
+            for cls in inspect.getmro(parent):
+                try:
+                    module = safe_getattr(cls, '__module__')
+                    qualname = safe_getattr(cls, '__qualname__')
+
+                    analyzer = ModuleAnalyzer.for_module(module)
+                    analyzer.analyze()
+                    for (classname, attrname), annotation in analyzer.annotations.items():
+                        if classname == qualname and attrname not in annotations:
+                            annotations[attrname] = annotation  # type: ignore
+                except (AttributeError, PycodeError):
+                    pass
+        except AttributeError:
+            pass
+
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
             ret = super().import_object(raiseerror=True)
@@ -2274,6 +2309,9 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                 logger.warning(exc.args[0], type='autodoc', subtype='import_object')
                 self.env.note_reread()
                 ret = False
+
+        if self.parent:
+            self.update_annotations(self.parent)
 
         return ret
 
@@ -2294,16 +2332,6 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             if self.objpath[-1] in annotations:
                 objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                 self.add_line('   :type: ' + objrepr, sourcename)
-            else:
-                try:
-                    qualname = safe_getattr(self.parent, '__qualname__',
-                                            '.'.join(self.objpath[:-1]))
-                    key = (qualname, self.objpath[-1])
-                    if self.analyzer and key in self.analyzer.annotations:
-                        self.add_line('   :type: ' + self.analyzer.annotations[key],
-                                      sourcename)
-                except AttributeError:
-                    pass
 
             try:
                 if (self.object is INSTANCEATTR or self.options.no_value or

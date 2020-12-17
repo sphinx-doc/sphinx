@@ -16,7 +16,8 @@ from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tup
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
-from sphinx.util.inspect import getannotations, getslots, isclass, isenumclass, safe_getattr
+from sphinx.util.inspect import (getannotations, getmro, getslots, isclass, isenumclass,
+                                 safe_getattr)
 
 if False:
     # For type annotation
@@ -165,12 +166,9 @@ Attribute = NamedTuple('Attribute', [('name', str),
 
 
 def _getmro(obj: Any) -> Tuple["Type", ...]:
-    """Get __mro__ from given *obj* safely."""
-    __mro__ = safe_getattr(obj, '__mro__', None)
-    if isinstance(__mro__, tuple):
-        return __mro__
-    else:
-        return tuple()
+    warnings.warn('sphinx.ext.autodoc.importer._getmro() is deprecated.',
+                  RemovedInSphinx40Warning)
+    return getmro(obj)
 
 
 def _getannotations(obj: Any) -> Mapping[str, Any]:
@@ -224,7 +222,7 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
             continue
 
     # annotation only member (ex. attr: int)
-    for i, cls in enumerate(_getmro(subject)):
+    for i, cls in enumerate(getmro(subject)):
         try:
             for name in getannotations(cls):
                 name = unmangle(cls, name)
