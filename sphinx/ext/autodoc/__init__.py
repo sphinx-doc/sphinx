@@ -26,7 +26,8 @@ from sphinx.config import ENUM, Config
 from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
                                 RemovedInSphinx60Warning)
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc.importer import get_module_members, get_object_members, import_object
+from sphinx.ext.autodoc.importer import (get_class_members, get_module_members,
+                                         get_object_members, import_object)
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -274,9 +275,11 @@ class ObjectMember(tuple):
     def __new__(cls, name: str, obj: Any, **kwargs: Any) -> Any:
         return super().__new__(cls, (name, obj))  # type: ignore
 
-    def __init__(self, name: str, obj: Any, skipped: bool = False) -> None:
+    def __init__(self, name: str, obj: Any, docstring: Optional[str] = None,
+                 skipped: bool = False) -> None:
         self.__name__ = name
         self.object = obj
+        self.docstring = docstring
         self.skipped = skipped
 
 
@@ -708,6 +711,11 @@ class Documenter:
                 cls_doc = self.get_attr(cls, '__doc__', None)
                 if cls_doc == doc:
                     doc = None
+
+            if isinstance(obj, ObjectMember) and obj.docstring:
+                # hack for ClassDocumenter to inject docstring via ObjectMember
+                doc = obj.docstring
+
             has_doc = bool(doc)
 
             metadata = extract_metadata(doc)
@@ -1576,7 +1584,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
-        members = get_object_members(self.object, self.objpath, self.get_attr, self.analyzer)
+        members = get_class_members(self.object, self.objpath, self.get_attr, self.analyzer)
         if not want_all:
             if not self.options.members:
                 return False, []  # type: ignore
@@ -1584,16 +1592,18 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             selected = []
             for name in self.options.members:  # type: str
                 if name in members:
-                    selected.append((name, members[name].value))
+                    selected.append(ObjectMember(name, members[name].value,
+                                                 docstring=members[name].docstring))
                 else:
                     logger.warning(__('missing attribute %s in object %s') %
                                    (name, self.fullname), type='autodoc')
             return False, selected
         elif self.options.inherited_members:
-            return False, [(m.name, m.value) for m in members.values()]
+            return False, [ObjectMember(m.name, m.value, docstring=m.docstring)
+                           for m in members.values()]
         else:
-            return False, [(m.name, m.value) for m in members.values()
-                           if m.directly_defined]
+            return False, [ObjectMember(m.name, m.value, docstring=m.docstring)
+                           for m in members.values() if m.class_ == self.object]
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         if encoding is not None:

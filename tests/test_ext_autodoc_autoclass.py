@@ -77,6 +77,32 @@ def test_decorators(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_slots_attribute(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.slots.Bar', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.slots',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Bar.attr1',
+        '      :module: target.slots',
+        '',
+        '      docstring of attr1',
+        '',
+        '',
+        '   .. py:attribute:: Bar.attr2',
+        '      :module: target.slots',
+        '',
+        '      docstring of instance attr2',
+        '',
+    ]
+
+
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_show_inheritance_for_subclass_of_generic_type(app):
