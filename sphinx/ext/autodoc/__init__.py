@@ -1850,9 +1850,9 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
 
             analyzer = ModuleAnalyzer.for_module(self.modname)
             analyzer.analyze()
-            for (classname, attrname) in analyzer.annotations:
+            for (classname, attrname), annotation in analyzer.annotations.items():
                 if classname == '' and attrname not in annotations:
-                    annotations[attrname] = analyzer.annotations[classname, attrname]  # type: ignore  # NOQA
+                    annotations[attrname] = annotation  # type: ignore
         except AttributeError:
             pass
 
@@ -2286,9 +2286,9 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
 
                     analyzer = ModuleAnalyzer.for_module(module)
                     analyzer.analyze()
-                    for (classname, attrname) in analyzer.annotations:
+                    for (classname, attrname), annotation in analyzer.annotations.items():
                         if classname == qualname and attrname not in annotations:
-                            annotations[attrname] = analyzer.annotations[classname, attrname]  # type: ignore  # NOQA
+                            annotations[attrname] = annotation  # type: ignore
                 except (AttributeError, PycodeError):
                     pass
         except AttributeError:
