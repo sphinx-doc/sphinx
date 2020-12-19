@@ -43,6 +43,7 @@ Features added
 * #8460: autodoc: Support custom types defined by typing.NewType
 * #8285: napoleon: Add :confval:`napoleon_attr_annotations` to merge type hints
   on source code automatically if any type is specified in docstring
+* #8236: napoleon: Support numpydoc's "Receives" section
 * #6914: Add a new event :event:`warn-missing-reference` to custom warning
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference

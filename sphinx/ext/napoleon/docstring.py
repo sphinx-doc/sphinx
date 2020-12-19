@@ -179,6 +179,8 @@ class GoogleDocstring:
                 'notes': self._parse_notes_section,
                 'other parameters': self._parse_other_parameters_section,
                 'parameters': self._parse_parameters_section,
+                'receive': self._parse_receives_section,
+                'receives': self._parse_receives_section,
                 'return': self._parse_returns_section,
                 'returns': self._parse_returns_section,
                 'raise': self._parse_raises_section,
@@ -713,6 +715,15 @@ class GoogleDocstring:
         if lines:
             lines.append('')
         return lines
+
+    def _parse_receives_section(self, section: str) -> List[str]:
+        if self._config.napoleon_use_param:
+            # Allow to declare multiple parameters at once (ex: x, y: int)
+            fields = self._consume_fields(multiple=True)
+            return self._format_docutils_params(fields)
+        else:
+            fields = self._consume_fields()
+            return self._format_fields(_('Receives'), fields)
 
     def _parse_references_section(self, section: str) -> List[str]:
         use_admonition = self._config.napoleon_use_admonition_for_references

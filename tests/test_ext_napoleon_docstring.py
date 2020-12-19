@@ -303,6 +303,34 @@ class GoogleDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
+        Receive:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (*list(int)*) -- Description
+                   * **arg2** (*list[int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
+        Receives:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (*list(int)*) -- Description
+                   * **arg2** (*list[int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
         Yield:
           str:Extended
           description of yielded value
@@ -1258,6 +1286,48 @@ class NumpyDocstringTest(BaseDocstringTest):
 
         :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
                      * **\\*args, \\*\\*kwargs** -- Variable length argument list and arbitrary keyword arguments.
+        """
+    ), (
+        """
+        Single line summary
+
+        Receive
+        -------
+        arg1:str
+            Extended
+            description of arg1
+        arg2 : int
+            Extended
+            description of arg2
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (:class:`str`) -- Extended
+                     description of arg1
+                   * **arg2** (:class:`int`) -- Extended
+                     description of arg2
+        """
+    ), (
+        """
+        Single line summary
+
+        Receives
+        --------
+        arg1:str
+            Extended
+            description of arg1
+        arg2 : int
+            Extended
+            description of arg2
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (:class:`str`) -- Extended
+                     description of arg1
+                   * **arg2** (:class:`int`) -- Extended
+                     description of arg2
         """
     ), (
         """
