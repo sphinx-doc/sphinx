@@ -36,6 +36,8 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
         if not srcdir.exists():
             (rootdir / 'test-root').copytree(srcdir)
     except UnicodeEncodeError:
+        # Now Python 3.7+ follows PEP-540 and uses utf-8 encoding for filesystem by default.
+        # So this error handling will be no longer used (after dropping python 3.6 support).
         srcdir = basedir / 'all'
         if not srcdir.exists():
             (rootdir / 'test-root').copytree(srcdir)
