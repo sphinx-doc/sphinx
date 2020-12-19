@@ -31,7 +31,8 @@ Install either ``python3-sphinx`` using :command:`apt-get`:
 
 ::
 
-   $ apt-get install python3-sphinx
+   $ apt-get install python3-pip
+   $ pip3 install sphinx
 
 If it not already present, this will install Python for you.
 
