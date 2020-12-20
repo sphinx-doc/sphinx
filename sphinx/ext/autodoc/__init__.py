@@ -2148,9 +2148,9 @@ class SlotsMixin(DataDocumenterMixinBase):
             return super().get_doc(encoding, ignore)  # type: ignore
 
 
-class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
+class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
     """
-    Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
+    Mixin for AttributeDocumenter to provide the feature for supporting runtime
     instance attributes (that are defined in __init__() methods with doc-comments).
 
     Example:
@@ -2159,6 +2159,8 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
             def __init__(self):
                 self.attr = None  #: This is a target of this mix-in.
     """
+
+    RUNTIME_INSTANCE_ATTRIBUTE = object()
 
     def get_attribute_comment(self, parent: Any) -> Optional[List[str]]:
         try:
@@ -2180,7 +2182,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
         return None
 
-    def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
+    def is_runtime_instance_attribute(self, parent: Any) -> bool:
         """Check the subject is an attribute defined in __init__()."""
         # An instance variable defined in __init__().
         if self.get_attribute_comment(parent):
@@ -2189,9 +2191,8 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the exisitence of uninitizlied instance attribute when failed to import
-        the attribute.
-        """
+        """Check the exisitence of runtime instance attribute when failed to import the
+        attribute."""
         try:
             return super().import_object(raiseerror=True)  # type: ignore
         except ImportError as exc:
@@ -2200,8 +2201,8 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
                                     attrgetter=self.get_attr,  # type: ignore
                                     warningiserror=self.config.autodoc_warningiserror)
                 parent = ret[3]
-                if self.is_uninitialized_instance_attribute(parent):
-                    self.object = UNINITIALIZED_ATTR
+                if self.is_runtime_instance_attribute(parent):
+                    self.object = self.RUNTIME_INSTANCE_ATTRIBUTE
                     self.parent = parent
                     return True
             except ImportError:
@@ -2215,11 +2216,11 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
                 return False
 
     def should_suppress_value_header(self) -> bool:
-        return (self.object is UNINITIALIZED_ATTR or
+        return (self.object is self.RUNTIME_INSTANCE_ATTRIBUTE or
                 super().should_suppress_value_header())
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
-        if self.object is UNINITIALIZED_ATTR:
+        if self.object is self.RUNTIME_INSTANCE_ATTRIBUTE:
             comment = self.get_attribute_comment(self.parent)
             if comment:
                 return [comment]
@@ -2228,14 +2229,14 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
-        if self.object is UNINITIALIZED_ATTR:
+        if self.object is self.RUNTIME_INSTANCE_ATTRIBUTE:
             self.analyzer = None
 
         super().add_content(more_content, no_docstring=no_docstring)  # type: ignore
 
 
 class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
-                          TypeVarMixin, UninitializedInstanceAttributeMixin,
+                          TypeVarMixin, RuntimeInstanceAttributeMixin,
                           NonDataDescriptorMixin, DocstringStripSignatureMixin,
                           ClassLevelDocumenter):
     """
