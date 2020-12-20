@@ -97,28 +97,6 @@ Bugs fixed
   lookup warnings
 * #8352: std domain: Failed to parse an option that starts with bracket
 * #8519: LaTeX: Prevent page brake in the middle of a seealso
-
-Testing
---------
-
-Release 3.3.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
 * #8520: C, fix copying of AliasNode.
 
 Testing
