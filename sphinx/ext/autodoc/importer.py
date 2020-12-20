@@ -165,12 +165,6 @@ class Attribute(NamedTuple):
     value: Any
 
 
-def _getmro(obj: Any) -> Tuple["Type", ...]:
-    warnings.warn('sphinx.ext.autodoc.importer._getmro() is deprecated.',
-                  RemovedInSphinx40Warning)
-    return getmro(obj)
-
-
 def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                        analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
