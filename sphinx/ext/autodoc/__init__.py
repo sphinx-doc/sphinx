@@ -1809,11 +1809,11 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
         except ImportError as exc:
             # annotation only instance variable (PEP-526)
             try:
-                self.parent = importlib.import_module(self.modname)
-                annotations = get_type_hints(self.parent, None,
-                                             self.config.autodoc_type_aliases)
+                parent = importlib.import_module(self.modname)
+                annotations = get_type_hints(parent, None, self.config.autodoc_type_aliases)
                 if self.objpath[-1] in annotations:
                     self.object = UNINITIALIZED_ATTR
+                    self.parent = parent
                     return True
             except ImportError:
                 pass
