@@ -20,7 +20,7 @@ import warnings
 from functools import partial, partialmethod
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence, cast
+from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, cast
 
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py36-37
@@ -35,6 +35,10 @@ else:
     ClassMethodDescriptorType = type(object.__init__)
     MethodDescriptorType = type(str.join)
     WrapperDescriptorType = type(dict.__dict__['fromkeys'])
+
+if False:
+    # For type annotation
+    from typing import Type  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +168,18 @@ def getannotations(obj: Any) -> Mapping[str, Any]:
         return __annotations__
     else:
         return {}
+
+
+def getmro(obj: Any) -> Tuple["Type", ...]:
+    """Get __mro__ from given *obj* safely.
+
+    Raises AttributeError if given *obj* raises an error on accessing __mro__.
+    """
+    __mro__ = safe_getattr(obj, '__mro__', None)
+    if isinstance(__mro__, tuple):
+        return __mro__
+    else:
+        return tuple()
 
 
 def getslots(obj: Any) -> Optional[Dict]:

@@ -54,11 +54,50 @@ Bugs fixed
 Testing
 --------
 
-Release 3.4.0 (in development)
+Release 3.5.0 (in development)
 ==============================
 
 Dependencies
 ------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 3.4.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 3.4.0 (released Dec 20, 2020)
+=====================================
 
 Incompatible changes
 --------------------
@@ -79,7 +118,9 @@ Deprecated
 * ``sphinx.ext.autodoc.SlotsAttributeDocumenter``
 * ``sphinx.ext.autodoc.TypeVarDocumenter``
 * ``sphinx.ext.autodoc.importer._getannotations()``
+* ``sphinx.ext.autodoc.importer._getmro()``
 * ``sphinx.pycode.ModuleAnalyzer.parse()``
+* ``sphinx.util.osutil.movefile()``
 * ``sphinx.util.requests.is_ssl_error()``
 
 Features added
@@ -98,6 +139,7 @@ Features added
 * #8460: autodoc: Support custom types defined by typing.NewType
 * #8285: napoleon: Add :confval:`napoleon_attr_annotations` to merge type hints
   on source code automatically if any type is specified in docstring
+* #8236: napoleon: Support numpydoc's "Receives" section
 * #6914: Add a new event :event:`warn-missing-reference` to custom warning
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
@@ -121,48 +163,36 @@ Bugs fixed
   attributes
 * #8503: autodoc: autoattribute could not create document for a GenericAlias as
   class attributes correctly
+* #8534: autodoc: autoattribute could not create document for a commented
+  attribute in alias class
 * #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
   set to "description"
+* #8541: autodoc: autodoc_type_aliases doesn't work for the type annotation to
+  instance attributes
 * #8460: autodoc: autodata and autoattribute directives do not display type
   information of TypeVars
 * #8493: autodoc: references to builtins not working in class aliases
 * #8522: autodoc:  ``__bool__`` method could be called
+* #8067: autodoc: A typehint for the instance variable having type_comment on
+  super class is not displayed
+* #8545: autodoc: a __slots__ attribute is not documented even having docstring
+* #741: autodoc: inherited-members doesn't work for instance attributes on super
+  class
 * #8477: autosummary: non utf-8 reST files are generated when template contains
   multibyte characters
 * #8501: autosummary: summary extraction splits text after "el at." unexpectedly
+* #8524: html: Wrong url_root has been generated on a document named "index"
 * #8419: html search: Do not load ``language_data.js`` in non-search pages
+* #8549: i18n: ``-D gettext_compact=0`` is no longer working
 * #8454: graphviz: The layout option for graph and digraph directives don't work
 * #8131: linkcheck: Use GET when HEAD requests cause Too Many Redirects, to
   accommodate infinite redirect loops on HEAD
 * #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
+* #8365: py domain: ``:type:`` and ``:rtype:`` gives false ambiguous class
+  lookup warnings
 * #8352: std domain: Failed to parse an option that starts with bracket
 * #8519: LaTeX: Prevent page brake in the middle of a seealso
-
-Testing
---------
-
-Release 3.3.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
 * #8520: C, fix copying of AliasNode.
-
-Testing
---------
 
 Release 3.3.1 (released Nov 12, 2020)
 =====================================

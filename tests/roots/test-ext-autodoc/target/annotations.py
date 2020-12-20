@@ -7,6 +7,9 @@ myint = int
 #: docstring
 variable: myint
 
+#: docstring
+variable2 = None  # type: myint
+
 
 def sum(x: myint, y: myint) -> myint:
     """docstring"""
@@ -32,4 +35,7 @@ class Foo:
     """docstring"""
 
     #: docstring
-    attr: myint
+    attr1: myint
+
+    def __init__(self):
+        self.attr2: myint = None  #: docstring

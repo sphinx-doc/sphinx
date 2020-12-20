@@ -173,6 +173,14 @@ class Config:
             defvalue = self.values[name][0]
             if self.values[name][2] == Any:
                 return value
+            elif self.values[name][2] == {bool, str}:
+                if value == '0':
+                    # given falsy string from command line option
+                    return False
+                elif value == '1':
+                    return True
+                else:
+                    return value
             elif type(defvalue) is bool or self.values[name][2] == [bool]:
                 if value == '0':
                     # given falsy string from command line option
