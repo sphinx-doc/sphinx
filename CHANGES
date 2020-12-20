@@ -1,8 +1,5 @@
-Release 3.4.0 (in development)
-==============================
-
-Dependencies
-------------
+Release 3.4.0 (released Dec 20, 2020)
+=====================================
 
 Incompatible changes
 --------------------
@@ -98,9 +95,6 @@ Bugs fixed
 * #8352: std domain: Failed to parse an option that starts with bracket
 * #8519: LaTeX: Prevent page brake in the middle of a seealso
 * #8520: C, fix copying of AliasNode.
-
-Testing
---------
 
 Release 3.3.1 (released Nov 12, 2020)
 =====================================
