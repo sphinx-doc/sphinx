@@ -2196,14 +2196,15 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
             return super().import_object(raiseerror=True)  # type: ignore
         except ImportError as exc:
             try:
-                ret = import_object(self.modname, self.objpath[:-1], 'class',
-                                    attrgetter=self.get_attr,  # type: ignore
-                                    warningiserror=self.config.autodoc_warningiserror)
-                parent = ret[3]
-                if self.is_uninitialized_instance_attribute(parent):
-                    self.object = UNINITIALIZED_ATTR
-                    self.parent = parent
-                    return True
+                with mock(self.config.autodoc_mock_imports):
+                    ret = import_object(self.modname, self.objpath[:-1], 'class',
+                                        attrgetter=self.get_attr,  # type: ignore
+                                        warningiserror=self.config.autodoc_warningiserror)
+                    parent = ret[3]
+                    if self.is_uninitialized_instance_attribute(parent):
+                        self.object = UNINITIALIZED_ATTR
+                        self.parent = parent
+                        return True
             except ImportError:
                 pass
 
