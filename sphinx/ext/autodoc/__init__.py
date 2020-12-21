@@ -2114,7 +2114,7 @@ class SlotsMixin(DataDocumenterMixinBase):
                 return True
             else:
                 return False
-        except (AttributeError, ValueError):
+        except (AttributeError, ValueError, TypeError):
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
