@@ -10,7 +10,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import importlib
 import re
 import warnings
 from inspect import Parameter, Signature
@@ -27,7 +26,7 @@ from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warni
                                 RemovedInSphinx60Warning)
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import (get_class_members, get_module_members,
-                                         get_object_members, import_object)
+                                         get_object_members, import_module, import_object)
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -1809,12 +1808,14 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
         except ImportError as exc:
             # annotation only instance variable (PEP-526)
             try:
-                self.parent = importlib.import_module(self.modname)
-                annotations = get_type_hints(self.parent, None,
-                                             self.config.autodoc_type_aliases)
-                if self.objpath[-1] in annotations:
-                    self.object = UNINITIALIZED_ATTR
-                    return True
+                with mock(self.config.autodoc_mock_imports):
+                    parent = import_module(self.modname, self.config.autodoc_warningiserror)
+                    annotations = get_type_hints(parent, None,
+                                                 self.config.autodoc_type_aliases)
+                    if self.objpath[-1] in annotations:
+                        self.object = UNINITIALIZED_ATTR
+                        self.parent = parent
+                        return True
             except ImportError:
                 pass
 
