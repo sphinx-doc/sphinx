@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #8559: autodoc: AttributeError is raised when using forward-reference type
+  annotations
+
 Testing
 --------
 

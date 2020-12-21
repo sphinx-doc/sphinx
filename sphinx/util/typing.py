@@ -153,6 +153,8 @@ def _restify_py37(cls: Optional["Type"]) -> str:
             return ':obj:`%s`' % cls._name
         else:
             return ':obj:`%s.%s`' % (cls.__module__, cls._name)
+    elif isinstance(cls, ForwardRef):
+        return ':class:`%s`' % cls.__forward_arg__
     else:
         # not a class (ex. TypeVar)
         return ':obj:`%s.%s`' % (cls.__module__, cls.__name__)
