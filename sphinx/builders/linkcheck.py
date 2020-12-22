@@ -22,7 +22,7 @@ from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
 from urllib.parse import unquote, urlparse
 
 from docutils import nodes
-from docutils.nodes import Node
+from docutils.nodes import Element, Node
 from requests import Response
 from requests.exceptions import HTTPError, TooManyRedirects
 
@@ -45,6 +45,14 @@ DEFAULT_REQUEST_HEADERS = {
 CHECK_IMMEDIATELY = 0
 QUEUE_POLL_SECS = 1
 DEFAULT_DELAY = 60.0
+
+
+def node_line_or_0(node: Element) -> int:
+    """
+    PriorityQueue items must be comparable. The line number is part of the
+    tuple used by the PriorityQueue, keep an homogeneous type for comparison.
+    """
+    return get_node_line(node) or 0
 
 
 class AnchorCheckParser(HTMLParser):
@@ -406,7 +414,7 @@ class CheckExternalLinksBuilder(Builder):
             if 'refuri' not in refnode:
                 continue
             uri = refnode['refuri']
-            lineno = get_node_line(refnode)
+            lineno = node_line_or_0(refnode)
             uri_info = (CHECK_IMMEDIATELY, uri, docname, lineno)
             self.wqueue.put(uri_info, False)
             n += 1
@@ -415,7 +423,7 @@ class CheckExternalLinksBuilder(Builder):
         for imgnode in doctree.traverse(nodes.image):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
-                lineno = get_node_line(imgnode)
+                lineno = node_line_or_0(imgnode)
                 uri_info = (CHECK_IMMEDIATELY, uri, docname, lineno)
                 self.wqueue.put(uri_info, False)
                 n += 1
