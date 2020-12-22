@@ -19,6 +19,7 @@ Bugs fixed
 * #8559: autodoc: AttributeError is raised when using forward-reference type
   annotations
 * #8568: autodoc: TypeError is raised on checking slots attribute
+* #8567: autodoc: Instance attributes are incorrectly added to Parent class
 
 Testing
 --------

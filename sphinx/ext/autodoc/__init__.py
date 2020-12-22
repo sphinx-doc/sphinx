@@ -1856,13 +1856,14 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
     def update_annotations(self, parent: Any) -> None:
         """Update __annotations__ to support type_comment and so on."""
         try:
-            annotations = inspect.getannotations(parent)
+            annotations = dict(inspect.getannotations(parent))
+            parent.__annotations__ = annotations
 
             analyzer = ModuleAnalyzer.for_module(self.modname)
             analyzer.analyze()
             for (classname, attrname), annotation in analyzer.annotations.items():
                 if classname == '' and attrname not in annotations:
-                    annotations[attrname] = annotation  # type: ignore
+                    annotations[attrname] = annotation
         except AttributeError:
             pass
 
@@ -2292,7 +2293,8 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
     def update_annotations(self, parent: Any) -> None:
         """Update __annotations__ to support type_comment and so on."""
         try:
-            annotations = inspect.getannotations(parent)
+            annotations = dict(inspect.getannotations(parent))
+            parent.__annotations__ = annotations
 
             for cls in inspect.getmro(parent):
                 try:
@@ -2303,10 +2305,13 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                     analyzer.analyze()
                     for (classname, attrname), annotation in analyzer.annotations.items():
                         if classname == qualname and attrname not in annotations:
-                            annotations[attrname] = annotation  # type: ignore
+                            annotations[attrname] = annotation
                 except (AttributeError, PycodeError):
                     pass
         except AttributeError:
+            pass
+        except TypeError:
+            # Failed to set __annotations__ (built-in, extensions, etc.)
             pass
 
     def import_object(self, raiseerror: bool = False) -> bool:
