@@ -37,6 +37,13 @@ Features added
 Bugs fixed
 ----------
 
+* #8559: autodoc: AttributeError is raised when using forward-reference type
+  annotations
+* #8568: autodoc: TypeError is raised on checking slots attribute
+* #8567: autodoc: Instance attributes are incorrectly added to Parent class
+* #8565: linkcheck: Fix PriorityQueue crash when link tuples are not
+  comparable
+
 Testing
 --------
 

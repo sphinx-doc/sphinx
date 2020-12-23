@@ -573,3 +573,40 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
     checker.rate_limits = {"localhost": RateLimit(90.0, 0.0)}
     next_check = checker.limit_rate(FakeResponse())
     assert next_check is None
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver-two-links', freshenv=True,
+)
+def test_priorityqueue_items_are_comparable(app):
+    with http_server(OKHandler):
+        app.builder.build_all()
+    content = (app.outdir / 'output.json').read_text()
+    rows = [json.loads(x) for x in sorted(content.splitlines())]
+    assert rows == [
+        {
+            'filename': 'index.rst',
+            # Should not be None.
+            'lineno': 0,
+            'status': 'working',
+            'code': 0,
+            'uri': 'http://localhost:7777/',
+            'info': '',
+        },
+        {
+            'filename': 'index.rst',
+            'lineno': 0,
+            'status': 'working',
+            'code': 0,
+            'uri': 'http://localhost:7777/',
+            'info': '',
+        },
+        {
+            'filename': 'index.rst',
+            'lineno': 4,
+            'status': 'working',
+            'code': 0,
+            'uri': 'http://localhost:7777/',
+            'info': '',
+        }
+    ]
