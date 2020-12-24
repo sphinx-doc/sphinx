@@ -19,7 +19,7 @@ Bugs fixed
 Testing
 --------
 
-Release 3.4.1 (in development)
+Release 3.4.2 (in development)
 ==============================
 
 Dependencies
@@ -37,15 +37,24 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 3.4.1 (released Dec 25, 2020)
+=====================================
+
+Bugs fixed
+----------
+
 * #8559: autodoc: AttributeError is raised when using forward-reference type
   annotations
 * #8568: autodoc: TypeError is raised on checking slots attribute
 * #8567: autodoc: Instance attributes are incorrectly added to Parent class
+* #8566: autodoc: The ``autodoc-process-docstring`` event is emitted to the
+  alias classes unexpectedly
+* #8583: autodoc: Unnecessary object comparision via ``__eq__`` method
 * #8565: linkcheck: Fix PriorityQueue crash when link tuples are not
   comparable
-
-Testing
---------
 
 Release 3.4.0 (released Dec 20, 2020)
 =====================================
