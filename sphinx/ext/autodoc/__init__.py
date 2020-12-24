@@ -1829,7 +1829,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
                 return False
 
     def should_suppress_value_header(self) -> bool:
-        return (self.object == UNINITIALIZED_ATTR or
+        return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
