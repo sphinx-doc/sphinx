@@ -22,6 +22,7 @@ Bugs fixed
 * #8567: autodoc: Instance attributes are incorrectly added to Parent class
 * #8566: autodoc: The ``autodoc-process-docstring`` event is emitted to the
   alias classes unexpectedly
+* #8583: autodoc: Unnecessary object comparision via ``__eq__`` method
 * #8565: linkcheck: Fix PriorityQueue crash when link tuples are not
   comparable
 
