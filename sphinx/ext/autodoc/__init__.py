@@ -587,10 +587,12 @@ class Documenter:
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
         """Add content from docstrings, attribute documentation and user."""
-        if no_docstring:
-            warnings.warn("The 'no_docstring' argument to %s.add_content() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx50Warning, stacklevel=2)
+        # Suspended temporarily (see https://github.com/sphinx-doc/sphinx/pull/8533)
+        #
+        # if no_docstring:
+        #     warnings.warn("The 'no_docstring' argument to %s.add_content() is deprecated."
+        #                   % self.__class__.__name__,
+        #                   RemovedInSphinx50Warning, stacklevel=2)
 
         # set sourcename and add content from attribute documentation
         sourcename = self.get_sourcename()
@@ -1661,8 +1663,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                     ) -> None:
         if self.doc_as_attr:
             more_content = StringList([_('alias of %s') % restify(self.object)], source='')
-
-        super().add_content(more_content)
+            super().add_content(more_content, no_docstring=True)
+        else:
+            super().add_content(more_content)
 
     def document_members(self, all_members: bool = False) -> None:
         if self.doc_as_attr:
