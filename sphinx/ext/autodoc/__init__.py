@@ -2206,10 +2206,59 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
                 super().should_suppress_value_header())
 
 
+class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
+    """
+    Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
+    instance attributes (PEP-526 styled, annotation only attributes).
+
+    Example:
+
+        class Foo:
+            attr: int  #: This is a target of this mix-in.
+    """
+
+    def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
+        """Check the subject is an annotation only attribute."""
+        annotations = get_type_hints(parent, None, self.config.autodoc_type_aliases)
+        if self.objpath[-1] in annotations:
+            return True
+        else:
+            return False
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        """Check the exisitence of uninitialized instance attribute when failed to import
+        the attribute."""
+        try:
+            return super().import_object(raiseerror=True)  # type: ignore
+        except ImportError as exc:
+            try:
+                ret = import_object(self.modname, self.objpath[:-1], 'class',
+                                    attrgetter=self.get_attr,  # type: ignore
+                                    warningiserror=self.config.autodoc_warningiserror)
+                parent = ret[3]
+                if self.is_uninitialized_instance_attribute(parent):
+                    self.object = UNINITIALIZED_ATTR
+                    self.parent = parent
+                    return True
+            except ImportError:
+                pass
+
+            if raiseerror:
+                raise
+            else:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return False
+
+    def should_suppress_value_header(self) -> bool:
+        return (self.object is UNINITIALIZED_ATTR or
+                super().should_suppress_value_header())
+
+
 class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
                           TypeVarMixin, RuntimeInstanceAttributeMixin,
-                          NonDataDescriptorMixin, DocstringStripSignatureMixin,
-                          ClassLevelDocumenter):
+                          UninitializedInstanceAttributeMixin, NonDataDescriptorMixin,
+                          DocstringStripSignatureMixin, ClassLevelDocumenter):
     """
     Specialized Documenter subclass for attributes.
     """
@@ -2286,21 +2335,9 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             pass
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        try:
-            ret = super().import_object(raiseerror=True)
-            if inspect.isenumattribute(self.object):
-                self.object = self.object.value
-        except ImportError as exc:
-            if self.isinstanceattribute():
-                self.object = INSTANCEATTR
-                ret = True
-            elif raiseerror:
-                raise
-            else:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                ret = False
-
+        ret = super().import_object(raiseerror)
+        if inspect.isenumattribute(self.object):
+            self.object = self.object.value
         if self.parent:
             self.update_annotations(self.parent)
 
@@ -2325,8 +2362,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                 self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
-                if (self.object is INSTANCEATTR or self.options.no_value or
-                        self.should_suppress_value_header()):
+                if self.options.no_value or self.should_suppress_value_header():
                     pass
                 else:
                     objrepr = object_description(self.object)
@@ -2359,9 +2395,6 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
         comment = self.get_attribute_comment(self.parent, self.objpath[-1])
         if comment:
             return [comment]
-
-        if self.object is INSTANCEATTR:
-            return []
 
         try:
             # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
