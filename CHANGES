@@ -1,17 +1,5 @@
-Release 3.4.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 3.4.1 (released Dec 25, 2020)
+=====================================
 
 Bugs fixed
 ----------
@@ -25,9 +13,6 @@ Bugs fixed
 * #8583: autodoc: Unnecessary object comparision via ``__eq__`` method
 * #8565: linkcheck: Fix PriorityQueue crash when link tuples are not
   comparable
-
-Testing
---------
 
 Release 3.4.0 (released Dec 20, 2020)
 =====================================
