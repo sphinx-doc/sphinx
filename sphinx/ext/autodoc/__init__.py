@@ -2167,30 +2167,10 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
 
     RUNTIME_INSTANCE_ATTRIBUTE = object()
 
-    def get_attribute_comment(self, parent: Any) -> Optional[List[str]]:
-        try:
-            for cls in inspect.getmro(parent):
-                try:
-                    module = safe_getattr(cls, '__module__')
-                    qualname = safe_getattr(cls, '__qualname__')
-
-                    analyzer = ModuleAnalyzer.for_module(module)
-                    analyzer.analyze()
-                    if qualname and self.objpath:
-                        key = (qualname, self.objpath[-1])
-                        if key in analyzer.attr_docs:
-                            return list(analyzer.attr_docs[key])
-                except (AttributeError, PycodeError):
-                    pass
-        except (AttributeError, PycodeError):
-            pass
-
-        return None
-
     def is_runtime_instance_attribute(self, parent: Any) -> bool:
         """Check the subject is an attribute defined in __init__()."""
         # An instance variable defined in __init__().
-        if self.get_attribute_comment(parent):
+        if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore
             return True
         else:
             return False
@@ -2224,21 +2204,6 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
     def should_suppress_value_header(self) -> bool:
         return (self.object is self.RUNTIME_INSTANCE_ATTRIBUTE or
                 super().should_suppress_value_header())
-
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
-        if self.object is self.RUNTIME_INSTANCE_ATTRIBUTE:
-            comment = self.get_attribute_comment(self.parent)
-            if comment:
-                return [comment]
-
-        return super().get_doc(encoding, ignore)  # type: ignore
-
-    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
-                    ) -> None:
-        if self.object is self.RUNTIME_INSTANCE_ATTRIBUTE:
-            self.analyzer = None
-
-        super().add_content(more_content, no_docstring=no_docstring)  # type: ignore
 
 
 class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
@@ -2369,7 +2334,32 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             except ValueError:
                 pass
 
+    def get_attribute_comment(self, parent: Any, attrname: str) -> Optional[List[str]]:
+        try:
+            for cls in inspect.getmro(parent):
+                try:
+                    module = safe_getattr(cls, '__module__')
+                    qualname = safe_getattr(cls, '__qualname__')
+
+                    analyzer = ModuleAnalyzer.for_module(module)
+                    analyzer.analyze()
+                    if qualname and self.objpath:
+                        key = (qualname, attrname)
+                        if key in analyzer.attr_docs:
+                            return list(analyzer.attr_docs[key])
+                except (AttributeError, PycodeError):
+                    pass
+        except (AttributeError, PycodeError):
+            pass
+
+        return None
+
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        # Check the attribute has a docstring-comment
+        comment = self.get_attribute_comment(self.parent, self.objpath[-1])
+        if comment:
+            return [comment]
+
         if self.object is INSTANCEATTR:
             return []
 
@@ -2385,6 +2375,10 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
+        # Disable analyzing attribute comment on Documenter.add_content() to control it on
+        # AttributeDocumenter.add_content()
+        self.analyzer = None
+
         if more_content is None:
             more_content = StringList()
         self.update_content(more_content)
