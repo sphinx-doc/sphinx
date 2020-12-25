@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* #8022: autodoc: autodata and autoattribute directives does not show right-hand
+  value of the variable if docstring contains ``:meta hide-value:`` in
+  info-field-list
+
 Bugs fixed
 ----------
 

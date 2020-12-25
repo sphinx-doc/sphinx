@@ -1883,6 +1883,17 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
 
         return ret
 
+    def should_suppress_value_header(self) -> bool:
+        if super().should_suppress_value_header():
+            return True
+        else:
+            doc = self.get_doc()
+            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            if 'hide-value' in metadata:
+                return True
+
+        return False
+
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
@@ -2375,6 +2386,17 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
     def get_real_modname(self) -> str:
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
+
+    def should_suppress_value_header(self) -> bool:
+        if super().should_suppress_value_header():
+            return True
+        else:
+            doc = self.get_doc()
+            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            if 'hide-value' in metadata:
+                return True
+
+        return False
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)

@@ -182,6 +182,16 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 3.1
 
+   * autodoc considers a variable member does not have any default value if its
+     docstring contains ``:meta hide-value:`` in its :ref:`info-field-lists`.
+     Example:
+
+     .. code-block:: rst
+
+        var1 = None  #: :meta hide-value:
+
+     .. versionadded:: 3.5
+
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
 
