@@ -25,7 +25,7 @@ from sphinx.config import ENUM, Config
 from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
                                 RemovedInSphinx60Warning)
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc.importer import (get_class_members, get_module_members,
+from sphinx.ext.autodoc.importer import (ClassAttribute, get_class_members, get_module_members,
                                          get_object_members, import_module, import_object)
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import _, __
@@ -91,7 +91,7 @@ SLOTSATTR = object()
 
 def members_option(arg: Any) -> Union[object, List[str]]:
     """Used to convert the :members: option to auto directives."""
-    if arg is None or arg is True:
+    if arg in (None, True):
         return ALL
     elif arg is False:
         return None
@@ -110,14 +110,14 @@ def members_set_option(arg: Any) -> Union[object, Set[str]]:
 
 def exclude_members_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :exclude-members: option."""
-    if arg is None:
+    if arg in (None, True):
         return EMPTY
     return {x.strip() for x in arg.split(',') if x.strip()}
 
 
 def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :members: option to auto directives."""
-    if arg is None:
+    if arg in (None, True):
         return 'object'
     else:
         return arg
@@ -125,7 +125,7 @@ def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
 
 def member_order_option(arg: Any) -> Optional[str]:
     """Used to convert the :members: option to auto directives."""
-    if arg is None:
+    if arg in (None, True):
         return None
     elif arg in ('alphabetical', 'bysource', 'groupwise'):
         return arg
@@ -137,7 +137,7 @@ SUPPRESS = object()
 
 
 def annotation_option(arg: Any) -> Any:
-    if arg is None:
+    if arg in (None, True):
         # suppress showing the representation of the object
         return SUPPRESS
     else:
@@ -275,11 +275,12 @@ class ObjectMember(tuple):
         return super().__new__(cls, (name, obj))  # type: ignore
 
     def __init__(self, name: str, obj: Any, docstring: Optional[str] = None,
-                 skipped: bool = False) -> None:
+                 class_: Any = None, skipped: bool = False) -> None:
         self.__name__ = name
         self.object = obj
         self.docstring = docstring
         self.skipped = skipped
+        self.class_ = class_
 
 
 ObjectMembers = Union[List[ObjectMember], List[Tuple[str, Any]]]
@@ -667,7 +668,7 @@ class Documenter:
         The user can override the skipping decision by connecting to the
         ``autodoc-skip-member`` event.
         """
-        def is_filtered_inherited_member(name: str) -> bool:
+        def is_filtered_inherited_member(name: str, obj: Any) -> bool:
             if inspect.isclass(self.object):
                 for cls in self.object.__mro__:
                     if cls.__name__ == self.options.inherited_members and cls != self.object:
@@ -676,6 +677,8 @@ class Documenter:
                     elif name in cls.__dict__:
                         return False
                     elif name in self.get_attr(cls, '__annotations__', {}):
+                        return False
+                    elif isinstance(obj, ObjectMember) and obj.class_ is cls:
                         return False
 
             return False
@@ -741,7 +744,7 @@ class Documenter:
                 if self.options.special_members and membername in self.options.special_members:
                     if membername == '__doc__':
                         keep = False
-                    elif is_filtered_inherited_member(membername):
+                    elif is_filtered_inherited_member(membername, obj):
                         keep = False
                     else:
                         keep = has_doc or self.options.undoc_members
@@ -761,14 +764,15 @@ class Documenter:
                 if has_doc or self.options.undoc_members:
                     if self.options.private_members is None:
                         keep = False
-                    elif is_filtered_inherited_member(membername):
+                    elif is_filtered_inherited_member(membername, obj):
                         keep = False
                     else:
                         keep = membername in self.options.private_members
                 else:
                     keep = False
             else:
-                if self.options.members is ALL and is_filtered_inherited_member(membername):
+                if (self.options.members is ALL and
+                        is_filtered_inherited_member(membername, obj)):
                     keep = False
                 else:
                     # ignore undocumented members if :undoc-members: is not given
@@ -1585,6 +1589,10 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
+        def convert(m: ClassAttribute) -> ObjectMember:
+            """Convert ClassAttribute object to ObjectMember."""
+            return ObjectMember(m.name, m.value, class_=m.class_, docstring=m.docstring)
+
         members = get_class_members(self.object, self.objpath, self.get_attr)
         if not want_all:
             if not self.options.members:
@@ -1593,18 +1601,15 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             selected = []
             for name in self.options.members:  # type: str
                 if name in members:
-                    selected.append(ObjectMember(name, members[name].value,
-                                                 docstring=members[name].docstring))
+                    selected.append(convert(members[name]))
                 else:
                     logger.warning(__('missing attribute %s in object %s') %
                                    (name, self.fullname), type='autodoc')
             return False, selected
         elif self.options.inherited_members:
-            return False, [ObjectMember(m.name, m.value, docstring=m.docstring)
-                           for m in members.values()]
+            return False, [convert(m) for m in members.values()]
         else:
-            return False, [ObjectMember(m.name, m.value, docstring=m.docstring)
-                           for m in members.values() if m.class_ == self.object]
+            return False, [convert(m) for m in members.values() if m.class_ == self.object]
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
         if encoding is not None:
