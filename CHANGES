@@ -10,6 +10,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.autodoc.importer.get_module_members()``
+
 Features added
 --------------
 
@@ -18,6 +20,7 @@ Bugs fixed
 
 * #741: autodoc: inherited-members doesn't work for instance attributes on super
   class
+* #8592: autodoc: ``:meta public:`` does not effect to variables
 
 Testing
 --------
