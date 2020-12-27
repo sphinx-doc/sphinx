@@ -1074,7 +1074,7 @@ class ModuleDocumenter(Documenter):
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
         members = self.get_module_members()
         if want_all:
-            if not self.__all__:
+            if self.__all__ is None:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
                 return True, list(members.values())
