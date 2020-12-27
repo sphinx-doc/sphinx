@@ -1133,6 +1133,23 @@ that use Sphinx's HTMLWriter class.
       This can now be a string to select the actual text of the link.
       Previously, only boolean values were accepted.
 
+   .. deprecated:: 3.5
+      This has been replaced by :confval:`html_permalinks`
+
+.. confval:: html_permalinks
+
+   If true, Sphinx will add "permalinks" for each heading and description
+   environment.  Default: ``True``.
+
+   .. versionadded:: 3.5
+
+.. confval:: html_permalinks_icon
+
+   A text for permalinks for each heading and description environment.  HTML
+   tags are allowed.  Default: a paragraph sign; ``¶``
+
+   .. versionadded:: 3.5
+
 .. confval:: html_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to
