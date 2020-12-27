@@ -18,6 +18,8 @@ Bugs fixed
 
 * #741: autodoc: inherited-members doesn't work for instance attributes on super
   class
+* #8094: texinfo: image files on the different directory with document are not
+  copied
 
 Testing
 --------
