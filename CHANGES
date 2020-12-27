@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #741: autodoc: inherited-members doesn't work for instance attributes on super
+  class
+
 Testing
 --------
 
