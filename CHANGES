@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
+
 Bugs fixed
 ----------
 
