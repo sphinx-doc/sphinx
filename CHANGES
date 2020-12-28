@@ -26,6 +26,8 @@ Bugs fixed
   class
 * #8592: autodoc: ``:meta public:`` does not effect to variables
 * #8594: autodoc: empty __all__ attribute is ignored
+* #8094: texinfo: image files on the different directory with document are not
+  copied
 
 Testing
 --------
