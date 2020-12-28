@@ -1888,6 +1888,17 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
 
         return ret
 
+    def should_suppress_value_header(self) -> bool:
+        if super().should_suppress_value_header():
+            return True
+        else:
+            doc = self.get_doc()
+            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            if 'hide-value' in metadata:
+                return True
+
+        return False
+
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
@@ -1919,8 +1930,32 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
 
+    def get_module_comment(self, attrname: str) -> Optional[List[str]]:
+        try:
+            analyzer = ModuleAnalyzer.for_module(self.modname)
+            analyzer.analyze()
+            key = ('', attrname)
+            if key in analyzer.attr_docs:
+                return list(analyzer.attr_docs[key])
+        except PycodeError:
+            pass
+
+        return None
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        # Check the variable has a docstring-comment
+        comment = self.get_module_comment(self.objpath[-1])
+        if comment:
+            return [comment]
+        else:
+            return super().get_doc(encoding, ignore)
+
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
+        # Disable analyzing variable comment on Documenter.add_content() to control it on
+        # DataDocumenter.add_content()
+        self.analyzer = None
+
         if not more_content:
             more_content = StringList()
 
@@ -2356,6 +2391,17 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
     def get_real_modname(self) -> str:
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
+
+    def should_suppress_value_header(self) -> bool:
+        if super().should_suppress_value_header():
+            return True
+        else:
+            doc = self.get_doc()
+            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            if 'hide-value' in metadata:
+                return True
+
+        return False
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
