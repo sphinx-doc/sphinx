@@ -10,9 +10,14 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.autodoc.importer.get_module_members()``
+
 Features added
 --------------
 
+* #8022: autodoc: autodata and autoattribute directives does not show right-hand
+  value of the variable if docstring contains ``:meta hide-value:`` in
+  info-field-list
 * #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
 
 Bugs fixed
@@ -20,6 +25,7 @@ Bugs fixed
 
 * #741: autodoc: inherited-members doesn't work for instance attributes on super
   class
+* #8592: autodoc: ``:meta public:`` does not effect to variables
 
 Testing
 --------

@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.autodoc.importer.get_module_members()``
+     - 3.5
+     - 5.0
+     - ``sphinx.ext.autodoc.ModuleDocumenter.get_module_members()``
+
    * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
      - 3.4
      - 5.0

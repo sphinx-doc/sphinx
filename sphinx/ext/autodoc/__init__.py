@@ -25,8 +25,8 @@ from sphinx.config import ENUM, Config
 from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
                                 RemovedInSphinx60Warning)
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc.importer import (ClassAttribute, get_class_members, get_module_members,
-                                         get_object_members, import_module, import_object)
+from sphinx.ext.autodoc.importer import (ClassAttribute, get_class_members, get_object_members,
+                                         import_module, import_object)
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -538,8 +538,12 @@ class Documenter:
             # etc. don't support a prepended module name
             self.add_line('   :module: %s' % self.modname, sourcename)
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
-        """Decode and return lines of the docstring(s) for the object."""
+    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
+        """Decode and return lines of the docstring(s) for the object.
+
+        When it returns None value, autodoc-process-docstring will not be called for this
+        object.
+        """
         if encoding is not None:
             warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
@@ -587,12 +591,10 @@ class Documenter:
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
         """Add content from docstrings, attribute documentation and user."""
-        # Suspended temporarily (see https://github.com/sphinx-doc/sphinx/pull/8533)
-        #
-        # if no_docstring:
-        #     warnings.warn("The 'no_docstring' argument to %s.add_content() is deprecated."
-        #                   % self.__class__.__name__,
-        #                   RemovedInSphinx50Warning, stacklevel=2)
+        if no_docstring:
+            warnings.warn("The 'no_docstring' argument to %s.add_content() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx50Warning, stacklevel=2)
 
         # set sourcename and add content from attribute documentation
         sourcename = self.get_sourcename()
@@ -612,13 +614,17 @@ class Documenter:
         # add content from docstrings
         if not no_docstring:
             docstrings = self.get_doc()
-            if not docstrings:
-                # append at least a dummy docstring, so that the event
-                # autodoc-process-docstring is fired and can add some
-                # content if desired
-                docstrings.append([])
-            for i, line in enumerate(self.process_doc(docstrings)):
-                self.add_line(line, sourcename, i)
+            if docstrings is None:
+                # Do not call autodoc-process-docstring on get_doc() returns None.
+                pass
+            else:
+                if not docstrings:
+                    # append at least a dummy docstring, so that the event
+                    # autodoc-process-docstring is fired and can add some
+                    # content if desired
+                    docstrings.append([])
+                for i, line in enumerate(self.process_doc(docstrings)):
+                    self.add_line(line, sourcename, i)
 
         # add additional content (e.g. from document), if present
         if more_content:
@@ -1037,30 +1043,54 @@ class ModuleDocumenter(Documenter):
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
 
+    def get_module_members(self) -> Dict[str, ObjectMember]:
+        """Get members of target module."""
+        if self.analyzer:
+            attr_docs = self.analyzer.attr_docs
+        else:
+            attr_docs = {}
+
+        members = {}  # type: Dict[str, ObjectMember]
+        for name in dir(self.object):
+            try:
+                value = safe_getattr(self.object, name, None)
+                docstring = attr_docs.get(('', name), [])
+                members[name] = ObjectMember(name, value, docstring="\n".join(docstring))
+            except AttributeError:
+                continue
+
+        # annotation only member (ex. attr: int)
+        try:
+            for name in inspect.getannotations(self.object):
+                if name not in members:
+                    docstring = attr_docs.get(('', name), [])
+                    members[name] = ObjectMember(name, INSTANCEATTR,
+                                                 docstring="\n".join(docstring))
+        except AttributeError:
+            pass
+
+        return members
+
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
+        members = self.get_module_members()
         if want_all:
-            members = get_module_members(self.object)
             if not self.__all__:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
-                return True, members
+                return True, list(members.values())
             else:
-                ret = []
-                for name, value in members:
-                    if name in self.__all__:
-                        ret.append(ObjectMember(name, value))
-                    else:
-                        ret.append(ObjectMember(name, value, skipped=True))
+                for member in members.values():
+                    if member.__name__ not in self.__all__:
+                        member.skipped = True
 
-                return False, ret
+                return False, list(members.values())
         else:
             memberlist = self.options.members or []
             ret = []
             for name in memberlist:
-                try:
-                    value = safe_getattr(self.object, name)
-                    ret.append(ObjectMember(name, value))
-                except AttributeError:
+                if name in members:
+                    ret.append(members[name])
+                else:
                     logger.warning(__('missing attribute mentioned in :members: option: '
                                       'module %s, attribute %s') %
                                    (safe_getattr(self.object, '__name__', '???'), name),
@@ -1213,7 +1243,7 @@ class DocstringSignatureMixin:
 
         return result
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
         if encoding is not None:
             warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
@@ -1611,14 +1641,14 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         else:
             return False, [convert(m) for m in members.values() if m.class_ == self.object]
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
         if encoding is not None:
             warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
                           RemovedInSphinx40Warning, stacklevel=2)
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
-            return []
+            return None
 
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
@@ -1667,9 +1697,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                     ) -> None:
         if self.doc_as_attr:
             more_content = StringList([_('alias of %s') % restify(self.object)], source='')
-            super().add_content(more_content, no_docstring=True)
-        else:
-            super().add_content(more_content)
+
+        super().add_content(more_content)
 
     def document_members(self, all_members: bool = False) -> None:
         if self.doc_as_attr:
@@ -1774,7 +1803,7 @@ class TypeVarMixin(DataDocumenterMixinBase):
         return (isinstance(self.object, TypeVar) or
                 super().should_suppress_directive_header())
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
         if ignore is not None:
             warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
@@ -1838,7 +1867,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
         return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
         if self.object is UNINITIALIZED_ATTR:
             return []
         else:
@@ -1883,6 +1912,17 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
 
         return ret
 
+    def should_suppress_value_header(self) -> bool:
+        if super().should_suppress_value_header():
+            return True
+        else:
+            doc = self.get_doc()
+            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            if 'hide-value' in metadata:
+                return True
+
+        return False
+
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
@@ -1914,8 +1954,32 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
 
+    def get_module_comment(self, attrname: str) -> Optional[List[str]]:
+        try:
+            analyzer = ModuleAnalyzer.for_module(self.modname)
+            analyzer.analyze()
+            key = ('', attrname)
+            if key in analyzer.attr_docs:
+                return list(analyzer.attr_docs[key])
+        except PycodeError:
+            pass
+
+        return None
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        # Check the variable has a docstring-comment
+        comment = self.get_module_comment(self.objpath[-1])
+        if comment:
+            return [comment]
+        else:
+            return super().get_doc(encoding, ignore)
+
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
+        # Disable analyzing variable comment on Documenter.add_content() to control it on
+        # DataDocumenter.add_content()
+        self.analyzer = None
+
         if not more_content:
             more_content = StringList()
 
@@ -2102,7 +2166,7 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
         return (inspect.isattributedescriptor(self.object) or
                 super().should_suppress_directive_header())
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
         if not inspect.isattributedescriptor(self.object):
             # the docstring of non datadescriptor is very probably the wrong thing
             # to display
@@ -2141,7 +2205,7 @@ class SlotsMixin(DataDocumenterMixinBase):
         else:
             return super().should_suppress_directive_header()
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
         if self.object is SLOTSATTR:
             try:
                 __slots__ = inspect.getslots(self.parent)
@@ -2352,6 +2416,17 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
 
+    def should_suppress_value_header(self) -> bool:
+        if super().should_suppress_value_header():
+            return True
+        else:
+            doc = self.get_doc()
+            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            if 'hide-value' in metadata:
+                return True
+
+        return False
+
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
@@ -2395,7 +2470,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
 
         return None
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
         # Check the attribute has a docstring-comment
         comment = self.get_attribute_comment(self.parent, self.objpath[-1])
         if comment:
