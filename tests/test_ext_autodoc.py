@@ -2235,3 +2235,49 @@ def test_name_mangling(app):
         '      name of Foo',
         '',
     ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_hide_value(app):
+    options = {'members': True}
+    actual = do_autodoc(app, 'module', 'target.hide_value', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.hide_value',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.hide_value',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.SENTINEL1',
+        '      :module: target.hide_value',
+        '',
+        '      docstring',
+        '',
+        '      :meta hide-value:',
+        '',
+        '',
+        '   .. py:attribute:: Foo.SENTINEL2',
+        '      :module: target.hide_value',
+        '',
+        '      :meta hide-value:',
+        '',
+        '',
+        '.. py:data:: SENTINEL1',
+        '   :module: target.hide_value',
+        '',
+        '   docstring',
+        '',
+        '   :meta hide-value:',
+        '',
+        '',
+        '.. py:data:: SENTINEL2',
+        '   :module: target.hide_value',
+        '',
+        '   :meta hide-value:',
+        '',
+    ]
