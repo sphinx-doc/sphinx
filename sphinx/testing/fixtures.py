@@ -250,3 +250,15 @@ def tempdir(tmpdir: str) -> "util.path":
     this fixture is for compat with old test implementation.
     """
     return util.path(tmpdir)
+
+
+@pytest.fixture
+def rollback_sysmodules():
+    """Rollback sys.modules to before testing to unload modules during tests."""
+    try:
+        sysmodules = list(sys.modules)
+        yield
+    finally:
+        for modname in list(sys.modules):
+            if modname not in sysmodules:
+                sys.modules.pop(modname)
