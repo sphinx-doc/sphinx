@@ -2245,7 +2245,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the exisitence of runtime instance attribute when failed to import the
+        """Check the existence of runtime instance attribute when failed to import the
         attribute."""
         try:
             return super().import_object(raiseerror=True)  # type: ignore
