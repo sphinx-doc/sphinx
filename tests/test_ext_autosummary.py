@@ -379,27 +379,47 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
 def test_autosummary_recursive(app, status, warning):
-    app.build()
+    try:
+        app.build()
 
-    # autosummary having :recursive: option
-    assert (app.srcdir / 'generated' / 'package.rst').exists()
-    assert (app.srcdir / 'generated' / 'package.module.rst').exists()
-    assert (app.srcdir / 'generated' / 'package.module_importfail.rst').exists() is False
-    assert (app.srcdir / 'generated' / 'package.package.rst').exists()
-    assert (app.srcdir / 'generated' / 'package.package.module.rst').exists()
+        # autosummary having :recursive: option
+        assert (app.srcdir / 'generated' / 'package.rst').exists()
+        assert (app.srcdir / 'generated' / 'package.module.rst').exists()
+        assert (app.srcdir / 'generated' / 'package.module_importfail.rst').exists() is False
+        assert (app.srcdir / 'generated' / 'package.package.rst').exists()
+        assert (app.srcdir / 'generated' / 'package.package.module.rst').exists()
 
-    # autosummary not having :recursive: option
-    assert (app.srcdir / 'generated' / 'package2.rst').exists()
-    assert (app.srcdir / 'generated' / 'package2.module.rst').exists() is False
+        # autosummary not having :recursive: option
+        assert (app.srcdir / 'generated' / 'package2.rst').exists()
+        assert (app.srcdir / 'generated' / 'package2.module.rst').exists() is False
 
-    # Check content of recursively generated stub-files
-    content = (app.srcdir / 'generated' / 'package.rst').read_text()
-    assert 'package.module' in content
-    assert 'package.package' in content
-    assert 'package.module_importfail' in content
+        # Check content of recursively generated stub-files
+        content = (app.srcdir / 'generated' / 'package.rst').read_text()
+        assert 'package.module' in content
+        assert 'package.package' in content
+        assert 'package.module_importfail' in content
 
-    content = (app.srcdir / 'generated' / 'package.package.rst').read_text()
-    assert 'package.package.module' in content
+        content = (app.srcdir / 'generated' / 'package.package.rst').read_text()
+        assert 'package.package.module' in content
+    finally:
+        sys.modules.pop('package.package', None)
+        sys.modules.pop('package.package.module', None)
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
+                    srcdir='test_autosummary_recursive_skips_mocked_modules',
+                    confoverrides={'autosummary_mock_imports': ['package.package']})
+def test_autosummary_recursive_skips_mocked_modules(app, status, warning):
+    try:
+        app.build()
+
+        assert (app.srcdir / 'generated' / 'package.rst').exists()
+        assert (app.srcdir / 'generated' / 'package.module.rst').exists()
+        assert (app.srcdir / 'generated' / 'package.package.rst').exists() is False
+        assert (app.srcdir / 'generated' / 'package.package.module.rst').exists() is False
+    finally:
+        sys.modules.pop('package.package', None)
+        sys.modules.pop('package.package.module', None)
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-filename-map')
