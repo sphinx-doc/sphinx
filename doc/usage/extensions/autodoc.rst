@@ -564,7 +564,7 @@ There are also config values that you can set:
         ...
 
    If you set ``autodoc_type_aliases`` as
-   ``{'AliasType': 'your.module.TypeAlias'}``, it generates a following document
+   ``{'AliasType': 'your.module.AliasType'}``, it generates a following document
    internally::
 
      .. py:function:: f() -> your.module.AliasType:
