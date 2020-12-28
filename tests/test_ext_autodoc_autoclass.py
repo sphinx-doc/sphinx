@@ -173,3 +173,21 @@ def test_show_inheritance_for_subclass_of_generic_type(app):
         '   A subclass of List[Union[int, float]]',
         '',
     ]
+
+
+def test_class_alias(app):
+    def autodoc_process_docstring(*args):
+        """A handler always raises an error.
+        This confirms this handler is never called for class aliases.
+        """
+        raise
+
+    app.connect('autodoc-process-docstring', autodoc_process_docstring)
+    actual = do_autodoc(app, 'class', 'target.classes.Alias')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Alias',
+        '   :module: target.classes',
+        '',
+        '   alias of :class:`target.classes.Foo`',
+    ]
