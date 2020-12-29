@@ -25,8 +25,8 @@ from sphinx.config import ENUM, Config
 from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
                                 RemovedInSphinx60Warning)
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc.importer import (ClassAttribute, get_class_members, get_object_members,
-                                         import_module, import_object)
+from sphinx.ext.autodoc.importer import (get_class_members, get_object_members, import_module,
+                                         import_object)
 from sphinx.ext.autodoc.mock import ismock, mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -1619,10 +1619,6 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
-        def convert(m: ClassAttribute) -> ObjectMember:
-            """Convert ClassAttribute object to ObjectMember."""
-            return ObjectMember(m.name, m.value, class_=m.class_, docstring=m.docstring)
-
         members = get_class_members(self.object, self.objpath, self.get_attr)
         if not want_all:
             if not self.options.members:
@@ -1631,15 +1627,15 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             selected = []
             for name in self.options.members:  # type: str
                 if name in members:
-                    selected.append(convert(members[name]))
+                    selected.append(members[name])
                 else:
                     logger.warning(__('missing attribute %s in object %s') %
                                    (name, self.fullname), type='autodoc')
             return False, selected
         elif self.options.inherited_members:
-            return False, [convert(m) for m in members.values()]
+            return False, list(members.values())
         else:
-            return False, [convert(m) for m in members.values() if m.class_ == self.object]
+            return False, [m for m in members.values() if m.class_ == self.object]
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
         if encoding is not None:
