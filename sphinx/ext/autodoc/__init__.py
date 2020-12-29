@@ -2362,6 +2362,8 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
 
     def isinstanceattribute(self) -> bool:
         """Check the subject is an instance attribute."""
+        warnings.warn('AttributeDocumenter.isinstanceattribute() is deprecated.',
+                      RemovedInSphinx50Warning)
         # uninitialized instance variable (PEP-526)
         with mock(self.config.autodoc_mock_imports):
             try:
