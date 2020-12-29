@@ -1945,13 +1945,13 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
 
         return None
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         # Check the variable has a docstring-comment
         comment = self.get_module_comment(self.objpath[-1])
         if comment:
             return [comment]
         else:
-            return super().get_doc(encoding, ignore)
+            return super().get_doc(ignore)
 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
