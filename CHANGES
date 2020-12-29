@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #8602: autodoc: The ``autodoc-process-docstring`` event is emitted to the
+  non-datadescriptors unexpectedly
+
 Testing
 --------
 
