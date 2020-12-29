@@ -27,7 +27,7 @@ from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warni
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import (ClassAttribute, get_class_members, get_object_members,
                                          import_module, import_object)
-from sphinx.ext.autodoc.mock import mock
+from sphinx.ext.autodoc.mock import ismock, mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect, logging
@@ -739,7 +739,7 @@ class Documenter:
                 isprivate = membername.startswith('_')
 
             keep = False
-            if safe_getattr(member, '__sphinx_mock__', None) is not None:
+            if ismock(member):
                 # mocked module or object
                 pass
             elif self.options.exclude_members and membername in self.options.exclude_members:

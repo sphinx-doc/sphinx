@@ -53,6 +53,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8164: autodoc: Classes that inherit mocked class are not documented
+
 Testing
 --------
 
