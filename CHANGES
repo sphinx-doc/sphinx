@@ -66,16 +66,32 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.autodoc.importer.get_module_members()``
+
 Features added
 --------------
+
+* #8022: autodoc: autodata and autoattribute directives does not show right-hand
+  value of the variable if docstring contains ``:meta hide-value:`` in
+  info-field-list
+* #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
 
 Bugs fixed
 ----------
 
+* #741: autodoc: inherited-members doesn't work for instance attributes on super
+  class
+* #8592: autodoc: ``:meta public:`` does not effect to variables
+* #8594: autodoc: empty __all__ attribute is ignored
+* #8306: autosummary: mocked modules are documented as empty page when using
+  :recursive: option
+* #8094: texinfo: image files on the different directory with document are not
+  copied
+
 Testing
 --------
 
-Release 3.4.1 (in development)
+Release 3.4.2 (in development)
 ==============================
 
 Dependencies
@@ -93,8 +109,26 @@ Features added
 Bugs fixed
 ----------
 
+* #8164: autodoc: Classes that inherit mocked class are not documented
+
 Testing
 --------
+
+Release 3.4.1 (released Dec 25, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #8559: autodoc: AttributeError is raised when using forward-reference type
+  annotations
+* #8568: autodoc: TypeError is raised on checking slots attribute
+* #8567: autodoc: Instance attributes are incorrectly added to Parent class
+* #8566: autodoc: The ``autodoc-process-docstring`` event is emitted to the
+  alias classes unexpectedly
+* #8583: autodoc: Unnecessary object comparision via ``__eq__`` method
+* #8565: linkcheck: Fix PriorityQueue crash when link tuples are not
+  comparable
 
 Release 3.4.0 (released Dec 20, 2020)
 =====================================

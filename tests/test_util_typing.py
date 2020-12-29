@@ -109,6 +109,12 @@ def test_restify_type_hints_alias():
     assert restify(MyTuple) == ":class:`Tuple`\\ [:class:`str`, :class:`str`]"  # type: ignore
 
 
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
+def test_restify_type_ForwardRef():
+    from typing import ForwardRef  # type: ignore
+    assert restify(ForwardRef("myint")) == ":class:`myint`"
+
+
 def test_restify_broken_type_hints():
     assert restify(BrokenType) == ':class:`tests.test_util_typing.BrokenType`'
 

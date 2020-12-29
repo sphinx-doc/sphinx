@@ -40,6 +40,7 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
+from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autosummary import get_documenter, import_by_name, import_ivar_by_name
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -281,6 +282,13 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         items = []  # type: List[str]
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
+            try:
+                module = import_module(fullname)
+                if module and hasattr(module, '__sphinx_mock__'):
+                    continue
+            except ImportError:
+                pass
+
             items.append(fullname)
         public = [x for x in items if not x.split('.')[-1].startswith('_')]
         return public, items

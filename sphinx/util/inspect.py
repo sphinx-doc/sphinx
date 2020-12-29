@@ -187,6 +187,7 @@ def getslots(obj: Any) -> Optional[Dict]:
 
     Return None if gienv *obj* does not have __slots__.
     Raises AttributeError if given *obj* raises an error on accessing __slots__.
+    Raises TypeError if given *obj* is not a class.
     Raises ValueError if given *obj* have invalid __slots__.
     """
     if not inspect.isclass(obj):

@@ -13,6 +13,7 @@ import traceback
 import warnings
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
 from sphinx.util.inspect import (getannotations, getmro, getslots, isclass, isenumclass,
@@ -139,6 +140,9 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
 def get_module_members(module: Any) -> List[Tuple[str, Any]]:
     """Get members of target module."""
     from sphinx.ext.autodoc import INSTANCEATTR
+
+    warnings.warn('sphinx.ext.autodoc.importer.get_module_members() is deprecated.',
+                  RemovedInSphinx50Warning)
 
     members = {}  # type: Dict[str, Tuple[str, Any]]
     for name in dir(module):

@@ -10,7 +10,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import importlib
 import re
 import warnings
 from inspect import Parameter, Signature
@@ -25,9 +24,9 @@ from sphinx.application import Sphinx
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc.importer import (get_class_members, get_module_members,
-                                         get_object_members, import_object)
-from sphinx.ext.autodoc.mock import mock
+from sphinx.ext.autodoc.importer import (ClassAttribute, get_class_members, get_object_members,
+                                         import_module, import_object)
+from sphinx.ext.autodoc.mock import ismock, mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect, logging
@@ -88,7 +87,7 @@ SLOTSATTR = object()
 
 def members_option(arg: Any) -> Union[object, List[str]]:
     """Used to convert the :members: option to auto directives."""
-    if arg is None or arg is True:
+    if arg in (None, True):
         return ALL
     elif arg is False:
         return None
@@ -107,14 +106,14 @@ def members_set_option(arg: Any) -> Union[object, Set[str]]:
 
 def exclude_members_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :exclude-members: option."""
-    if arg is None:
+    if arg in (None, True):
         return EMPTY
     return {x.strip() for x in arg.split(',') if x.strip()}
 
 
 def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
     """Used to convert the :members: option to auto directives."""
-    if arg is None:
+    if arg in (None, True):
         return 'object'
     else:
         return arg
@@ -122,7 +121,7 @@ def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
 
 def member_order_option(arg: Any) -> Optional[str]:
     """Used to convert the :members: option to auto directives."""
-    if arg is None:
+    if arg in (None, True):
         return None
     elif arg in ('alphabetical', 'bysource', 'groupwise'):
         return arg
@@ -134,7 +133,7 @@ SUPPRESS = object()
 
 
 def annotation_option(arg: Any) -> Any:
-    if arg is None:
+    if arg in (None, True):
         # suppress showing the representation of the object
         return SUPPRESS
     else:
@@ -272,11 +271,12 @@ class ObjectMember(tuple):
         return super().__new__(cls, (name, obj))  # type: ignore
 
     def __init__(self, name: str, obj: Any, docstring: Optional[str] = None,
-                 skipped: bool = False) -> None:
+                 class_: Any = None, skipped: bool = False) -> None:
         self.__name__ = name
         self.object = obj
         self.docstring = docstring
         self.skipped = skipped
+        self.class_ = class_
 
 
 ObjectMembers = Union[List[ObjectMember], List[Tuple[str, Any]]]
@@ -534,8 +534,12 @@ class Documenter:
             # etc. don't support a prepended module name
             self.add_line('   :module: %s' % self.modname, sourcename)
 
-    def get_doc(self, ignore: int = None) -> List[List[str]]:
-        """Decode and return lines of the docstring(s) for the object."""
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
+        """Decode and return lines of the docstring(s) for the object.
+
+        When it returns None value, autodoc-process-docstring will not be called for this
+        object.
+        """
         if ignore is not None:
             warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
@@ -602,13 +606,17 @@ class Documenter:
         # add content from docstrings
         if not no_docstring:
             docstrings = self.get_doc()
-            if not docstrings:
-                # append at least a dummy docstring, so that the event
-                # autodoc-process-docstring is fired and can add some
-                # content if desired
-                docstrings.append([])
-            for i, line in enumerate(self.process_doc(docstrings)):
-                self.add_line(line, sourcename, i)
+            if docstrings is None:
+                # Do not call autodoc-process-docstring on get_doc() returns None.
+                pass
+            else:
+                if not docstrings:
+                    # append at least a dummy docstring, so that the event
+                    # autodoc-process-docstring is fired and can add some
+                    # content if desired
+                    docstrings.append([])
+                for i, line in enumerate(self.process_doc(docstrings)):
+                    self.add_line(line, sourcename, i)
 
         # add additional content (e.g. from document), if present
         if more_content:
@@ -658,7 +666,7 @@ class Documenter:
         The user can override the skipping decision by connecting to the
         ``autodoc-skip-member`` event.
         """
-        def is_filtered_inherited_member(name: str) -> bool:
+        def is_filtered_inherited_member(name: str, obj: Any) -> bool:
             if inspect.isclass(self.object):
                 for cls in self.object.__mro__:
                     if cls.__name__ == self.options.inherited_members and cls != self.object:
@@ -667,6 +675,8 @@ class Documenter:
                     elif name in cls.__dict__:
                         return False
                     elif name in self.get_attr(cls, '__annotations__', {}):
+                        return False
+                    elif isinstance(obj, ObjectMember) and obj.class_ is cls:
                         return False
 
             return False
@@ -721,7 +731,7 @@ class Documenter:
                 isprivate = membername.startswith('_')
 
             keep = False
-            if safe_getattr(member, '__sphinx_mock__', None) is not None:
+            if ismock(member):
                 # mocked module or object
                 pass
             elif self.options.exclude_members and membername in self.options.exclude_members:
@@ -732,7 +742,7 @@ class Documenter:
                 if self.options.special_members and membername in self.options.special_members:
                     if membername == '__doc__':
                         keep = False
-                    elif is_filtered_inherited_member(membername):
+                    elif is_filtered_inherited_member(membername, obj):
                         keep = False
                     else:
                         keep = has_doc or self.options.undoc_members
@@ -752,14 +762,15 @@ class Documenter:
                 if has_doc or self.options.undoc_members:
                     if self.options.private_members is None:
                         keep = False
-                    elif is_filtered_inherited_member(membername):
+                    elif is_filtered_inherited_member(membername, obj):
                         keep = False
                     else:
                         keep = membername in self.options.private_members
                 else:
                     keep = False
             else:
-                if self.options.members is ALL and is_filtered_inherited_member(membername):
+                if (self.options.members is ALL and
+                        is_filtered_inherited_member(membername, obj)):
                     keep = False
                 else:
                     # ignore undocumented members if :undoc-members: is not given
@@ -1024,30 +1035,54 @@ class ModuleDocumenter(Documenter):
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
 
+    def get_module_members(self) -> Dict[str, ObjectMember]:
+        """Get members of target module."""
+        if self.analyzer:
+            attr_docs = self.analyzer.attr_docs
+        else:
+            attr_docs = {}
+
+        members = {}  # type: Dict[str, ObjectMember]
+        for name in dir(self.object):
+            try:
+                value = safe_getattr(self.object, name, None)
+                docstring = attr_docs.get(('', name), [])
+                members[name] = ObjectMember(name, value, docstring="\n".join(docstring))
+            except AttributeError:
+                continue
+
+        # annotation only member (ex. attr: int)
+        try:
+            for name in inspect.getannotations(self.object):
+                if name not in members:
+                    docstring = attr_docs.get(('', name), [])
+                    members[name] = ObjectMember(name, INSTANCEATTR,
+                                                 docstring="\n".join(docstring))
+        except AttributeError:
+            pass
+
+        return members
+
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
+        members = self.get_module_members()
         if want_all:
-            members = get_module_members(self.object)
-            if not self.__all__:
+            if self.__all__ is None:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
-                return True, members
+                return True, list(members.values())
             else:
-                ret = []
-                for name, value in members:
-                    if name in self.__all__:
-                        ret.append(ObjectMember(name, value))
-                    else:
-                        ret.append(ObjectMember(name, value, skipped=True))
+                for member in members.values():
+                    if member.__name__ not in self.__all__:
+                        member.skipped = True
 
-                return False, ret
+                return False, list(members.values())
         else:
             memberlist = self.options.members or []
             ret = []
             for name in memberlist:
-                try:
-                    value = safe_getattr(self.object, name)
-                    ret.append(ObjectMember(name, value))
-                except AttributeError:
+                if name in members:
+                    ret.append(members[name])
+                else:
                     logger.warning(__('missing attribute mentioned in :members: option: '
                                       'module %s, attribute %s') %
                                    (safe_getattr(self.object, '__name__', '???'), name),
@@ -1567,6 +1602,10 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
+        def convert(m: ClassAttribute) -> ObjectMember:
+            """Convert ClassAttribute object to ObjectMember."""
+            return ObjectMember(m.name, m.value, class_=m.class_, docstring=m.docstring)
+
         members = get_class_members(self.object, self.objpath, self.get_attr)
         if not want_all:
             if not self.options.members:
@@ -1575,23 +1614,20 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             selected = []
             for name in self.options.members:  # type: str
                 if name in members:
-                    selected.append(ObjectMember(name, members[name].value,
-                                                 docstring=members[name].docstring))
+                    selected.append(convert(members[name]))
                 else:
                     logger.warning(__('missing attribute %s in object %s') %
                                    (name, self.fullname), type='autodoc')
             return False, selected
         elif self.options.inherited_members:
-            return False, [ObjectMember(m.name, m.value, docstring=m.docstring)
-                           for m in members.values()]
+            return False, [convert(m) for m in members.values()]
         else:
-            return False, [ObjectMember(m.name, m.value, docstring=m.docstring)
-                           for m in members.values() if m.class_ == self.object]
+            return False, [convert(m) for m in members.values() if m.class_ == self.object]
 
-    def get_doc(self, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
-            return []
+            return None
 
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
@@ -1746,7 +1782,7 @@ class TypeVarMixin(DataDocumenterMixinBase):
         return (isinstance(self.object, TypeVar) or
                 super().should_suppress_directive_header())
 
-    def get_doc(self, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if ignore is not None:
             warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
@@ -1788,12 +1824,14 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
         except ImportError as exc:
             # annotation only instance variable (PEP-526)
             try:
-                self.parent = importlib.import_module(self.modname)
-                annotations = get_type_hints(self.parent, None,
-                                             self.config.autodoc_type_aliases)
-                if self.objpath[-1] in annotations:
-                    self.object = UNINITIALIZED_ATTR
-                    return True
+                with mock(self.config.autodoc_mock_imports):
+                    parent = import_module(self.modname, self.config.autodoc_warningiserror)
+                    annotations = get_type_hints(parent, None,
+                                                 self.config.autodoc_type_aliases)
+                    if self.objpath[-1] in annotations:
+                        self.object = UNINITIALIZED_ATTR
+                        self.parent = parent
+                        return True
             except ImportError:
                 pass
 
@@ -1805,10 +1843,10 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
                 return False
 
     def should_suppress_value_header(self) -> bool:
-        return (self.object == UNINITIALIZED_ATTR or
+        return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
-    def get_doc(self, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.object is UNINITIALIZED_ATTR:
             return []
         else:
@@ -1835,13 +1873,14 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
     def update_annotations(self, parent: Any) -> None:
         """Update __annotations__ to support type_comment and so on."""
         try:
-            annotations = inspect.getannotations(parent)
+            annotations = dict(inspect.getannotations(parent))
+            parent.__annotations__ = annotations
 
             analyzer = ModuleAnalyzer.for_module(self.modname)
             analyzer.analyze()
             for (classname, attrname), annotation in analyzer.annotations.items():
                 if classname == '' and attrname not in annotations:
-                    annotations[attrname] = annotation  # type: ignore
+                    annotations[attrname] = annotation
         except AttributeError:
             pass
 
@@ -1851,6 +1890,17 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
             self.update_annotations(self.parent)
 
         return ret
+
+    def should_suppress_value_header(self) -> bool:
+        if super().should_suppress_value_header():
+            return True
+        else:
+            doc = self.get_doc()
+            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            if 'hide-value' in metadata:
+                return True
+
+        return False
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
@@ -1883,8 +1933,32 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
 
+    def get_module_comment(self, attrname: str) -> Optional[List[str]]:
+        try:
+            analyzer = ModuleAnalyzer.for_module(self.modname)
+            analyzer.analyze()
+            key = ('', attrname)
+            if key in analyzer.attr_docs:
+                return list(analyzer.attr_docs[key])
+        except PycodeError:
+            pass
+
+        return None
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+        # Check the variable has a docstring-comment
+        comment = self.get_module_comment(self.objpath[-1])
+        if comment:
+            return [comment]
+        else:
+            return super().get_doc(encoding, ignore)
+
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
+        # Disable analyzing variable comment on Documenter.add_content() to control it on
+        # DataDocumenter.add_content()
+        self.analyzer = None
+
         if not more_content:
             more_content = StringList()
 
@@ -2071,7 +2145,7 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
         return (inspect.isattributedescriptor(self.object) or
                 super().should_suppress_directive_header())
 
-    def get_doc(self, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if not inspect.isattributedescriptor(self.object):
             # the docstring of non datadescriptor is very probably the wrong thing
             # to display
@@ -2093,7 +2167,7 @@ class SlotsMixin(DataDocumenterMixinBase):
                 return True
             else:
                 return False
-        except (AttributeError, ValueError):
+        except (AttributeError, ValueError, TypeError):
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
@@ -2110,7 +2184,7 @@ class SlotsMixin(DataDocumenterMixinBase):
         else:
             return super().should_suppress_directive_header()
 
-    def get_doc(self, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.object is SLOTSATTR:
             try:
                 __slots__ = inspect.getslots(self.parent)
@@ -2127,9 +2201,9 @@ class SlotsMixin(DataDocumenterMixinBase):
             return super().get_doc(ignore)  # type: ignore
 
 
-class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
+class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
     """
-    Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
+    Mixin for AttributeDocumenter to provide the feature for supporting runtime
     instance attributes (that are defined in __init__() methods with doc-comments).
 
     Example:
@@ -2139,38 +2213,69 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
                 self.attr = None  #: This is a target of this mix-in.
     """
 
-    def get_attribute_comment(self, parent: Any) -> Optional[List[str]]:
-        try:
-            for cls in inspect.getmro(parent):
-                try:
-                    module = safe_getattr(cls, '__module__')
-                    qualname = safe_getattr(cls, '__qualname__')
+    RUNTIME_INSTANCE_ATTRIBUTE = object()
 
-                    analyzer = ModuleAnalyzer.for_module(module)
-                    analyzer.analyze()
-                    if qualname and self.objpath:
-                        key = (qualname, self.objpath[-1])
-                        if key in analyzer.attr_docs:
-                            return list(analyzer.attr_docs[key])
-                except (AttributeError, PycodeError):
-                    pass
-        except (AttributeError, PycodeError):
-            pass
-
-        return None
-
-    def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
+    def is_runtime_instance_attribute(self, parent: Any) -> bool:
         """Check the subject is an attribute defined in __init__()."""
         # An instance variable defined in __init__().
-        if self.get_attribute_comment(parent):
+        if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore
             return True
         else:
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the exisitence of uninitizlied instance attribute when failed to import
-        the attribute.
-        """
+        """Check the existence of runtime instance attribute when failed to import the
+        attribute."""
+        try:
+            return super().import_object(raiseerror=True)  # type: ignore
+        except ImportError as exc:
+            try:
+                with mock(self.config.autodoc_mock_imports):
+                    ret = import_object(self.modname, self.objpath[:-1], 'class',
+                                        attrgetter=self.get_attr,  # type: ignore
+                                        warningiserror=self.config.autodoc_warningiserror)
+                    parent = ret[3]
+                    if self.is_runtime_instance_attribute(parent):
+                        self.object = self.RUNTIME_INSTANCE_ATTRIBUTE
+                        self.parent = parent
+                        return True
+            except ImportError:
+                pass
+
+            if raiseerror:
+                raise
+            else:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return False
+
+    def should_suppress_value_header(self) -> bool:
+        return (self.object is self.RUNTIME_INSTANCE_ATTRIBUTE or
+                super().should_suppress_value_header())
+
+
+class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
+    """
+    Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
+    instance attributes (PEP-526 styled, annotation only attributes).
+
+    Example:
+
+        class Foo:
+            attr: int  #: This is a target of this mix-in.
+    """
+
+    def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
+        """Check the subject is an annotation only attribute."""
+        annotations = get_type_hints(parent, None, self.config.autodoc_type_aliases)
+        if self.objpath[-1] in annotations:
+            return True
+        else:
+            return False
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        """Check the exisitence of uninitialized instance attribute when failed to import
+        the attribute."""
         try:
             return super().import_object(raiseerror=True)  # type: ignore
         except ImportError as exc:
@@ -2197,26 +2302,11 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
         return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
-    def get_doc(self, ignore: int = None) -> List[List[str]]:
-        if self.object is UNINITIALIZED_ATTR:
-            comment = self.get_attribute_comment(self.parent)
-            if comment:
-                return [comment]
-
-        return super().get_doc(ignore)  # type: ignore
-
-    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
-                    ) -> None:
-        if self.object is UNINITIALIZED_ATTR:
-            self.analyzer = None
-
-        super().add_content(more_content, no_docstring=no_docstring)  # type: ignore
-
 
 class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
-                          TypeVarMixin, UninitializedInstanceAttributeMixin,
-                          NonDataDescriptorMixin, DocstringStripSignatureMixin,
-                          ClassLevelDocumenter):
+                          TypeVarMixin, RuntimeInstanceAttributeMixin,
+                          UninitializedInstanceAttributeMixin, NonDataDescriptorMixin,
+                          DocstringStripSignatureMixin, ClassLevelDocumenter):
     """
     Specialized Documenter subclass for attributes.
     """
@@ -2271,7 +2361,8 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
     def update_annotations(self, parent: Any) -> None:
         """Update __annotations__ to support type_comment and so on."""
         try:
-            annotations = inspect.getannotations(parent)
+            annotations = dict(inspect.getannotations(parent))
+            parent.__annotations__ = annotations
 
             for cls in inspect.getmro(parent):
                 try:
@@ -2282,28 +2373,19 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                     analyzer.analyze()
                     for (classname, attrname), annotation in analyzer.annotations.items():
                         if classname == qualname and attrname not in annotations:
-                            annotations[attrname] = annotation  # type: ignore
+                            annotations[attrname] = annotation
                 except (AttributeError, PycodeError):
                     pass
         except AttributeError:
             pass
+        except TypeError:
+            # Failed to set __annotations__ (built-in, extensions, etc.)
+            pass
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        try:
-            ret = super().import_object(raiseerror=True)
-            if inspect.isenumattribute(self.object):
-                self.object = self.object.value
-        except ImportError as exc:
-            if self.isinstanceattribute():
-                self.object = INSTANCEATTR
-                ret = True
-            elif raiseerror:
-                raise
-            else:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                ret = False
-
+        ret = super().import_object(raiseerror)
+        if inspect.isenumattribute(self.object):
+            self.object = self.object.value
         if self.parent:
             self.update_annotations(self.parent)
 
@@ -2312,6 +2394,17 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
     def get_real_modname(self) -> str:
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
+
+    def should_suppress_value_header(self) -> bool:
+        if super().should_suppress_value_header():
+            return True
+        else:
+            doc = self.get_doc()
+            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            if 'hide-value' in metadata:
+                return True
+
+        return False
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
@@ -2328,8 +2421,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                 self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
-                if (self.object is INSTANCEATTR or self.options.no_value or
-                        self.should_suppress_value_header()):
+                if self.options.no_value or self.should_suppress_value_header():
                     pass
                 else:
                     objrepr = object_description(self.object)
@@ -2337,9 +2429,31 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             except ValueError:
                 pass
 
-    def get_doc(self, ignore: int = None) -> List[List[str]]:
-        if self.object is INSTANCEATTR:
-            return []
+    def get_attribute_comment(self, parent: Any, attrname: str) -> Optional[List[str]]:
+        try:
+            for cls in inspect.getmro(parent):
+                try:
+                    module = safe_getattr(cls, '__module__')
+                    qualname = safe_getattr(cls, '__qualname__')
+
+                    analyzer = ModuleAnalyzer.for_module(module)
+                    analyzer.analyze()
+                    if qualname and self.objpath:
+                        key = (qualname, attrname)
+                        if key in analyzer.attr_docs:
+                            return list(analyzer.attr_docs[key])
+                except (AttributeError, PycodeError):
+                    pass
+        except (AttributeError, PycodeError):
+            pass
+
+        return None
+
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
+        # Check the attribute has a docstring-comment
+        comment = self.get_attribute_comment(self.parent, self.objpath[-1])
+        if comment:
+            return [comment]
 
         try:
             # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
@@ -2353,6 +2467,10 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
+        # Disable analyzing attribute comment on Documenter.add_content() to control it on
+        # AttributeDocumenter.add_content()
+        self.analyzer = None
+
         if more_content is None:
             more_content = StringList()
         self.update_content(more_content)

@@ -689,6 +689,7 @@ def test_autodoc_special_members(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
+        '   .. py:attribute:: Class.__annotations__',
         '   .. py:attribute:: Class.__dict__',
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:attribute:: Class.__module__',
@@ -2221,5 +2222,51 @@ def test_name_mangling(app):
         '      :value: None',
         '',
         '      name of Foo',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_hide_value(app):
+    options = {'members': True}
+    actual = do_autodoc(app, 'module', 'target.hide_value', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.hide_value',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.hide_value',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.SENTINEL1',
+        '      :module: target.hide_value',
+        '',
+        '      docstring',
+        '',
+        '      :meta hide-value:',
+        '',
+        '',
+        '   .. py:attribute:: Foo.SENTINEL2',
+        '      :module: target.hide_value',
+        '',
+        '      :meta hide-value:',
+        '',
+        '',
+        '.. py:data:: SENTINEL1',
+        '   :module: target.hide_value',
+        '',
+        '   docstring',
+        '',
+        '   :meta hide-value:',
+        '',
+        '',
+        '.. py:data:: SENTINEL2',
+        '   :module: target.hide_value',
+        '',
+        '   :meta hide-value:',
         '',
     ]
