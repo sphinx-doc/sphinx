@@ -15,7 +15,7 @@ from typing import TypeVar
 
 import pytest
 
-from sphinx.ext.autodoc.mock import _MockModule, _MockObject, mock
+from sphinx.ext.autodoc.mock import _MockModule, _MockObject, ismock, mock
 
 
 def test_MockModule():
@@ -129,3 +129,19 @@ def test_mock_decorator():
     assert func.__doc__ == "docstring"
     assert Foo.meth.__doc__ == "docstring"
     assert Bar.__doc__ == "docstring"
+
+
+def test_ismock():
+    with mock(['sphinx.unknown']):
+        mod1 = import_module('sphinx.unknown')
+        mod2 = import_module('sphinx.application')
+
+        class Inherited(mod1.Class):
+            pass
+
+        assert ismock(mod1) is True
+        assert ismock(mod1.Class) is True
+        assert ismock(Inherited) is False
+
+        assert ismock(mod2) is False
+        assert ismock(mod2.Sphinx) is False
