@@ -30,6 +30,8 @@ Bugs fixed
 * #8594: autodoc: empty __all__ attribute is ignored
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
+* #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
+  + or ^) are used as keystrokes
 * #8094: texinfo: image files on the different directory with document are not
   copied
 

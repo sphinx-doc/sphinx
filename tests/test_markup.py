@@ -254,6 +254,17 @@ def get_verifier(verify, verify_re):
     (
         # kbd role
         'verify',
+        ':kbd:`Alt+^`',
+        ('<p><kbd class="kbd docutils literal notranslate">'
+         '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
+         '+'
+         '<kbd class="kbd docutils literal notranslate">^</kbd>'
+         '</kbd></p>'),
+        '\\sphinxkeyboard{\\sphinxupquote{Alt+\\textasciicircum{}}}',
+    ),
+    (
+        # kbd role
+        'verify',
         ':kbd:`M-x  M-s`',
         ('<p><kbd class="kbd docutils literal notranslate">'
          '<kbd class="kbd docutils literal notranslate">M</kbd>'
@@ -265,6 +276,13 @@ def get_verifier(verify, verify_re):
          '<kbd class="kbd docutils literal notranslate">s</kbd>'
          '</kbd></p>'),
         '\\sphinxkeyboard{\\sphinxupquote{M\\sphinxhyphen{}x  M\\sphinxhyphen{}s}}',
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`-`',
+        '<p><kbd class="kbd docutils literal notranslate">-</kbd></p>',
+        '\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}',
     ),
     (
         # non-interpolation of dashes in option role
