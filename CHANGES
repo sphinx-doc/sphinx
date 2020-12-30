@@ -19,6 +19,7 @@ Features added
 * #8022: autodoc: autodata and autoattribute directives does not show right-hand
   value of the variable if docstring contains ``:meta hide-value:`` in
   info-field-list
+* #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
 
 Bugs fixed
