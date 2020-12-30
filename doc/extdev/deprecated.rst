@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
+     - 3.5
+     - 5.0
+     - N/A
+
    * - ``sphinx.ext.autodoc.importer.get_module_members()``
      - 3.5
      - 5.0

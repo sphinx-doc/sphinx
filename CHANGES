@@ -10,6 +10,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
 * ``sphinx.ext.autodoc.importer.get_module_members()``
 
 Features added
