@@ -28,7 +28,7 @@ class KeyboardTransform(SphinxPostTransform):
 
     After::
 
-        <literal class="kbd">
+        <literal class="kbd compound">
             <literal class="kbd">
                 Control
             -
@@ -46,6 +46,7 @@ class KeyboardTransform(SphinxPostTransform):
             if len(parts) == 1:
                 continue
 
+            node['classes'].append('compound')
             node.pop()
             while parts:
                 key = parts.pop(0)

@@ -244,7 +244,7 @@ def get_verifier(verify, verify_re):
         # kbd role
         'verify',
         ':kbd:`Control+X`',
-        ('<p><kbd class="kbd docutils literal notranslate">'
+        ('<p><kbd class="kbd compound docutils literal notranslate">'
          '<kbd class="kbd docutils literal notranslate">Control</kbd>'
          '+'
          '<kbd class="kbd docutils literal notranslate">X</kbd>'
@@ -266,7 +266,7 @@ def get_verifier(verify, verify_re):
         # kbd role
         'verify',
         ':kbd:`M-x  M-s`',
-        ('<p><kbd class="kbd docutils literal notranslate">'
+        ('<p><kbd class="kbd compound docutils literal notranslate">'
          '<kbd class="kbd docutils literal notranslate">M</kbd>'
          '-'
          '<kbd class="kbd docutils literal notranslate">x</kbd>'
