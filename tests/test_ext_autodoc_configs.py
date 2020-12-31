@@ -429,7 +429,10 @@ def test_autoclass_content_and_docstring_signature_both(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.usefixtures("rollback_sysmodules")
 def test_mocked_module_imports(app, warning):
+    sys.modules.pop('target', None)  # unload target module to clear the module cache
+
     # no autodoc_mock_imports
     options = {"members": 'TestAutodoc,decoratedFunction,func'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
