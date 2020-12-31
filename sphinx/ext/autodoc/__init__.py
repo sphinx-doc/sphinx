@@ -1699,9 +1699,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             except AttributeError:
                 pass  # Invalid class object is passed.
 
-            super().add_content(more_content, no_docstring=True)
-        else:
-            super().add_content(more_content)
+        super().add_content(more_content)
 
     def document_members(self, all_members: bool = False) -> None:
         if self.doc_as_attr:
@@ -2182,18 +2180,9 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
         if getattr(self, 'non_data_descriptor', False):
             # the docstring of non datadescriptor is very probably the wrong thing
             # to display
-            return []
+            return None
         else:
             return super().get_doc(encoding, ignore)  # type: ignore
-
-    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
-                    ) -> None:
-        if getattr(self, 'non_data_descriptor', False):
-            # the docstring of non datadescriptor is very probably the wrong thing
-            # to display
-            no_docstring = True
-
-        super().add_content(more_content, no_docstring=no_docstring)  # type: ignore
 
 
 class SlotsMixin(DataDocumenterMixinBase):
@@ -2343,6 +2332,12 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
     def should_suppress_value_header(self) -> bool:
         return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
+
+    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
+        if self.object is UNINITIALIZED_ATTR:
+            return None
+        else:
+            return super().get_doc(encoding, ignore)  # type: ignore
 
 
 class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
