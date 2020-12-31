@@ -23,6 +23,8 @@ if False:
     # For type annotation
     from typing import Type  # NOQA
 
+    from sphinx.ext.autodoc import ObjectMember
+
 logger = logging.getLogger(__name__)
 
 
@@ -233,37 +235,27 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     return members
 
 
-class ClassAttribute:
-    """The attribute of the class."""
-
-    def __init__(self, cls: Any, name: str, value: Any, docstring: Optional[str] = None):
-        self.class_ = cls
-        self.name = name
-        self.value = value
-        self.docstring = docstring
-
-
 def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
-                      ) -> Dict[str, ClassAttribute]:
+                      ) -> Dict[str, "ObjectMember"]:
     """Get members and attributes of target class."""
-    from sphinx.ext.autodoc import INSTANCEATTR
+    from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
 
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    members = {}  # type: Dict[str, ClassAttribute]
+    members = {}  # type: Dict[str, ObjectMember]
 
     # enum members
     if isenumclass(subject):
         for name, value in subject.__members__.items():
             if name not in members:
-                members[name] = ClassAttribute(subject, name, value)
+                members[name] = ObjectMember(name, value, class_=subject)
 
         superclass = subject.__mro__[1]
         for name in obj_dict:
             if name not in superclass.__dict__:
                 value = safe_getattr(subject, name)
-                members[name] = ClassAttribute(subject, name, value)
+                members[name] = ObjectMember(name, value, class_=subject)
 
     # members in __slots__
     try:
@@ -272,7 +264,8 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
             from sphinx.ext.autodoc import SLOTSATTR
 
             for name, docstring in __slots__.items():
-                members[name] = ClassAttribute(subject, name, SLOTSATTR, docstring)
+                members[name] = ObjectMember(name, SLOTSATTR, class_=subject,
+                                             docstring=docstring)
     except (AttributeError, TypeError, ValueError):
         pass
 
@@ -283,9 +276,9 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
             unmangled = unmangle(subject, name)
             if unmangled and unmangled not in members:
                 if name in obj_dict:
-                    members[unmangled] = ClassAttribute(subject, unmangled, value)
+                    members[unmangled] = ObjectMember(unmangled, value, class_=subject)
                 else:
-                    members[unmangled] = ClassAttribute(None, unmangled, value)
+                    members[unmangled] = ObjectMember(unmangled, value)
         except AttributeError:
             continue
 
@@ -296,7 +289,7 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
                 for name in getannotations(cls):
                     name = unmangle(cls, name)
                     if name and name not in members:
-                        members[name] = ClassAttribute(cls, name, INSTANCEATTR)
+                        members[name] = ObjectMember(name, INSTANCEATTR, class_=cls)
             except AttributeError:
                 pass
 
@@ -308,8 +301,8 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
                 analyzer.analyze()
                 for (ns, name), docstring in analyzer.attr_docs.items():
                     if ns == qualname and name not in members:
-                        members[name] = ClassAttribute(cls, name, INSTANCEATTR,
-                                                       '\n'.join(docstring))
+                        members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
+                                                     docstring='\n'.join(docstring))
             except (AttributeError, PycodeError):
                 pass
     except AttributeError:

@@ -37,7 +37,7 @@ class KeyboardTransform(SphinxPostTransform):
     """
     default_priority = 400
     builders = ('html',)
-    pattern = re.compile(r'(-|\+|\^|\s+)')
+    pattern = re.compile(r'(?<=.)(-|\+|\^|\s+)(?=.)')
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, classes=["kbd"])

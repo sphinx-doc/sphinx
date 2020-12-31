@@ -56,6 +56,11 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.utils.smartyquotes``
 
+   * - ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
+     - 3.5
+     - 5.0
+     - N/A
+
    * - ``sphinx.ext.autodoc.importer.get_module_members()``
      - 3.5
      - 5.0
