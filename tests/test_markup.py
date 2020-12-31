@@ -255,7 +255,7 @@ def get_verifier(verify, verify_re):
         # kbd role
         'verify',
         ':kbd:`Alt+^`',
-        ('<p><kbd class="kbd docutils literal notranslate">'
+        ('<p><kbd class="kbd compound docutils literal notranslate">'
          '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
          '+'
          '<kbd class="kbd docutils literal notranslate">^</kbd>'
