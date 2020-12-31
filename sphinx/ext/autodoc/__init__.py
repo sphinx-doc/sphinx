@@ -1193,6 +1193,8 @@ class DocstringSignatureMixin:
                 valid_names.extend(cls.__name__ for cls in self.object.__mro__)
 
         docstrings = self.get_doc()
+        if docstrings is None:
+            return None, None
         self._new_docstrings = docstrings[:]
         self._signatures = []
         result = None
@@ -2419,9 +2421,10 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             return True
         else:
             doc = self.get_doc()
-            metadata = extract_metadata('\n'.join(sum(doc, [])))
-            if 'hide-value' in metadata:
-                return True
+            if doc:
+                metadata = extract_metadata('\n'.join(sum(doc, [])))
+                if 'hide-value' in metadata:
+                    return True
 
         return False
 
