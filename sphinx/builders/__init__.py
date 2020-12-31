@@ -320,16 +320,16 @@ class Builder:
             logger.info(__('none found'))
 
         if updated_docnames:
+            # global actions
+            self.app.phase = BuildPhase.CONSISTENCY_CHECK
+            with progress_message(__('checking consistency')):
+                self.env.check_consistency()
+
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
             with progress_message(__('pickling environment')):
                 with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
                     pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
-
-            # global actions
-            self.app.phase = BuildPhase.CONSISTENCY_CHECK
-            with progress_message(__('checking consistency')):
-                self.env.check_consistency()
         else:
             if method == 'update' and not docnames:
                 logger.info(bold(__('no targets are out of date.')))
