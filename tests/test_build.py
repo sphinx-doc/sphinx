@@ -153,17 +153,18 @@ def test_image_glob(app, status, warning):
     assert doctree[0][3][0]['uri'] == sub / 'svgimg.*'
 
 
-@pytest.mark.sphinx(testroot='basic')
+@pytest.mark.sphinx('html', testroot='basic')
 def test_check_consistency_custom_data(make_app, app_params):
     def mock_callback(a_app, a_env):
         a_env.some_custom_data = 0
 
     args, kwargs = app_params
-    app0 = make_app('html', *args, **kwargs)
+    app0 = make_app(*args, **kwargs)
     app0.connect('env-check-consistency', mock_callback)
     app0.build()
     assert hasattr(app0.env, "some_custom_data")
-    app1 = make_app('latex', *args, **kwargs)
+    app0.outdir.rmtree()
+    app1 = make_app(*args, **kwargs)
     app1.connect('env-check-consistency', mock_callback)
     app1.build()
     assert hasattr(app1.env, "some_custom_data")
