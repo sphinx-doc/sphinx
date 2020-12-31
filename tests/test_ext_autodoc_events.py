@@ -35,6 +35,23 @@ def test_process_docstring(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_process_docstring_for_nondatadescriptor(app):
+    def on_process_docstring(app, what, name, obj, options, lines):
+        raise
+
+    app.connect('autodoc-process-docstring', on_process_docstring)
+
+    actual = do_autodoc(app, 'attribute', 'target.AttCls.a1')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: AttCls.a1',
+        '   :module: target',
+        '   :value: hello world',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cut_lines(app):
     app.connect('autodoc-process-docstring',
                 cut_lines(2, 2, ['function']))

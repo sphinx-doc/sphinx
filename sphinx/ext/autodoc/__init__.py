@@ -1694,9 +1694,14 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
         if self.doc_as_attr:
-            more_content = StringList([_('alias of %s') % restify(self.object)], source='')
+            try:
+                more_content = StringList([_('alias of %s') % restify(self.object)], source='')
+            except AttributeError:
+                pass  # Invalid class object is passed.
 
-        super().add_content(more_content)
+            super().add_content(more_content, no_docstring=True)
+        else:
+            super().add_content(more_content)
 
     def document_members(self, all_members: bool = False) -> None:
         if self.doc_as_attr:
@@ -2160,17 +2165,35 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
               and :value: header will be suppressed unexpectedly.
     """
 
+    def import_object(self, raiseerror: bool = False) -> bool:
+        ret = super().import_object(raiseerror)  # type: ignore
+        if ret and not inspect.isattributedescriptor(self.object):
+            self.non_data_descriptor = True
+        else:
+            self.non_data_descriptor = False
+
+        return ret
+
     def should_suppress_value_header(self) -> bool:
-        return (inspect.isattributedescriptor(self.object) or
+        return (not getattr(self, 'non_data_descriptor', False) or
                 super().should_suppress_directive_header())
 
     def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
-        if not inspect.isattributedescriptor(self.object):
+        if getattr(self, 'non_data_descriptor', False):
             # the docstring of non datadescriptor is very probably the wrong thing
             # to display
             return []
         else:
             return super().get_doc(encoding, ignore)  # type: ignore
+
+    def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
+                    ) -> None:
+        if getattr(self, 'non_data_descriptor', False):
+            # the docstring of non datadescriptor is very probably the wrong thing
+            # to display
+            no_docstring = True
+
+        super().add_content(more_content, no_docstring=no_docstring)  # type: ignore
 
 
 class SlotsMixin(DataDocumenterMixinBase):
