@@ -1180,6 +1180,8 @@ class DocstringSignatureMixin:
                 valid_names.extend(cls.__name__ for cls in self.object.__mro__)
 
         docstrings = self.get_doc()
+        if docstrings is None:
+            return None, None
         self._new_docstrings = docstrings[:]
         self._signatures = []
         result = None
@@ -1671,7 +1673,10 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
         if self.doc_as_attr:
-            more_content = StringList([_('alias of %s') % restify(self.object)], source='')
+            try:
+                more_content = StringList([_('alias of %s') % restify(self.object)], source='')
+            except AttributeError:
+                pass  # Invalid class object is passed.
 
         super().add_content(more_content)
 
@@ -2137,15 +2142,24 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
               and :value: header will be suppressed unexpectedly.
     """
 
+    def import_object(self, raiseerror: bool = False) -> bool:
+        ret = super().import_object(raiseerror)  # type: ignore
+        if ret and not inspect.isattributedescriptor(self.object):
+            self.non_data_descriptor = True
+        else:
+            self.non_data_descriptor = False
+
+        return ret
+
     def should_suppress_value_header(self) -> bool:
-        return (inspect.isattributedescriptor(self.object) or
+        return (not getattr(self, 'non_data_descriptor', False) or
                 super().should_suppress_directive_header())
 
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
-        if not inspect.isattributedescriptor(self.object):
+        if getattr(self, 'non_data_descriptor', False):
             # the docstring of non datadescriptor is very probably the wrong thing
             # to display
-            return []
+            return None
         else:
             return super().get_doc(ignore)  # type: ignore
 
@@ -2298,6 +2312,12 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
         return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
+        if self.object is UNINITIALIZED_ATTR:
+            return None
+        else:
+            return super().get_doc(ignore)  # type: ignore
+
 
 class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
                           TypeVarMixin, RuntimeInstanceAttributeMixin,
@@ -2398,9 +2418,10 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             return True
         else:
             doc = self.get_doc()
-            metadata = extract_metadata('\n'.join(sum(doc, [])))
-            if 'hide-value' in metadata:
-                return True
+            if doc:
+                metadata = extract_metadata('\n'.join(sum(doc, [])))
+                if 'hide-value' in metadata:
+                    return True
 
         return False
 

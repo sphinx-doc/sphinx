@@ -452,9 +452,6 @@ class StandaloneHTMLBuilder(Builder):
         logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
         favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
 
-        if not isinstance(self.config.html_use_opensearch, str):
-            logger.warning(__('html_use_opensearch config value must now be a string'))
-
         self.relations = self.env.collect_relations()
 
         rellinks = []  # type: List[Tuple[str, str, str, str]]

@@ -75,6 +75,7 @@ Features added
 * #8022: autodoc: autodata and autoattribute directives does not show right-hand
   value of the variable if docstring contains ``:meta hide-value:`` in
   info-field-list
+* #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
 
 Bugs fixed
@@ -84,10 +85,12 @@ Bugs fixed
   class
 * #8592: autodoc: ``:meta public:`` does not effect to variables
 * #8594: autodoc: empty __all__ attribute is ignored
+* #8315: autodoc: Failed to resolve struct.Struct type annotation
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
 * #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
   + or ^) are used as keystrokes
+* #8629: html: A type warning for html_use_opensearch is shown twice
 * #8094: texinfo: image files on the different directory with document are not
   copied
 
@@ -113,6 +116,10 @@ Bugs fixed
 ----------
 
 * #8164: autodoc: Classes that inherit mocked class are not documented
+* #8602: autodoc: The ``autodoc-process-docstring`` event is emitted to the
+  non-datadescriptors unexpectedly
+* #8616: autodoc: AttributeError is raised on non-class object is passed to
+  autoclass directive
 
 Testing
 --------
