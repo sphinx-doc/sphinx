@@ -10,6 +10,7 @@
 
 import sys
 from numbers import Integral
+from struct import Struct
 from typing import (Any, Callable, Dict, Generator, List, NewType, Optional, Tuple, TypeVar,
                     Union)
 
@@ -43,6 +44,7 @@ def test_restify():
     assert restify(str) == ":class:`str`"
     assert restify(None) == ":obj:`None`"
     assert restify(Integral) == ":class:`numbers.Integral`"
+    assert restify(Struct) == ":class:`struct.Struct`"
     assert restify(Any) == ":obj:`Any`"
 
 
@@ -124,6 +126,7 @@ def test_stringify():
     assert stringify(str) == "str"
     assert stringify(None) == "None"
     assert stringify(Integral) == "numbers.Integral"
+    assert restify(Struct) == ":class:`struct.Struct`"
     assert stringify(Any) == "Any"
 
 
