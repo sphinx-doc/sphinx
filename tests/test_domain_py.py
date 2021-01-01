@@ -852,14 +852,12 @@ def test_info_field_list_var(app):
 
     # :var int attr:
     assert_node(doctree[1][1][0][0][1][0],
-                ([pending_xref, addnodes.literal_strong, "attr"],
+                ([addnodes.literal_strong, "attr"],
                  " (",
                  [pending_xref, addnodes.literal_emphasis, "int"],
                  ")",
                  " -- ",
                  "blah blah"))
-    assert_node(doctree[1][1][0][0][1][0][0], pending_xref,
-                refdomain="py", reftype="obj", reftarget="attr", **{"py:class": "Class"})
     assert_node(doctree[1][1][0][0][1][0][2], pending_xref,
                 refdomain="py", reftype="class", reftarget="int", **{"py:class": "Class"})
 
