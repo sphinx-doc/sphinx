@@ -1228,6 +1228,35 @@ def test_html_assets(app):
             '</script>' in content)
 
 
+@pytest.mark.sphinx('html', testroot='html_assets')
+def test_assets_order(app):
+    app.add_css_file('normal.css')
+    app.add_css_file('early.css', priority=100)
+    app.add_css_file('late.css', priority=750)
+    app.add_css_file('lazy.css', priority=900)
+    app.add_js_file('normal.js')
+    app.add_js_file('early.js', priority=100)
+    app.add_js_file('late.js', priority=750)
+    app.add_js_file('lazy.js', priority=900)
+
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text()
+
+    # css_files
+    expected = ['_static/pygments.css', '_static/alabaster.css', '_static/early.css',
+                '_static/normal.css', '_static/late.css', '_static/css/style.css',
+                'https://example.com/custom.css', '_static/lazy.css']
+    pattern = '.*'.join('href="%s"' % f for f in expected)
+    assert re.search(pattern, content, re.S)
+
+    # js_files
+    expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
+                '_static/doctools.js', '_static/normal.js', '_static/late.js',
+                '_static/js/custom.js', 'https://example.com/script.js', '_static/lazy.js']
+    pattern = '.*'.join('src="%s"' % f for f in expected)
+    assert re.search(pattern, content, re.S)
+
+
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
     app.builder.build_all()
