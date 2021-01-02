@@ -911,14 +911,14 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_js_file(self, filename: str, **kwargs: str) -> None:
+    def add_js_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a JavaScript file to include in the HTML output.
 
         Add *filename* to the list of JavaScript files that the default HTML
-        template will include.  The filename must be relative to the HTML
-        static path , or a full URI with scheme.  If the keyword argument
-        ``body`` is given, its value will be added between the
-        ``<script>`` tags. Extra keyword arguments are included as
+        template will include in order of *priority* (ascending).  The filename
+        must be relative to the HTML static path , or a full URI with scheme.
+        If the keyword argument ``body`` is given, its value will be added
+        between the ``<script>`` tags. Extra keyword arguments are included as
         attributes of the ``<script>`` tag.
 
         Example::
@@ -932,23 +932,38 @@ class Sphinx:
             app.add_js_file(None, body="var myVariable = 'foo';")
             # => <script>var myVariable = 'foo';</script>
 
+        .. list-table:: priority range for JavaScript files
+           :widths: 20,80
+
+           * - Priority
+             - Main purpose in Sphinx
+           * - 200
+             - default priority for built-in JavaScript files
+           * - 500
+             - default priority for extensions
+           * - 800
+             - default priority for :confval:`html_js_files`
+
         .. versionadded:: 0.5
 
         .. versionchanged:: 1.8
            Renamed from ``app.add_javascript()``.
            And it allows keyword arguments as attributes of script tag.
-        """
-        self.registry.add_js_file(filename, **kwargs)
-        if hasattr(self.builder, 'add_js_file'):
-            self.builder.add_js_file(filename, **kwargs)  # type: ignore
 
-    def add_css_file(self, filename: str, **kwargs: str) -> None:
+        .. versionchanged:: 3.5
+           Take priority argument.
+        """
+        self.registry.add_js_file(filename, priority=priority, **kwargs)
+        if hasattr(self.builder, 'add_js_file'):
+            self.builder.add_js_file(filename, priority=priority, **kwargs)  # type: ignore
+
+    def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a stylesheet to include in the HTML output.
 
         Add *filename* to the list of CSS files that the default HTML template
-        will include.  The filename must be relative to the HTML static path,
-        or a full URI with scheme.  The keyword arguments are also accepted for
-        attributes of ``<link>`` tag.
+        will include in order of *priority* (ascending).  The filename must be
+        relative to the HTML static path, or a full URI with scheme.  The
+        eyword arguments are also accepted for attributes of ``<link>`` tag.
 
         Example::
 
@@ -963,6 +978,16 @@ class Sphinx:
             # => <link rel="alternate stylesheet" href="_static/fancy.css"
             #          type="text/css" title="fancy" />
 
+        .. list-table:: priority range for CSS files
+           :widths: 20,80
+
+           * - Priority
+             - Main purpose in Sphinx
+           * - 500
+             - default priority for extensions
+           * - 800
+             - default priority for :confval:`html_css_files`
+
         .. versionadded:: 1.0
 
         .. versionchanged:: 1.6
@@ -975,11 +1000,14 @@ class Sphinx:
         .. versionchanged:: 1.8
            Renamed from ``app.add_stylesheet()``.
            And it allows keyword arguments as attributes of link tag.
+
+        .. versionchanged:: 3.5
+           Take priority argument.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
-        self.registry.add_css_files(filename, **kwargs)
+        self.registry.add_css_files(filename, priority=priority, **kwargs)
         if hasattr(self.builder, 'add_css_file'):
-            self.builder.add_css_file(filename, **kwargs)  # type: ignore
+            self.builder.add_css_file(filename, priority=priority, **kwargs)  # type: ignore
 
     def add_latex_package(self, packagename: str, options: str = None,
                           after_hyperref: bool = False) -> None:
