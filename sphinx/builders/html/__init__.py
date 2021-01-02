@@ -90,10 +90,13 @@ class Stylesheet(str):
 
     attributes = None   # type: Dict[str, str]
     filename = None     # type: str
+    priority = None     # type: int
 
-    def __new__(cls, filename: str, *args: str, **attributes: str) -> "Stylesheet":
+    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
+                ) -> "Stylesheet":
         self = str.__new__(cls, filename)  # type: ignore
         self.filename = filename
+        self.priority = priority
         self.attributes = attributes
         self.attributes.setdefault('rel', 'stylesheet')
         self.attributes.setdefault('type', 'text/css')
@@ -113,10 +116,12 @@ class JavaScript(str):
 
     attributes = None   # type: Dict[str, str]
     filename = None     # type: str
+    priority = None     # type: int
 
-    def __new__(cls, filename: str, **attributes: str) -> "JavaScript":
+    def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> "JavaScript":
         self = str.__new__(cls, filename)  # type: ignore
         self.filename = filename
+        self.priority = priority
         self.attributes = attributes
 
         return self
@@ -290,29 +295,31 @@ class StandaloneHTMLBuilder(Builder):
             self.add_css_file(filename, **attrs)
 
         for filename, attrs in self.get_builder_config('css_files', 'html'):
+            attrs.setdefault('priority', 800)  # User's CSSs are loaded after extensions'
             self.add_css_file(filename, **attrs)
 
-    def add_css_file(self, filename: str, **kwargs: str) -> None:
+    def add_css_file(self, filename: str, **kwargs: Any) -> None:
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
 
         self.css_files.append(Stylesheet(filename, **kwargs))  # type: ignore
 
     def init_js_files(self) -> None:
-        self.add_js_file('jquery.js')
-        self.add_js_file('underscore.js')
-        self.add_js_file('doctools.js')
+        self.add_js_file('jquery.js', priority=200)
+        self.add_js_file('underscore.js', priority=200)
+        self.add_js_file('doctools.js', priority=200)
 
         for filename, attrs in self.app.registry.js_files:
             self.add_js_file(filename, **attrs)
 
         for filename, attrs in self.get_builder_config('js_files', 'html'):
+            attrs.setdefault('priority', 800)  # User's JSs are loaded after extensions'
             self.add_js_file(filename, **attrs)
 
         if self.config.language and self._get_translations_js():
             self.add_js_file('translations.js')
 
-    def add_js_file(self, filename: str, **kwargs: str) -> None:
+    def add_js_file(self, filename: str, **kwargs: Any) -> None:
         if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
@@ -1014,6 +1021,10 @@ class StandaloneHTMLBuilder(Builder):
                                             templatename, ctx, event_arg)
         if newtmpl:
             templatename = newtmpl
+
+        # sort JS/CSS before rendering HTML
+        ctx['script_files'].sort(key=lambda js: js.priority)
+        ctx['css_files'].sort(key=lambda js: js.priority)
 
         try:
             output = self.templates.render(templatename, ctx)
