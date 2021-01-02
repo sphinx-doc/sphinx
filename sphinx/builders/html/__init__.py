@@ -250,6 +250,14 @@ class StandaloneHTMLBuilder(Builder):
                 return jsfile
         return None
 
+    def _get_style_filename(self) -> str:
+        if self.config.html_style is not None:
+            return self.config.html_style
+        elif self.theme:
+            return self.theme.get_config('theme', 'stylesheet')
+        else:
+            return 'default.css'
+
     def get_theme_config(self) -> Tuple[str, Dict]:
         return self.config.html_theme, self.config.html_theme_options
 
@@ -285,6 +293,9 @@ class StandaloneHTMLBuilder(Builder):
             self.dark_highlighter = None
 
     def init_css_files(self) -> None:
+        self.add_css_file('pygments.css', priority=200)
+        self.add_css_file(self._get_style_filename(), priority=200)
+
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
 
@@ -470,13 +481,6 @@ class StandaloneHTMLBuilder(Builder):
                 rellinks.append((indexname, indexcls.localname,
                                  '', indexcls.shortname))
 
-        if self.config.html_style is not None:
-            stylename = self.config.html_style
-        elif self.theme:
-            stylename = self.theme.get_config('theme', 'stylesheet')
-        else:
-            stylename = 'default.css'
-
         self.globalcontext = {
             'embedded': self.embedded,
             'project': self.config.project,
@@ -499,7 +503,7 @@ class StandaloneHTMLBuilder(Builder):
             'language': self.config.language,
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
-            'style': stylename,
+            'style': self._get_style_filename(),
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
