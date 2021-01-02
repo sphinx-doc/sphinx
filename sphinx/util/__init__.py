@@ -29,7 +29,6 @@ from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
 from sphinx.locale import __
-from sphinx.util import smartypants  # noqa
 from sphinx.util import logging
 from sphinx.util.console import bold, colorize, strip_colors, term_width_line  # type: ignore
 from sphinx.util.matching import patfilter  # noqa
