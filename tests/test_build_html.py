@@ -1244,15 +1244,15 @@ def test_assets_order(app):
 
     # css_files
     expected = ['_static/pygments.css', '_static/alabaster.css', '_static/early.css',
-                '_static/normal.css', '_static/late.css', '_static/css/style.css',
-                'https://example.com/custom.css', '_static/lazy.css']
+                'https://example.com/custom.css', '_static/normal.css', '_static/late.css',
+                '_static/css/style.css', '_static/lazy.css']
     pattern = '.*'.join('href="%s"' % f for f in expected)
     assert re.search(pattern, content, re.S)
 
     # js_files
     expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
-                '_static/doctools.js', '_static/normal.js', '_static/late.js',
-                '_static/js/custom.js', 'https://example.com/script.js', '_static/lazy.js']
+                '_static/doctools.js', 'https://example.com/script.js', '_static/normal.js',
+                '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
     pattern = '.*'.join('src="%s"' % f for f in expected)
     assert re.search(pattern, content, re.S)
 
