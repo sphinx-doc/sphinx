@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
 
-class ReSTMarkup(ObjectDescription):
+class ReSTMarkup(ObjectDescription[str]):
     """
     Description of generic reST markup.
     """

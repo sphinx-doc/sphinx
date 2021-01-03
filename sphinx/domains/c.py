@@ -3099,7 +3099,7 @@ def _make_phony_error_name() -> ASTNestedName:
     return ASTNestedName([ASTIdentifier("PhonyNameDueToError")], rooted=False)
 
 
-class CObject(ObjectDescription):
+class CObject(ObjectDescription[ASTDeclaration]):
     """
     Description of a C language object.
     """
