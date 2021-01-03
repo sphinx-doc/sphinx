@@ -10,6 +10,7 @@
 """
 
 import copy
+from abc import ABC, abstractmethod
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, NamedTuple, Tuple,
                     Type, Union, cast)
 
@@ -64,7 +65,7 @@ class IndexEntry(NamedTuple):
     descr: str
 
 
-class Index:
+class Index(ABC):
     """
     An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
@@ -97,6 +98,7 @@ class Index:
                               % self.__class__.__name__)
         self.domain = domain
 
+    @abstractmethod
     def generate(self, docnames: Iterable[str] = None
                  ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
         """Get entries for the index.

@@ -10,6 +10,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* domain: The ``Index`` class becomes subclasses of ``abc.ABC`` to indicate
+  methods that must be overrided in the concrete classes
 * #4826: py domain: The structure of python objects is changed.  A boolean value
   is added to indicate that the python object is canonical one
 * #7425: MathJax: The MathJax was changed from 2 to 3. Users using a custom
