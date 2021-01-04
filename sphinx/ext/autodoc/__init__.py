@@ -739,12 +739,12 @@ class Documenter:
                 isprivate = membername.startswith('_')
 
             keep = False
-            if ismock(member):
-                # mocked module or object
-                pass
-            elif self.options.exclude_members and membername in self.options.exclude_members:
+            if self.options.exclude_members and membername in self.options.exclude_members:
                 # remove members given by exclude-members
                 keep = False
+            elif ismock(member):
+                # mocked module or object
+                pass
             elif want_all and special_member_re.match(membername):
                 # special __methods__
                 if self.options.special_members and membername in self.options.special_members:
