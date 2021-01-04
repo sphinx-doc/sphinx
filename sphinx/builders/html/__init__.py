@@ -466,6 +466,10 @@ class StandaloneHTMLBuilder(Builder):
                 rellinks.append((indexname, indexcls.localname,
                                  '', indexcls.shortname))
 
+        # back up script_files and css_files to allow adding JS/CSS files to a specific page.
+        self._script_files = list(self.script_files)
+        self._css_files = list(self.css_files)
+
         if self.config.html_style is not None:
             stylename = self.config.html_style
         elif self.theme:
@@ -1015,6 +1019,10 @@ class StandaloneHTMLBuilder(Builder):
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
+
+        # revert script_files and css_files
+        self.script_files[:] = self._script_files
+        self.css_files[:] = self.css_files
 
         self.update_page_context(pagename, templatename, ctx, event_arg)
         newtmpl = self.app.emit_firstresult('html-page-context', pagename,
