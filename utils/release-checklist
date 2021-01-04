@@ -4,7 +4,7 @@ Release checklist
 for stable releases
 -------------------
 
-* open https://github.com/sphinx-doc/sphinx/actions?query=branch:X.Y.x and all tests has passed
+* open "https://github.com/sphinx-doc/sphinx/actions?query=branch:X.Y.x" and all tests has passed
 * Run ``git fetch; git status`` and check nothing changed
 * ``python utils/bump_version.py X.Y.Z``
 * Check diff by ``git diff``
@@ -28,7 +28,7 @@ for stable releases
 for first beta releases
 -----------------------
 
-* open https://github.com/sphinx-doc/sphinx/actions?query=branch:master and all tests has passed
+* open "https://github.com/sphinx-doc/sphinx/actions?query=branch:master" and all tests has passed
 * Run ``git fetch; git status`` and check nothing changed
 * Run ``python setup.py extract_messages``
 * Run ``(cd sphinx/locale; tx push -s)``
@@ -58,7 +58,7 @@ for first beta releases
 for other beta releases
 -----------------------
 
-* open https://github.com/sphinx-doc/sphinx/actions?query=branch:X.x and all tests has passed
+* open "https://github.com/sphinx-doc/sphinx/actions?query=branch:X.x" and all tests has passed
 * Run ``git fetch; git status`` and check nothing changed
 * ``python utils/bump_version.py X.Y.0bN``
 * Check diff by ``git diff``
@@ -81,7 +81,7 @@ for other beta releases
 for major releases
 ------------------
 
-* open https://github.com/sphinx-doc/sphinx/actions?query=branch:X.x and all tests has passed
+* open "https://github.com/sphinx-doc/sphinx/actions?query=branch:X.x" and all tests has passed
 * Run ``git fetch; git status`` and check nothing changed
 * Run ``(cd sphinx/locale; tx pull -a -f)``
 * Run ``python setup.py compile_catalog``
