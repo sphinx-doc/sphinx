@@ -6670,7 +6670,7 @@ def _make_phony_error_name() -> ASTNestedName:
     return ASTNestedName([nne], [False], rooted=False)
 
 
-class CPPObject(ObjectDescription):
+class CPPObject(ObjectDescription[ASTDeclaration]):
     """Description of a C++ language object."""
 
     doc_field_types = [

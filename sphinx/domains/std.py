@@ -48,7 +48,7 @@ option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 token_re = re.compile(r'`(\w+)`', re.U)
 
 
-class GenericObject(ObjectDescription):
+class GenericObject(ObjectDescription[str]):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
@@ -178,7 +178,7 @@ class Target(SphinxDirective):
         return self.name + '-' + name
 
 
-class Cmdoption(ObjectDescription):
+class Cmdoption(ObjectDescription[str]):
     """
     Description of a command-line option (.. option).
     """

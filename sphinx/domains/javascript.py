@@ -32,7 +32,7 @@ from sphinx.util.nodes import make_id, make_refnode
 logger = logging.getLogger(__name__)
 
 
-class JSObject(ObjectDescription):
+class JSObject(ObjectDescription[Tuple[str, str]]):
     """
     Description of a JavaScript object.
     """
