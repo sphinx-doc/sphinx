@@ -197,14 +197,14 @@ class ImageConverter(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
+        elif set(node['candidates']) & set(self.app.builder.supported_image_types):
+            # builder supports the image; no need to convert
+            return False
         elif self.available is None:
             # store the value to the class variable to share it during the build
             self.__class__.available = self.is_available()
 
         if not self.available:
-            return False
-        elif set(node['candidates']) & set(self.app.builder.supported_image_types):
-            # builder supports the image; no need to convert
             return False
         else:
             rule = self.get_conversion_rule(node)
