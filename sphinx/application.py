@@ -929,9 +929,11 @@ class Sphinx:
         Add *filename* to the list of JavaScript files that the default HTML
         template will include in order of *priority* (ascending).  The filename
         must be relative to the HTML static path , or a full URI with scheme.
-        If the keyword argument ``body`` is given, its value will be added
-        between the ``<script>`` tags. Extra keyword arguments are included as
-        attributes of the ``<script>`` tag.
+        If the priority of JavaScript file is the same as others, the JavaScript
+        files will be included in order of the registration.  If the keyword
+        argument ``body`` is given, its value will be added between the
+        ``<script>`` tags. Extra keyword arguments are included as attributes of
+        the ``<script>`` tag.
 
         Example::
 
@@ -974,8 +976,10 @@ class Sphinx:
 
         Add *filename* to the list of CSS files that the default HTML template
         will include in order of *priority* (ascending).  The filename must be
-        relative to the HTML static path, or a full URI with scheme.  The
-        eyword arguments are also accepted for attributes of ``<link>`` tag.
+        relative to the HTML static path, or a full URI with scheme.  If the
+        priority of CSS file is the same as others, the CSS files will be
+        included in order of the registration.  The keyword arguments are also
+        accepted for attributes of ``<link>`` tag.
 
         Example::
 
