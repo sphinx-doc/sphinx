@@ -1219,7 +1219,7 @@ def test_assets_order(app):
     content = (app.outdir / 'index.html').read_text()
 
     # css_files
-    expected = ['_static/pygments.css', '_static/alabaster.css', '_static/early.css',
+    expected = ['_static/early.css', '_static/pygments.css', '_static/alabaster.css',
                 '_static/normal.css', '_static/late.css', '_static/css/style.css',
                 'https://example.com/custom.css', '_static/lazy.css']
     pattern = '.*'.join('href="%s"' % f for f in expected)
@@ -1357,8 +1357,8 @@ def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
 def test_html_style(app, status, warning):
     app.build()
     result = (app.outdir / 'index.html').read_text()
-    assert '<link rel="stylesheet" href="_static/default.css" type="text/css" />' in result
-    assert ('<link rel="stylesheet" href="_static/alabaster.css" type="text/css" />'
+    assert '<link rel="stylesheet" type="text/css" href="_static/default.css" />' in result
+    assert ('<link rel="stylesheet" type="text/css" href="_static/alabaster.css" />'
             not in result)
 
 

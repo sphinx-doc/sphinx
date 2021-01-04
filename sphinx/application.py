@@ -983,6 +983,8 @@ class Sphinx:
 
            * - Priority
              - Main purpose in Sphinx
+           * - 200
+             - default priority for built-in CSS files
            * - 500
              - default priority for extensions
            * - 800
