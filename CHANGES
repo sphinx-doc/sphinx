@@ -23,6 +23,8 @@ Incompatible changes
 * html theme: Move CSS tags in basic/layout.html to ``css_files`` variable
 * #8508: LaTeX: uplatex becomes a default setting of latex_engine for Japanese
   documents
+* #5977: py domain: ``:var:``, ``:cvar:`` and ``:ivar:`` fields do not create
+  cross-references
 
 Deprecated
 ----------
