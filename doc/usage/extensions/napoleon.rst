@@ -547,3 +547,27 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    has an annotation in the class body, that type is used.
 
    .. versionadded:: 3.4
+
+.. confval:: napoleon_custom_sections
+
+   Add a list of custom sections to include, expanding the list of parsed sections.
+   *Defaults to None.*
+
+   The entries can either be strings or tuples, depending on the intention:
+
+   * To create a custom "generic" section, just pass a string.
+   * To create an alias for an existing section, pass a tuple containing the
+     alias name and the original, in that order.
+   * To create a custom section that displays like the parameters or returns
+     section, pass a tuple containing the custom section name and a string
+     value, "params_style" or "returns_style".
+
+   If an entry is just a string, it is interpreted as a header for a generic
+   section. If the entry is a tuple/list/indexed container, the first entry
+   is the name of the section, the second is the section key to emulate. If the
+   second entry value is "params_style" or "returns_style", the custom section
+   will be displayed like the parameters section or returns section.
+
+   .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+      Support ``params_style`` and ``returns_style``
