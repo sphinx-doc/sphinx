@@ -153,7 +153,10 @@ def mock(modnames: List[str]) -> Generator[None, None, None]:
 def ismock(subject: Any) -> bool:
     """Check if the object is mocked."""
     # check the object has '__sphinx_mock__' attribute
-    if not hasattr(subject, '__sphinx_mock__'):
+    try:
+        if safe_getattr(subject, '__sphinx_mock__', None) is None:
+            return False
+    except AttributeError:
         return False
 
     # check the object is mocked module
