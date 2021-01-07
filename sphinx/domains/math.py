@@ -157,8 +157,11 @@ class MathDomain(Domain):
         targets = [eq for eq in self.equations.values() if eq[0] == docname]
         return len(targets) + 1
 
-    def has_equations(self) -> bool:
-        return any(self.data['has_equations'].values())
+    def has_equations(self, docname: str = None) -> bool:
+        if docname:
+            return self.data['has_equations'].get(docname, False)
+        else:
+            return any(self.data['has_equations'].values())
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

@@ -958,6 +958,9 @@ class Sphinx:
            * - 800
              - default priority for :confval:`html_js_files`
 
+        A JavaScript file can be added to the specific HTML page when on extension
+        calls this method on :event:`html-page-context` event.
+
         .. versionadded:: 0.5
 
         .. versionchanged:: 1.8
@@ -965,7 +968,7 @@ class Sphinx:
            And it allows keyword arguments as attributes of script tag.
 
         .. versionchanged:: 3.5
-           Take priority argument.
+           Take priority argument.  Allow to add a JavaScript file to the specific page.
         """
         self.registry.add_js_file(filename, priority=priority, **kwargs)
         if hasattr(self.builder, 'add_js_file'):
@@ -1004,6 +1007,9 @@ class Sphinx:
            * - 800
              - default priority for :confval:`html_css_files`
 
+        A CSS file can be added to the specific HTML page when on extension calls
+        this method on :event:`html-page-context` event.
+
         .. versionadded:: 1.0
 
         .. versionchanged:: 1.6
@@ -1018,7 +1024,7 @@ class Sphinx:
            And it allows keyword arguments as attributes of link tag.
 
         .. versionchanged:: 3.5
-           Take priority argument.
+           Take priority argument.  Allow to add a CSS file to the specific page.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)
