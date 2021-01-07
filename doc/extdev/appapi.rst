@@ -376,6 +376,9 @@ Here is a more detailed list of these events.
    You can return a string from the handler, it will then replace
    ``'page.html'`` as the HTML template for this page.
 
+   .. note:: You can install JS/CSS files for the specific page via
+             :meth:`Sphinx.add_js_file` and :meth:`Sphinx.add_css_file` since v3.5.0.
+
    .. versionadded:: 0.4
 
    .. versionchanged:: 1.3

@@ -917,9 +917,11 @@ class Sphinx:
         Add *filename* to the list of JavaScript files that the default HTML
         template will include in order of *priority* (ascending).  The filename
         must be relative to the HTML static path , or a full URI with scheme.
-        If the keyword argument ``body`` is given, its value will be added
-        between the ``<script>`` tags. Extra keyword arguments are included as
-        attributes of the ``<script>`` tag.
+        If the priority of JavaScript file is the same as others, the JavaScript
+        files will be included in order of the registration.  If the keyword
+        argument ``body`` is given, its value will be added between the
+        ``<script>`` tags. Extra keyword arguments are included as attributes of
+        the ``<script>`` tag.
 
         Example::
 
@@ -944,6 +946,9 @@ class Sphinx:
            * - 800
              - default priority for :confval:`html_js_files`
 
+        A JavaScript file can be added to the specific HTML page when on extension
+        calls this method on :event:`html-page-context` event.
+
         .. versionadded:: 0.5
 
         .. versionchanged:: 1.8
@@ -951,7 +956,7 @@ class Sphinx:
            And it allows keyword arguments as attributes of script tag.
 
         .. versionchanged:: 3.5
-           Take priority argument.
+           Take priority argument.  Allow to add a JavaScript file to the specific page.
         """
         self.registry.add_js_file(filename, priority=priority, **kwargs)
         if hasattr(self.builder, 'add_js_file'):
@@ -962,8 +967,10 @@ class Sphinx:
 
         Add *filename* to the list of CSS files that the default HTML template
         will include in order of *priority* (ascending).  The filename must be
-        relative to the HTML static path, or a full URI with scheme.  The
-        eyword arguments are also accepted for attributes of ``<link>`` tag.
+        relative to the HTML static path, or a full URI with scheme.  If the
+        priority of CSS file is the same as others, the CSS files will be
+        included in order of the registration.  The keyword arguments are also
+        accepted for attributes of ``<link>`` tag.
 
         Example::
 
@@ -990,6 +997,9 @@ class Sphinx:
            * - 800
              - default priority for :confval:`html_css_files`
 
+        A CSS file can be added to the specific HTML page when on extension calls
+        this method on :event:`html-page-context` event.
+
         .. versionadded:: 1.0
 
         .. versionchanged:: 1.6
@@ -1004,7 +1014,7 @@ class Sphinx:
            And it allows keyword arguments as attributes of link tag.
 
         .. versionchanged:: 3.5
-           Take priority argument.
+           Take priority argument.  Allow to add a CSS file to the specific page.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)

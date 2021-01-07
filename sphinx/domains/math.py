@@ -136,8 +136,11 @@ class MathDomain(Domain):
     def get_objects(self) -> List:
         return []
 
-    def has_equations(self) -> bool:
-        return any(self.data['has_equations'].values())
+    def has_equations(self, docname: str = None) -> bool:
+        if docname:
+            return self.data['has_equations'].get(docname, False)
+        else:
+            return any(self.data['has_equations'].values())
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

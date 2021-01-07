@@ -1003,7 +1003,14 @@ that use Sphinx's HTMLWriter class.
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
 
+   As a special attribute, *priority* can be set as an integer to load the CSS
+   file earlier or lazier step.  For more information, refer
+   :meth:`Sphinx.add_css_files()`.
+
    .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+
+      Support priority attribute
 
 .. confval:: html_js_files
 
@@ -1019,7 +1026,14 @@ that use Sphinx's HTMLWriter class.
                         'https://example.com/scripts/custom.js',
                         ('custom.js', {'async': 'async'})]
 
+   As a special attribute, *priority* can be set as an integer to load the CSS
+   file earlier or lazier step.  For more information, refer
+   :meth:`Sphinx.add_css_files()`.
+
    .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+
+      Support priority attribute
 
 .. confval:: html_static_path
 

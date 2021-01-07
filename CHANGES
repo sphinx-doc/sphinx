@@ -81,6 +81,12 @@ Features added
 * #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
   for :meth:`Sphinx.add_js_file()` and :meth:`Sphinx.add_css_file()`
+* #6241: html: Allow to add JS/CSS files to the specific page when an extension
+  calls ``app.add_js_file()`` or ``app.add_css_file()`` on
+  :event:`html-page-context` event
+* #8649: imgconverter: Skip availability check if builder supports the image
+  type
+* #6241: mathjax: Include mathjax.js only on the document using equations
 * #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
 
 Bugs fixed
@@ -102,7 +108,7 @@ Bugs fixed
 Testing
 --------
 
-Release 3.4.2 (in development)
+Release 3.4.4 (in development)
 ==============================
 
 Dependencies
@@ -120,14 +126,29 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 3.4.3 (released Jan 08, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8655: autodoc: Failed to generate document if target module contains an
+  object that raises an exception on ``hasattr()``
+
+Release 3.4.2 (released Jan 04, 2021)
+=====================================
+
+Bugs fixed
+----------
+
 * #8164: autodoc: Classes that inherit mocked class are not documented
 * #8602: autodoc: The ``autodoc-process-docstring`` event is emitted to the
   non-datadescriptors unexpectedly
 * #8616: autodoc: AttributeError is raised on non-class object is passed to
   autoclass directive
-
-Testing
---------
 
 Release 3.4.1 (released Dec 25, 2020)
 =====================================

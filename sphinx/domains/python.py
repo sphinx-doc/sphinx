@@ -333,7 +333,7 @@ class PyTypedField(PyXrefMixin, TypedField):
         return super().make_xref(rolename, domain, target, innernode, contnode, env)
 
 
-class PyObject(ObjectDescription):
+class PyObject(ObjectDescription[Tuple[str, str]]):
     """
     Description of a general Python object.
 

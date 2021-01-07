@@ -9,7 +9,7 @@
 """
 
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -31,6 +31,8 @@ if TYPE_CHECKING:
 nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
 
+T = TypeVar('T')
+
 
 def optional_int(argument: str) -> int:
     """
@@ -45,7 +47,7 @@ def optional_int(argument: str) -> int:
         return value
 
 
-class ObjectDescription(SphinxDirective):
+class ObjectDescription(SphinxDirective, Generic[T]):
     """
     Directive to describe a class, function or similar object.  Not used
     directly, but subclassed (in domain-specific directives) to add custom
@@ -95,7 +97,7 @@ class ObjectDescription(SphinxDirective):
         else:
             return [line.strip() for line in lines]
 
-    def handle_signature(self, sig: str, signode: desc_signature) -> Any:
+    def handle_signature(self, sig: str, signode: desc_signature) -> T:
         """
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
@@ -107,7 +109,7 @@ class ObjectDescription(SphinxDirective):
         """
         raise ValueError
 
-    def add_target_and_index(self, name: Any, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(self, name: T, sig: str, signode: desc_signature) -> None:
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
 
@@ -171,7 +173,7 @@ class ObjectDescription(SphinxDirective):
         if self.domain:
             node['classes'].append(self.domain)
 
-        self.names = []  # type: List[Any]
+        self.names = []  # type: List[T]
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             # add a signature node for each signature in the current unit
