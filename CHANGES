@@ -1,26 +1,11 @@
-Release 3.4.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 3.4.3 (released Jan 08, 2021)
+=====================================
 
 Bugs fixed
 ----------
 
 * #8655: autodoc: Failed to generate document if target module contains an
   object that raises an exception on ``hasattr()``
-
-Testing
---------
 
 Release 3.4.2 (released Jan 04, 2021)
 =====================================
