@@ -18,10 +18,10 @@ for stable releases
 * ``python utils/bump_version.py --in-develop X.Y.Zb0`` (ex. 1.5.3b0)
 * Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
-* ``git push origin X.Y --tags``
-* ``git checkout master``
-* ``git merge X.Y``
-* ``git push origin master``
+* ``git push origin X.Y.x --tags``
+* ``git checkout X.x``
+* ``git merge X.Y.x``
+* ``git push origin X.x``
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
 
@@ -43,10 +43,10 @@ for first beta releases
 * ``python utils/bump_version.py --in-develop X.Y.0b2`` (ex. 1.6.0b2)
 * Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
-* ``git checkout -b X.Y``
-* ``git push origin X.Y --tags``
+* ``git checkout -b X.x``
+* ``git push origin X.x --tags``
 * ``git checkout master``
-* ``git merge X.Y``
+* ``git merge X.x``
 * ``python utils/bump_version.py --in-develop A.B.0b0`` (ex. 1.7.0b0)
 * Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
@@ -71,9 +71,9 @@ for other beta releases
 * ``python utils/bump_version.py --in-develop X.Y.0bM`` (ex. 1.6.0b3)
 * Check diff by `git diff``
 * ``git commit -am 'Bump version'``
-* ``git push origin X.Y --tags``
+* ``git push origin X.x --tags``
 * ``git checkout master``
-* ``git merge X.Y``
+* ``git merge X.x``
 * ``git push origin master``
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
@@ -99,9 +99,9 @@ for major releases
 * ``python utils/bump_version.py --in-develop X.Y.1b0`` (ex. 1.6.1b0)
 * Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
-* ``git push origin X.Y --tags``
+* ``git push origin X.x --tags``
 * ``git checkout master``
-* ``git merge X.Y``
+* ``git merge X.x``
 * ``git push origin master``
 * open https://github.com/sphinx-doc/sphinx/settings/branches and make ``A.B`` branch *not* protected
 * ``git checkout A.B`` (checkout old stable)
