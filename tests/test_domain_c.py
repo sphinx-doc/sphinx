@@ -680,6 +680,40 @@ def test_ids_vs_tags2(app, warning):
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_ids_vs_tags3(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "ids-vs-tags3")
+    assert len(ws) == 0
+    t = (app.outdir / "ids-vs-tags3.html").read_text()
+    lis = [l for l in t.split('\n') if l.startswith("<li")]
+    entries = []
+    for l in lis:
+        li = ElementTree.fromstring(l)
+        assert li.tag == 'li'
+        assert len(li) == 1
+        p = li[0]
+        assert p.tag == 'p'
+        assert len(p) == 1
+        a = p[0]
+        assert a.tag == 'a'
+        target = a.attrib['href'].lstrip('#')
+        title = a.attrib['title']
+        assert len(a) == 1
+        code = a[0]
+        assert code.tag == 'code'
+        text = ''.join(code.itertext())
+        entries.append((target, title, text))
+    idPrefix = 'C2-@ids_vs_tags3.'
+    expected = [
+        (idPrefix + 'f1', 'f1.i', 'f1.i'),
+        (idPrefix + '-f1.i', 'struct f1.i', 'struct f1.i'),
+        (idPrefix + 'f2', 'f2.i', 'f2.i'),
+        (idPrefix + '-f2.i', 'struct f2.i', 'struct f2.i'),
+    ]
+    assert entries == expected
+
+
 def test_duplicate_tags(app, warning):
     text = """
 .. c:struct:: A
