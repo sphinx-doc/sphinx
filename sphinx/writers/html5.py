@@ -279,13 +279,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             if figure_id in self.builder.fignumbers.get(key, {}):
                 self.body.append('<span class="caption-number">')
                 prefix = self.builder.config.numfig_format.get(figtype)
+                if prefix is None and hasattr(node, "numfig_format"):
+                    prefix = node.numfig_format(self.builder, figtype, ref=False)
                 if prefix is None:
                     msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
                 else:
                     numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
-                    self.body.append('</span>')
+                self.body.append('</span>')
 
         figtype = self.builder.env.domains['std'].get_enumerable_node_type(node)
         if figtype:

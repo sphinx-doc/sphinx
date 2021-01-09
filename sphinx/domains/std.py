@@ -845,8 +845,12 @@ class StandardDomain(Domain):
         try:
             if node['refexplicit']:
                 title = contnode.astext()
+            elif figtype in env.config.numfig_format:
+                title = env.config.numfig_format[figtype]
+            elif hasattr(target_node, "numfig_format"):
+                title = target_node.numfig_format(builder, figtype, ref=True)
             else:
-                title = env.config.numfig_format.get(figtype, '')
+                title = ''
 
             if figname is None and '{name}' in title:
                 logger.warning(__('the link has no caption: %s'), title, location=node)
