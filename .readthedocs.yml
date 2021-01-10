@@ -1,0 +1,7 @@
+python:
+  version: 3
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
