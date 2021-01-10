@@ -2,11 +2,21 @@
 
 .. c:struct:: A
 
-   .. c:union:: @data
+   .. c:union:: @B
 
-      .. c:member:: int a
+      .. c:enum:: C
 
-- :c:member:`struct A.union @data.a`
-- :c:member:`A.a`
-- :c:member:`A.@data.a`
-- :c:member:`A.a`
+         .. c:enumerator:: D
+
+- :c:enumerator:`struct A.union @B.enum C.D`
+- :c:enumerator:`A.union @B.enum C.D`
+- :c:enumerator:`struct A.@B.enum C.D`
+- :c:enumerator:`struct A.union @B.C.D`
+- :c:enumerator:`A.@B.enum C.D`
+- :c:enumerator:`A.union @B.C.D`
+- :c:enumerator:`struct A.@B.C.D`
+- :c:enumerator:`A.@B.C.D`
+- :c:enumerator:`struct A.enum C.D`
+- :c:enumerator:`A.enum C.D`
+- :c:enumerator:`struct A.C.D`
+- :c:enumerator:`A.C.D`

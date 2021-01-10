@@ -3836,18 +3836,39 @@ class CDomain(Domain):
         # check if tags are used correctly
         sName = s.get_full_nested_name()
         assert len(name.names) <= len(sName.names)
-        for n, ns in zip(reversed(name.names), reversed(sName.names)):
-            if n.tag is None:
+        nextName = len(sName.names) - 1
+        # print("Matching '{}' to '{}'".format(name, sName))
+        for xRefName in reversed(name.names):
+            # find the next symbol name that matches the xref name
+            # potentially skipping anon names
+            # print("\tMatching:", xRefName)
+            stop = False
+            while True:
+                if nextName == -1:
+                    stop = True
+                    break
+                ns = sName.names[nextName]
+                nextName -= 1
+                if xRefName.identifier == ns.identifier:
+                    # print("\t\tSame ident:", ns)
+                    break
+                else:
+                    # print("\t\tSkipping:", ns)
+                    assert ns.is_anon()
+            if stop:
+                break
+            # print("\t\tRes(nextName={}): '{}' vs. '{}'".format(nextName, xRefName, ns))
+            if xRefName.tag is None:
                 continue
             assert ns.tag is not None
-            assert (n.tag == '') == (ns.tag == '')
-            if n.tag != ns.tag:
+            assert (xRefName.tag == '') == (ns.tag == '')
+            if xRefName.tag != ns.tag:
                 logger.warning(
                     "C '%s' cross-reference uses wrong tag:"
                     " reference name is '%s' but found name is '%s'."
                     " Full reference name is '%s'."
                     " Full found name is '%s'.",
-                    typ, n, ns, name, sName, location=node)
+                    typ, xRefName, ns, name, sName, location=node)
 
         # TODO: check role type vs. object type
 
