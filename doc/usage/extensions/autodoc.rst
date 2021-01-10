@@ -157,7 +157,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      ``:meta private:`` in its :ref:`info-field-lists`.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -172,7 +172,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      an underscore.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def _my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -186,7 +186,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      docstring contains ``:meta hide-value:`` in its :ref:`info-field-lists`.
      Example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         var1 = None  #: :meta hide-value:
 
