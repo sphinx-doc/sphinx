@@ -315,7 +315,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
             if figure_id in self.builder.fignumbers.get(key, {}):
                 self.body.append('<span class="caption-number">')
-                prefix = self.builder.config.numfig_format.get(figtype)
+                prefix = self.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
@@ -439,14 +439,14 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         linenos = node.get('linenos', False)
         highlight_args = node.get('highlight_args', {})
         highlight_args['force'] = node.get('force', False)
-        if lang is self.builder.config.highlight_language:
+        if lang is self.config.highlight_language:
             # only pass highlighter options for original language
-            opts = self.builder.config.highlight_options
+            opts = self.config.highlight_options
         else:
             opts = {}
 
-        if linenos and self.builder.config.html_codeblock_linenos_style:
-            linenos = self.builder.config.html_codeblock_linenos_style
+        if linenos and self.config.html_codeblock_linenos_style:
+            linenos = self.config.html_codeblock_linenos_style
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
