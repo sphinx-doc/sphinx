@@ -1,4 +1,4 @@
-.. c:namespace:: @ids_vs_tags
+.. c:namespace:: ids_vs_tags
 
 .. c:struct:: f_struct
 .. c:type:: struct f_struct f_struct

@@ -654,7 +654,7 @@ def test_ids_vs_tags1(app, warning):
         text = ''.join(code.itertext())
         entries.append((target, title, text))
     expected = []
-    idPrefix = 'C2-@ids_vs_tags.'
+    idPrefix = 'C2-ids_vs_tags.'
     for tag in ['struct', 'union', 'enum']:
         name = 'f_' + tag
         tagTitle = tag + ' ' + name
@@ -704,7 +704,7 @@ def test_ids_vs_tags3(app, warning):
         assert code.tag == 'code'
         text = ''.join(code.itertext())
         entries.append((target, title, text))
-    idPrefix = 'C2-@ids_vs_tags3.'
+    idPrefix = 'C2-ids_vs_tags3.'
     expected = [
         (idPrefix + 'f1', 'f1.i', 'f1.i'),
         (idPrefix + '-f1.i', 'struct f1.i', 'struct f1.i'),
@@ -738,11 +738,11 @@ def test_build_domain_c_wrong_tags(app, warning):
                " Full reference name is '%s'."\
                " Full found name is '%s'."
     expected = [
-        template % (8, 'var', 'union A', 'struct A', 'union A.i', '@wrong_tag.struct A.i'),
-        template % (9, 'var', 'enum A', 'struct A', 'enum A.i', '@wrong_tag.struct A.i'),
-        template % (11, 'identifier', 'union A', 'struct A', 'union A', '@wrong_tag.struct A'),
-        template % (13, 'identifier', 'enum A', 'struct A', 'enum A', '@wrong_tag.struct A'),
-        template % (14, 'identifier', 'union A', 'struct A', 'union A', '@wrong_tag.struct A'),
+        template % (8, 'var', 'union A', 'struct A', 'union A.i', 'wrong_tag.struct A.i'),
+        template % (9, 'var', 'enum A', 'struct A', 'enum A.i', 'wrong_tag.struct A.i'),
+        template % (11, 'identifier', 'union A', 'struct A', 'union A', 'wrong_tag.struct A'),
+        template % (13, 'identifier', 'enum A', 'struct A', 'enum A', 'wrong_tag.struct A'),
+        template % (14, 'identifier', 'union A', 'struct A', 'union A', 'wrong_tag.struct A'),
     ]
     for i in range(len(expected)):
         assert expected[i] in ws[i]
@@ -774,8 +774,8 @@ def test_build_function_param_target(app, warning):
     assert len(ws) == 0
     entries = extract_role_links(app, "function_param_target.html")
     assert entries == [
-        ('C2-f', 'i', 'i'),
-        ('C2-f', 'f.i', 'f.i'),
+        ('C2-function_param_target.f', 'i', 'i'),
+        ('C2-function_param_target.f', 'f.i', 'f.i'),
     ]
 
 

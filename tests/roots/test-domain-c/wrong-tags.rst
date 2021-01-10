@@ -1,4 +1,4 @@
-.. c:namespace:: @wrong_tag
+.. c:namespace:: wrong_tag
 
 .. c:struct:: A
 

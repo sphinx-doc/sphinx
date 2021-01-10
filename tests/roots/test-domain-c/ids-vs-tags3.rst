@@ -1,4 +1,4 @@
-.. c:namespace:: @ids_vs_tags3
+.. c:namespace:: ids_vs_tags3
 
 .. c:function:: void f1(int i)
 

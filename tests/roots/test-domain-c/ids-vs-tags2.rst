@@ -1,4 +1,4 @@
-.. c:namespace:: @ids_vs_tags2
+.. c:namespace:: ids_vs_tags2
 
 .. c:struct:: A
 
