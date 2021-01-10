@@ -43,6 +43,7 @@ Bugs fixed
 * #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
   + or ^) are used as keystrokes
 * #8629: html: A type warning for html_use_opensearch is shown twice
+* #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
 * #8094: texinfo: image files on the different directory with document are not
   copied
 
