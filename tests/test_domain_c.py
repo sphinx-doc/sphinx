@@ -595,6 +595,13 @@ def test_build_function_param_target(app, warning):
     ]
 
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_ns_lookup(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "ns_lookup")
+    assert len(ws) == 0
+
+
 def _get_obj(app, queryName):
     domain = app.env.get_domain('c')
     for name, dispname, objectType, docname, anchor, prio in domain.get_objects():
