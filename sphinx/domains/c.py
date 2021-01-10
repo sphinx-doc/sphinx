@@ -137,8 +137,7 @@ class ASTIdentifier(ASTBaseBase):
                                           reftype='identifier',
                                           reftarget=targetText, modname=None,
                                           classname=None)
-            key = symbol.get_lookup_key()
-            pnode['c:parent_key'] = key
+            pnode['c:parent_key'] = symbol.get_lookup_key()
             if self.is_anon():
                 pnode += nodes.strong(text="[anonymous]")
             else:
@@ -3204,7 +3203,8 @@ class CObject(ObjectDescription):
     def parse_pre_v3_type_definition(self, parser: DefinitionParser) -> ASTDeclaration:
         return parser.parse_pre_v3_type_definition()
 
-    def describe_signature(self, signode: TextElement, ast: Any, options: Dict) -> None:
+    def describe_signature(self, signode: TextElement, ast: ASTDeclaration,
+                           options: Dict) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def run(self) -> List[Node]:
@@ -3642,7 +3642,7 @@ class CExprRole(SphinxRole):
                            location=self.get_source_info())
             # see below
             return [self.node_type(text, text, classes=classes)], []
-        parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
+        parentSymbol = self.env.temp_data.get('c:parent_symbol', None)
         if parentSymbol is None:
             parentSymbol = self.env.domaindata['c']['root_symbol']
         # ...most if not all of these classes should really apply to the individual references,

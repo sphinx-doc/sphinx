@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #8655: autodoc: Failed to generate document if target module contains an
+  object that raises an exception on ``hasattr()``
+* C, ``expr`` role should start symbol lookup in the current scope.
+
 Testing
 --------
 
