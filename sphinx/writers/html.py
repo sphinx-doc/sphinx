@@ -439,7 +439,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         linenos = node.get('linenos', False)
         highlight_args = node.get('highlight_args', {})
         highlight_args['force'] = node.get('force', False)
-        if lang is self.config.highlight_language:
+        if lang == self.config.highlight_language:
             # only pass highlighter options for original language
             opts = self.config.highlight_options
         else:

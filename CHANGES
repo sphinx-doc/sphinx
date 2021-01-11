@@ -46,6 +46,7 @@ Bugs fixed
 * #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
 * #8094: texinfo: image files on the different directory with document are not
   copied
+* #8671: :confval:`highlight_options` is not working
 
 Testing
 --------
