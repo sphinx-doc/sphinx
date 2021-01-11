@@ -114,35 +114,35 @@
 	class
 	struct
 	union
-	func
+	:func:`TParamType`
 	member
 	var
 	type
-	concept
-	enum
-	enumerator
+	:concept:`TParamType`
+	:enum:`TParamType`
+	:enumerator:`TParamType`
 
 	class
 	struct
 	union
-	func
+	:func:`TParamVar`
 	member
 	var
 	type
-	concept
-	enum
-	enumerator
+	:concept:`TParamVar`
+	:enum:`TParamVar`
+	:enumerator:`TParamVar`
 
 	class
 	struct
 	union
-	func
+	:func:`TParamTemplate`
 	member
 	var
 	type
-	concept
-	enum
-	enumerator
+	:concept:`TParamTemplate`
+	:enum:`TParamTemplate`
+	:enumerator:`TParamTemplate`
 
 .. function:: void FunctionParams(int FunctionParam)
 

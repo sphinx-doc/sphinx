@@ -7,6 +7,8 @@
     :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import zlib
 from xml.etree import ElementTree
 
 import pytest
@@ -14,6 +16,7 @@ import pytest
 from sphinx import addnodes
 from sphinx.addnodes import desc
 from sphinx.domains.c import DefinitionError, DefinitionParser, Symbol, _id_prefix, _max_id
+from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
@@ -642,3 +645,52 @@ def test_noindexentry(app):
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
+
+
+@pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
+def test_intersphinx(tempdir, app, status, warning):
+    origSource = """\
+.. c:member:: int _member
+.. c:var:: int _var
+.. c:function:: void _function()
+.. c:macro:: _macro
+.. c:struct:: _struct
+.. c:union:: _union
+.. c:enum:: _enum
+
+    .. c:enumerator:: _enumerator
+
+.. c:type:: _type
+.. c:function:: void _functionParam(int param)
+"""  # noqa
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: C Intersphinx Test
+# Version: 
+# The remainder of this file is compressed using zlib.
+''' + zlib.compress(b'''\
+_enum c:enum 1 index.html#c.$ -
+_enum._enumerator c:enumerator 1 index.html#c.$ -
+_enumerator c:enumerator 1 index.html#c._enum.$ -
+_function c:function 1 index.html#c.$ -
+_functionParam c:function 1 index.html#c.$ -
+_functionParam.param c:functionParam 1 index.html#c._functionParam -
+_macro c:macro 1 index.html#c.$ -
+_member c:member 1 index.html#c.$ -
+_struct c:struct 1 index.html#c.$ -
+_type c:type 1 index.html#c.$ -
+_union c:union 1 index.html#c.$ -
+_var c:member 1 index.html#c.$ -
+'''))  # noqa
+    app.config.intersphinx_mapping = {
+        'https://localhost/intersphinx/c/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    app.builder.build_all()
+    ws = filter_warnings(warning, "index")
+    assert len(ws) == 0
