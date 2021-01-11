@@ -28,6 +28,7 @@ Features added
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
 * #6241: mathjax: Include mathjax.js only on the document using equations
+* #8651: std domain: cross-reference for a rubric having inline item is broken
 * #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
 
 Bugs fixed

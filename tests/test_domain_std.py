@@ -412,3 +412,13 @@ def test_disabled_docref(app):
     assert_node(doctree, ([nodes.paragraph, ([pending_xref, nodes.inline, "index"],
                                              "\n",
                                              [nodes.inline, "index"])],))
+
+
+def test_labeled_rubric(app):
+    text = (".. _label:\n"
+            ".. rubric:: blah *blah* blah\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label' in domain.labels
+    assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
