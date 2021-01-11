@@ -523,7 +523,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         ret = []
         # latex_domain_indices can be False/True or a list of index names
-        indices_config = self.builder.config.latex_domain_indices
+        indices_config = self.config.latex_domain_indices
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
@@ -543,7 +543,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def render(self, template_name: str, variables: Dict) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
-        for template_dir in self.builder.config.templates_path:
+        for template_dir in self.config.templates_path:
             template = path.join(self.builder.confdir, template_dir,
                                  template_name)
             if path.exists(template):
@@ -963,7 +963,7 @@ class LaTeXTranslator(SphinxTranslator):
         cell = self.table.cell()
         context = ''
         if cell.width > 1:
-            if self.builder.config.latex_use_latex_multicolumn:
+            if self.config.latex_use_latex_multicolumn:
                 if self.table.col == 0:
                     self.body.append('\\multicolumn{%d}{|l|}{%%\n' % cell.width)
                 else:
@@ -1543,7 +1543,7 @@ class LaTeXTranslator(SphinxTranslator):
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
             self.body.append(r'\emph{')
-            if self.builder.config.latex_show_pagerefs and not \
+            if self.config.latex_show_pagerefs and not \
                     self.in_production_list:
                 self.context.append('}}} (%s)' % self.hyperpageref(id))
             else:
@@ -1567,8 +1567,7 @@ class LaTeXTranslator(SphinxTranslator):
                 self.body.append(r'\sphinxtermref{')
             else:
                 self.body.append(r'\sphinxcrossref{')
-                if self.builder.config.latex_show_pagerefs and not \
-                   self.in_production_list:
+                if self.config.latex_show_pagerefs and not self.in_production_list:
                     self.context.append('}}} (%s)' % self.hyperpageref(id))
                 else:
                     self.context.append('}}}')
@@ -1752,9 +1751,9 @@ class LaTeXTranslator(SphinxTranslator):
             linenos = node.get('linenos', False)
             highlight_args = node.get('highlight_args', {})
             highlight_args['force'] = node.get('force', False)
-            if lang is self.builder.config.highlight_language:
+            if lang is self.config.highlight_language:
                 # only pass highlighter options for original language
-                opts = self.builder.config.highlight_options
+                opts = self.config.highlight_options
             else:
                 opts = {}
 
@@ -2018,12 +2017,12 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             from sphinx.util.math import wrap_displaymath
             self.body.append(wrap_displaymath(node.astext(), label,
-                                              self.builder.config.math_number_all))
+                                              self.config.math_number_all))
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
         label = "equation:%s:%s" % (node['docname'], node['target'])
-        eqref_format = self.builder.config.math_eqref_format
+        eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:
                 ref = r'\ref{%s}' % label
@@ -2088,7 +2087,7 @@ class LaTeXTranslator(SphinxTranslator):
         warnings.warn('generate_numfig_format() is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
         ret = []  # type: List[str]
-        figure = self.builder.config.numfig_format['figure'].split('%s', 1)
+        figure = self.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' % self.escape(figure[0]).strip())
         else:
@@ -2099,7 +2098,7 @@ class LaTeXTranslator(SphinxTranslator):
                        self.escape(figure[1]))
             ret.append('\\makeatother\n')
 
-        table = self.builder.config.numfig_format['table'].split('%s', 1)
+        table = self.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' % self.escape(table[0]).strip())
         else:
@@ -2110,7 +2109,7 @@ class LaTeXTranslator(SphinxTranslator):
                        self.escape(table[1]))
             ret.append('\\makeatother\n')
 
-        codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
+        codeblock = self.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
             pass  # FIXME
         else:
