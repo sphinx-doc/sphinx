@@ -7251,14 +7251,18 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class':      ObjType(_('class'),      'class',             'type', 'identifier'),
-        'union':      ObjType(_('union'),      'union',             'type', 'identifier'),
-        'function':   ObjType(_('function'),   'function',  'func', 'type', 'identifier'),
-        'member':     ObjType(_('member'),     'member',    'var'),
-        'type':       ObjType(_('type'),                            'type', 'identifier'),
-        'concept':    ObjType(_('concept'),    'concept',                   'identifier'),
-        'enum':       ObjType(_('enum'),       'enum',              'type', 'identifier'),
-        'enumerator': ObjType(_('enumerator'), 'enumerator')
+        'class':      ObjType(_('class'),      'class', 'struct',   'identifier', 'type'),
+        'union':      ObjType(_('union'),      'union',             'identifier', 'type'),
+        'function':   ObjType(_('function'),   'func',              'identifier', 'type'),
+        'member':     ObjType(_('member'),     'member', 'var',     'identifier'),
+        'type':       ObjType(_('type'),                            'identifier', 'type'),
+        'concept':    ObjType(_('concept'),    'concept',           'identifier'),
+        'enum':       ObjType(_('enum'),       'enum',              'identifier', 'type'),
+        'enumerator': ObjType(_('enumerator'), 'enumerator',        'identifier'),
+        # generated object types
+        'functionParam': ObjType(_('function parameter'),           'identifier', 'member', 'var'),  # noqa
+        'templateParam': ObjType(_('template parameter'),
+                                 'identifier', 'class', 'struct', 'union', 'member', 'var', 'type'),  # noqa
     }
 
     directives = {
@@ -7435,30 +7439,19 @@ class CPPDomain(Domain):
 
         if typ.startswith('cpp:'):
             typ = typ[4:]
-        origTyp = typ
-        if typ == 'func':
-            typ = 'function'
-        if typ == 'struct':
-            typ = 'class'
         declTyp = s.declaration.objectType
 
         def checkType() -> bool:
-            if typ == 'any' or typ == 'identifier':
+            if typ == 'any':
                 return True
-            if declTyp == 'templateParam':
-                # TODO: perhaps this should be strengthened one day
-                return True
-            if declTyp == 'functionParam':
-                if typ == 'var' or typ == 'member':
-                    return True
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
-            print("Type is %s (originally: %s), declType is %s" % (typ, origTyp, declTyp))
+            print("Type is %s, declaration type is %s" % (typ, declTyp))
             assert False
         if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",
-                           origTyp, s.declaration.objectType,
+                           typ, s.declaration.objectType,
                            s.get_full_nested_name(),
                            location=node)
 
@@ -7488,10 +7481,10 @@ class CPPDomain(Domain):
                     if env.config.add_function_parentheses and typ == 'any':
                         addParen += 1
                     # and now this stuff for operator()
-                    if (env.config.add_function_parentheses and typ == 'function' and
+                    if (env.config.add_function_parentheses and typ == 'func' and
                             title.endswith('operator()')):
                         addParen += 1
-                    if ((typ == 'any' or typ == 'function') and
+                    if ((typ == 'any' or typ == 'func') and
                             title.endswith('operator') and
                             displayName.endswith('operator()')):
                         addParen += 1
@@ -7500,7 +7493,7 @@ class CPPDomain(Domain):
                     if env.config.add_function_parentheses:
                         if typ == 'any' and displayName.endswith('()'):
                             addParen += 1
-                        elif typ == 'function':
+                        elif typ == 'func':
                             if title.endswith('()') and not displayName.endswith('()'):
                                 title = title[:-2]
                     else:
