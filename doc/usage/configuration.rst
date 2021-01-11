@@ -942,8 +942,11 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_baseurl
 
-   The URL which points to the root of the HTML documentation.  It is used to
-   indicate the location of document like ``canonical_url``.
+   The base URL which points to the root of the HTML documentation.  It is used
+   to indicate the location of document using `The Canonical Link Relation`_.
+   Default: ``''``.
+
+   .. _The Canonical Link Relation: https://tools.ietf.org/html/rfc6596
 
    .. versionadded:: 1.8
 
