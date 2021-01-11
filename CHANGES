@@ -29,6 +29,7 @@ Features added
   type
 * #6241: mathjax: Include mathjax.js only on the document using equations
 * #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
+* #207: Now :confval:`highlight_language` supports multiple languages
 
 Bugs fixed
 ----------

@@ -390,11 +390,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         linenos = node.get('linenos', False)
         highlight_args = node.get('highlight_args', {})
         highlight_args['force'] = node.get('force', False)
-        if lang == self.config.highlight_language:
-            # only pass highlighter options for original language
-            opts = self.config.highlight_options
-        else:
-            opts = {}
+        opts = self.config.highlight_options.get(lang, {})
 
         if linenos and self.config.html_codeblock_linenos_style:
             linenos = self.config.html_codeblock_linenos_style
