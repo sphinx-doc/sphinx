@@ -11,6 +11,7 @@ Deprecated
 ----------
 
 * ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
+* ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
 * ``sphinx.ext.autodoc.importer.get_module_members()``
 
 Features added
