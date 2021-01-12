@@ -572,9 +572,11 @@ __ http://pygments.org/docs/lexers
       .. versionadded:: 1.3
 
    .. rst:directive:option:: dedent: number
-      :type: number
+      :type: number or no value
 
-      Strip indentation characters from the code block. For example::
+      Strip indentation characters from the code block.  When number given,
+      leading N characters are removed.  When no argument given, leading spaces
+      are removed via :func:`textwrap.dedent()`.  For example::
 
          .. code-block:: ruby
             :dedent: 4
@@ -582,6 +584,8 @@ __ http://pygments.org/docs/lexers
                 some ruby code
 
       .. versionadded:: 1.3
+      .. versionchanged:: 3.5
+         Support automatic dedent.
 
    .. rst:directive:option:: force
       :type: no value
@@ -741,6 +745,9 @@ __ http://pygments.org/docs/lexers
 
    .. versionchanged:: 2.1
       Added the ``force`` option.
+
+   .. versionchanged:: 3.5
+      Support automatic dedent.
 
 .. _glossary-directive:
 
