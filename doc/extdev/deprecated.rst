@@ -77,6 +77,11 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.ext.autodoc.DataDocumenter``
 
+   * - ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
+     - 3.5
+     - 5.0
+     - ``sphinx.util.logging``
+
    * - ``sphinx.ext.autodoc.importer._getannotations()``
      - 3.4
      - 4.0
