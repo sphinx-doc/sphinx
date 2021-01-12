@@ -88,6 +88,8 @@ def test_format_date():
     assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
 
     # timezone
+    format = '%Z'
+    assert i18n.format_date(format, date=datet) == 'UTC'
     format = '%z'
     assert i18n.format_date(format, date=datet) == '+0000'
 
