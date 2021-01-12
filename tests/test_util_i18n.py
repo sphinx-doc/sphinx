@@ -87,6 +87,10 @@ def test_format_date():
     assert i18n.format_date(format, date=datet) == 'Feb 7, 2016, 5:11:17 AM'
     assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
 
+    # timezone
+    format = '%z'
+    assert i18n.format_date(format, date=datet) == '+0000'
+
 
 @pytest.mark.xfail(os.name != 'posix', reason="Path separators don't match on windows")
 def test_get_filename_for_language(app):

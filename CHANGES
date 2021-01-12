@@ -50,6 +50,7 @@ Bugs fixed
 * #8671: :confval:`highlight_options` is not working
 * #8341: C, fix intersphinx lookup types for names in declarations.
 * C, C++: in general fix intersphinx and role lookup types.
+* #8683: :confval:`html_last_updated_fmt` does not support UTC offset (%z)
 
 Testing
 --------
