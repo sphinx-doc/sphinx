@@ -43,6 +43,8 @@ Bugs fixed
 * #8592: autodoc: ``:meta public:`` does not effect to variables
 * #8594: autodoc: empty __all__ attribute is ignored
 * #8315: autodoc: Failed to resolve struct.Struct type annotation
+* #8652: autodoc: All variable comments in the module are ignored if the module
+  contains invalid type comments
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
 * #8618: html: kbd role produces incorrect HTML when compound-key separators (-,

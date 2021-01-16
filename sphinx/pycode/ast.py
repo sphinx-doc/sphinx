@@ -52,6 +52,10 @@ def parse(code: str, mode: str = 'exec') -> "ast.AST":
     try:
         # type_comments parameter is available on py38+
         return ast.parse(code, mode=mode, type_comments=True)  # type: ignore
+    except SyntaxError:
+        # Some syntax error found. To ignore invalid type comments, retry parsing without
+        # type_comments parameter (refs: https://github.com/sphinx-doc/sphinx/issues/8652).
+        return ast.parse(code, mode=mode)
     except TypeError:
         # fallback to ast module.
         # typed_ast is used to parse type_comments if installed.
