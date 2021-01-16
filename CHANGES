@@ -25,6 +25,8 @@ Incompatible changes
   documents
 * #5977: py domain: ``:var:``, ``:cvar:`` and ``:ivar:`` fields do not create
   cross-references
+* #4550: The ``align`` attribute of ``figure`` and ``table`` nodes becomes
+  ``None`` by default instead of ``'default'``
 
 Deprecated
 ----------
@@ -32,6 +34,7 @@ Deprecated
 * ``sphinx.directives.patches.CSVTable``
 * ``sphinx.directives.patches.ListTable``
 * ``sphinx.directives.patches.RSTTable``
+* ``sphinx.transforms.FigureAligner``
 * ``sphinx.util.pycompat.convert_with_2to3()``
 * ``sphinx.util.pycompat.execfile_()``
 * ``sphinx.util.smartypants``
