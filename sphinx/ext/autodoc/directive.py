@@ -6,6 +6,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
 from typing import Any, Callable, Dict, List, Set, Type
 
 from docutils import nodes
@@ -15,6 +16,7 @@ from docutils.statemachine import StringList
 from docutils.utils import Reporter, assemble_option_dict
 
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import Documenter, Options
 from sphinx.util import logging
@@ -48,7 +50,7 @@ class DocumenterBridge:
     def __init__(self, env: BuildEnvironment, reporter: Reporter, options: Options,
                  lineno: int, state: Any) -> None:
         self.env = env
-        self.reporter = reporter
+        self._reporter = reporter
         self.genopt = options
         self.lineno = lineno
         self.filename_set = set()  # type: Set[str]
@@ -57,6 +59,12 @@ class DocumenterBridge:
 
     def warn(self, msg: str) -> None:
         logger.warning(msg, location=(self.env.docname, self.lineno))
+
+    @property
+    def reporter(self) -> Reporter:
+        warnings.warn('DocumenterBridge.reporter is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self._reporter
 
 
 def process_documenter_options(documenter: "Type[Documenter]", config: Config, options: Dict

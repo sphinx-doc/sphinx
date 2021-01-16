@@ -3657,15 +3657,18 @@ class CDomain(Domain):
     name = 'c'
     label = 'C'
     object_types = {
-        'function': ObjType(_('function'), 'func'),
-        'member': ObjType(_('member'), 'member'),
-        'macro': ObjType(_('macro'), 'macro'),
-        'type': ObjType(_('type'), 'type'),
-        'var': ObjType(_('variable'), 'data'),
-        'enum': ObjType(_('enum'), 'enum'),
-        'enumerator': ObjType(_('enumerator'), 'enumerator'),
-        'struct': ObjType(_('struct'), 'struct'),
-        'union': ObjType(_('union'), 'union'),
+        # 'identifier' is the one used for xrefs generated in signatures, not in roles
+        'member': ObjType(_('member'), 'var', 'member', 'data', 'identifier'),
+        'var': ObjType(_('variable'),  'var', 'member', 'data', 'identifier'),
+        'function': ObjType(_('function'),     'func',          'identifier', 'type'),
+        'macro': ObjType(_('macro'),           'macro',         'identifier'),
+        'struct': ObjType(_('struct'),         'struct',        'identifier', 'type'),
+        'union': ObjType(_('union'),           'union',         'identifier', 'type'),
+        'enum': ObjType(_('enum'),             'enum',          'identifier', 'type'),
+        'enumerator': ObjType(_('enumerator'), 'enumerator',    'identifier'),
+        'type': ObjType(_('type'),                              'identifier', 'type'),
+        # generated object types
+        'functionParam': ObjType(_('function parameter'),       'identifier', 'var', 'member', 'data'),  # noqa
     }
 
     directives = {

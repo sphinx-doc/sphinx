@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 import sys
 from unittest.mock import Mock
 
@@ -130,6 +131,29 @@ def test_domain_py_xrefs(app, status, warning):
     assert_refnode(refnodes[0], 'test.extra', 'B', 'foo', 'meth')
     assert_refnode(refnodes[1], 'test.extra', 'B', 'foo', 'meth')
     assert len(refnodes) == 2
+
+
+@pytest.mark.sphinx('html', testroot='domain-py')
+def test_domain_py_xrefs_abbreviations(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'abbr.html').read_text()
+    assert re.search(r'normal: <a .* href="module.html#module_a.submodule.ModTopLevel.'
+                     r'mod_child_1" .*><.*>module_a.submodule.ModTopLevel.mod_child_1\(\)'
+                     r'<.*></a>',
+                     content)
+    assert re.search(r'relative: <a .* href="module.html#module_a.submodule.ModTopLevel.'
+                     r'mod_child_1" .*><.*>ModTopLevel.mod_child_1\(\)<.*></a>',
+                     content)
+    assert re.search(r'short name: <a .* href="module.html#module_a.submodule.ModTopLevel.'
+                     r'mod_child_1" .*><.*>mod_child_1\(\)<.*></a>',
+                     content)
+    assert re.search(r'relative \+ short name: <a .* href="module.html#module_a.submodule.'
+                     r'ModTopLevel.mod_child_1" .*><.*>mod_child_1\(\)<.*></a>',
+                     content)
+    assert re.search(r'short name \+ relative: <a .* href="module.html#module_a.submodule.'
+                     r'ModTopLevel.mod_child_1" .*><.*>mod_child_1\(\)<.*></a>',
+                     content)
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')

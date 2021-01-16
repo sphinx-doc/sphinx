@@ -730,9 +730,11 @@ class StandardDomain(Domain):
                                name, env.doc2path(self.labels[name][0]),
                                location=node)
             self.anonlabels[name] = docname, labelid
-            if node.tagname in ('section', 'rubric'):
+            if node.tagname == 'section':
                 title = cast(nodes.title, node[0])
                 sectname = clean_astext(title)
+            elif node.tagname == 'rubric':
+                sectname = clean_astext(node)
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
                 if not sectname:

@@ -161,7 +161,9 @@ date_format_mappings = {
     '%X':  'medium',  # Locale’s appropriate time representation.
     '%y':  'YY',      # Year without century as a zero-padded decimal number.
     '%Y':  'yyyy',    # Year with century as a decimal number.
-    '%Z':  'zzzz',    # Time zone name (no characters if no time zone exists).
+    '%Z':  'zzz',     # Time zone name (no characters if no time zone exists).
+    '%z':  'ZZZ',     # UTC offset in the form ±HHMM[SS[.ffffff]]
+                      # (empty string if the object is naive).
     '%%':  '%',
 }
 

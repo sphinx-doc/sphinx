@@ -287,8 +287,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if uri.startswith('mailto:') or uri.startswith('http:') or \
            uri.startswith('https:') or uri.startswith('ftp:'):
             # if configured, put the URL after the link
-            if self.builder.config.man_show_urls and \
-               node.astext() != uri:
+            if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):
                     uri = uri[7:]
                 self.body.extend([

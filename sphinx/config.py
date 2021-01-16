@@ -362,6 +362,18 @@ def convert_source_suffix(app: "Sphinx", config: Config) -> None:
                           "But `%r' is given." % source_suffix))
 
 
+def convert_highlight_options(app: "Sphinx", config: Config) -> None:
+    """Convert old styled highlight_options to new styled one.
+
+    * old style: options
+    * new style: dict that maps language names to options
+    """
+    options = config.highlight_options
+    if options and not all(isinstance(v, dict) for v in options.values()):
+        # old styled option detected because all values are not dictionary.
+        config.highlight_options = {config.highlight_language: options}  # type: ignore
+
+
 def init_numfig_format(app: "Sphinx", config: Config) -> None:
     """Initialize :confval:`numfig_format`."""
     numfig_format = {'section': _('Section %s'),
@@ -466,6 +478,7 @@ def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.connect('config-inited', convert_source_suffix, priority=800)
+    app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)

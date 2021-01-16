@@ -9,6 +9,7 @@
 """
 
 import re
+import zlib
 
 import pytest
 
@@ -17,6 +18,7 @@ from sphinx import addnodes
 from sphinx.addnodes import desc
 from sphinx.domains.cpp import (DefinitionError, DefinitionParser, NoOldIdError, Symbol,
                                 _id_prefix, _max_id)
+from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
@@ -1048,8 +1050,8 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
         ('concept', ['concept']),
         ('enum', ['type', 'enum']),
         ('enumerator', ['enumerator']),
-        ('tParam', ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator', 'functionParam']),
         ('functionParam', ['member', 'var']),
+        ('templateParam', ['class', 'struct', 'union', 'member', 'var', 'type']),
     ]
     warn = []
     for targetType, roles in ok:
@@ -1057,6 +1059,9 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
         for r in allRoles:
             if r not in roles:
                 warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+                if targetType == 'templateParam':
+                    warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+                    warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
     warn = list(sorted(warn))
     for w in ws:
         assert "targets a" in w
@@ -1245,3 +1250,66 @@ def test_mix_decl_duplicate(app, warning):
     assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[2]
     assert "Declaration is '.. cpp:struct:: A'." in ws[3]
     assert ws[4] == ""
+
+
+@pytest.mark.sphinx(testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True})
+def test_intersphinx(tempdir, app, status, warning):
+    origSource = """\
+.. cpp:class:: _class
+.. cpp:struct:: _struct
+.. cpp:union:: _union
+.. cpp:function:: void _function()
+.. cpp:member:: int _member
+.. cpp:var:: int _var
+.. cpp:type:: _type
+.. cpp:concept:: template<typename T> _concept
+.. cpp:enum:: _enum
+
+    .. cpp:enumerator:: _enumerator
+
+.. cpp:enum-struct:: _enumStruct
+
+    .. cpp:enumerator:: _scopedEnumerator
+
+.. cpp:enum-class:: _enumClass
+.. cpp:function:: void _functionParam(int param)
+.. cpp:function:: template<typename TParam> void _templateParam()
+"""  # noqa
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: C Intersphinx Test
+# Version: 
+# The remainder of this file is compressed using zlib.
+''' + zlib.compress(b'''\
+_class cpp:class 1 index.html#_CPPv46$ -
+_concept cpp:concept 1 index.html#_CPPv4I0E8$ -
+_concept::T cpp:templateParam 1 index.html#_CPPv4I0E8_concept -
+_enum cpp:enum 1 index.html#_CPPv45$ -
+_enum::_enumerator cpp:enumerator 1 index.html#_CPPv4N5_enum11_enumeratorE -
+_enumClass cpp:enum 1 index.html#_CPPv410$ -
+_enumStruct cpp:enum 1 index.html#_CPPv411$ -
+_enumStruct::_scopedEnumerator cpp:enumerator 1 index.html#_CPPv4N11_enumStruct17_scopedEnumeratorE -
+_enumerator cpp:enumerator 1 index.html#_CPPv4N5_enum11_enumeratorE -
+_function cpp:function 1 index.html#_CPPv49_functionv -
+_functionParam cpp:function 1 index.html#_CPPv414_functionParami -
+_functionParam::param cpp:functionParam 1 index.html#_CPPv414_functionParami -
+_member cpp:member 1 index.html#_CPPv47$ -
+_struct cpp:class 1 index.html#_CPPv47$ -
+_templateParam cpp:function 1 index.html#_CPPv4I0E14_templateParamvv -
+_templateParam::TParam cpp:templateParam 1 index.html#_CPPv4I0E14_templateParamvv -
+_type cpp:type 1 index.html#_CPPv45$ -
+_union cpp:union 1 index.html#_CPPv46$ -
+_var cpp:member 1 index.html#_CPPv44$ -
+'''))  # noqa
+    app.config.intersphinx_mapping = {
+        'https://localhost/intersphinx/cpp/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    app.builder.build_all()
+    ws = filter_warnings(warning, "index")
+    assert len(ws) == 0

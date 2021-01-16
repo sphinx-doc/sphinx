@@ -319,8 +319,10 @@ class TocTree:
         toctrees = []  # type: List[Element]
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = True
-        if 'maxdepth' not in kwargs:
+        if 'maxdepth' not in kwargs or not kwargs['maxdepth']:
             kwargs['maxdepth'] = 0
+        else:
+            kwargs['maxdepth'] = int(kwargs['maxdepth'])
         kwargs['collapse'] = collapse
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve(docname, builder, toctreenode, prune=True, **kwargs)

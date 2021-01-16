@@ -70,6 +70,7 @@ Deprecated
 ----------
 
 * ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
+* ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
 * ``sphinx.ext.autodoc.importer.get_module_members()``
 
 Features added
@@ -87,7 +88,11 @@ Features added
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
 * #6241: mathjax: Include mathjax.js only on the document using equations
+* #8651: std domain: cross-reference for a rubric having inline item is broken
 * #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
+* #207: Now :confval:`highlight_language` supports multiple languages
+* #2030: :rst:dir:`code-block` and :rst:dir:`literalinclude` supports automatic
+  dedent via no-argument ``:dedent:`` option
 
 Bugs fixed
 ----------
@@ -97,13 +102,21 @@ Bugs fixed
 * #8592: autodoc: ``:meta public:`` does not effect to variables
 * #8594: autodoc: empty __all__ attribute is ignored
 * #8315: autodoc: Failed to resolve struct.Struct type annotation
+* #8652: autodoc: All variable comments in the module are ignored if the module
+  contains invalid type comments
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
 * #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
   + or ^) are used as keystrokes
 * #8629: html: A type warning for html_use_opensearch is shown twice
+* #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
 * #8094: texinfo: image files on the different directory with document are not
   copied
+* #8671: :confval:`highlight_options` is not working
+* #8341: C, fix intersphinx lookup types for names in declarations.
+* C, C++: in general fix intersphinx and role lookup types.
+* #8683: :confval:`html_last_updated_fmt` does not support UTC offset (%z)
+* #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
 
 Testing
 --------

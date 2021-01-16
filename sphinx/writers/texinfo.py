@@ -232,12 +232,12 @@ class TexinfoTranslator(SphinxTranslator):
             'author': self.settings.author,
             # if empty, use basename of input file
             'filename': self.settings.texinfo_filename,
-            'release': self.escape(self.builder.config.release),
-            'project': self.escape(self.builder.config.project),
-            'copyright': self.escape(self.builder.config.copyright),
-            'date': self.escape(self.builder.config.today or
-                                format_date(self.builder.config.today_fmt or _('%b %d, %Y'),
-                                            language=self.builder.config.language))
+            'release': self.escape(self.config.release),
+            'project': self.escape(self.config.project),
+            'copyright': self.escape(self.config.copyright),
+            'date': self.escape(self.config.today or
+                                format_date(self.config.today_fmt or _('%b %d, %Y'),
+                                            language=self.config.language))
         })
         # title
         title = self.settings.title  # type: str
@@ -433,7 +433,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.add_menu_entries(entries)
         if (node_name != 'Top' or
                 not self.node_menus[entries[0]] or
-                self.builder.config.texinfo_no_detailmenu):
+                self.config.texinfo_no_detailmenu):
             self.body.append('\n@end menu\n')
             return
 
@@ -483,7 +483,7 @@ class TexinfoTranslator(SphinxTranslator):
             ret.append('@end menu\n')
             return ''.join(ret)
 
-        indices_config = self.builder.config.texinfo_domain_indices
+        indices_config = self.config.texinfo_domain_indices
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
@@ -738,7 +738,7 @@ class TexinfoTranslator(SphinxTranslator):
         else:
             uri = self.escape_arg(uri)
             name = self.escape_arg(name)
-            show_urls = self.builder.config.texinfo_show_urls
+            show_urls = self.config.texinfo_show_urls
             if self.in_footnote:
                 show_urls = 'inline'
             if not name or uri == name:
@@ -1394,9 +1394,8 @@ class TexinfoTranslator(SphinxTranslator):
         # use the full name of the objtype for the category
         try:
             domain = self.builder.env.get_domain(node.parent['domain'])
-            primary = self.builder.config.primary_domain
             name = domain.get_type_name(domain.object_types[objtype],
-                                        primary == domain.name)
+                                        self.config.primary_domain == domain.name)
         except (KeyError, ExtensionError):
             name = objtype
         # by convention, the deffn category should be capitalized like a title
