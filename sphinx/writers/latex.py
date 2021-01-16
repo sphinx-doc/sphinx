@@ -59,6 +59,7 @@ ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
                                        'upperroman': r'\Roman',
                                    })
 
+CR = '\n'
 EXTRA_RE = re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')
 
 
@@ -165,16 +166,16 @@ class Table:
         elif self.colwidths and 'colwidths-given' in self.classes:
             total = sum(self.colwidths)
             colspecs = ['\\X{%d}{%d}' % (width, total) for width in self.colwidths]
-            return '{|%s|}\n' % '|'.join(colspecs)
+            return '{|%s|}' % '|'.join(colspecs) + CR
         elif self.has_problematic:
-            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
+            return '{|*{%d}{\\X{1}{%d}|}}' % (self.colcount, self.colcount) + CR
         elif self.get_table_type() == 'tabulary':
             # sphinx.sty sets T to be J by default.
-            return '{|' + ('T|' * self.colcount) + '}\n'
+            return '{|' + ('T|' * self.colcount) + '}' + CR
         elif self.has_oldproblematic:
-            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
+            return '{|*{%d}{\\X{1}{%d}|}}' % (self.colcount, self.colcount) + CR
         else:
-            return '{|' + ('l|' * self.colcount) + '}\n'
+            return '{|' + ('l|' * self.colcount) + '}' + CR
 
     def add_cell(self, height: int, width: int) -> None:
         """Adds a new cell to a table.
@@ -373,8 +374,8 @@ class LaTeXTranslator(SphinxTranslator):
         if (self.config.language not in {None, 'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
             # use Sonny style if any language specified (except English)
-            self.elements['fncychap'] = ('\\usepackage[Sonny]{fncychap}\n'
-                                         '\\ChNameVar{\\Large\\normalfont\\sffamily}\n'
+            self.elements['fncychap'] = ('\\usepackage[Sonny]{fncychap}' + CR +
+                                         '\\ChNameVar{\\Large\\normalfont\\sffamily}' + CR +
                                          '\\ChTitleVar{\\Large\\normalfont\\sffamily}')
 
         self.babel = self.builder.babel
@@ -498,16 +499,16 @@ class LaTeXTranslator(SphinxTranslator):
             prefix = ''
             suffix = ''
 
-        return ('%s\\renewcommand{%s}{%s}%s\n' % (prefix, command, definition, suffix))
+        return '%s\\renewcommand{%s}{%s}%s' % (prefix, command, definition, suffix) + CR
 
     def generate_indices(self) -> str:
         def generate(content: List[Tuple[str, List[IndexEntry]]], collapsed: bool) -> None:
-            ret.append('\\begin{sphinxtheindex}\n')
-            ret.append('\\let\\bigletter\\sphinxstyleindexlettergroup\n')
+            ret.append('\\begin{sphinxtheindex}' + CR)
+            ret.append('\\let\\bigletter\\sphinxstyleindexlettergroup' + CR)
             for i, (letter, entries) in enumerate(content):
                 if i > 0:
-                    ret.append('\\indexspace\n')
-                ret.append('\\bigletter{%s}\n' % self.escape(letter))
+                    ret.append('\\indexspace' + CR)
+                ret.append('\\bigletter{%s}' % self.escape(letter) + CR)
                 for entry in entries:
                     if not entry[3]:
                         continue
@@ -516,9 +517,9 @@ class LaTeXTranslator(SphinxTranslator):
                     if entry[4]:
                         # add "extra" info
                         ret.append('\\sphinxstyleindexextra{%s}' % self.encode(entry[4]))
-                    ret.append('\\sphinxstyleindexpageref{%s:%s}\n' %
-                               (entry[2], self.idescape(entry[3])))
-            ret.append('\\end{sphinxtheindex}\n')
+                    ret.append('\\sphinxstyleindexpageref{%s:%s}' %
+                               (entry[2], self.idescape(entry[3])) + CR)
+            ret.append('\\end{sphinxtheindex}' + CR)
 
         ret = []
         # latex_domain_indices can be False/True or a list of index names
@@ -534,8 +535,7 @@ class LaTeXTranslator(SphinxTranslator):
                         self.builder.docnames)
                     if not content:
                         continue
-                    ret.append('\\renewcommand{\\indexname}{%s}\n' %
-                               indexcls.localname)
+                    ret.append('\\renewcommand{\\indexname}{%s}' % indexcls.localname + CR)
                     generate(content, collapsed)
 
         return ''.join(ret)
@@ -565,7 +565,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.first_document = 0
         elif self.first_document == 0:
             # ... and all others are the appendices
-            self.body.append('\n\\appendix\n')
+            self.body.append(CR + '\\appendix' + CR)
             self.first_document = -1
         if 'docname' in node:
             self.body.append(self.hypertarget(':doc'))
@@ -598,11 +598,11 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_topic(self, node: Element) -> None:
         self.in_minipage = 1
-        self.body.append('\n\\begin{sphinxShadowBox}\n')
+        self.body.append(CR + '\\begin{sphinxShadowBox}' + CR)
 
     def depart_topic(self, node: Element) -> None:
         self.in_minipage = 0
-        self.body.append('\\end{sphinxShadowBox}\n')
+        self.body.append('\\end{sphinxShadowBox}' + CR)
     visit_sidebar = visit_topic
     depart_sidebar = depart_topic
 
@@ -614,7 +614,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.body.append('\n\n')
-        self.body.append('\\begin{productionlist}\n')
+        self.body.append('\\begin{productionlist}' + CR)
         self.in_production_list = 1
 
     def depart_productionlist(self, node: Element) -> None:
@@ -630,7 +630,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append('\\productioncont{')
 
     def depart_production(self, node: Element) -> None:
-        self.body.append('}\n')
+        self.body.append('}' + CR)
 
     def visit_transition(self, node: Element) -> None:
         self.body.append(self.elements['transition'])
@@ -665,16 +665,16 @@ class LaTeXTranslator(SphinxTranslator):
                 except IndexError:
                     # just use "subparagraph", it's not numbered anyway
                     self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
-                self.context.append('}\n' + self.hypertarget_to(node.parent))
+                self.context.append('}' + CR + self.hypertarget_to(node.parent))
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
-            self.context.append('}\n')
+            self.context.append('}' + CR)
         elif isinstance(parent, nodes.sidebar):
             self.body.append(r'\sphinxstylesidebartitle{')
-            self.context.append('}\n')
+            self.context.append('}' + CR)
         elif isinstance(parent, nodes.Admonition):
             self.body.append('{')
-            self.context.append('}\n')
+            self.context.append('}' + CR)
         elif isinstance(parent, nodes.table):
             # Redirect body output until title is finished.
             self.pushbody([])
@@ -683,7 +683,7 @@ class LaTeXTranslator(SphinxTranslator):
                               'admonition or sidebar'),
                            location=node)
             self.body.append('\\sphinxstyleothertitle{')
-            self.context.append('}\n')
+            self.context.append('}' + CR)
         self.in_title = 1
 
     def depart_title(self, node: Element) -> None:
@@ -696,7 +696,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_subtitle(self, node: Element) -> None:
         if isinstance(node.parent, nodes.sidebar):
             self.body.append('\\sphinxstylesidebarsubtitle{')
-            self.context.append('}\n')
+            self.context.append('}' + CR)
         else:
             self.context.append('')
 
@@ -706,18 +706,18 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_desc(self, node: Element) -> None:
         if self.config.latex_show_urls == 'footnote':
             self.body.append('\n\n')
-            self.body.append('\\begin{savenotes}\\begin{fulllineitems}\n')
+            self.body.append('\\begin{savenotes}\\begin{fulllineitems}' + CR)
         else:
             self.body.append('\n\n')
-            self.body.append('\\begin{fulllineitems}\n')
+            self.body.append('\\begin{fulllineitems}' + CR)
         if self.table:
             self.table.has_problematic = True
 
     def depart_desc(self, node: Element) -> None:
         if self.config.latex_show_urls == 'footnote':
-            self.body.append('\n\\end{fulllineitems}\\end{savenotes}\n\n')
+            self.body.append(CR + '\\end{fulllineitems}\\end{savenotes}\n\n')
         else:
-            self.body.append('\n\\end{fulllineitems}\n\n')
+            self.body.append(CR + '\\end{fulllineitems}\n\n')
 
     def _visit_signature_line(self, node: Element) -> None:
         for child in node:
@@ -739,14 +739,14 @@ class LaTeXTranslator(SphinxTranslator):
         if not node.get('is_multiline'):
             self._visit_signature_line(node)
         else:
-            self.body.append('%\n')
-            self.body.append('\\pysigstartmultiline\n')
+            self.body.append('%' + CR)
+            self.body.append('\\pysigstartmultiline' + CR)
 
     def depart_desc_signature(self, node: Element) -> None:
         if not node.get('is_multiline'):
             self._depart_signature_line(node)
         else:
-            self.body.append('%\n')
+            self.body.append('%' + CR)
             self.body.append('\\pysigstopmultiline')
 
     def visit_desc_signature_line(self, node: Element) -> None:
@@ -826,7 +826,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_seealso(self, node: Element) -> None:
         self.body.append('\n\n')
-        self.body.append('\\sphinxstrong{%s:}\n' % admonitionlabels['seealso'])
+        self.body.append('\\sphinxstrong{%s:}' % admonitionlabels['seealso'] + CR)
         self.body.append('\\nopagebreak\n\n')
 
     def depart_seealso(self, node: Element) -> None:
@@ -836,7 +836,7 @@ class LaTeXTranslator(SphinxTranslator):
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
         self.body.append('\\subsubsection*{')
-        self.context.append('}\n')
+        self.context.append('}' + CR)
         self.in_title = 1
 
     def depart_rubric(self, node: Element) -> None:
@@ -851,18 +851,18 @@ class LaTeXTranslator(SphinxTranslator):
         if self.in_parsed_literal:
             self.body.append('\\begin{footnote}[%s]' % label.astext())
         else:
-            self.body.append('%\n')
+            self.body.append('%' + CR)
             self.body.append('\\begin{footnote}[%s]' % label.astext())
         if 'auto' not in node:
             self.body.append('\\phantomsection'
-                             '\\label{\\thesphinxscope.%s}%%\n' % label.astext())
-        self.body.append('\\sphinxAtStartFootnote\n')
+                             '\\label{\\thesphinxscope.%s}%%' % label.astext() + CR)
+        self.body.append('\\sphinxAtStartFootnote' + CR)
 
     def depart_footnote(self, node: Element) -> None:
         if self.in_parsed_literal:
             self.body.append('\\end{footnote}')
         else:
-            self.body.append('%\n')
+            self.body.append('%' + CR)
             self.body.append('\\end{footnote}')
         self.in_footnote -= 1
 
@@ -890,7 +890,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.tables.append(Table(node))
         if self.next_table_colspec:
-            self.table.colspec = '{%s}\n' % self.next_table_colspec
+            self.table.colspec = '{%s}' % self.next_table_colspec + CR
             if 'colwidths-given' in node.get('classes', []):
                 logger.info(__('both tabularcolumns and :widths: option are given. '
                                ':widths: is ignored.'), location=node)
@@ -903,7 +903,7 @@ class LaTeXTranslator(SphinxTranslator):
                             dict(table=self.table, labels=labels))
         self.body.append("\n\n")
         self.body.append(table)
-        self.body.append("\n")
+        self.body.append(CR)
 
         self.tables.pop()
 
@@ -958,7 +958,7 @@ class LaTeXTranslator(SphinxTranslator):
                                      (cell.width, cell.cell_id))
 
     def depart_row(self, node: Element) -> None:
-        self.body.append('\\\\\n')
+        self.body.append('\\\\' + CR)
         cells = [self.table.cell(self.table.row, i) for i in range(self.table.colcount)]
         underlined = [cell.row + cell.height == self.table.row + 1 for cell in cells]
         if all(underlined):
@@ -983,22 +983,22 @@ class LaTeXTranslator(SphinxTranslator):
         if cell.width > 1:
             if self.config.latex_use_latex_multicolumn:
                 if self.table.col == 0:
-                    self.body.append('\\multicolumn{%d}{|l|}{%%\n' % cell.width)
+                    self.body.append('\\multicolumn{%d}{|l|}{%%' % cell.width + CR)
                 else:
-                    self.body.append('\\multicolumn{%d}{l|}{%%\n' % cell.width)
-                context = '}%\n'
+                    self.body.append('\\multicolumn{%d}{l|}{%%' % cell.width + CR)
+                context = '}%' + CR
             else:
-                self.body.append('\\sphinxstartmulticolumn{%d}%%\n' % cell.width)
-                context = '\\sphinxstopmulticolumn\n'
+                self.body.append('\\sphinxstartmulticolumn{%d}%%' % cell.width + CR)
+                context = '\\sphinxstopmulticolumn' + CR
         if cell.height > 1:
             # \sphinxmultirow 2nd arg "cell_id" will serve as id for LaTeX macros as well
-            self.body.append('\\sphinxmultirow{%d}{%d}{%%\n' % (cell.height, cell.cell_id))
-            context = '}%\n' + context
+            self.body.append('\\sphinxmultirow{%d}{%d}{%%' % (cell.height, cell.cell_id) + CR)
+            context = '}%' + CR + context
         if cell.width > 1 or cell.height > 1:
-            self.body.append('\\begin{varwidth}[t]{\\sphinxcolwidth{%d}{%d}}\n'
-                             % (cell.width, self.table.colcount))
-            context = ('\\par\n\\vskip-\\baselineskip'
-                       '\\vbox{\\hbox{\\strut}}\\end{varwidth}%\n') + context
+            self.body.append('\\begin{varwidth}[t]{\\sphinxcolwidth{%d}{%d}}'
+                             % (cell.width, self.table.colcount) + CR)
+            context = ('\\par' + CR + '\\vskip-\\baselineskip'
+                       '\\vbox{\\hbox{\\strut}}\\end{varwidth}%' + CR + context)
             self.needs_linetrimming = 1
         if len(node.traverse(nodes.paragraph)) >= 2:
             self.table.has_oldproblematic = True
@@ -1017,7 +1017,7 @@ class LaTeXTranslator(SphinxTranslator):
             body = self.popbody()
 
             # Remove empty lines from top of merged cell
-            while body and body[0] == "\n":
+            while body and body[0] == CR:
                 body.pop(0)
             self.body.extend(body)
 
@@ -1056,13 +1056,13 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_bullet_list(self, node: Element) -> None:
         if not self.compact_list:
-            self.body.append('\\begin{itemize}\n')
+            self.body.append('\\begin{itemize}' + CR)
         if self.table:
             self.table.has_problematic = True
 
     def depart_bullet_list(self, node: Element) -> None:
         if not self.compact_list:
-            self.body.append('\\end{itemize}\n')
+            self.body.append('\\end{itemize}' + CR)
 
     def visit_enumerated_list(self, node: Element) -> None:
         def get_enumtype(node: Element) -> str:
@@ -1087,16 +1087,16 @@ class LaTeXTranslator(SphinxTranslator):
         prefix = node.get('prefix', '')
         suffix = node.get('suffix', '.')
 
-        self.body.append('\\begin{enumerate}\n')
-        self.body.append('\\sphinxsetlistlabels{%s}{%s}{%s}{%s}{%s}%%\n' %
-                         (style, enum, enumnext, prefix, suffix))
+        self.body.append('\\begin{enumerate}' + CR)
+        self.body.append('\\sphinxsetlistlabels{%s}{%s}{%s}{%s}{%s}%%' %
+                         (style, enum, enumnext, prefix, suffix) + CR)
         if 'start' in node:
-            self.body.append('\\setcounter{%s}{%d}\n' % (enum, node['start'] - 1))
+            self.body.append('\\setcounter{%s}{%d}' % (enum, node['start'] - 1) + CR)
         if self.table:
             self.table.has_problematic = True
 
     def depart_enumerated_list(self, node: Element) -> None:
-        self.body.append('\\end{enumerate}\n')
+        self.body.append('\\end{enumerate}' + CR)
 
     def visit_list_item(self, node: Element) -> None:
         # Append "{}" in case the next character is "[", which would break
@@ -1104,15 +1104,15 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(r'\item {} ')
 
     def depart_list_item(self, node: Element) -> None:
-        self.body.append('\n')
+        self.body.append(CR)
 
     def visit_definition_list(self, node: Element) -> None:
-        self.body.append('\\begin{description}\n')
+        self.body.append('\\begin{description}' + CR)
         if self.table:
             self.table.has_problematic = True
 
     def depart_definition_list(self, node: Element) -> None:
-        self.body.append('\\end{description}\n')
+        self.body.append('\\end{description}' + CR)
 
     def visit_definition_list_item(self, node: Element) -> None:
         pass
@@ -1145,15 +1145,15 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def depart_definition(self, node: Element) -> None:
-        self.body.append('\n')
+        self.body.append(CR)
 
     def visit_field_list(self, node: Element) -> None:
-        self.body.append('\\begin{quote}\\begin{description}\n')
+        self.body.append('\\begin{quote}\\begin{description}' + CR)
         if self.table:
             self.table.has_problematic = True
 
     def depart_field_list(self, node: Element) -> None:
-        self.body.append('\\end{description}\\end{quote}\n')
+        self.body.append('\\end{description}\\end{quote}' + CR)
 
     def visit_field(self, node: Element) -> None:
         pass
@@ -1173,7 +1173,7 @@ class LaTeXTranslator(SphinxTranslator):
                 not isinstance(node.parent[index - 1], nodes.paragraph) and
                 not isinstance(node.parent[index - 1], nodes.compound)):
             # insert blank line, if the paragraph follows a non-paragraph node in a compound
-            self.body.append('\\noindent\n')
+            self.body.append('\\noindent' + CR)
         elif index == 1 and isinstance(node.parent, (nodes.footnote, footnotetext)):
             # don't insert blank line, if the paragraph is second child of a footnote
             # (first one is label node)
@@ -1182,33 +1182,33 @@ class LaTeXTranslator(SphinxTranslator):
             # the \sphinxAtStartPar is to allow hyphenation of first word of
             # a paragraph in narrow contexts such as in a table cell
             # added as two items (cf. line trimming in depart_entry())
-            self.body.extend(['\n', '\\sphinxAtStartPar\n'])
+            self.body.extend([CR, '\\sphinxAtStartPar' + CR])
 
     def depart_paragraph(self, node: Element) -> None:
-        self.body.append('\n')
+        self.body.append(CR)
 
     def visit_centered(self, node: Element) -> None:
-        self.body.append('\n\\begin{center}')
+        self.body.append(CR + '\\begin{center}')
         if self.table:
             self.table.has_problematic = True
 
     def depart_centered(self, node: Element) -> None:
-        self.body.append('\n\\end{center}')
+        self.body.append(CR + '\\end{center}')
 
     def visit_hlist(self, node: Element) -> None:
         self.compact_list += 1
         ncolumns = node['ncolumns']
         if self.compact_list > 1:
-            self.body.append('\\setlength{\\multicolsep}{0pt}\n')
-        self.body.append('\\begin{multicols}{' + ncolumns + '}\\raggedright\n')
+            self.body.append('\\setlength{\\multicolsep}{0pt}' + CR)
+        self.body.append('\\begin{multicols}{' + ncolumns + '}\\raggedright' + CR)
         self.body.append('\\begin{itemize}\\setlength{\\itemsep}{0pt}'
-                         '\\setlength{\\parskip}{0pt}\n')
+                         '\\setlength{\\parskip}{0pt}' + CR)
         if self.table:
             self.table.has_problematic = True
 
     def depart_hlist(self, node: Element) -> None:
         self.compact_list -= 1
-        self.body.append('\\end{itemize}\\raggedcolumns\\end{multicols}\n')
+        self.body.append('\\end{itemize}\\raggedcolumns\\end{multicols}' + CR)
 
     def visit_hlistcol(self, node: Element) -> None:
         pass
@@ -1285,8 +1285,8 @@ class LaTeXTranslator(SphinxTranslator):
             pre.append('{\\sphinxunactivateextrasandspace ')
             post.append('}')
         if not is_inline and not has_hyperlink:
-            pre.append('\n\\noindent')
-            post.append('\n')
+            pre.append(CR + '\\noindent')
+            post.append(CR)
         pre.reverse()
         if node['uri'] in self.builder.images:
             uri = self.builder.images[node['uri']]
@@ -1325,14 +1325,14 @@ class LaTeXTranslator(SphinxTranslator):
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
                 if length:
-                    self.body.append('\\begin{sphinxfigure-in-table}[%s]\n' % length)
-                    self.body.append('\\centering\n')
+                    self.body.append('\\begin{sphinxfigure-in-table}[%s]' % length + CR)
+                    self.body.append('\\centering' + CR)
             else:
-                self.body.append('\\begin{sphinxfigure-in-table}\n')
-                self.body.append('\\centering\n')
+                self.body.append('\\begin{sphinxfigure-in-table}' + CR)
+                self.body.append('\\centering' + CR)
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart')
-            self.context.append('\\end{sphinxfigure-in-table}\\relax\n')
+            self.context.append('\\end{sphinxfigure-in-table}\\relax' + CR)
         elif node.get('align', '') in ('left', 'right'):
             length = None
             if 'width' in node:
@@ -1341,19 +1341,19 @@ class LaTeXTranslator(SphinxTranslator):
                 length = self.latex_image_length(node[0]['width'])
             self.body.append('\n\n')    # Insert a blank line to prevent infinite loop
                                         # https://github.com/sphinx-doc/sphinx/issues/7059
-            self.body.append('\\begin{wrapfigure}{%s}{%s}\n' %
-                             ('r' if node['align'] == 'right' else 'l', length or '0pt'))
+            self.body.append('\\begin{wrapfigure}{%s}{%s}' %
+                             ('r' if node['align'] == 'right' else 'l', length or '0pt') + CR)
             self.body.append('\\centering')
-            self.context.append('\\end{wrapfigure}\n')
+            self.context.append('\\end{wrapfigure}' + CR)
         elif self.in_minipage:
-            self.body.append('\n\\begin{center}')
-            self.context.append('\\end{center}\n')
+            self.body.append(CR + '\\begin{center}')
+            self.context.append('\\end{center}' + CR)
         else:
-            self.body.append('\n\\begin{figure}[%s]\n' % align)
-            self.body.append('\\centering\n')
+            self.body.append(CR + '\\begin{figure}[%s]' % align + CR)
+            self.body.append('\\centering' + CR)
             if any(isinstance(child, nodes.caption) for child in node):
-                self.body.append('\\capstart\n')
-            self.context.append('\\end{figure}\n')
+                self.body.append('\\capstart' + CR)
+            self.context.append('\\end{figure}' + CR)
 
     def depart_figure(self, node: Element) -> None:
         self.body.append(self.context.pop())
@@ -1377,27 +1377,27 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_caption -= 1
 
     def visit_legend(self, node: Element) -> None:
-        self.body.append('\n\\begin{sphinxlegend}')
+        self.body.append(CR + '\\begin{sphinxlegend}')
 
     def depart_legend(self, node: Element) -> None:
-        self.body.append('\\end{sphinxlegend}\n')
+        self.body.append('\\end{sphinxlegend}' + CR)
 
     def visit_admonition(self, node: Element) -> None:
-        self.body.append('\n\\begin{sphinxadmonition}{note}')
+        self.body.append(CR + '\\begin{sphinxadmonition}{note}')
         self.no_latex_floats += 1
 
     def depart_admonition(self, node: Element) -> None:
-        self.body.append('\\end{sphinxadmonition}\n')
+        self.body.append('\\end{sphinxadmonition}' + CR)
         self.no_latex_floats -= 1
 
     def _visit_named_admonition(self, node: Element) -> None:
         label = admonitionlabels[node.tagname]
-        self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
+        self.body.append(CR + '\\begin{sphinxadmonition}{%s}{%s:}' %
                          (node.tagname, label))
         self.no_latex_floats += 1
 
     def _depart_named_admonition(self, node: Element) -> None:
-        self.body.append('\\end{sphinxadmonition}\n')
+        self.body.append('\\end{sphinxadmonition}' + CR)
         self.no_latex_floats -= 1
 
     visit_attention = _visit_named_admonition
@@ -1440,7 +1440,7 @@ class LaTeXTranslator(SphinxTranslator):
             # insert blank line, if the target follows a paragraph node
             index = node.parent.index(node)
             if index > 0 and isinstance(node.parent[index - 1], nodes.paragraph):
-                self.body.append('\n')
+                self.body.append(CR)
 
             # do not generate \phantomsection in \section{}
             anchor = not self.in_title
@@ -1475,11 +1475,11 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_attribution(self, node: Element) -> None:
-        self.body.append('\n\\begin{flushright}\n')
+        self.body.append(CR + '\\begin{flushright}' + CR)
         self.body.append('---')
 
     def depart_attribution(self, node: Element) -> None:
-        self.body.append('\n\\end{flushright}\n')
+        self.body.append(CR + '\\end{flushright}' + CR)
 
     def visit_index(self, node: Element) -> None:
         def escape(value: str) -> str:
@@ -1500,7 +1500,7 @@ class LaTeXTranslator(SphinxTranslator):
                 return '\\spxentry{%s}' % string
 
         if not node.get('inline', True):
-            self.body.append('\n')
+            self.body.append(CR)
         entries = node['entries']
         for type, string, tid, ismain, key_ in entries:
             m = ''
@@ -1549,11 +1549,11 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_raw(self, node: Element) -> None:
         if not self.is_inline(node):
-            self.body.append('\n')
+            self.body.append(CR)
         if 'latex' in node.get('format', '').split():
             self.body.append(node.astext())
         if not self.is_inline(node):
-            self.body.append('\n')
+            self.body.append(CR)
         raise nodes.SkipNode
 
     def visit_reference(self, node: Element) -> None:
@@ -1562,7 +1562,7 @@ class LaTeXTranslator(SphinxTranslator):
                 anchor = not self.in_caption
                 self.body += self.hypertarget(id, anchor=anchor)
         if not self.is_inline(node):
-            self.body.append('\n')
+            self.body.append(CR)
         uri = node.get('refuri', '')
         if not uri and node.get('refid'):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']
@@ -1615,7 +1615,7 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_reference(self, node: Element) -> None:
         self.body.append(self.context.pop())
         if not self.is_inline(node):
-            self.body.append('\n')
+            self.body.append(CR)
 
     def visit_number_reference(self, node: Element) -> None:
         if node.get('refid'):
@@ -1706,11 +1706,11 @@ class LaTeXTranslator(SphinxTranslator):
             # adjust max width of citation labels not to break the layout
             longest_label = longest_label[:MAX_CITATION_LABEL_LENGTH]
 
-        self.body.append('\n\\begin{sphinxthebibliography}{%s}\n' %
-                         self.encode(longest_label))
+        self.body.append(CR + '\\begin{sphinxthebibliography}{%s}' %
+                         self.encode(longest_label) + CR)
 
     def depart_thebibliography(self, node: Element) -> None:
-        self.body.append('\\end{sphinxthebibliography}\n')
+        self.body.append('\\end{sphinxthebibliography}' + CR)
 
     def visit_citation(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
@@ -1752,15 +1752,15 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_footnotetext(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
-        self.body.append('%\n')
+        self.body.append('%' + CR)
         self.body.append('\\begin{footnotetext}[%s]'
-                         '\\phantomsection\\label{\\thesphinxscope.%s}%%\n'
-                         % (label.astext(), label.astext()))
-        self.body.append('\\sphinxAtStartFootnote\n')
+                         '\\phantomsection\\label{\\thesphinxscope.%s}%%'
+                         % (label.astext(), label.astext()) + CR)
+        self.body.append('\\sphinxAtStartFootnote' + CR)
 
     def depart_footnotetext(self, node: Element) -> None:
         # the \ignorespaces in particular for after table header use
-        self.body.append('%\n')
+        self.body.append('%' + CR)
         self.body.append('\\end{footnotetext}\\ignorespaces ')
 
     def visit_captioned_literal_block(self, node: Element) -> None:
@@ -1773,13 +1773,13 @@ class LaTeXTranslator(SphinxTranslator):
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
             self.in_parsed_literal += 1
-            self.body.append('\\begin{sphinxalltt}\n')
+            self.body.append('\\begin{sphinxalltt}' + CR)
         else:
             labels = self.hypertarget_to(node)
             if isinstance(node.parent, captioned_literal_block):
                 labels += self.hypertarget_to(node.parent)
             if labels and not self.in_footnote:
-                self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + labels + '}')
+                self.body.append(CR + '\\def\\sphinxLiteralBlockLabel{' + labels + '}')
 
             lang = node.get('language', 'default')
             linenos = node.get('linenos', False)
@@ -1792,7 +1792,7 @@ class LaTeXTranslator(SphinxTranslator):
                 location=node, **highlight_args
             )
             if self.in_footnote:
-                self.body.append('\n\\sphinxSetupCodeBlockInFootnote')
+                self.body.append(CR + '\\sphinxSetupCodeBlockInFootnote')
                 hlcode = hlcode.replace('\\begin{Verbatim}',
                                         '\\begin{sphinxVerbatim}')
             # if in table raise verbatim flag to avoid "tabulary" environment
@@ -1814,14 +1814,14 @@ class LaTeXTranslator(SphinxTranslator):
 
             hllines = str(highlight_args.get('hl_lines', []))[1:-1]
             if hllines:
-                self.body.append('\n\\fvset{hllines={, %s,}}%%' % hllines)
-            self.body.append('\n' + hlcode + '\n')
+                self.body.append(CR + '\\fvset{hllines={, %s,}}%%' % hllines)
+            self.body.append(CR + hlcode + CR)
             if hllines:
-                self.body.append('\\sphinxresetverbatimhllines\n')
+                self.body.append('\\sphinxresetverbatimhllines' + CR)
             raise nodes.SkipNode
 
     def depart_literal_block(self, node: Element) -> None:
-        self.body.append('\n\\end{sphinxalltt}\n')
+        self.body.append(CR + '\\end{sphinxalltt}' + CR)
         self.in_parsed_literal -= 1
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
@@ -1830,19 +1830,19 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('\\item[] ')
 
     def depart_line(self, node: Element) -> None:
-        self.body.append('\n')
+        self.body.append(CR)
 
     def visit_line_block(self, node: Element) -> None:
         if isinstance(node.parent, nodes.line_block):
-            self.body.append('\\item[]\n')
-            self.body.append('\\begin{DUlineblock}{\\DUlineblockindent}\n')
+            self.body.append('\\item[]' + CR)
+            self.body.append('\\begin{DUlineblock}{\\DUlineblockindent}' + CR)
         else:
-            self.body.append('\n\\begin{DUlineblock}{0em}\n')
+            self.body.append(CR + '\\begin{DUlineblock}{0em}' + CR)
         if self.table:
             self.table.has_problematic = True
 
     def depart_line_block(self, node: Element) -> None:
-        self.body.append('\\end{DUlineblock}\n')
+        self.body.append('\\end{DUlineblock}' + CR)
 
     def visit_block_quote(self, node: Element) -> None:
         # If the block quote contains a single object and that object
@@ -1855,7 +1855,7 @@ class LaTeXTranslator(SphinxTranslator):
                     isinstance(child, nodes.enumerated_list):
                 done = 1
         if not done:
-            self.body.append('\\begin{quote}\n')
+            self.body.append('\\begin{quote}' + CR)
             if self.table:
                 self.table.has_problematic = True
 
@@ -1867,7 +1867,7 @@ class LaTeXTranslator(SphinxTranslator):
                     isinstance(child, nodes.enumerated_list):
                 done = 1
         if not done:
-            self.body.append('\\end{quote}\n')
+            self.body.append('\\end{quote}' + CR)
 
     # option node handling copied from docutils' latex writer
 
@@ -1897,12 +1897,12 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('] ')
 
     def visit_option_list(self, node: Element) -> None:
-        self.body.append('\\begin{optionlist}{3cm}\n')
+        self.body.append('\\begin{optionlist}{3cm}' + CR)
         if self.table:
             self.table.has_problematic = True
 
     def depart_option_list(self, node: Element) -> None:
-        self.body.append('\\end{optionlist}\n')
+        self.body.append('\\end{optionlist}' + CR)
 
     def visit_option_list_item(self, node: Element) -> None:
         pass
@@ -1995,7 +1995,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.literal_whitespace:
             # Insert a blank before the newline, to avoid
             # ! LaTeX Error: There's no line here to end.
-            text = text.replace('\n', '~\\\\\n').replace(' ', '~')
+            text = text.replace(CR, '~\\\\' + CR).replace(' ', '~')
         return text
 
     def encode_uri(self, text: str) -> str:
@@ -2025,7 +2025,7 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def depart_system_message(self, node: Element) -> None:
-        self.body.append('\n')
+        self.body.append(CR)
 
     def visit_math(self, node: Element) -> None:
         if self.in_title:
@@ -2111,7 +2111,7 @@ class LaTeXTranslator(SphinxTranslator):
             prefix = ''
             suffix = ''
 
-        return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
+        return ('%s\\def%s{%s}%s' % (prefix, name, definition, suffix) + CR)
 
     def generate_numfig_format(self, builder: "LaTeXBuilder") -> str:
         warnings.warn('generate_numfig_format() is deprecated.',
@@ -2119,25 +2119,25 @@ class LaTeXTranslator(SphinxTranslator):
         ret = []  # type: List[str]
         figure = self.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
-            ret.append('\\def\\fnum@figure{%s}\n' % self.escape(figure[0]).strip())
+            ret.append('\\def\\fnum@figure{%s}' % self.escape(figure[0]).strip() + CR)
         else:
             definition = escape_abbr(self.escape(figure[0]))
             ret.append(self.babel_renewcommand('\\figurename', definition))
-            ret.append('\\makeatletter\n')
-            ret.append('\\def\\fnum@figure{\\figurename\\thefigure{}%s}\n' %
-                       self.escape(figure[1]))
-            ret.append('\\makeatother\n')
+            ret.append('\\makeatletter' + CR)
+            ret.append('\\def\\fnum@figure{\\figurename\\thefigure{}%s}' %
+                       self.escape(figure[1]) + CR)
+            ret.append('\\makeatother' + CR)
 
         table = self.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
-            ret.append('\\def\\fnum@table{%s}\n' % self.escape(table[0]).strip())
+            ret.append('\\def\\fnum@table{%s}' % self.escape(table[0]).strip() + CR)
         else:
             definition = escape_abbr(self.escape(table[0]))
             ret.append(self.babel_renewcommand('\\tablename', definition))
-            ret.append('\\makeatletter\n')
-            ret.append('\\def\\fnum@table{\\tablename\\thetable{}%s}\n' %
-                       self.escape(table[1]))
-            ret.append('\\makeatother\n')
+            ret.append('\\makeatletter' + CR)
+            ret.append('\\def\\fnum@table{\\tablename\\thetable{}%s}' %
+                       self.escape(table[1]) + CR)
+            ret.append('\\makeatother' + CR)
 
         codeblock = self.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
