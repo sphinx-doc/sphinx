@@ -20,6 +20,8 @@ Features added
 * #8022: autodoc: autodata and autoattribute directives does not show right-hand
   value of the variable if docstring contains ``:meta hide-value:`` in
   info-field-list
+* #8514: autodoc: Default values of overloaded functions are taken from actual
+  implementation if they're ellipsis
 * #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
   for :meth:`Sphinx.add_js_file()` and :meth:`Sphinx.add_css_file()`
