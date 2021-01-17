@@ -16,7 +16,7 @@ def sum(x: str, y: str = ...) -> str:
     ...
 
 
-def sum(x, y):
+def sum(x, y=None):
     """docstring"""
     return x + y
 
@@ -36,7 +36,7 @@ class Math:
     def sum(self, x: str, y: str = ...) -> str:
         ...
 
-    def sum(self, x, y):
+    def sum(self, x, y=None):
         """docstring"""
         return x + y
 
