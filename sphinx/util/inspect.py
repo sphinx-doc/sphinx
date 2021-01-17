@@ -499,6 +499,19 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     return getattr(builtins, name, None) is cls
 
 
+class DefaultValue:
+    """A simple wrapper for default value of the parameters of overload functions."""
+
+    def __init__(self, value: str) -> None:
+        self.value = value
+
+    def __eq__(self, other: object) -> bool:
+        return self.value == other
+
+    def __repr__(self) -> str:
+        return self.value
+
+
 def _should_unwrap(subject: Callable) -> bool:
     """Check the function should be unwrapped on getting signature."""
     if (safe_getattr(subject, '__globals__', None) and
@@ -704,7 +717,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:
-                default = ast_unparse(defaults[i], code)
+                default = DefaultValue(ast_unparse(defaults[i], code))
 
             annotation = ast_unparse(arg.annotation, code) or Parameter.empty
             params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
@@ -714,7 +727,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         if defaults[i + posonlyargs] is Parameter.empty:
             default = Parameter.empty
         else:
-            default = ast_unparse(defaults[i + posonlyargs], code)
+            default = DefaultValue(ast_unparse(defaults[i + posonlyargs], code))
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
