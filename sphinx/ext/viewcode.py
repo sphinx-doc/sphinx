@@ -9,7 +9,8 @@
 """
 
 import traceback
-from typing import Any, Dict, Iterable, Iterator, Set, Tuple
+from os import path
+from typing import Any, Dict, Iterable, Iterator, Optional, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -17,6 +18,7 @@ from docutils.nodes import Element, Node
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
+from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
@@ -138,6 +140,40 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnod
     return None
 
 
+def get_module_filename(app: Sphinx, modname: str) -> Optional[str]:
+    """Get module filename for *modname*."""
+    source_info = app.emit_firstresult('viewcode-find-source', modname)
+    if source_info:
+        return None
+    else:
+        try:
+            filename, source = ModuleAnalyzer.get_module_source(modname)
+            return filename
+        except Exception:
+            return None
+
+
+def should_generate_module_page(app: Sphinx, modname: str) -> bool:
+    """Check generation of module page is needed."""
+    module_filename = get_module_filename(app, modname)
+    if module_filename is None:
+        # Always (re-)generate module page when module filename is not found.
+        return True
+
+    builder = cast(StandaloneHTMLBuilder, app.builder)
+    basename = modname.replace('.', '/') + builder.out_suffix
+    page_filename = path.join(app.outdir, '_modules/', basename)
+
+    try:
+        if path.getmtime(module_filename) <= path.getmtime(page_filename):
+            # generation is not needed if the HTML page is newer than module file.
+            return False
+    except IOError:
+        pass
+
+    return True
+
+
 def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
@@ -154,6 +190,9 @@ def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
             app.verbosity, lambda x: x[0]):
         if not entry:
             continue
+        if not should_generate_module_page(app, modname):
+            continue
+
         code, tags, used, refname = entry
         # construct a page name for the highlighted source
         pagename = '_modules/' + modname.replace('.', '/')
