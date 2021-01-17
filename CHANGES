@@ -76,6 +76,8 @@ Features added
 * C++, also hyperlink operator overloads in expressions and alias declarations.
 * #8247: Allow production lists to refer to tokens from other production groups
 * #8813: Show what extension (or module) caused it on errors on event handler
+* #8213: C++: add ``maxdepth`` option to :rst:dir:`cpp:alias` to insert nested
+  declarations.
 
 Bugs fixed
 ----------

@@ -3742,6 +3742,7 @@ class ASTDeclaration(ASTBase):
         elif self.objectType == 'enumerator':
             mainDeclNode += addnodes.desc_annotation('enumerator ', 'enumerator ')
         else:
+            print(self.objectType)
             assert False
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
         lastDeclNode = mainDeclNode
@@ -7046,10 +7047,12 @@ class CPPNamespacePopObject(SphinxDirective):
 
 
 class AliasNode(nodes.Element):
-    def __init__(self, sig: str, env: "BuildEnvironment" = None,
+    def __init__(self, sig: str, maxdepth: int, env: "BuildEnvironment" = None,
                  parentKey: LookupKey = None) -> None:
         super().__init__()
         self.sig = sig
+        self.maxdepth = maxdepth
+        assert maxdepth >= 0
         if env is not None:
             if 'cpp:parent_symbol' not in env.temp_data:
                 root = env.domaindata['cpp']['root_symbol']
@@ -7060,11 +7063,46 @@ class AliasNode(nodes.Element):
             self.parentKey = parentKey
 
     def copy(self) -> 'AliasNode':
-        return self.__class__(self.sig, env=None, parentKey=self.parentKey)
+        return self.__class__(self.sig, self.maxdepth, env=None, parentKey=self.parentKey)
 
 
 class AliasTransform(SphinxTransform):
     default_priority = ReferencesResolver.default_priority - 1
+
+    def _render_symbol(self, s: Symbol, maxdepth: int,
+                       options: dict, document: Any) -> List[Node]:
+        nodes = []  # type: List[Node]
+        signode = addnodes.desc_signature('', '')
+        nodes.append(signode)
+        s.declaration.describe_signature(signode, 'markName', self.env, options)
+        if maxdepth == 0:
+            recurse = True
+        elif maxdepth == 1:
+            recurse = False
+        else:
+            maxdepth -= 1
+            recurse = True
+        if recurse:
+            content = addnodes.desc_content()
+            desc = addnodes.desc()
+            content.append(desc)
+            desc.document = document
+            desc['domain'] = 'cpp'
+            # 'desctype' is a backwards compatible attribute
+            desc['objtype'] = desc['desctype'] = 'alias'
+            desc['noindex'] = True
+
+            for sChild in s._children:
+                if sChild.declaration is None:
+                    continue
+                if sChild.declaration.objectType in ("templateParam", "functionParam"):
+                    continue
+                childNodes = self._render_symbol(sChild, maxdepth, options, document)
+                desc.extend(childNodes)
+
+            if len(desc.children) != 0:
+                nodes.append(content)
+        return nodes
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(AliasNode):
@@ -7139,14 +7177,17 @@ class AliasTransform(SphinxTransform):
                 options = dict()
                 options['tparam-line-spec'] = False
                 for s in symbols:
-                    signode = addnodes.desc_signature(sig, '')
-                    nodes.append(signode)
-                    s.declaration.describe_signature(signode, 'markName', self.env, options)
+                    assert s.declaration is not None
+                    res = self._render_symbol(s, maxdepth=node.maxdepth,
+                                              options=options, document=node.document)
+                    nodes.extend(res)
                 node.replace_self(nodes)
 
 
 class CPPAliasObject(ObjectDescription):
-    option_spec = {}  # type: Dict
+    option_spec = {
+        'maxdepth': directives.nonnegative_int
+    }  # type: Dict
 
     def run(self) -> List[Node]:
         """
@@ -7166,9 +7207,10 @@ class CPPAliasObject(ObjectDescription):
         node['objtype'] = node['desctype'] = self.objtype
 
         self.names = []  # type: List[str]
+        maxdepth = self.options.get('maxdepth', 1)
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
-            node.append(AliasNode(sig, env=self.env))
+            node.append(AliasNode(sig, maxdepth, env=self.env))
 
         contentnode = addnodes.desc_content()
         node.append(contentnode)

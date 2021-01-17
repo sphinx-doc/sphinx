@@ -1179,6 +1179,17 @@ The following directive can be used for this purpose.
    .. versionadded:: 2.0
 
 
+   .. rubric:: Options
+
+   .. rst:directive:option:: maxdepth: int
+
+      Insert nested declarations as well, up to the total depth given.
+      Use 0 for infinite depth and 1 for just the mentioned declaration.
+      Defaults to 1.
+
+      .. versionadded:: 3.5
+
+
 Constrained Templates
 ~~~~~~~~~~~~~~~~~~~~~
 
