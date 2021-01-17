@@ -3459,9 +3459,9 @@ class AliasNode(nodes.Element):
 class AliasTransform(SphinxTransform):
     default_priority = ReferencesResolver.default_priority - 1
 
-    def _render_symbol(self, s: Symbol, maxdepth: int, document: Any) -> List[Node]:
+    def _render_symbol(self, s: Symbol, maxdepth: int,
+                       options: dict, document: Any) -> List[Node]:
         nodes = []  # type: List[Node]
-        options = dict()  # type: ignore
         signode = addnodes.desc_signature('', '')
         nodes.append(signode)
         s.declaration.describe_signature(signode, 'markName', self.env, options)
@@ -3483,7 +3483,9 @@ class AliasTransform(SphinxTransform):
             desc['noindex'] = True
 
             for sChild in s.children:
-                childNodes = self._render_symbol(sChild, maxdepth, document)
+                if sChild.declaration is None:
+                    continue
+                childNodes = self._render_symbol(sChild, maxdepth, options, document)
                 desc.extend(childNodes)
 
             if len(desc.children) != 0:
@@ -3531,8 +3533,21 @@ class AliasTransform(SphinxTransform):
                                location=node)
                 node.replace_self(signode)
                 continue
+            if s.declaration is None:
+                signode = addnodes.desc_signature(sig, '')
+                node.append(signode)
+                signode.clear()
+                signode += addnodes.desc_name(sig, sig)
 
-            nodes = self._render_symbol(s, maxdepth=node.maxdepth, document=node.document)
+                logger.warning(
+                    "Can not render C declaration for alias '%s'. No such declaration." % name,
+                    location=node)
+                node.replace_self(signode)
+                continue
+
+            options = dict()  # type: ignore
+            nodes = self._render_symbol(s, maxdepth=node.maxdepth,
+                                        options=options, document=node.document)
             node.replace_self(nodes)
 
 
