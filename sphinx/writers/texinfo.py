@@ -1206,11 +1206,10 @@ class TexinfoTranslator(SphinxTranslator):
             # ignore remote images
             return
         name, ext = path.splitext(uri)
-        attrs = node.attributes
         # width and height ignored in non-tex output
-        width = self.tex_image_length(attrs.get('width', ''))
-        height = self.tex_image_length(attrs.get('height', ''))
-        alt = self.escape_arg(attrs.get('alt', ''))
+        width = self.tex_image_length(node.get('width', ''))
+        height = self.tex_image_length(node.get('height', ''))
+        alt = self.escape_arg(node.get('alt', ''))
         filename = "%s-figures/%s" % (self.elements['filename'][:-5], name)  # type: ignore
         self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
                          (filename, width, height, alt, ext[1:]))
