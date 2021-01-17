@@ -78,6 +78,8 @@ Features added
 * #8813: Show what extension (or module) caused it on errors on event handler
 * #8213: C++: add ``maxdepth`` option to :rst:dir:`cpp:alias` to insert nested
   declarations.
+* C, add ``noroot`` option to :rst:dir:`c:alias` to render only nested
+  declarations.
 
 Bugs fixed
 ----------

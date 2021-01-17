@@ -755,6 +755,13 @@ The following directive can be used for this purpose.
 
       .. versionadded:: 3.3
 
+   .. rst:directive:option:: noroot
+
+      Skip the mentioned declarations and only render nested declarations.
+      Requires ``maxdepth`` either 0 or at least 2.
+
+      .. versionadded:: 3.5
+
 
 .. c:namespace-pop::
 
