@@ -9,6 +9,7 @@
 """
 
 import re
+import warnings
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Tuple
 
 from docutils import nodes
@@ -21,6 +22,7 @@ from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __
 from sphinx.util import docutils, logging
 from sphinx.util.docutils import new_document
@@ -284,6 +286,11 @@ class FigureAligner(SphinxTransform):
     """
     default_priority = 700
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn('FigureAilgner is deprecated.',
+                      RemovedInSphinx60Warning)
+        super().__init__(*args, **kwargs)
+
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.table, nodes.figure)
         for node in self.document.traverse(matcher):  # type: Element
@@ -406,7 +413,6 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(HandleCodeBlocks)
     app.add_transform(SortIds)
     app.add_transform(DoctestTransform)
-    app.add_transform(FigureAligner)
     app.add_transform(AutoNumbering)
     app.add_transform(AutoIndexUpgrader)
     app.add_transform(FilterSystemMessages)

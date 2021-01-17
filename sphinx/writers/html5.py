@@ -512,6 +512,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.body.append(self.context.pop())
 
     # overwritten
+    def visit_figure(self, node: Element) -> None:
+        # set align=default if align not specified to give a default style
+        node.setdefault('align', 'default')
+
+        return super().visit_figure(node)
+
+    # overwritten
     def visit_image(self, node: Element) -> None:
         olduri = node['uri']
         # rewrite the URI if the environment knows about it
@@ -712,8 +719,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         atts = {}
         classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
         classes.insert(0, "docutils")  # compat
-        if 'align' in node:
-            classes.append('align-%s' % node['align'])
+
+        # set align-default if align not specified to give a default style
+        classes.append('align-%s' % node.get('align', 'default'))
+
         if 'width' in node:
             atts['style'] = 'width: %s' % node['width']
         tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)

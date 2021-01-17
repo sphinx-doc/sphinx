@@ -570,6 +570,13 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.context.pop())
 
     # overwritten
+    def visit_figure(self, node: Element) -> None:
+        # set align=default if align not specified to give a default style
+        node.setdefault('align', 'default')
+
+        return super().visit_figure(node)
+
+    # overwritten
     def visit_image(self, node: Element) -> None:
         olduri = node['uri']
         # rewrite the URI if the environment knows about it
@@ -770,6 +777,10 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     def visit_table(self, node: Element) -> None:
         self._table_row_index = 0
+
+        # set align=default if align not specified to give a default style
+        node.setdefault('align', 'default')
+
         return super().visit_table(node)
 
     def visit_row(self, node: Element) -> None:

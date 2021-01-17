@@ -106,7 +106,7 @@ class Table:
     def __init__(self, node: Element) -> None:
         self.header = []                        # type: List[str]
         self.body = []                          # type: List[str]
-        self.align = node.get('align')
+        self.align = node.get('align', 'default')
         self.colcount = 0
         self.colspec = None                     # type: str
         self.colwidths = []                     # type: List[int]
@@ -1240,7 +1240,6 @@ class LaTeXTranslator(SphinxTranslator):
                 (1, 'middle'): ('\\raisebox{-0.5\\height}{', '}'),
                 (1, 'bottom'): ('\\raisebox{-\\height}{', '}'),
                 (0, 'center'): ('{\\hspace*{\\fill}', '\\hspace*{\\fill}}'),
-                (0, 'default'): ('{\\hspace*{\\fill}', '\\hspace*{\\fill}}'),
                 # These 2 don't exactly do the right thing.  The image should
                 # be floated alongside the paragraph.  See
                 # https://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
