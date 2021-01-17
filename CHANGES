@@ -80,6 +80,8 @@ Features added
   declarations.
 * C, add ``noroot`` option to :rst:dir:`c:alias` to render only nested
   declarations.
+* C++, add ``noroot`` option to :rst:dir:`cpp:alias` to render only nested
+  declarations.
 
 Bugs fixed
 ----------

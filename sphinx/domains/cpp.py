@@ -10,7 +10,7 @@
 
 import re
 from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, Type,
-                    TypeVar, Union)
+                    TypeVar, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -7047,12 +7047,12 @@ class CPPNamespacePopObject(SphinxDirective):
 
 
 class AliasNode(nodes.Element):
-    def __init__(self, sig: str, maxdepth: int, env: "BuildEnvironment" = None,
+    def __init__(self, sig: str, aliasOptions: dict,
+                 env: "BuildEnvironment" = None,
                  parentKey: LookupKey = None) -> None:
         super().__init__()
         self.sig = sig
-        self.maxdepth = maxdepth
-        assert maxdepth >= 0
+        self.aliasOptions = aliasOptions
         if env is not None:
             if 'cpp:parent_symbol' not in env.temp_data:
                 root = env.domaindata['cpp']['root_symbol']
@@ -7063,18 +7063,16 @@ class AliasNode(nodes.Element):
             self.parentKey = parentKey
 
     def copy(self) -> 'AliasNode':
-        return self.__class__(self.sig, self.maxdepth, env=None, parentKey=self.parentKey)
+        return self.__class__(self.sig, self.aliasOptions,
+                              env=None, parentKey=self.parentKey)
 
 
 class AliasTransform(SphinxTransform):
     default_priority = ReferencesResolver.default_priority - 1
 
-    def _render_symbol(self, s: Symbol, maxdepth: int,
-                       options: dict, document: Any) -> List[Node]:
-        nodes = []  # type: List[Node]
-        signode = addnodes.desc_signature('', '')
-        nodes.append(signode)
-        s.declaration.describe_signature(signode, 'markName', self.env, options)
+    def _render_symbol(self, s: Symbol, maxdepth: int, skipThis: bool,
+                       aliasOptions: dict, renderOptions: dict,
+                       document: Any) -> List[Node]:
         if maxdepth == 0:
             recurse = True
         elif maxdepth == 1:
@@ -7082,30 +7080,45 @@ class AliasTransform(SphinxTransform):
         else:
             maxdepth -= 1
             recurse = True
+
+        nodes = []  # type: List[Node]
+        if not skipThis:
+            signode = addnodes.desc_signature('', '')
+            nodes.append(signode)
+            s.declaration.describe_signature(signode, 'markName', self.env, renderOptions)
+
         if recurse:
-            content = addnodes.desc_content()
-            desc = addnodes.desc()
-            content.append(desc)
-            desc.document = document
-            desc['domain'] = 'cpp'
-            # 'desctype' is a backwards compatible attribute
-            desc['objtype'] = desc['desctype'] = 'alias'
-            desc['noindex'] = True
+            if skipThis:
+                childContainer = nodes
+            else:
+                content = addnodes.desc_content()
+                desc = addnodes.desc()
+                content.append(desc)
+                desc.document = document
+                desc['domain'] = 'cpp'
+                # 'desctype' is a backwards compatible attribute
+                desc['objtype'] = desc['desctype'] = 'alias'
+                desc['noindex'] = True
+                childContainer = desc
 
             for sChild in s._children:
                 if sChild.declaration is None:
                     continue
                 if sChild.declaration.objectType in ("templateParam", "functionParam"):
                     continue
-                childNodes = self._render_symbol(sChild, maxdepth, options, document)
-                desc.extend(childNodes)
+                childNodes = self._render_symbol(
+                    sChild, maxdepth=maxdepth, skipThis=False,
+                    aliasOptions=aliasOptions, renderOptions=renderOptions,
+                    document=document)
+                childContainer.extend(childNodes)
 
-            if len(desc.children) != 0:
+            if not skipThis and len(desc.children) != 0:
                 nodes.append(content)
         return nodes
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse(AliasNode):
+            node = cast(AliasNode, node)
             sig = node.sig
             parentKey = node.parentKey
             try:
@@ -7169,24 +7182,30 @@ class AliasTransform(SphinxTransform):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
 
-                logger.warning("Could not find C++ declaration for alias '%s'." % ast,
+                logger.warning("Can not find C++ declaration for alias '%s'." % ast,
                                location=node)
                 node.replace_self(signode)
             else:
                 nodes = []
-                options = dict()
-                options['tparam-line-spec'] = False
+                renderOptions = {
+                    'tparam-line-spec': False,
+                }
                 for s in symbols:
                     assert s.declaration is not None
-                    res = self._render_symbol(s, maxdepth=node.maxdepth,
-                                              options=options, document=node.document)
+                    res = self._render_symbol(
+                        s, maxdepth=node.aliasOptions['maxdepth'],
+                        skipThis=node.aliasOptions['noroot'],
+                        aliasOptions=node.aliasOptions,
+                        renderOptions=renderOptions,
+                        document=node.document)
                     nodes.extend(res)
                 node.replace_self(nodes)
 
 
 class CPPAliasObject(ObjectDescription):
     option_spec = {
-        'maxdepth': directives.nonnegative_int
+        'maxdepth': directives.nonnegative_int,
+        'noroot': directives.flag,
     }  # type: Dict
 
     def run(self) -> List[Node]:
@@ -7207,10 +7226,19 @@ class CPPAliasObject(ObjectDescription):
         node['objtype'] = node['desctype'] = self.objtype
 
         self.names = []  # type: List[str]
-        maxdepth = self.options.get('maxdepth', 1)
+        aliasOptions = {
+            'maxdepth': self.options.get('maxdepth', 1),
+            'noroot': 'noroot' in self.options,
+        }
+        if aliasOptions['noroot'] and aliasOptions['maxdepth'] == 1:
+            logger.warning("Error in C++ alias declaration."
+                           " Requested 'noroot' but 'maxdepth' 1."
+                           " When skipping the root declaration,"
+                           " need 'maxdepth' 0 for infinite or at least 2.",
+                           location=self.get_source_info())
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
-            node.append(AliasNode(sig, maxdepth, env=self.env))
+            node.append(AliasNode(sig, aliasOptions, env=self.env))
 
         contentnode = addnodes.desc_content()
         node.append(contentnode)
