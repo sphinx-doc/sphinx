@@ -10,6 +10,7 @@
 
 import os
 import pickle
+import posixpath
 import warnings
 from collections import defaultdict
 from copy import copy
@@ -356,9 +357,9 @@ class BuildEnvironment:
             docdir = path.dirname(self.doc2path(docname or self.docname,
                                                 base=None))
             rel_fn = path.join(docdir, filename)
-        # the path.abspath() might seem redundant, but otherwise artifacts
-        # such as ".." will remain in the path
-        return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
+
+        return (posixpath.normpath(rel_fn),
+                path.normpath(path.join(self.srcdir, rel_fn)))
 
     @property
     def found_docs(self) -> Set[str]:

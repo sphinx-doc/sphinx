@@ -138,6 +138,11 @@ def test_env_relfn2path(app):
     assert relfn == '../logo.jpg'
     assert absfn == app.srcdir.parent / 'logo.jpg'
 
+    # relative path traversal
+    relfn, absfn = app.env.relfn2path('subdir/../logo.jpg', 'index')
+    assert relfn == 'logo.jpg'
+    assert absfn == app.srcdir / 'logo.jpg'
+
     # omit docname (w/ current docname)
     app.env.temp_data['docname'] = 'subdir/document'
     relfn, absfn = app.env.relfn2path('images/logo.jpg')

@@ -61,6 +61,8 @@ Bugs fixed
 * C, C++: in general fix intersphinx and role lookup types.
 * #8683: :confval:`html_last_updated_fmt` does not support UTC offset (%z)
 * #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
+* #1112: ``download`` role creates duplicated copies when relative path is
+  specified
 
 Testing
 --------
