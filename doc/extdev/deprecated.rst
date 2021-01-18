@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.builders.linkcheck.node_line_or_0()``
+     - 3.5
+     - 5.0
+     - ``sphinx.util.nodes.get_node_line()``
+
    * - ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
      - 3.5
      - 5.0

@@ -14,11 +14,12 @@ import re
 import socket
 import threading
 import time
+import warnings
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from os import path
-from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
+from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple, cast
 from urllib.parse import unquote, urlparse
 
 from docutils import nodes
@@ -28,7 +29,9 @@ from requests.exceptions import HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
+from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
 from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise  # type: ignore
 from sphinx.util.nodes import get_node_line
@@ -37,6 +40,10 @@ logger = logging.getLogger(__name__)
 
 uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
 
+Hyperlink = NamedTuple('Hyperlink', (('next_check', float),
+                                     ('uri', Optional[str]),
+                                     ('docname', Optional[str]),
+                                     ('lineno', Optional[int])))
 RateLimit = NamedTuple('RateLimit', (('delay', float), ('next_check', float)))
 
 DEFAULT_REQUEST_HEADERS = {
@@ -52,6 +59,8 @@ def node_line_or_0(node: Element) -> int:
     PriorityQueue items must be comparable. The line number is part of the
     tuple used by the PriorityQueue, keep an homogeneous type for comparison.
     """
+    warnings.warn('node_line_or_0() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     return get_node_line(node) or 0
 
 
@@ -98,6 +107,7 @@ class CheckExternalLinksBuilder(Builder):
                 '%(outdir)s/output.txt')
 
     def init(self) -> None:
+        self.hyperlinks = {}    # type: Dict[str, Hyperlink]
         self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
         self.anchors_ignore = [re.compile(x)
                                for x in self.app.config.linkcheck_anchors_ignore]
@@ -406,35 +416,7 @@ class CheckExternalLinksBuilder(Builder):
         return
 
     def write_doc(self, docname: str, doctree: Node) -> None:
-        logger.info('')
-        n = 0
-
-        # reference nodes
-        for refnode in doctree.traverse(nodes.reference):
-            if 'refuri' not in refnode:
-                continue
-            uri = refnode['refuri']
-            lineno = node_line_or_0(refnode)
-            uri_info = (CHECK_IMMEDIATELY, uri, docname, lineno)
-            self.wqueue.put(uri_info, False)
-            n += 1
-
-        # image nodes
-        for imgnode in doctree.traverse(nodes.image):
-            uri = imgnode['candidates'].get('?')
-            if uri and '://' in uri:
-                lineno = node_line_or_0(imgnode)
-                uri_info = (CHECK_IMMEDIATELY, uri, docname, lineno)
-                self.wqueue.put(uri_info, False)
-                n += 1
-
-        done = 0
-        while done < n:
-            self.process_result(self.rqueue.get())
-            done += 1
-
-        if self.broken:
-            self.app.statuscode = 1
+        pass
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
@@ -447,14 +429,58 @@ class CheckExternalLinksBuilder(Builder):
             output.write('\n')
 
     def finish(self) -> None:
+        logger.info('')
+        n = 0
+
+        for hyperlink in self.hyperlinks.values():
+            self.wqueue.put(hyperlink, False)
+            n += 1
+
+        done = 0
+        while done < n:
+            self.process_result(self.rqueue.get())
+            done += 1
+
+        if self.broken:
+            self.app.statuscode = 1
+
         self.wqueue.join()
         # Shutdown threads.
         for worker in self.workers:
             self.wqueue.put((CHECK_IMMEDIATELY, None, None, None), False)
 
 
+class HyperlinkCollector(SphinxPostTransform):
+    builders = ('linkcheck',)
+    default_priority = 800
+
+    def run(self, **kwargs: Any) -> None:
+        builder = cast(CheckExternalLinksBuilder, self.app.builder)
+        hyperlinks = builder.hyperlinks
+
+        # reference nodes
+        for refnode in self.document.traverse(nodes.reference):
+            if 'refuri' not in refnode:
+                continue
+            uri = refnode['refuri']
+            lineno = get_node_line(refnode)
+            uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+            if uri not in hyperlinks:
+                hyperlinks[uri] = uri_info
+
+        # image nodes
+        for imgnode in self.document.traverse(nodes.image):
+            uri = imgnode['candidates'].get('?')
+            if uri and '://' in uri:
+                lineno = get_node_line(imgnode)
+                uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+                if uri not in hyperlinks:
+                    hyperlinks[uri] = uri_info
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(CheckExternalLinksBuilder)
+    app.add_post_transform(HyperlinkCollector)
 
     app.add_config_value('linkcheck_ignore', [], None)
     app.add_config_value('linkcheck_auth', [], None)
