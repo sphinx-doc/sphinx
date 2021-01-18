@@ -10,6 +10,7 @@
 
 import posixpath
 import traceback
+import warnings
 from os import path
 from typing import Any, Dict, Generator, Iterable, Optional, Set, Tuple, cast
 
@@ -19,10 +20,13 @@ from docutils.nodes import Element, Node
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
+from sphinx.builders import Builder
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
+from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
 
@@ -30,6 +34,15 @@ logger = logging.getLogger(__name__)
 
 
 OUTPUT_DIRNAME = '_modules'
+
+
+class viewcode_anchor(Element):
+    """Node for viewcode anchors.
+
+    This node will be processed in the resolving phase.
+    For viewcode supported builders, they will be all converted to the anchors.
+    For not supported builders, they will be removed.
+    """
 
 
 def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> Optional[str]:
@@ -50,14 +63,21 @@ def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> Optional[str
         return None
 
 
+def is_supported_builder(builder: Builder) -> bool:
+    if builder.format != 'html':
+        return False
+    elif builder.name == 'singlehtml':
+        return False
+    elif builder.name.startswith('epub') and not builder.config.viewcode_enable_epub:
+        return False
+    else:
+        return True
+
+
 def doctree_read(app: Sphinx, doctree: Node) -> None:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore
-    if app.builder.name == "singlehtml":
-        return
-    if app.builder.name.startswith("epub") and not env.config.viewcode_enable_epub:
-        return
 
     def has_tag(modname: str, fullname: str, docname: str, refname: str) -> bool:
         entry = env._viewcode_modules.get(modname, None)  # type: ignore
@@ -115,12 +135,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
                 continue
             names.add(fullname)
             pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
-            inline = nodes.inline('', _('[source]'), classes=['viewcode-link'])
-            onlynode = addnodes.only(expr='html')
-            onlynode += addnodes.pending_xref('', inline, reftype='viewcode', refdomain='std',
-                                              refexplicit=False, reftarget=pagename,
-                                              refid=fullname, refdoc=env.docname)
-            signode += onlynode
+            signode += viewcode_anchor(reftarget=pagename, refid=fullname, refdoc=env.docname)
 
 
 def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
@@ -134,10 +149,34 @@ def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
     env._viewcode_modules.update(other._viewcode_modules)  # type: ignore
 
 
+class ViewcodeAnchorTransform(SphinxPostTransform):
+    """Convert or remove viewcode_anchor nodes depends on builder."""
+    default_priority = 100
+
+    def run(self, **kwargs: Any) -> None:
+        if is_supported_builder(self.app.builder):
+            self.convert_viewcode_anchors()
+        else:
+            self.remove_viewcode_anchors()
+
+    def convert_viewcode_anchors(self) -> None:
+        for node in self.document.traverse(viewcode_anchor):
+            anchor = nodes.inline('', _('[source]'), classes=['viewcode-link'])
+            refnode = make_refnode(self.app.builder, node['refdoc'], node['reftarget'],
+                                   node['refid'], anchor)
+            node.replace_self(refnode)
+
+    def remove_viewcode_anchors(self) -> None:
+        for node in self.document.traverse(viewcode_anchor):
+            node.parent.remove(node)
+
+
 def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnode: Node
                       ) -> Optional[Node]:
     # resolve our "viewcode" reference nodes -- they need special treatment
     if node['reftype'] == 'viewcode':
+        warnings.warn('viewcode extension is no longer use pending_xref node. '
+                      'Please update your extension.', RemovedInSphinx50Warning)
         return make_refnode(app.builder, node['refdoc'], node['reftarget'],
                             node['refid'], contnode)
 
@@ -182,9 +221,7 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
-    if app.builder.name == "singlehtml":
-        return
-    if app.builder.name.startswith("epub") and not env.config.viewcode_enable_epub:
+    if not is_supported_builder(app.builder):
         return
     highlighter = app.builder.highlighter  # type: ignore
     urito = app.builder.get_relative_uri
@@ -292,6 +329,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # app.add_config_value('viewcode_exclude_modules', [], 'env')
     app.add_event('viewcode-find-source')
     app.add_event('viewcode-follow-imported')
+    app.add_post_transform(ViewcodeAnchorTransform)
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,

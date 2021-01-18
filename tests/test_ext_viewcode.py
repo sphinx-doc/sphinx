@@ -55,6 +55,9 @@ def test_viewcode_epub_default(app, status, warning):
 
     assert not (app.outdir / '_modules/spam/mod1.xhtml').exists()
 
+    result = (app.outdir / 'index.xhtml').read_text()
+    assert result.count('href="_modules/spam/mod1.xhtml#func1"') == 0
+
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode',
                     confoverrides={'viewcode_enable_epub': True})
@@ -62,6 +65,9 @@ def test_viewcode_epub_enabled(app, status, warning):
     app.builder.build_all()
 
     assert (app.outdir / '_modules/spam/mod1.xhtml').exists()
+
+    result = (app.outdir / 'index.xhtml').read_text()
+    assert result.count('href="_modules/spam/mod1.xhtml#func1"') == 2
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode', tags=['test_linkcode'])
