@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import posixpath
 import traceback
 from typing import Any, Dict, Iterable, Iterator, Set, Tuple
 
@@ -24,6 +25,9 @@ from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)
+
+
+OUTPUT_DIRNAME = '_modules'
 
 
 def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str:
@@ -108,7 +112,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
                 # only one link per name, please
                 continue
             names.add(fullname)
-            pagename = '_modules/' + modname.replace('.', '/')
+            pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
             inline = nodes.inline('', _('[source]'), classes=['viewcode-link'])
             onlynode = addnodes.only(expr='html')
             onlynode += addnodes.pending_xref('', inline, reftype='viewcode', refdomain='std',
@@ -156,7 +160,7 @@ def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
             continue
         code, tags, used, refname = entry
         # construct a page name for the highlighted source
-        pagename = '_modules/' + modname.replace('.', '/')
+        pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
         # highlight the source using the builder's highlighter
         if env.config.highlight_language in ('python3', 'default', 'none'):
             lexer = env.config.highlight_language
@@ -188,10 +192,10 @@ def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
             parent = parent.rsplit('.', 1)[0]
             if parent in modnames:
                 parents.append({
-                    'link': urito(pagename, '_modules/' +
-                                  parent.replace('.', '/')),
+                    'link': urito(pagename,
+                                  posixpath.join(OUTPUT_DIRNAME, parent.replace('.', '/'))),
                     'title': parent})
-        parents.append({'link': urito(pagename, '_modules/index'),
+        parents.append({'link': urito(pagename, posixpath.join(OUTPUT_DIRNAME, 'index')),
                         'title': _('Module code')})
         parents.reverse()
         # putting it all together
@@ -220,7 +224,8 @@ def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
                 html.append('</ul>')
             stack.append(modname + '.')
         html.append('<li><a href="%s">%s</a></li>\n' % (
-            urito('_modules/index', '_modules/' + modname.replace('.', '/')),
+            urito(posixpath.join(OUTPUT_DIRNAME, 'index'),
+                  posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))),
             modname))
     html.append('</ul>' * (len(stack) - 1))
     context = {
@@ -229,7 +234,7 @@ def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
                  ''.join(html)),
     }
 
-    yield ('_modules/index', context, 'page.html')
+    yield (posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html')
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
