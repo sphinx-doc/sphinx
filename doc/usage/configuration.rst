@@ -2198,8 +2198,9 @@ These options influence LaTeX output.
 
 .. confval:: latex_figure_captions_top
 
-   If ``True``, captions for figures are placed above the figure. Defaults to ``False``.
-   
+   If ``True``, captions for figures are placed above the figure.
+   Defaults to ``False``.
+
    .. versionadded:: 3.5
 
 
