@@ -588,6 +588,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_theme', 'manual', None, [str])
     app.add_config_value('latex_theme_options', {}, None)
     app.add_config_value('latex_theme_path', [], None, [list])
+    app.add_config_value('latex_figure_captions_top', False, None)
 
     app.add_config_value('latex_docclass', default_latex_docclass, None)
 

@@ -1320,8 +1320,13 @@ class LaTeXTranslator(SphinxTranslator):
             self.context.append('\\end{center}\n')
         else:
             self.body.append('\n\\begin{figure}[%s]\n\\centering\n' % align)
-            if any(isinstance(child, nodes.caption) for child in node):
-                self.body.append('\\capstart\n')
+            for child in node:
+                if isinstance(child, nodes.caption):
+                    self.body.append('\\capstart\n')
+                    if self.builder.config.latex_figure_captions_top:
+                        caption = node.pop(node.index(child))
+                        node.insert(0, caption)
+                    break
             self.context.append('\\end{figure}\n')
 
     def depart_figure(self, node: Element) -> None:
