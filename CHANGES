@@ -30,6 +30,8 @@ Features added
   :event:`html-page-context` event
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
+* #8573: napoleon: Allow to change the style of custom sections using
+  :confval:`napoleon_custom_styles`
 * #6241: mathjax: Include mathjax.js only on the document using equations
 * #8651: std domain: cross-reference for a rubric having inline item is broken
 * #8681: viewcode: Support incremental build
