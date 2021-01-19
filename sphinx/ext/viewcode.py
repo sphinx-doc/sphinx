@@ -11,7 +11,7 @@
 import posixpath
 import traceback
 from os import path
-from typing import Any, Dict, Iterable, Iterator, Optional, Set, Tuple, cast
+from typing import Any, Dict, Generator, Iterable, Optional, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 OUTPUT_DIRNAME = '_modules'
 
 
-def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str:
+def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> Optional[str]:
     try:
         return get_full_modname(modname, attribute)
     except AttributeError:
@@ -135,7 +135,7 @@ def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
 
 
 def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnode: Node
-                      ) -> Node:
+                      ) -> Optional[Node]:
     # resolve our "viewcode" reference nodes -- they need special treatment
     if node['reftype'] == 'viewcode':
         return make_refnode(app.builder, node['refdoc'], node['reftarget'],
@@ -178,7 +178,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     return True
 
 
-def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
+def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], None, None]:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
