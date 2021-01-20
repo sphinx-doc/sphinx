@@ -36,6 +36,16 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.ext.autodoc.ModuleDocumenter.get_module_members()``
 
+   * - ``sphinx.ext.autosummary.generate._simple_info()``
+     - 3.5
+     - 5.0
+     - :ref:`logging-api`
+
+   * - ``sphinx.ext.autosummary.generate._simple_warn()``
+     - 3.5
+     - 5.0
+     - :ref:`logging-api`
+
    * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
      - 3.4
      - 5.0
