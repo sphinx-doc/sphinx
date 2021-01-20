@@ -10,6 +10,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.builders.linkcheck.node_line_or_0()``
 * ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
 * ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
 * ``sphinx.ext.autodoc.importer.get_module_members()``
@@ -60,6 +61,8 @@ Bugs fixed
   + or ^) are used as keystrokes
 * #8629: html: A type warning for html_use_opensearch is shown twice
 * #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
+* #4304: linkcheck: Fix race condition that could lead to checking the
+  availability of the same URL twice
 * #8094: texinfo: image files on the different directory with document are not
   copied
 * #8671: :confval:`highlight_options` is not working
