@@ -29,6 +29,7 @@
 <%= substitutefont %>
 <%= textcyrillic %>
 <%= fontpkg %>
+<%= fontsubstitution %>
 <%= textgreek %>
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}

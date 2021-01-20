@@ -524,7 +524,7 @@ def test_babel_with_no_language_settings(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Bjarne]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -549,7 +549,7 @@ def test_babel_with_language_de(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,ngerman]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsngerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -574,7 +574,7 @@ def test_babel_with_language_ru(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,russian]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' not in result
+    assert '\\usepackage{tgtermes}' not in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsrussian{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -599,7 +599,7 @@ def test_babel_with_language_tr(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,turkish]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsturkish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -624,7 +624,7 @@ def test_babel_with_language_ja(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
     assert '\\usepackage{babel}' not in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' not in result
     assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
     assert '\\shorthandoff' not in result
@@ -648,7 +648,7 @@ def test_babel_with_unknown_language(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -676,7 +676,7 @@ def test_polyglossia_with_language_de(app, status, warning):
     assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
     assert '\\usepackage{polyglossia}' in result
     assert '\\setmainlanguage[spelling=new]{german}' in result
-    assert '\\usepackage{times}' not in result
+    assert '\\usepackage{tgtermes}' not in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -702,7 +702,7 @@ def test_polyglossia_with_language_de_1901(app, status, warning):
     assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
     assert '\\usepackage{polyglossia}' in result
     assert '\\setmainlanguage[spelling=old]{german}' in result
-    assert '\\usepackage{times}' not in result
+    assert '\\usepackage{tgtermes}' not in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
