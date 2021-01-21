@@ -10,6 +10,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
 * ``sphinx.builders.linkcheck.node_line_or_0()``
 * ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
 * ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``

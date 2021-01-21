@@ -26,6 +26,21 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+     - 3.5
+     - 5.0
+     - N/A
+
    * - ``sphinx.builders.linkcheck.node_line_or_0()``
      - 3.5
      - 5.0
