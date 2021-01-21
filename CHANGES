@@ -72,6 +72,7 @@ Bugs fixed
 * #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
 * #1112: ``download`` role creates duplicated copies when relative path is
   specified
+* #8339: make latexpdf fails when using literal-blocks and fancybox package
 
 Testing
 --------

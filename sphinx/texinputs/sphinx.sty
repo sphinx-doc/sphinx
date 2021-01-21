@@ -966,9 +966,9 @@
 % - with possibly of a top caption, non-separable by pagebreak.
 % - and usable inside tables or footnotes ("footnotehyper-sphinx").
 
-% For extensions which use \OriginalVerbatim and compatibility with Sphinx <
-% 1.5, we define and use these when (unmodified) Verbatim will be needed. But
-% Sphinx >= 1.5 does not modify the \Verbatim macro anymore.
+% Prior to Sphinx 1.5, \Verbatim and \endVerbatim were modified by Sphinx.
+% The aliases defined here are used in sphinxVerbatim environment and can
+% serve as hook-points with no need to modify \Verbatim itself.
 \let\OriginalVerbatim   \Verbatim
 \let\endOriginalVerbatim\endVerbatim
 
