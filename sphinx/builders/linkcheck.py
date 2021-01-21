@@ -29,7 +29,7 @@ from requests.exceptions import HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
@@ -113,9 +113,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
                                for x in self.app.config.linkcheck_anchors_ignore]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in self.app.config.linkcheck_auth]
-        self.good = set()       # type: Set[str]
-        self.broken = {}        # type: Dict[str, str]
-        self.redirected = {}    # type: Dict[str, Tuple[str, int]]
+        self._good = set()       # type: Set[str]
+        self._broken = {}        # type: Dict[str, str]
+        self._redirected = {}    # type: Dict[str, Tuple[str, int]]
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
         # create output file
@@ -132,6 +132,33 @@ class CheckExternalLinksBuilder(DummyBuilder):
             thread = threading.Thread(target=self.check_thread, daemon=True)
             thread.start()
             self.workers.append(thread)
+
+    @property
+    def good(self):
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "good"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return self._good
+
+    @property
+    def broken(self):
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "broken"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return self._broken
+
+    @property
+    def redirected(self):
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "redirected"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return self._redirected
 
     def check_thread(self) -> None:
         kwargs = {}
@@ -261,14 +288,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
                             if rex.match(uri):
                                 return 'ignored', '', 0
                         else:
-                            self.broken[uri] = ''
+                            self._broken[uri] = ''
                             return 'broken', '', 0
-            elif uri in self.good:
+            elif uri in self._good:
                 return 'working', 'old', 0
-            elif uri in self.broken:
-                return 'broken', self.broken[uri], 0
-            elif uri in self.redirected:
-                return 'redirected', self.redirected[uri][0], self.redirected[uri][1]
+            elif uri in self._broken:
+                return 'broken', self._broken[uri], 0
+            elif uri in self._redirected:
+                return 'redirected', self._redirected[uri][0], self._redirected[uri][1]
             for rex in self.to_ignore:
                 if rex.match(uri):
                     return 'ignored', '', 0
@@ -280,11 +307,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     break
 
             if status == "working":
-                self.good.add(uri)
+                self._good.add(uri)
             elif status == "broken":
-                self.broken[uri] = info
+                self._broken[uri] = info
             elif status == "redirected":
-                self.redirected[uri] = (info, code)
+                self._redirected[uri] = (info, code)
 
             return (status, info, code)
 
@@ -429,7 +456,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             self.process_result(self.rqueue.get())
             done += 1
 
-        if self.broken:
+        if self._broken:
             self.app.statuscode = 1
 
         self.wqueue.join()
