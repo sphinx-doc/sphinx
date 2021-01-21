@@ -29,7 +29,7 @@ from requests.exceptions import HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
@@ -60,7 +60,7 @@ def node_line_or_0(node: Element) -> int:
     tuple used by the PriorityQueue, keep an homogeneous type for comparison.
     """
     warnings.warn('node_line_or_0() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
+                  RemovedInSphinx50Warning, stacklevel=2)
     return get_node_line(node) or 0
 
 
