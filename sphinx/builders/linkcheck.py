@@ -23,12 +23,12 @@ from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple, cast
 from urllib.parse import unquote, urlparse
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 from requests import Response
 from requests.exceptions import HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
-from sphinx.builders import Builder
+from sphinx.builders.dummy import DummyBuilder
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
@@ -98,7 +98,7 @@ def check_anchor(response: requests.requests.Response, anchor: str) -> bool:
     return parser.found
 
 
-class CheckExternalLinksBuilder(Builder):
+class CheckExternalLinksBuilder(DummyBuilder):
     """
     Checks for broken external links.
     """
@@ -405,18 +405,6 @@ class CheckExternalLinksBuilder(Builder):
             self.write_entry('redirected ' + text, docname, filename,
                              lineno, uri + ' to ' + info)
             self.write_linkstat(linkstat)
-
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
-        return ''
-
-    def get_outdated_docs(self) -> Set[str]:
-        return self.env.found_docs
-
-    def prepare_writing(self, docnames: Set[str]) -> None:
-        return
-
-    def write_doc(self, docname: str, doctree: Node) -> None:
-        pass
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
