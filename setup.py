@@ -44,7 +44,7 @@ extras_require = {
     'lint': [
         'flake8>=3.5.0',
         'isort',
-        'mypy>=0.790',
+        'mypy>=0.800',
         'docutils-stubs',
     ],
     'test': [

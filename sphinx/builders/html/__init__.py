@@ -92,7 +92,7 @@ class Stylesheet(str):
     filename = None     # type: str
 
     def __new__(cls, filename: str, *args: str, **attributes: str) -> "Stylesheet":
-        self = str.__new__(cls, filename)  # type: ignore
+        self = str.__new__(cls, filename)
         self.filename = filename
         self.attributes = attributes
         self.attributes.setdefault('rel', 'stylesheet')
@@ -115,7 +115,7 @@ class JavaScript(str):
     filename = None     # type: str
 
     def __new__(cls, filename: str, **attributes: str) -> "JavaScript":
-        self = str.__new__(cls, filename)  # type: ignore
+        self = str.__new__(cls, filename)
         self.filename = filename
         self.attributes = attributes
 

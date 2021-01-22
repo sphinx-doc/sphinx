@@ -34,7 +34,7 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
+LocaleFileInfoBase = namedtuple('LocaleFileInfoBase', 'base_dir,domain,charset')
 
 
 class CatalogInfo(LocaleFileInfoBase):
