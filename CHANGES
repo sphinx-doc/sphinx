@@ -68,6 +68,7 @@ Bugs fixed
   availability of the same URL twice
 * #8094: texinfo: image files on the different directory with document are not
   copied
+* #8720: viewcode: module pages are generated for epub on incremental build
 * #8671: :confval:`highlight_options` is not working
 * #8341: C, fix intersphinx lookup types for names in declarations.
 * C, C++: in general fix intersphinx and role lookup types.
