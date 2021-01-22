@@ -64,6 +64,7 @@ Bugs fixed
 * #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
   + or ^) are used as keystrokes
 * #8629: html: A type warning for html_use_opensearch is shown twice
+* #8714: html: kbd role with "Caps Lock" rendered incorrectly
 * #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
 * #4304: linkcheck: Fix race condition that could lead to checking the
   availability of the same URL twice
