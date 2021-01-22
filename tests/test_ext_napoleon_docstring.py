@@ -1072,10 +1072,27 @@ You should listen to me!
 Sooper Warning:
     Stop hitting yourself!
 """, """:Warns: **Stop hitting yourself!**
+"""),
+                      ("""\
+Params Style:
+    arg1 (int): Description of arg1
+    arg2 (str): Description of arg2
+
+""", """\
+:Params Style: * **arg1** (*int*) -- Description of arg1
+               * **arg2** (*str*) -- Description of arg2
+"""),
+                      ("""\
+Returns Style:
+    description of custom section
+
+""", """:Returns Style: description of custom section
 """))
 
         testConfig = Config(napoleon_custom_sections=['Really Important Details',
-                                                      ('Sooper Warning', 'warns')])
+                                                      ('Sooper Warning', 'warns'),
+                                                      ('Params Style', 'params_style'),
+                                                      ('Returns Style', 'returns_style')])
 
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring, testConfig))

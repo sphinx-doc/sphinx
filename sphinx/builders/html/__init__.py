@@ -88,7 +88,7 @@ class Stylesheet(str):
 
     def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
                 ) -> "Stylesheet":
-        self = str.__new__(cls, filename)  # type: ignore
+        self = str.__new__(cls, filename)
         self.filename = filename
         self.priority = priority
         self.attributes = attributes
@@ -113,7 +113,7 @@ class JavaScript(str):
     priority = None     # type: int
 
     def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> "JavaScript":
-        self = str.__new__(cls, filename)  # type: ignore
+        self = str.__new__(cls, filename)
         self.filename = filename
         self.priority = priority
         self.attributes = attributes

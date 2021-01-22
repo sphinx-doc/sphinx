@@ -97,10 +97,14 @@ def setup_documenters(app: Any) -> None:
 
 
 def _simple_info(msg: str) -> None:
+    warnings.warn('_simple_info() is deprecated.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     print(msg)
 
 
 def _simple_warn(msg: str) -> None:
+    warnings.warn('_simple_warn() is deprecated.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     print('WARNING: ' + msg, file=sys.stderr)
 
 

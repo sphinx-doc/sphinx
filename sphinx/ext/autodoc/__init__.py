@@ -1338,8 +1338,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
         if overloaded:
+            actual = inspect.signature(self.object,
+                                       type_aliases=self.config.autodoc_type_aliases)
             __globals__ = safe_getattr(self.object, '__globals__', {})
             for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                overload = self.merge_default_value(actual, overload)
                 overload = evaluate_signature(overload, __globals__,
                                               self.config.autodoc_type_aliases)
 
@@ -1347,6 +1350,16 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 sigs.append(sig)
 
         return "\n".join(sigs)
+
+    def merge_default_value(self, actual: Signature, overload: Signature) -> Signature:
+        """Merge default values of actual implementation to the overload variants."""
+        parameters = list(overload.parameters.values())
+        for i, param in enumerate(parameters):
+            actual_param = actual.parameters.get(param.name)
+            if actual_param and param.default == '...':
+                parameters[i] = param.replace(default=actual_param.default)
+
+        return overload.replace(parameters=parameters)
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
@@ -2096,8 +2109,16 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     documenter.objpath = [None]
                     sigs.append(documenter.format_signature())
         if overloaded:
+            if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
+                actual = inspect.signature(self.object, bound_method=False,
+                                           type_aliases=self.config.autodoc_type_aliases)
+            else:
+                actual = inspect.signature(self.object, bound_method=True,
+                                           type_aliases=self.config.autodoc_type_aliases)
+
             __globals__ = safe_getattr(self.object, '__globals__', {})
             for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
+                overload = self.merge_default_value(actual, overload)
                 overload = evaluate_signature(overload, __globals__,
                                               self.config.autodoc_type_aliases)
 
@@ -2109,6 +2130,16 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 sigs.append(sig)
 
         return "\n".join(sigs)
+
+    def merge_default_value(self, actual: Signature, overload: Signature) -> Signature:
+        """Merge default values of actual implementation to the overload variants."""
+        parameters = list(overload.parameters.values())
+        for i, param in enumerate(parameters):
+            actual_param = actual.parameters.get(param.name)
+            if actual_param and param.default == '...':
+                parameters[i] = param.replace(default=actual_param.default)
+
+        return overload.replace(parameters=parameters)
 
     def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
         """Annotate type hint to the first argument of function if needed."""
