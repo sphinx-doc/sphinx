@@ -26,6 +26,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - pending_xref node for viewcode extension
+     - 3.5
+     - 5.0
+     - ``sphinx.ext.viewcode.viewcode_anchor``
+
    * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
      - 3.5
      - 5.0
