@@ -15,7 +15,7 @@ import sys
 import warnings
 from os import path
 from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple
-from urllib.parse import quote, urlparse
+from urllib.parse import quote
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -38,7 +38,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import logging, md5, progress_message, status_iterator
+from sphinx.util import isurl, logging, md5, progress_message, status_iterator
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
@@ -773,12 +773,12 @@ class StandaloneHTMLBuilder(Builder):
                        excluded, context=context, renderer=self.templates, onerror=onerror)
 
     def copy_html_logo(self) -> None:
-        if self.config.html_logo and not urlparse(self.config.html_logo).scheme:
+        if self.config.html_logo and not isurl(self.config.html_logo):
             copy_asset(path.join(self.confdir, self.config.html_logo),
                        path.join(self.outdir, '_static'))
 
     def copy_html_favicon(self) -> None:
-        if self.config.html_favicon and not urlparse(self.config.html_favicon).scheme:
+        if self.config.html_favicon and not isurl(self.config.html_favicon):
             copy_asset(path.join(self.confdir, self.config.html_favicon),
                        path.join(self.outdir, '_static'))
 
@@ -957,12 +957,11 @@ class StandaloneHTMLBuilder(Builder):
         """Parse uri of a resource file and return its reference. If its a local file,
         return the name of the file.
         """
-        parse_result = urlparse(uri)
         ref = ''
-        if parse_result.scheme:
+        if isurl(uri):
             ref = uri
-        elif parse_result.path:
-            ref = path.join('_static', path.basename(parse_result.path))
+        elif uri:
+            ref = path.join('_static', path.basename(uri))
         return ref
 
     # --------- these are overwritten by the serialization builder
@@ -1188,16 +1187,18 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
 
 def validate_html_logo(app: Sphinx, config: Config) -> None:
     """Check html_logo setting."""
-    if config.html_logo and not path.isfile(path.join(app.confdir, config.html_logo)) \
-            and not urlparse(config.html_logo).scheme:
+    if (config.html_logo and
+            not path.isfile(path.join(app.confdir, config.html_logo)) and
+            not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
         config.html_logo = None  # type: ignore
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
     """Check html_favicon setting."""
-    if config.html_favicon and not path.isfile(path.join(app.confdir, config.html_favicon)) \
-            and not urlparse(config.html_favicon).scheme:
+    if (config.html_favicon and
+            not path.isfile(path.join(app.confdir, config.html_favicon)) and
+            not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
         config.html_favicon = None  # type: ignore
 

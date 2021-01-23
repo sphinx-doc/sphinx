@@ -638,6 +638,14 @@ def encode_uri(uri: str) -> str:
     return urlunsplit(split)
 
 
+def isurl(url: str) -> bool:
+    """Check *url* is URL or not."""
+    if url and '://' in url:
+        return True
+    else:
+        return False
+
+
 def display_chunk(chunk: Any) -> str:
     if isinstance(chunk, (list, tuple)):
         if len(chunk) == 1:
