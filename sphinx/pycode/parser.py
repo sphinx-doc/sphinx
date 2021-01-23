@@ -4,13 +4,12 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import inspect
 import itertools
 import re
-import sys
 import tokenize
 from collections import OrderedDict
 from inspect import Signature
@@ -24,12 +23,6 @@ from sphinx.pycode.ast import parse, unparse
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
 emptyline_re = re.compile('^\\s*(#.*)?$')
-
-
-if sys.version_info >= (3, 6):
-    ASSIGN_NODES = (ast.Assign, ast.AnnAssign)
-else:
-    ASSIGN_NODES = (ast.Assign)
 
 
 def filter_whitespace(code: str) -> str:
@@ -94,7 +87,10 @@ def dedent_docstring(s: str) -> str:
 
     dummy.__doc__ = s
     docstring = inspect.getdoc(dummy)
-    return docstring.lstrip("\r\n").rstrip("\r\n")
+    if docstring:
+        return docstring.lstrip("\r\n").rstrip("\r\n")
+    else:
+        return ""
 
 
 class Token:
@@ -398,13 +394,14 @@ class VariableCommentPicker(ast.NodeVisitor):
         for varname in varnames:
             self.add_entry(varname)
 
-    def visit_AnnAssign(self, node: ast.AST) -> None:  # Note: ast.AnnAssign not found in py35
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         """Handles AnnAssign node and pick up a variable comment."""
         self.visit_Assign(node)  # type: ignore
 
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
-        if (isinstance(self.previous, ASSIGN_NODES) and isinstance(node.value, ast.Str)):
+        if (isinstance(self.previous, (ast.Assign, ast.AnnAssign)) and
+                isinstance(node.value, ast.Str)):
             try:
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())

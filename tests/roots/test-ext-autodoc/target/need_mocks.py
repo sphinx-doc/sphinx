@@ -28,4 +28,9 @@ class TestAutodoc(object):
         return None
 
 
+class Inherited(missing_module.Class):
+    """docstring"""
+    pass
+
+
 sphinx.missing_module4.missing_function(len(missing_name2))

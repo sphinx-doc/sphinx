@@ -4,7 +4,7 @@
 
     Helpers for inspecting Python modules.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,10 +20,10 @@ import warnings
 from functools import partial, partialmethod
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, cast
+from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, cast
 
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
-from sphinx.pycode.ast import ast  # for py35-37
+from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.pycode.ast import ast  # for py36-37
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 from sphinx.util.typing import ForwardRef
@@ -35,6 +35,10 @@ else:
     ClassMethodDescriptorType = type(object.__init__)
     MethodDescriptorType = type(str.join)
     WrapperDescriptorType = type(dict.__dict__['fromkeys'])
+
+if False:
+    # For type annotation
+    from typing import Type  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -166,11 +170,24 @@ def getannotations(obj: Any) -> Mapping[str, Any]:
         return {}
 
 
+def getmro(obj: Any) -> Tuple["Type", ...]:
+    """Get __mro__ from given *obj* safely.
+
+    Raises AttributeError if given *obj* raises an error on accessing __mro__.
+    """
+    __mro__ = safe_getattr(obj, '__mro__', None)
+    if isinstance(__mro__, tuple):
+        return __mro__
+    else:
+        return tuple()
+
+
 def getslots(obj: Any) -> Optional[Dict]:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
     Raises AttributeError if given *obj* raises an error on accessing __slots__.
+    Raises TypeError if given *obj* is not a class.
     Raises ValueError if given *obj* have invalid __slots__.
     """
     if not inspect.isclass(obj):
@@ -322,7 +339,7 @@ def is_singledispatch_method(obj: Any) -> bool:
     try:
         from functools import singledispatchmethod  # type: ignore
         return isinstance(obj, singledispatchmethod)
-    except ImportError:  # py35-37
+    except ImportError:  # py36-37
         return False
 
 
@@ -355,7 +372,7 @@ def iscoroutinefunction(obj: Any) -> bool:
 
 def isproperty(obj: Any) -> bool:
     """Check if the object is property."""
-    if sys.version_info > (3, 8):
+    if sys.version_info >= (3, 8):
         from functools import cached_property  # cached_property is available since py3.8
         if isinstance(obj, cached_property):
             return True
@@ -398,23 +415,6 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
             return defargs[0]
 
         raise AttributeError(name) from exc
-
-
-def safe_getmembers(object: Any, predicate: Callable[[str], bool] = None,
-                    attr_getter: Callable = safe_getattr) -> List[Tuple[str, Any]]:
-    """A version of inspect.getmembers() that uses safe_getattr()."""
-    warnings.warn('safe_getmembers() is deprecated', RemovedInSphinx40Warning, stacklevel=2)
-
-    results = []  # type: List[Tuple[str, Any]]
-    for key in dir(object):
-        try:
-            value = attr_getter(object, key, None)
-        except AttributeError:
-            continue
-        if not predicate or predicate(value):
-            results.append((key, value))
-    results.sort()
-    return results
 
 
 def object_description(object: Any) -> str:
@@ -480,6 +480,19 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
         return False
 
     return getattr(builtins, name, None) is cls
+
+
+class DefaultValue:
+    """A simple wrapper for default value of the parameters of overload functions."""
+
+    def __init__(self, value: str) -> None:
+        self.value = value
+
+    def __eq__(self, other: object) -> bool:
+        return self.value == other
+
+    def __repr__(self) -> str:
+        return self.value
 
 
 def _should_unwrap(subject: Callable) -> bool:
@@ -687,7 +700,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:
-                default = ast_unparse(defaults[i], code)
+                default = DefaultValue(ast_unparse(defaults[i], code))
 
             annotation = ast_unparse(arg.annotation, code) or Parameter.empty
             params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
@@ -697,7 +710,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         if defaults[i + posonlyargs] is Parameter.empty:
             default = Parameter.empty
         else:
-            default = ast_unparse(defaults[i + posonlyargs], code)
+            default = DefaultValue(ast_unparse(defaults[i + posonlyargs], code))
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
@@ -722,154 +735,6 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
     return_annotation = ast_unparse(node.returns, code) or Parameter.empty
 
     return inspect.Signature(params, return_annotation=return_annotation)
-
-
-class Signature:
-    """The Signature object represents the call signature of a callable object and
-    its return annotation.
-    """
-
-    empty = inspect.Signature.empty
-
-    def __init__(self, subject: Callable, bound_method: bool = False,
-                 has_retval: bool = True) -> None:
-        warnings.warn('sphinx.util.inspect.Signature() is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-        # check subject is not a built-in class (ex. int, str)
-        if (isinstance(subject, type) and
-                is_builtin_class_method(subject, "__new__") and
-                is_builtin_class_method(subject, "__init__")):
-            raise TypeError("can't compute signature for built-in type {}".format(subject))
-
-        self.subject = subject
-        self.has_retval = has_retval
-        self.partialmethod_with_noargs = False
-
-        try:
-            self.signature = inspect.signature(subject)  # type: Optional[inspect.Signature]
-        except IndexError:
-            # Until python 3.6.4, cpython has been crashed on inspection for
-            # partialmethods not having any arguments.
-            # https://bugs.python.org/issue33009
-            if hasattr(subject, '_partialmethod'):
-                self.signature = None
-                self.partialmethod_with_noargs = True
-            else:
-                raise
-
-        try:
-            self.annotations = typing.get_type_hints(subject)
-        except Exception:
-            # get_type_hints() does not support some kind of objects like partial,
-            # ForwardRef and so on.  For them, it raises an exception. In that case,
-            # we try to build annotations from argspec.
-            self.annotations = {}
-
-        if bound_method:
-            # client gives a hint that the subject is a bound method
-
-            if inspect.ismethod(subject):
-                # inspect.signature already considers the subject is bound method.
-                # So it is not need to skip first argument.
-                self.skip_first_argument = False
-            else:
-                self.skip_first_argument = True
-        else:
-            # inspect.signature recognizes type of method properly without any hints
-            self.skip_first_argument = False
-
-    @property
-    def parameters(self) -> Mapping:
-        if self.partialmethod_with_noargs:
-            return {}
-        else:
-            return self.signature.parameters
-
-    @property
-    def return_annotation(self) -> Any:
-        if self.signature:
-            if self.has_retval:
-                return self.signature.return_annotation
-            else:
-                return Parameter.empty
-        else:
-            return None
-
-    def format_args(self, show_annotation: bool = True) -> str:
-        def get_annotation(param: Parameter) -> Any:
-            if isinstance(param.annotation, str) and param.name in self.annotations:
-                return self.annotations[param.name]
-            else:
-                return param.annotation
-
-        args = []
-        last_kind = None
-        for i, param in enumerate(self.parameters.values()):
-            # skip first argument if subject is bound method
-            if self.skip_first_argument and i == 0:
-                continue
-
-            arg = StringIO()
-
-            # insert '*' between POSITIONAL args and KEYWORD_ONLY args::
-            #     func(a, b, *, c, d):
-            if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
-                                                                  param.POSITIONAL_ONLY,
-                                                                  None):
-                args.append('*')
-
-            if param.kind in (param.POSITIONAL_ONLY,
-                              param.POSITIONAL_OR_KEYWORD,
-                              param.KEYWORD_ONLY):
-                arg.write(param.name)
-                if show_annotation and param.annotation is not param.empty:
-                    arg.write(': ')
-                    arg.write(stringify_annotation(get_annotation(param)))
-                if param.default is not param.empty:
-                    if param.annotation is param.empty or show_annotation is False:
-                        arg.write('=')
-                        arg.write(object_description(param.default))
-                    else:
-                        arg.write(' = ')
-                        arg.write(object_description(param.default))
-            elif param.kind == param.VAR_POSITIONAL:
-                arg.write('*')
-                arg.write(param.name)
-                if show_annotation and param.annotation is not param.empty:
-                    arg.write(': ')
-                    arg.write(stringify_annotation(get_annotation(param)))
-            elif param.kind == param.VAR_KEYWORD:
-                arg.write('**')
-                arg.write(param.name)
-                if show_annotation and param.annotation is not param.empty:
-                    arg.write(': ')
-                    arg.write(stringify_annotation(get_annotation(param)))
-
-            args.append(arg.getvalue())
-            last_kind = param.kind
-
-        if self.return_annotation is Parameter.empty or show_annotation is False:
-            return '(%s)' % ', '.join(args)
-        else:
-            if 'return' in self.annotations:
-                annotation = stringify_annotation(self.annotations['return'])
-            else:
-                annotation = stringify_annotation(self.return_annotation)
-
-            return '(%s) -> %s' % (', '.join(args), annotation)
-
-    def format_annotation(self, annotation: Any) -> str:
-        """Return formatted representation of a type annotation."""
-        return stringify_annotation(annotation)
-
-    def format_annotation_new(self, annotation: Any) -> str:
-        """format_annotation() for py37+"""
-        return stringify_annotation(annotation)
-
-    def format_annotation_old(self, annotation: Any) -> str:
-        """format_annotation() for py36 or below"""
-        return stringify_annotation(annotation)
 
 
 def getdoc(obj: Any, attrgetter: Callable = safe_getattr,

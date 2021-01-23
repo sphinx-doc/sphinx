@@ -4,11 +4,11 @@
 
     The index domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
@@ -21,8 +21,7 @@ from sphinx.util import logging, split_index_msg
 from sphinx.util.docutils import ReferenceRole, SphinxDirective
 from sphinx.util.nodes import process_index_entry
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

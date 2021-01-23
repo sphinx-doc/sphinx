@@ -4,14 +4,14 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pickle
 import time
 from os import path
-from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -40,10 +40,7 @@ try:
 except ImportError:
     multiprocessing = None
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

@@ -6,32 +6,29 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from collections import defaultdict
 from operator import attrgetter
-from typing import Any, Callable, Dict, List, NamedTuple, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Tuple, Type
 
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
 logger = logging.getLogger(__name__)
 
-EventListener = NamedTuple('EventListener', [('id', int),
-                                             ('handler', Callable),
-                                             ('priority', int)])
+
+class EventListener(NamedTuple):
+    id: int
+    handler: Callable
+    priority: int
 
 
 # List of all known core events. Maps name to arguments description.
@@ -50,8 +47,6 @@ core_events = {
     'warn-missing-reference': 'domain, node',
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
-    'html-collect-pages': 'builder',
-    'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
 }
 
@@ -59,10 +54,7 @@ core_events = {
 class EventManager:
     """Event manager for Sphinx."""
 
-    def __init__(self, app: "Sphinx" = None) -> None:
-        if app is None:
-            warnings.warn('app argument is required for EventManager.',
-                          RemovedInSphinx40Warning)
+    def __init__(self, app: "Sphinx") -> None:
         self.app = app
         self.events = core_events.copy()
         self.listeners = defaultdict(list)  # type: Dict[str, List[EventListener]]
@@ -92,7 +84,7 @@ class EventManager:
                     listeners.remove(listener)
 
     def emit(self, name: str, *args: Any,
-             allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> List:
+             allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> List:
         """Emit a Sphinx event."""
         try:
             logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
@@ -105,11 +97,7 @@ class EventManager:
         listeners = sorted(self.listeners[name], key=attrgetter("priority"))
         for listener in listeners:
             try:
-                if self.app is None:
-                    # for compatibility; RemovedInSphinx40Warning
-                    results.append(listener.handler(*args))
-                else:
-                    results.append(listener.handler(self.app, *args))
+                results.append(listener.handler(self.app, *args))
             except allowed_exceptions:
                 # pass through the errors specified as *allowed_exceptions*
                 raise
@@ -121,7 +109,7 @@ class EventManager:
         return results
 
     def emit_firstresult(self, name: str, *args: Any,
-                         allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> Any:
+                         allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> Any:
         """Emit a Sphinx event and returns first result.
 
         This returns the result of the first handler that doesn't return ``None``.

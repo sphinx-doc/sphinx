@@ -4,10 +4,11 @@
 
     Tests the Python Domain
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import re
 import sys
 from unittest.mock import Mock
 
@@ -132,6 +133,29 @@ def test_domain_py_xrefs(app, status, warning):
     assert len(refnodes) == 2
 
 
+@pytest.mark.sphinx('html', testroot='domain-py')
+def test_domain_py_xrefs_abbreviations(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'abbr.html').read_text()
+    assert re.search(r'normal: <a .* href="module.html#module_a.submodule.ModTopLevel.'
+                     r'mod_child_1" .*><.*>module_a.submodule.ModTopLevel.mod_child_1\(\)'
+                     r'<.*></a>',
+                     content)
+    assert re.search(r'relative: <a .* href="module.html#module_a.submodule.ModTopLevel.'
+                     r'mod_child_1" .*><.*>ModTopLevel.mod_child_1\(\)<.*></a>',
+                     content)
+    assert re.search(r'short name: <a .* href="module.html#module_a.submodule.ModTopLevel.'
+                     r'mod_child_1" .*><.*>mod_child_1\(\)<.*></a>',
+                     content)
+    assert re.search(r'relative \+ short name: <a .* href="module.html#module_a.submodule.'
+                     r'ModTopLevel.mod_child_1" .*><.*>mod_child_1\(\)<.*></a>',
+                     content)
+    assert re.search(r'short name \+ relative: <a .* href="module.html#module_a.submodule.'
+                     r'ModTopLevel.mod_child_1" .*><.*>mod_child_1\(\)<.*></a>',
+                     content)
+
+
 @pytest.mark.sphinx('dummy', testroot='domain-py')
 def test_domain_py_objects(app, status, warning):
     app.builder.build_all()
@@ -190,20 +214,22 @@ def test_domain_py_find_obj(app, status, warning):
 
     assert (find_obj(None, None, 'NONEXISTANT', 'class') == [])
     assert (find_obj(None, None, 'NestedParentA', 'class') ==
-            [('NestedParentA', ('roles', 'NestedParentA', 'class'))])
+            [('NestedParentA', ('roles', 'NestedParentA', 'class', False))])
     assert (find_obj(None, None, 'NestedParentA.NestedChildA', 'class') ==
-            [('NestedParentA.NestedChildA', ('roles', 'NestedParentA.NestedChildA', 'class'))])
+            [('NestedParentA.NestedChildA',
+              ('roles', 'NestedParentA.NestedChildA', 'class', False))])
     assert (find_obj(None, 'NestedParentA', 'NestedChildA', 'class') ==
-            [('NestedParentA.NestedChildA', ('roles', 'NestedParentA.NestedChildA', 'class'))])
+            [('NestedParentA.NestedChildA',
+              ('roles', 'NestedParentA.NestedChildA', 'class', False))])
     assert (find_obj(None, None, 'NestedParentA.NestedChildA.subchild_1', 'meth') ==
             [('NestedParentA.NestedChildA.subchild_1',
-              ('roles', 'NestedParentA.NestedChildA.subchild_1', 'method'))])
+              ('roles', 'NestedParentA.NestedChildA.subchild_1', 'method', False))])
     assert (find_obj(None, 'NestedParentA', 'NestedChildA.subchild_1', 'meth') ==
             [('NestedParentA.NestedChildA.subchild_1',
-              ('roles', 'NestedParentA.NestedChildA.subchild_1', 'method'))])
+              ('roles', 'NestedParentA.NestedChildA.subchild_1', 'method', False))])
     assert (find_obj(None, 'NestedParentA.NestedChildA', 'subchild_1', 'meth') ==
             [('NestedParentA.NestedChildA.subchild_1',
-              ('roles', 'NestedParentA.NestedChildA.subchild_1', 'method'))])
+              ('roles', 'NestedParentA.NestedChildA.subchild_1', 'method', False))])
 
 
 def test_get_full_qualified_name():
@@ -505,7 +531,7 @@ def test_pydata(app):
                                   [desc_content, ()])]))
     assert_node(doctree[3][0][2][1], pending_xref, **{"py:module": "example"})
     assert 'example.var' in domain.objects
-    assert domain.objects['example.var'] == ('index', 'example.var', 'data')
+    assert domain.objects['example.var'] == ('index', 'example.var', 'data', False)
 
 
 def test_pyfunction(app):
@@ -535,9 +561,9 @@ def test_pyfunction(app):
                 entries=[('single', 'func2() (in module example)', 'example.func2', '', None)])
 
     assert 'func1' in domain.objects
-    assert domain.objects['func1'] == ('index', 'func1', 'function')
+    assert domain.objects['func1'] == ('index', 'func1', 'function', False)
     assert 'example.func2' in domain.objects
-    assert domain.objects['example.func2'] == ('index', 'example.func2', 'function')
+    assert domain.objects['example.func2'] == ('index', 'example.func2', 'function', False)
 
 
 def test_pyclass_options(app):
@@ -559,13 +585,13 @@ def test_pyclass_options(app):
     assert_node(doctree[0], addnodes.index,
                 entries=[('single', 'Class1 (built-in class)', 'Class1', '', None)])
     assert 'Class1' in domain.objects
-    assert domain.objects['Class1'] == ('index', 'Class1', 'class')
+    assert domain.objects['Class1'] == ('index', 'Class1', 'class', False)
 
     # :final:
     assert_node(doctree[2], addnodes.index,
                 entries=[('single', 'Class2 (built-in class)', 'Class2', '', None)])
     assert 'Class2' in domain.objects
-    assert domain.objects['Class2'] == ('index', 'Class2', 'class')
+    assert domain.objects['Class2'] == ('index', 'Class2', 'class', False)
 
 
 def test_pymethod_options(app):
@@ -611,7 +637,7 @@ def test_pymethod_options(app):
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
     assert 'Class.meth1' in domain.objects
-    assert domain.objects['Class.meth1'] == ('index', 'Class.meth1', 'method')
+    assert domain.objects['Class.meth1'] == ('index', 'Class.meth1', 'method', False)
 
     # :classmethod:
     assert_node(doctree[1][1][2], addnodes.index,
@@ -621,7 +647,7 @@ def test_pymethod_options(app):
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
     assert 'Class.meth2' in domain.objects
-    assert domain.objects['Class.meth2'] == ('index', 'Class.meth2', 'method')
+    assert domain.objects['Class.meth2'] == ('index', 'Class.meth2', 'method', False)
 
     # :staticmethod:
     assert_node(doctree[1][1][4], addnodes.index,
@@ -631,7 +657,7 @@ def test_pymethod_options(app):
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
     assert 'Class.meth3' in domain.objects
-    assert domain.objects['Class.meth3'] == ('index', 'Class.meth3', 'method')
+    assert domain.objects['Class.meth3'] == ('index', 'Class.meth3', 'method', False)
 
     # :async:
     assert_node(doctree[1][1][6], addnodes.index,
@@ -641,7 +667,7 @@ def test_pymethod_options(app):
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
     assert 'Class.meth4' in domain.objects
-    assert domain.objects['Class.meth4'] == ('index', 'Class.meth4', 'method')
+    assert domain.objects['Class.meth4'] == ('index', 'Class.meth4', 'method', False)
 
     # :property:
     assert_node(doctree[1][1][8], addnodes.index,
@@ -650,7 +676,7 @@ def test_pymethod_options(app):
                                                      [desc_name, "meth5"])],
                                    [desc_content, ()]))
     assert 'Class.meth5' in domain.objects
-    assert domain.objects['Class.meth5'] == ('index', 'Class.meth5', 'method')
+    assert domain.objects['Class.meth5'] == ('index', 'Class.meth5', 'method', False)
 
     # :abstractmethod:
     assert_node(doctree[1][1][10], addnodes.index,
@@ -660,7 +686,7 @@ def test_pymethod_options(app):
                                                       [desc_parameterlist, ()])],
                                     [desc_content, ()]))
     assert 'Class.meth6' in domain.objects
-    assert domain.objects['Class.meth6'] == ('index', 'Class.meth6', 'method')
+    assert domain.objects['Class.meth6'] == ('index', 'Class.meth6', 'method', False)
 
     # :final:
     assert_node(doctree[1][1][12], addnodes.index,
@@ -670,7 +696,7 @@ def test_pymethod_options(app):
                                                       [desc_parameterlist, ()])],
                                     [desc_content, ()]))
     assert 'Class.meth7' in domain.objects
-    assert domain.objects['Class.meth7'] == ('index', 'Class.meth7', 'method')
+    assert domain.objects['Class.meth7'] == ('index', 'Class.meth7', 'method', False)
 
 
 def test_pyclassmethod(app):
@@ -691,7 +717,7 @@ def test_pyclassmethod(app):
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
     assert 'Class.meth' in domain.objects
-    assert domain.objects['Class.meth'] == ('index', 'Class.meth', 'method')
+    assert domain.objects['Class.meth'] == ('index', 'Class.meth', 'method', False)
 
 
 def test_pystaticmethod(app):
@@ -712,7 +738,7 @@ def test_pystaticmethod(app):
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
     assert 'Class.meth' in domain.objects
-    assert domain.objects['Class.meth'] == ('index', 'Class.meth', 'method')
+    assert domain.objects['Class.meth'] == ('index', 'Class.meth', 'method', False)
 
 
 def test_pyattribute(app):
@@ -741,7 +767,7 @@ def test_pyattribute(app):
     assert_node(doctree[1][1][1][0][1][1], pending_xref, **{"py:class": "Class"})
     assert_node(doctree[1][1][1][0][1][3], pending_xref, **{"py:class": "Class"})
     assert 'Class.attr' in domain.objects
-    assert domain.objects['Class.attr'] == ('index', 'Class.attr', 'attribute')
+    assert domain.objects['Class.attr'] == ('index', 'Class.attr', 'attribute', False)
 
 
 def test_pydecorator_signature(app):
@@ -756,7 +782,7 @@ def test_pydecorator_signature(app):
                 domain="py", objtype="function", noindex=False)
 
     assert 'deco' in domain.objects
-    assert domain.objects['deco'] == ('index', 'deco', 'function')
+    assert domain.objects['deco'] == ('index', 'deco', 'function', False)
 
 
 def test_pydecoratormethod_signature(app):
@@ -771,7 +797,93 @@ def test_pydecoratormethod_signature(app):
                 domain="py", objtype="method", noindex=False)
 
     assert 'deco' in domain.objects
-    assert domain.objects['deco'] == ('index', 'deco', 'method')
+    assert domain.objects['deco'] == ('index', 'deco', 'method', False)
+
+
+def test_canonical(app):
+    text = (".. py:class:: io.StringIO\n"
+            "   :canonical: _io.StringIO")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_addname, "io."],
+                                                    [desc_name, "StringIO"])],
+                                  desc_content)]))
+    assert 'io.StringIO' in domain.objects
+    assert domain.objects['io.StringIO'] == ('index', 'io.StringIO', 'class', False)
+    assert domain.objects['_io.StringIO'] == ('index', 'io.StringIO', 'class', True)
+
+
+def test_info_field_list(app):
+    text = (".. py:module:: example\n"
+            ".. py:class:: Class\n"
+            "\n"
+            "   :param str name: blah blah\n"
+            "   :param age: blah blah\n"
+            "   :type age: int\n")
+    doctree = restructuredtext.parse(app, text)
+    print(doctree)
+
+    assert_node(doctree, (nodes.target,
+                          addnodes.index,
+                          addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_addname, "example."],
+                                                    [desc_name, "Class"])],
+                                  [desc_content, nodes.field_list, nodes.field])]))
+    assert_node(doctree[3][1][0][0],
+                ([nodes.field_name, "Parameters"],
+                 [nodes.field_body, nodes.bullet_list, ([nodes.list_item, nodes.paragraph],
+                                                        [nodes.list_item, nodes.paragraph])]))
+
+    # :param str name:
+    assert_node(doctree[3][1][0][0][1][0][0][0],
+                ([addnodes.literal_strong, "name"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "str"],
+                 ")",
+                 " -- ",
+                 "blah blah"))
+    assert_node(doctree[3][1][0][0][1][0][0][0][2], pending_xref,
+                refdomain="py", reftype="class", reftarget="str",
+                **{"py:module": "example", "py:class": "Class"})
+
+    # :param age: + :type age:
+    assert_node(doctree[3][1][0][0][1][0][1][0],
+                ([addnodes.literal_strong, "age"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "int"],
+                 ")",
+                 " -- ",
+                 "blah blah"))
+    assert_node(doctree[3][1][0][0][1][0][1][0][2], pending_xref,
+                refdomain="py", reftype="class", reftarget="int",
+                **{"py:module": "example", "py:class": "Class"})
+
+
+def test_info_field_list_var(app):
+    text = (".. py:class:: Class\n"
+            "\n"
+            "   :var int attr: blah blah\n")
+    doctree = restructuredtext.parse(app, text)
+
+    assert_node(doctree, (addnodes.index,
+                          [desc, (desc_signature,
+                                  [desc_content, nodes.field_list, nodes.field])]))
+    assert_node(doctree[1][1][0][0], ([nodes.field_name, "Variables"],
+                                      [nodes.field_body, nodes.paragraph]))
+
+    # :var int attr:
+    assert_node(doctree[1][1][0][0][1][0],
+                ([addnodes.literal_strong, "attr"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "int"],
+                 ")",
+                 " -- ",
+                 "blah blah"))
+    assert_node(doctree[1][1][0][0][1][0][2], pending_xref,
+                refdomain="py", reftype="class", reftarget="int", **{"py:class": "Class"})
 
 
 @pytest.mark.sphinx(freshenv=True)

@@ -5,7 +5,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -76,6 +76,32 @@ def test_autodata_type_comment(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodata_GenericAlias(app):
+    actual = do_autodoc(app, 'data', 'target.genericalias.T')
+    if sys.version_info < (3, 7):
+        assert list(actual) == [
+            '',
+            '.. py:data:: T',
+            '   :module: target.genericalias',
+            '   :value: typing.List[int]',
+            '',
+            '   A list of int',
+            '',
+        ]
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:data:: T',
+            '   :module: target.genericalias',
+            '',
+            '   A list of int',
+            '',
+            '   alias of List[int]',
+            '',
+        ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodata_NewType(app):
     actual = do_autodoc(app, 'data', 'target.typevar.T6')
     assert list(actual) == [
@@ -101,5 +127,31 @@ def test_autodata_TypeVar(app):
         '   T1',
         '',
         "   alias of TypeVar('T1')",
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodata_hide_value(app):
+    actual = do_autodoc(app, 'data', 'target.hide_value.SENTINEL1')
+    assert list(actual) == [
+        '',
+        '.. py:data:: SENTINEL1',
+        '   :module: target.hide_value',
+        '',
+        '   docstring',
+        '',
+        '   :meta hide-value:',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'data', 'target.hide_value.SENTINEL2')
+    assert list(actual) == [
+        '',
+        '.. py:data:: SENTINEL2',
+        '   :module: target.hide_value',
+        '',
+        '   :meta hide-value:',
         '',
     ]

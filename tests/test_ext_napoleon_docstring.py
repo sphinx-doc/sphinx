@@ -5,7 +5,7 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -298,6 +298,34 @@ class GoogleDocstringTest(BaseDocstringTest):
                      * **arg2** (*list[int]*) -- Description
                      * **arg3** (*dict(str, int)*) -- Description
                      * **arg4** (*dict[str, int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
+        Receive:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (*list(int)*) -- Description
+                   * **arg2** (*list[int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
+        Receives:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (*list(int)*) -- Description
+                   * **arg2** (*list[int]*) -- Description
         """
     ), (
         """
@@ -1044,10 +1072,27 @@ You should listen to me!
 Sooper Warning:
     Stop hitting yourself!
 """, """:Warns: **Stop hitting yourself!**
+"""),
+                      ("""\
+Params Style:
+    arg1 (int): Description of arg1
+    arg2 (str): Description of arg2
+
+""", """\
+:Params Style: * **arg1** (*int*) -- Description of arg1
+               * **arg2** (*str*) -- Description of arg2
+"""),
+                      ("""\
+Returns Style:
+    description of custom section
+
+""", """:Returns Style: description of custom section
 """))
 
         testConfig = Config(napoleon_custom_sections=['Really Important Details',
-                                                      ('Sooper Warning', 'warns')])
+                                                      ('Sooper Warning', 'warns'),
+                                                      ('Params Style', 'params_style'),
+                                                      ('Returns Style', 'returns_style')])
 
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring, testConfig))
@@ -1263,6 +1308,48 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
+        Receive
+        -------
+        arg1:str
+            Extended
+            description of arg1
+        arg2 : int
+            Extended
+            description of arg2
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (:class:`str`) -- Extended
+                     description of arg1
+                   * **arg2** (:class:`int`) -- Extended
+                     description of arg2
+        """
+    ), (
+        """
+        Single line summary
+
+        Receives
+        --------
+        arg1:str
+            Extended
+            description of arg1
+        arg2 : int
+            Extended
+            description of arg2
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (:class:`str`) -- Extended
+                     description of arg1
+                   * **arg2** (:class:`int`) -- Extended
+                     description of arg2
+        """
+    ), (
+        """
+        Single line summary
+
         Yield
         -----
         str
@@ -1371,12 +1458,18 @@ Parameters
 ----------
 param1 : :class:`MyClass <name.space.MyClass>` instance
 
+Other Parameters
+----------------
+param2 : :class:`MyClass <name.space.MyClass>` instance
+
 """
 
         config = Config(napoleon_use_param=False)
         actual = str(NumpyDocstring(docstring, config))
         expected = """\
 :Parameters: **param1** (:class:`MyClass <name.space.MyClass>` instance)
+
+:Other Parameters: **param2** (:class:`MyClass <name.space.MyClass>` instance)
 """
         self.assertEqual(expected, actual)
 
@@ -1385,6 +1478,9 @@ param1 : :class:`MyClass <name.space.MyClass>` instance
         expected = """\
 :param param1:
 :type param1: :class:`MyClass <name.space.MyClass>` instance
+
+:param param2:
+:type param2: :class:`MyClass <name.space.MyClass>` instance
 """
         self.assertEqual(expected, actual)
 

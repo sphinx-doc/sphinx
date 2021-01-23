@@ -4,7 +4,7 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,8 +12,7 @@ import copy
 import os
 import posixpath
 import re
-import warnings
-from typing import Any, Iterable, Tuple, cast
+from typing import TYPE_CHECKING, Iterable, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -22,14 +21,12 @@ from docutils.writers.html4css1 import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.html import StandaloneHTMLBuilder
 
 
@@ -86,14 +83,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     builder = None  # type: StandaloneHTMLBuilder
 
-    def __init__(self, *args: Any) -> None:
-        if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
-            document, builder = args
-        else:
-            warnings.warn('The order of arguments for HTMLTranslator has been changed. '
-                          'Please give "document" as 1st and "builder" as 2nd.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            builder, document = args
+    def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
 
         self.highlighter = self.builder.highlighter
@@ -315,7 +305,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
             if figure_id in self.builder.fignumbers.get(key, {}):
                 self.body.append('<span class="caption-number">')
-                prefix = self.builder.config.numfig_format.get(figtype)
+                prefix = self.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
@@ -439,14 +429,10 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         linenos = node.get('linenos', False)
         highlight_args = node.get('highlight_args', {})
         highlight_args['force'] = node.get('force', False)
-        if lang is self.builder.config.highlight_language:
-            # only pass highlighter options for original language
-            opts = self.builder.config.highlight_options
-        else:
-            opts = {}
+        opts = self.config.highlight_options.get(lang, {})
 
-        if linenos and self.builder.config.html_codeblock_linenos_style:
-            linenos = self.builder.config.html_codeblock_linenos_style
+        if linenos and self.config.html_codeblock_linenos_style:
+            linenos = self.config.html_codeblock_linenos_style
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
@@ -582,6 +568,13 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_download_reference(self, node: Element) -> None:
         self.body.append(self.context.pop())
+
+    # overwritten
+    def visit_figure(self, node: Element) -> None:
+        # set align=default if align not specified to give a default style
+        node.setdefault('align', 'default')
+
+        return super().visit_figure(node)
 
     # overwritten
     def visit_image(self, node: Element) -> None:
@@ -784,6 +777,10 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     def visit_table(self, node: Element) -> None:
         self._table_row_index = 0
+
+        # set align=default if align not specified to give a default style
+        node.setdefault('align', 'default')
+
         return super().visit_table(node)
 
     def visit_row(self, node: Element) -> None:

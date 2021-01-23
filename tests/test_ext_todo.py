@@ -4,7 +4,7 @@
 
     Test sphinx.ext.todo extension.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,11 +12,7 @@ import re
 
 import pytest
 
-from sphinx.util import docutils
 
-
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
                     confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
 def test_todo(app, status, warning):

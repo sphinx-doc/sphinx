@@ -4,11 +4,10 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
@@ -18,7 +17,6 @@ from docutils.writers.manpage import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import _, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -77,14 +75,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     _docinfo = {}  # type: Dict[str, Any]
 
-    def __init__(self, *args: Any) -> None:
-        if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
-            document, builder = args
-        else:
-            warnings.warn('The order of arguments for ManualPageTranslator has been changed. '
-                          'Please give "document" as 1st and "builder" as 2nd.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            builder, document = args
+    def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
 
         self.in_productionlist = 0
@@ -296,8 +287,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if uri.startswith('mailto:') or uri.startswith('http:') or \
            uri.startswith('https:') or uri.startswith('ftp:'):
             # if configured, put the URL after the link
-            if self.builder.config.man_show_urls and \
-               node.astext() != uri:
+            if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):
                     uri = uri[7:]
                 self.body.extend([

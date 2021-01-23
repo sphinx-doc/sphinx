@@ -4,7 +4,7 @@
 
     Image utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,9 +31,11 @@ mime_suffixes = OrderedDict([
     ('.ai', 'application/illustrator'),
 ])
 
-DataURI = NamedTuple('DataURI', [('mimetype', str),
-                                 ('charset', str),
-                                 ('data', bytes)])
+
+class DataURI(NamedTuple):
+    mimetype: str
+    charset: str
+    data: bytes
 
 
 def get_image_size(filename: str) -> Optional[Tuple[int, int]]:

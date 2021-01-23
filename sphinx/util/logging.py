@@ -4,7 +4,7 @@
 
     Logging utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import IO, Any, Dict, Generator, List, Tuple, Union
+from typing import IO, TYPE_CHECKING, Any, Dict, Generator, List, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -21,10 +21,7 @@ from docutils.utils import get_source_line
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

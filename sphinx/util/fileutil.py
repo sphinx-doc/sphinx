@@ -4,21 +4,20 @@
 
     File utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import posixpath
-from typing import Callable, Dict
+from typing import TYPE_CHECKING, Callable, Dict
 
 from docutils.utils import relative_path
 
 from sphinx.util.osutil import copyfile, ensuredir
 from sphinx.util.typing import PathMatcher
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
 
 

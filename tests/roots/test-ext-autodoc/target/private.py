@@ -9,3 +9,7 @@ def _public_function(name):
 
     :meta public:
     """
+
+
+PRIVATE_CONSTANT = None  #: :meta private:
+_PUBLIC_CONSTANT = None  #: :meta public:

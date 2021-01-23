@@ -4,13 +4,13 @@
 
     Inventory utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import re
 import zlib
-from typing import IO, Callable, Iterator
+from typing import IO, TYPE_CHECKING, Callable, Iterator
 
 from sphinx.util import logging
 from sphinx.util.typing import Inventory
@@ -18,8 +18,7 @@ from sphinx.util.typing import Inventory
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 

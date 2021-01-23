@@ -70,8 +70,13 @@ Project information
    The author name(s) of the document.  The default value is ``'unknown'``.
 
 .. confval:: copyright
+.. confval:: project_copyright
 
    A copyright statement in the style ``'2008, Author Name'``.
+
+   .. versionchanged:: 3.5
+
+      As an alias, ``project_copyright`` is also allowed.
 
 .. confval:: version
 
@@ -473,11 +478,10 @@ General configuration
 
 .. confval:: smartquotes_action
 
-   This string, for use with Docutils ``0.14`` or later, customizes the Smart
-   Quotes transform.  See the file :file:`smartquotes.py` at the `Docutils
-   repository`__ for details.  The default ``'qDe'`` educates normal **q**\
-   uote characters ``"``, ``'``, em- and en-**D**\ ashes ``---``, ``--``, and
-   **e**\ llipses ``...``.
+   This string customizes the Smart Quotes transform.  See the file
+   :file:`smartquotes.py` at the `Docutils repository`__ for details.  The
+   default ``'qDe'`` educates normal **q**\ uote characters ``"``, ``'``,
+   em- and en-**D**\ ashes ``---``, ``--``, and **e**\ llipses ``...``.
 
    .. versionadded:: 1.6.6
 
@@ -577,12 +581,27 @@ General configuration
 
 .. confval:: highlight_options
 
-   A dictionary of options that modify how the lexer specified by
-   :confval:`highlight_language` generates highlighted source code. These are
-   lexer-specific; for the options understood by each, see the
-   `Pygments documentation <https://pygments.org/docs/lexers>`_.
+   A dictionary that maps language names to options for the lexer modules of
+   Pygments.  These are lexer-specific; for the options understood by each,
+   see the `Pygments documentation <https://pygments.org/docs/lexers>`_.
+
+   Example::
+
+     highlight_options = {
+       'default': {'stripall': True},
+       'php': {'startinline': True},
+     }
+
+   A single dictionary of options are also allowed.  Then it is recognized
+   as options to the lexer specified by :confval:`highlight_language`::
+
+     # configuration for the ``highlight_language``
+     highlight_options = {'stripall': True}
 
    .. versionadded:: 1.3
+   .. versionchanged:: 3.5
+
+      Allow to configure highlight options for multiple languages
 
 .. confval:: pygments_style
 
@@ -813,13 +832,16 @@ documentation on :ref:`intl` for details.
    :literal-block: literal blocks (``::`` annotation and ``code-block`` directive)
    :doctest-block: doctest block
    :raw: raw content
-   :image: image/figure uri and alt
+   :image: image/figure uri
 
    For example: ``gettext_additional_targets = ['literal-block', 'image']``.
 
    The default is ``[]``.
 
    .. versionadded:: 1.3
+   .. versionchanged:: 4.0
+
+      The alt text for image is translated by default.
 
 .. confval:: figure_language_filename
 
@@ -937,8 +959,11 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_baseurl
 
-   The URL which points to the root of the HTML documentation.  It is used to
-   indicate the location of document like ``canonical_url``.
+   The base URL which points to the root of the HTML documentation.  It is used
+   to indicate the location of document using `The Canonical Link Relation`_.
+   Default: ``''``.
+
+   .. _The Canonical Link Relation: https://tools.ietf.org/html/rfc6596
 
    .. versionadded:: 1.8
 
@@ -996,7 +1021,14 @@ that use Sphinx's HTMLWriter class.
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
 
+   As a special attribute, *priority* can be set as an integer to load the CSS
+   file earlier or lazier step.  For more information, refer
+   :meth:`Sphinx.add_css_files()`.
+
    .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+
+      Support priority attribute
 
 .. confval:: html_js_files
 
@@ -1012,7 +1044,14 @@ that use Sphinx's HTMLWriter class.
                         'https://example.com/scripts/custom.js',
                         ('custom.js', {'async': 'async'})]
 
+   As a special attribute, *priority* can be set as an integer to load the CSS
+   file earlier or lazier step.  For more information, refer
+   :meth:`Sphinx.add_css_files()`.
+
    .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+
+      Support priority attribute
 
 .. confval:: html_static_path
 
@@ -1424,8 +1463,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_experimental_html5_writer
 
-   Output is processed with HTML5 writer.  This feature needs docutils 0.13 or
-   newer.  Default is ``False``.
+   Output is processed with HTML5 writer.  Default is ``False``.
 
    .. versionadded:: 1.6
 
@@ -1902,8 +1940,8 @@ These options influence LaTeX output.
    * ``'pdflatex'`` -- PDFLaTeX (default)
    * ``'xelatex'`` -- XeLaTeX
    * ``'lualatex'`` -- LuaLaTeX
-   * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
-   * ``'uplatex'`` -- upLaTeX (experimental)
+   * ``'platex'`` -- pLaTeX
+   * ``'uplatex'`` -- upLaTeX (default if :confval:`language` is ``'ja'``)
 
    ``'pdflatex'``\ 's support for Unicode characters is limited.
 
@@ -1932,6 +1970,10 @@ These options influence LaTeX output.
    .. versionchanged:: 2.3
 
       Add ``uplatex`` support.
+
+   .. versionchanged:: 4.0
+
+      ``uplatex`` becomes the default setting of Japanese documents.
 
    Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
    LaTeX requires some extra configuration to support Unicode literals in
@@ -2252,10 +2294,12 @@ These options influence manual page output.
 
 .. confval:: man_make_section_directory
 
-   If true, make a section directory on build man page.  Default is False.
+   If true, make a section directory on build man page.  Default is True.
 
    .. versionadded:: 3.3
+   .. versionchanged:: 4.0
 
+      The default is changed to ``False`` from ``True``.
 
 .. _texinfo-options:
 

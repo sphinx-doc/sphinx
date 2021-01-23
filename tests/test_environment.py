@@ -4,7 +4,7 @@
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
@@ -85,7 +85,7 @@ def test_object_inventory(app):
     refs = app.env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs
-    assert refs['func_without_module'] == ('objects', 'func_without_module', 'function')
+    assert refs['func_without_module'] == ('objects', 'func_without_module', 'function', False)
     assert 'func_without_module2' in refs
     assert 'mod.func_in_module' in refs
     assert 'mod.Cls' in refs
@@ -137,6 +137,11 @@ def test_env_relfn2path(app):
     relfn, absfn = app.env.relfn2path('../logo.jpg', 'index')
     assert relfn == '../logo.jpg'
     assert absfn == app.srcdir.parent / 'logo.jpg'
+
+    # relative path traversal
+    relfn, absfn = app.env.relfn2path('subdir/../logo.jpg', 'index')
+    assert relfn == 'logo.jpg'
+    assert absfn == app.srcdir / 'logo.jpg'
 
     # omit docname (w/ current docname)
     app.env.temp_data['docname'] = 'subdir/document'

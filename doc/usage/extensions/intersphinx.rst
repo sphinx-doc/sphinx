@@ -75,8 +75,9 @@ linking:
    A dictionary mapping unique identifiers to a tuple ``(target, inventory)``.
    Each ``target`` is the base URI of a foreign Sphinx documentation set and can
    be a local path or an HTTP URI.  The ``inventory`` indicates where the
-   inventory file can be found: it can be ``None`` (at the same location as
-   the base URI) or another local or HTTP URI.
+   inventory file can be found: it can be ``None`` (an :file:`objects.inv` file
+   at the same location as the base URI) or another local file path or a full
+   HTTP URI to an inventory file.
 
    The unique identifier can be used to prefix cross-reference targets, so that
    it is clear which intersphinx set the target belongs to.  A link like
@@ -106,7 +107,7 @@ linking:
    ``https://docs.python.org/3``.  It is up to you to update the inventory file
    as new objects are added to the Python documentation.
 
-   **Multiple target for the inventory**
+   **Multiple targets for the inventory**
 
    .. versionadded:: 1.3
 
@@ -119,6 +120,16 @@ linking:
 
       intersphinx_mapping = {'python': ('https://docs.python.org/3',
                                         (None, 'python-inv.txt'))}
+
+   For a set of books edited and tested locally and then published
+   together, it could be helpful to try a local inventory file first,
+   to check references before publication::
+
+      intersphinx_mapping = {
+          'otherbook':
+              ('https://myproj.readthedocs.io/projects/otherbook/en/latest',
+                  ('../../otherbook/build/html/objects.inv', None)),
+      }
 
 .. confval:: intersphinx_cache_limit
 

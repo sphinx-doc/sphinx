@@ -4,14 +4,12 @@
 
     TeX escaping helper.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 from typing import Dict
-
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 
 tex_replacements = [
     # map TeX special chars
@@ -106,14 +104,6 @@ _tex_escape_map = {}  # type: Dict[int, str]
 _tex_escape_map_without_unicode = {}  # type: Dict[int, str]
 _tex_hlescape_map = {}  # type: Dict[int, str]
 _tex_hlescape_map_without_unicode = {}  # type: Dict[int, str]
-
-
-deprecated_alias('sphinx.util.texescape',
-                 {
-                     'tex_escape_map': _tex_escape_map,
-                     'tex_hl_escape_map_new': _tex_hlescape_map,
-                 },
-                 RemovedInSphinx40Warning)
 
 
 def escape(s: str, latex_engine: str = None) -> str:

@@ -4,7 +4,7 @@
 
     Tests the std domain
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,7 +21,6 @@ from sphinx.addnodes import (desc, desc_addname, desc_content, desc_name, desc_s
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
-from sphinx.util import docutils
 
 
 def test_process_doc_handle_figure_caption():
@@ -89,6 +88,28 @@ def test_get_full_qualified_name():
     kwargs = {'std:program': 'ls'}
     node = nodes.reference(reftype='option', reftarget='-l', **kwargs)
     assert domain.get_full_qualified_name(node) == 'ls.-l'
+
+
+def test_cmd_option_with_optional_value(app):
+    text = ".. option:: -j[=N]"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (index,
+                          [desc, ([desc_signature, ([desc_name, '-j'],
+                                                    [desc_addname, '[=N]'])],
+                                  [desc_content, ()])]))
+    objects = list(app.env.get_domain("std").get_objects())
+    assert ('-j', '-j', 'cmdoption', 'index', 'cmdoption-j', 1) in objects
+
+
+def test_cmd_option_starting_with_bracket(app):
+    text = ".. option:: [enable=]PATTERN"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (index,
+                          [desc, ([desc_signature, ([desc_name, '[enable'],
+                                                    [desc_addname, '=]PATTERN'])],
+                                  [desc_content, ()])]))
+    objects = list(app.env.get_domain("std").get_objects())
+    assert ('[enable', '[enable', 'cmdoption', 'index', 'cmdoption-arg-enable', 1) in objects
 
 
 def test_glossary(app):
@@ -327,8 +348,6 @@ def test_multiple_cmdoptions(app):
     assert domain.progoptions[('cmd', '--output')] == ('index', 'cmdoption-cmd-o')
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='productionlist')
 def test_productionlist(app, status, warning):
     app.builder.build_all()
@@ -390,3 +409,13 @@ def test_disabled_docref(app):
     assert_node(doctree, ([nodes.paragraph, ([pending_xref, nodes.inline, "index"],
                                              "\n",
                                              [nodes.inline, "index"])],))
+
+
+def test_labeled_rubric(app):
+    text = (".. _label:\n"
+            ".. rubric:: blah *blah* blah\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label' in domain.labels
+    assert domain.labels['label'] == ('index', 'label', 'blah blah blah')

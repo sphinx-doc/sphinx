@@ -7,15 +7,16 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import sys
 from distutils.cmd import Command
-from distutils.errors import DistutilsExecError, DistutilsOptionError
+from distutils.errors import DistutilsExecError
 from io import StringIO
+from typing import TYPE_CHECKING
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
@@ -23,9 +24,8 @@ from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
+if TYPE_CHECKING:
+    from typing import Any, Dict
 
 
 class BuildDoc(Command):
@@ -120,20 +120,6 @@ class BuildDoc(Command):
                 if 'conf.py' in filenames:
                     return root
         return os.curdir
-
-    # Overriding distutils' Command._ensure_stringlike which doesn't support
-    # unicode, causing finalize_options to fail if invoked again. Workaround
-    # for https://bugs.python.org/issue19570
-    def _ensure_stringlike(self, option, what, default=None):
-        # type: (str, str, Any) -> Any
-        val = getattr(self, option)
-        if val is None:
-            setattr(self, option, default)
-            return default
-        elif not isinstance(val, str):
-            raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
-                                       % (option, what, val))
-        return val
 
     def finalize_options(self):
         # type: () -> None

@@ -4,7 +4,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,8 @@ import re
 import unicodedata
 import warnings
 from copy import copy
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
+                    Tuple, Type, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -21,7 +22,7 @@ from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
@@ -31,10 +32,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.typing import RoleFunction
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -43,12 +41,12 @@ logger = logging.getLogger(__name__)
 
 
 # RE for option descriptions
-option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=[]+)(=?\s*.*)')
+option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
 token_re = re.compile(r'`(\w+)`', re.U)
 
 
-class GenericObject(ObjectDescription):
+class GenericObject(ObjectDescription[str]):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
@@ -178,7 +176,7 @@ class Target(SphinxDirective):
         return self.name + '-' + name
 
 
-class Cmdoption(ObjectDescription):
+class Cmdoption(ObjectDescription[str]):
     """
     Description of a command-line option (.. option).
     """
@@ -197,6 +195,11 @@ class Cmdoption(ObjectDescription):
                                location=signode)
                 continue
             optname, args = m.groups()
+            if optname.endswith('[') and args.endswith(']'):
+                # optional value surrounded by brackets (ex. foo[=bar])
+                optname = optname[:-1]
+                args = '[' + args
+
             if count:
                 signode += addnodes.desc_addname(', ', ', ')
             signode += addnodes.desc_name(optname, optname)
@@ -287,8 +290,8 @@ def split_term_classifiers(line: str) -> List[Optional[str]]:
 
 
 def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index_key: str,
-                       source: str, lineno: int, node_id: str = None,
-                       document: nodes.document = None) -> nodes.term:
+                       source: str, lineno: int, node_id: str, document: nodes.document
+                       ) -> nodes.term:
     # get a text-only representation of the term and register it
     # as a cross-reference target
     term = nodes.term('', '', *textnodes)
@@ -299,23 +302,10 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
     if node_id:
         # node_id is given from outside (mainly i18n module), use it forcedly
         term['ids'].append(node_id)
-    elif document:
+    else:
         node_id = make_id(env, document, 'term', termtext)
         term['ids'].append(node_id)
         document.note_explicit_target(term)
-    else:
-        warnings.warn('make_glossary_term() expects document is passed as an argument.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        gloss_entries = env.temp_data.setdefault('gloss_entries', set())
-        node_id = nodes.make_id('term-' + termtext)
-        if node_id == 'term':
-            # "term" is not good for node_id.  Generate it by sequence number instead.
-            node_id = 'term-%d' % env.new_serialno('glossary')
-
-        while node_id in gloss_entries:
-            node_id = 'term-%d' % env.new_serialno('glossary')
-        gloss_entries.add(node_id)
-        term['ids'].append(node_id)
 
     std = cast(StandardDomain, env.get_domain('std'))
     std.note_object('term', termtext, node_id, location=term)
@@ -423,7 +413,7 @@ class Glossary(SphinxDirective):
 
                 # use first classifier as a index key
                 term = make_glossary_term(self.env, textnodes, parts[1], source, lineno,
-                                          document=self.state.document)
+                                          node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
                 termtexts.append(term.astext())
@@ -740,9 +730,11 @@ class StandardDomain(Domain):
                                name, env.doc2path(self.labels[name][0]),
                                location=node)
             self.anonlabels[name] = docname, labelid
-            if node.tagname in ('section', 'rubric'):
+            if node.tagname == 'section':
                 title = cast(nodes.title, node[0])
                 sectname = clean_astext(title)
+            elif node.tagname == 'rubric':
+                sectname = clean_astext(node)
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
                 if not sectname:
@@ -796,11 +788,6 @@ class StandardDomain(Domain):
             resolver = self._resolve_doc_xref
         elif typ == 'option':
             resolver = self._resolve_option_xref
-        elif typ == 'citation':
-            warnings.warn('pending_xref(domain=std, type=citation) is deprecated: %r' % node,
-                          RemovedInSphinx40Warning, stacklevel=2)
-            domain = env.get_domain('citation')
-            return domain.resolve_xref(env, fromdocname, builder, typ, target, node, contnode)
         elif typ == 'term':
             resolver = self._resolve_term_xref
         else:
@@ -1092,18 +1079,6 @@ class StandardDomain(Domain):
                 return None
         else:
             return None
-
-    def note_citations(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
-        warnings.warn('StandardDomain.note_citations() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-    def note_citation_refs(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
-        warnings.warn('StandardDomain.note_citation_refs() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-    def note_labels(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
-        warnings.warn('StandardDomain.note_labels() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
 
 
 def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref) -> bool:

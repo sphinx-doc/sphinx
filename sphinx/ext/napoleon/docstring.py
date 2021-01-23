@@ -6,7 +6,7 @@
     Classes for docstring parsing and formatting.
 
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +14,7 @@ import collections
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
@@ -23,11 +23,6 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.inspect import stringify_annotation
 from sphinx.util.typing import get_type_hints
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 logger = logging.getLogger(__name__)
 
@@ -179,6 +174,8 @@ class GoogleDocstring:
                 'notes': self._parse_notes_section,
                 'other parameters': self._parse_other_parameters_section,
                 'parameters': self._parse_parameters_section,
+                'receive': self._parse_receives_section,
+                'receives': self._parse_receives_section,
                 'return': self._parse_returns_section,
                 'returns': self._parse_returns_section,
                 'raise': self._parse_raises_section,
@@ -547,11 +544,18 @@ class GoogleDocstring:
                     self._sections[entry.lower()] = self._parse_custom_generic_section
                 else:
                     # otherwise, assume entry is container;
-                    # [0] is new section, [1] is the section to alias.
-                    # in the case of key mismatch, just handle as generic section.
-                    self._sections[entry[0].lower()] = \
-                        self._sections.get(entry[1].lower(),
-                                           self._parse_custom_generic_section)
+                    if entry[1] == "params_style":
+                        self._sections[entry[0].lower()] = \
+                            self._parse_custom_params_style_section
+                    elif entry[1] == "returns_style":
+                        self._sections[entry[0].lower()] = \
+                            self._parse_custom_returns_style_section
+                    else:
+                        # [0] is new section, [1] is the section to alias.
+                        # in the case of key mismatch, just handle as generic section.
+                        self._sections[entry[0].lower()] = \
+                            self._sections.get(entry[1].lower(),
+                                               self._parse_custom_generic_section)
 
     def _parse(self) -> None:
         self._parsed_lines = self._consume_empty()
@@ -639,6 +643,13 @@ class GoogleDocstring:
         # for now, no admonition for simple custom sections
         return self._parse_generic_section(section, False)
 
+    def _parse_custom_params_style_section(self, section: str) -> List[str]:
+        return self._format_fields(section, self._consume_fields())
+
+    def _parse_custom_returns_style_section(self, section: str) -> List[str]:
+        fields = self._consume_returns_section()
+        return self._format_fields(section, fields)
+
     def _parse_usage_section(self, section: str) -> List[str]:
         header = ['.. rubric:: Usage:', '']
         block = ['.. code-block:: python', '']
@@ -685,7 +696,13 @@ class GoogleDocstring:
         return self._parse_generic_section(_('Notes'), use_admonition)
 
     def _parse_other_parameters_section(self, section: str) -> List[str]:
-        return self._format_fields(_('Other Parameters'), self._consume_fields())
+        if self._config.napoleon_use_param:
+            # Allow to declare multiple parameters at once (ex: x, y: int)
+            fields = self._consume_fields(multiple=True)
+            return self._format_docutils_params(fields)
+        else:
+            fields = self._consume_fields()
+            return self._format_fields(_('Other Parameters'), fields)
 
     def _parse_parameters_section(self, section: str) -> List[str]:
         if self._config.napoleon_use_param:
@@ -713,6 +730,15 @@ class GoogleDocstring:
         if lines:
             lines.append('')
         return lines
+
+    def _parse_receives_section(self, section: str) -> List[str]:
+        if self._config.napoleon_use_param:
+            # Allow to declare multiple parameters at once (ex: x, y: int)
+            fields = self._consume_fields(multiple=True)
+            return self._format_docutils_params(fields)
+        else:
+            fields = self._consume_fields()
+            return self._format_fields(_('Receives'), fields)
 
     def _parse_references_section(self, section: str) -> List[str]:
         use_admonition = self._config.napoleon_use_admonition_for_references

@@ -157,7 +157,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      ``:meta private:`` in its :ref:`info-field-lists`.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -172,7 +172,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      an underscore.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def _my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -181,6 +181,16 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
             """
 
      .. versionadded:: 3.1
+
+   * autodoc considers a variable member does not have any default value if its
+     docstring contains ``:meta hide-value:`` in its :ref:`info-field-lists`.
+     Example:
+
+     .. code-block:: python
+
+        var1 = None  #: :meta hide-value:
+
+     .. versionadded:: 3.5
 
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
@@ -554,7 +564,7 @@ There are also config values that you can set:
         ...
 
    If you set ``autodoc_type_aliases`` as
-   ``{'AliasType': 'your.module.TypeAlias'}``, it generates a following document
+   ``{'AliasType': 'your.module.AliasType'}``, it generates the following document
    internally::
 
      .. py:function:: f() -> your.module.AliasType:
@@ -576,7 +586,7 @@ There are also config values that you can set:
 
    This value controls the docstrings inheritance.
    If set to True the docstring for classes or methods, if not explicitly set,
-   is inherited form parents.
+   is inherited from parents.
 
    The default is ``True``.
 

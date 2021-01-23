@@ -4,7 +4,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,6 +12,7 @@ import os
 import re
 from distutils.version import LooseVersion
 from itertools import chain, cycle
+from unittest.mock import ANY, call, patch
 
 import pygments
 import pytest
@@ -20,7 +21,7 @@ from html5lib import HTMLParser
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import docutils, md5
+from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
 
 ENV_WARNINGS = """\
@@ -409,8 +410,6 @@ def test_html4_output(app, status, warning):
         (".//a[@href='_sources/otherext.foo.txt']", ''),
     ]
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
 @pytest.mark.test_params(shared_result='test_build_html_output')
@@ -425,8 +424,6 @@ def test_html_parallel(app):
     app.build()
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_build_html_output')
 def test_html_download(app):
@@ -451,8 +448,6 @@ def test_html_download(app):
     assert matched.group(1) == filename
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
@@ -531,8 +526,6 @@ def test_html_translator(app):
         (".//h1//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
 def test_tocdepth(app, cached_etree_parse, fname, expect):
@@ -578,8 +571,6 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
         (".//h4//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('singlehtml', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
 def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
@@ -637,8 +628,6 @@ def test_numfig_disabled_warn(app, warning):
          "span[@class='caption-number']", None, True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig')
 @pytest.mark.test_params(shared_result='test_build_html_numfig')
 def test_numfig_disabled(app, cached_etree_parse, fname, expect):
@@ -745,8 +734,6 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 6 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(
     'html', testroot='numfig',
     srcdir='test_numfig_without_numbered_toctree',
@@ -853,8 +840,6 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 2.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, expect):
@@ -958,8 +943,6 @@ def test_numfig_with_prefix_warn(app, warning):
          "span[@class='caption-number']", '^Code-2.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig',
                     confoverrides={'numfig': True,
                                    'numfig_format': {'figure': 'Figure:%s',
@@ -1064,8 +1047,6 @@ def test_numfig_with_secnum_depth_warn(app, warning):
          "span[@class='caption-number']", '^Listing 2.1.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig',
                     confoverrides={'numfig': True,
                                    'numfig_secnum_depth': 2})
@@ -1149,8 +1130,6 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
          "span[@class='caption-number']", '^Listing 2.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('singlehtml', testroot='numfig', confoverrides={'numfig': True})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
@@ -1175,8 +1154,6 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
         (".//li/p/a/span", 'No.2', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='add_enumerable_node',
                     srcdir='test_enumerable_node')
 def test_enumerable_node(app, cached_etree_parse, fname, expect):
@@ -1226,6 +1203,35 @@ def test_html_assets(app):
     assert '<script src="_static/js/custom.js"></script>' in content
     assert ('<script async="async" src="https://example.com/script.js">'
             '</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='html_assets')
+def test_assets_order(app):
+    app.add_css_file('normal.css')
+    app.add_css_file('early.css', priority=100)
+    app.add_css_file('late.css', priority=750)
+    app.add_css_file('lazy.css', priority=900)
+    app.add_js_file('normal.js')
+    app.add_js_file('early.js', priority=100)
+    app.add_js_file('late.js', priority=750)
+    app.add_js_file('lazy.js', priority=900)
+
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text()
+
+    # css_files
+    expected = ['_static/early.css', '_static/pygments.css', '_static/alabaster.css',
+                'https://example.com/custom.css', '_static/normal.css', '_static/late.css',
+                '_static/css/style.css', '_static/lazy.css']
+    pattern = '.*'.join('href="%s"' % f for f in expected)
+    assert re.search(pattern, content, re.S)
+
+    # js_files
+    expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
+                '_static/doctools.js', 'https://example.com/script.js', '_static/normal.js',
+                '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
+    pattern = '.*'.join('src="%s"' % f for f in expected)
+    assert re.search(pattern, content, re.S)
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
@@ -1352,8 +1358,8 @@ def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
 def test_html_style(app, status, warning):
     app.build()
     result = (app.outdir / 'index.html').read_text()
-    assert '<link rel="stylesheet" href="_static/default.css" type="text/css" />' in result
-    assert ('<link rel="stylesheet" href="_static/alabaster.css" type="text/css" />'
+    assert '<link rel="stylesheet" type="text/css" href="_static/default.css" />' in result
+    assert ('<link rel="stylesheet" type="text/css" href="_static/alabaster.css" />'
             not in result)
 
 
@@ -1602,3 +1608,36 @@ def test_html_codeblock_linenos_style_inline(app):
         assert '<span class="linenos">1</span>' in content
     else:
         assert '<span class="lineno">1 </span>' in content
+
+
+@pytest.mark.sphinx('html', testroot='highlight_options')
+def test_highlight_options(app):
+    subject = app.builder.highlighter
+    with patch.object(subject, 'highlight_block', wraps=subject.highlight_block) as highlight:
+        app.build()
+
+        call_args = highlight.call_args_list
+        assert len(call_args) == 3
+        assert call_args[0] == call(ANY, 'default', force=False, linenos=False,
+                                    location=ANY, opts={'default_option': True})
+        assert call_args[1] == call(ANY, 'python', force=False, linenos=False,
+                                    location=ANY, opts={'python_option': True})
+        assert call_args[2] == call(ANY, 'java', force=False, linenos=False,
+                                    location=ANY, opts={})
+
+
+@pytest.mark.sphinx('html', testroot='highlight_options',
+                    confoverrides={'highlight_options': {'default_option': True}})
+def test_highlight_options_old(app):
+    subject = app.builder.highlighter
+    with patch.object(subject, 'highlight_block', wraps=subject.highlight_block) as highlight:
+        app.build()
+
+        call_args = highlight.call_args_list
+        assert len(call_args) == 3
+        assert call_args[0] == call(ANY, 'default', force=False, linenos=False,
+                                    location=ANY, opts={'default_option': True})
+        assert call_args[1] == call(ANY, 'python', force=False, linenos=False,
+                                    location=ANY, opts={})
+        assert call_args[2] == call(ANY, 'java', force=False, linenos=False,
+                                    location=ANY, opts={})

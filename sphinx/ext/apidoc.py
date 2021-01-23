@@ -10,7 +10,7 @@
     Copyright 2008 Société des arts technologiques (SAT),
     https://sat.qc.ca/
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,7 +19,6 @@ import glob
 import locale
 import os
 import sys
-import warnings
 from copy import copy
 from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
@@ -29,9 +28,7 @@ from typing import Any, List, Tuple
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import __
-from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
 
@@ -49,20 +46,6 @@ else:
 PY_SUFFIXES = ('.py', '.pyx') + tuple(EXTENSION_SUFFIXES)
 
 template_dir = path.join(package_dir, 'templates', 'apidoc')
-
-
-def makename(package: str, module: str) -> str:
-    """Join package and module with a dot."""
-    warnings.warn('makename() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    # Both package and module can be None/empty.
-    if package:
-        name = package
-        if module:
-            name += '.' + module
-    else:
-        name = module
-    return name
 
 
 def is_initpy(filename: str) -> bool:
@@ -107,26 +90,6 @@ def write_file(name: str, text: str, opts: Any) -> None:
             print(__('Creating file %s.') % fname)
         with FileAvoidWrite(fname) as f:
             f.write(text)
-
-
-def format_heading(level: int, text: str, escape: bool = True) -> str:
-    """Create a heading of <level> [1, 2 or 3 supported]."""
-    warnings.warn('format_warning() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    if escape:
-        text = rst.escape(text)
-    underlining = ['=', '-', '~', ][level - 1] * len(text)
-    return '%s\n%s\n\n' % (text, underlining)
-
-
-def format_directive(module: str, package: str = None) -> str:
-    """Create the automodule directive and add the options."""
-    warnings.warn('format_directive() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    directive = '.. automodule:: %s\n' % module_join(package, module)
-    for option in OPTIONS:
-        directive += '    :%s:\n' % option
-    return directive
 
 
 def create_module_file(package: str, basename: str, opts: Any,
@@ -204,33 +167,6 @@ def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules'
     }
     text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst_t', context)
     write_file(name, text, opts)
-
-
-def shall_skip(module: str, opts: Any, excludes: List[str] = []) -> bool:
-    """Check if we want to skip this module."""
-    warnings.warn('shall_skip() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    # skip if the file doesn't exist and not using implicit namespaces
-    if not opts.implicit_namespaces and not path.exists(module):
-        return True
-
-    # Are we a package (here defined as __init__.py, not the folder in itself)
-    if is_initpy(module):
-        # Yes, check if we have any non-excluded modules at all here
-        all_skipped = True
-        basemodule = path.dirname(module)
-        for submodule in glob.glob(path.join(basemodule, '*.py')):
-            if not is_excluded(path.join(basemodule, submodule), excludes):
-                # There's a non-excluded module here, we won't skip
-                all_skipped = False
-        if all_skipped:
-            return True
-
-    # skip if it has a "private" name and this is selected
-    filename = path.basename(module)
-    if is_initpy(filename) and filename.startswith('_') and not opts.includeprivate:
-        return True
-    return False
 
 
 def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> bool:
@@ -514,13 +450,6 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
         create_modules_toc_file(modules, args, args.tocfile, args.templatedir)
 
     return 0
-
-
-deprecated_alias('sphinx.ext.apidoc',
-                 {
-                     'INITPY': '__init__.py',
-                 },
-                 RemovedInSphinx40Warning)
 
 
 # So program can be started with "python -m sphinx.apidoc ..."

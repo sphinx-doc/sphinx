@@ -5,11 +5,9 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-import sys
 
 import pytest
 
@@ -118,23 +116,16 @@ def test_decorated(app):
 def test_singledispatch(app):
     options = {}
     actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
-    if sys.version_info < (3, 6):
-        # check the result via "in" because the order of singledispatch signatures is
-        # usually changed (because dict is not OrderedDict yet!)
-        assert '.. py:function:: func(arg, kwarg=None)' in actual
-        assert '                 func(arg: int, kwarg=None)' in actual
-        assert '                 func(arg: str, kwarg=None)' in actual
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

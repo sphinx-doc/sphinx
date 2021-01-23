@@ -4,29 +4,23 @@
 
     Create a full-text search index for offline search.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import html
 import pickle
 import re
-import warnings
 from importlib import import_module
 from os import path
-from typing import IO, Any, Dict, Iterable, List, Set, Tuple
+from typing import IO, Any, Dict, Iterable, List, Set, Tuple, Type
 
 from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes, package_dir
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.search.jssplitter import splitter_code
 from sphinx.util import jsdump
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
 
 
 class SearchLanguage:
@@ -116,7 +110,7 @@ var Stemmer = function() {
             len(word) == 0 or not (
                 ((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
                 (ord(word[0]) < 256 and (
-                    len(word) < 3 or word in self.stopwords
+                    word in self.stopwords
                 ))))
 
 
@@ -199,11 +193,7 @@ class WordCollector(nodes.NodeVisitor):
         self.found_title_words = []     # type: List[str]
         self.lang = lang
 
-    def is_meta_keywords(self, node: addnodes.meta, nodetype: Any = None) -> bool:
-        if nodetype is not None:
-            warnings.warn('"nodetype" argument for WordCollector.is_meta_keywords() '
-                          'is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
-
+    def is_meta_keywords(self, node: addnodes.meta) -> bool:
         if isinstance(node, addnodes.meta) and node.get('name') == 'keywords':
             meta_lang = node.get('lang')
             if meta_lang is None:  # lang not specified

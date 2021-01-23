@@ -4,7 +4,7 @@
 
     Tests util.inspect functions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -223,10 +223,7 @@ def test_signature_annotations():
 
     # type hints by string
     sig = inspect.signature(Node.children)
-    if (3, 5, 0) <= sys.version_info < (3, 5, 3):
-        assert stringify_signature(sig) == '(self) -> List[Node]'
-    else:
-        assert stringify_signature(sig) == '(self) -> List[tests.typing_test_data.Node]'
+    assert stringify_signature(sig) == '(self) -> List[tests.typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
     assert stringify_signature(sig) == '(self, parent: Optional[tests.typing_test_data.Node]) -> None'

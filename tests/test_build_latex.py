@@ -4,7 +4,7 @@
 
     Test the build process with LaTeX builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,7 +21,6 @@ from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import docutils
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
@@ -198,7 +197,7 @@ def test_latex_basic_manual_ja(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').read_text(encoding='utf8')
     print(result)
-    assert r'\def\sphinxdocclass{jsbook}' in result
+    assert r'\def\sphinxdocclass{ujbook}' in result
     assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
 
 
@@ -211,7 +210,7 @@ def test_latex_basic_howto_ja(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').read_text(encoding='utf8')
     print(result)
-    assert r'\def\sphinxdocclass{jreport}' in result
+    assert r'\def\sphinxdocclass{ujreport}' in result
     assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxhowto}' in result
 
 
@@ -525,7 +524,7 @@ def test_babel_with_no_language_settings(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Bjarne]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -550,7 +549,7 @@ def test_babel_with_language_de(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,ngerman]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsngerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -575,7 +574,7 @@ def test_babel_with_language_ru(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,russian]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' not in result
+    assert '\\usepackage{tgtermes}' not in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsrussian{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -600,7 +599,7 @@ def test_babel_with_language_tr(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,turkish]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsturkish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -625,7 +624,7 @@ def test_babel_with_language_ja(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
     assert '\\usepackage{babel}' not in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' not in result
     assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
     assert '\\shorthandoff' not in result
@@ -649,7 +648,7 @@ def test_babel_with_unknown_language(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -677,7 +676,7 @@ def test_polyglossia_with_language_de(app, status, warning):
     assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
     assert '\\usepackage{polyglossia}' in result
     assert '\\setmainlanguage[spelling=new]{german}' in result
-    assert '\\usepackage{times}' not in result
+    assert '\\usepackage{tgtermes}' not in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -703,7 +702,7 @@ def test_polyglossia_with_language_de_1901(app, status, warning):
     assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
     assert '\\usepackage{polyglossia}' in result
     assert '\\setmainlanguage[spelling=old]{german}' in result
-    assert '\\usepackage{times}' not in result
+    assert '\\usepackage{tgtermes}' not in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -1124,8 +1123,6 @@ def test_maxlistdepth_at_ten(app, status, warning):
     compile_latex_document(app, 'python.tex')
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
@@ -1195,8 +1192,6 @@ def test_latex_table_tabulars(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
@@ -1256,8 +1251,6 @@ def test_latex_table_longtable(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app, status, warning):

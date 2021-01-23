@@ -4,7 +4,7 @@
 
     Test the autodoc extension.  This tests mainly for config variables
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -429,7 +429,10 @@ def test_autoclass_content_and_docstring_signature_both(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.usefixtures("rollback_sysmodules")
 def test_mocked_module_imports(app, warning):
+    sys.modules.pop('target', None)  # unload target module to clear the module cache
+
     # no autodoc_mock_imports
     options = {"members": 'TestAutodoc,decoratedFunction,func'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
@@ -644,13 +647,13 @@ def test_autodoc_typehints_none_for_overload(app):
         '   docstring',
         '',
         '',
-        '   .. py:method:: Math.sum(x, y)',
+        '   .. py:method:: Math.sum(x, y=None)',
         '      :module: target.overload',
         '',
         '      docstring',
         '',
         '',
-        '.. py:function:: sum(x, y)',
+        '.. py:function:: sum(x, y=None)',
         '   :module: target.overload',
         '',
         '   docstring',
@@ -707,7 +710,14 @@ def test_autodoc_type_aliases(app):
         '   docstring',
         '',
         '',
-        '   .. py:attribute:: Foo.attr',
+        '   .. py:attribute:: Foo.attr1',
+        '      :module: target.annotations',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.attr2',
         '      :module: target.annotations',
         '      :type: int',
         '',
@@ -733,6 +743,14 @@ def test_autodoc_type_aliases(app):
         '',
         '   docstring',
         '',
+        '',
+        '.. py:data:: variable2',
+        '   :module: target.annotations',
+        '   :type: int',
+        '   :value: None',
+        '',
+        '   docstring',
+        '',
     ]
 
     # define aliases
@@ -749,7 +767,14 @@ def test_autodoc_type_aliases(app):
         '   docstring',
         '',
         '',
-        '   .. py:attribute:: Foo.attr',
+        '   .. py:attribute:: Foo.attr1',
+        '      :module: target.annotations',
+        '      :type: myint',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.attr2',
         '      :module: target.annotations',
         '      :type: myint',
         '',
@@ -772,6 +797,14 @@ def test_autodoc_type_aliases(app):
         '.. py:data:: variable',
         '   :module: target.annotations',
         '   :type: myint',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: variable2',
+        '   :module: target.annotations',
+        '   :type: myint',
+        '   :value: None',
         '',
         '   docstring',
         '',

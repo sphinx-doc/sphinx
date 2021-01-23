@@ -133,57 +133,33 @@ Keys that you may want to override include:
       ``babel``, not ``polyglossia``.
 
 ``'fontpkg'``
-   Font package inclusion. The default of ``'\\usepackage{times}'`` uses Times
-   for text, Helvetica for sans serif and Courier for monospace.
+   Font package inclusion. The default is::
 
-   In order to support occasional Cyrillic (физика частиц) or Greek
-   letters (Σωματιδιακή φυσική) in a document whose language is
-   English or a Latin European one, the default set-up is enhanced (only for
-   ``'pdflatex'`` engine) to do:
+      r"""\usepackage{tgtermes}
+      \usepackage{tgheros}
+      \renewcommand\ttdefault{txtt}
+      """
 
-   .. code-block:: latex
-
-      \substitutefont{LGR}{\rmdefault}{cmr}
-      \substitutefont{LGR}{\sfdefault}{cmss}
-      \substitutefont{LGR}{\ttdefault}{cmtt}
-      \substitutefont{X2}{\rmdefault}{cmr}
-      \substitutefont{X2}{\sfdefault}{cmss}
-      \substitutefont{X2}{\ttdefault}{cmtt}
-
-   This is activated only under the condition that the ``'fontenc'`` key is
-   configured to load the ``LGR`` (Greek) and/or ``X2`` (Cyrillic)
-   pdflatex-font encodings (if the :confval:`language` is set to a Cyrillic
-   language, this ``'fontpkg'`` key must be used as "times" package has no
-   direct support for it; then keep only ``LGR`` lines from the above, if
-   support is needed for Greek in the text).
-
-   The ``\substitutefont`` command is from the eponymous LaTeX package, which
-   is loaded by Sphinx if needed (on Ubuntu Xenial it is part of
-   ``texlive-latex-extra`` which is a Sphinx requirement).
-
-   Only if the document actually does contain Unicode Greek letters (in text)
-   or Cyrillic letters, will the above default set-up cause additional
-   requirements for the PDF build. On Ubuntu Xenial, these are the
-   ``texlive-lang-greek``, ``texlive-lang-cyrillic``, and (with the above
-   choice of fonts) the ``cm-super`` (or ``cm-super-minimal``) packages.
-
-   For ``'xelatex'`` and ``'lualatex'``, the default is to use the FreeFont
-   family: this OpenType font family supports both Cyrillic and Greek scripts
-   and is available as separate Ubuntu Xenial package ``fonts-freefont-otf``.
-   It is not necessary to install the much larger ``texlive-fonts-extra``
-   package.
-
-   ``'platex'`` (Japanese documents) engine supports individual Cyrillic and
-   Greek letters with no need of extra user set-up.
-
-   Default: ``'\\usepackage{times}'`` (or ``''`` when using a Cyrillic script)
+   For ``'xelatex'`` and ``'lualatex'`` however the default is to use
+   the GNU FreeFont.
 
    .. versionchanged:: 1.2
       Defaults to ``''`` when the :confval:`language` uses the Cyrillic
       script.
 
    .. versionchanged:: 2.0
-      Added support for individual Greek and Cyrillic letters:
+      Incorporates some font substitution commands to help support occasional
+      Greek or Cyrillic in a document using ``'pdflatex'`` engine.
+
+   .. versionchanged:: 4.0.0
+      - The font substitution commands added at ``2.0`` have been moved
+        to the ``'fontsubstitution'`` key, as their presence here made
+        it complicated for user to customize the value of ``'fontpkg'``.
+      - The default font setting has changed: it still uses Times and
+        Helvetica clones for serif and sans serif, but via better, more
+        complete TeX fonts and associated LaTeX packages.  The
+        monospace font has been changed to better match the Times clone.
+        
 
 ``'fncychap'``
    Inclusion of the "fncychap" package (which makes fancy chapter titles),
@@ -195,8 +171,8 @@ Keys that you may want to override include:
    "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
 
    Default: ``'\\usepackage[Bjarne]{fncychap}'`` for English documents,
-       ``'\\usepackage[Sonny]{fncychap}'`` for internationalized documents, and
-       ``''`` for Japanese documents.
+   ``'\\usepackage[Sonny]{fncychap}'`` for internationalized documents, and
+   ``''`` for Japanese documents.
 
 ``'preamble'``
    Additional preamble content.  One may move all needed macros into some file
@@ -300,7 +276,7 @@ Keys that don't need to be overridden unless in special cases are:
    "inputenc" package inclusion.
 
    Default: ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex, else
-       ``''``
+   ``''``
 
    .. versionchanged:: 1.4.3
       Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
@@ -314,37 +290,28 @@ Keys that don't need to be overridden unless in special cases are:
    .. versionadded:: 1.2
 
 ``'fontenc'``
-   "fontenc" package inclusion.
+   Customize this from its default ``'\\usepackage[T1]{fontenc}'`` to:
 
-   If ``'pdflatex'`` is the :confval:`latex_engine`, one can add ``LGR``
-   for support of Greek letters in the document, and also ``X2`` (or
-   ``T2A``) for Cyrillic letters, like this:
+   - ``'\\usepackage[X2,T1]{fontenc}'`` if you need occasional
+     Cyrillic letters (физика частиц),
 
-   .. code-block:: latex
+   - ``'\\usepackage[LGR,T1]{fontenc}'`` if you need occasional
+     Greek letters (Σωματιδιακή φυσική).
 
-      r'\usepackage[LGR,X2,T1]{fontenc}'
+   Use ``[LGR,X2,T1]`` rather if both are needed.
 
    .. attention::
 
-      If Greek is main language, do not use this key.  Since Sphinx 2.2.1,
-      ``xelatex`` will be used automatically as :confval:`latex_engine`.
-      Formerly, Sphinx did not support producing PDF via LaTeX with Greek as
-      main language.
+      - Do not use this key for a :confval:`latex_engine` other than 
+        ``'pdflatex'``.
 
-      Prior to 2.0, Unicode Greek letters were escaped to use LaTeX math
-      mark-up.  This is not the case anymore, and the above must be used
-      (only in case of ``'pdflatex'`` engine) if the source contains such
-      Unicode Greek.
+      - If Greek is main language, do not use this key.  Since Sphinx 2.2.1,
+        ``xelatex`` will be used automatically as :confval:`latex_engine`.
 
-      On Ubuntu xenial, packages ``texlive-lang-greek`` and ``cm-super``
-      (for the latter, only if the ``'fontpkg'`` setting is left to its
-      default) are needed for ``LGR`` to work.  In place of ``cm-super``
-      one can install smaller ``cm-super-minimal``, but it requires the
-      LaTeX document to execute ``\usepackage[10pt]{type1ec}`` before
-      loading ``fontenc``.  Thus, use this key with this extra at its
-      start if needed.
-
-   Default: ``'\\usepackage[T1]{fontenc}'``
+      - The TeX installation may need some extra packages. For example,
+        on Ubuntu xenial, packages ``texlive-lang-greek`` and ``cm-super``
+        are needed for ``LGR`` to work. And ``texlive-lang-cyrillic`` and
+        ``cm-super`` are needed for support of Cyrillic.
 
    .. versionchanged:: 1.5
       Defaults to ``'\\usepackage{fontspec}'`` when
@@ -361,35 +328,40 @@ Keys that don't need to be overridden unless in special cases are:
 
    .. versionchanged:: 2.0
       Detection of ``LGR``, ``T2A``, ``X2`` to trigger support of
-      occasional Greek or Cyrillic (``'pdflatex'`` only, as this support
-      is provided natively by ``'platex'`` and only requires suitable
-      font with ``'xelatex'/'lualatex'``).
+      occasional Greek or Cyrillic letters (``'pdflatex'``).
 
    .. versionchanged:: 2.3.0
-      ``'xelatex'`` also executes
+      ``'xelatex'`` executes
       ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` in order to avoid
       contractions of ``--`` into en-dash or transforms of straight quotes
       into curly ones in PDF (in non-literal text paragraphs) despite
       :confval:`smartquotes` being set to ``False``.
 
+``'fontsubstitution'``
+   Ignored if ``'fontenc'`` was not configured to use ``LGR`` or ``X2`` (or
+   ``T2A``).  In case ``'fontpkg'`` key is configured for usage with some
+   TeX fonts known to be available in the ``LGR`` or ``X2`` encodings, set
+   this one to be the empty string.  Else leave to its default.
+
+   Ignored with :confval:`latex_engine` other than ``'pdflatex'``.
+
+   .. versionadded:: 4.0.0
+
 ``'textgreek'``
-   This is needed for ``pdflatex`` to support Unicode input of Greek
-   letters such as φύσις.  Expert users may want to load the ``textalpha``
-   package with its option ``normalize-symbols``.
+   For the support of occasional Greek letters.
 
-   .. hint::
+   It is ignored with ``'platex'``, ``'xelatex'`` or ``'lualatex'`` as
+   :confval:`latex_engine` and defaults to either the empty string or
+   to ``'\\usepackage{textalpha}'`` for ``'pdflatex'`` depending on
+   whether the ``'fontenc'`` key was used with ``LGR`` or not.  Only
+   expert LaTeX users may want to customize this key.
 
-      Unicode Greek (but no further Unicode symbols) in :rst:dir:`math`
-      can be supported by ``'pdflatex'`` from setting this key to
-      ``r'\usepackage{textalpha,alphabeta}'``.  Then ``:math:`α``` (U+03B1)
-      will render as :math:`\alpha`.  For wider Unicode support in math
-      input, see the discussion of :confval:`latex_engine`.
-
-   With ``'platex'`` (Japanese),  ``'xelatex'`` or ``'lualatex'``, this
-   key is ignored.
+   It can also be used as ``r'\usepackage{textalpha,alphabeta}'`` to let
+   ``'pdflatex'`` support Greek Unicode input in :rst:dir:`math` context.
+   For example ``:math:`α``` (U+03B1) will render as :math:`\alpha`.
 
    Default: ``'\\usepackage{textalpha}'`` or ``''`` if ``fontenc`` does not
-       include the ``LGR`` option.
+   include the ``LGR`` option.
 
    .. versionadded:: 2.0
 
@@ -407,7 +379,7 @@ Keys that don't need to be overridden unless in special cases are:
    <latexsphinxsetup>`.
 
    Default: ``'\\usepackage{geometry}'`` (or
-       ``'\\usepackage[dvipdfm]{geometry}'`` for Japanese documents)
+   ``'\\usepackage[dvipdfm]{geometry}'`` for Japanese documents)
 
    .. versionadded:: 1.5
 
@@ -500,19 +472,25 @@ Keys that don't need to be overridden unless in special cases are:
    Default: ``'\\printindex'``
 
 ``'fvset'``
-   Customization of ``fancyvrb`` LaTeX package. The default value of
-   ``'\\fvset{fontsize=\\small}'`` is used to adjust for the large character
-   width of the monospace font, used in code-blocks.  You may need to modify
-   this if you use custom fonts.
+   Customization of ``fancyvrb`` LaTeX package.
 
-   Default: ``'\\fvset{fontsize=\\small}'``
+   The default value is ``'\\fvset{fontsize=auto}'`` which means that the
+   font size will adjust correctly if a code-block ends up in a footnote.
+   You may need to modify this if you use custom fonts:
+   ``'\\fvset{fontsize=\\small}'`` if the monospace font is Courier-like.
+
+   Default: ``'\\fvset{fontsize=auto}'``
 
    .. versionadded:: 1.8
 
    .. versionchanged:: 2.0
-      Due to new default font choice for ``'xelatex'`` and ``'lualatex'``
-      (FreeFont), Sphinx does ``\\fvset{fontsize=\\small}`` also with these
-      engines (and not ``\\fvset{fontsize=auto}``).
+      For ``'xelatex'`` and ``'lualatex'`` defaults to
+      ``'\\fvset{fontsize=\\small}'`` as this
+      is adapted to the relative widths of the FreeFont family.
+
+   .. versionchanged:: 4.0.0
+      Changed default for ``'pdflatex'``. Previously it was using 
+      ``'\\fvset{fontsize=\\small}'``.
 
 Keys that are set by other options and therefore should not be overridden are:
 
@@ -784,14 +762,14 @@ macros may be significant.
    |warningbdcolors|
        The colour for the admonition frame.
 
-       Default: ``{rgb}{0,0,0}`` (black)
+   Default: ``{rgb}{0,0,0}`` (black)
 
 .. only:: latex
 
    |wgbdcolorslatex|
        The colour for the admonition frame.
 
-       Default: ``{rgb}{0,0,0}`` (black)
+   Default: ``{rgb}{0,0,0}`` (black)
 
 |warningbgcolors|
     The background colours for the respective admonitions.

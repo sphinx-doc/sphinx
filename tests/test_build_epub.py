@@ -4,7 +4,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,8 +14,6 @@ from subprocess import PIPE, CalledProcessError
 from xml.etree import ElementTree
 
 import pytest
-
-from sphinx.util import docutils
 
 
 # check given command is runnable
@@ -355,8 +353,6 @@ def test_epub_css_files(app):
             'href="https://example.com/custom.css" />' not in content)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('epub', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()

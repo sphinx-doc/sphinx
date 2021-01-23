@@ -6,7 +6,7 @@
     Sphinx's HTML writer -- requires the MathJax JavaScript library on your
     webserver/computer.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,13 +17,15 @@ from docutils import nodes
 
 import sphinx
 from sphinx.application import Sphinx
-from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.domains.math import MathDomain
-from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
 from sphinx.writers.html import HTMLTranslator
+
+# more information for mathjax secure url is here:
+# https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
+MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
@@ -66,25 +68,25 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     raise nodes.SkipNode
 
 
-def install_mathjax(app: Sphinx, env: BuildEnvironment) -> None:
+def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict,
+                    event_arg: Any) -> None:
     if app.builder.format != 'html' or app.builder.math_renderer_name != 'mathjax':  # type: ignore  # NOQA
         return
     if not app.config.mathjax_path:
         raise ExtensionError('mathjax_path config value must be set for the '
                              'mathjax extension to work')
 
-    builder = cast(StandaloneHTMLBuilder, app.builder)
-    domain = cast(MathDomain, env.get_domain('math'))
-    if domain.has_equations():
+    domain = cast(MathDomain, app.env.get_domain('math'))
+    if domain.has_equations(pagename):
         # Enable mathjax only if equations exists
         options = {'async': 'async'}
         if app.config.mathjax_options:
             options.update(app.config.mathjax_options)
-        builder.add_js_file(app.config.mathjax_path, **options)
+        app.add_js_file(app.config.mathjax_path, **options)  # type: ignore
 
         if app.config.mathjax_config:
             body = "MathJax.Hub.Config(%s)" % json.dumps(app.config.mathjax_config)
-            builder.add_js_file(None, type="text/x-mathjax-config", body=body)
+            app.add_js_file(None, type="text/x-mathjax-config", body=body)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -92,15 +94,11 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                                (html_visit_math, None),
                                (html_visit_displaymath, None))
 
-    # more information for mathjax secure url is here:
-    # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
-    app.add_config_value('mathjax_path',
-                         'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?'
-                         'config=TeX-AMS-MML_HTMLorMML', 'html')
+    app.add_config_value('mathjax_path', MATHJAX_URL, 'html')
     app.add_config_value('mathjax_options', {}, 'html')
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
     app.add_config_value('mathjax_config', None, 'html')
-    app.connect('env-updated', install_mathjax)
+    app.connect('html-page-context', install_mathjax)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

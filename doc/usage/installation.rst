@@ -12,7 +12,7 @@ Installing Sphinx
 Overview
 --------
 
-Sphinx is written in `Python`__ and supports Python 3.5+. It builds upon the
+Sphinx is written in `Python`__ and supports Python 3.6+. It builds upon the
 shoulders of many third-party libraries such as `Docutils`__ and `Jinja`__,
 which are installed when Sphinx is installed.
 
@@ -183,7 +183,7 @@ Please choose one for your purpose.
    When using docker images, please use ``docker run`` command to invoke sphinx commands.  For example,
    you can use following command to create a Sphinx project::
 
-      $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
+      $ docker run -it --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
 
    And you can following command this to build HTML document::
 

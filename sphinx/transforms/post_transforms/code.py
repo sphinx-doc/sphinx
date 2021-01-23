@@ -4,7 +4,7 @@
 
     transforms for code-blocks.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,9 +20,11 @@ from sphinx.application import Sphinx
 from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
 
-HighlightSetting = NamedTuple('HighlightSetting', [('language', str),
-                                                   ('force', bool),
-                                                   ('lineno_threshold', int)])
+
+class HighlightSetting(NamedTuple):
+    language: str
+    force: bool
+    lineno_threshold: int
 
 
 class HighlightLanguageTransform(SphinxTransform):

@@ -4,12 +4,11 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import contextlib
-import errno
 import filecmp
 import os
 import re
@@ -18,9 +17,9 @@ import sys
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Optional, Tuple
+from typing import Any, Generator, Iterator, List, Optional, Type
 
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 
 try:
     # for ALT Linux (#6712)
@@ -28,15 +27,6 @@ try:
 except ImportError:
     Path = None  # type: ignore
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
-# Errnos that we need.
-EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
-ENOENT = getattr(errno, 'ENOENT', 0)  # RemovedInSphinx40Warning
-EPIPE = getattr(errno, 'EPIPE', 0)    # RemovedInSphinx40Warning
-EINVAL = getattr(errno, 'EINVAL', 0)  # RemovedInSphinx40Warning
 
 # SEP separates path elements in the canonical file names
 #
@@ -83,13 +73,6 @@ def ensuredir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-def walk(top: str, topdown: bool = True, followlinks: bool = False) -> Iterator[Tuple[str, List[str], List[str]]]:  # NOQA
-    warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
-                  'Please use os.walk() instead.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    return os.walk(top, topdown=topdown, followlinks=followlinks)
-
-
 def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
     for dirname in dirnames:
         for root, dirs, files in os.walk(dirname):
@@ -103,6 +86,9 @@ def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
 
 def movefile(source: str, dest: str) -> None:
     """Move a file, removing the destination if it exists."""
+    warnings.warn('sphinx.util.osutil.movefile() is deprecated for removal. '
+                  'Please use os.replace() instead.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     if os.path.exists(dest):
         try:
             os.unlink(dest)
@@ -173,13 +159,6 @@ def abspath(pathdir: str) -> str:
                                          'this filesystem encoding '
                                          '(%r)' % fs_encoding) from exc
         return pathdir
-
-
-def getcwd() -> str:
-    warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
-                  'Please use os.getcwd() instead.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    return os.getcwd()
 
 
 @contextlib.contextmanager

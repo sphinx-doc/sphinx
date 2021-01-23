@@ -10,7 +10,7 @@
     This is in its own module so that importing it is fast.  It should not
     import the main Sphinx modules (like sphinx.applications, sphinx.builders).
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -50,6 +50,7 @@ BUILDERS = [
     ("",      "doctest",     "to run all doctests embedded in the documentation "
                              "(if enabled)"),
     ("",      "coverage",    "to run coverage check of the documentation (if enabled)"),
+    ("",      "clean",       "to remove everything in the build directory"),
 ]
 
 

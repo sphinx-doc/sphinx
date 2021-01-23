@@ -4,18 +4,17 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 from docutils.transforms.references import DanglingReferences
 
 from sphinx.transforms import SphinxTransform
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

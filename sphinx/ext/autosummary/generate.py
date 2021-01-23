@@ -13,7 +13,7 @@
        generate:
                sphinx-autogen -o source/generated source/*.rst
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,7 +28,7 @@ import sys
 import warnings
 from gettext import NullTranslations
 from os import path
-from typing import Any, Callable, Dict, List, NamedTuple, Set, Tuple, Union
+from typing import Any, Dict, List, NamedTuple, Set, Tuple, Type, Union
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -38,8 +38,9 @@ from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
+from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autosummary import get_documenter, import_by_name, import_ivar_by_name
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -48,11 +49,6 @@ from sphinx.util import logging, rst, split_full_qualified_name
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 logger = logging.getLogger(__name__)
 
@@ -78,34 +74,37 @@ class DummyApplication:
         pass
 
 
-AutosummaryEntry = NamedTuple('AutosummaryEntry', [('name', str),
-                                                   ('path', str),
-                                                   ('template', str),
-                                                   ('recursive', bool)])
+class AutosummaryEntry(NamedTuple):
+    name: str
+    path: str
+    template: str
+    recursive: bool
 
 
 def setup_documenters(app: Any) -> None:
     from sphinx.ext.autodoc import (AttributeDocumenter, ClassDocumenter, DataDocumenter,
                                     DecoratorDocumenter, ExceptionDocumenter,
-                                    FunctionDocumenter, GenericAliasDocumenter,
-                                    MethodDocumenter, ModuleDocumenter,
+                                    FunctionDocumenter, MethodDocumenter, ModuleDocumenter,
                                     NewTypeAttributeDocumenter, NewTypeDataDocumenter,
-                                    PropertyDocumenter, SingledispatchFunctionDocumenter)
+                                    PropertyDocumenter)
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, NewTypeAttributeDocumenter,
         NewTypeDataDocumenter, AttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        GenericAliasDocumenter, SingledispatchFunctionDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
 
 
 def _simple_info(msg: str) -> None:
+    warnings.warn('_simple_info() is deprecated.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     print(msg)
 
 
 def _simple_warn(msg: str) -> None:
+    warnings.warn('_simple_warn() is deprecated.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     print('WARNING: ' + msg, file=sys.stderr)
 
 
@@ -286,6 +285,13 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         items = []  # type: List[str]
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
+            try:
+                module = import_module(fullname)
+                if module and hasattr(module, '__sphinx_mock__'):
+                    continue
+            except ImportError:
+                pass
+
             items.append(fullname)
         public = [x for x in items if not x.split('.')[-1].startswith('_')]
         return public, items
@@ -342,25 +348,10 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
 
 def generate_autosummary_docs(sources: List[str], output_dir: str = None,
-                              suffix: str = '.rst', warn: Callable = None,
-                              info: Callable = None, base_path: str = None,
+                              suffix: str = '.rst', base_path: str = None,
                               builder: Builder = None, template_dir: str = None,
                               imported_members: bool = False, app: Any = None,
                               overwrite: bool = True, encoding: str = 'utf-8') -> None:
-    if info:
-        warnings.warn('info argument for generate_autosummary_docs() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        _info = info
-    else:
-        _info = logger.info
-
-    if warn:
-        warnings.warn('warn argument for generate_autosummary_docs() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        _warn = warn
-    else:
-        _warn = logger.warning
-
     if builder:
         warnings.warn('builder argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx50Warning, stacklevel=2)
@@ -372,11 +363,11 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
-    _info(__('[autosummary] generating autosummary for: %s') %
-          ', '.join(showed_sources))
+    logger.info(__('[autosummary] generating autosummary for: %s') %
+                ', '.join(showed_sources))
 
     if output_dir:
-        _info(__('[autosummary] writing to %s') % output_dir)
+        logger.info(__('[autosummary] writing to %s') % output_dir)
 
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
@@ -413,7 +404,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                 name, obj, parent, modname = import_ivar_by_name(entry.name)
                 qualname = name.replace(modname + ".", "")
             except ImportError:
-                _warn(__('[autosummary] failed to import %r: %s') % (entry.name, e))
+                logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
                 continue
 
         context = {}
@@ -443,8 +434,8 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     # descend recursively to new files
     if new_files:
         generate_autosummary_docs(new_files, output_dir=output_dir,
-                                  suffix=suffix, warn=warn, info=info,
-                                  base_path=base_path,
+                                  suffix=suffix, base_path=base_path,
+                                  builder=builder, template_dir=template_dir,
                                   imported_members=imported_members, app=app,
                                   overwrite=overwrite)
 

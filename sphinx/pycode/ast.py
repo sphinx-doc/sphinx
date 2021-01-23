@@ -4,12 +4,12 @@
 
     Helpers for AST (Abstract Syntax Tree).
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type, overload
 
 if sys.version_info > (3, 8):
     import ast
@@ -52,10 +52,24 @@ def parse(code: str, mode: str = 'exec') -> "ast.AST":
     try:
         # type_comments parameter is available on py38+
         return ast.parse(code, mode=mode, type_comments=True)  # type: ignore
+    except SyntaxError:
+        # Some syntax error found. To ignore invalid type comments, retry parsing without
+        # type_comments parameter (refs: https://github.com/sphinx-doc/sphinx/issues/8652).
+        return ast.parse(code, mode=mode)
     except TypeError:
         # fallback to ast module.
         # typed_ast is used to parse type_comments if installed.
         return ast.parse(code, mode=mode)
+
+
+@overload
+def unparse(node: None, code: str = '') -> None:
+    ...
+
+
+@overload
+def unparse(node: ast.AST, code: str = '') -> str:
+    ...
 
 
 def unparse(node: Optional[ast.AST], code: str = '') -> Optional[str]:
@@ -146,6 +160,17 @@ class _UnparseVisitor(ast.NodeVisitor):
                 ["%s=%s" % (k.arg, self.visit(k.value)) for k in node.keywords])
         return "%s(%s)" % (self.visit(node.func), ", ".join(args))
 
+    def visit_Constant(self, node: ast.Constant) -> str:  # type: ignore
+        if node.value is Ellipsis:
+            return "..."
+        elif isinstance(node.value, (int, float, complex)):
+            if self.code and sys.version_info > (3, 8):
+                return ast.get_source_segment(self.code, node)  # type: ignore
+            else:
+                return repr(node.value)
+        else:
+            return repr(node.value)
+
     def visit_Dict(self, node: ast.Dict) -> str:
         keys = (self.visit(k) for k in node.keys)
         values = (self.visit(v) for v in node.values)
@@ -192,18 +217,6 @@ class _UnparseVisitor(ast.NodeVisitor):
             return "(" + ", ".join(self.visit(e) for e in node.elts) + ")"
         else:
             return "()"
-
-    if sys.version_info >= (3, 6):
-        def visit_Constant(self, node: ast.Constant) -> str:
-            if node.value is Ellipsis:
-                return "..."
-            elif isinstance(node.value, (int, float, complex)):
-                if self.code and sys.version_info > (3, 8):
-                    return ast.get_source_segment(self.code, node)
-                else:
-                    return repr(node.value)
-            else:
-                return repr(node.value)
 
     if sys.version_info < (3, 8):
         # these ast nodes were deprecated in python 3.8

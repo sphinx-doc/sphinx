@@ -5,7 +5,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -51,6 +51,61 @@ def test_classes(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_instance_variable(app):
+    options = {'members': True}
+    actual = do_autodoc(app, 'class', 'target.instance_variable.Bar', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.instance_variable',
+        '',
+        '',
+        '   .. py:attribute:: Bar.attr2',
+        '      :module: target.instance_variable',
+        '',
+        '      docstring bar',
+        '',
+        '',
+        '   .. py:attribute:: Bar.attr3',
+        '      :module: target.instance_variable',
+        '',
+        '      docstring bar',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_inherited_instance_variable(app):
+    options = {'members': True,
+               'inherited-members': True}
+    actual = do_autodoc(app, 'class', 'target.instance_variable.Bar', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.instance_variable',
+        '',
+        '',
+        '   .. py:attribute:: Bar.attr1',
+        '      :module: target.instance_variable',
+        '',
+        '      docstring foo',
+        '',
+        '',
+        '   .. py:attribute:: Bar.attr2',
+        '      :module: target.instance_variable',
+        '',
+        '      docstring bar',
+        '',
+        '',
+        '   .. py:attribute:: Bar.attr3',
+        '      :module: target.instance_variable',
+        '',
+        '      docstring bar',
+        '',
+    ]
+
+
 def test_decorators(app):
     actual = do_autodoc(app, 'class', 'target.decorator.Baz')
     assert list(actual) == [
@@ -77,6 +132,32 @@ def test_decorators(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_slots_attribute(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.slots.Bar', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.slots',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Bar.attr1',
+        '      :module: target.slots',
+        '',
+        '      docstring of attr1',
+        '',
+        '',
+        '   .. py:attribute:: Bar.attr2',
+        '      :module: target.slots',
+        '',
+        '      docstring of instance attr2',
+        '',
+    ]
+
+
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_show_inheritance_for_subclass_of_generic_type(app):
@@ -91,4 +172,22 @@ def test_show_inheritance_for_subclass_of_generic_type(app):
         '',
         '   A subclass of List[Union[int, float]]',
         '',
+    ]
+
+
+def test_class_alias(app):
+    def autodoc_process_docstring(*args):
+        """A handler always raises an error.
+        This confirms this handler is never called for class aliases.
+        """
+        raise
+
+    app.connect('autodoc-process-docstring', autodoc_process_docstring)
+    actual = do_autodoc(app, 'class', 'target.classes.Alias')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Alias',
+        '   :module: target.classes',
+        '',
+        '   alias of :class:`target.classes.Foo`',
     ]

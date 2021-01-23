@@ -5,7 +5,7 @@
     Test message patching for internationalization purposes.  Runs the text
     builder in the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -335,9 +335,9 @@ def test_text_figure_captions(app):
               "14.2. IMAGE URL AND ALT\n"
               "=======================\n"
               "\n"
-              "[image: i18n][image]\n"
+              "[image: I18N -> IMG][image]\n"
               "\n"
-              "   [image: img][image]\n"
+              "   [image: IMG -> I18N][image]\n"
               "\n"
               "\n"
               "14.3. IMAGE ON SUBSTITUTION\n"
@@ -1090,12 +1090,12 @@ def test_additional_targets_should_not_be_translated(app):
 
     result = (app.outdir / 'figure.html').read_text()
 
-    # alt and src for image block should not be translated
-    expected_expr = """<img alt="i18n" src="_images/i18n.png" />"""
+    # src for image block should not be translated (alt is translated)
+    expected_expr = """<img alt="I18N -&gt; IMG" src="_images/i18n.png" />"""
     assert_count(expected_expr, result, 1)
 
-    # alt and src for figure block should not be translated
-    expected_expr = """<img alt="img" src="_images/img.png" />"""
+    # src for figure block should not be translated (alt is translated)
+    expected_expr = """<img alt="IMG -&gt; I18N" src="_images/img.png" />"""
     assert_count(expected_expr, result, 1)
 
 

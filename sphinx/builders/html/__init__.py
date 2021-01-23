@@ -4,17 +4,18 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import html
+import os
 import posixpath
 import re
 import sys
-import warnings
+from datetime import datetime
 from os import path
-from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple
+from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple, Type
 from urllib.parse import quote
 
 from docutils import nodes
@@ -28,7 +29,6 @@ from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -44,14 +44,9 @@ from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
-from sphinx.util.osutil import copyfile, ensuredir, movefile, os_path, relative_uri
+from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLTranslator, HTMLWriter
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 # HTML5 Writer is available or not
 if is_html5_writer_available():
@@ -89,10 +84,13 @@ class Stylesheet(str):
 
     attributes = None   # type: Dict[str, str]
     filename = None     # type: str
+    priority = None     # type: int
 
-    def __new__(cls, filename: str, *args: str, **attributes: str) -> "Stylesheet":
-        self = str.__new__(cls, filename)  # type: ignore
+    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
+                ) -> "Stylesheet":
+        self = str.__new__(cls, filename)
         self.filename = filename
+        self.priority = priority
         self.attributes = attributes
         self.attributes.setdefault('rel', 'stylesheet')
         self.attributes.setdefault('type', 'text/css')
@@ -112,10 +110,12 @@ class JavaScript(str):
 
     attributes = None   # type: Dict[str, str]
     filename = None     # type: str
+    priority = None     # type: int
 
-    def __new__(cls, filename: str, **attributes: str) -> "JavaScript":
-        self = str.__new__(cls, filename)  # type: ignore
+    def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> "JavaScript":
+        self = str.__new__(cls, filename)
         self.filename = filename
+        self.priority = priority
         self.attributes = attributes
 
         return self
@@ -250,6 +250,14 @@ class StandaloneHTMLBuilder(Builder):
                 return jsfile
         return None
 
+    def _get_style_filename(self) -> str:
+        if self.config.html_style is not None:
+            return self.config.html_style
+        elif self.theme:
+            return self.theme.get_config('theme', 'stylesheet')
+        else:
+            return 'default.css'
+
     def get_theme_config(self) -> Tuple[str, Dict]:
         return self.config.html_theme, self.config.html_theme_options
 
@@ -285,33 +293,38 @@ class StandaloneHTMLBuilder(Builder):
             self.dark_highlighter = None
 
     def init_css_files(self) -> None:
+        self.add_css_file('pygments.css', priority=200)
+        self.add_css_file(self._get_style_filename(), priority=200)
+
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
 
         for filename, attrs in self.get_builder_config('css_files', 'html'):
+            attrs.setdefault('priority', 800)  # User's CSSs are loaded after extensions'
             self.add_css_file(filename, **attrs)
 
-    def add_css_file(self, filename: str, **kwargs: str) -> None:
+    def add_css_file(self, filename: str, **kwargs: Any) -> None:
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
 
         self.css_files.append(Stylesheet(filename, **kwargs))  # type: ignore
 
     def init_js_files(self) -> None:
-        self.add_js_file('jquery.js')
-        self.add_js_file('underscore.js')
-        self.add_js_file('doctools.js')
+        self.add_js_file('jquery.js', priority=200)
+        self.add_js_file('underscore.js', priority=200)
+        self.add_js_file('doctools.js', priority=200)
 
         for filename, attrs in self.app.registry.js_files:
             self.add_js_file(filename, **attrs)
 
         for filename, attrs in self.get_builder_config('js_files', 'html'):
+            attrs.setdefault('priority', 800)  # User's JSs are loaded after extensions'
             self.add_js_file(filename, **attrs)
 
         if self.config.language and self._get_translations_js():
             self.add_js_file('translations.js')
 
-    def add_js_file(self, filename: str, **kwargs: str) -> None:
+    def add_js_file(self, filename: str, **kwargs: Any) -> None:
         if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
@@ -350,6 +363,7 @@ class StandaloneHTMLBuilder(Builder):
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
+                logger.debug('[build target] did not match: build_info ')
                 yield from self.env.found_docs
                 return
         except ValueError as exc:
@@ -364,6 +378,7 @@ class StandaloneHTMLBuilder(Builder):
             template_mtime = 0
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
+                logger.debug('[build target] did not in env: %r', docname)
                 yield docname
                 continue
             targetname = self.get_outfilename(docname)
@@ -375,6 +390,14 @@ class StandaloneHTMLBuilder(Builder):
                 srcmtime = max(path.getmtime(self.env.doc2path(docname)),
                                template_mtime)
                 if srcmtime > targetmtime:
+                    logger.debug(
+                        '[build target] targetname %r(%s), template(%s), docname %r(%s)',
+                        targetname,
+                        datetime.utcfromtimestamp(targetmtime),
+                        datetime.utcfromtimestamp(template_mtime),
+                        docname,
+                        datetime.utcfromtimestamp(path.getmtime(self.env.doc2path(docname))),
+                    )
                     yield docname
             except OSError:
                 # source doesn't exist anymore
@@ -447,9 +470,6 @@ class StandaloneHTMLBuilder(Builder):
         logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
         favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
 
-        if not isinstance(self.config.html_use_opensearch, str):
-            logger.warning(__('html_use_opensearch config value must now be a string'))
-
         self.relations = self.env.collect_relations()
 
         rellinks = []  # type: List[Tuple[str, str, str, str]]
@@ -461,12 +481,9 @@ class StandaloneHTMLBuilder(Builder):
                 rellinks.append((indexname, indexcls.localname,
                                  '', indexcls.shortname))
 
-        if self.config.html_style is not None:
-            stylename = self.config.html_style
-        elif self.theme:
-            stylename = self.theme.get_config('theme', 'stylesheet')
-        else:
-            stylename = 'default.css'
+        # back up script_files and css_files to allow adding JS/CSS files to a specific page.
+        self._script_files = list(self.script_files)
+        self._css_files = list(self.css_files)
 
         self.globalcontext = {
             'embedded': self.embedded,
@@ -490,7 +507,7 @@ class StandaloneHTMLBuilder(Builder):
             'language': self.config.language,
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
-            'style': stylename,
+            'style': self._get_style_filename(),
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
@@ -876,21 +893,11 @@ class StandaloneHTMLBuilder(Builder):
         # only index pages with title
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
-            try:
-                metadata = self.env.metadata.get(pagename, {})
-                if 'nosearch' in metadata:
-                    self.indexer.feed(pagename, filename, '', new_document(''))
-                else:
-                    self.indexer.feed(pagename, filename, title, doctree)
-            except TypeError:
-                # fallback for old search-adapters
-                self.indexer.feed(pagename, title, doctree)  # type: ignore
-                indexer_name = self.indexer.__class__.__name__
-                warnings.warn(
-                    'The %s.feed() method signature is deprecated. Update to '
-                    '%s.feed(docname, filename, title, doctree).' % (
-                        indexer_name, indexer_name),
-                    RemovedInSphinx40Warning, stacklevel=2)
+            metadata = self.env.metadata.get(pagename, {})
+            if 'nosearch' in metadata:
+                self.indexer.feed(pagename, filename, '', new_document(''))
+            else:
+                self.indexer.feed(pagename, filename, title, doctree)
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if 'includehidden' not in kwargs:
@@ -1022,11 +1029,19 @@ class StandaloneHTMLBuilder(Builder):
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
+        # revert script_files and css_files
+        self.script_files[:] = self._script_files
+        self.css_files[:] = self.css_files
+
         self.update_page_context(pagename, templatename, ctx, event_arg)
         newtmpl = self.app.emit_firstresult('html-page-context', pagename,
                                             templatename, ctx, event_arg)
         if newtmpl:
             templatename = newtmpl
+
+        # sort JS/CSS before rendering HTML
+        ctx['script_files'].sort(key=lambda js: js.priority)
+        ctx['css_files'].sort(key=lambda js: js.priority)
 
         try:
             output = self.templates.render(templatename, ctx)
@@ -1081,7 +1096,7 @@ class StandaloneHTMLBuilder(Builder):
             else:
                 with open(searchindexfn + '.tmp', 'wb') as fb:
                     self.indexer.dump(fb, self.indexer_format)
-            movefile(searchindexfn + '.tmp', searchindexfn)
+            os.replace(searchindexfn + '.tmp', searchindexfn)
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
@@ -1277,6 +1292,10 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
+
+    # events
+    app.add_event('html-collect-pages')
+    app.add_event('html-page-context')
 
     # event handlers
     app.connect('config-inited', convert_html_css_files, priority=800)

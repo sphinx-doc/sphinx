@@ -4,11 +4,11 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple, Type, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -150,7 +150,7 @@ class ReferencesResolver(SphinxPostTransform):
         return newnode
 
     def warn_missing_reference(self, refdoc: str, typ: str, target: str,
-                               node: pending_xref, domain: Domain) -> None:
+                               node: pending_xref, domain: Optional[Domain]) -> None:
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True

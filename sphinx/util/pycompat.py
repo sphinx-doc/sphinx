@@ -4,32 +4,25 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import html
-import io
-import sys
-import textwrap
 import warnings
 from typing import Any, Callable
 
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
-from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util.console import terminal_safe
-from sphinx.util.typing import NoneType
-
-logger = logging.getLogger(__name__)
-
+from sphinx.deprecation import RemovedInSphinx60Warning
 
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
 
+
 # convert_with_2to3():
 # support for running 2to3 over config files
 def convert_with_2to3(filepath: str) -> str:
+    warnings.warn('convert_with_2to3() is deprecated',
+                  RemovedInSphinx60Warning, stacklevel=2)
+
     try:
         from lib2to3.pgen2.parse import ParseError
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
@@ -53,57 +46,14 @@ def convert_with_2to3(filepath: str) -> str:
     return str(tree)
 
 
-class UnicodeMixin:
-    """Mixin class to handle defining the proper __str__/__unicode__
-    methods in Python 2 or 3.
-
-    .. deprecated:: 2.0
-    """
-    def __str__(self) -> str:
-        warnings.warn('UnicodeMixin is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self.__unicode__()  # type: ignore
-
-
 def execfile_(filepath: str, _globals: Any, open: Callable = open) -> None:
+    warnings.warn('execfile_() is deprecated',
+                  RemovedInSphinx60Warning, stacklevel=2)
     from sphinx.util.osutil import fs_encoding
     with open(filepath, 'rb') as f:
         source = f.read()
 
     # compile to a code object, handle syntax errors
     filepath_enc = filepath.encode(fs_encoding)
-    try:
-        code = compile(source, filepath_enc, 'exec')
-    except SyntaxError:
-        # maybe the file uses 2.x syntax; try to refactor to
-        # 3.x syntax using 2to3
-        source = convert_with_2to3(filepath)
-        code = compile(source, filepath_enc, 'exec')
-        # TODO: When support for evaluating Python 2 syntax is removed,
-        # deprecate convert_with_2to3().
-        logger.warning(__('Support for evaluating Python 2 syntax is deprecated '
-                          'and will be removed in Sphinx 4.0. '
-                          'Convert %s to Python 3 syntax.'),
-                       filepath)
+    code = compile(source, filepath_enc, 'exec')
     exec(code, _globals)
-
-
-deprecated_alias('sphinx.util.pycompat',
-                 {
-                     'NoneType': NoneType,
-                     'TextIOWrapper': io.TextIOWrapper,
-                     'htmlescape': html.escape,
-                     'indent': textwrap.indent,
-                     'terminal_safe': terminal_safe,
-                     'sys_encoding': sys.getdefaultencoding(),
-                     'u': '',
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     'NoneType': 'sphinx.util.typing.NoneType',
-                     'TextIOWrapper': 'io.TextIOWrapper',
-                     'htmlescape': 'html.escape',
-                     'indent': 'textwrap.indent',
-                     'terminal_safe': 'sphinx.util.console.terminal_safe',
-                     'sys_encoding': 'sys.getdefaultencoding',
-                 })

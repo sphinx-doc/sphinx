@@ -4,12 +4,12 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from typing import Any, Dict, List, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -17,21 +17,21 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature
-from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
-                                deprecated_alias)
+from sphinx.deprecation import RemovedInSphinx50Warning, deprecated_alias
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import DirectiveOption
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
 # RE to strip backslash escapes
 nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
+
+T = TypeVar('T')
 
 
 def optional_int(argument: str) -> int:
@@ -47,7 +47,7 @@ def optional_int(argument: str) -> int:
         return value
 
 
-class ObjectDescription(SphinxDirective):
+class ObjectDescription(SphinxDirective, Generic[T]):
     """
     Directive to describe a class, function or similar object.  Not used
     directly, but subclassed (in domain-specific directives) to add custom
@@ -97,7 +97,7 @@ class ObjectDescription(SphinxDirective):
         else:
             return [line.strip() for line in lines]
 
-    def handle_signature(self, sig: str, signode: desc_signature) -> Any:
+    def handle_signature(self, sig: str, signode: desc_signature) -> T:
         """
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
@@ -109,7 +109,7 @@ class ObjectDescription(SphinxDirective):
         """
         raise ValueError
 
-    def add_target_and_index(self, name: Any, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(self, name: T, sig: str, signode: desc_signature) -> None:
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
 
@@ -173,7 +173,7 @@ class ObjectDescription(SphinxDirective):
         if self.domain:
             node['classes'].append(self.domain)
 
-        self.names = []  # type: List[Any]
+        self.names = []  # type: List[T]
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             # add a signature node for each signature in the current unit
@@ -264,52 +264,6 @@ class DefaultDomain(SphinxDirective):
         self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
 
-from sphinx.directives.code import CodeBlock, Highlight, LiteralInclude  # noqa
-from sphinx.directives.other import (Acks, Author, Centered, Class, HList, Include,  # noqa
-                                     Only, SeeAlso, TabularColumns, TocTree, VersionChange)
-from sphinx.directives.patches import Figure, Meta  # noqa
-from sphinx.domains.index import IndexDirective  # noqa
-
-deprecated_alias('sphinx.directives',
-                 {
-                     'Highlight': Highlight,
-                     'CodeBlock': CodeBlock,
-                     'LiteralInclude': LiteralInclude,
-                     'TocTree': TocTree,
-                     'Author': Author,
-                     'Index': IndexDirective,
-                     'VersionChange': VersionChange,
-                     'SeeAlso': SeeAlso,
-                     'TabularColumns': TabularColumns,
-                     'Centered': Centered,
-                     'Acks': Acks,
-                     'HList': HList,
-                     'Only': Only,
-                     'Include': Include,
-                     'Class': Class,
-                     'Figure': Figure,
-                     'Meta': Meta,
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     'Highlight': 'sphinx.directives.code.Highlight',
-                     'CodeBlock': 'sphinx.directives.code.CodeBlock',
-                     'LiteralInclude': 'sphinx.directives.code.LiteralInclude',
-                     'TocTree': 'sphinx.directives.other.TocTree',
-                     'Author': 'sphinx.directives.other.Author',
-                     'Index': 'sphinx.directives.other.IndexDirective',
-                     'VersionChange': 'sphinx.directives.other.VersionChange',
-                     'SeeAlso': 'sphinx.directives.other.SeeAlso',
-                     'TabularColumns': 'sphinx.directives.other.TabularColumns',
-                     'Centered': 'sphinx.directives.other.Centered',
-                     'Acks': 'sphinx.directives.other.Acks',
-                     'HList': 'sphinx.directives.other.HList',
-                     'Only': 'sphinx.directives.other.Only',
-                     'Include': 'sphinx.directives.other.Include',
-                     'Class': 'sphinx.directives.other.Class',
-                     'Figure': 'sphinx.directives.patches.Figure',
-                     'Meta': 'sphinx.directives.patches.Meta',
-                 })
 
 deprecated_alias('sphinx.directives',
                  {

@@ -202,6 +202,14 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 2.1
 
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
+
 .. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
@@ -219,6 +227,14 @@ The following directives are provided for module and class contents:
       :type: text
 
       .. versionadded:: 2.4
+
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
 
 .. rst:directive:: .. py:exception:: name
 
@@ -259,6 +275,14 @@ The following directives are provided for module and class contents:
 
    .. rubric:: options
 
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
+
    .. rst:directive:option:: final
       :type: no value
 
@@ -284,6 +308,14 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 2.4
 
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
+
 .. rst:directive:: .. py:method:: name(parameters)
 
    Describes an object method.  The parameters should not include the ``self``
@@ -306,6 +338,14 @@ The following directives are provided for module and class contents:
       Indicate the method is an async method.
 
       .. versionadded:: 2.1
+
+   .. rst:directive:option:: canonical
+      :type: full qualified name including module name
+
+      Describe the location where the object is defined if the object is
+      imported from other modules
+
+      .. versionadded:: 4.0
 
    .. rst:directive:option:: classmethod
       :type: no value
@@ -1823,7 +1863,7 @@ currently Ada_, CoffeeScript_, Erlang_, HTTP_, Lasso_, MATLAB_, PHP_, and Ruby_
 domains. Also available are domains for `Chapel`_, `Common Lisp`_, dqn_, Go_,
 Jinja_, Operation_, and Scala_.
 
-.. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
+.. _sphinx-contrib: https://github.com/sphinx-contrib
 
 .. _Ada: https://pypi.org/project/sphinxcontrib-adadomain/
 .. _Chapel: https://pypi.org/project/sphinxcontrib-chapeldomain/

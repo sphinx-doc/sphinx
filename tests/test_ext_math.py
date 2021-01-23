@@ -4,7 +4,7 @@
 
     Test math extensions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,6 +15,7 @@ import warnings
 import pytest
 from docutils import nodes
 
+from sphinx.ext.mathjax import MATHJAX_URL
 from sphinx.testing.util import assert_node
 
 
@@ -71,8 +72,8 @@ def test_mathjax_options(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text()
     assert ('<script async="async" integrity="sha384-0123456789" '
-            'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?'
-            'config=TeX-AMS-MML_HTMLorMML"></script>' in content)
+            'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
+            '</script>' in content)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
@@ -222,6 +223,18 @@ def test_mathjax_config(app, status, warning):
     assert ('<script type="text/x-mathjax-config">'
             'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
             '</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_is_installed_only_if_document_having_math(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
+
+    content = (app.outdir / 'nomath.html').read_text()
+    assert MATHJAX_URL not in content
 
 
 @pytest.mark.sphinx('html', testroot='basic',

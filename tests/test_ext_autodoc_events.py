@@ -4,7 +4,7 @@
 
     Test the autodoc extension.  This tests mainly for autodoc events
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,6 +30,23 @@ def test_process_docstring(app):
         '   :module: target.process_docstring',
         '',
         '   my docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_process_docstring_for_nondatadescriptor(app):
+    def on_process_docstring(app, what, name, obj, options, lines):
+        raise
+
+    app.connect('autodoc-process-docstring', on_process_docstring)
+
+    actual = do_autodoc(app, 'attribute', 'target.AttCls.a1')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: AttCls.a1',
+        '   :module: target',
+        '   :value: hello world',
         '',
     ]
 

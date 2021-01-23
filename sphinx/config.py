@@ -4,31 +4,27 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import traceback
 import types
-import warnings
 from collections import OrderedDict
 from os import getenv, path
-from typing import (Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple,
-                    Union)
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, NamedTuple,
+                    Set, Tuple, Union)
 
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import cd
-from sphinx.util.pycompat import execfile_
+from sphinx.util.osutil import cd, fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -38,9 +34,11 @@ CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
-ConfigValue = NamedTuple('ConfigValue', [('name', str),
-                                         ('value', Any),
-                                         ('rebuild', Union[bool, str])])
+
+class ConfigValue(NamedTuple):
+    name: str
+    value: Any
+    rebuild: Union[bool, str]
 
 
 def is_serializable(obj: Any) -> bool:
@@ -73,10 +71,6 @@ class ENUM:
             return value in self.candidates
 
 
-# RemovedInSphinx40Warning
-string_classes = [str]  # type: List
-
-
 class Config:
     """Configuration file abstraction.
 
@@ -98,7 +92,8 @@ class Config:
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
-        'copyright': ('', 'html', []),
+        'project_copyright': ('', 'html', [str]),
+        'copyright': (lambda c: c.project_copyright, 'html', [str]),
         'version': ('', 'env', []),
         'release': ('', 'env', []),
         'today': ('', 'env', []),
@@ -112,7 +107,6 @@ class Config:
         'master_doc': ('index', 'env', []),
         'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
         'source_encoding': ('utf-8-sig', 'env', []),
-        'source_parsers': ({}, 'env', []),
         'exclude_patterns': ([], 'env', []),
         'default_role': (None, 'env', [str]),
         'add_function_parentheses': (True, 'env', []),
@@ -180,6 +174,14 @@ class Config:
             defvalue = self.values[name][0]
             if self.values[name][2] == Any:
                 return value
+            elif self.values[name][2] == {bool, str}:
+                if value == '0':
+                    # given falsy string from command line option
+                    return False
+                elif value == '1':
+                    return True
+                else:
+                    return value
             elif type(defvalue) is bool or self.values[name][2] == [bool]:
                 if value == '0':
                     # given falsy string from command line option
@@ -315,7 +317,9 @@ def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
     with cd(path.dirname(filename)):
         # during executing config file, current dir is changed to ``confdir``.
         try:
-            execfile_(filename, namespace)
+            with open(filename, 'rb') as f:
+                code = compile(f.read(), filename.encode(fs_encoding), 'exec')
+                exec(code, namespace)
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err) from err
@@ -356,6 +360,18 @@ def convert_source_suffix(app: "Sphinx", config: Config) -> None:
         logger.warning(__("The config value `source_suffix' expects "
                           "a string, list of strings, or dictionary. "
                           "But `%r' is given." % source_suffix))
+
+
+def convert_highlight_options(app: "Sphinx", config: Config) -> None:
+    """Convert old styled highlight_options to new styled one.
+
+    * old style: options
+    * new style: dict that maps language names to options
+    """
+    options = config.highlight_options
+    if options and not all(isinstance(v, dict) for v in options.values()):
+        # old styled option detected because all values are not dictionary.
+        config.highlight_options = {config.highlight_language: options}  # type: ignore
 
 
 def init_numfig_format(app: "Sphinx", config: Config) -> None:
@@ -438,22 +454,6 @@ def check_confval_types(app: "Sphinx", config: Config) -> None:
                                           default=type(default)))
 
 
-def check_unicode(config: Config) -> None:
-    """check all string values for non-ASCII characters in bytestrings,
-    since that can result in UnicodeErrors all over the place
-    """
-    warnings.warn('sphinx.config.check_unicode() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-
-    nonascii_re = re.compile(br'[\x80-\xff]')
-
-    for name, value in config._raw_config.items():
-        if isinstance(value, bytes) and nonascii_re.search(value):
-            logger.warning(__('the config value %r is set to a string with non-ASCII '
-                              'characters; this can lead to Unicode errors occurring. '
-                              'Please use Unicode strings, e.g. %r.'), name, 'Content')
-
-
 def check_primary_domain(app: "Sphinx", config: Config) -> None:
     primary_domain = config.primary_domain
     if primary_domain and not app.registry.has_domain(primary_domain):
@@ -478,6 +478,7 @@ def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.connect('config-inited', convert_source_suffix, priority=800)
+    app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)
