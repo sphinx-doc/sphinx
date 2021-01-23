@@ -561,7 +561,7 @@ General configuration
    * Otherwise, the current time is formatted using :func:`time.strftime` and
      the format given in :confval:`today_fmt`.
 
-   The default is now :confval:`today` and a :confval:`today_fmt` of ``'%B %d,
+   The default is now :confval:`today` and a :confval:`today_fmt` of ``'%b %d,
    %Y'`` (or, if translation is enabled with :confval:`language`, an equivalent
    format for the selected locale).
 
