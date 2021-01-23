@@ -22,6 +22,8 @@ Incompatible changes
   :confval:`man_make_section_directory`)
 * #8380: html search: search results are wrapped with ``<p>`` instead of
   ``<div>``
+* html theme: Move a script tag for documentation_options.js in
+  basic/layout.html to ``script_files`` variable
 * html theme: Move CSS tags in basic/layout.html to ``css_files`` variable
 * #8508: LaTeX: uplatex becomes a default setting of latex_engine for Japanese
   documents
