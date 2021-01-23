@@ -56,7 +56,7 @@ If you write an extension that you think others will find useful or you think
 should be included as a part of Sphinx, please write to the project mailing
 list (`join here <https://groups.google.com/forum/#!forum/sphinx-dev>`_).
 
-.. _Sphinx Contrib: https://bitbucket.org/birkenfeld/sphinx-contrib
+.. _Sphinx Contrib: https://github.com/sphinx-contrib
 
 Where to put your own extensions?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
