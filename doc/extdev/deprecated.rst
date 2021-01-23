@@ -27,12 +27,12 @@ The following is a list of deprecated interfaces.
      - Alternatives
 
    * - ``favicon`` variable in HTML templates
-     - 3.4
+     - 4.0
      - TBD
      - ``favicon_url``
 
    * - ``logo`` variable in HTML templates
-     - 3.4
+     - 4.0
      - TBD
      - ``logo_url``
 

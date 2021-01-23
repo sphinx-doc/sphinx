@@ -36,6 +36,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``favicon`` and ``logo`` variable in HTML templates
 * ``sphinx.directives.patches.CSVTable``
 * ``sphinx.directives.patches.ListTable``
 * ``sphinx.directives.patches.RSTTable``
@@ -226,7 +227,6 @@ Incompatible changes
 Deprecated
 ----------
 
-* ``favicon`` and ``logo`` variable in HTML templates
 * The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
 * The ``no_docstring`` argument of
   ``sphinx.ext.autodoc.Documenter.add_content()``
