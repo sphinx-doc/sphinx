@@ -444,8 +444,8 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.last_updated = None
 
-        logo = self.proc_resource_ref(self.config.html_logo)
-        favicon = self.proc_resource_ref(self.config.html_favicon)
+        logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
+        favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
 
         if not isinstance(self.config.html_use_opensearch, str):
             logger.warning(__('html_use_opensearch config value must now be a string'))
@@ -1147,6 +1147,26 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatexname: str,
     context['js_tag'] = js_tag
 
 
+def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
+                         context: Dict, doctree: Node) -> None:
+    """Set up relative resource paths."""
+    pathto = context.get('pathto')
+
+    # favicon_url
+    favicon = context.get('favicon')
+    if not isurl(favicon):
+        context['favicon_url'] = pathto('_static/' + favicon, resource=True)
+    else:
+        context['favicon_url'] = favicon
+
+    # logo_url
+    logo = context.get('logo')
+    if not isurl(logo):
+        context['logo_url'] = pathto('_static/' + logo, resource=True)
+    else:
+        context['logo_url'] = logo
+
+
 def validate_math_renderer(app: Sphinx) -> None:
     if app.builder.format != 'html':
         return
@@ -1267,6 +1287,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
+    app.connect('html-page-context', setup_resource_paths)
 
     # load default math renderer
     app.setup_extension('sphinx.ext.mathjax')

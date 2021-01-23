@@ -26,6 +26,16 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``favicon`` variable in HTML templates
+     - 3.4
+     - TBD
+     - ``favicon_url``
+
+   * - ``logo`` variable in HTML templates
+     - 3.4
+     - TBD
+     - ``logo_url``
+
    * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
      - 3.4
      - 5.0

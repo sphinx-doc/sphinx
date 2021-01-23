@@ -36,11 +36,11 @@
         {%- block haikuheader %}
         {%- if theme_full_logo != "false" %}
         <a href="{{ pathto('index') }}">
-          <img class="logo" src="{{ pathto(logo, 1)|e }}" alt="Logo"/>
+          <img class="logo" src="{{ logo_url|e }}" alt="Logo"/>
         </a>
         {%- else %}
         {%- if logo -%}
-          <img class="rightlogo" src="{{ pathto(logo, 1)|e }}" alt="Logo"/>
+          <img class="rightlogo" src="{{ logo_url|e }}" alt="Logo"/>
         {%- endif -%}
         <h1 class="heading"><a href="{{ pathto('index') }}">
           <span>{{ shorttitle|e }}</span></a></h1>

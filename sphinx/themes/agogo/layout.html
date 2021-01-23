@@ -13,9 +13,9 @@
 {% block header %}
     <div class="header-wrapper" role="banner">
       <div class="header">
-        {%- if logo %}
+        {%- if logo_url %}
           <p class="logo"><a href="{{ pathto(master_doc)|e }}">
-            <img class="logo" src="{{ pathto(logo, 1)|e }}" alt="Logo"/>
+            <img class="logo" src="{{ logo_url|e }}" alt="Logo"/>
           </a></p>
         {%- endif %}
         {%- block headertitle %}
