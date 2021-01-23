@@ -960,17 +960,6 @@ class StandaloneHTMLBuilder(Builder):
         ctx['sidebars'] = sidebars
         ctx['customsidebar'] = customsidebar
 
-    def proc_resource_ref(self, uri: str) -> str:
-        """Parse uri of a resource file and return its reference. If its a local file,
-        return the name of the file.
-        """
-        ref = ''
-        if isurl(uri):
-            ref = uri
-        elif uri:
-            ref = path.join('_static', path.basename(uri))
-        return ref
-
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
