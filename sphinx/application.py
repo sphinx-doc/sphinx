@@ -499,6 +499,10 @@ class Sphinx:
           documents.
         * ``''`` if a change in the setting will not need any special rebuild.
 
+        The *types* value takes a list of types that describes the type of
+        configuration value.  For example, ``[str]`` is used to describe a
+        configuration that takes string value.
+
         .. versionchanged:: 0.6
            Changed *rebuild* from a simple boolean (equivalent to ``''`` or
            ``'env'``) to a string.  However, booleans are still accepted and
