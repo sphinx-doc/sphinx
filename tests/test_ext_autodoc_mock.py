@@ -15,7 +15,7 @@ from typing import TypeVar
 
 import pytest
 
-from sphinx.ext.autodoc.mock import _MockModule, _MockObject, ismock, mock
+from sphinx.ext.autodoc.mock import _MockModule, _MockObject, ismock, mock, undecorate
 
 
 def test_MockModule():
@@ -115,20 +115,25 @@ def test_mock_decorator():
 
     @mock.function_deco
     def func():
-        """docstring"""
+        pass
 
     class Foo:
         @mock.method_deco
         def meth(self):
-            """docstring"""
+            pass
 
     @mock.class_deco
     class Bar:
-        """docstring"""
+        pass
 
-    assert func.__doc__ == "docstring"
-    assert Foo.meth.__doc__ == "docstring"
-    assert Bar.__doc__ == "docstring"
+    @mock.funcion_deco(Foo)
+    class Baz:
+        pass
+
+    assert undecorate(func).__name__ == "func"
+    assert undecorate(Foo.meth).__name__ == "meth"
+    assert undecorate(Bar).__name__ == "Bar"
+    assert undecorate(Baz).__name__ == "Baz"
 
 
 def test_ismock():

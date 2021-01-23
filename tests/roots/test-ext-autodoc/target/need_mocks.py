@@ -9,7 +9,7 @@ import sphinx.missing_module4  # NOQA
 from sphinx.missing_module4 import missing_name2  # NOQA
 
 
-@missing_name
+@missing_name(int)
 def decoratedFunction():
     """decoratedFunction docstring"""
     return None
