@@ -17,6 +17,8 @@ Incompatible changes
   MathJax configuration may have to set the old MathJax path or update their
   configuration for version 3. See :mod:`sphinx.ext.mathjax`.
 * #7784: i18n: The msgid for alt text of image is changed
+* #5560: napoleon: :confval:`napoleon_use_param` also affect "other parameters"
+  section
 * #7996: manpage: Make a section directory on build manpage by default (see
   :confval:`man_make_section_directory`)
 * #8380: html search: search results are wrapped with ``<p>`` instead of
@@ -75,9 +77,16 @@ Incompatible changes
 Deprecated
 ----------
 
+* pending_xref node for viewcode extension
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+* ``sphinx.builders.linkcheck.node_line_or_0()``
 * ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
 * ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
 * ``sphinx.ext.autodoc.importer.get_module_members()``
+* ``sphinx.ext.autosummary.generate._simple_info()``
+* ``sphinx.ext.autosummary.generate._simple_warn()``
 
 Features added
 --------------
@@ -85,6 +94,8 @@ Features added
 * #8022: autodoc: autodata and autoattribute directives does not show right-hand
   value of the variable if docstring contains ``:meta hide-value:`` in
   info-field-list
+* #8514: autodoc: Default values of overloaded functions are taken from actual
+  implementation if they're ellipsis
 * #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
   for :meth:`Sphinx.add_js_file()` and :meth:`Sphinx.add_css_file()`
@@ -93,12 +104,16 @@ Features added
   :event:`html-page-context` event
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
+* #8573: napoleon: Allow to change the style of custom sections using
+  :confval:`napoleon_custom_styles`
 * #6241: mathjax: Include mathjax.js only on the document using equations
 * #8651: std domain: cross-reference for a rubric having inline item is broken
+* #8681: viewcode: Support incremental build
 * #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
 * #207: Now :confval:`highlight_language` supports multiple languages
 * #2030: :rst:dir:`code-block` and :rst:dir:`literalinclude` supports automatic
   dedent via no-argument ``:dedent:`` option
+* C++, also hyperlink operator overloads in expressions and alias declarations.
 
 Bugs fixed
 ----------
@@ -110,19 +125,27 @@ Bugs fixed
 * #8315: autodoc: Failed to resolve struct.Struct type annotation
 * #8652: autodoc: All variable comments in the module are ignored if the module
   contains invalid type comments
+* #8693: autodoc: Default values for overloaded functions are rendered as string
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
 * #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
   + or ^) are used as keystrokes
 * #8629: html: A type warning for html_use_opensearch is shown twice
+* #8714: html: kbd role with "Caps Lock" rendered incorrectly
 * #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
+* #4304: linkcheck: Fix race condition that could lead to checking the
+  availability of the same URL twice
 * #8094: texinfo: image files on the different directory with document are not
   copied
+* #8720: viewcode: module pages are generated for epub on incremental build
+* #8704: viewcode: anchors are generated in incremental build after singlehtml
 * #8671: :confval:`highlight_options` is not working
 * #8341: C, fix intersphinx lookup types for names in declarations.
 * C, C++: in general fix intersphinx and role lookup types.
 * #8683: :confval:`html_last_updated_fmt` does not support UTC offset (%z)
 * #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
+* #1112: ``download`` role creates duplicated copies when relative path is
+  specified
 
 Testing
 --------
@@ -144,6 +167,10 @@ Features added
 
 Bugs fixed
 ----------
+
+* #8655: autodoc: Failed to generate document if target module contains an
+  object that raises an exception on ``hasattr()``
+* C, ``expr`` role should start symbol lookup in the current scope.
 
 Testing
 --------

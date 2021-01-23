@@ -1592,6 +1592,15 @@ class ASTOperator(ASTBase):
         identifier = str(self)
         if mode == 'lastIsName':
             signode += addnodes.desc_name(identifier, identifier)
+        elif mode == 'markType':
+            targetText = prefix + identifier + templateArgs
+            pnode = addnodes.pending_xref('', refdomain='cpp',
+                                          reftype='identifier',
+                                          reftarget=targetText, modname=None,
+                                          classname=None)
+            pnode['cpp:parent_key'] = symbol.get_lookup_key()
+            pnode += nodes.Text(identifier)
+            signode += pnode
         else:
             signode += addnodes.desc_addname(identifier, identifier)
 

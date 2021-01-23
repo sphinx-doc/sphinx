@@ -171,8 +171,8 @@ Keys that you may want to override include:
    "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
 
    Default: ``'\\usepackage[Bjarne]{fncychap}'`` for English documents,
-       ``'\\usepackage[Sonny]{fncychap}'`` for internationalized documents, and
-       ``''`` for Japanese documents.
+   ``'\\usepackage[Sonny]{fncychap}'`` for internationalized documents, and
+   ``''`` for Japanese documents.
 
 ``'preamble'``
    Additional preamble content.  One may move all needed macros into some file
@@ -276,7 +276,7 @@ Keys that don't need to be overridden unless in special cases are:
    "inputenc" package inclusion.
 
    Default: ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex, else
-       ``''``
+   ``''``
 
    .. versionchanged:: 1.4.3
       Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
@@ -360,8 +360,8 @@ Keys that don't need to be overridden unless in special cases are:
    ``'pdflatex'`` support Greek Unicode input in :rst:dir:`math` context.
    For example ``:math:`α``` (U+03B1) will render as :math:`\alpha`.
 
-   For wider Unicode support in math input, see the discussion of
-   :confval:`latex_engine`.
+   Default: ``'\\usepackage{textalpha}'`` or ``''`` if ``fontenc`` does not
+   include the ``LGR`` option.
 
    .. versionadded:: 2.0
 
@@ -379,7 +379,7 @@ Keys that don't need to be overridden unless in special cases are:
    <latexsphinxsetup>`.
 
    Default: ``'\\usepackage{geometry}'`` (or
-       ``'\\usepackage[dvipdfm]{geometry}'`` for Japanese documents)
+   ``'\\usepackage[dvipdfm]{geometry}'`` for Japanese documents)
 
    .. versionadded:: 1.5
 
@@ -762,14 +762,14 @@ macros may be significant.
    |warningbdcolors|
        The colour for the admonition frame.
 
-       Default: ``{rgb}{0,0,0}`` (black)
+   Default: ``{rgb}{0,0,0}`` (black)
 
 .. only:: latex
 
    |wgbdcolorslatex|
        The colour for the admonition frame.
 
-       Default: ``{rgb}{0,0,0}`` (black)
+   Default: ``{rgb}{0,0,0}`` (black)
 
 |warningbgcolors|
     The background colours for the respective admonitions.

@@ -61,6 +61,31 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.utils.smartyquotes``
 
+   * - pending_xref node for viewcode extension
+     - 3.5
+     - 5.0
+     - ``sphinx.ext.viewcode.viewcode_anchor``
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.node_line_or_0()``
+     - 3.5
+     - 5.0
+     - ``sphinx.util.nodes.get_node_line()``
+
    * - ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
      - 3.5
      - 5.0
@@ -70,6 +95,16 @@ The following is a list of deprecated interfaces.
      - 3.5
      - 5.0
      - ``sphinx.ext.autodoc.ModuleDocumenter.get_module_members()``
+
+   * - ``sphinx.ext.autosummary.generate._simple_info()``
+     - 3.5
+     - 5.0
+     - :ref:`logging-api`
+
+   * - ``sphinx.ext.autosummary.generate._simple_warn()``
+     - 3.5
+     - 5.0
+     - :ref:`logging-api`
 
    * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
      - 3.4

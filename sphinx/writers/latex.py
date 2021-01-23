@@ -1203,7 +1203,6 @@ class LaTeXTranslator(SphinxTranslator):
         return isinstance(node.parent, nodes.TextElement)
 
     def visit_image(self, node: Element) -> None:
-        attrs = node.attributes
         pre = []    # type: List[str]
                     # in reverse order
         post = []   # type: List[str]
@@ -1213,27 +1212,27 @@ class LaTeXTranslator(SphinxTranslator):
             is_inline = self.is_inline(node.parent)
         else:
             is_inline = self.is_inline(node)
-        if 'width' in attrs:
-            if 'scale' in attrs:
-                w = self.latex_image_length(attrs['width'], attrs['scale'])
+        if 'width' in node:
+            if 'scale' in node:
+                w = self.latex_image_length(node['width'], node['scale'])
             else:
-                w = self.latex_image_length(attrs['width'])
+                w = self.latex_image_length(node['width'])
             if w:
                 include_graphics_options.append('width=%s' % w)
-        if 'height' in attrs:
-            if 'scale' in attrs:
-                h = self.latex_image_length(attrs['height'], attrs['scale'])
+        if 'height' in node:
+            if 'scale' in node:
+                h = self.latex_image_length(node['height'], node['scale'])
             else:
-                h = self.latex_image_length(attrs['height'])
+                h = self.latex_image_length(node['height'])
             if h:
                 include_graphics_options.append('height=%s' % h)
-        if 'scale' in attrs:
+        if 'scale' in node:
             if not include_graphics_options:
                 # if no "width" nor "height", \sphinxincludegraphics will fit
                 # to the available text width if oversized after rescaling.
                 include_graphics_options.append('scale=%s'
-                                                % (float(attrs['scale']) / 100.0))
-        if 'align' in attrs:
+                                                % (float(node['scale']) / 100.0))
+        if 'align' in node:
             align_prepost = {
                 # By default latex aligns the top of an image.
                 (1, 'top'): ('', ''),
@@ -1247,8 +1246,8 @@ class LaTeXTranslator(SphinxTranslator):
                 (0, 'right'): ('{\\hspace*{\\fill}', '}'),
             }
             try:
-                pre.append(align_prepost[is_inline, attrs['align']][0])
-                post.append(align_prepost[is_inline, attrs['align']][1])
+                pre.append(align_prepost[is_inline, node['align']][0])
+                post.append(align_prepost[is_inline, node['align']][1])
             except KeyError:
                 pass
         if self.in_parsed_literal:

@@ -285,6 +285,13 @@ def get_verifier(verify, verify_re):
         '\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}',
     ),
     (
+        # kbd role
+        'verify',
+        ':kbd:`Caps Lock`',
+        '<p><kbd class="kbd docutils literal notranslate">Caps Lock</kbd></p>',
+        '\\sphinxkeyboard{\\sphinxupquote{Caps Lock}}',
+    ),
+    (
         # non-interpolation of dashes in option role
         'verify_re',
         ':option:`--with-option`',

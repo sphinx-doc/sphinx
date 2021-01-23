@@ -253,10 +253,15 @@ class Config:
           * To create a custom "generic" section, just pass a string.
           * To create an alias for an existing section, pass a tuple containing the
             alias name and the original, in that order.
+          * To create a custom section that displays like the parameters or returns
+            section, pass a tuple containing the custom section name and a string
+            value, "params_style" or "returns_style".
 
         If an entry is just a string, it is interpreted as a header for a generic
         section. If the entry is a tuple/list/indexed container, the first entry
-        is the name of the section, the second is the section key to emulate.
+        is the name of the section, the second is the section key to emulate. If the
+        second entry value is "params_style" or "returns_style", the custom section
+        will be displayed like the parameters section or returns section.
 
     napoleon_attr_annotations : :obj:`bool` (Defaults to True)
         Use the type annotations of class attributes that are documented in the docstring
