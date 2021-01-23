@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2019/09/02 v2.3.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2021/01/23 v3.5.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -844,6 +844,12 @@
 
 
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
+
+% Everything is delayed to \begin{document} to allow hyperref patches into
+%   \newcounter to solve duplicate label problems for internal hyperlinks to
+%   code listings (literalblock counter).  User or extension re-definitions of
+%   \theliteralblock, et al., thus have also to be delayed. (changed at 3.5.0)
+\AtBeginDocument{%
 \ltx@ifundefined{c@chapter}
    {\newcounter{literalblock}}%
    {\newcounter{literalblock}[chapter]%
@@ -884,62 +890,52 @@
        \g@addto@macro\spx@preBthefigure{\fi}}%
 \fi
 \ifnum\spx@opt@numfigreset>1
-  \AtBeginDocument{%
     \@addtoreset{figure}{section}%
     \@addtoreset{table}{section}%
     \@addtoreset{literalblock}{section}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{section}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>2
-  \AtBeginDocument{%
     \@addtoreset{figure}{subsection}%
     \@addtoreset{table}{subsection}%
     \@addtoreset{literalblock}{subsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsection}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>3
-  \AtBeginDocument{%
     \@addtoreset{figure}{subsubsection}%
     \@addtoreset{table}{subsubsection}%
     \@addtoreset{literalblock}{subsubsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsubsection}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>4
-  \AtBeginDocument{%
     \@addtoreset{figure}{paragraph}%
     \@addtoreset{table}{paragraph}%
     \@addtoreset{literalblock}{paragraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{paragraph}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>5
-  \AtBeginDocument{%
     \@addtoreset{figure}{subparagraph}%
     \@addtoreset{table}{subparagraph}%
     \@addtoreset{literalblock}{subparagraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subparagraph}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -956,7 +952,7 @@
     \g@addto@macro\theequation{\arabic{equation}}%
   \fi
 \fi
-
+}% end of big \AtBeginDocument
 
 %% LITERAL BLOCKS
 %
