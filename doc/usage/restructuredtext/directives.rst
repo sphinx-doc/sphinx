@@ -571,6 +571,20 @@ __ http://pygments.org/docs/lexers
 
       .. versionadded:: 1.3
 
+      In order to cross-reference a code-block using either the
+      :rst:role:`ref` or the :rst:role:`numref` role, it is necessary
+      that both :strong:`name` and :strong:`caption` be defined. The
+      argument of :strong:`name` can then be given to :rst:role:`numref`
+      to generate the cross-reference. Example::
+
+	See :numref:`this-py` for an example.
+
+      When using :rst:role:`ref`, it is possible to generate a cross-reference
+      with only :strong:`name` defined, provided an explicit title is
+      given. Example::
+
+	See :ref:`this code snippet <this-py>` for an example.
+
    .. rst:directive:option:: dedent: number
       :type: number or no value
 
