@@ -47,6 +47,8 @@ Features added
 * #2030: :rst:dir:`code-block` and :rst:dir:`literalinclude` supports automatic
   dedent via no-argument ``:dedent:`` option
 * C++, also hyperlink operator overloads in expressions and alias declarations.
+* #8247: Allow production lists to refer to tokens from other production groups
+
 
 Bugs fixed
 ----------
