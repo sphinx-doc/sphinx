@@ -402,6 +402,22 @@ def test_productionlist(app, status, warning):
     assert "A</strong> ::=  B C D    E F G" in text
 
 
+def test_productionlist2(app):
+    text = (".. productionlist:: P2\n"
+            "   A: `:A` `A`\n"
+            "   B: `P1:B` `~P1:B`\n")
+    doctree = restructuredtext.parse(app, text)
+    refnodes = list(doctree.traverse(pending_xref))
+    assert_node(refnodes[0], pending_xref, reftarget="A")
+    assert_node(refnodes[1], pending_xref, reftarget="P2:A")
+    assert_node(refnodes[2], pending_xref, reftarget="P1:B")
+    assert_node(refnodes[3], pending_xref, reftarget="P1:B")
+    assert_node(refnodes[0], [pending_xref, nodes.literal, "A"])
+    assert_node(refnodes[1], [pending_xref, nodes.literal, "A"])
+    assert_node(refnodes[2], [pending_xref, nodes.literal, "P1:B"])
+    assert_node(refnodes[3], [pending_xref, nodes.literal, "B"])
+
+
 def test_disabled_docref(app):
     text = (":doc:`index`\n"
             ":doc:`!index`\n")

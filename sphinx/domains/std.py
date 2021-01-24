@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
-token_re = re.compile(r'`(\w+)`', re.U)
+token_re = re.compile(r'`((~?\w*:)?\w+)`', re.U)
 
 
 class GenericObject(ObjectDescription[str]):
@@ -449,9 +449,23 @@ def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
         if m.start() > pos:
             txt = text[pos:m.start()]
             retnodes.append(nodes.Text(txt, txt))
-        refnode = pending_xref(m.group(1), reftype='token', refdomain='std',
-                               reftarget=productionGroup + m.group(1))
-        refnode += nodes.literal(m.group(1), m.group(1), classes=['xref'])
+        token = m.group(1)
+        if ':' in token:
+            if token[0] == '~':
+                _, title = token.split(':')
+                target = token[1:]
+            elif token[0] == ':':
+                title = token[1:]
+                target = title
+            else:
+                title = token
+                target = token
+        else:
+            title = token
+            target = productionGroup + token
+        refnode = pending_xref(title, reftype='token', refdomain='std',
+                               reftarget=target)
+        refnode += nodes.literal(token, title, classes=['xref'])
         retnodes.append(refnode)
         pos = m.end()
     if pos < len(text):

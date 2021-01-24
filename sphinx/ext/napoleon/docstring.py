@@ -54,6 +54,19 @@ _default_regex = re.compile(
 _SINGLETONS = ("None", "True", "False", "Ellipsis")
 
 
+def _convert_type_spec(_type: str, translations: Dict[str, str] = {}) -> str:
+    """Convert type specification to reference in reST."""
+    if _type in translations:
+        return translations[_type]
+    else:
+        if _type == 'None':
+            return ':obj:`None`'
+        else:
+            return ':class:`%s`' % _type
+
+    return _type
+
+
 class GoogleDocstring:
     """Convert Google style docstrings to reStructuredText.
 
@@ -260,6 +273,10 @@ class GoogleDocstring:
 
         if prefer_type and not _type:
             _type, _name = _name, _type
+
+        if _type and self._config.napoleon_preprocess_types:
+            _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
+
         indent = self._get_indent(line) + 1
         _descs = [_desc] + self._dedent(self._consume_indented_block(indent))
         _descs = self.__class__(_descs, self._config).lines()
@@ -288,7 +305,8 @@ class GoogleDocstring:
         _descs = self.__class__(_descs, self._config).lines()
         return _type, _descs
 
-    def _consume_returns_section(self) -> List[Tuple[str, str, List[str]]]:
+    def _consume_returns_section(self, preprocess_types: bool = False
+                                 ) -> List[Tuple[str, str, List[str]]]:
         lines = self._dedent(self._consume_to_next_section())
         if lines:
             before, colon, after = self._partition_field_on_colon(lines[0])
@@ -301,6 +319,10 @@ class GoogleDocstring:
                     _desc = lines[1:]
 
                 _type = before
+
+            if (_type and preprocess_types and
+                    self._config.napoleon_preprocess_types):
+                _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
 
             _desc = self.__class__(_desc, self._config).lines()
             return [(_name, _type, _desc,)]
@@ -647,7 +669,7 @@ class GoogleDocstring:
         return self._format_fields(section, self._consume_fields())
 
     def _parse_custom_returns_style_section(self, section: str) -> List[str]:
-        fields = self._consume_returns_section()
+        fields = self._consume_returns_section(preprocess_types=True)
         return self._format_fields(section, fields)
 
     def _parse_usage_section(self, section: str) -> List[str]:
@@ -779,7 +801,7 @@ class GoogleDocstring:
         return self._format_fields(_('Warns'), self._consume_fields())
 
     def _parse_yields_section(self, section: str) -> List[str]:
-        fields = self._consume_returns_section()
+        fields = self._consume_returns_section(preprocess_types=True)
         return self._format_fields(_('Yields'), fields)
 
     def _partition_field_on_colon(self, line: str) -> Tuple[str, str, str]:
@@ -1171,7 +1193,8 @@ class NumpyDocstring(GoogleDocstring):
         _desc = self.__class__(_desc, self._config).lines()
         return _name, _type, _desc
 
-    def _consume_returns_section(self) -> List[Tuple[str, str, List[str]]]:
+    def _consume_returns_section(self, preprocess_types: bool = False
+                                 ) -> List[Tuple[str, str, List[str]]]:
         return self._consume_fields(prefer_type=True)
 
     def _consume_section_header(self) -> str:

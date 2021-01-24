@@ -78,6 +78,10 @@ Dependencies
 Incompatible changes
 --------------------
 
+* Update Underscore.js to 1.12.0
+* #6550: html: The config variable ``html_add_permalinks`` is replaced by
+  :confval:`html_permalinks` and :confval:`html_permalinks_icon`
+
 Deprecated
 ----------
 
@@ -91,6 +95,8 @@ Deprecated
 * ``sphinx.ext.autodoc.importer.get_module_members()``
 * ``sphinx.ext.autosummary.generate._simple_info()``
 * ``sphinx.ext.autosummary.generate._simple_warn()``
+* ``sphinx.writers.html.HTMLTranslator.permalink_text``
+* ``sphinx.writers.html5.HTML5Translator.permalink_text``
 
 Features added
 --------------
@@ -106,10 +112,14 @@ Features added
 * #6241: html: Allow to add JS/CSS files to the specific page when an extension
   calls ``app.add_js_file()`` or ``app.add_css_file()`` on
   :event:`html-page-context` event
+* #6550: html: Allow to use HTML permalink texts via
+  :confval:`html_permalinks_icon`
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
 * #8573: napoleon: Allow to change the style of custom sections using
   :confval:`napoleon_custom_styles`
+* #8004: napoleon: Type definitions in Google style docstrings are rendered as
+  references when :confval:`napoleon_preprocess_types` enabled
 * #6241: mathjax: Include mathjax.js only on the document using equations
 * #8651: std domain: cross-reference for a rubric having inline item is broken
 * #8681: viewcode: Support incremental build
@@ -118,10 +128,12 @@ Features added
 * #2030: :rst:dir:`code-block` and :rst:dir:`literalinclude` supports automatic
   dedent via no-argument ``:dedent:`` option
 * C++, also hyperlink operator overloads in expressions and alias declarations.
+* #8247: Allow production lists to refer to tokens from other production groups
 
 Bugs fixed
 ----------
 
+* #8727: apidoc: namespace module file is not generated if no submodules there
 * #741: autodoc: inherited-members doesn't work for instance attributes on super
   class
 * #8592: autodoc: ``:meta public:`` does not effect to variables
@@ -150,6 +162,8 @@ Bugs fixed
 * #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
 * #1112: ``download`` role creates duplicated copies when relative path is
   specified
+* #8735: LaTeX: wrong internal links in pdf to captioned code-blocks when
+  :confval:`numfig` is not True
 
 Testing
 --------

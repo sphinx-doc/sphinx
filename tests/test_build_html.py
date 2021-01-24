@@ -1641,3 +1641,23 @@ def test_highlight_options_old(app):
                                     location=ANY, opts={})
         assert call_args[2] == call(ANY, 'java', force=False, linenos=False,
                                     location=ANY, opts={})
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'html_permalinks': False})
+def test_html_permalink_disable(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<h1>The basic Sphinx documentation for testing</h1>' in content
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'html_permalinks_icon': '<span>[PERMALINK]</span>'})
+def test_html_permalink_icon(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
+            'href="#the-basic-sphinx-documentation-for-testing" '
+            'title="Permalink to this headline"><span>[PERMALINK]</span></a></h1>' in content)

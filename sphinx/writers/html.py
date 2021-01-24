@@ -12,6 +12,7 @@ import copy
 import os
 import posixpath
 import re
+import warnings
 from typing import TYPE_CHECKING, Iterable, Tuple, cast
 
 from docutils import nodes
@@ -21,6 +22,7 @@ from docutils.writers.html4css1 import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -90,11 +92,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
         self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
-        self.permalink_text = self.config.html_add_permalinks
-        # support backwards-compatible setting to a bool
-        if not isinstance(self.permalink_text, str):
-            self.permalink_text = '¶' if self.permalink_text else ''
-        self.permalink_text = self.encode(self.permalink_text)
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0
@@ -323,9 +320,10 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
                 append_fignumber(figtype, node['ids'][0])
 
     def add_permalink_ref(self, node: Element, title: str) -> None:
-        if node['ids'] and self.permalink_text and self.builder.add_permalinks:
+        if node['ids'] and self.config.html_permalinks and self.builder.add_permalinks:
             format = '<a class="headerlink" href="#%s" title="%s">%s</a>'
-            self.body.append(format % (node['ids'][0], title, self.permalink_text))
+            self.body.append(format % (node['ids'][0], title,
+                                       self.config.html_permalinks_icon))
 
     def generate_targets_for_listing(self, node: Element) -> None:
         """Generate hyperlink targets for listings.
@@ -400,7 +398,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_title(self, node: Element) -> None:
         close_tag = self.context[-1]
-        if (self.permalink_text and self.builder.add_permalinks and
+        if (self.config.html_permalinks and self.builder.add_permalinks and
            node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
@@ -410,7 +408,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
                                  node.parent['ids'][0] +
                                  'title="%s">%s' % (
                                      _('Permalink to this headline'),
-                                     self.permalink_text))
+                                     self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
                 self.add_permalink_ref(node.parent, _('Permalink to this table'))
@@ -839,3 +837,9 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
+
+    @property
+    def permalink_text(self) -> str:
+        warnings.warn('HTMLTranslator.permalink_text is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.config.html_permalinks_icon

@@ -25,75 +25,75 @@ package.
 
 .. currentmodule:: sphinx.application
 
-.. automethod:: Sphinx.setup_extension(name)
+.. automethod:: Sphinx.setup_extension
 
-.. automethod:: Sphinx.require_sphinx(version)
+.. automethod:: Sphinx.require_sphinx
 
-.. automethod:: Sphinx.connect(event, callback)
+.. automethod:: Sphinx.connect
 
-.. automethod:: Sphinx.disconnect(listener_id)
+.. automethod:: Sphinx.disconnect
 
-.. automethod:: Sphinx.add_builder(builder)
+.. automethod:: Sphinx.add_builder
 
-.. automethod:: Sphinx.add_config_value(name, default, rebuild)
+.. automethod:: Sphinx.add_config_value
 
-.. automethod:: Sphinx.add_event(name)
+.. automethod:: Sphinx.add_event
 
-.. automethod:: Sphinx.set_translator(name, translator_class)
+.. automethod:: Sphinx.set_translator
 
-.. automethod:: Sphinx.add_node(node, \*\*kwds)
+.. automethod:: Sphinx.add_node
 
-.. automethod:: Sphinx.add_enumerable_node(node, figtype, title_getter=None, \*\*kwds)
+.. automethod:: Sphinx.add_enumerable_node
 
-.. automethod:: Sphinx.add_directive(name, directiveclass)
+.. automethod:: Sphinx.add_directive
 
-.. automethod:: Sphinx.add_role(name, role)
+.. automethod:: Sphinx.add_role
 
-.. automethod:: Sphinx.add_generic_role(name, nodeclass)
+.. automethod:: Sphinx.add_generic_role
 
-.. automethod:: Sphinx.add_domain(domain)
+.. automethod:: Sphinx.add_domain
 
-.. automethod:: Sphinx.add_directive_to_domain(domain, name, directiveclass)
+.. automethod:: Sphinx.add_directive_to_domain
 
-.. automethod:: Sphinx.add_role_to_domain(domain, name, role)
+.. automethod:: Sphinx.add_role_to_domain
 
-.. automethod:: Sphinx.add_index_to_domain(domain, index)
+.. automethod:: Sphinx.add_index_to_domain
 
-.. automethod:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None, objname='', doc_field_types=[])
+.. automethod:: Sphinx.add_object_type
 
-.. automethod:: Sphinx.add_crossref_type(directivename, rolename, indextemplate='', ref_nodeclass=None, objname='')
+.. automethod:: Sphinx.add_crossref_type
 
-.. automethod:: Sphinx.add_transform(transform)
+.. automethod:: Sphinx.add_transform
 
-.. automethod:: Sphinx.add_post_transform(transform)
+.. automethod:: Sphinx.add_post_transform
 
-.. automethod:: Sphinx.add_js_file(filename, **kwargs)
+.. automethod:: Sphinx.add_js_file
 
-.. automethod:: Sphinx.add_css_file(filename, **kwargs)
+.. automethod:: Sphinx.add_css_file
 
-.. automethod:: Sphinx.add_latex_package(packagename, options=None)
+.. automethod:: Sphinx.add_latex_package
 
-.. automethod:: Sphinx.add_lexer(alias, lexer)
+.. automethod:: Sphinx.add_lexer
 
-.. automethod:: Sphinx.add_autodocumenter(cls)
+.. automethod:: Sphinx.add_autodocumenter
 
-.. automethod:: Sphinx.add_autodoc_attrgetter(type, getter)
+.. automethod:: Sphinx.add_autodoc_attrgetter
 
-.. automethod:: Sphinx.add_search_language(cls)
+.. automethod:: Sphinx.add_search_language
 
-.. automethod:: Sphinx.add_source_suffix(suffix, filetype)
+.. automethod:: Sphinx.add_source_suffix
 
-.. automethod:: Sphinx.add_source_parser(parser)
+.. automethod:: Sphinx.add_source_parser
 
-.. automethod:: Sphinx.add_env_collector(collector)
+.. automethod:: Sphinx.add_env_collector
 
-.. automethod:: Sphinx.add_html_theme(name, theme_path)
+.. automethod:: Sphinx.add_html_theme
 
-.. automethod:: Sphinx.add_html_math_renderer(name, inline_renderers, block_renderers)
+.. automethod:: Sphinx.add_html_math_renderer
 
-.. automethod:: Sphinx.add_message_catalog(catalog, locale_dir)
+.. automethod:: Sphinx.add_message_catalog
 
-.. automethod:: Sphinx.is_parallel_allowed(typ)
+.. automethod:: Sphinx.is_parallel_allowed
 
 .. exception:: ExtensionError
 
@@ -107,9 +107,9 @@ Emitting events
 .. class:: Sphinx
    :noindex:
 
-   .. automethod:: emit(event, \*arguments)
+   .. automethod:: emit
 
-   .. automethod:: emit_firstresult(event, \*arguments)
+   .. automethod:: emit_firstresult
 
 
 Sphinx runtime information

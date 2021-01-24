@@ -23,7 +23,7 @@ from copy import copy
 from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
-from typing import Any, List, Tuple
+from typing import Any, Generator, List, Tuple
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -200,14 +200,46 @@ def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
         return False
 
 
+def walk(rootpath: str, excludes: List[str], opts: Any
+         ) -> Generator[Tuple[str, List[str], List[str]], None, None]:
+    """Walk through the directory and list files and subdirectories up."""
+    followlinks = getattr(opts, 'followlinks', False)
+    includeprivate = getattr(opts, 'includeprivate', False)
+
+    for root, subs, files in os.walk(rootpath, followlinks=followlinks):
+        # document only Python module files (that aren't excluded)
+        files = sorted(f for f in files
+                       if f.endswith(PY_SUFFIXES) and
+                       not is_excluded(path.join(root, f), excludes))
+
+        # remove hidden ('.') and private ('_') directories, as well as
+        # excluded dirs
+        if includeprivate:
+            exclude_prefixes = ('.',)  # type: Tuple[str, ...]
+        else:
+            exclude_prefixes = ('.', '_')
+
+        subs[:] = sorted(sub for sub in subs if not sub.startswith(exclude_prefixes) and
+                         not is_excluded(path.join(root, sub), excludes))
+
+        yield root, subs, files
+
+
+def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
+    """Check the given directory contains child modules at least one."""
+    for root, subs, files in walk(rootpath, excludes, opts):
+        if files:
+            return True
+
+    return False
+
+
 def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
                  user_template_dir: str = None) -> List[str]:
     """
     Look for every file in the directory tree and create the corresponding
     ReST files.
     """
-    followlinks = getattr(opts, 'followlinks', False)
-    includeprivate = getattr(opts, 'includeprivate', False)
     implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
 
     # check if the base directory is a package and get its name
@@ -218,48 +250,36 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
         root_package = None
 
     toplevels = []
-    for root, subs, files in os.walk(rootpath, followlinks=followlinks):
-        # document only Python module files (that aren't excluded)
-        py_files = sorted(f for f in files
-                          if f.endswith(PY_SUFFIXES) and
-                          not is_excluded(path.join(root, f), excludes))
-        is_pkg = is_packagedir(None, py_files)
+    for root, subs, files in walk(rootpath, excludes, opts):
+        is_pkg = is_packagedir(None, files)
         is_namespace = not is_pkg and implicit_namespaces
         if is_pkg:
-            for f in py_files[:]:
+            for f in files[:]:
                 if is_initpy(f):
-                    py_files.remove(f)
-                    py_files.insert(0, f)
+                    files.remove(f)
+                    files.insert(0, f)
         elif root != rootpath:
             # only accept non-package at toplevel unless using implicit namespaces
             if not implicit_namespaces:
                 del subs[:]
                 continue
-        # remove hidden ('.') and private ('_') directories, as well as
-        # excluded dirs
-        if includeprivate:
-            exclude_prefixes = ('.',)  # type: Tuple[str, ...]
-        else:
-            exclude_prefixes = ('.', '_')
-        subs[:] = sorted(sub for sub in subs if not sub.startswith(exclude_prefixes) and
-                         not is_excluded(path.join(root, sub), excludes))
 
         if is_pkg or is_namespace:
             # we are in a package with something to document
-            if subs or len(py_files) > 1 or not is_skipped_package(root, opts):
+            if subs or len(files) > 1 or not is_skipped_package(root, opts):
                 subpackage = root[len(rootpath):].lstrip(path.sep).\
                     replace(path.sep, '.')
                 # if this is not a namespace or
                 # a namespace and there is something there to document
-                if not is_namespace or len(py_files) > 0:
+                if not is_namespace or has_child_module(root, excludes, opts):
                     create_package_file(root, root_package, subpackage,
-                                        py_files, opts, subs, is_namespace, excludes,
+                                        files, opts, subs, is_namespace, excludes,
                                         user_template_dir)
                     toplevels.append(module_join(root_package, subpackage))
         else:
             # if we are at the root level, we don't require it to be a package
             assert root == rootpath and root_package is None
-            for py_file in py_files:
+            for py_file in files:
                 if not is_skipped_module(path.join(rootpath, py_file), opts, excludes):
                     module = py_file.split('.')[0]
                     create_module_file(root_package, module, opts, user_template_dir)
