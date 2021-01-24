@@ -561,7 +561,7 @@ General configuration
    * Otherwise, the current time is formatted using :func:`time.strftime` and
      the format given in :confval:`today_fmt`.
 
-   The default is now :confval:`today` and a :confval:`today_fmt` of ``'%B %d,
+   The default is now :confval:`today` and a :confval:`today_fmt` of ``'%b %d,
    %Y'`` (or, if translation is enabled with :confval:`language`, an equivalent
    format for the selected locale).
 
@@ -1132,6 +1132,23 @@ that use Sphinx's HTMLWriter class.
    .. versionchanged:: 1.1
       This can now be a string to select the actual text of the link.
       Previously, only boolean values were accepted.
+
+   .. deprecated:: 3.5
+      This has been replaced by :confval:`html_permalinks`
+
+.. confval:: html_permalinks
+
+   If true, Sphinx will add "permalinks" for each heading and description
+   environment.  Default: ``True``.
+
+   .. versionadded:: 3.5
+
+.. confval:: html_permalinks_icon
+
+   A text for permalinks for each heading and description environment.  HTML
+   tags are allowed.  Default: a paragraph sign; ``¶``
+
+   .. versionadded:: 3.5
 
 .. confval:: html_sidebars
 

@@ -1205,6 +1205,16 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
+def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
+    """Migrate html_add_permalinks to html_permalinks*."""
+    if config.html_add_permalinks:
+        if (isinstance(config.html_add_permalinks, bool) and
+                config.html_add_permalinks is False):
+            config.html_permalinks = False  # type: ignore
+        else:
+            config.html_permalinks_icon = html.escape(config.html_add_permalinks)  # type: ignore  # NOQA
+
+
 # for compatibility
 import sphinxcontrib.serializinghtml  # NOQA
 
@@ -1235,7 +1245,9 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])
-    app.add_config_value('html_add_permalinks', '¶', 'html')
+    app.add_config_value('html_add_permalinks', None, 'html')
+    app.add_config_value('html_permalinks', True, 'html')
+    app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
     app.add_config_value('html_split_index', False, 'html')
     app.add_config_value('html_copy_source', True, 'html')
@@ -1267,6 +1279,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # event handlers
     app.connect('config-inited', convert_html_css_files, priority=800)
     app.connect('config-inited', convert_html_js_files, priority=800)
+    app.connect('config-inited', migrate_html_add_permalinks, priority=800)
     app.connect('config-inited', validate_html_extra_path, priority=800)
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)

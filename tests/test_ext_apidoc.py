@@ -216,6 +216,8 @@ def test_trailing_underscore(make_app, apidoc):
 def test_excludes(apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.rst').isfile()
+    assert (outdir / 'a.b.rst').isfile()
     assert (outdir / 'a.b.c.rst').isfile()  # generated because not empty
     assert not (outdir / 'a.b.e.rst').isfile()  # skipped because of empty after excludes
     assert (outdir / 'a.b.x.rst').isfile()
@@ -231,6 +233,8 @@ def test_excludes_subpackage_should_be_skipped(apidoc):
     """Subpackage exclusion should work."""
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.rst').isfile()
+    assert (outdir / 'a.b.rst').isfile()
     assert (outdir / 'a.b.c.rst').isfile()  # generated because not empty
     assert not (outdir / 'a.b.e.f.rst').isfile()  # skipped because 'b/e' subpackage is skipped
 
@@ -244,6 +248,8 @@ def test_excludes_module_should_be_skipped(apidoc):
     """Module exclusion should work."""
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.rst').isfile()
+    assert (outdir / 'a.b.rst').isfile()
     assert (outdir / 'a.b.c.rst').isfile()  # generated because not empty
     assert not (outdir / 'a.b.e.f.rst').isfile()  # skipped because of empty after excludes
 
@@ -257,6 +263,8 @@ def test_excludes_module_should_not_be_skipped(apidoc):
     """Module should be included if no excludes are used."""
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.rst').isfile()
+    assert (outdir / 'a.b.rst').isfile()
     assert (outdir / 'a.b.c.rst').isfile()  # generated because not empty
     assert (outdir / 'a.b.e.f.rst').isfile()  # skipped because of empty after excludes
 

@@ -95,6 +95,12 @@ Keys that you may want to override include:
    A string which will be positioned early in the preamble, designed to
    contain ``\\PassOptionsToPackage{options}{foo}`` commands.
 
+   .. hint::
+
+      It may be also used for loading LaTeX packages very early in the
+      preamble.  For example package ``fancybox`` is incompatible with
+      being loaded via the ``'preamble'`` key, it must be loaded earlier.
+
    Default: ``''``
 
    .. versionadded:: 1.4
