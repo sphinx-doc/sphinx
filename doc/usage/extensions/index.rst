@@ -46,14 +46,15 @@ organization. If you wish to include your extension in this organization,
 simply follow the instructions provided in the `github-administration`__
 project. This is optional and there are several extensions hosted elsewhere.
 The `awesome-sphinxdoc`__ project contains a curated list of Sphinx packages,
-and many packages use the ``Framework :: Sphinx :: Extension`` and
-``Framework :: Sphinx :: Theme`` `trove classifiers`__ for Sphinx extensions
-and themes, respectively.
+and many packages use the `Framework :: Sphinx :: Extension`__ and
+`Framework :: Sphinx :: Theme`__ trove classifiers for Sphinx extensions and
+themes, respectively.
 
 .. __: https://github.com/sphinx-contrib/
 .. __: https://github.com/sphinx-contrib/github-administration
 .. __: https://github.com/yoloseem/awesome-sphinxdoc
-.. __: https://pypi.org/classifiers/
+.. __: https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Extension
+.. __: https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
 
 Where to put your own extensions?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
