@@ -310,6 +310,8 @@ class StandaloneHTMLBuilder(Builder):
         self.css_files.append(Stylesheet(filename, **kwargs))  # type: ignore
 
     def init_js_files(self) -> None:
+        self.add_js_file('documentation_options.js', id="documentation_options",
+                         data_url_root='', priority=200)
         self.add_js_file('jquery.js', priority=200)
         self.add_js_file('underscore.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
@@ -1139,6 +1141,8 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatexname: str,
                 if value is not None:
                     if key == 'body':
                         body = value
+                    elif key == 'data_url_root':
+                        attrs.append('data-url_root="%s"' % pathto('', resource=True))
                     else:
                         attrs.append('%s="%s"' % (key, html.escape(value, True)))
             if js.filename:

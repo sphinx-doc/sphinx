@@ -17,9 +17,7 @@
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
 {%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and
                          (sidebars != []) %}
-{%- set url_root = pathto('', 1) %}
 {# URL root should never be #, then all links are fragments #}
-{%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
 {%- if not embedded and docstitle %}
   {%- set titlesuffix = " &#8212; "|safe + docstitle|e %}
 {%- else %}
@@ -88,7 +86,6 @@
 {%- endmacro %}
 
 {%- macro script() %}
-    <script id="documentation_options" data-url_root="{{ url_root }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
     {%- for js in script_files %}
     {{ js_tag(js) }}
     {%- endfor %}
