@@ -439,16 +439,15 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def finish(self) -> None:
         logger.info('')
-        n = 0
 
         for hyperlink in self.hyperlinks.values():
             self.wqueue.put(hyperlink, False)
-            n += 1
 
+        total_links = len(self.hyperlinks)
         done = 0
         with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
              open(path.join(self.outdir, 'output.json'), 'w') as self.json_outfile:
-            while done < n:
+            while done < total_links:
                 self.process_result(self.rqueue.get())
                 done += 1
 
