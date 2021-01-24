@@ -118,10 +118,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self._redirected = {}    # type: Dict[str, Tuple[str, int]]
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
-        # create output file
-        open(path.join(self.outdir, 'output.txt'), 'w').close()
-        # create JSON output file
-        open(path.join(self.outdir, 'output.json'), 'w').close()
 
         # create queues and worker threads
         self.rate_limits = {}  # type: Dict[str, RateLimit]
@@ -435,13 +431,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
-        with open(path.join(self.outdir, 'output.txt'), 'a') as output:
-            output.write("%s:%s: [%s] %s\n" % (filename, line, what, uri))
+        self.txt_outfile.write("%s:%s: [%s] %s\n" % (filename, line, what, uri))
 
     def write_linkstat(self, data: dict) -> None:
-        with open(path.join(self.outdir, 'output.json'), 'a') as output:
-            output.write(json.dumps(data))
-            output.write('\n')
+        self.json_outfile.write(json.dumps(data))
+        self.json_outfile.write('\n')
 
     def finish(self) -> None:
         logger.info('')
@@ -452,9 +446,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
             n += 1
 
         done = 0
-        while done < n:
-            self.process_result(self.rqueue.get())
-            done += 1
+        with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
+             open(path.join(self.outdir, 'output.json'), 'w') as self.json_outfile:
+            while done < n:
+                self.process_result(self.rqueue.get())
+                done += 1
 
         if self._broken:
             self.app.statuscode = 1
