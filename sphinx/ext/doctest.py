@@ -5,7 +5,7 @@
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,7 +21,7 @@ from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
 from docutils.parsers.rst import directives
-from packaging.specifiers import SpecifierSet, InvalidSpecifier
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 
 import sphinx
@@ -36,6 +36,7 @@ from sphinx.util.osutil import relpath
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
 
 
@@ -91,7 +92,7 @@ class TestDirective(SphinxDirective):
                 # convert <BLANKLINE>s to ordinary blank lines for presentation
                 test = code
                 code = blankline_re.sub('', code)
-            if doctestopt_re.search(code):
+            if doctestopt_re.search(code) and 'no-trim-doctest-flags' not in self.options:
                 if not test:
                     test = code
                 code = doctestopt_re.sub('', code)
@@ -151,6 +152,10 @@ class TestDirective(SphinxDirective):
                     line=self.lineno)
         if 'skipif' in self.options:
             node['skipif'] = self.options['skipif']
+        if 'trim-doctest-flags' in self.options:
+            node['trim_flags'] = True
+        elif 'no-trim-doctest-flags' in self.options:
+            node['trim_flags'] = False
         return [node]
 
 
@@ -165,26 +170,32 @@ class TestcleanupDirective(TestDirective):
 class DoctestDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
+        'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
         'pyversion': directives.unchanged_required,
         'skipif': directives.unchanged_required,
+        'trim-doctest-flags': directives.flag,
     }
 
 
 class TestcodeDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
+        'no-trim-doctest-flags': directives.flag,
         'pyversion': directives.unchanged_required,
         'skipif': directives.unchanged_required,
+        'trim-doctest-flags': directives.flag,
     }
 
 
 class TestoutputDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
+        'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
         'pyversion': directives.unchanged_required,
         'skipif': directives.unchanged_required,
+        'trim-doctest-flags': directives.flag,
     }
 
 

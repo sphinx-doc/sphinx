@@ -136,15 +136,28 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            :undoc-members:
 
    * "Private" members (that is, those named like ``_private`` or ``__private``)
-     will be included if the ``private-members`` flag option is given.
+     will be included if the ``private-members`` flag option is given::
+
+        .. automodule:: noodle
+           :members:
+           :private-members:
+
+     It can also take an explicit list of member names to be documented as
+     arguments::
+
+        .. automodule:: noodle
+           :members:
+           :private-members: _spicy, _garlickly
 
      .. versionadded:: 1.1
+     .. versionchanged:: 3.2
+        The option can now take arguments.
 
    * autodoc considers a member private if its docstring contains
      ``:meta private:`` in its :ref:`info-field-lists`.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -159,7 +172,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      an underscore.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def _my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -168,6 +181,16 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
             """
 
      .. versionadded:: 3.1
+
+   * autodoc considers a variable member does not have any default value if its
+     docstring contains ``:meta hide-value:`` in its :ref:`info-field-lists`.
+     Example:
+
+     .. code-block:: python
+
+        var1 = None  #: :meta hide-value:
+
+     .. versionadded:: 3.5
 
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
@@ -216,7 +239,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionchanged:: 3.0
 
-        It takes an anchestor class name as an argument.
+        It takes an ancestor class name as an argument.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
@@ -280,6 +303,12 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 1.3
 
+   * As a hint to autodoc extension, you can put a ``::`` separator in between
+     module name and object name to let autodoc know the correct module name if
+     it is ambiguous. ::
+
+        .. autoclass:: module.name::Noodle
+
 
 .. rst:directive:: autofunction
                    autodecorator
@@ -306,6 +335,15 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
    By default, without ``annotation`` option, Sphinx tries to obtain the value of
    the variable and print it after the name.
+
+   The ``no-value`` option can be used instead of a blank ``annotation`` to show the
+   type hint but not the value::
+
+      .. autodata:: CD_DRIVE
+         :no-value:
+
+   If both the ``annotation`` and ``no-value`` options are used, ``no-value`` has no
+   effect.
 
    For module data members and class attributes, documentation can either be put
    into a comment with special formatting (using a ``#:`` to start the comment
@@ -346,6 +384,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       option.
    .. versionchanged:: 2.0
       :rst:dir:`autodecorator` added.
+   .. versionchanged:: 3.4
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``no-value``
+      option.
 
    .. note::
 
@@ -495,6 +536,44 @@ There are also config values that you can set:
    .. versionadded:: 3.0
 
       New option ``'description'`` is added.
+
+.. confval:: autodoc_type_aliases
+
+   A dictionary for users defined `type aliases`__ that maps a type name to the
+   full-qualified object name.  It is used to keep type aliases not evaluated in
+   the document.  Defaults to empty (``{}``).
+
+   The type aliases are only available if your program enables `Postponed
+   Evaluation of Annotations (PEP 563)`__ feature via ``from __future__ import
+   annotations``.
+
+   For example, there is code using a type alias::
+
+     from __future__ import annotations
+
+     AliasType = Union[List[Dict[Tuple[int, str], Set[int]]], Tuple[str, List[str]]]
+
+     def f() -> AliasType:
+         ...
+
+   If ``autodoc_type_aliases`` is not set, autodoc will generate internal mark-up
+   from this code as following::
+
+     .. py:function:: f() -> Union[List[Dict[Tuple[int, str], Set[int]]], Tuple[str, List[str]]]
+
+        ...
+
+   If you set ``autodoc_type_aliases`` as
+   ``{'AliasType': 'your.module.AliasType'}``, it generates the following document
+   internally::
+
+     .. py:function:: f() -> your.module.AliasType:
+
+        ...
+
+   .. __: https://www.python.org/dev/peps/pep-0563/
+   .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
+   .. versionadded:: 3.3
 
 .. confval:: autodoc_warningiserror
 

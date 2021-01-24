@@ -4,23 +4,22 @@
 
     Custom docutils writer for plain text.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import math
 import os
 import re
 import textwrap
-from itertools import groupby, chain
-from typing import Any, Dict, Generator, List, Iterable, Optional, Set, Tuple, Union
-from typing import cast
+from itertools import chain, groupby
+from typing import Any, Dict, Generator, Iterable, List, Optional, Set, Tuple, Union, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 from docutils.utils import column_width
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import _, admonitionlabels
 from sphinx.util.docutils import SphinxTranslator
 
 if False:
@@ -74,7 +73,7 @@ class Table:
 
     Cell spanning on multiple rows or multiple columns (having a
     colspan or rowspan greater than one) are automatically referenced
-    by all the table cells they covers. This is a usefull
+    by all the table cells they covers. This is a useful
     representation as we can simply check ``if self[x, y] is self[x,
     y+1]`` to recognize a rowspan.
 
@@ -223,7 +222,7 @@ class Table:
                 for left, right in zip(out, out[1:])
             ]
             glue.append(tail)
-            return head + "".join(chain(*zip(out, glue)))
+            return head + "".join(chain.from_iterable(zip(out, glue)))
 
         for lineno, line in enumerate(self.lines):
             if self.separator and lineno == self.separator:
@@ -1011,6 +1010,9 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_toctree(self, node: Element) -> None:
+        raise nodes.SkipNode
+
+    def visit_substitution_definition(self, node: Element) -> None:
         raise nodes.SkipNode
 
     def visit_pending_xref(self, node: Element) -> None:

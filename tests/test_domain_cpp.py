@@ -4,18 +4,23 @@
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+import zlib
 
 import pytest
 
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
-from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
-from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
+from sphinx.addnodes import desc
+from sphinx.domains.cpp import (DefinitionError, DefinitionParser, NoOldIdError, Symbol,
+                                _id_prefix, _max_id)
+from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
+from sphinx.testing import restructuredtext
+from sphinx.testing.util import assert_node
 from sphinx.util import docutils
 
 
@@ -57,8 +62,8 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Result:   ", res)
         print("Expected: ", outputAst)
         raise DefinitionError("")
-    rootSymbol = Symbol(None, None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
+    rootSymbol = Symbol(None, None, None, None, None, None, None)
+    symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42)
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
@@ -179,9 +184,9 @@ def test_expressions():
                 expr = i + l + u
                 exprCheck(expr, 'L' + expr + 'E')
     decimalFloats = ['5e42', '5e+42', '5e-42',
-                  '5.', '5.e42', '5.e+42', '5.e-42',
-                  '.5', '.5e42', '.5e+42', '.5e-42',
-                  '5.0', '5.0e42', '5.0e+42', '5.0e-42']
+                     '5.', '5.e42', '5.e+42', '5.e-42',
+                     '.5', '.5e42', '.5e+42', '.5e-42',
+                     '5.0', '5.0e42', '5.0e+42', '5.0e-42']
     hexFloats = ['ApF', 'Ap+F', 'Ap-F',
                  'A.', 'A.pF', 'A.p+F', 'A.p-F',
                  '.A', '.ApF', '.Ap+F', '.Ap-F',
@@ -422,9 +427,9 @@ def test_member_definitions():
     check('member', 'int b : 8 = 42', {1: 'b__i', 2: '1b'})
     check('member', 'int b : 8{42}', {1: 'b__i', 2: '1b'})
     # TODO: enable once the ternary operator is supported
-    #check('member', 'int b : true ? 8 : a = 42', {1: 'b__i', 2: '1b'})
+    # check('member', 'int b : true ? 8 : a = 42', {1: 'b__i', 2: '1b'})
     # TODO: enable once the ternary operator is supported
-    #check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
+    # check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
     check('member', 'int b : 1 || new int{0}', {1: 'b__i', 2: '1b'})
 
 
@@ -534,8 +539,8 @@ def test_function_definitions():
     check('function', 'int foo(const A*...)', {1: "foo__ACPDp", 2: "3fooDpPK1A"})
     check('function', 'int foo(const int A::*... a)', {2: "3fooDpM1AKi"})
     check('function', 'int foo(const int A::*...)', {2: "3fooDpM1AKi"})
-    #check('function', 'int foo(int (*a)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
-    #check('function', 'int foo(int (*)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
+    # check('function', 'int foo(int (*a)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
+    # check('function', 'int foo(int (*)(A)...)', {1: "foo__ACRDp", 2: "3fooDpPK1A"})
     check('function', 'virtual void f()', {1: "f", 2: "1fv"})
     # test for ::nestedName, from issue 1738
     check("function", "result(int val, ::std::error_category const &cat)",
@@ -704,7 +709,6 @@ def test_class_definitions():
     check('class', 'template<class T> {key}has_var<T, std::void_t<decltype(&T::var)>>',
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
 
-
     check('class', 'template<typename ...Ts> {key}T<int (*)(Ts)...>',
           {2: 'IDpE1TIJPFi2TsEEE'})
     check('class', 'template<int... Is> {key}T<(Is)...>',
@@ -757,15 +761,27 @@ def test_templates():
     check('class', "template<typename T = Test> {key}A", {2: "I0E1A"})
 
     check('class', "template<template<typename> typename T> {key}A", {2: "II0E0E1A"})
+    check('class', "template<template<typename> class T> {key}A", {2: "II0E0E1A"})
     check('class', "template<template<typename> typename> {key}A", {2: "II0E0E1A"})
     check('class', "template<template<typename> typename ...T> {key}A", {2: "II0EDpE1A"})
     check('class', "template<template<typename> typename...> {key}A", {2: "II0EDpE1A"})
+    check('class', "template<typename T, template<typename> typename...> {key}A", {2: "I0I0EDpE1A"})
 
     check('class', "template<int> {key}A", {2: "I_iE1A"})
     check('class', "template<int T> {key}A", {2: "I_iE1A"})
     check('class', "template<int... T> {key}A", {2: "I_DpiE1A"})
     check('class', "template<int T = 42> {key}A", {2: "I_iE1A"})
     check('class', "template<int = 42> {key}A", {2: "I_iE1A"})
+
+    check('class', "template<typename A<B>::C> {key}A", {2: "I_N1AI1BE1CEE1A"})
+    check('class', "template<typename A<B>::C = 42> {key}A", {2: "I_N1AI1BE1CEE1A"})
+    # from #7944
+    check('function', "template<typename T, "
+                      "typename std::enable_if<!has_overloaded_addressof<T>::value, bool>::type = false"
+                      "> constexpr T *static_addressof(T &ref)",
+          {2: "I0_NSt9enable_ifIX!has_overloaded_addressof<T>::valueEbE4typeEE16static_addressofR1T",
+           3: "I0_NSt9enable_ifIXntN24has_overloaded_addressofI1TE5valueEEbE4typeEE16static_addressofR1T",
+           4: "I0_NSt9enable_ifIXntN24has_overloaded_addressofI1TE5valueEEbE4typeEE16static_addressofP1TR1T"})
 
     check('class', "template<> {key}A<NS::B<>>", {2: "IE1AIN2NS1BIEEE"})
 
@@ -897,6 +913,8 @@ def test_attributes():
     check('member', '__attribute__(()) int f', {1: 'f__i', 2: '1f'})
     check('member', '__attribute__((a)) int f', {1: 'f__i', 2: '1f'})
     check('member', '__attribute__((a, b)) int f', {1: 'f__i', 2: '1f'})
+    check('member', '__attribute__((optimize(3))) int f', {1: 'f__i', 2: '1f'})
+    check('member', '__attribute__((format(printf, 1, 2))) int f', {1: 'f__i', 2: '1f'})
     # style: user-defined id
     check('member', 'id_attr int f', {1: 'f__i', 2: '1f'})
     # style: user-defined paren
@@ -921,15 +939,15 @@ def test_attributes():
     check('function', 'static inline __attribute__(()) void f()',
           {1: 'f', 2: '1fv'},
           output='__attribute__(()) static inline void f()')
-    check('function', '[[attr1]] [[attr2]] void f()',
-          {1: 'f', 2: '1fv'},
-          output='[[attr1]] [[attr2]] void f()')
+    check('function', '[[attr1]] [[attr2]] void f()', {1: 'f', 2: '1fv'})
     # position: declarator
     check('member', 'int *[[attr]] i', {1: 'i__iP', 2: '1i'})
     check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
           output='int *[[attr]] volatile const i')
     check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
     check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
+    # position: parameters and qualifiers
+    check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f', 2: '1fv'})
 
 
 def test_xref_parsing():
@@ -984,7 +1002,7 @@ def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warnin
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_build_domain_cpp_backslash_ok(app, status, warning):
+def test_build_domain_cpp_backslash_ok_true(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 0
@@ -999,7 +1017,7 @@ def test_build_domain_cpp_semicolon(app, status, warning):
 
 @pytest.mark.sphinx(testroot='domain-cpp',
                     confoverrides={'nitpicky': True, 'strip_signature_backslash': True})
-def test_build_domain_cpp_backslash_ok(app, status, warning):
+def test_build_domain_cpp_backslash_ok_false(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 1
@@ -1033,8 +1051,8 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
         ('concept', ['concept']),
         ('enum', ['type', 'enum']),
         ('enumerator', ['enumerator']),
-        ('tParam', ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator', 'functionParam']),
         ('functionParam', ['member', 'var']),
+        ('templateParam', ['class', 'struct', 'union', 'member', 'var', 'type']),
     ]
     warn = []
     for targetType, roles in ok:
@@ -1042,6 +1060,9 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
         for r in allRoles:
             if r not in roles:
                 warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+                if targetType == 'templateParam':
+                    warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+                    warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
     warn = list(sorted(warn))
     for w in ws:
         assert "targets a" in w
@@ -1209,3 +1230,91 @@ not found in `{test}`
     assert any_role.classes == cpp_any_role.classes, expect
     assert any_role.classes == expr_role.content_classes['a'], expect
     assert any_role.classes == texpr_role.content_classes['a'], expect
+
+
+def test_noindexentry(app):
+    text = (".. cpp:function:: void f()\n"
+            ".. cpp:function:: void g()\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])
+
+
+def test_mix_decl_duplicate(app, warning):
+    # Issue 8270
+    text = (".. cpp:struct:: A\n"
+            ".. cpp:function:: void A()\n"
+            ".. cpp:struct:: A\n")
+    restructuredtext.parse(app, text)
+    ws = warning.getvalue().split("\n")
+    assert len(ws) == 5
+    assert "index.rst:2: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[0]
+    assert "Declaration is '.. cpp:function:: void A()'." in ws[1]
+    assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[2]
+    assert "Declaration is '.. cpp:struct:: A'." in ws[3]
+    assert ws[4] == ""
+
+
+@pytest.mark.sphinx(testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True})
+def test_intersphinx(tempdir, app, status, warning):
+    origSource = """\
+.. cpp:class:: _class
+.. cpp:struct:: _struct
+.. cpp:union:: _union
+.. cpp:function:: void _function()
+.. cpp:member:: int _member
+.. cpp:var:: int _var
+.. cpp:type:: _type
+.. cpp:concept:: template<typename T> _concept
+.. cpp:enum:: _enum
+
+    .. cpp:enumerator:: _enumerator
+
+.. cpp:enum-struct:: _enumStruct
+
+    .. cpp:enumerator:: _scopedEnumerator
+
+.. cpp:enum-class:: _enumClass
+.. cpp:function:: void _functionParam(int param)
+.. cpp:function:: template<typename TParam> void _templateParam()
+"""  # noqa
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: C Intersphinx Test
+# Version: 
+# The remainder of this file is compressed using zlib.
+''' + zlib.compress(b'''\
+_class cpp:class 1 index.html#_CPPv46$ -
+_concept cpp:concept 1 index.html#_CPPv4I0E8$ -
+_concept::T cpp:templateParam 1 index.html#_CPPv4I0E8_concept -
+_enum cpp:enum 1 index.html#_CPPv45$ -
+_enum::_enumerator cpp:enumerator 1 index.html#_CPPv4N5_enum11_enumeratorE -
+_enumClass cpp:enum 1 index.html#_CPPv410$ -
+_enumStruct cpp:enum 1 index.html#_CPPv411$ -
+_enumStruct::_scopedEnumerator cpp:enumerator 1 index.html#_CPPv4N11_enumStruct17_scopedEnumeratorE -
+_enumerator cpp:enumerator 1 index.html#_CPPv4N5_enum11_enumeratorE -
+_function cpp:function 1 index.html#_CPPv49_functionv -
+_functionParam cpp:function 1 index.html#_CPPv414_functionParami -
+_functionParam::param cpp:functionParam 1 index.html#_CPPv414_functionParami -
+_member cpp:member 1 index.html#_CPPv47$ -
+_struct cpp:class 1 index.html#_CPPv47$ -
+_templateParam cpp:function 1 index.html#_CPPv4I0E14_templateParamvv -
+_templateParam::TParam cpp:templateParam 1 index.html#_CPPv4I0E14_templateParamvv -
+_type cpp:type 1 index.html#_CPPv45$ -
+_union cpp:union 1 index.html#_CPPv46$ -
+_var cpp:member 1 index.html#_CPPv44$ -
+'''))  # noqa
+    app.config.intersphinx_mapping = {
+        'https://localhost/intersphinx/cpp/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    app.builder.build_all()
+    ws = filter_warnings(warning, "index")
+    assert len(ws) == 0

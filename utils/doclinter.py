@@ -13,7 +13,6 @@ import re
 import sys
 from typing import List
 
-
 MAX_LINE_LENGTH = 85
 LONG_INTERPRETED_TEXT = re.compile(r'^\s*\W*(:(\w+:)+)?`.*`\W*$')
 CODE_BLOCK_DIRECTIVE = re.compile(r'^(\s*)\.\. code-block::')
@@ -49,6 +48,9 @@ def lint(path: str) -> int:
         elif len(line) > MAX_LINE_LENGTH:
             if re.match(r'^\s*\.\. ', line):
                 # ignore directives and hyperlink targets
+                pass
+            elif re.match(r'^\s*``[^`]+``$', line):
+                # ignore a very long literal string
                 pass
             else:
                 print('%s:%d: the line is too long (%d > %d).' %

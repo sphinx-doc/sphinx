@@ -4,7 +4,7 @@
 
     Image utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -54,7 +54,7 @@ def get_image_size(filename: str) -> Optional[Tuple[int, int]]:
 
 
 def guess_mimetype_for_stream(stream: IO, default: Optional[str] = None) -> Optional[str]:
-    imgtype = imghdr.what(stream)  # type: ignore
+    imgtype = imghdr.what(stream)
     if imgtype:
         return 'image/' + imgtype
     else:

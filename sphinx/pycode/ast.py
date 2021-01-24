@@ -4,12 +4,12 @@
 
     Helpers for AST (Abstract Syntax Tree).
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
-from typing import Dict, List, Type, Optional
+from typing import Dict, List, Optional, Type
 
 if sys.version_info > (3, 8):
     import ast
@@ -52,23 +52,29 @@ def parse(code: str, mode: str = 'exec') -> "ast.AST":
     try:
         # type_comments parameter is available on py38+
         return ast.parse(code, mode=mode, type_comments=True)  # type: ignore
+    except SyntaxError:
+        # Some syntax error found. To ignore invalid type comments, retry parsing without
+        # type_comments parameter (refs: https://github.com/sphinx-doc/sphinx/issues/8652).
+        return ast.parse(code, mode=mode)
     except TypeError:
         # fallback to ast module.
         # typed_ast is used to parse type_comments if installed.
         return ast.parse(code, mode=mode)
 
 
-def unparse(node: Optional[ast.AST]) -> Optional[str]:
+def unparse(node: Optional[ast.AST], code: str = '') -> Optional[str]:
     """Unparse an AST to string."""
     if node is None:
         return None
     elif isinstance(node, str):
         return node
-    return _UnparseVisitor().visit(node)
+    return _UnparseVisitor(code).visit(node)
 
 
 # a greatly cut-down version of `ast._Unparser`
 class _UnparseVisitor(ast.NodeVisitor):
+    def __init__(self, code: str = '') -> None:
+        self.code = code
 
     def _visit_op(self, node: ast.AST) -> str:
         return OPERATORS[node.__class__]
@@ -166,14 +172,28 @@ class _UnparseVisitor(ast.NodeVisitor):
         return "{" + ", ".join(self.visit(e) for e in node.elts) + "}"
 
     def visit_Subscript(self, node: ast.Subscript) -> str:
-        return "%s[%s]" % (self.visit(node.value), self.visit(node.slice))
+        def is_simple_tuple(value: ast.AST) -> bool:
+            return (
+                isinstance(value, ast.Tuple) and
+                bool(value.elts) and
+                not any(isinstance(elt, ast.Starred) for elt in value.elts)
+            )
+
+        if is_simple_tuple(node.slice):
+            elts = ", ".join(self.visit(e) for e in node.slice.elts)  # type: ignore
+            return "%s[%s]" % (self.visit(node.value), elts)
+        elif isinstance(node.slice, ast.Index) and is_simple_tuple(node.slice.value):
+            elts = ", ".join(self.visit(e) for e in node.slice.value.elts)  # type: ignore
+            return "%s[%s]" % (self.visit(node.value), elts)
+        else:
+            return "%s[%s]" % (self.visit(node.value), self.visit(node.slice))
 
     def visit_UnaryOp(self, node: ast.UnaryOp) -> str:
         return "%s %s" % (self.visit(node.op), self.visit(node.operand))
 
     def visit_Tuple(self, node: ast.Tuple) -> str:
         if node.elts:
-            return ", ".join(self.visit(e) for e in node.elts)
+            return "(" + ", ".join(self.visit(e) for e in node.elts) + ")"
         else:
             return "()"
 
@@ -181,6 +201,11 @@ class _UnparseVisitor(ast.NodeVisitor):
         def visit_Constant(self, node: ast.Constant) -> str:
             if node.value is Ellipsis:
                 return "..."
+            elif isinstance(node.value, (int, float, complex)):
+                if self.code and sys.version_info > (3, 8):
+                    return ast.get_source_segment(self.code, node)
+                else:
+                    return repr(node.value)
             else:
                 return repr(node.value)
 

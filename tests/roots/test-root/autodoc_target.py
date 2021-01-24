@@ -1,7 +1,6 @@
 import enum
 from io import StringIO
 
-
 __all__ = ['Class']
 
 #: documentation for the integer

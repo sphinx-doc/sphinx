@@ -4,7 +4,7 @@
 
     Test the sphinx.apidoc module.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -121,7 +121,6 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
 
     with open(outdir / 'a.b.c.rst') as f:
         rst = f.read()
-
         assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.c.d\n" in rst
 
     with open(outdir / 'a.b.e.rst') as f:
@@ -217,6 +216,8 @@ def test_trailing_underscore(make_app, apidoc):
 def test_excludes(apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.rst').isfile()
+    assert (outdir / 'a.b.rst').isfile()
     assert (outdir / 'a.b.c.rst').isfile()  # generated because not empty
     assert not (outdir / 'a.b.e.rst').isfile()  # skipped because of empty after excludes
     assert (outdir / 'a.b.x.rst').isfile()
@@ -232,6 +233,8 @@ def test_excludes_subpackage_should_be_skipped(apidoc):
     """Subpackage exclusion should work."""
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.rst').isfile()
+    assert (outdir / 'a.b.rst').isfile()
     assert (outdir / 'a.b.c.rst').isfile()  # generated because not empty
     assert not (outdir / 'a.b.e.f.rst').isfile()  # skipped because 'b/e' subpackage is skipped
 
@@ -245,6 +248,8 @@ def test_excludes_module_should_be_skipped(apidoc):
     """Module exclusion should work."""
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.rst').isfile()
+    assert (outdir / 'a.b.rst').isfile()
     assert (outdir / 'a.b.c.rst').isfile()  # generated because not empty
     assert not (outdir / 'a.b.e.f.rst').isfile()  # skipped because of empty after excludes
 
@@ -258,6 +263,8 @@ def test_excludes_module_should_not_be_skipped(apidoc):
     """Module should be included if no excludes are used."""
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.rst').isfile()
+    assert (outdir / 'a.b.rst').isfile()
     assert (outdir / 'a.b.c.rst').isfile()  # generated because not empty
     assert (outdir / 'a.b.e.f.rst').isfile()  # skipped because of empty after excludes
 
@@ -509,7 +516,6 @@ def test_package_file(tempdir):
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n"
                        "\n"
-                       "\n"
                        "Module contents\n"
                        "---------------\n"
                        "\n"
@@ -595,8 +601,7 @@ def test_package_file_module_first(tempdir):
                        ".. automodule:: testpkg.example\n"
                        "   :members:\n"
                        "   :undoc-members:\n"
-                       "   :show-inheritance:\n"
-                       "\n")
+                       "   :show-inheritance:\n")
 
 
 def test_package_file_without_submodules(tempdir):
@@ -639,5 +644,4 @@ def test_namespace_package_file(tempdir):
                        ".. automodule:: testpkg.example\n"
                        "   :members:\n"
                        "   :undoc-members:\n"
-                       "   :show-inheritance:\n"
-                       "\n")
+                       "   :show-inheritance:\n")

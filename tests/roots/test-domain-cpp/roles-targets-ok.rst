@@ -123,37 +123,37 @@
 	:class:`TParamType`
 	:struct:`TParamType`
 	:union:`TParamType`
-	:func:`TParamType`
+	function
 	:member:`TParamType`
 	:var:`TParamType`
 	:type:`TParamType`
-	:concept:`TParamType`
-	:enum:`TParamType`
-	:enumerator:`TParamType`
+	concept
+	enum
+	enumerator
 
 	:cpp:any:`TParamVar`
 	:class:`TParamVar`
 	:struct:`TParamVar`
 	:union:`TParamVar`
-	:func:`TParamVar`
+	function
 	:member:`TParamVar`
 	:var:`TParamVar`
 	:type:`TParamVar`
-	:concept:`TParamVar`
-	:enum:`TParamVar`
-	:enumerator:`TParamVar`
+	concept
+	enum
+	enumerator
 
 	:cpp:any:`TParamTemplate`
 	:class:`TParamTemplate`
 	:struct:`TParamTemplate`
 	:union:`TParamTemplate`
-	:func:`TParamTemplate`
+	function
 	:member:`TParamTemplate`
 	:var:`TParamTemplate`
 	:type:`TParamTemplate`
-	:concept:`TParamTemplate`
-	:enum:`TParamTemplate`
-	:enumerator:`TParamTemplate`
+	concept
+	enum
+	enumerator
 
 .. function:: void FunctionParams(int FunctionParam)
 

@@ -1,5 +1,5 @@
-from functools import singledispatch
 import inspect
+from functools import singledispatch
 
 
 def assign_signature(func):

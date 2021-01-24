@@ -4,7 +4,7 @@
 
     Build documentation from a provided source.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,7 +16,7 @@ import os
 import pdb
 import sys
 import traceback
-from typing import Any, IO, List
+from typing import IO, Any, List
 
 from docutils.utils import SystemMessage
 
@@ -26,7 +26,7 @@ from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
-from sphinx.util.console import red, nocolor, color_terminal, terminal_safe  # type: ignore
+from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 
 

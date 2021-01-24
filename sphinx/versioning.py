@@ -5,7 +5,7 @@
     Implements the low-level algorithms Sphinx uses for the versioning of
     doctrees.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import pickle
@@ -116,7 +116,7 @@ def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
 
 
 def get_ratio(old: str, new: str) -> float:
-    """Return a "similiarity ratio" (in percent) representing the similarity
+    """Return a "similarity ratio" (in percent) representing the similarity
     between the two strings where 0 is equal and anything above less than equal.
     """
     if not all([old, new]):

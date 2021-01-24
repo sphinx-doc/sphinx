@@ -4,7 +4,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,26 +17,24 @@ from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx.config import Config
-from sphinx.environment import BuildEnvironment, CONFIG_OK, CONFIG_CHANGED_REASON
+from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.events import EventManager
 from sphinx.io import read_doc
 from sphinx.locale import __
-from sphinx.util import import_object, logging, rst, progress_message, status_iterator
+from sphinx.util import import_object, logging, progress_message, rst, status_iterator
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
-from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
-    parallel_available
+from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
 from sphinx.util.tags import Tags
 
 # side effect: registers roles and directives
-from sphinx import roles       # noqa
-from sphinx import directives  # noqa
-
+from sphinx import directives  # NOQA isort:skip
+from sphinx import roles  # NOQA isort:skip
 try:
     import multiprocessing
 except ImportError:
@@ -45,6 +43,7 @@ except ImportError:
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
 
 

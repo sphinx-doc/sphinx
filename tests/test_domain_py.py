@@ -4,10 +4,11 @@
 
     Tests the Python Domain
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import re
 import sys
 from unittest.mock import Mock
 
@@ -15,15 +16,13 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.addnodes import (
-    desc, desc_addname, desc_annotation, desc_content, desc_name, desc_optional,
-    desc_parameter, desc_parameterlist, desc_returns, desc_signature,
-    desc_sig_name, desc_sig_operator, desc_sig_punctuation, pending_xref,
-)
+from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
+                             desc_optional, desc_parameter, desc_parameterlist, desc_returns,
+                             desc_sig_name, desc_sig_operator, desc_sig_punctuation,
+                             desc_signature, pending_xref)
 from sphinx.domains import IndexEntry
-from sphinx.domains.python import (
-    py_sig_re, _parse_annotation, _pseudo_parse_arglist, PythonDomain, PythonModuleIndex
-)
+from sphinx.domains.python import (PythonDomain, PythonModuleIndex, _parse_annotation,
+                                   _pseudo_parse_arglist, py_sig_re)
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
@@ -134,6 +133,29 @@ def test_domain_py_xrefs(app, status, warning):
     assert len(refnodes) == 2
 
 
+@pytest.mark.sphinx('html', testroot='domain-py')
+def test_domain_py_xrefs_abbreviations(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'abbr.html').read_text()
+    assert re.search(r'normal: <a .* href="module.html#module_a.submodule.ModTopLevel.'
+                     r'mod_child_1" .*><.*>module_a.submodule.ModTopLevel.mod_child_1\(\)'
+                     r'<.*></a>',
+                     content)
+    assert re.search(r'relative: <a .* href="module.html#module_a.submodule.ModTopLevel.'
+                     r'mod_child_1" .*><.*>ModTopLevel.mod_child_1\(\)<.*></a>',
+                     content)
+    assert re.search(r'short name: <a .* href="module.html#module_a.submodule.ModTopLevel.'
+                     r'mod_child_1" .*><.*>mod_child_1\(\)<.*></a>',
+                     content)
+    assert re.search(r'relative \+ short name: <a .* href="module.html#module_a.submodule.'
+                     r'ModTopLevel.mod_child_1" .*><.*>mod_child_1\(\)<.*></a>',
+                     content)
+    assert re.search(r'short name \+ relative: <a .* href="module.html#module_a.submodule.'
+                     r'ModTopLevel.mod_child_1" .*><.*>mod_child_1\(\)<.*></a>',
+                     content)
+
+
 @pytest.mark.sphinx('dummy', testroot='domain-py')
 def test_domain_py_objects(app, status, warning):
     app.builder.build_all()
@@ -236,18 +258,18 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
-def test_parse_annotation():
-    doctree = _parse_annotation("int")
+def test_parse_annotation(app):
+    doctree = _parse_annotation("int", app.env)
     assert_node(doctree, ([pending_xref, "int"],))
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="class", reftarget="int")
 
-    doctree = _parse_annotation("List[int]")
+    doctree = _parse_annotation("List[int]", app.env)
     assert_node(doctree, ([pending_xref, "List"],
                           [desc_sig_punctuation, "["],
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"]))
 
-    doctree = _parse_annotation("Tuple[int, int]")
+    doctree = _parse_annotation("Tuple[int, int]", app.env)
     assert_node(doctree, ([pending_xref, "Tuple"],
                           [desc_sig_punctuation, "["],
                           [pending_xref, "int"],
@@ -255,14 +277,22 @@ def test_parse_annotation():
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"]))
 
-    doctree = _parse_annotation("Tuple[()]")
+    doctree = _parse_annotation("Tuple[()]", app.env)
     assert_node(doctree, ([pending_xref, "Tuple"],
                           [desc_sig_punctuation, "["],
                           [desc_sig_punctuation, "("],
                           [desc_sig_punctuation, ")"],
                           [desc_sig_punctuation, "]"]))
 
-    doctree = _parse_annotation("Callable[[int, int], int]")
+    doctree = _parse_annotation("Tuple[int, ...]", app.env)
+    assert_node(doctree, ([pending_xref, "Tuple"],
+                          [desc_sig_punctuation, "["],
+                          [pending_xref, "int"],
+                          [desc_sig_punctuation, ", "],
+                          [desc_sig_punctuation, "..."],
+                          [desc_sig_punctuation, "]"]))
+
+    doctree = _parse_annotation("Callable[[int, int], int]", app.env)
     assert_node(doctree, ([pending_xref, "Callable"],
                           [desc_sig_punctuation, "["],
                           [desc_sig_punctuation, "["],
@@ -274,11 +304,16 @@ def test_parse_annotation():
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"]))
 
+    doctree = _parse_annotation("List[None]", app.env)
+    assert_node(doctree, ([pending_xref, "List"],
+                          [desc_sig_punctuation, "["],
+                          [pending_xref, "None"],
+                          [desc_sig_punctuation, "]"]))
+
     # None type makes an object-reference (not a class reference)
-    doctree = _parse_annotation("None")
+    doctree = _parse_annotation("None", app.env)
     assert_node(doctree, ([pending_xref, "None"],))
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="None")
-
 
 
 def test_pyfunction_signature(app):
@@ -300,7 +335,7 @@ def test_pyfunction_signature(app):
 
 def test_pyfunction_signature_full(app):
     text = (".. py:function:: hello(a: str, b = 1, *args: str, "
-            "c: bool = True, **kwargs: str) -> str")
+            "c: bool = True, d: tuple = (1, 2), **kwargs: str) -> str")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "hello"],
@@ -330,6 +365,14 @@ def test_pyfunction_signature_full(app):
                                                         [desc_sig_operator, "="],
                                                         " ",
                                                         [nodes.inline, "True"])],
+                                      [desc_parameter, ([desc_sig_name, "d"],
+                                                        [desc_sig_punctuation, ":"],
+                                                        " ",
+                                                        [desc_sig_name, pending_xref, "tuple"],
+                                                        " ",
+                                                        [desc_sig_operator, "="],
+                                                        " ",
+                                                        [nodes.inline, "(1, 2)"])],
                                       [desc_parameter, ([desc_sig_operator, "**"],
                                                         [desc_sig_name, "kwargs"],
                                                         [desc_sig_punctuation, ":"],
@@ -371,6 +414,19 @@ def test_pyfunction_signature_full_py38(app):
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, desc_sig_name, "a"],
                                       [desc_parameter, desc_sig_operator, "/"])])
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+def test_pyfunction_with_number_literals(app):
+    text = ".. py:function:: hello(age=0x10, height=1_6_0)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "age"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "0x10"])],
+                                      [desc_parameter, ([desc_sig_name, "height"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "1_6_0"])])])
 
 
 def test_optional_pyfunction_signature(app):
@@ -458,14 +514,22 @@ def test_pyobject_prefix(app):
 
 
 def test_pydata(app):
-    text = ".. py:data:: var\n"
+    text = (".. py:module:: example\n"
+            ".. py:data:: var\n"
+            "   :type: int\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, desc_name, "var"],
+    assert_node(doctree, (nodes.target,
+                          addnodes.index,
+                          addnodes.index,
+                          [desc, ([desc_signature, ([desc_addname, "example."],
+                                                    [desc_name, "var"],
+                                                    [desc_annotation, (": ",
+                                                                       [pending_xref, "int"])])],
                                   [desc_content, ()])]))
-    assert 'var' in domain.objects
-    assert domain.objects['var'] == ('index', 'var', 'data')
+    assert_node(doctree[3][0][2][1], pending_xref, **{"py:module": "example"})
+    assert 'example.var' in domain.objects
+    assert domain.objects['example.var'] == ('index', 'example.var', 'data')
 
 
 def test_pyfunction(app):
@@ -679,7 +743,7 @@ def test_pyattribute(app):
     text = (".. py:class:: Class\n"
             "\n"
             "   .. py:attribute:: attr\n"
-            "      :type: str\n"
+            "      :type: Optional[str]\n"
             "      :value: ''\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
@@ -692,9 +756,14 @@ def test_pyattribute(app):
                 entries=[('single', 'attr (Class attribute)', 'Class.attr', '', None)])
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "attr"],
                                                      [desc_annotation, (": ",
-                                                                        [pending_xref, "str"])],
+                                                                        [pending_xref, "Optional"],
+                                                                        [desc_sig_punctuation, "["],
+                                                                        [pending_xref, "str"],
+                                                                        [desc_sig_punctuation, "]"])],
                                                      [desc_annotation, " = ''"])],
                                    [desc_content, ()]))
+    assert_node(doctree[1][1][1][0][1][1], pending_xref, **{"py:class": "Class"})
+    assert_node(doctree[1][1][1][0][1][3], pending_xref, **{"py:class": "Class"})
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'Class.attr', 'attribute')
 
@@ -727,6 +796,53 @@ def test_pydecoratormethod_signature(app):
 
     assert 'deco' in domain.objects
     assert domain.objects['deco'] == ('index', 'deco', 'method')
+
+
+def test_info_field_list(app):
+    text = (".. py:module:: example\n"
+            ".. py:class:: Class\n"
+            "\n"
+            "   :param str name: blah blah\n"
+            "   :param age: blah blah\n"
+            "   :type age: int\n")
+    doctree = restructuredtext.parse(app, text)
+    print(doctree)
+
+    assert_node(doctree, (nodes.target,
+                          addnodes.index,
+                          addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                                                    [desc_addname, "example."],
+                                                    [desc_name, "Class"])],
+                                  [desc_content, nodes.field_list, nodes.field])]))
+    assert_node(doctree[3][1][0][0],
+                ([nodes.field_name, "Parameters"],
+                 [nodes.field_body, nodes.bullet_list, ([nodes.list_item, nodes.paragraph],
+                                                        [nodes.list_item, nodes.paragraph])]))
+
+    # :param str name:
+    assert_node(doctree[3][1][0][0][1][0][0][0],
+                ([addnodes.literal_strong, "name"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "str"],
+                 ")",
+                 " -- ",
+                 "blah blah"))
+    assert_node(doctree[3][1][0][0][1][0][0][0][2], pending_xref,
+                refdomain="py", reftype="class", reftarget="str",
+                **{"py:module": "example", "py:class": "Class"})
+
+    # :param age: + :type age:
+    assert_node(doctree[3][1][0][0][1][0][1][0],
+                ([addnodes.literal_strong, "age"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "int"],
+                 ")",
+                 " -- ",
+                 "blah blah"))
+    assert_node(doctree[3][1][0][0][1][0][1][0][2], pending_xref,
+                refdomain="py", reftype="class", reftarget="int",
+                **{"py:module": "example", "py:class": "Class"})
 
 
 @pytest.mark.sphinx(freshenv=True)
@@ -796,3 +912,27 @@ def test_modindex_common_prefix(app):
     )
 
 
+def test_noindexentry(app):
+    text = (".. py:function:: f()\n"
+            ".. py:function:: g()\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('pair', 'built-in function; f()', 'f', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])
+
+    text = (".. py:class:: f\n"
+            ".. py:class:: g\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (built-in class)', 'f', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])
+
+
+@pytest.mark.sphinx('dummy', testroot='domain-py-xref-warning')
+def test_warn_missing_reference(app, status, warning):
+    app.build()
+    assert 'index.rst:6: WARNING: undefined label: no-label' in warning.getvalue()
+    assert ('index.rst:6: WARNING: Failed to create a cross reference. A title or caption not found: existing-label'
+            in warning.getvalue())

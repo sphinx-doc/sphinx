@@ -4,14 +4,14 @@
 
     Test the doctest extension.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 from collections import Counter
 
-from docutils import nodes
 import pytest
+from docutils import nodes
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
 

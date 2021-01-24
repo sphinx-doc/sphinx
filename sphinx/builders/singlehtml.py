@@ -4,7 +4,7 @@
 
     Single HTML builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,8 +19,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import progress_message
+from sphinx.util import logging, progress_message
 from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
 
@@ -193,7 +192,11 @@ deprecated_alias('sphinx.builders.html',
                  {
                      'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'SingleFileHTMLBuilder':
+                     'sphinx.builders.singlehtml.SingleFileHTMLBuilder',
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

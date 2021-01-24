@@ -19,7 +19,7 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -29,7 +29,7 @@ import posixpath
 import sys
 import time
 from os import path
-from typing import Any, Dict, IO, List, Tuple
+from typing import IO, Any, Dict, List, Tuple
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -42,10 +42,9 @@ from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
-from sphinx.util import requests, logging
+from sphinx.util import logging, requests
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.typing import Inventory
-
 
 logger = logging.getLogger(__name__)
 
@@ -179,7 +178,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
                 join = path.join if localuri else posixpath.join
                 invdata = InventoryFile.load(f, uri, join)
             except ValueError as exc:
-                raise ValueError('unknown or unsupported inventory version: %r' % exc)
+                raise ValueError('unknown or unsupported inventory version: %r' % exc) from exc
     except Exception as err:
         err.args = ('intersphinx inventory %r not readable due to %s: %s',
                     inv, err.__class__.__name__, str(err))

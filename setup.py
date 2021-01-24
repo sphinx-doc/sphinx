@@ -43,15 +43,15 @@ extras_require = {
     ],
     'lint': [
         'flake8>=3.5.0',
-        'flake8-import-order',
-        'mypy>=0.770',
+        'isort',
+        'mypy>=0.800',
         'docutils-stubs',
     ],
     'test': [
         'pytest',
         'pytest-cov',
         'html5lib',
-        'typed_ast',  # for py35-37
+        "typed_ast; python_version < '3.8'",
         'cython',
     ],
 }
@@ -76,9 +76,10 @@ class Tee:
 
 
 try:
-    from babel.messages.pofile import read_po
-    from babel.messages.frontend import compile_catalog
     from json import dump
+
+    from babel.messages.frontend import compile_catalog
+    from babel.messages.pofile import read_po
 except ImportError:
     pass
 else:
@@ -139,7 +140,7 @@ else:
                                                  domain + '.js'))
 
             for js_file, (locale, po_file) in zip(js_files, po_files):
-                with open(po_file) as infile:
+                with open(po_file, encoding='utf8') as infile:
                     catalog = read_po(infile, locale)
 
                 if catalog.fuzzy and not self.use_fuzzy:
@@ -157,13 +158,13 @@ else:
                             msgid = msgid[0]
                         jscatalog[msgid] = message.string
 
-                with open(js_file, 'wt') as outfile:
+                with open(js_file, 'wt', encoding='utf8') as outfile:
                     outfile.write('Documentation.addTranslations(')
                     dump({
                         'messages': jscatalog,
                         'plural_expr': catalog.plural_expr,
                         'locale': str(catalog.locale)
-                    }, outfile, sort_keys=True)
+                    }, outfile, sort_keys=True, indent=4)
                     outfile.write(');')
 
     cmdclass['compile_catalog'] = compile_catalog_plusjs
@@ -203,6 +204,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Setuptools Plugin',

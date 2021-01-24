@@ -4,28 +4,26 @@
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
 import pytest
-from docutils import frontend, utils, nodes
+from docutils import frontend, nodes, utils
 from docutils.parsers.rst import Parser as RstParser
 
 from sphinx import addnodes
 from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.builders.latex.theming import ThemeFactory
 from sphinx.roles import XRefRole
 from sphinx.testing.util import Struct, assert_node
 from sphinx.transforms import SphinxSmartQuotes
-from sphinx.util import docutils
-from sphinx.util import texescape
+from sphinx.util import docutils, texescape
 from sphinx.util.docutils import sphinx_domains
-from sphinx.writers.html import HTMLWriter, HTMLTranslator
-from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+from sphinx.writers.html import HTMLTranslator, HTMLWriter
+from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 
 @pytest.fixture
@@ -246,7 +244,7 @@ def get_verifier(verify, verify_re):
         # kbd role
         'verify',
         ':kbd:`Control+X`',
-        ('<p><kbd class="kbd docutils literal notranslate">'
+        ('<p><kbd class="kbd compound docutils literal notranslate">'
          '<kbd class="kbd docutils literal notranslate">Control</kbd>'
          '+'
          '<kbd class="kbd docutils literal notranslate">X</kbd>'
@@ -256,8 +254,19 @@ def get_verifier(verify, verify_re):
     (
         # kbd role
         'verify',
+        ':kbd:`Alt+^`',
+        ('<p><kbd class="kbd compound docutils literal notranslate">'
+         '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
+         '+'
+         '<kbd class="kbd docutils literal notranslate">^</kbd>'
+         '</kbd></p>'),
+        '\\sphinxkeyboard{\\sphinxupquote{Alt+\\textasciicircum{}}}',
+    ),
+    (
+        # kbd role
+        'verify',
         ':kbd:`M-x  M-s`',
-        ('<p><kbd class="kbd docutils literal notranslate">'
+        ('<p><kbd class="kbd compound docutils literal notranslate">'
          '<kbd class="kbd docutils literal notranslate">M</kbd>'
          '-'
          '<kbd class="kbd docutils literal notranslate">x</kbd>'
@@ -267,6 +276,20 @@ def get_verifier(verify, verify_re):
          '<kbd class="kbd docutils literal notranslate">s</kbd>'
          '</kbd></p>'),
         '\\sphinxkeyboard{\\sphinxupquote{M\\sphinxhyphen{}x  M\\sphinxhyphen{}s}}',
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`-`',
+        '<p><kbd class="kbd docutils literal notranslate">-</kbd></p>',
+        '\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}',
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`Caps Lock`',
+        '<p><kbd class="kbd docutils literal notranslate">Caps Lock</kbd></p>',
+        '\\sphinxkeyboard{\\sphinxupquote{Caps Lock}}',
     ),
     (
         # non-interpolation of dashes in option role

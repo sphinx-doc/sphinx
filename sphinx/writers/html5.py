@@ -4,7 +4,7 @@
 
     Experimental docutils writers for HTML5 handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,8 +12,7 @@ import os
 import posixpath
 import re
 import warnings
-from typing import Any, Iterable, Tuple
-from typing import cast
+from typing import Any, Iterable, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -21,8 +20,8 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.locale import admonitionlabels, _, __
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
@@ -72,11 +71,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
         self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
-        self.permalink_text = self.config.html_add_permalinks
-        # support backwards-compatible setting to a bool
-        if not isinstance(self.permalink_text, str):
-            self.permalink_text = '¶' if self.permalink_text else ''
-        self.permalink_text = self.encode(self.permalink_text)
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0
@@ -287,7 +281,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
             if figure_id in self.builder.fignumbers.get(key, {}):
                 self.body.append('<span class="caption-number">')
-                prefix = self.builder.config.numfig_format.get(figtype)
+                prefix = self.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
@@ -305,9 +299,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 append_fignumber(figtype, node['ids'][0])
 
     def add_permalink_ref(self, node: Element, title: str) -> None:
-        if node['ids'] and self.permalink_text and self.builder.add_permalinks:
+        if node['ids'] and self.config.html_permalinks and self.builder.add_permalinks:
             format = '<a class="headerlink" href="#%s" title="%s">%s</a>'
-            self.body.append(format % (node['ids'][0], title, self.permalink_text))
+            self.body.append(format % (node['ids'][0], title,
+                                       self.config.html_permalinks_icon))
 
     # overwritten
     def visit_bullet_list(self, node: Element) -> None:
@@ -362,8 +357,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_title(self, node: Element) -> None:
         close_tag = self.context[-1]
-        if (self.permalink_text and self.builder.add_permalinks and
-           node.parent.hasattr('ids') and node.parent['ids']):
+        if (self.config.html_permalinks and self.builder.add_permalinks and
+                node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
                 self.add_permalink_ref(node.parent, _('Permalink to this headline'))
@@ -372,7 +367,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                                  node.parent['ids'][0] +
                                  'title="%s">%s' % (
                                      _('Permalink to this headline'),
-                                     self.permalink_text))
+                                     self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
                 self.add_permalink_ref(node.parent, _('Permalink to this table'))
@@ -391,15 +386,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         linenos = node.get('linenos', False)
         highlight_args = node.get('highlight_args', {})
         highlight_args['force'] = node.get('force', False)
-        if lang is self.builder.config.highlight_language:
-            # only pass highlighter options for original language
-            opts = self.builder.config.highlight_options
-        else:
-            opts = {}
+        opts = self.config.highlight_options.get(lang, {})
+
+        if linenos and self.config.html_codeblock_linenos_style:
+            linenos = self.config.html_codeblock_linenos_style
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
-            location=(self.builder.current_docname, node.line), **highlight_args
+            location=node, **highlight_args
         )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s notranslate' % lang)
@@ -788,3 +782,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
+
+    @property
+    def permalink_text(self) -> str:
+        warnings.warn('HTMLTranslator.permalink_text is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.config.html_permalinks_icon

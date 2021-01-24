@@ -4,13 +4,13 @@
 
     Test the sphinx.environment.managers.toctree.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
 from docutils import nodes
-from docutils.nodes import bullet_list, list_item, caption, comment, reference
+from docutils.nodes import bullet_list, caption, comment, list_item, reference
 
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
@@ -41,7 +41,8 @@ def test_process_doc(app):
     assert_node(toctree[0][1][0], addnodes.toctree,
                 caption="Table of Contents", glob=False, hidden=False,
                 titlesonly=False, maxdepth=2, numbered=999,
-                entries=[(None, 'foo'), (None, 'bar'), (None, 'http://sphinx-doc.org/')],
+                entries=[(None, 'foo'), (None, 'bar'), (None, 'http://sphinx-doc.org/'),
+                         (None, 'self')],
                 includefiles=['foo', 'bar'])
 
     # only branch
@@ -219,7 +220,9 @@ def test_get_toctree_for(app):
                 ([list_item, ([compact_paragraph, reference, "foo"],
                               bullet_list)],
                  [list_item, compact_paragraph, reference, "bar"],
-                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"]))
+                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"],
+                 [list_item, compact_paragraph, reference,
+                  "Welcome to Sphinx Tests’s documentation!"]))
     assert_node(toctree[1][0][1],
                 ([list_item, compact_paragraph, reference, "quux"],
                  [list_item, compact_paragraph, reference, "foo.1"],
@@ -231,6 +234,7 @@ def test_get_toctree_for(app):
     assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
     assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
+    assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
                 [bullet_list, list_item, compact_paragraph, reference, "baz"])
@@ -255,10 +259,13 @@ def test_get_toctree_for_collapse(app):
     assert_node(toctree[1],
                 ([list_item, compact_paragraph, reference, "foo"],
                  [list_item, compact_paragraph, reference, "bar"],
-                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"]))
+                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"],
+                 [list_item, compact_paragraph, reference,
+                  "Welcome to Sphinx Tests’s documentation!"]))
     assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=[1])
     assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
+    assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
                 [bullet_list, list_item, compact_paragraph, reference, "baz"])
@@ -285,7 +292,9 @@ def test_get_toctree_for_maxdepth(app):
                 ([list_item, ([compact_paragraph, reference, "foo"],
                               bullet_list)],
                  [list_item, compact_paragraph, reference, "bar"],
-                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"]))
+                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"],
+                 [list_item, compact_paragraph, reference,
+                  "Welcome to Sphinx Tests’s documentation!"]))
     assert_node(toctree[1][0][1],
                 ([list_item, compact_paragraph, reference, "quux"],
                  [list_item, ([compact_paragraph, reference, "foo.1"],
@@ -302,6 +311,7 @@ def test_get_toctree_for_maxdepth(app):
     assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
     assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
+    assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
                 [bullet_list, list_item, compact_paragraph, reference, "baz"])
@@ -327,7 +337,9 @@ def test_get_toctree_for_includehidden(app):
                 ([list_item, ([compact_paragraph, reference, "foo"],
                               bullet_list)],
                  [list_item, compact_paragraph, reference, "bar"],
-                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"]))
+                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"],
+                 [list_item, compact_paragraph, reference,
+                  "Welcome to Sphinx Tests’s documentation!"]))
     assert_node(toctree[1][0][1],
                 ([list_item, compact_paragraph, reference, "quux"],
                  [list_item, compact_paragraph, reference, "foo.1"],

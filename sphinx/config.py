@@ -4,7 +4,7 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,10 +13,9 @@ import traceback
 import types
 import warnings
 from collections import OrderedDict
-from os import path, getenv
-from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple, Union
-)
+from os import getenv, path
+from typing import (Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple,
+                    Union)
 
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -99,7 +98,8 @@ class Config:
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
-        'copyright': ('', 'html', []),
+        'project_copyright': ('', 'html', [str]),
+        'copyright': (lambda c: c.project_copyright, 'html', [str]),
         'version': ('', 'env', []),
         'release': ('', 'env', []),
         'today': ('', 'env', []),
@@ -131,7 +131,7 @@ class Config:
         'rst_epilog': (None, 'env', [str]),
         'rst_prolog': (None, 'env', [str]),
         'trim_doctest_flags': (True, 'env', []),
-        'primary_domain': ('py', 'env', [NoneType]),   # type: ignore
+        'primary_domain': ('py', 'env', [NoneType]),
         'needs_sphinx': (None, None, [str]),
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
@@ -181,6 +181,14 @@ class Config:
             defvalue = self.values[name][0]
             if self.values[name][2] == Any:
                 return value
+            elif self.values[name][2] == {bool, str}:
+                if value == '0':
+                    # given falsy string from command line option
+                    return False
+                elif value == '1':
+                    return True
+                else:
+                    return value
             elif type(defvalue) is bool or self.values[name][2] == [bool]:
                 if value == '0':
                     # given falsy string from command line option
@@ -196,9 +204,9 @@ class Config:
             elif isinstance(defvalue, int):
                 try:
                     return int(value)
-                except ValueError:
+                except ValueError as exc:
                     raise ValueError(__('invalid number %r for config value %r, ignoring') %
-                                     (value, name))
+                                     (value, name)) from exc
             elif hasattr(defvalue, '__call__'):
                 return value
             elif defvalue is not None and not isinstance(defvalue, str):
@@ -319,17 +327,17 @@ def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
             execfile_(filename, namespace)
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
-            raise ConfigError(msg % err)
-        except SystemExit:
+            raise ConfigError(msg % err) from err
+        except SystemExit as exc:
             msg = __("The configuration file (or one of the modules it imports) "
                      "called sys.exit()")
-            raise ConfigError(msg)
+            raise ConfigError(msg) from exc
         except ConfigError:
             # pass through ConfigError from conf.py as is.  It will be shown in console.
             raise
-        except Exception:
+        except Exception as exc:
             msg = __("There is a programmable error in your configuration file:\n\n%s")
-            raise ConfigError(msg % traceback.format_exc())
+            raise ConfigError(msg % traceback.format_exc()) from exc
 
     return namespace
 
@@ -357,6 +365,18 @@ def convert_source_suffix(app: "Sphinx", config: Config) -> None:
         logger.warning(__("The config value `source_suffix' expects "
                           "a string, list of strings, or dictionary. "
                           "But `%r' is given." % source_suffix))
+
+
+def convert_highlight_options(app: "Sphinx", config: Config) -> None:
+    """Convert old styled highlight_options to new styled one.
+
+    * old style: options
+    * new style: dict that maps language names to options
+    """
+    options = config.highlight_options
+    if options and not all(isinstance(v, dict) for v in options.values()):
+        # old styled option detected because all values are not dictionary.
+        config.highlight_options = {config.highlight_language: options}  # type: ignore
 
 
 def init_numfig_format(app: "Sphinx", config: Config) -> None:
@@ -479,6 +499,7 @@ def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.connect('config-inited', convert_source_suffix, priority=800)
+    app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)

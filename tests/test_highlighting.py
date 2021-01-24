@@ -4,7 +4,7 @@
 
     Test the Pygments highlighting bridge.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,7 @@ from unittest import mock
 
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer
-from pygments.token import Text, Name
+from pygments.token import Name, Text
 
 from sphinx.highlighting import PygmentsBridge
 

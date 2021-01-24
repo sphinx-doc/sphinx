@@ -4,7 +4,7 @@
 
     Create a full-text search index for offline search.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import html
@@ -13,13 +13,12 @@ import re
 import warnings
 from importlib import import_module
 from os import path
-from typing import Any, Dict, IO, Iterable, List, Tuple, Set
+from typing import IO, Any, Dict, Iterable, List, Set, Tuple
 
 from docutils import nodes
 from docutils.nodes import Node
 
-from sphinx import addnodes
-from sphinx import package_dir
+from sphinx import addnodes, package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.search.jssplitter import splitter_code
@@ -117,7 +116,7 @@ var Stemmer = function() {
             len(word) == 0 or not (
                 ((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
                 (ord(word[0]) < 256 and (
-                    len(word) < 3 or word in self.stopwords or word.isdigit()
+                    len(word) < 3 or word in self.stopwords
                 ))))
 
 

@@ -4,7 +4,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import gettext
@@ -14,7 +14,7 @@ import warnings
 from collections import namedtuple
 from datetime import datetime, timezone
 from os import path
-from typing import Callable, Generator, List, Set, Tuple
+from typing import Callable, Generator, List, Set, Tuple, Union
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -34,7 +34,7 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
+LocaleFileInfoBase = namedtuple('LocaleFileInfoBase', 'base_dir,domain,charset')
 
 
 class CatalogInfo(LocaleFileInfoBase):
@@ -128,8 +128,10 @@ def find_catalog(docname: str, compaction: bool) -> str:
     return ret
 
 
-def docname_to_domain(docname: str, compation: bool) -> str:
+def docname_to_domain(docname: str, compation: Union[bool, str]) -> str:
     """Convert docname to domain for catalogs."""
+    if isinstance(compation, str):
+        return compation
     if compation:
         return docname.split(SEP, 1)[0]
     else:
@@ -234,7 +236,9 @@ date_format_mappings = {
     '%X':  'medium',  # Locale’s appropriate time representation.
     '%y':  'YY',      # Year without century as a zero-padded decimal number.
     '%Y':  'yyyy',    # Year with century as a decimal number.
-    '%Z':  'zzzz',    # Time zone name (no characters if no time zone exists).
+    '%Z':  'zzz',     # Time zone name (no characters if no time zone exists).
+    '%z':  'ZZZ',     # UTC offset in the form ±HHMM[SS[.ffffff]]
+                      # (empty string if the object is naive).
     '%%':  '%',
 }
 
@@ -306,13 +310,17 @@ def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> s
     dirname = path.dirname(d['root'])
     if dirname and not dirname.endswith(path.sep):
         dirname += path.sep
+    docpath = path.dirname(env.docname)
+    if docpath and not docpath.endswith(path.sep):
+        docpath += path.sep
     d['path'] = dirname
     d['basename'] = path.basename(d['root'])
+    d['docpath'] = docpath
     d['language'] = env.config.language
     try:
         return filename_format.format(**d)
     except KeyError as exc:
-        raise SphinxError('Invalid figure_language_filename: %r' % exc)
+        raise SphinxError('Invalid figure_language_filename: %r' % exc) from exc
 
 
 def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:
@@ -320,8 +328,8 @@ def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:
         return filename
 
     translated = get_image_filename_for_language(filename, env)
-    dirname = path.dirname(env.docname)
-    if path.exists(path.join(env.srcdir, dirname, translated)):
+    _, abspath = env.relfn2path(translated)
+    if path.exists(abspath):
         return translated
     else:
         return filename

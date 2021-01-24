@@ -4,7 +4,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,8 +12,7 @@ import re
 import unicodedata
 import warnings
 from copy import copy
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
-from typing import cast
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -27,7 +26,7 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
-from sphinx.util import ws_re, logging, docname_join
+from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.typing import RoleFunction
@@ -35,6 +34,7 @@ from sphinx.util.typing import RoleFunction
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -45,10 +45,10 @@ logger = logging.getLogger(__name__)
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
-token_re = re.compile(r'`(\w+)`', re.U)
+token_re = re.compile(r'`((~?\w*:)?\w+)`', re.U)
 
 
-class GenericObject(ObjectDescription):
+class GenericObject(ObjectDescription[str]):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
@@ -178,7 +178,7 @@ class Target(SphinxDirective):
         return self.name + '-' + name
 
 
-class Cmdoption(ObjectDescription):
+class Cmdoption(ObjectDescription[str]):
     """
     Description of a command-line option (.. option).
     """
@@ -197,6 +197,11 @@ class Cmdoption(ObjectDescription):
                                location=signode)
                 continue
             optname, args = m.groups()
+            if optname.endswith('[') and args.endswith(']'):
+                # optional value surrounded by brackets (ex. foo[=bar])
+                optname = optname[:-1]
+                args = '[' + args
+
             if count:
                 signode += addnodes.desc_addname(', ', ', ')
             signode += addnodes.desc_name(optname, optname)
@@ -223,6 +228,11 @@ class Cmdoption(ObjectDescription):
             node_id = make_id(self.env, self.state.document, prefix, optname)
             signode['ids'].append(node_id)
 
+            old_node_id = self.make_old_id(prefix, optname)
+            if old_node_id not in self.state.document.ids and \
+               old_node_id not in signode['ids']:
+                signode['ids'].append(old_node_id)
+
         self.state.document.note_explicit_target(signode)
 
         domain = cast(StandardDomain, self.env.get_domain('std'))
@@ -238,6 +248,14 @@ class Cmdoption(ObjectDescription):
         for option in sig.split(', '):
             entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
+
+    def make_old_id(self, prefix: str, optname: str) -> str:
+        """Generate old styled node_id for cmdoption.
+
+        .. note:: Old Styled node_id was used until Sphinx-3.0.
+                  This will be removed in Sphinx-5.0.
+        """
+        return nodes.make_id(prefix + '-' + optname)
 
 
 class Program(SphinxDirective):
@@ -446,9 +464,23 @@ def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
         if m.start() > pos:
             txt = text[pos:m.start()]
             retnodes.append(nodes.Text(txt, txt))
-        refnode = pending_xref(m.group(1), reftype='token', refdomain='std',
-                               reftarget=productionGroup + m.group(1))
-        refnode += nodes.literal(m.group(1), m.group(1), classes=['xref'])
+        token = m.group(1)
+        if ':' in token:
+            if token[0] == '~':
+                _, title = token.split(':')
+                target = token[1:]
+            elif token[0] == ':':
+                title = token[1:]
+                target = title
+            else:
+                title = token
+                target = token
+        else:
+            title = token
+            target = productionGroup + token
+        refnode = pending_xref(title, reftype='token', refdomain='std',
+                               reftarget=target)
+        refnode += nodes.literal(token, title, classes=['xref'])
         retnodes.append(refnode)
         pos = m.end()
     if pos < len(text):
@@ -487,7 +519,8 @@ class ProductionList(SphinxDirective):
             except ValueError:
                 break
             subnode = addnodes.production(rule)
-            subnode['tokenname'] = name.strip()
+            name = name.strip()
+            subnode['tokenname'] = name
             if subnode['tokenname']:
                 prefix = 'grammar-token-%s' % productionGroup
                 node_id = make_id(self.env, self.state.document, prefix, name)
@@ -596,8 +629,6 @@ class StandardDomain(Domain):
 
     dangling_warnings = {
         'term': 'term not in glossary: %(target)s',
-        'ref':  'undefined label: %(target)s (if the link has no caption '
-                'the label must precede a section header)',
         'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
         'doc': 'unknown document: %(target)s',
@@ -728,9 +759,11 @@ class StandardDomain(Domain):
                                name, env.doc2path(self.labels[name][0]),
                                location=node)
             self.anonlabels[name] = docname, labelid
-            if node.tagname in ('section', 'rubric'):
+            if node.tagname == 'section':
                 title = cast(nodes.title, node[0])
                 sectname = clean_astext(title)
+            elif node.tagname == 'rubric':
+                sectname = clean_astext(node)
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
                 if not sectname:
@@ -840,8 +873,9 @@ class StandardDomain(Domain):
             if fignumber is None:
                 return contnode
         except ValueError:
-            logger.warning(__("no number is assigned for %s: %s"), figtype, labelid,
-                           location=node)
+            logger.warning(__("Failed to create a cross reference. Any number is not "
+                              "assigned: %s"),
+                           labelid, location=node)
             return contnode
 
         try:
@@ -1061,10 +1095,10 @@ class StandardDomain(Domain):
             try:
                 figure_id = target_node['ids'][0]
                 return env.toc_fignumbers[docname][figtype][figure_id]
-            except (KeyError, IndexError):
+            except (KeyError, IndexError) as exc:
                 # target_node is found, but fignumber is not assigned.
                 # Maybe it is defined in orphaned document.
-                raise ValueError
+                raise ValueError from exc
 
     def get_full_qualified_name(self, node: Element) -> str:
         if node.get('reftype') == 'option':
@@ -1093,8 +1127,23 @@ class StandardDomain(Domain):
                       RemovedInSphinx40Warning, stacklevel=2)
 
 
+def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref) -> bool:
+    if (domain and domain.name != 'std') or node['reftype'] != 'ref':
+        return None
+    else:
+        target = node['reftarget']
+        if target not in domain.anonlabels:  # type: ignore
+            msg = __('undefined label: %s')
+        else:
+            msg = __('Failed to create a cross reference. A title or caption not found: %s')
+
+        logger.warning(msg % target, location=node, type='ref', subtype=node['reftype'])
+        return True
+
+
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_domain(StandardDomain)
+    app.connect('warn-missing-reference', warn_missing_reference)
 
     return {
         'version': 'builtin',

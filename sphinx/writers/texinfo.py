@@ -4,24 +4,26 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import textwrap
+import warnings
 from os import path
-from typing import Any, Dict, Iterable, Iterator, List, Pattern, Set, Tuple, Union
-from typing import cast
+from typing import (Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set, Tuple, Union,
+                    cast)
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
-from sphinx import addnodes, __display_version__
+from sphinx import __display_version__, addnodes
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
-from sphinx.locale import admonitionlabels, _, __
+from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
@@ -189,6 +191,7 @@ class TexinfoTranslator(SphinxTranslator):
 
         self.body = []                  # type: List[str]
         self.context = []               # type: List[str]
+        self.descs = []                 # type: List[addnodes.desc]
         self.previous_section = None    # type: nodes.section
         self.section_level = 0
         self.seen_title = False
@@ -230,12 +233,12 @@ class TexinfoTranslator(SphinxTranslator):
             'author': self.settings.author,
             # if empty, use basename of input file
             'filename': self.settings.texinfo_filename,
-            'release': self.escape(self.builder.config.release),
-            'project': self.escape(self.builder.config.project),
-            'copyright': self.escape(self.builder.config.copyright),
-            'date': self.escape(self.builder.config.today or
-                                format_date(self.builder.config.today_fmt or _('%b %d, %Y'),
-                                            language=self.builder.config.language))
+            'release': self.escape(self.config.release),
+            'project': self.escape(self.config.project),
+            'copyright': self.escape(self.config.copyright),
+            'date': self.escape(self.config.today or
+                                format_date(self.config.today_fmt or _('%b %d, %Y'),
+                                            language=self.config.language))
         })
         # title
         title = self.settings.title  # type: str
@@ -366,7 +369,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Return an escaped string suitable for use as an argument
         to a Texinfo command."""
         s = self.escape(s)
-        # commas are the argument delimeters
+        # commas are the argument delimiters
         s = s.replace(',', '@comma{}')
         # normalize white space
         s = ' '.join(s.split()).strip()
@@ -431,7 +434,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.add_menu_entries(entries)
         if (node_name != 'Top' or
                 not self.node_menus[entries[0]] or
-                self.builder.config.texinfo_no_detailmenu):
+                self.config.texinfo_no_detailmenu):
             self.body.append('\n@end menu\n')
             return
 
@@ -481,7 +484,7 @@ class TexinfoTranslator(SphinxTranslator):
             ret.append('@end menu\n')
             return ''.join(ret)
 
-        indices_config = self.builder.config.texinfo_domain_indices
+        indices_config = self.config.texinfo_domain_indices
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
@@ -625,7 +628,7 @@ class TexinfoTranslator(SphinxTranslator):
         elif not isinstance(parent, nodes.section):
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
-                           location=(self.curfilestack[-1], node.line))
+                           location=node)
             self.visit_rubric(node)
         else:
             try:
@@ -736,7 +739,7 @@ class TexinfoTranslator(SphinxTranslator):
         else:
             uri = self.escape_arg(uri)
             name = self.escape_arg(name)
-            show_urls = self.builder.config.texinfo_show_urls
+            show_urls = self.config.texinfo_show_urls
             if self.in_footnote:
                 show_urls = 'inline'
             if not name or uri == name:
@@ -853,8 +856,8 @@ class TexinfoTranslator(SphinxTranslator):
         num = node.astext().strip()
         try:
             footnode, used = self.footnotestack[-1][num]
-        except (KeyError, IndexError):
-            raise nodes.SkipNode
+        except (KeyError, IndexError) as exc:
+            raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
         footnode.walkabout(self)  # type: ignore
         raise nodes.SkipChildren
@@ -1183,7 +1186,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.body.append('\n@caption{')
         else:
             logger.warning(__('caption not inside a figure.'),
-                           location=(self.curfilestack[-1], node.line))
+                           location=node)
 
     def depart_caption(self, node: Element) -> None:
         if (isinstance(node.parent, nodes.figure) or
@@ -1203,11 +1206,10 @@ class TexinfoTranslator(SphinxTranslator):
             # ignore remote images
             return
         name, ext = path.splitext(uri)
-        attrs = node.attributes
         # width and height ignored in non-tex output
-        width = self.tex_image_length(attrs.get('width', ''))
-        height = self.tex_image_length(attrs.get('height', ''))
-        alt = self.escape_arg(attrs.get('alt', ''))
+        width = self.tex_image_length(node.get('width', ''))
+        height = self.tex_image_length(node.get('height', ''))
+        alt = self.escape_arg(node.get('alt', ''))
         filename = "%s-figures/%s" % (self.elements['filename'][:-5], name)  # type: ignore
         self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
                          (filename, width, height, alt, ext[1:]))
@@ -1239,6 +1241,15 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_legend(self, node: Element) -> None:
         pass
 
+    def visit_substitution_reference(self, node: Element) -> None:
+        pass
+
+    def depart_substitution_reference(self, node: Element) -> None:
+        pass
+
+    def visit_substitution_definition(self, node: Element) -> None:
+        raise nodes.SkipNode
+
     def visit_system_message(self, node: Element) -> None:
         self.body.append('\n@verbatim\n'
                          '<SYSTEM MESSAGE: %s>\n'
@@ -1259,11 +1270,11 @@ class TexinfoTranslator(SphinxTranslator):
 
     def unimplemented_visit(self, node: Element) -> None:
         logger.warning(__("unimplemented node type: %r"), node,
-                       location=(self.curfilestack[-1], node.line))
+                       location=node)
 
     def unknown_visit(self, node: Node) -> None:
         logger.warning(__("unknown node type: %r"), node,
-                       location=(self.curfilestack[-1], node.line))
+                       location=node)
 
     def unknown_departure(self, node: Node) -> None:
         pass
@@ -1365,12 +1376,12 @@ class TexinfoTranslator(SphinxTranslator):
 
     # -- Desc
 
-    def visit_desc(self, node: Element) -> None:
-        self.desc = node
+    def visit_desc(self, node: addnodes.desc) -> None:
+        self.descs.append(node)
         self.at_deffnx = '@deffn'
 
-    def depart_desc(self, node: Element) -> None:
-        self.desc = None
+    def depart_desc(self, node: addnodes.desc) -> None:
+        self.descs.pop()
         self.ensure_eol()
         self.body.append('@end deffn\n')
 
@@ -1383,9 +1394,8 @@ class TexinfoTranslator(SphinxTranslator):
         # use the full name of the objtype for the category
         try:
             domain = self.builder.env.get_domain(node.parent['domain'])
-            primary = self.builder.config.primary_domain
             name = domain.get_type_name(domain.object_types[objtype],
-                                        primary == domain.name)
+                                        self.config.primary_domain == domain.name)
         except (KeyError, ExtensionError):
             name = objtype
         # by convention, the deffn category should be capitalized like a title
@@ -1398,6 +1408,12 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append("\n")
         self.escape_hyphens -= 1
         self.desc_type_name = None
+
+    def visit_desc_signature_line(self, node: Element) -> None:
+        pass
+
+    def depart_desc_signature_line(self, node: Element) -> None:
+        pass
 
     def visit_desc_name(self, node: Element) -> None:
         pass
@@ -1454,9 +1470,8 @@ class TexinfoTranslator(SphinxTranslator):
         #     -- instead of --
         #     @deffn {Class} class Foo
         txt = node.astext().strip()
-        if txt == self.desc['desctype'] or \
-           txt == self.desc['objtype'] or \
-           txt in self.desc_type_name.split():
+        if ((self.descs and txt == self.descs[-1]['objtype']) or
+                (self.desc_type_name and txt in self.desc_type_name.split())):
             raise nodes.SkipNode
 
     def depart_desc_annotation(self, node: Element) -> None:
@@ -1526,3 +1541,11 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n@example\n%s\n@end example\n\n' %
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
+
+    @property
+    def desc(self) -> Optional[addnodes.desc]:
+        warnings.warn('TexinfoWriter.desc is deprecated.', RemovedInSphinx50Warning)
+        if len(self.descs):
+            return self.descs[-1]
+        else:
+            return None

@@ -442,6 +442,10 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
       Since Sphinx-1.5, the linkcheck builder comes to use requests module.
 
+   .. versionchanged:: 3.4
+
+      The linkcheck builder retries links when servers apply rate limits.
+
 .. module:: sphinx.builders.xml
 .. class:: XMLBuilder
 

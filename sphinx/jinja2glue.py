@@ -4,7 +4,7 @@
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,7 @@ from os import path
 from pprint import pformat
 from typing import Any, Callable, Dict, Iterator, List, Tuple, Union
 
-from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, contextfunction
+from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound, contextfunction
 from jinja2.environment import Environment
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2.utils import open_if_exists
@@ -186,7 +186,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         self.environment.globals['idgen'] = idgen
         if use_i18n:
-            self.environment.install_gettext_translations(builder.app.translator)  # type: ignore  # NOQA
+            self.environment.install_gettext_translations(builder.app.translator)
 
     def render(self, template: str, context: Dict) -> str:  # type: ignore
         return self.environment.get_template(template).render(context)

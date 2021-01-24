@@ -4,17 +4,18 @@
 
     Test the autodoc extension.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import abc
 import sys
 from importlib import import_module
+from typing import TypeVar
 
 import pytest
 
-from sphinx.ext.autodoc.mock import _MockModule, _MockObject, mock
+from sphinx.ext.autodoc.mock import _MockModule, _MockObject, ismock, mock
 
 
 def test_MockModule():
@@ -39,6 +40,7 @@ def test_MockObject():
     assert isinstance(mock.attr1.attr2, _MockObject)
     assert isinstance(mock.attr1.attr2.meth(), _MockObject)
 
+    # subclassing
     class SubClass(mock.SomeClass):
         """docstring of SubClass"""
 
@@ -50,6 +52,16 @@ def test_MockObject():
     assert isinstance(obj, SubClass)
     assert obj.method() == "string"
     assert isinstance(obj.other_method(), SubClass)
+
+    # parametrized type
+    T = TypeVar('T')
+
+    class SubClass2(mock.SomeClass[T]):
+        """docstring of SubClass"""
+
+    obj2 = SubClass2()
+    assert SubClass2.__doc__ == "docstring of SubClass"
+    assert isinstance(obj2, SubClass2)
 
 
 def test_mock():
@@ -117,3 +129,19 @@ def test_mock_decorator():
     assert func.__doc__ == "docstring"
     assert Foo.meth.__doc__ == "docstring"
     assert Bar.__doc__ == "docstring"
+
+
+def test_ismock():
+    with mock(['sphinx.unknown']):
+        mod1 = import_module('sphinx.unknown')
+        mod2 = import_module('sphinx.application')
+
+        class Inherited(mod1.Class):
+            pass
+
+        assert ismock(mod1) is True
+        assert ismock(mod1.Class) is True
+        assert ismock(Inherited) is False
+
+        assert ismock(mod2) is False
+        assert ismock(mod2.Sphinx) is False

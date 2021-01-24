@@ -4,33 +4,34 @@
 
     The Python domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import builtins
 import inspect
 import re
+import sys
 import typing
 import warnings
 from inspect import Parameter
-from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Tuple
-from typing import cast
+from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import pending_xref, desc_signature
+from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType, Index, IndexEntry
+from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
-from sphinx.pycode.ast import ast, parse as ast_parse
+from sphinx.pycode.ast import ast
+from sphinx.pycode.ast import parse as ast_parse
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
@@ -77,18 +78,24 @@ ModuleEntry = NamedTuple('ModuleEntry', [('docname', str),
                                          ('deprecated', bool)])
 
 
-def type_to_xref(text: str) -> addnodes.pending_xref:
+def type_to_xref(text: str, env: BuildEnvironment = None) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if text == 'None':
         reftype = 'obj'
     else:
         reftype = 'class'
 
+    if env:
+        kwargs = {'py:module': env.ref_context.get('py:module'),
+                  'py:class': env.ref_context.get('py:class')}
+    else:
+        kwargs = {}
+
     return pending_xref('', nodes.Text(text),
-                        refdomain='py', reftype=reftype, reftarget=text)
+                        refdomain='py', reftype=reftype, reftarget=text, **kwargs)
 
 
-def _parse_annotation(annotation: str) -> List[Node]:
+def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Node]:
     """Parse type annotation."""
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
@@ -128,20 +135,37 @@ def _parse_annotation(annotation: str) -> List[Node]:
 
             return result
         else:
+            if sys.version_info >= (3, 6):
+                if isinstance(node, ast.Constant):
+                    if node.value is Ellipsis:
+                        return [addnodes.desc_sig_punctuation('', "...")]
+                    else:
+                        return [nodes.Text(node.value)]
+
+            if sys.version_info < (3, 8):
+                if isinstance(node, ast.Ellipsis):
+                    return [addnodes.desc_sig_punctuation('', "...")]
+                elif isinstance(node, ast.NameConstant):
+                    return [nodes.Text(node.value)]
+
             raise SyntaxError  # unsupported syntax
+
+    if env is None:
+        warnings.warn("The env parameter for _parse_annotation becomes required now.",
+                      RemovedInSphinx50Warning, stacklevel=2)
 
     try:
         tree = ast_parse(annotation)
         result = unparse(tree)
         for i, node in enumerate(result):
             if isinstance(node, nodes.Text):
-                result[i] = type_to_xref(str(node))
+                result[i] = type_to_xref(str(node), env)
         return result
     except SyntaxError:
-        return [type_to_xref(annotation)]
+        return [type_to_xref(annotation, env)]
 
 
-def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
+def _parse_arglist(arglist: str, env: BuildEnvironment = None) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     sig = signature_from_str('(%s)' % arglist)
@@ -167,7 +191,7 @@ def _parse_arglist(arglist: str) -> addnodes.desc_parameterlist:
             node += addnodes.desc_sig_name('', param.name)
 
         if param.annotation is not param.empty:
-            children = _parse_annotation(param.annotation)
+            children = _parse_annotation(param.annotation, env)
             node += addnodes.desc_sig_punctuation('', ':')
             node += nodes.Text(' ')
             node += addnodes.desc_sig_name('', '', *children)  # type: ignore
@@ -248,6 +272,8 @@ class PyXrefMixin:
         result = super().make_xref(rolename, domain, target,  # type: ignore
                                    innernode, contnode, env)
         result['refspecific'] = True
+        result['py:module'] = env.ref_context.get('py:module')
+        result['py:class'] = env.ref_context.get('py:class')
         if target.startswith(('.', '~')):
             prefix, result['reftarget'] = target[0], target[1:]
             if prefix == '.':
@@ -308,7 +334,7 @@ class PyTypedField(PyXrefMixin, TypedField):
         return super().make_xref(rolename, domain, target, innernode, contnode, env)
 
 
-class PyObject(ObjectDescription):
+class PyObject(ObjectDescription[Tuple[str, str]]):
     """
     Description of a general Python object.
 
@@ -317,6 +343,7 @@ class PyObject(ObjectDescription):
     """
     option_spec = {
         'noindex': directives.flag,
+        'noindexentry': directives.flag,
         'module': directives.unchanged,
         'annotation': directives.unchanged,
     }
@@ -414,7 +441,7 @@ class PyObject(ObjectDescription):
         signode += addnodes.desc_name(name, name)
         if arglist:
             try:
-                signode += _parse_arglist(arglist)
+                signode += _parse_arglist(arglist, self.env)
             except SyntaxError:
                 # fallback to parse arglist original parser.
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
@@ -429,7 +456,7 @@ class PyObject(ObjectDescription):
                 signode += addnodes.desc_parameterlist()
 
         if retann:
-            children = _parse_annotation(retann)
+            children = _parse_annotation(retann, self.env)
             signode += addnodes.desc_returns(retann, '', *children)
 
         anno = self.options.get('annotation')
@@ -459,16 +486,17 @@ class PyObject(ObjectDescription):
         domain = cast(PythonDomain, self.env.get_domain('py'))
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
-        indextext = self.get_index_text(modname, name_cls)
-        if indextext:
-            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
+        if 'noindexentry' not in self.options:
+            indextext = self.get_index_text(modname, name_cls)
+            if indextext:
+                self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def before_content(self) -> None:
         """Handle object nesting before content
 
         :py:class:`PyObject` represents Python language constructs. For
         constructs that are nestable, such as a Python classes, this method will
-        build up a stack of the nesting heirarchy so that it can be later
+        build up a stack of the nesting hierarchy so that it can be later
         de-nested correctly, in :py:meth:`after_content`.
 
         For constructs that aren't nestable, the stack is bypassed, and instead
@@ -576,16 +604,17 @@ class PyFunction(PyObject):
     def add_target_and_index(self, name_cls: Tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         super().add_target_and_index(name_cls, sig, signode)
-        modname = self.options.get('module', self.env.ref_context.get('py:module'))
-        node_id = signode['ids'][0]
+        if 'noindexentry' not in self.options:
+            modname = self.options.get('module', self.env.ref_context.get('py:module'))
+            node_id = signode['ids'][0]
 
-        name, cls = name_cls
-        if modname:
-            text = _('%s() (in module %s)') % (name, modname)
-            self.indexnode['entries'].append(('single', text, node_id, '', None))
-        else:
-            text = '%s; %s()' % (pairindextypes['builtin'], name)
-            self.indexnode['entries'].append(('pair', text, node_id, '', None))
+            name, cls = name_cls
+            if modname:
+                text = _('%s() (in module %s)') % (name, modname)
+                self.indexnode['entries'].append(('single', text, node_id, '', None))
+            else:
+                text = '%s; %s()' % (pairindextypes['builtin'], name)
+                self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         # add index in own add_target_and_index() instead.
@@ -623,7 +652,8 @@ class PyVariable(PyObject):
 
         typ = self.options.get('type')
         if typ:
-            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), type_to_xref(typ))
+            annotations = _parse_annotation(typ, self.env)
+            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), *annotations)
 
         value = self.options.get('value')
         if value:
@@ -868,7 +898,8 @@ class PyAttribute(PyObject):
 
         typ = self.options.get('type')
         if typ:
-            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), type_to_xref(typ))
+            annotations = _parse_annotation(typ, self.env)
+            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), *annotations)
 
         value = self.options.get('value')
         if value:

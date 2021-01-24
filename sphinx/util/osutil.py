@@ -4,7 +4,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,7 +20,7 @@ from io import StringIO
 from os import path
 from typing import Any, Generator, Iterator, List, Optional, Tuple
 
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 
 try:
     # for ALT Linux (#6712)
@@ -103,6 +103,9 @@ def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
 
 def movefile(source: str, dest: str) -> None:
     """Move a file, removing the destination if it exists."""
+    warnings.warn('sphinx.util.osutil.movefile() is deprecated for removal. '
+                  'Please use os.replace() instead.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     if os.path.exists(dest):
         try:
             os.unlink(dest)
@@ -168,10 +171,10 @@ def abspath(pathdir: str) -> str:
         if isinstance(pathdir, bytes):
             try:
                 pathdir = pathdir.decode(fs_encoding)
-            except UnicodeDecodeError:
+            except UnicodeDecodeError as exc:
                 raise UnicodeDecodeError('multibyte filename not supported on '
                                          'this filesystem encoding '
-                                         '(%r)' % fs_encoding)
+                                         '(%r)' % fs_encoding) from exc
         return pathdir
 
 
@@ -222,14 +225,14 @@ class FileAvoidWrite:
         self._io.close()
 
         try:
-            with open(self._path) as old_f:
+            with open(self._path, encoding='utf-8') as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
         except OSError:
             pass
 
-        with open(self._path, 'w') as f:
+        with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)
 
     def __enter__(self) -> "FileAvoidWrite":

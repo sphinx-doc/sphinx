@@ -4,7 +4,7 @@
 
     Locale utilities.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -106,7 +106,7 @@ class _TranslationProxy(UserString):
 translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
 
 
-def init(locale_dirs: List[str], language: str,
+def init(locale_dirs: List[Optional[str]], language: str,
          catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple

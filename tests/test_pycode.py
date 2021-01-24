@@ -4,19 +4,21 @@
 
     Test pycode.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import sys
+
 import pytest
 
 import sphinx
-from sphinx.pycode import ModuleAnalyzer
 from sphinx.errors import PycodeError
+from sphinx.pycode import ModuleAnalyzer
 
 SPHINX_MODULE_PATH = os.path.splitext(sphinx.__file__)[0] + '.py'
+
 
 def test_ModuleAnalyzer_get_module_source():
     assert ModuleAnalyzer.get_module_source('sphinx') == (sphinx.__file__, sphinx.__loader__.get_source('sphinx'))
@@ -26,7 +28,7 @@ def test_ModuleAnalyzer_get_module_source():
         ModuleAnalyzer.get_module_source('builtins')
     with pytest.raises(PycodeError):
         ModuleAnalyzer.get_module_source('itertools')
-        
+
 
 def test_ModuleAnalyzer_for_string():
     analyzer = ModuleAnalyzer.for_string('print("Hello world")', 'module_name')

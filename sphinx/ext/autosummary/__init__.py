@@ -48,7 +48,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -60,8 +60,7 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple
-from typing import cast
+from typing import Any, Dict, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -72,19 +71,19 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.ext.autodoc import Documenter
+from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.util import rst, logging
-from sphinx.util.docutils import (
-    NullReporter, SphinxDirective, SphinxRole, new_document, switch_source_input
-)
+from sphinx.util import logging, rst
+from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new_document,
+                                  switch_source_input)
 from sphinx.util.matching import Matcher
 from sphinx.writers.html import HTMLTranslator
 
@@ -98,6 +97,8 @@ logger = logging.getLogger(__name__)
 
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
+
+WELL_KNOWN_ABBREVIATIONS = ('et al.', ' i.e.',)
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -175,8 +176,10 @@ class FakeDirective(DocumenterBridge):
     def __init__(self) -> None:
         settings = Struct(tab_width=8)
         document = Struct(settings=settings)
+        env = BuildEnvironment()
+        env.config = Config()
         state = Struct(document=document)
-        super().__init__({}, None, Options(), 0, state)  # type: ignore
+        super().__init__(env, None, Options(), 0, state)
 
 
 def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
@@ -250,7 +253,9 @@ class Autosummary(SphinxDirective):
             tree_prefix = self.options['toctree'].strip()
             docnames = []
             excluded = Matcher(self.config.exclude_patterns)
+            filename_map = self.config.autosummary_filename_map
             for name, sig, summary, real_name in items:
+                real_name = filename_map.get(real_name, real_name)
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
@@ -281,6 +286,29 @@ class Autosummary(SphinxDirective):
 
         return nodes
 
+    def import_by_name(self, name: str, prefixes: List[str]) -> Tuple[str, Any, Any, str]:
+        with mock(self.config.autosummary_mock_imports):
+            try:
+                return import_by_name(name, prefixes)
+            except ImportError as exc:
+                # check existence of instance attribute
+                try:
+                    return import_ivar_by_name(name, prefixes)
+                except ImportError:
+                    pass
+
+                raise exc  # re-raise ImportError if instance attribute not found
+
+    def create_documenter(self, app: Sphinx, obj: Any,
+                          parent: Any, full_name: str) -> "Documenter":
+        """Get an autodoc.Documenter class suitable for documenting the given
+        object.
+
+        Wraps get_documenter and is meant as a hook for extensions.
+        """
+        doccls = get_documenter(app, obj, parent)
+        return doccls(self.bridge, full_name)
+
     def get_items(self, names: List[str]) -> List[Tuple[str, str, str, str]]:
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
@@ -298,8 +326,7 @@ class Autosummary(SphinxDirective):
                 display_name = name.split('.')[-1]
 
             try:
-                with mock(self.config.autosummary_mock_imports):
-                    real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
+                real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
             except ImportError:
                 logger.warning(__('autosummary: failed to import %s'), name,
                                location=self.get_source_info())
@@ -313,8 +340,7 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            doccls = get_documenter(self.env.app, obj, parent)
-            documenter = doccls(self.bridge, full_name)
+            documenter = self.create_documenter(self.env.app, obj, parent, full_name)
             if not documenter.parse_name():
                 logger.warning(__('failed to parse name %s'), real_name,
                                location=self.get_source_info())
@@ -497,6 +523,13 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
 
 def extract_summary(doc: List[str], document: Any) -> str:
     """Extract summary from docstring."""
+    def parse(doc: List[str], settings: Any) -> nodes.document:
+        state_machine = RSTStateMachine(state_classes, 'Body')
+        node = new_document('', settings)
+        node.reporter = NullReporter()
+        state_machine.run(doc, node)
+
+        return node
 
     # Skip a blank lines at the top
     while doc and not doc[0].strip():
@@ -514,11 +547,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
         return ''
 
     # parse the docstring
-    state_machine = RSTStateMachine(state_classes, 'Body')
-    node = new_document('', document.settings)
-    node.reporter = NullReporter()
-    state_machine.run(doc, node)
-
+    node = parse(doc, document.settings)
     if not isinstance(node[0], nodes.paragraph):
         # document starts with non-paragraph: pick up the first line
         summary = doc[0].strip()
@@ -529,11 +558,13 @@ def extract_summary(doc: List[str], document: Any) -> str:
             summary = sentences[0].strip()
         else:
             summary = ''
-            while sentences:
-                summary += sentences.pop(0) + '.'
+            for i in range(len(sentences)):
+                summary = ". ".join(sentences[:i + 1]).rstrip(".") + "."
                 node[:] = []
-                state_machine.run([summary], node)
-                if not node.traverse(nodes.system_message):
+                node = parse(doc, document.settings)
+                if summary.endswith(WELL_KNOWN_ABBREVIATIONS):
+                    pass
+                elif not node.traverse(nodes.system_message):
                     # considered as that splitting by period does not break inline markups
                     break
 
@@ -647,7 +678,24 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
         else:
             return sys.modules[modname], None, modname
     except (ValueError, ImportError, AttributeError, KeyError) as e:
-        raise ImportError(*e.args)
+        raise ImportError(*e.args) from e
+
+
+def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, Any, str]:
+    """Import an instance variable that has the given *name*, under one of the
+    *prefixes*.  The first name that succeeds is used.
+    """
+    try:
+        name, attr = name.rsplit(".", 1)
+        real_name, obj, parent, modname = import_by_name(name, prefixes)
+        qualname = real_name.replace(modname + ".", "")
+        analyzer = ModuleAnalyzer.for_module(modname)
+        if (qualname, attr) in analyzer.find_attr_docs():
+            return real_name + "." + attr, INSTANCEATTR, obj, modname
+    except (ImportError, ValueError, PycodeError):
+        pass
+
+    raise ImportError
 
 
 # -- :autolink: (smart default role) -------------------------------------------
@@ -755,7 +803,8 @@ def process_generate_options(app: Sphinx) -> None:
     with mock(app.config.autosummary_mock_imports):
         generate_autosummary_docs(genfiles, suffix=suffix, base_path=app.srcdir,
                                   app=app, imported_members=imported_members,
-                                  overwrite=app.config.autosummary_generate_overwrite)
+                                  overwrite=app.config.autosummary_generate_overwrite,
+                                  encoding=app.config.source_encoding)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -777,6 +826,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_role('autolink', AutoLink())
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_context', {}, True)
+    app.add_config_value('autosummary_filename_map', {}, 'html')
     app.add_config_value('autosummary_generate', [], True, [bool])
     app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',

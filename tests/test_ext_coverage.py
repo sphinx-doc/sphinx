@@ -4,7 +4,7 @@
 
     Test the coverage builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,6 +28,8 @@ def test_build(app, status, warning):
 
     assert ' * mod -- No module named mod'  # in the "failed import" section
 
+    assert "undocumented  py" not in status.getvalue()
+
     c_undoc = (app.outdir / 'c.txt').read_text()
     assert c_undoc.startswith('Undocumented C API elements\n'
                               '===========================\n')
@@ -45,6 +47,8 @@ def test_build(app, status, warning):
     assert 'classes' in undoc_py['autodoc_target']
     assert 'Class' in undoc_py['autodoc_target']['classes']
     assert 'undocmeth' in undoc_py['autodoc_target']['classes']['Class']
+
+    assert "undocumented  c" not in status.getvalue()
 
 
 @pytest.mark.sphinx('coverage', testroot='ext-coverage')
@@ -64,3 +68,28 @@ Classes:
 
 '''
     assert actual == expected
+
+
+@pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
+def test_show_missing_items(app, status, warning):
+    app.builder.build_all()
+
+    assert "undocumented" in status.getvalue()
+
+    assert "py  function  raises" in status.getvalue()
+    assert "py  class     Base" in status.getvalue()
+    assert "py  method    Class.roger" in status.getvalue()
+
+    assert "c   api       Py_SphinxTest [ function]" in status.getvalue()
+
+
+@pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
+def test_show_missing_items_quiet(app, status, warning):
+    app.quiet = True
+    app.builder.build_all()
+
+    assert "undocumented python function: autodoc_target :: raises" in warning.getvalue()
+    assert "undocumented python class: autodoc_target :: Base" in warning.getvalue()
+    assert "undocumented python method: autodoc_target :: Class :: roger" in warning.getvalue()
+
+    assert "undocumented c api: Py_SphinxTest [function]" in warning.getvalue()

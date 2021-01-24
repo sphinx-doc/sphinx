@@ -20,7 +20,7 @@ Options
 
 .. option:: -q, --quiet
 
-   Quiet mode that will skip interactive wizard to specify options.
+   Quiet mode that skips the interactive wizard for specifying options.
    This option requires `-p`, `-a` and `-v` options.
 
 .. option:: -h, --help, --version
@@ -32,6 +32,10 @@ Options
 .. option:: --sep
 
    If specified, separate source and build directories.
+
+.. option:: --no-sep
+
+   If specified, create build directroy under source directroy.
 
 .. option:: --dot=DOT
 

@@ -4,7 +4,7 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,7 +21,6 @@ from sphinx.util import logging
 from sphinx.util.console import terminal_safe
 from sphinx.util.typing import NoneType
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -32,13 +31,13 @@ logger = logging.getLogger(__name__)
 # support for running 2to3 over config files
 def convert_with_2to3(filepath: str) -> str:
     try:
-        from lib2to3.refactor import RefactoringTool, get_fixers_from_package
         from lib2to3.pgen2.parse import ParseError
-    except ImportError:
+        from lib2to3.refactor import RefactoringTool, get_fixers_from_package
+    except ImportError as exc:
         # python 3.9.0a6+ emits PendingDeprecationWarning for lib2to3.
         # Additionally, removal of the module is still discussed at PEP-594.
         # To support future python, this catches ImportError for lib2to3.
-        raise SyntaxError
+        raise SyntaxError from exc
 
     fixers = get_fixers_from_package('lib2to3.fixes')
     refactoring_tool = RefactoringTool(fixers)
@@ -49,7 +48,8 @@ def convert_with_2to3(filepath: str) -> str:
         # do not propagate lib2to3 exceptions
         lineno, offset = err.context[1]
         # try to match ParseError details with SyntaxError details
-        raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
+
+        raise SyntaxError(err.msg, (filepath, lineno, offset, err.value)) from err
     return str(tree)
 
 
@@ -90,7 +90,7 @@ def execfile_(filepath: str, _globals: Any, open: Callable = open) -> None:
 
 deprecated_alias('sphinx.util.pycompat',
                  {
-                     'NoneType': NoneType,  # type: ignore
+                     'NoneType': NoneType,
                      'TextIOWrapper': io.TextIOWrapper,
                      'htmlescape': html.escape,
                      'indent': textwrap.indent,
@@ -98,4 +98,12 @@ deprecated_alias('sphinx.util.pycompat',
                      'sys_encoding': sys.getdefaultencoding(),
                      'u': '',
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'NoneType': 'sphinx.util.typing.NoneType',
+                     'TextIOWrapper': 'io.TextIOWrapper',
+                     'htmlescape': 'html.escape',
+                     'indent': 'textwrap.indent',
+                     'terminal_safe': 'sphinx.util.console.terminal_safe',
+                     'sys_encoding': 'sys.getdefaultencoding',
+                 })

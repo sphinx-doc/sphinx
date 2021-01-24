@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2019/09/02 v2.3.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2021/01/23 v3.5.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -588,12 +588,14 @@
   {% classes with \chapter command
    \fancypagestyle{normal}{
     \fancyhf{}
-   % FIXME: this presupposes "twoside".
-   % If "oneside" class option, there are warnings in LaTeX log.
-    \fancyfoot[LE,RO]{{\py@HeaderFamily\thepage}}
+    \fancyfoot[RO]{{\py@HeaderFamily\thepage}}
     \fancyfoot[LO]{{\py@HeaderFamily\nouppercase{\rightmark}}}
-    \fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
-    \fancyhead[LE,RO]{{\py@HeaderFamily \@title\sphinxheadercomma\py@release}}
+    \fancyhead[RO]{{\py@HeaderFamily \@title\sphinxheadercomma\py@release}}
+    \if@twoside
+     \fancyfoot[LE]{{\py@HeaderFamily\thepage}}
+     \fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
+     \fancyhead[LE]{{\py@HeaderFamily \@title\sphinxheadercomma\py@release}}
+    \fi
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
     % define chaptermark with \@chappos when \@chappos is available for Japanese
@@ -605,7 +607,8 @@
   % page of a chapter `clean.'
    \fancypagestyle{plain}{
     \fancyhf{}
-    \fancyfoot[LE,RO]{{\py@HeaderFamily\thepage}}
+    \fancyfoot[RO]{{\py@HeaderFamily\thepage}}
+    \if@twoside\fancyfoot[LE]{{\py@HeaderFamily\thepage}}\fi
     \renewcommand{\headrulewidth}{0pt}
     \renewcommand{\footrulewidth}{0.4pt}
     }
@@ -841,6 +844,12 @@
 
 
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
+
+% Everything is delayed to \begin{document} to allow hyperref patches into
+%   \newcounter to solve duplicate label problems for internal hyperlinks to
+%   code listings (literalblock counter).  User or extension re-definitions of
+%   \theliteralblock, et al., thus have also to be delayed. (changed at 3.5.0)
+\AtBeginDocument{%
 \ltx@ifundefined{c@chapter}
    {\newcounter{literalblock}}%
    {\newcounter{literalblock}[chapter]%
@@ -886,7 +895,7 @@
     \@addtoreset{literalblock}{section}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{section}%
-    \fi
+    \fi%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -896,7 +905,7 @@
     \@addtoreset{literalblock}{subsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsection}%
-    \fi
+    \fi%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -906,7 +915,7 @@
     \@addtoreset{literalblock}{subsubsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsubsection}%
-    \fi
+    \fi%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -916,7 +925,7 @@
     \@addtoreset{literalblock}{paragraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{paragraph}%
-    \fi
+    \fi%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -926,7 +935,7 @@
     \@addtoreset{literalblock}{subparagraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subparagraph}%
-    \fi
+    \fi%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -943,7 +952,7 @@
     \g@addto@macro\theequation{\arabic{equation}}%
   \fi
 \fi
-
+}% end of big \AtBeginDocument
 
 %% LITERAL BLOCKS
 %
@@ -953,9 +962,9 @@
 % - with possibly of a top caption, non-separable by pagebreak.
 % - and usable inside tables or footnotes ("footnotehyper-sphinx").
 
-% For extensions which use \OriginalVerbatim and compatibility with Sphinx <
-% 1.5, we define and use these when (unmodified) Verbatim will be needed. But
-% Sphinx >= 1.5 does not modify the \Verbatim macro anymore.
+% Prior to Sphinx 1.5, \Verbatim and \endVerbatim were modified by Sphinx.
+% The aliases defined here are used in sphinxVerbatim environment and can
+% serve as hook-points with no need to modify \Verbatim itself.
 \let\OriginalVerbatim   \Verbatim
 \let\endOriginalVerbatim\endVerbatim
 
@@ -1813,7 +1822,7 @@
    % fix a space-gobbling issue due to LaTeX's original \do@noligs
 % TODO: using \@noligs as patched by upquote.sty is now unneeded because
 % either ` and ' are escaped (non-unicode engines) or they don't build
-% ligatures (unicode engines). Thus remove this and unify handling of `, <, >, 
+% ligatures (unicode engines). Thus remove this and unify handling of `, <, >,
 % ' and - with the characters . , ; ? ! / as handled via
 % \sphinxbreaksviaactive.
 % Hence \sphinx@do@noligs will be removed, or rather replaced  with code
@@ -1895,7 +1904,7 @@
 % Special characters
 %
 % This definition prevents en-dash and em-dash TeX ligatures.
-% 
+%
 % It inserts a potential breakpoint after the hyphen. This is to keep in sync
 % with behavior in code-blocks, parsed and inline literals. For a breakpoint
 % before the hyphen use \leavevmode\kern\z@- (within \makeatletter/\makeatother)

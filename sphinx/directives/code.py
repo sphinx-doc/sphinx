@@ -2,11 +2,12 @@
     sphinx.directives.code
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
+import textwrap
 import warnings
 from difflib import unified_diff
 from typing import Any, Dict, List, Tuple
@@ -19,9 +20,9 @@ from docutils.statemachine import StringList
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.directives import optional_int
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import parselinenos
+from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
 
 if False:
@@ -69,10 +70,10 @@ class HighlightLang(Highlight):
 
 def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None) -> List[str]:
     if not dedent:
-        return lines
+        return textwrap.dedent(''.join(lines)).splitlines(True)
 
     if any(s[:dedent].strip() for s in lines):
-        logger.warning(__('Over dedent has detected'), location=location)
+        logger.warning(__('non-whitespace stripped by dedent'), location=location)
 
     new_lines = []
     for line in lines:
@@ -118,7 +119,7 @@ class CodeBlock(SphinxDirective):
     option_spec = {
         'force': directives.flag,
         'linenos': directives.flag,
-        'dedent': int,
+        'dedent': optional_int,
         'lineno-start': int,
         'emphasize-lines': directives.unchanged_required,
         'caption': directives.unchanged_required,
@@ -227,12 +228,13 @@ class LiteralIncludeReader:
                     text = text.expandtabs(self.options['tab-width'])
 
                 return text.splitlines(True)
-        except OSError:
-            raise OSError(__('Include file %r not found or reading it failed') % filename)
-        except UnicodeError:
+        except OSError as exc:
+            raise OSError(__('Include file %r not found or reading it failed') %
+                          filename) from exc
+        except UnicodeError as exc:
             raise UnicodeError(__('Encoding %r used for reading included file %r seems to '
                                   'be wrong, try giving an :encoding: option') %
-                               (self.encoding, filename))
+                               (self.encoding, filename)) from exc
 
     def read(self, location: Tuple[str, int] = None) -> Tuple[str, int]:
         if 'diff' in self.options:
@@ -391,7 +393,7 @@ class LiteralInclude(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {
-        'dedent': int,
+        'dedent': optional_int,
         'linenos': directives.flag,
         'lineno-start': int,
         'lineno-match': directives.flag,

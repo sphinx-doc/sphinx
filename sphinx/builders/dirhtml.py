@@ -4,7 +4,7 @@
 
     Directory HTML builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -49,9 +49,12 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
 # for compatibility
 deprecated_alias('sphinx.builders.html',
                  {
-                     'DirectoryHTMLBuilder': DirectoryHTMLBuilder,
+                     'DirectoryHTMLBuilder':  DirectoryHTMLBuilder,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'DirectoryHTMLBuilder': 'sphinx.builders.dirhtml.DirectoryHTMLBuilder',
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

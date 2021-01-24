@@ -175,7 +175,7 @@ also use these config values:
 
 .. confval:: autosummary_generate_overwrite
 
-   If true, autosummary already overwrites stub files by generated contents.
+   If true, autosummary overwrites existing files by generated stub pages.
    Defaults to true (enabled).
 
    .. versionadded:: 3.0
@@ -194,6 +194,15 @@ also use these config values:
    in modules. Default is ``False``
 
    .. versionadded:: 2.1
+
+.. confval:: autosummary_filename_map
+
+   A dict mapping object names to filenames. This is necessary to avoid
+   filename conflicts where multiple objects have names that are
+   indistinguishable when case is ignored, on file systems where filenames
+   are case-insensitive.
+
+   .. versionadded:: 3.2
 
 
 Customizing templates
@@ -295,7 +304,7 @@ The following variables available in the templates:
 .. data:: modules
 
    List containing names of "public" modules in the package.  Only available for
-   modules that are packages.
+   modules that are packages and the ``recursive`` option is on.
 
    .. versionadded:: 3.1
 

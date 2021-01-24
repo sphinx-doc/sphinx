@@ -4,7 +4,7 @@
 
     Test the build process with manpage builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,6 +28,13 @@ def test_all(app, status, warning):
     assert '\nterm2 (\\fBstronged partially\\fP)\n' in content
 
     assert 'Footnotes' not in content
+
+
+@pytest.mark.sphinx('man', testroot='basic',
+                    confoverrides={'man_make_section_directory': True})
+def test_man_make_section_directory(app, status, warning):
+    app.build()
+    assert (app.outdir / '1' / 'python.1').exists()
 
 
 @pytest.mark.sphinx('man', testroot='directive-code')

@@ -4,7 +4,7 @@
 
     Japanese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -33,7 +33,7 @@ try:
 except ImportError:
     janome_module = False
 
-from sphinx.errors import SphinxError, ExtensionError
+from sphinx.errors import ExtensionError, SphinxError
 from sphinx.search import SearchLanguage
 from sphinx.util import import_object
 
@@ -528,9 +528,9 @@ class SearchJapanese(SearchLanguage):
         dotted_path = options.get('type', 'sphinx.search.ja.DefaultSplitter')
         try:
             self.splitter = import_object(dotted_path)(options)
-        except ExtensionError:
+        except ExtensionError as exc:
             raise ExtensionError("Splitter module %r can't be imported" %
-                                 dotted_path)
+                                 dotted_path) from exc
 
     def split(self, input: str) -> List[str]:
         return self.splitter.split(input)

@@ -4,7 +4,7 @@
 
     Sphinx component registry.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -38,6 +38,7 @@ from sphinx.util.typing import RoleFunction, TitleGetter
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
 
@@ -62,7 +63,7 @@ class SphinxComponentRegistry:
         self.documenters = {}           # type: Dict[str, Type[Documenter]]
 
         #: css_files; a list of tuple of filename and attributes
-        self.css_files = []             # type: List[Tuple[str, Dict[str, str]]]
+        self.css_files = []             # type: List[Tuple[str, Dict[str, Any]]]
 
         #: domains; a dict of domain name -> domain class
         self.domains = {}               # type: Dict[str, Type[Domain]]
@@ -93,7 +94,7 @@ class SphinxComponentRegistry:
         self.html_block_math_renderers = {}     # type: Dict[str, Tuple[Callable, Callable]]
 
         #: js_files; list of JS paths or URLs
-        self.js_files = []              # type: List[Tuple[str, Dict[str, str]]]
+        self.js_files = []              # type: List[Tuple[str, Dict[str, Any]]]
 
         #: LaTeX packages; list of package names and its options
         self.latex_packages = []        # type: List[Tuple[str, str]]
@@ -139,9 +140,9 @@ class SphinxComponentRegistry:
             entry_points = iter_entry_points('sphinx.builders', name)
             try:
                 entry_point = next(entry_points)
-            except StopIteration:
+            except StopIteration as exc:
                 raise SphinxError(__('Builder name %s not registered or available'
-                                     ' through entry point') % name)
+                                     ' through entry point') % name) from exc
 
             self.load_extension(app, entry_point.module_name)
 
@@ -259,12 +260,12 @@ class SphinxComponentRegistry:
         else:
             self.source_suffix[suffix] = filetype
 
-    def add_source_parser(self, parser: "Type[Parser]", **kwargs: Any) -> None:
+    def add_source_parser(self, parser: "Type[Parser]", override: bool = False) -> None:
         logger.debug('[app] adding search source_parser: %r', parser)
 
         # create a map from filetype to parser
         for filetype in parser.supported:
-            if filetype in self.source_parsers and not kwargs.get('override'):
+            if filetype in self.source_parsers and not override:
                 raise ExtensionError(__('source_parser for %r is already registered') %
                                      filetype)
             else:
@@ -273,8 +274,8 @@ class SphinxComponentRegistry:
     def get_source_parser(self, filetype: str) -> "Type[Parser]":
         try:
             return self.source_parsers[filetype]
-        except KeyError:
-            raise SphinxError(__('Source parser for %s not registered') % filetype)
+        except KeyError as exc:
+            raise SphinxError(__('Source parser for %s not registered') % filetype) from exc
 
     def get_source_parsers(self) -> Dict[str, "Type[Parser]"]:
         return self.source_parsers
@@ -311,9 +312,11 @@ class SphinxComponentRegistry:
             try:
                 visit, depart = handlers  # unpack once for assertion
                 translation_handlers[node.__name__] = (visit, depart)
-            except ValueError:
-                raise ExtensionError(__('kwargs for add_node() must be a (visit, depart) '
-                                        'function tuple: %r=%r') % (builder_name, handlers))
+            except ValueError as exc:
+                raise ExtensionError(
+                    __('kwargs for add_node() must be a (visit, depart) '
+                       'function tuple: %r=%r') % (builder_name, handlers)
+                ) from exc
 
     def get_translator_class(self, builder: Builder) -> "Type[nodes.NodeVisitor]":
         return self.translators.get(builder.name,
@@ -358,14 +361,21 @@ class SphinxComponentRegistry:
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
         self.autodoc_attrgettrs[typ] = attrgetter
 
-    def add_css_files(self, filename: str, **attributes: str) -> None:
+    def add_css_files(self, filename: str, **attributes: Any) -> None:
         self.css_files.append((filename, attributes))
 
-    def add_js_file(self, filename: str, **attributes: str) -> None:
+    def add_js_file(self, filename: str, **attributes: Any) -> None:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 
+    def has_latex_package(self, name: str) -> bool:
+        packages = self.latex_packages + self.latex_packages_after_hyperref
+        return bool([x for x in packages if x[0] == name])
+
     def add_latex_package(self, name: str, options: str, after_hyperref: bool = False) -> None:
+        if self.has_latex_package(name):
+            logger.warn("latex package '%s' already included" % name)
+
         logger.debug('[app] adding latex package: %r', name)
         if after_hyperref:
             self.latex_packages_after_hyperref.append((name, options))
@@ -392,7 +402,7 @@ class SphinxComponentRegistry:
 
     def load_extension(self, app: "Sphinx", extname: str) -> None:
         """Load a Sphinx extension."""
-        if extname in app.extensions:  # alread loaded
+        if extname in app.extensions:  # already loaded
             return
         if extname in EXTENSION_BLACKLIST:
             logger.warning(__('the extension %r was already merged with Sphinx since '
@@ -407,7 +417,8 @@ class SphinxComponentRegistry:
                 mod = import_module(extname)
             except ImportError as err:
                 logger.verbose(__('Original exception:\n') + traceback.format_exc())
-                raise ExtensionError(__('Could not import extension %s') % extname, err)
+                raise ExtensionError(__('Could not import extension %s') % extname,
+                                     err) from err
 
             setup = getattr(mod, 'setup', None)
             if setup is None:
@@ -423,7 +434,7 @@ class SphinxComponentRegistry:
                         __('The %s extension used by this project needs at least '
                            'Sphinx v%s; it therefore cannot be built with this '
                            'version.') % (extname, err)
-                    )
+                    ) from err
 
             if metadata is None:
                 metadata = {}

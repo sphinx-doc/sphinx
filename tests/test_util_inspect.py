@@ -4,21 +4,22 @@
 
     Tests util.inspect functions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import _testcapi
+import ast
 import datetime
 import functools
 import sys
 import types
 from inspect import Parameter
 
+import _testcapi
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import stringify_signature, is_builtin_class_method
+from sphinx.util.inspect import stringify_signature
 
 
 def test_signature():
@@ -99,7 +100,7 @@ def test_signature_methods():
 
     # wrapped bound method
     sig = inspect.signature(wrapped_bound_method)
-    assert stringify_signature(sig) == '(*args, **kwargs)'
+    assert stringify_signature(sig) == '(arg1, **kwargs)'
 
 
 def test_signature_partialmethod():
@@ -128,8 +129,8 @@ def test_signature_partialmethod():
 
 
 def test_signature_annotations():
-    from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                                  f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, Node)
+    from .typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
+                                   f13, f14, f15, f16, f17, f18, f19, f20, f21)
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -161,7 +162,7 @@ def test_signature_annotations():
 
     # Space around '=' for defaults
     sig = inspect.signature(f7)
-    assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
+    assert stringify_signature(sig) == '(x: Optional[int] = None, y: dict = {}) -> None'
 
     # Callable types
     sig = inspect.signature(f8)
@@ -176,7 +177,10 @@ def test_signature_annotations():
 
     # Instance annotations
     sig = inspect.signature(f11)
-    assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
+    if sys.version_info < (3, 10):
+        assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
+    else:
+        assert stringify_signature(sig) == '(x: CustomAnnotation(), y: 123) -> None'
 
     # tuple with more than two items
     sig = inspect.signature(f12)
@@ -213,15 +217,19 @@ def test_signature_annotations():
     sig = inspect.signature(f19)
     assert stringify_signature(sig) == '(*args: int, **kwargs: str)'
 
+    # default value is inspect.Signature.empty
+    sig = inspect.signature(f21)
+    assert stringify_signature(sig) == "(arg1='whatever', arg2)"
+
     # type hints by string
     sig = inspect.signature(Node.children)
     if (3, 5, 0) <= sys.version_info < (3, 5, 3):
         assert stringify_signature(sig) == '(self) -> List[Node]'
     else:
-        assert stringify_signature(sig) == '(self) -> List[typing_test_data.Node]'
+        assert stringify_signature(sig) == '(self) -> List[tests.typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
-    assert stringify_signature(sig) == '(self, parent: Optional[Node]) -> None'
+    assert stringify_signature(sig) == '(self, parent: Optional[tests.typing_test_data.Node]) -> None'
 
     # show_annotation is False
     sig = inspect.signature(f7)
@@ -229,13 +237,13 @@ def test_signature_annotations():
 
     # show_return_annotation is False
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
+    assert stringify_signature(sig, show_return_annotation=False) == '(x: Optional[int] = None, y: dict = {})'
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_signature_annotations_py38(app):
-    from target.pep570 import foo, bar, baz, qux
+    from target.pep570 import bar, baz, foo, qux
 
     # case: separator at head
     sig = inspect.signature(foo)
@@ -350,6 +358,38 @@ def test_signature_from_str_invalid():
         inspect.signature_from_str('')
 
 
+def test_signature_from_ast():
+    signature = 'def func(a, b, *args, c=0, d="blah", **kwargs): pass'
+    tree = ast.parse(signature)
+    sig = inspect.signature_from_ast(tree.body[0])
+    assert list(sig.parameters.keys()) == ['a', 'b', 'args', 'c', 'd', 'kwargs']
+    assert sig.parameters['a'].name == 'a'
+    assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['a'].default == Parameter.empty
+    assert sig.parameters['a'].annotation == Parameter.empty
+    assert sig.parameters['b'].name == 'b'
+    assert sig.parameters['b'].kind == Parameter.POSITIONAL_OR_KEYWORD
+    assert sig.parameters['b'].default == Parameter.empty
+    assert sig.parameters['b'].annotation == Parameter.empty
+    assert sig.parameters['args'].name == 'args'
+    assert sig.parameters['args'].kind == Parameter.VAR_POSITIONAL
+    assert sig.parameters['args'].default == Parameter.empty
+    assert sig.parameters['args'].annotation == Parameter.empty
+    assert sig.parameters['c'].name == 'c'
+    assert sig.parameters['c'].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters['c'].default == '0'
+    assert sig.parameters['c'].annotation == Parameter.empty
+    assert sig.parameters['d'].name == 'd'
+    assert sig.parameters['d'].kind == Parameter.KEYWORD_ONLY
+    assert sig.parameters['d'].default == "'blah'"
+    assert sig.parameters['d'].annotation == Parameter.empty
+    assert sig.parameters['kwargs'].name == 'kwargs'
+    assert sig.parameters['kwargs'].kind == Parameter.VAR_KEYWORD
+    assert sig.parameters['kwargs'].default == Parameter.empty
+    assert sig.parameters['kwargs'].annotation == Parameter.empty
+    assert sig.return_annotation == Parameter.empty
+
+
 def test_safe_getattr_with_default():
     class Foo:
         def __getattr__(self, item):
@@ -453,6 +493,28 @@ def test_dict_customtype():
     assert "<CustomType(2)>: 2" in description
 
 
+def test_getslots():
+    class Foo:
+        pass
+
+    class Bar:
+        __slots__ = ['attr']
+
+    class Baz:
+        __slots__ = {'attr': 'docstring'}
+
+    class Qux:
+        __slots__ = 'attr'
+
+    assert inspect.getslots(Foo) is None
+    assert inspect.getslots(Bar) == {'attr': None}
+    assert inspect.getslots(Baz) == {'attr': 'docstring'}
+    assert inspect.getslots(Qux) == {'attr': None}
+
+    with pytest.raises(TypeError):
+        inspect.getslots(Bar())
+
+
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isclassmethod(app):
     from target.methods import Base, Inherited
@@ -491,8 +553,7 @@ def test_iscoroutinefunction(app):
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isfunction(app):
-    from target.functions import builtin_func, partial_builtin_func
-    from target.functions import func, partial_func
+    from target.functions import builtin_func, func, partial_builtin_func, partial_func
     from target.methods import Base
 
     assert inspect.isfunction(func) is True                     # function
@@ -506,8 +567,7 @@ def test_isfunction(app):
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isbuiltin(app):
-    from target.functions import builtin_func, partial_builtin_func
-    from target.functions import func, partial_func
+    from target.functions import builtin_func, func, partial_builtin_func, partial_func
     from target.methods import Base
 
     assert inspect.isbuiltin(builtin_func) is True          # builtin function

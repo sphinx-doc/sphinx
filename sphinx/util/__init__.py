@@ -4,7 +4,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,33 +25,29 @@ from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple
-from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
+from typing import IO, Any, Callable, Dict, Iterable, Iterator, List, Pattern, Set, Tuple
+from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
-from sphinx.errors import (
-    PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError
-)
+from sphinx.errors import (ExtensionError, FiletypeNotFoundError, PycodeError,
+                           SphinxParallelError)
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
-from sphinx.util.typing import PathMatcher
 from sphinx.util import smartypants  # noqa
-
+from sphinx.util import logging
+from sphinx.util.console import bold, colorize, strip_colors, term_width_line  # type: ignore
+from sphinx.util.matching import patfilter  # noqa
+from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
+                               nested_parse_with_titles, split_explicit_title)
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (  # noqa
-    SEP, os_path, relative_uri, ensuredir, walk, mtimes_of_files, movefile,
-    copyfile, copytimes, make_filename)
-from sphinx.util.nodes import (   # noqa
-    nested_parse_with_titles, split_explicit_title, explicit_title_re,
-    caption_ref_re)
-from sphinx.util.matching import patfilter  # noqa
-
+from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
+                                movefile, mtimes_of_files, os_path, relative_uri, walk)
+from sphinx.util.typing import PathMatcher
 
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
 
 
@@ -241,10 +237,12 @@ _DEBUG_HEADER = '''\
 
 def save_traceback(app: "Sphinx") -> str:
     """Save the current exception's traceback in a temporary file."""
-    import sphinx
-    import jinja2
-    import docutils
     import platform
+
+    import docutils
+    import jinja2
+
+    import sphinx
     exc = sys.exc_info()[1]
     if isinstance(exc, SphinxParallelError):
         exc_format = '(Error in parallel process)\n' + exc.traceback
@@ -285,21 +283,21 @@ def get_module_source(modname: str) -> Tuple[str, str]:
     try:
         mod = import_module(modname)
     except Exception as err:
-        raise PycodeError('error importing %r' % modname, err)
+        raise PycodeError('error importing %r' % modname, err) from err
     filename = getattr(mod, '__file__', None)
     loader = getattr(mod, '__loader__', None)
     if loader and getattr(loader, 'get_filename', None):
         try:
             filename = loader.get_filename(modname)
         except Exception as err:
-            raise PycodeError('error getting filename for %r' % filename, err)
+            raise PycodeError('error getting filename for %r' % filename, err) from err
     if filename is None and loader:
         try:
             filename = loader.get_source(modname)
             if filename:
                 return 'string', filename
         except Exception as err:
-            raise PycodeError('error getting source for %r' % modname, err)
+            raise PycodeError('error getting source for %r' % modname, err) from err
     if filename is None:
         raise PycodeError('no source found for module %r' % modname)
     filename = path.normpath(path.abspath(filename))
@@ -328,7 +326,7 @@ def get_full_modname(modname: str, attribute: str) -> str:
         return None
     module = import_module(modname)
 
-    # Allow an attribute to have multiple parts and incidentially allow
+    # Allow an attribute to have multiple parts and incidentally allow
     # repeated .s in the attribute.
     value = module
     for attr in attribute.split('.'):
@@ -456,8 +454,8 @@ def parselinenos(spec: str, total: int) -> List[int]:
                 items.extend(range(start - 1, end))
             else:
                 raise ValueError
-        except Exception:
-            raise ValueError('invalid line number spec: %r' % spec)
+        except Exception as exc:
+            raise ValueError('invalid line number spec: %r' % spec) from exc
 
     return items
 
@@ -596,9 +594,9 @@ def import_object(objname: str, source: str = None) -> Any:
     except (AttributeError, ImportError) as exc:
         if source:
             raise ExtensionError('Could not import %s (needed for %s)' %
-                                 (objname, source), exc)
+                                 (objname, source), exc) from exc
         else:
-            raise ExtensionError('Could not import %s' % objname, exc)
+            raise ExtensionError('Could not import %s' % objname, exc) from exc
 
 
 def split_full_qualified_name(name: str) -> Tuple[str, str]:
@@ -621,7 +619,12 @@ def split_full_qualified_name(name: str) -> Tuple[str, str]:
             modname = ".".join(parts[:i])
             import_module(modname)
         except ImportError:
-            return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            if parts[:i - 1]:
+                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            else:
+                return None, ".".join(parts)
+        except IndexError:
+            pass
 
     return name, ""
 

@@ -4,7 +4,7 @@
 
     mock for autodoc
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,6 +17,7 @@ from types import FunctionType, MethodType, ModuleType
 from typing import Any, Generator, Iterator, List, Sequence, Tuple, Union
 
 from sphinx.util import logging
+from sphinx.util.inspect import safe_getattr
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +53,8 @@ class _MockObject:
     def __mro_entries__(self, bases: Tuple) -> Tuple:
         return (self.__class__,)
 
-    def __getitem__(self, key: str) -> "_MockObject":
-        return _make_subclass(key, self.__display_name__, self.__class__)()
+    def __getitem__(self, key: Any) -> "_MockObject":
+        return _make_subclass(str(key), self.__display_name__, self.__class__)()
 
     def __getattr__(self, key: str) -> "_MockObject":
         return _make_subclass(key, self.__display_name__, self.__class__)()
@@ -147,3 +148,27 @@ def mock(modnames: List[str]) -> Generator[None, None, None]:
     finally:
         sys.meta_path.remove(finder)
         finder.invalidate_caches()
+
+
+def ismock(subject: Any) -> bool:
+    """Check if the object is mocked."""
+    # check the object has '__sphinx_mock__' attribute
+    try:
+        if safe_getattr(subject, '__sphinx_mock__', None) is None:
+            return False
+    except AttributeError:
+        return False
+
+    # check the object is mocked module
+    if isinstance(subject, _MockModule):
+        return True
+
+    try:
+        # check the object is mocked object
+        __mro__ = safe_getattr(type(subject), '__mro__', [])
+        if len(__mro__) > 2 and __mro__[1] is _MockObject:
+            return True
+    except AttributeError:
+        pass
+
+    return False

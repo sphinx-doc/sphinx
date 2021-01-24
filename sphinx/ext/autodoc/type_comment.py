@@ -4,13 +4,12 @@
 
     Update annotations info of living objects using type_comments.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from inspect import Parameter, Signature, getsource
-from typing import Any, Dict, List
-from typing import cast
+from typing import Any, Dict, List, cast
 
 import sphinx
 from sphinx.application import Sphinx
@@ -18,8 +17,7 @@ from sphinx.locale import __
 from sphinx.pycode.ast import ast
 from sphinx.pycode.ast import parse as ast_parse
 from sphinx.pycode.ast import unparse as ast_unparse
-from sphinx.util import inspect
-from sphinx.util import logging
+from sphinx.util import inspect, logging
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +126,9 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
 
             if 'return' not in obj.__annotations__:
                 obj.__annotations__['return'] = type_sig.return_annotation
+    except KeyError as exc:
+        logger.warning(__("Failed to update signature for %r: parameter not found: %s"),
+                       obj, exc)
     except NotImplementedError as exc:  # failed to ast.unparse()
         logger.warning(__("Failed to parse type_comment for %r: %s"), obj, exc)
 

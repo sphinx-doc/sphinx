@@ -4,7 +4,7 @@
 
     Utility function and classes for Sphinx projects.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,9 +12,7 @@ import os
 from glob import glob
 
 from sphinx.locale import __
-from sphinx.util import get_matching_files
-from sphinx.util import logging
-from sphinx.util import path_stabilize
+from sphinx.util import get_matching_files, logging, path_stabilize
 from sphinx.util.matching import compile_matchers
 from sphinx.util.osutil import SEP, relpath
 

@@ -4,7 +4,7 @@
 
     Test the build process with gettext builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,7 @@ import gettext
 import os
 import re
 import subprocess
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 
 import pytest
 
@@ -172,5 +172,23 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
          'msgid "This is Template 1\\.".*'
          'msgid "Template 2".*'
          'msgid "This is Template 2\\.".*'),
+        result,
+        flags=re.S)
+
+
+@pytest.mark.sphinx(
+    'gettext', srcdir='root-gettext',
+    confoverrides={'gettext_compact': 'documentation'})
+def test_build_single_pot(app):
+    app.builder.build_all()
+
+    assert (app.outdir / 'documentation.pot').isfile()
+
+    result = (app.outdir / 'documentation.pot').read_text()
+    assert re.search(
+        ('msgid "Todo".*'
+         'msgid "Like footnotes.".*'
+         'msgid "The minute.".*'
+         'msgid "Generated section".*'),
         result,
         flags=re.S)

@@ -114,9 +114,9 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    **Additional options**
 
-   You can use ``caption`` option to provide a toctree caption and you can use
-   ``name`` option to provide implicit target name that can be referenced by
-   using :rst:role:`ref`::
+   You can use the ``caption`` option to provide a toctree caption and you can
+   use the ``name`` option to provide an implicit target name that can be
+   referenced by using :rst:role:`ref`::
 
       .. toctree::
          :caption: Table of Contents
@@ -246,7 +246,7 @@ The special document names (and pages generated for them) are:
 
 * every name beginning with ``_``
 
-  Though only few such names are currently used by Sphinx, you should not
+  Though few such names are currently used by Sphinx, you should not
   create documents or document-containing directories with such names.  (Using
   ``_`` as a prefix for a custom template directory is fine.)
 
@@ -569,12 +569,28 @@ __ http://pygments.org/docs/lexers
 
            print 'Explicit is better than implicit.'
 
+      In order to cross-reference a code-block using either the
+      :rst:role:`ref` or the :rst:role:`numref` role, it is necessary
+      that both :strong:`name` and :strong:`caption` be defined. The
+      argument of :strong:`name` can then be given to :rst:role:`numref`
+      to generate the cross-reference. Example::
+
+        See :numref:`this-py` for an example.
+
+      When using :rst:role:`ref`, it is possible to generate a cross-reference
+      with only :strong:`name` defined, provided an explicit title is
+      given. Example::
+
+        See :ref:`this code snippet <this-py>` for an example.
+
       .. versionadded:: 1.3
 
    .. rst:directive:option:: dedent: number
-      :type: number
+      :type: number or no value
 
-      Strip indentation characters from the code block. For example::
+      Strip indentation characters from the code block.  When number given,
+      leading N characters are removed.  When no argument given, leading spaces
+      are removed via :func:`textwrap.dedent()`.  For example::
 
          .. code-block:: ruby
             :dedent: 4
@@ -582,6 +598,8 @@ __ http://pygments.org/docs/lexers
                 some ruby code
 
       .. versionadded:: 1.3
+      .. versionchanged:: 3.5
+         Support automatic dedent.
 
    .. rst:directive:option:: force
       :type: no value
@@ -656,9 +674,43 @@ __ http://pygments.org/docs/lexers
    string are included. The ``start-at`` and ``end-at`` options behave in a
    similar way, but the lines containing the matched string are included.
 
-   With lines selected using ``start-after`` it is still possible to use
-   ``lines``, the first allowed line having by convention the line number
-   ``1``.
+   ``start-after``/``start-at`` and ``end-before``/``end-at`` can have same string.
+   ``start-after``/``start-at`` filter lines before the line that contains
+   option string (``start-at`` will keep the line). Then ``end-before``/``end-at``
+   filter lines after the line that contains option string (``end-at`` will keep
+   the line and ``end-before`` skip the first line).
+
+   .. note::
+
+      If you want to select only ``[second-section]`` of ini file like the
+      following, you can use ``:start-at: [second-section]`` and
+      ``:end-before: [third-section]``:
+
+      .. code-block:: ini
+
+         [first-section]
+
+         var_in_first=true
+
+         [second-section]
+
+         var_in_second=true
+
+         [third-section]
+
+         var_in_third=true
+
+      Useful cases of these option is working with tag comments.
+      ``:start-after: [initialized]`` and ``:end-before: [initialized]`` options
+      keep lines between comments:
+
+      .. code-block:: py
+
+         if __name__ == "__main__":
+             # [initialize]
+             app.start(":8000")
+             # [initialize]
+
 
    When lines have been selected in any of the ways described above, the line
    numbers in ``emphasize-lines`` refer to those selected lines, counted
@@ -707,6 +759,9 @@ __ http://pygments.org/docs/lexers
 
    .. versionchanged:: 2.1
       Added the ``force`` option.
+
+   .. versionchanged:: 3.5
+      Support automatic dedent.
 
 .. _glossary-directive:
 
@@ -1165,20 +1220,29 @@ the definition of the symbol.  There is this directive:
    the following definition.  If the definition spans multiple lines, each
    continuation line must begin with a colon placed at the same column as in
    the first line.
+   Blank lines are not allowed within ``productionlist`` directive arguments.
+
+   The definition can contain token names which are marked as interpreted text
+   (e.g., "``sum ::= `integer` "+" `integer```") -- this generates
+   cross-references to the productions of these tokens.  Outside of the
+   production list, you can reference to token productions using
+   :rst:role:`token`.
 
    The *productionGroup* argument to :rst:dir:`productionlist` serves to
    distinguish different sets of production lists that belong to different
    grammars.  Multiple production lists with the same *productionGroup* thus
    define rules in the same scope.
 
-   Blank lines are not allowed within ``productionlist`` directive arguments.
+   Inside of the production list, tokens implicitly refer to productions
+   from the current group. You can refer to the production of another
+   grammar by prefixing the token with its group name and a colon, e.g,
+   "``otherGroup:sum``". If the group of the token should not be shown in
+   the production, it can be prefixed by a tilde, e.g.,
+   "``~otherGroup:sum``". To refer to a production from an unnamed
+   grammar, the token should be prefixed by a colon, e.g., "``:sum``".
 
-   The definition can contain token names which are marked as interpreted text
-   (e.g. "``sum ::= `integer` "+" `integer```") -- this generates
-   cross-references to the productions of these tokens.  Outside of the
-   production list, you can reference to token productions using
-   :rst:role:`token`.
-   However, if you have given a *productionGroup* argument you must prefix the
+   Outside of the production list,
+   if you have given a *productionGroup* argument you must prefix the
    token name in the cross-reference with the group name and a colon,
    e.g., "``myGroup:sum``" instead of just "``sum``".
    If the group should not be shown in the title of the link either

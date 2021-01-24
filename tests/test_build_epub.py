@@ -4,13 +4,13 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import subprocess
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 from xml.etree import ElementTree
 
 import pytest
@@ -391,6 +391,6 @@ def test_run_epubcheck(app):
             subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
                            stdout=PIPE, stderr=PIPE, check=True)
         except CalledProcessError as exc:
-            print(exc.stdout)
-            print(exc.stderr)
+            print(exc.stdout.decode('utf-8'))
+            print(exc.stderr.decode('utf-8'))
             assert False, 'epubcheck exited with return code %s' % exc.returncode

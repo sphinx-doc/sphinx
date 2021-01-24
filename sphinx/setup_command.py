@@ -7,19 +7,19 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import sys
 from distutils.cmd import Command
-from distutils.errors import DistutilsOptionError, DistutilsExecError
+from distutils.errors import DistutilsExecError
 from io import StringIO
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
-from sphinx.util.console import nocolor, color_terminal
+from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
@@ -84,6 +84,7 @@ class BuildDoc(Command):
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
         ('pdb', None, 'Start pdb on exception'),
+        ('verbosity', 'v', 'increase verbosity (can be repeated)'),
         ('nitpicky', 'n', 'nit-picky mode, warn about all missing references'),
         ('keep-going', None, 'With -W, keep going when getting warnings'),
     ]
@@ -104,7 +105,8 @@ class BuildDoc(Command):
         self.config_dir = None  # type: str
         self.link_index = False
         self.copyright = ''
-        self.verbosity = 0
+        # Link verbosity to distutils' (which uses 1 by default).
+        self.verbosity = self.distribution.verbose - 1  # type: ignore
         self.traceback = False
         self.nitpicky = False
         self.keep_going = False
@@ -118,20 +120,6 @@ class BuildDoc(Command):
                 if 'conf.py' in filenames:
                     return root
         return os.curdir
-
-    # Overriding distutils' Command._ensure_stringlike which doesn't support
-    # unicode, causing finalize_options to fail if invoked again. Workaround
-    # for https://bugs.python.org/issue19570
-    def _ensure_stringlike(self, option, what, default=None):
-        # type: (str, str, Any) -> Any
-        val = getattr(self, option)
-        if val is None:
-            setattr(self, option, default)
-            return default
-        elif not isinstance(val, str):
-            raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
-                                       % (option, what, val))
-        return val
 
     def finalize_options(self):
         # type: () -> None
@@ -189,7 +177,7 @@ class BuildDoc(Command):
                                  builder, confoverrides, status_stream,
                                  freshenv=self.fresh_env,
                                  warningiserror=self.warning_is_error,
-                                 keep_going=self.keep_going)
+                                 verbosity=self.verbosity, keep_going=self.keep_going)
                     app.build(force_all=self.all_files)
                     if app.statuscode:
                         raise DistutilsExecError(
@@ -197,7 +185,7 @@ class BuildDoc(Command):
             except Exception as exc:
                 handle_exception(app, self, exc, sys.stderr)
                 if not self.pdb:
-                    raise SystemExit(1)
+                    raise SystemExit(1) from exc
 
             if not self.link_index:
                 continue

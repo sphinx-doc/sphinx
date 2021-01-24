@@ -4,7 +4,7 @@
 
     Tests the JavaScript Domain
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,10 +14,8 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.addnodes import (
-    desc, desc_annotation, desc_content, desc_name,
-    desc_parameter, desc_parameterlist, desc_signature
-)
+from sphinx.addnodes import (desc, desc_annotation, desc_content, desc_name, desc_parameter,
+                             desc_parameterlist, desc_signature)
 from sphinx.domains.javascript import JavaScriptDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -218,3 +216,13 @@ def test_js_data(app):
     assert_node(doctree[0], addnodes.index,
                 entries=[("single", "name (global variable or constant)", "name", "", None)])
     assert_node(doctree[1], addnodes.desc, domain="js", objtype="data", noindex=False)
+
+
+def test_noindexentry(app):
+    text = (".. js:function:: f()\n"
+            ".. js:function:: g()\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f() (built-in function)', 'f', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])

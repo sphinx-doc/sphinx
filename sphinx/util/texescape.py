@@ -4,7 +4,7 @@
 
     TeX escaping helper.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,6 @@ import re
 from typing import Dict
 
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
-
 
 tex_replacements = [
     # map TeX special chars

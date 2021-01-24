@@ -15,7 +15,7 @@
     namespace of the project configuration (that is, all variables from
     ``conf.py`` are available.)
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -62,7 +62,7 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
             msg = ''.join(format_exception_only(err.__class__, err))
-            newnode = doctree.reporter.error('Exception occured in '
+            newnode = doctree.reporter.error('Exception occurred in '
                                              'ifconfig expression: \n%s' %
                                              msg, base_node=node)
             node.replace_self(newnode)

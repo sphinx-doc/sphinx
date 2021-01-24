@@ -4,23 +4,21 @@
 
     Index entries adapters for sphinx.environment.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import unicodedata
 from itertools import groupby
-from typing import Any, Dict, Pattern, List, Tuple
-from typing import cast
+from typing import Any, Dict, List, Pattern, Tuple, cast
 
 from sphinx.builders import Builder
 from sphinx.domains.index import IndexDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
-from sphinx.util import split_into, logging
-
+from sphinx.util import logging, split_into
 
 logger = logging.getLogger(__name__)
 
@@ -98,9 +96,8 @@ class IndexEntries:
             for subentry in indexentry[1].values():
                 subentry[0].sort(key=keyfunc0)  # type: ignore
 
-        # sort the index entries; put all symbols at the front, even those
-        # following the letters in ASCII, this is where the chr(127) comes from
-        def keyfunc(entry: Tuple[str, List]) -> Tuple[str, str]:
+        # sort the index entries
+        def keyfunc(entry: Tuple[str, List]) -> Tuple[Tuple[int, str], str]:
             key, (void, void, category_key) = entry
             if category_key:
                 # using specified category key to sort
@@ -108,11 +105,16 @@ class IndexEntries:
             lckey = unicodedata.normalize('NFD', key.lower())
             if lckey.startswith('\N{RIGHT-TO-LEFT MARK}'):
                 lckey = lckey[1:]
+
             if lckey[0:1].isalpha() or lckey.startswith('_'):
-                lckey = chr(127) + lckey
+                # put non-symbol characters at the folloing group (1)
+                sortkey = (1, lckey)
+            else:
+                # put symbols at the front of the index (0)
+                sortkey = (0, lckey)
             # ensure a determinstic order *within* letters by also sorting on
             # the entry itself
-            return (lckey, entry[0])
+            return (sortkey, entry[0])
         newlist = sorted(new.items(), key=keyfunc)
 
         if group_entries:

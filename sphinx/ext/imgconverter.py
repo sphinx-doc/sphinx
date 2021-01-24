@@ -4,13 +4,13 @@
 
     Image converter extension for Sphinx
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import subprocess
 import sys
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 from typing import Any, Dict
 
 from sphinx.application import Sphinx
@@ -18,7 +18,6 @@ from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
-
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +69,7 @@ class ImagemagickConverter(ImageConverter):
         except CalledProcessError as exc:
             raise ExtensionError(__('convert exited with error:\n'
                                     '[stderr]\n%r\n[stdout]\n%r') %
-                                 (exc.stderr, exc.stdout))
+                                 (exc.stderr, exc.stdout)) from exc
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

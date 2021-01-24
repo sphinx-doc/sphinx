@@ -5,18 +5,15 @@
     Set up everything for use of JSMath to display math in HTML
     via JavaScript.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
 from typing import Any, Dict
 
-from sphinxcontrib.jsmath import (  # NOQA
-    html_visit_math,
-    html_visit_displaymath,
-    install_jsmath,
-)
+from sphinxcontrib.jsmath import (html_visit_displaymath, html_visit_math,  # NOQA
+                                  install_jsmath)
 
 import sphinx
 from sphinx.application import Sphinx

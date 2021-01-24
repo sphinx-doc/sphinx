@@ -4,7 +4,7 @@
 
     reST helper functions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,12 +18,10 @@ from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.statemachine import StringList
 from docutils.utils import Reporter
-from jinja2 import Environment
-from jinja2 import environmentfilter
+from jinja2 import Environment, environmentfilter
 
 from sphinx.locale import __
-from sphinx.util import docutils
-from sphinx.util import logging
+from sphinx.util import docutils, logging
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +101,11 @@ def prepend_prolog(content: StringList, prolog: str) -> None:
 def append_epilog(content: StringList, epilog: str) -> None:
     """Append a string to content body as epilog."""
     if epilog:
-        content.append('', '<generated>', 0)
+        if 0 < len(content):
+            source, lineno = content.info(-1)
+        else:
+            source = '<generated>'
+            lineno = 0
+        content.append('', source, lineno + 1)
         for lineno, line in enumerate(epilog.splitlines()):
             content.append(line, '<rst_epilog>', lineno)

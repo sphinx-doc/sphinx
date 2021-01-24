@@ -7,13 +7,12 @@
     all todos of your project and lists them along with a backlink to the
     original location.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
-from typing import Any, Dict, Iterable, List, Tuple
-from typing import cast
+from typing import Any, Dict, Iterable, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node

@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,8 +23,7 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import _, __
-from sphinx.util import docutils
-from sphinx.util import logging
+from sphinx.util import docutils, logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
@@ -401,16 +400,21 @@ class ManpageLink(SphinxTransform):
             node.attributes.update(info)
 
 
-from sphinx.domains.citation import (  # NOQA
-    CitationDefinitionTransform, CitationReferenceTransform
-)
+from sphinx.domains.citation import CitationDefinitionTransform  # NOQA
+from sphinx.domains.citation import CitationReferenceTransform  # NOQA
 
 deprecated_alias('sphinx.transforms',
                  {
                      'CitationReferences': CitationReferenceTransform,
                      'SmartQuotesSkipper': CitationDefinitionTransform,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'CitationReferences':
+                     'sphinx.domains.citation.CitationReferenceTransform',
+                     'SmartQuotesSkipper':
+                     'sphinx.domains.citation.CitationDefinitionTransform',
+                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

@@ -4,7 +4,7 @@
 
     Utility functions for docutils.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,8 +15,7 @@ from copy import copy
 from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
-from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple
-from typing import cast
+from typing import IO, Any, Callable, Dict, Generator, List, Optional, Set, Tuple, cast
 
 import docutils
 from docutils import nodes
@@ -24,7 +23,7 @@ from docutils.io import FileOutput
 from docutils.nodes import Element, Node, system_message
 from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
-from docutils.statemachine import StateMachine, State, StringList
+from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
@@ -37,6 +36,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
@@ -459,7 +459,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         The priority of visitor method is:
 
         1. ``self.visit_{node_class}()``
-        2. ``self.visit_{supre_node_class}()``
+        2. ``self.visit_{super_node_class}()``
         3. ``self.unknown_visit()``
         """
         for node_class in node.__class__.__mro__:
@@ -497,7 +497,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     """Return a new empty document object.  This is an alternative of docutils'.
 
     This is a simple wrapper for ``docutils.utils.new_document()``.  It
-    caches the result of docutils' and use it on second call for instanciation.
+    caches the result of docutils' and use it on second call for instantiation.
     This makes an instantiation of document nodes much faster.
     """
     global __document_cache__
@@ -509,6 +509,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
         settings = copy(__document_cache__.settings)
 
     # Create a new instance of nodes.document using cached reporter
-    document = nodes.document(settings, __document_cache__.reporter, source=source_path)
+    from sphinx import addnodes
+    document = addnodes.document(settings, __document_cache__.reporter, source=source_path)
     document.note_source(source_path, -1)
     return document

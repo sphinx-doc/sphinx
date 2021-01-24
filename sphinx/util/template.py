@@ -4,7 +4,7 @@
 
     Templates utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,7 +28,7 @@ class BaseRenderer:
     def __init__(self, loader: BaseLoader = None) -> None:
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
         self.env.filters['repr'] = repr
-        self.env.install_gettext_translations(get_translator())  # type: ignore
+        self.env.install_gettext_translations(get_translator())
 
     def render(self, template_name: str, context: Dict) -> str:
         return self.env.get_template(template_name).render(context)
@@ -84,6 +84,8 @@ class LaTeXRenderer(SphinxRenderer):
         self.env.variable_end_string = '%>'
         self.env.block_start_string = '<%'
         self.env.block_end_string = '%>'
+        self.env.comment_start_string = '<#'
+        self.env.comment_end_string = '#>'
 
 
 class ReSTRenderer(SphinxRenderer):

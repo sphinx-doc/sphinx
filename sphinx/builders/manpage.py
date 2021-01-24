@@ -4,7 +4,7 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,13 +20,11 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import NoUri
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import progress_message
+from sphinx.util import logging, progress_message
 from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import make_filename_from_project
-from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
-
+from sphinx.util.osutil import ensuredir, make_filename_from_project
+from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +78,12 @@ class ManualPageBuilder(Builder):
             docsettings.authors = authors
             docsettings.section = section
 
-            targetname = '%s.%s' % (name, section)
+            if self.config.man_make_section_directory:
+                ensuredir(path.join(self.outdir, str(section)))
+                targetname = '%s/%s.%s' % (section, name, section)
+            else:
+                targetname = '%s.%s' % (name, section)
+
             logger.info(darkgreen(targetname) + ' { ', nonl=True)
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
@@ -115,6 +118,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_config_value('man_pages', default_man_pages, None)
     app.add_config_value('man_show_urls', False, None)
+    app.add_config_value('man_make_section_directory', False, None)
 
     return {
         'version': 'builtin',

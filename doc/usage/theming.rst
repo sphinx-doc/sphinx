@@ -2,8 +2,8 @@
 
 .. _html-themes:
 
-HTML
-====
+HTML Theming
+============
 
 Sphinx provides a number of builders for HTML and HTML-based formats.
 
@@ -21,7 +21,8 @@ Themes
 .. note::
 
    This section provides information about using pre-existing HTML themes. If
-   you wish to create your own theme, refer to :doc:`/theming`.
+   you wish to create your own theme, refer to
+   :doc:`/development/theming`.
 
 Sphinx supports changing the appearance of its HTML output via *themes*.  A
 theme is a collection of HTML templates, stylesheet(s) and other static files.
@@ -80,7 +81,7 @@ zipfile-based theme::
     html_theme = "dotted"
 
 For more information on the design of themes, including information about
-writing your own themes, refer to :doc:`/theming`.
+writing your own themes, refer to :doc:`/development/theming`.
 
 .. _builtin-themes:
 
@@ -171,6 +172,12 @@ These themes are:
     Defaults to ``False``.
 
     .. versionadded:: 3.1
+
+  - **globaltoc_maxdepth** (int): The maximum depth of the toctree in
+    ``globaltoc.html`` (see :confval:`html_sidebars`).  Set it to -1 to allow
+    unlimited depth. Defaults to the max depth selected in the toctree directive.
+
+    .. versionadded:: 3.2
 
 **alabaster**
   `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
@@ -341,7 +348,7 @@ Third Party Themes
 
 There are many third-party themes available. Some of these are general use,
 while others are specific to an individual project. A section of third-party
-themes is listed below. Many more can be found on PyPI__, GitHub__ and
+themes is listed below. Many more can be found on PyPI__, GitHub__, GitLab__ and
 sphinx-themes.org__.
 
 .. cssclass:: clear
@@ -357,6 +364,8 @@ sphinx-themes.org__.
   .. versionchanged:: 1.4
      **sphinx_rtd_theme** has become optional.
 
+
 .. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
 .. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
+.. __: https://gitlab.com/explore?name=sphinx+theme
 .. __: https://sphinx-themes.org/

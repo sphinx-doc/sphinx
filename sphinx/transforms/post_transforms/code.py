@@ -4,22 +4,21 @@
 
     transforms for code-blocks.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
-from typing import Any, Dict, List, NamedTuple, Union
+from typing import Any, Dict, List, NamedTuple
 
 from docutils import nodes
-from docutils.nodes import Node
+from docutils.nodes import Node, TextElement
 from pygments.lexers import PythonConsoleLexer, guess_lexer
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
-
 
 HighlightSetting = NamedTuple('HighlightSetting', [('language', str),
                                                    ('force', bool),
@@ -93,9 +92,6 @@ class TrimDoctestFlagsTransform(SphinxTransform):
     default_priority = HighlightLanguageTransform.default_priority + 1
 
     def apply(self, **kwargs: Any) -> None:
-        if not self.config.trim_doctest_flags:
-            return
-
         for lbnode in self.document.traverse(nodes.literal_block):  # type: nodes.literal_block
             if self.is_pyconsole(lbnode):
                 self.strip_doctest_flags(lbnode)
@@ -103,8 +99,10 @@ class TrimDoctestFlagsTransform(SphinxTransform):
         for dbnode in self.document.traverse(nodes.doctest_block):  # type: nodes.doctest_block
             self.strip_doctest_flags(dbnode)
 
-    @staticmethod
-    def strip_doctest_flags(node: Union[nodes.literal_block, nodes.doctest_block]) -> None:
+    def strip_doctest_flags(self, node: TextElement) -> None:
+        if not node.get('trim_flags', self.config.trim_doctest_flags):
+            return
+
         source = node.rawsource
         source = doctest.blankline_re.sub('', source)
         source = doctest.doctestopt_re.sub('', source)

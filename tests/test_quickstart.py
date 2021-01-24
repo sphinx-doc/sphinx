@@ -4,7 +4,7 @@
 
     Test the sphinx.quickstart module.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,9 +15,8 @@ import pytest
 
 from sphinx import application
 from sphinx.cmd import quickstart as qs
-from sphinx.util.console import nocolor, coloron
+from sphinx.util.console import coloron, nocolor
 from sphinx.util.pycompat import execfile_
-
 
 warnfile = StringIO()
 

@@ -4,18 +4,18 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import pickle
+import posixpath
 import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union
-from typing import cast
+from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -25,13 +25,12 @@ from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
+from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
 from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.transforms import SphinxTransformer
-from sphinx.util import DownloadFiles, FilenameUniqDict
-from sphinx.util import logging
+from sphinx.util import DownloadFiles, FilenameUniqDict, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
@@ -358,9 +357,9 @@ class BuildEnvironment:
             docdir = path.dirname(self.doc2path(docname or self.docname,
                                                 base=None))
             rel_fn = path.join(docdir, filename)
-        # the path.abspath() might seem redundant, but otherwise artifacts
-        # such as ".." will remain in the path
-        return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
+
+        return (posixpath.normpath(rel_fn),
+                path.normpath(path.join(self.srcdir, rel_fn)))
 
     @property
     def found_docs(self) -> Set[str]:
@@ -387,13 +386,14 @@ class BuildEnvironment:
                 # add catalog mo file dependency
                 repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
                                          self.config.language, self.config.source_encoding)
+                mo_paths = {c.domain: c.mo_path for c in repo.catalogs}
                 for docname in self.found_docs:
                     domain = docname_to_domain(docname, self.config.gettext_compact)
-                    for catalog in repo.catalogs:
-                        if catalog.domain == domain:
-                            self.dependencies[docname].add(catalog.mo_path)
+                    if domain in mo_paths:
+                        self.dependencies[docname].add(mo_paths[domain])
         except OSError as exc:
-            raise DocumentError(__('Failed to scan documents in %s: %r') % (self.srcdir, exc))
+            raise DocumentError(__('Failed to scan documents in %s: %r') %
+                                (self.srcdir, exc)) from exc
 
     def get_outdated_files(self, config_changed: bool) -> Tuple[Set[str], Set[str], Set[str]]:
         """Return (added, changed, removed) sets."""
@@ -511,8 +511,8 @@ class BuildEnvironment:
         """
         try:
             return self.domains[domainname]
-        except KeyError:
-            raise ExtensionError(__('Domain %r is not registered') % domainname)
+        except KeyError as exc:
+            raise ExtensionError(__('Domain %r is not registered') % domainname) from exc
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
@@ -593,7 +593,9 @@ class BuildEnvironment:
 
         def traverse_toctree(parent: str, docname: str) -> Iterator[Tuple[str, str]]:
             if parent == docname:
-                logger.warning(__('self referenced toctree found. Ignored.'), location=docname)
+                logger.warning(__('self referenced toctree found. Ignored.'),
+                               location=docname, type='toc',
+                               subtype='circular')
                 return
 
             # traverse toctree by pre-order

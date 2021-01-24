@@ -4,14 +4,13 @@
 
     Generating content for autodoc using typehints
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 from collections import OrderedDict
-from typing import Any, Dict, Iterable
-from typing import cast
+from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -28,7 +27,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
         if callable(obj):
             annotations = app.env.temp_data.setdefault('annotations', {})
             annotation = annotations.setdefault(name, OrderedDict())
-            sig = inspect.signature(obj)
+            sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
                     annotation[param.name] = typing.stringify(param.annotation)
@@ -46,11 +45,16 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
     if objtype == 'class' and app.config.autoclass_content not in ('init', 'both'):
         return
 
-    signature = cast(addnodes.desc_signature, contentnode.parent[0])
-    if signature['module']:
-        fullname = '.'.join([signature['module'], signature['fullname']])
-    else:
-        fullname = signature['fullname']
+    try:
+        signature = cast(addnodes.desc_signature, contentnode.parent[0])
+        if signature['module']:
+            fullname = '.'.join([signature['module'], signature['fullname']])
+        else:
+            fullname = signature['fullname']
+    except KeyError:
+        # signature node does not have valid context info for the target object
+        return
+
     annotations = app.env.temp_data.get('annotations', {})
     if annotations.get(fullname, {}):
         field_lists = [n for n in contentnode if isinstance(n, nodes.field_list)]

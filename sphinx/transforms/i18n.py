@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,22 +20,29 @@ from docutils.utils import relative_path
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
-from sphinx.locale import __, init as init_locale
+from sphinx.locale import __
+from sphinx.locale import init as init_locale
 from sphinx.transforms import SphinxTransform
-from sphinx.util import split_index_msg, logging, get_filetype
+from sphinx.util import get_filetype, logging, split_index_msg
 from sphinx.util.i18n import docname_to_domain
-from sphinx.util.nodes import (
-    LITERAL_TYPE_NODES, IMAGE_TYPE_NODES, NodeMatcher,
-    extract_messages, is_pending_meta, traverse_translatable_index,
-)
+from sphinx.util.nodes import (IMAGE_TYPE_NODES, LITERAL_TYPE_NODES, NodeMatcher,
+                               extract_messages, is_pending_meta, traverse_translatable_index)
 
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
 
 
 logger = logging.getLogger(__name__)
+
+# The attributes not copied to the translated node
+#
+# * refexplict: For allow to give (or not to give) an explicit title
+#               to the pending_xref on translation
+EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
+
 
 N = TypeVar('N', bound=nodes.Node)
 
@@ -426,11 +433,8 @@ class Locale(SphinxTransform):
                 # Copy attributes to keep original node behavior. Especially
                 # copying 'reftarget', 'py:module', 'py:class' are needed.
                 for k, v in xref_reftarget_map.get(key, {}).items():
-                    # Note: This implementation overwrite all attributes.
-                    # if some attributes `k` should not be overwritten,
-                    # you should provide exclude list as:
-                    # `if k not in EXCLUDE_LIST: new[k] = v`
-                    new[k] = v
+                    if k not in EXCLUDED_PENDING_XREF_ATTRIBUTES:
+                        new[k] = v
 
             # update leaves
             for child in patch.children:

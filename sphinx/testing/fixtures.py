@@ -4,7 +4,7 @@
 
     Sphinx test fixtures for pytest
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,6 +20,20 @@ import pytest
 
 from sphinx.testing import util
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
+
+DEFAULT_ENABLED_MARKERS = [
+    (
+        'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None,'
+        ' docutilsconf=None, parallel=0): arguments to initialize the sphinx test application.'
+    ),
+    'test_params(shared_result=...): test parameters.',
+]
+
+
+def pytest_configure(config):
+    # register custom markers
+    for marker in DEFAULT_ENABLED_MARKERS:
+        config.addinivalue_line('markers', marker)
 
 
 @pytest.fixture(scope='session')
@@ -79,7 +93,7 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
 
     if test_params['shared_result']:
         if 'srcdir' in kwargs:
-            raise pytest.Exception('You can not spcify shared_result and '
+            raise pytest.Exception('You can not specify shared_result and '
                                    'srcdir in same time.')
         kwargs['srcdir'] = test_params['shared_result']
         restore = shared_result.restore(test_params['shared_result'])
@@ -236,3 +250,15 @@ def tempdir(tmpdir: str) -> "util.path":
     this fixture is for compat with old test implementation.
     """
     return util.path(tmpdir)
+
+
+@pytest.fixture
+def rollback_sysmodules():
+    """Rollback sys.modules to before testing to unload modules during tests."""
+    try:
+        sysmodules = list(sys.modules)
+        yield
+    finally:
+        for modname in list(sys.modules):
+            if modname not in sysmodules:
+                sys.modules.pop(modname)

@@ -4,7 +4,7 @@
 
     The image collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,7 +25,6 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
-
 
 logger = logging.getLogger(__name__)
 
@@ -58,17 +57,13 @@ class ImageCollector(EnvironmentCollector):
             elif imguri.find('://') != -1:
                 candidates['?'] = imguri
                 continue
-            rel_imgpath, full_imgpath = app.env.relfn2path(imguri, docname)
-            if app.config.language:
-                # substitute figures (ex. foo.png -> foo.en.png)
-                i18n_full_imgpath = search_image_for_language(full_imgpath, app.env)
-                if i18n_full_imgpath != full_imgpath:
-                    full_imgpath = i18n_full_imgpath
-                    rel_imgpath = relative_path(path.join(app.srcdir, 'dummy'),
-                                                i18n_full_imgpath)
-            # set imgpath as default URI
-            node['uri'] = rel_imgpath
-            if rel_imgpath.endswith(os.extsep + '*'):
+
+            if imguri.endswith(os.extsep + '*'):
+                # Update `node['uri']` to a relative path from srcdir
+                # from a relative path from current document.
+                rel_imgpath, full_imgpath = app.env.relfn2path(imguri, docname)
+                node['uri'] = rel_imgpath
+
                 if app.config.language:
                     # Search language-specific figures at first
                     i18n_imguri = get_image_filename_for_language(imguri, app.env)
@@ -77,7 +72,15 @@ class ImageCollector(EnvironmentCollector):
 
                 self.collect_candidates(app.env, full_imgpath, candidates, node)
             else:
-                candidates['*'] = rel_imgpath
+                if app.config.language:
+                    # substitute imguri by figure_language_filename
+                    # (ex. foo.png -> foo.en.png)
+                    imguri = search_image_for_language(imguri, app.env)
+
+                # Update `node['uri']` to a relative path from srcdir
+                # from a relative path from current document.
+                node['uri'], _ = app.env.relfn2path(imguri, docname)
+                candidates['*'] = node['uri']
 
             # map image paths to unique image names (so that they can be put
             # into a single directory)

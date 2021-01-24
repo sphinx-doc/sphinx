@@ -5,7 +5,7 @@
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,7 +13,7 @@ import posixpath
 import re
 import subprocess
 from os import path
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 from typing import Any, Dict, List, Tuple
 
 from docutils import nodes
@@ -182,7 +182,8 @@ class GraphvizSimple(SphinxDirective):
         'alt': directives.unchanged,
         'align': align_spec,
         'caption': directives.unchanged,
-        'graphviz_dot': directives.unchanged,
+        'layout': directives.unchanged,
+        'graphviz_dot': directives.unchanged,  # an old alias of `layout` option
         'name': directives.unchanged,
         'class': directives.class_option,
     }
@@ -194,6 +195,8 @@ class GraphvizSimple(SphinxDirective):
         node['options'] = {'docname': self.env.docname}
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
+        if 'layout' in self.options:
+            node['options']['graphviz_dot'] = self.options['layout']
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
         if 'align' in self.options:
@@ -256,7 +259,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
         return None, None
     except CalledProcessError as exc:
         raise GraphvizError(__('dot exited with error:\n[stderr]\n%r\n'
-                               '[stdout]\n%r') % (exc.stderr, exc.stdout))
+                               '[stdout]\n%r') % (exc.stderr, exc.stdout)) from exc
 
 
 def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Dict,
@@ -270,7 +273,7 @@ def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Di
         fname, outfn = render_dot(self, code, options, format, prefix)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
-        raise nodes.SkipNode
+        raise nodes.SkipNode from exc
 
     classes = [imgcls, 'graphviz'] + node.get('classes', [])
     imgcls = ' '.join(filter(None, classes))
@@ -321,7 +324,7 @@ def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
-        raise nodes.SkipNode
+        raise nodes.SkipNode from exc
 
     is_inline = self.is_inline(node)
 
@@ -358,7 +361,7 @@ def render_dot_texinfo(self: TexinfoTranslator, node: graphviz, code: str,
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
-        raise nodes.SkipNode
+        raise nodes.SkipNode from exc
     if fname is not None:
         self.body.append('@image{%s,,,[graphviz],png}\n' % fname[:-4])
     raise nodes.SkipNode
@@ -385,7 +388,7 @@ def man_visit_graphviz(self: ManualPageTranslator, node: graphviz) -> None:
 
 
 def on_build_finished(app: Sphinx, exc: Exception) -> None:
-    if exc is None:
+    if exc is None and app.builder.format == 'html':
         src = path.join(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
         dst = path.join(app.outdir, '_static')
         copy_asset(src, dst)

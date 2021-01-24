@@ -5,13 +5,15 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import sys
+
 import pytest
 
-from test_ext_autodoc import do_autodoc
+from .test_ext_autodoc import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -36,6 +38,14 @@ def test_classes(app):
     assert list(actual) == [
         '',
         '.. py:function:: Baz(x, y)',
+        '   :module: target.classes',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'function', 'target.classes.Qux')
+    assert list(actual) == [
+        '',
+        '.. py:function:: Qux(foo, bar)',
         '   :module: target.classes',
         '',
     ]
@@ -85,8 +95,8 @@ def test_methoddescriptor(app):
     actual = do_autodoc(app, 'function', 'builtins.int.__add__')
     assert list(actual) == [
         '',
-        '.. py:function:: int.__add__(self, value, /)',
-        '   :module: builtins',
+        '.. py:function:: __add__(self, value, /)',
+        '   :module: builtins.int',
         '',
         '   Return self+value.',
         '',
@@ -98,7 +108,7 @@ def test_decorated(app):
     actual = do_autodoc(app, 'function', 'target.decorator.foo')
     assert list(actual) == [
         '',
-        '.. py:function:: foo()',
+        '.. py:function:: foo(name=None, age=None)',
         '   :module: target.decorator',
         '',
     ]
@@ -108,16 +118,23 @@ def test_decorated(app):
 def test_singledispatch(app):
     options = {}
     actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
-    assert list(actual) == [
-        '',
-        '.. py:function:: func(arg, kwarg=None)',
-        '                 func(arg: int, kwarg=None)',
-        '                 func(arg: str, kwarg=None)',
-        '   :module: target.singledispatch',
-        '',
-        '   A function for general use.',
-        '',
-    ]
+    if sys.version_info < (3, 6):
+        # check the result via "in" because the order of singledispatch signatures is
+        # usually changed (because dict is not OrderedDict yet!)
+        assert '.. py:function:: func(arg, kwarg=None)' in actual
+        assert '                 func(arg: int, kwarg=None)' in actual
+        assert '                 func(arg: str, kwarg=None)' in actual
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:function:: func(arg, kwarg=None)',
+            '                 func(arg: int, kwarg=None)',
+            '                 func(arg: str, kwarg=None)',
+            '   :module: target.singledispatch',
+            '',
+            '   A function for general use.',
+            '',
+        ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -144,5 +161,18 @@ def test_wrapped_function(app):
         '   :module: target.wrappedfunction',
         '',
         '   This function is slow.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_wrapped_function_contextmanager(app):
+    actual = do_autodoc(app, 'function', 'target.wrappedfunction.feeling_good')
+    assert list(actual) == [
+        '',
+        '.. py:function:: feeling_good(x: int, y: int) -> Generator',
+        '   :module: target.wrappedfunction',
+        '',
+        "   You'll feel better in this context!",
         '',
     ]

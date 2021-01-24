@@ -7,7 +7,7 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,22 +15,19 @@ import re
 import warnings
 from collections import defaultdict
 from os import path
-from typing import Any, Dict, Iterable, Iterator, List, Tuple, Set, Union
-from typing import cast
+from typing import Any, Dict, Iterable, Iterator, List, Set, Tuple, Union, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
-from sphinx import addnodes
-from sphinx import highlighting
-from sphinx.deprecation import (
-    RemovedInSphinx40Warning, RemovedInSphinx50Warning, deprecated_alias
-)
+from sphinx import addnodes, highlighting
+from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
+                                deprecated_alias)
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
-from sphinx.locale import admonitionlabels, _, __
-from sphinx.util import split_into, logging, texescape
+from sphinx.locale import _, __, admonitionlabels
+from sphinx.util import logging, split_into, texescape
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
@@ -526,7 +523,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         ret = []
         # latex_domain_indices can be False/True or a list of index names
-        indices_config = self.builder.config.latex_domain_indices
+        indices_config = self.config.latex_domain_indices
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
@@ -546,7 +543,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def render(self, template_name: str, variables: Dict) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
-        for template_dir in self.builder.config.templates_path:
+        for template_dir in self.config.templates_path:
             template = path.join(self.builder.confdir, template_dir,
                                  template_name)
             if path.exists(template):
@@ -651,7 +648,7 @@ class LaTeXTranslator(SphinxTranslator):
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
                     logger.warning(__('document title is not a single Text node'),
-                                   location=(self.curfilestack[-1], node.line))
+                                   location=node)
                 if not self.elements['title']:
                     # text needs to be escaped since it is inserted into
                     # the output literally
@@ -684,7 +681,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
-                           location=(self.curfilestack[-1], node.line or ''))
+                           location=node)
             self.body.append('\\sphinxstyleothertitle{')
             self.context.append('}\n')
         self.in_title = 1
@@ -818,7 +815,8 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_seealso(self, node: Element) -> None:
-        self.body.append('\n\n\\sphinxstrong{%s:}\n\n' % admonitionlabels['seealso'])
+        self.body.append('\n\n\\sphinxstrong{%s:}\n\\nopagebreak\n\n'
+                         % admonitionlabels['seealso'])
 
     def depart_seealso(self, node: Element) -> None:
         self.body.append("\n\n")
@@ -965,7 +963,7 @@ class LaTeXTranslator(SphinxTranslator):
         cell = self.table.cell()
         context = ''
         if cell.width > 1:
-            if self.builder.config.latex_use_latex_multicolumn:
+            if self.config.latex_use_latex_multicolumn:
                 if self.table.col == 0:
                     self.body.append('\\multicolumn{%d}{|l|}{%%\n' % cell.width)
                 else:
@@ -1207,7 +1205,6 @@ class LaTeXTranslator(SphinxTranslator):
         return isinstance(node.parent, nodes.TextElement)
 
     def visit_image(self, node: Element) -> None:
-        attrs = node.attributes
         pre = []    # type: List[str]
                     # in reverse order
         post = []   # type: List[str]
@@ -1217,27 +1214,27 @@ class LaTeXTranslator(SphinxTranslator):
             is_inline = self.is_inline(node.parent)
         else:
             is_inline = self.is_inline(node)
-        if 'width' in attrs:
-            if 'scale' in attrs:
-                w = self.latex_image_length(attrs['width'], attrs['scale'])
+        if 'width' in node:
+            if 'scale' in node:
+                w = self.latex_image_length(node['width'], node['scale'])
             else:
-                w = self.latex_image_length(attrs['width'])
+                w = self.latex_image_length(node['width'])
             if w:
                 include_graphics_options.append('width=%s' % w)
-        if 'height' in attrs:
-            if 'scale' in attrs:
-                h = self.latex_image_length(attrs['height'], attrs['scale'])
+        if 'height' in node:
+            if 'scale' in node:
+                h = self.latex_image_length(node['height'], node['scale'])
             else:
-                h = self.latex_image_length(attrs['height'])
+                h = self.latex_image_length(node['height'])
             if h:
                 include_graphics_options.append('height=%s' % h)
-        if 'scale' in attrs:
+        if 'scale' in node:
             if not include_graphics_options:
                 # if no "width" nor "height", \sphinxincludegraphics will fit
                 # to the available text width if oversized after rescaling.
                 include_graphics_options.append('scale=%s'
-                                                % (float(attrs['scale']) / 100.0))
-        if 'align' in attrs:
+                                                % (float(node['scale']) / 100.0))
+        if 'align' in node:
             align_prepost = {
                 # By default latex aligns the top of an image.
                 (1, 'top'): ('', ''),
@@ -1252,8 +1249,8 @@ class LaTeXTranslator(SphinxTranslator):
                 (0, 'right'): ('{\\hspace*{\\fill}', '}'),
             }
             try:
-                pre.append(align_prepost[is_inline, attrs['align']][0])
-                post.append(align_prepost[is_inline, attrs['align']][1])
+                pre.append(align_prepost[is_inline, node['align']][0])
+                post.append(align_prepost[is_inline, node['align']][1])
             except KeyError:
                 pass
         if self.in_parsed_literal:
@@ -1545,7 +1542,7 @@ class LaTeXTranslator(SphinxTranslator):
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
             self.body.append(r'\emph{')
-            if self.builder.config.latex_show_pagerefs and not \
+            if self.config.latex_show_pagerefs and not \
                     self.in_production_list:
                 self.context.append('}}} (%s)' % self.hyperpageref(id))
             else:
@@ -1569,8 +1566,7 @@ class LaTeXTranslator(SphinxTranslator):
                 self.body.append(r'\sphinxtermref{')
             else:
                 self.body.append(r'\sphinxcrossref{')
-                if self.builder.config.latex_show_pagerefs and not \
-                   self.in_production_list:
+                if self.config.latex_show_pagerefs and not self.in_production_list:
                     self.context.append('}}} (%s)' % self.hyperpageref(id))
                 else:
                     self.context.append('}}}')
@@ -1754,15 +1750,11 @@ class LaTeXTranslator(SphinxTranslator):
             linenos = node.get('linenos', False)
             highlight_args = node.get('highlight_args', {})
             highlight_args['force'] = node.get('force', False)
-            if lang is self.builder.config.highlight_language:
-                # only pass highlighter options for original language
-                opts = self.builder.config.highlight_options
-            else:
-                opts = {}
+            opts = self.config.highlight_options.get(lang, {})
 
             hlcode = self.highlighter.highlight_block(
                 node.rawsource, lang, opts=opts, linenos=linenos,
-                location=(self.curfilestack[-1], node.line), **highlight_args
+                location=node, **highlight_args
             )
             if self.in_footnote:
                 self.body.append('\n\\sphinxSetupCodeBlockInFootnote')
@@ -1977,7 +1969,8 @@ class LaTeXTranslator(SphinxTranslator):
         #       mainly, %, #, {, } and \ need escaping via a \ escape
         # in \href, the tilde is allowed and must be represented literally
         return self.encode(text).replace('\\textasciitilde{}', '~').\
-            replace('\\sphinxhyphen{}', '-')
+            replace('\\sphinxhyphen{}', '-').\
+            replace('\\textquotesingle{}', "'")
 
     def visit_Text(self, node: Text) -> None:
         text = self.encode(node.astext())
@@ -2019,12 +2012,12 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             from sphinx.util.math import wrap_displaymath
             self.body.append(wrap_displaymath(node.astext(), label,
-                                              self.builder.config.math_number_all))
+                                              self.config.math_number_all))
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
         label = "equation:%s:%s" % (node['docname'], node['target'])
-        eqref_format = self.builder.config.math_eqref_format
+        eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:
                 ref = r'\ref{%s}' % label
@@ -2089,7 +2082,7 @@ class LaTeXTranslator(SphinxTranslator):
         warnings.warn('generate_numfig_format() is deprecated.',
                       RemovedInSphinx40Warning, stacklevel=2)
         ret = []  # type: List[str]
-        figure = self.builder.config.numfig_format['figure'].split('%s', 1)
+        figure = self.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' % self.escape(figure[0]).strip())
         else:
@@ -2100,7 +2093,7 @@ class LaTeXTranslator(SphinxTranslator):
                        self.escape(figure[1]))
             ret.append('\\makeatother\n')
 
-        table = self.builder.config.numfig_format['table'].split('%s', 1)
+        table = self.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' % self.escape(table[0]).strip())
         else:
@@ -2111,7 +2104,7 @@ class LaTeXTranslator(SphinxTranslator):
                        self.escape(table[1]))
             ret.append('\\makeatother\n')
 
-        codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
+        codeblock = self.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
             pass  # FIXME
         else:
@@ -2127,7 +2120,6 @@ class LaTeXTranslator(SphinxTranslator):
 from sphinx.builders.latex import constants  # NOQA
 from sphinx.builders.latex.util import ExtBabel  # NOQA
 
-
 deprecated_alias('sphinx.writers.latex',
                  {
                      'ADDITIONAL_SETTINGS': constants.ADDITIONAL_SETTINGS,
@@ -2139,8 +2131,27 @@ deprecated_alias('sphinx.writers.latex',
                      'XELATEX_GREEK_DEFAULT_FONTPKG': constants.XELATEX_GREEK_DEFAULT_FONTPKG,
                      'ExtBabel': ExtBabel,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'ADDITIONAL_SETTINGS':
+                     'sphinx.builders.latex.constants.ADDITIONAL_SETTINGS',
+                     'DEFAULT_SETTINGS':
+                     'sphinx.builders.latex.constants.DEFAULT_SETTINGS',
+                     'LUALATEX_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.LUALATEX_DEFAULT_FONTPKG',
+                     'PDFLATEX_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.PDFLATEX_DEFAULT_FONTPKG',
+                     'SHORTHANDOFF':
+                     'sphinx.builders.latex.constants.SHORTHANDOFF',
+                     'XELATEX_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.XELATEX_DEFAULT_FONTPKG',
+                     'XELATEX_GREEK_DEFAULT_FONTPKG':
+                     'sphinx.builders.latex.constants.XELATEX_GREEK_DEFAULT_FONTPKG',
+                     'ExtBabel': 'sphinx.builders.latex.util.ExtBabel',
+                 })
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext  # NOQA
+from sphinx.builders.latex.nodes import ( # NOQA isort:skip
+    HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext,
+)

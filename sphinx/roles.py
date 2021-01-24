@@ -4,7 +4,7 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,14 +21,13 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import _
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
-from sphinx.util.nodes import (
-    split_explicit_title, process_index_entry, set_role_source_info
-)
+from sphinx.util.nodes import process_index_entry, set_role_source_info, split_explicit_title
 from sphinx.util.typing import RoleFunction
 
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -530,14 +529,15 @@ class Abbreviation(SphinxRole):
     abbr_re = re.compile(r'\((.*)\)$', re.S)
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
+        options = self.options.copy()
         matched = self.abbr_re.search(self.text)
         if matched:
             text = self.text[:matched.start()].strip()
-            self.options['explanation'] = matched.group(1)
+            options['explanation'] = matched.group(1)
         else:
             text = self.text
 
-        return [nodes.abbreviation(self.rawtext, text, **self.options)], []
+        return [nodes.abbreviation(self.rawtext, text, **options)], []
 
 
 def index_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,

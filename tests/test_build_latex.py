@@ -4,7 +4,7 @@
 
     Test the build process with LaTeX builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,19 +13,19 @@ import re
 import subprocess
 from itertools import product
 from shutil import copyfile
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 
 import pytest
-from test_build_html import ENV_WARNINGS
 
 from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
-from sphinx.errors import SphinxError, ThemeError
+from sphinx.errors import SphinxError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
+from .test_build_html import ENV_WARNINGS
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']
@@ -64,8 +64,8 @@ def compile_latex_document(app, filename='python.tex'):
                     '-output-directory=%s' % app.config.latex_engine,
                     filename]
             subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
-    except OSError:  # most likely the latex executable was not found
-        raise pytest.skip.Exception
+    except OSError as exc:  # most likely the latex executable was not found
+        raise pytest.skip.Exception from exc
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
@@ -764,7 +764,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert ('\\caption{This is the figure caption with a footnote to '
             '\\sphinxfootnotemark[7].}\\label{\\detokenize{index:id29}}\\end{figure}\n'
             '%\n\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
-            'Footnote in caption\n%\n\\end{footnotetext}')in result
+            'Footnote in caption\n%\n\\end{footnotetext}') in result
     assert ('\\sphinxcaption{footnote \\sphinxfootnotemark[8] in '
             'caption of normal table}\\label{\\detokenize{index:id30}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[9] '
@@ -1477,7 +1477,7 @@ def test_latex_labels(app, status, warning):
             r'\label{\detokenize{otherdoc:otherdoc}}'
             r'\label{\detokenize{otherdoc::doc}}' in result)
 
-    # Embeded standalone hyperlink reference (refs: #5948)
+    # Embedded standalone hyperlink reference (refs: #5948)
     assert result.count(r'\label{\detokenize{index:section1}}') == 1
 
 
@@ -1545,7 +1545,7 @@ def test_texescape_for_unicode_supported_engine(app, status, warning):
     assert 'superscript: ⁰, ¹' in result
     assert 'subscript: ₀, ₁' in result
 
-    
+
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={'latex_elements': {'extrapackages': r'\usepackage{foo}'}})
 def test_latex_elements_extrapackages(app, status, warning):

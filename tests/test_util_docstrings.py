@@ -4,13 +4,11 @@
 
     Test sphinx.util.docstrings.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.util.docstrings import (
-    extract_metadata, prepare_docstring, prepare_commentdoc
-)
+from sphinx.util.docstrings import extract_metadata, prepare_commentdoc, prepare_docstring
 
 
 def test_extract_metadata():

@@ -7,7 +7,7 @@ Subject: <short purpose of this pull request>
   - Critical or severe bugs: X.Y.Z
   - Others: X.Y
 
-  For more details, see https://www.sphinx-doc.org/en/master/devguide.html#branch-model
+  For more details, see https://www.sphinx-doc.org/en/master/internals/release-process.html#branch-model
 -->
 
 ### Feature or Bugfix

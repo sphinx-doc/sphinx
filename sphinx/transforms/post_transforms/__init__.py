@@ -4,12 +4,11 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple, Type
-from typing import cast
+from typing import Any, Dict, List, Optional, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -24,7 +23,6 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import process_only_nodes
-
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +80,8 @@ class ReferencesResolver(SphinxPostTransform):
                     # let the domain try to resolve the reference
                     try:
                         domain = self.env.domains[node['refdomain']]
-                    except KeyError:
-                        raise NoUri(target, typ)
+                    except KeyError as exc:
+                        raise NoUri(target, typ) from exc
                     newnode = domain.resolve_xref(self.env, refdoc, self.app.builder,
                                                   typ, target, node, contnode)
                 # really hardwired reference types
@@ -152,7 +150,7 @@ class ReferencesResolver(SphinxPostTransform):
         return newnode
 
     def warn_missing_reference(self, refdoc: str, typ: str, target: str,
-                               node: pending_xref, domain: Domain) -> None:
+                               node: pending_xref, domain: Optional[Domain]) -> None:
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True
@@ -166,7 +164,10 @@ class ReferencesResolver(SphinxPostTransform):
                     warn = False
         if not warn:
             return
-        if domain and typ in domain.dangling_warnings:
+
+        if self.app.emit_firstresult('warn-missing-reference', domain, node):
+            return
+        elif domain and typ in domain.dangling_warnings:
             msg = domain.dangling_warnings[typ]
         elif node.get('refdomain', 'std') not in ('', 'std'):
             msg = (__('%s:%s reference target not found: %%(target)s') %
