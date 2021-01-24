@@ -445,14 +445,13 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def finish(self) -> None:
         logger.info('')
-        n = 0
 
         for hyperlink in self.hyperlinks.values():
             self.wqueue.put(hyperlink, False)
-            n += 1
 
+        total_links = len(self.hyperlinks)
         done = 0
-        while done < n:
+        while done < total_links:
             self.process_result(self.rqueue.get())
             done += 1
 
