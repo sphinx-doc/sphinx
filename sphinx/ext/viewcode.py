@@ -149,6 +149,18 @@ def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
     env._viewcode_modules.update(other._viewcode_modules)  # type: ignore
 
 
+def env_purge_doc(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
+    modules = getattr(env, '_viewcode_modules', {})
+
+    for modname, (code, tags, used, refname) in list(modules.items()):
+        for fullname in list(used):
+            if used[fullname] == docname:
+                used.pop(fullname)
+
+        if len(used) == 0:
+            modules.pop(modname)
+
+
 class ViewcodeAnchorTransform(SphinxPostTransform):
     """Convert or remove viewcode_anchor nodes depends on builder."""
     default_priority = 100
@@ -323,6 +335,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('viewcode_follow_imported_members', True, False)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
+    app.connect('env-purge-doc', env_purge_doc)
     app.connect('html-collect-pages', collect_pages)
     app.connect('missing-reference', missing_reference)
     # app.add_config_value('viewcode_include_modules', [], 'env')
