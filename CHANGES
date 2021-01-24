@@ -78,6 +78,8 @@ Bugs fixed
 * #8629: html: A type warning for html_use_opensearch is shown twice
 * #8714: html: kbd role with "Caps Lock" rendered incorrectly
 * #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
+* #8745: i18n: crashes with KeyError when translation message adds a new auto
+  footnote reference
 * #4304: linkcheck: Fix race condition that could lead to checking the
   availability of the same URL twice
 * #8094: texinfo: image files on the different directory with document are not
