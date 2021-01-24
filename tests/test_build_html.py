@@ -254,6 +254,7 @@ def test_html4_output(app, status, warning):
         (".//p[@class='centered']/strong", 'LICENSE'),
         # a glossary
         (".//dl/dt[@id='term-boson']", 'boson'),
+        (".//dl/dt[@id='term-boson']/a", '¶'),
         # a production list
         (".//pre/strong", 'try_stmt'),
         (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
