@@ -404,9 +404,10 @@ class Sphinx:
     def require_sphinx(self, version: str) -> None:
         """Check the Sphinx version if requested.
 
-        Compare *version* (which must be a ``major.minor`` version string, e.g.
-        ``'1.1'``) with the version of the running Sphinx, and abort the build
-        when it is too old.
+        Compare *version* with the version of the running Sphinx, and abort the
+        build when it is too old.
+
+        :param version: The required version in the form of ``major.minor``.
 
         .. versionadded:: 1.0
         """
@@ -420,11 +421,11 @@ class Sphinx:
         For details on available core events and the arguments of callback
         functions, please see :ref:`events`.
 
-        Registered callbacks will be invoked on event in the order of *priority* and
-        registration.  The priority is ascending order.
-
-        The method returns a "listener ID" that can be used as an argument to
-        :meth:`disconnect`.
+        :param event: The name of target event
+        :param callback: Callback function for the event
+        :param priority: The priority of the callback.  The callbacks will be invoked
+                         in the order of *priority* in asending.
+        :return: A listener ID.  It can be used for :meth:`disconnect`.
 
         .. versionchanged:: 3.0
 
@@ -436,7 +437,10 @@ class Sphinx:
         return listener_id
 
     def disconnect(self, listener_id: int) -> None:
-        """Unregister callback by *listener_id*."""
+        """Unregister callback by *listener_id*.
+
+        :param listener_id: A listener_id that :meth:`connect` returns
+        """
         logger.debug('[app] disconnecting event: [id=%s]', listener_id)
         self.events.disconnect(listener_id)
 
@@ -446,6 +450,10 @@ class Sphinx:
 
         Return the return values of all callbacks as a list.  Do not emit core
         Sphinx events in extensions!
+
+        :param event: The name of event that will be emitted
+        :param args: The arguments for the event
+        :param allowed_exceptions: The list of exceptions that are allowed in the callbacks
 
         .. versionchanged:: 3.1
 
@@ -458,6 +466,10 @@ class Sphinx:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
+
+        :param event: The name of event that will be emitted
+        :param args: The arguments for the event
+        :param allowed_exceptions: The list of exceptions that are allowed in the callbacks
 
         .. versionadded:: 0.5
         .. versionchanged:: 3.1
@@ -472,10 +484,9 @@ class Sphinx:
     def add_builder(self, builder: "Type[Builder]", override: bool = False) -> None:
         """Register a new builder.
 
-        *builder* must be a class that inherits from :class:`~sphinx.builders.Builder`.
-
-        If *override* is True, the given *builder* is forcedly installed even if
-        a builder having the same name is already installed.
+        :param builder: A builder class
+        :param override: If true, install the builder forcedly even if another builder
+                         is already installed as the same name
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -536,8 +547,10 @@ class Sphinx:
         builtin translator.  This allows extensions to use custom translator
         and define custom nodes for the translator (see :meth:`add_node`).
 
-        If *override* is True, the given *translator_class* is forcedly installed even if
-        a translator for *name* is already installed.
+        :param name: The name of builder for the translator
+        :param translator_class: A translator class
+        :param override: If true, install the translator forcedly even if another translator
+                         is already installed as the same name
 
         .. versionadded:: 1.3
         .. versionchanged:: 1.8
@@ -622,10 +635,10 @@ class Sphinx:
     def add_directive(self, name: str, cls: "Type[Directive]", override: bool = False) -> None:
         """Register a Docutils directive.
 
-        *name* must be the prospective directive name.  *cls* is a directive
-        class which inherits ``docutils.parsers.rst.Directive``.  For more
-        details, see `the Docutils docs
-        <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_ .
+        :param name: The name of directive
+        :param cls: A directive class
+        :param override: If true, install the directive forcedly even if another directive
+                         is already installed as the same name
 
         For example, a custom directive named ``my-directive`` would be added
         like this:
@@ -650,8 +663,8 @@ class Sphinx:
            def setup(app):
                add_directive('my-directive', MyDirective)
 
-        If *override* is True, the given *cls* is forcedly installed even if
-        a directive named as *name* is already installed.
+        For more details, see `the Docutils docs
+        <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`__ .
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
@@ -670,13 +683,13 @@ class Sphinx:
     def add_role(self, name: str, role: Any, override: bool = False) -> None:
         """Register a Docutils role.
 
-        *name* must be the role name that occurs in the source, *role* the role
-        function. Refer to the `Docutils documentation
-        <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`_ for
-        more information.
+        :param name: The name of role
+        :param cls: A role function
+        :param override: If true, install the role forcedly even if another role is already
+                         installed as the same name
 
-        If *override* is True, the given *role* is forcedly installed even if
-        a role named as *name* is already installed.
+        For more details about role functions, see `the Docutils docs
+        <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`__ .
 
         .. versionchanged:: 1.8
            Add *override* keyword.
