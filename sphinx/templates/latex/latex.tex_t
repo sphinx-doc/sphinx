@@ -13,6 +13,9 @@
 \ifdefined\pdfpxdimen
    \let\sphinxpxdimen\pdfpxdimen\else\newdimen\sphinxpxdimen
 \fi \sphinxpxdimen=<%= pxunit %>\relax
+\ifdefined\pdfimageresolution
+    \pdfimageresolution= \numexpr \dimexpr1in\relax/\sphinxpxdimen\relax
+\fi
 <% if use_xindy -%>
 %% turn off hyperref patch of \index as sphinx.xdy xindy module takes care of
 %% suitable \hyperpage mark-up, working around hyperref-xindy incompatibility

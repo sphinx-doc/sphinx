@@ -68,6 +68,8 @@ Bugs fixed
   ``:unknown:doc:``)
 * #8711: LaTeX: backticks in code-blocks trigger latexpdf build warning (and font
   change) with late TeXLive 2019
+* #8253: LaTeX: Figures with no size defined get overscaled (compared to images
+  with size explicitly set in pixels) (fixed for ``'pdflatex'/'lualatex'`` only)
 
 Testing
 --------
