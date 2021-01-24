@@ -407,7 +407,7 @@ class Sphinx:
         Compare *version* with the version of the running Sphinx, and abort the
         build when it is too old.
 
-        :param version: The required version that forms ``major.minor``.
+        :param version: The required version in the form of ``major.minor``.
 
         .. versionadded:: 1.0
         """
