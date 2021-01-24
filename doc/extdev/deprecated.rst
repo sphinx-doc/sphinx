@@ -26,6 +26,16 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``favicon`` variable in HTML templates
+     - 4.0
+     - TBD
+     - ``favicon_url``
+
+   * - ``logo`` variable in HTML templates
+     - 4.0
+     - TBD
+     - ``logo_url``
+
    * - ``sphinx.directives.patches.CSVTable``
      - 4.0
      - 6.0

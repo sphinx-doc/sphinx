@@ -51,9 +51,9 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
           {%- block sidebarlogo %}
-          {%- if logo %}
+          {%- if logo_url %}
             <p class="logo"><a href="{{ pathto(master_doc)|e }}">
-              <img class="logo" src="{{ pathto('_static/' + logo, 1)|e }}" alt="Logo"/>
+              <img class="logo" src="{{ logo_url|e }}" alt="Logo"/>
             </a></p>
           {%- endif %}
           {%- endblock %}
@@ -135,8 +135,8 @@
           title="{% trans docstitle=docstitle|e %}Search within {{ docstitle }}{% endtrans %}"
           href="{{ pathto('_static/opensearch.xml', 1) }}"/>
     {%- endif %}
-    {%- if favicon %}
-    <link rel="shortcut icon" href="{{ pathto('_static/' + favicon, 1)|e }}"/>
+    {%- if favicon_url %}
+    <link rel="shortcut icon" href="{{ favicon_url|e }}"/>
     {%- endif %}
     {%- endif %}
 {%- block linktags %}

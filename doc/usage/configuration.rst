@@ -987,25 +987,31 @@ that use Sphinx's HTMLWriter class.
 .. confval:: html_logo
 
    If given, this must be the name of an image file (path relative to the
-   :term:`configuration directory`) that is the logo of the docs.  It is placed
-   at the top of the sidebar; its width should therefore not exceed 200 pixels.
-   Default: ``None``.
+   :term:`configuration directory`) that is the logo of the docs, or URL that
+   points an image file for the logo.  It is placed at the top of the sidebar;
+   its width should therefore not exceed 200 pixels.  Default: ``None``.
 
    .. versionadded:: 0.4.1
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
 
+   .. versionchanged:: 4.0
+      Also accepts the URL for the logo file.
+
 .. confval:: html_favicon
 
    If given, this must be the name of an image file (path relative to the
-   :term:`configuration directory`) that is the favicon of the docs.  Modern
-   browsers use this as the icon for tabs, windows and bookmarks.  It should
-   be a Windows-style icon file (``.ico``), which is 16x16 or 32x32
-   pixels large.  Default: ``None``.
+   :term:`configuration directory`) that is the favicon of the docs, or URL that
+   points an image file for the favicon.  Modern browsers use this as the icon
+   for tabs, windows and bookmarks.  It should be a Windows-style icon file
+   (``.ico``), which is 16x16 or 32x32 pixels large.  Default: ``None``.
 
    .. versionadded:: 0.4
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
+
+   .. versionchanged:: 4.0
+      Also accepts the URL for the favicon.
 
 .. confval:: html_css_files
 

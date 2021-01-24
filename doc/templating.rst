@@ -274,7 +274,19 @@ in the future.
 
 .. data:: favicon
 
-   The path to the HTML favicon in the static path, or ``''``.
+   The path to the HTML favicon in the static path, or URL to the favicon, or
+   ``''``.
+
+   .. deprecated:: 4.0
+
+      Recommend to use ``favicon_url`` instead.
+
+.. data:: favicon_url
+
+   The relative path to the HTML favicon image from the current document, or
+   URL to the favicon, or ``''``.
+
+   .. versionadded:: 4.0
 
 .. data:: file_suffix
 
@@ -297,7 +309,19 @@ in the future.
 
 .. data:: logo
 
-   The path to the HTML logo image in the static path, or ``''``.
+   The path to the HTML logo image in the static path, or URL to the logo, or
+   ``''``.
+
+   .. deprecated:: 4.0
+
+      Recommend to use ``logo_url`` instead.
+
+.. data:: logo_url
+
+   The relative path to the HTML logo image from the current document, or URL
+   to the logo, or ``''``.
+
+   .. versionadded:: 4.0
 
 .. data:: master_doc
 

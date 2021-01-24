@@ -38,7 +38,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import logging, md5, progress_message, status_iterator
+from sphinx.util import isurl, logging, md5, progress_message, status_iterator
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
@@ -792,12 +792,12 @@ class StandaloneHTMLBuilder(Builder):
                        excluded, context=context, renderer=self.templates, onerror=onerror)
 
     def copy_html_logo(self) -> None:
-        if self.config.html_logo:
+        if self.config.html_logo and not isurl(self.config.html_logo):
             copy_asset(path.join(self.confdir, self.config.html_logo),
                        path.join(self.outdir, '_static'))
 
     def copy_html_favicon(self) -> None:
-        if self.config.html_favicon:
+        if self.config.html_favicon and not isurl(self.config.html_favicon):
             copy_asset(path.join(self.confdir, self.config.html_favicon),
                        path.join(self.outdir, '_static'))
 
@@ -1155,6 +1155,26 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatexname: str,
     context['js_tag'] = js_tag
 
 
+def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
+                         context: Dict, doctree: Node) -> None:
+    """Set up relative resource paths."""
+    pathto = context.get('pathto')
+
+    # favicon_url
+    favicon = context.get('favicon')
+    if not isurl(favicon):
+        context['favicon_url'] = pathto('_static/' + favicon, resource=True)
+    else:
+        context['favicon_url'] = favicon
+
+    # logo_url
+    logo = context.get('logo')
+    if not isurl(logo):
+        context['logo_url'] = pathto('_static/' + logo, resource=True)
+    else:
+        context['logo_url'] = logo
+
+
 def validate_math_renderer(app: Sphinx) -> None:
     if app.builder.format != 'html':
         return
@@ -1195,14 +1215,18 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
 
 def validate_html_logo(app: Sphinx, config: Config) -> None:
     """Check html_logo setting."""
-    if config.html_logo and not path.isfile(path.join(app.confdir, config.html_logo)):
+    if (config.html_logo and
+            not path.isfile(path.join(app.confdir, config.html_logo)) and
+            not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
         config.html_logo = None  # type: ignore
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
     """Check html_favicon setting."""
-    if config.html_favicon and not path.isfile(path.join(app.confdir, config.html_favicon)):
+    if (config.html_favicon and
+            not path.isfile(path.join(app.confdir, config.html_favicon)) and
+            not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
         config.html_favicon = None  # type: ignore
 
@@ -1288,6 +1312,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
+    app.connect('html-page-context', setup_resource_paths)
 
     # load default math renderer
     app.setup_extension('sphinx.ext.mathjax')
