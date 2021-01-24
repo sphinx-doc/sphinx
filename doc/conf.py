@@ -69,8 +69,15 @@ latex_elements = {
 \substitutefont{X2}{\sfdefault}{cmss}
 \substitutefont{X2}{\ttdefault}{cmtt}
 ''',
-    'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
-    'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',
+    'passoptionstopackages': r'''
+\PassOptionsToPackage{svgnames}{xcolor}
+\PassOptionsToPackage{bookmarksdepth=3}{hyperref}% depth of pdf bookmarks
+''',
+    'preamble': r'''
+\DeclareUnicodeCharacter{229E}{\ensuremath{\boxplus}}
+\setcounter{tocdepth}{3}%    depth of what is kept from toc file
+\setcounter{secnumdepth}{1}% depth of section numbering
+''',
     'fvset': '\\fvset{fontsize=auto}',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
