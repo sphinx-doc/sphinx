@@ -1167,6 +1167,30 @@ Sample class with PEP 526 annotations and google docstring
 """
             self.assertEqual(expected, actual)
 
+    def test_preprocess_types(self):
+        docstring = """\
+Do as you please
+
+Yield:
+   str:Extended
+"""
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+Do as you please
+
+:Yields: *str* -- Extended
+"""
+        self.assertEqual(expected, actual)
+
+        config = Config(napoleon_preprocess_types=True)
+        actual = str(GoogleDocstring(docstring, config))
+        expected = """\
+Do as you please
+
+:Yields: :class:`str` -- Extended
+"""
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
