@@ -93,8 +93,13 @@ def process_documenter_options(documenter: "Type[Documenter]", config: Config, o
                         if options[name] is not None and options[name].startswith('+'):
                             options[name] = ','.join([config.autodoc_default_options[name],
                                                       options[name][1:]])
+                            print(options[name])
                 else:
                     options[name] = config.autodoc_default_options[name]
+
+            elif isinstance(options.get(name), str) and options[name].startswith('+'):
+                # remove '+' from option argument if there's nothing to merge it with
+                options[name] = options[name][1:]
 
     return Options(assemble_option_dict(options.items(), documenter.option_spec))
 

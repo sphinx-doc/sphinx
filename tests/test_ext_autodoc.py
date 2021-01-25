@@ -627,6 +627,15 @@ def test_autodoc_exclude_members(app):
         '.. py:class:: Base()',
     ]
 
+    # + has no effect when autodoc_default_options are not present
+    options = {"members": None,
+               "exclude-members": "+inheritedmeth,inheritedstaticmeth"}
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base()',
+        '   .. py:method:: Base.inheritedclassmeth()'
+    ]
+
     # exclude-members overrides autodoc_default_options
     options = {"members": None,
                "exclude-members": "inheritedmeth"}
