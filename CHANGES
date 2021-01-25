@@ -72,6 +72,7 @@ Bugs fixed
 * #8652: autodoc: All variable comments in the module are ignored if the module
   contains invalid type comments
 * #8693: autodoc: Default values for overloaded functions are rendered as string
+* #8134: autodoc: crashes when mocked decorator takes arguments
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
 * #8618: html: kbd role produces incorrect HTML when compound-key separators (-,

@@ -27,7 +27,7 @@ from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warni
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import (get_class_members, get_object_members, import_module,
                                          import_object)
-from sphinx.ext.autodoc.mock import ismock, mock
+from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect, logging
@@ -422,6 +422,8 @@ class Documenter:
                                     attrgetter=self.get_attr,
                                     warningiserror=self.config.autodoc_warningiserror)
                 self.module, self.parent, self.object_name, self.object = ret
+                if ismock(self.object):
+                    self.object = undecorate(self.object)
                 return True
             except ImportError as exc:
                 if raiseerror:
@@ -1054,6 +1056,8 @@ class ModuleDocumenter(Documenter):
         for name in dir(self.object):
             try:
                 value = safe_getattr(self.object, name, None)
+                if ismock(value):
+                    value = undecorate(value)
                 docstring = attr_docs.get(('', name), [])
                 members[name] = ObjectMember(name, value, docstring="\n".join(docstring))
             except AttributeError:
