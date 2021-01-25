@@ -1162,14 +1162,14 @@ def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
 
     # favicon_url
     favicon = context.get('favicon')
-    if not isurl(favicon):
+    if favicon and not isurl(favicon):
         context['favicon_url'] = pathto('_static/' + favicon, resource=True)
     else:
         context['favicon_url'] = favicon
 
     # logo_url
     logo = context.get('logo')
-    if not isurl(logo):
+    if logo and not isurl(logo):
         context['logo_url'] = pathto('_static/' + logo, resource=True)
     else:
         context['logo_url'] = logo
