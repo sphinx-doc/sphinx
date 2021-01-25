@@ -835,10 +835,6 @@ def test_autodoc_special_members(app):
         '   .. py:method:: Class.undocmeth()'
     ]
 
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_special_members_extentiable(app):
-
     # specific special methods from autodoc_default_options
     options = {"undoc-members": None}
     app.config.autodoc_default_options["special-members"] = "__special2__"
@@ -869,36 +865,6 @@ def test_autodoc_special_members_extentiable(app):
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:method:: Class.__special1__()',
         '   .. py:method:: Class.__special2__()',
-    ]
-
-    # all special methods with autodoc_default_options
-    options = {"members": None,
-               "undoc-members": None,
-               "special-members": None}
-    app.config.autodoc_default_options["special-members"] = "__special1__"
-    actual = do_autodoc(app, 'class', 'target.Class', options)
-    assert list(filter(lambda l: '::' in l, actual)) == [
-        '.. py:class:: Class(arg)',
-        '   .. py:attribute:: Class.__dict__',
-        '   .. py:method:: Class.__init__(arg)',
-        '   .. py:attribute:: Class.__module__',
-        '   .. py:method:: Class.__special1__()',
-        '   .. py:method:: Class.__special2__()',
-        '   .. py:attribute:: Class.__weakref__',
-        '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.docattr',
-        '   .. py:method:: Class.excludemeth()',
-        '   .. py:attribute:: Class.inst_attr_comment',
-        '   .. py:attribute:: Class.inst_attr_inline',
-        '   .. py:attribute:: Class.inst_attr_string',
-        '   .. py:attribute:: Class.mdocattr',
-        '   .. py:method:: Class.meth()',
-        '   .. py:method:: Class.moore(a, e, f) -> happiness',
-        '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
-        '   .. py:attribute:: Class.skipattr',
-        '   .. py:method:: Class.skipmeth()',
-        '   .. py:attribute:: Class.udocattr',
-        '   .. py:method:: Class.undocmeth()'
     ]
 
 
