@@ -971,10 +971,15 @@ that use Sphinx's HTMLWriter class.
 
    The style of line numbers for code-blocks.
 
-   * ``'table'`` -- display line numbers using ``<table>`` tag (default)
-   * ``'inline'`` -- display line numbers using ``<span>`` tag
+   * ``'table'`` -- display line numbers using ``<table>`` tag
+   * ``'inline'`` -- display line numbers using ``<span>`` tag (default)
 
    .. versionadded:: 3.2
+   .. versionchanged:: 4.0
+
+      It defaults to ``'inline'``.
+
+   .. deprecated:: 4.0
 
 .. confval:: html_context
 
