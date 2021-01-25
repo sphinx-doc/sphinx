@@ -29,6 +29,7 @@ try:
         readline.parse_and_bind("tab: complete")
         USE_LIBEDIT = False
 except ImportError:
+    readline = None
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
@@ -169,8 +170,11 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
             # sequence (see #5335).  To avoid the problem, all prompts are not colored
             # on libedit.
             pass
-        else:
+        elif readline:
+            # pass input_mode=True if readline available
             prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
+        else:
+            prompt = colorize(COLOR_QUESTION, prompt, input_mode=False)
         x = term_input(prompt).strip()
         if default and not x:
             x = default
