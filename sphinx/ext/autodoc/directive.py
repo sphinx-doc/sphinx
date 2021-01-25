@@ -87,7 +87,8 @@ def process_documenter_options(documenter: "Type[Documenter]", config: Config, o
             negated = options.pop('no-' + name, True) is None
             if name in config.autodoc_default_options and not negated:
                 if name in options:
-                    # take value from options if present or extend it with autodoc_default_options if necessary
+                    # take value from options if present or extend it
+                    # with autodoc_default_options if necessary
                     if name in AUTODOC_EXTENDABLE_OPTIONS:
                         if options[name] is not None and options[name].startswith('+'):
                             options[name] = ','.join([config.autodoc_default_options[name],

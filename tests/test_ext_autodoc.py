@@ -835,6 +835,10 @@ def test_autodoc_special_members(app):
         '   .. py:method:: Class.undocmeth()'
     ]
 
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_special_members_extentiable(app):
+
     # specific special methods from autodoc_default_options
     options = {"undoc-members": None}
     app.config.autodoc_default_options["special-members"] = "__special2__"
