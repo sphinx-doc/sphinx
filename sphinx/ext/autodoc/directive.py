@@ -37,6 +37,8 @@ AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
                            'ignore-module-all', 'exclude-members', 'member-order',
                            'imported-members']
 
+AUTODOC_EXTENDABLE_OPTIONS = ['members', 'special-members', 'exclude-members']
+
 
 class DummyOptionSpec(dict):
     """An option_spec allows any options."""
@@ -84,10 +86,12 @@ def process_documenter_options(documenter: "Type[Documenter]", config: Config, o
         else:
             negated = options.pop('no-' + name, True) is None
             if name in config.autodoc_default_options and not negated:
-                if name == "exclude-members":
-                    if config.autodoc_default_options[name]:
-                        options[name] = config.autodoc_default_options[name] \
-                            + options.get(name, '')
+                if name in options:
+                    # take value from options if present or extend it with autodoc_default_options if necessary
+                    if name in AUTODOC_EXTENDABLE_OPTIONS:
+                        if options[name] is not None and options[name].startswith('+'):
+                            options[name] = ','.join([config.autodoc_default_options[name],
+                                                      options[name][1:]])
                 else:
                     options[name] = config.autodoc_default_options[name]
 
