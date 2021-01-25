@@ -345,6 +345,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             # there's a classifier.
             pass
         else:
+            if isinstance(node.parent.parent.parent, addnodes.glossary):
+                # add permalink if glossary terms
+                self.add_permalink_ref(node, _('Permalink to this term'))
+
             self.body.append('</dt>')
 
     # overwritten
