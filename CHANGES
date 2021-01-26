@@ -98,6 +98,8 @@ Bugs fixed
 * #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
 * #1112: ``download`` role creates duplicated copies when relative path is
   specified
+* #7576: LaTeX with French babel and memoir crash: "Illegal parameter number
+  in definition of ``\FNH@prefntext``"
 * #8735: LaTeX: wrong internal links in pdf to captioned code-blocks when
   :confval:`numfig` is not True
 
