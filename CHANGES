@@ -98,6 +98,8 @@ Bugs fixed
 * #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
 * #1112: ``download`` role creates duplicated copies when relative path is
   specified
+* #8214: LaTeX: The :rst:role:`index` role and the glossary generate duplicate
+  entries in the LaTeX index (if both used for same term)
 * #8735: LaTeX: wrong internal links in pdf to captioned code-blocks when
   :confval:`numfig` is not True
 * #8442: LaTeX: some indexed terms are ignored when using xelatex engine
