@@ -100,6 +100,8 @@ Bugs fixed
   specified
 * #8735: LaTeX: wrong internal links in pdf to captioned code-blocks when
   :confval:`numfig` is not True
+* #8442: LaTeX: some indexed terms are ignored when using xelatex engine
+  (or pdflatex and :confval:`latex_use_xindy` set to True) with memoir class
 
 Testing
 --------
