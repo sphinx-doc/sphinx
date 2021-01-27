@@ -1,9 +1,9 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{sphinxpackagefootnote}%
- [2017/10/27 v1.7 footnotehyper adapted to sphinx (Sphinx team)]
+ [2021/01/26 v1.1b footnotehyper adapted to sphinx (Sphinx team)]]
 %%
 %% Package: sphinxpackagefootnote
-%% Version: based on footnotehyper.sty 2017/03/07 v1.0
+%% Version: based on footnotehyper.sty 2021/01/26 v1.1b
 %% as available at https://www.ctan.org/pkg/footnotehyper
 %% License: the one applying to Sphinx
 %%
@@ -16,7 +16,7 @@
 %% 3. use of \sphinxunactivateextrasandspace from sphinx.sty,
 %% 4. macro definition \sphinxfootnotemark,
 %% 5. macro definition \sphinxlongtablepatch
-%% 6. replaced an \undefined by \@undefined
+%% 6. replaced some \undefined by \@undefined
 \DeclareOption*{\PackageWarning{sphinxpackagefootnote}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
 \newbox\FNH@notes
@@ -206,9 +206,20 @@
                \FNH@@@1.2!3?4,\FNH@@@\relax
 }%
 \long\def\FNH@check@a #11.2!3?4,#2\FNH@@@#3{%
-    \ifx\relax#3\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi
-    \FNH@bad@makefntext@alert
-    {\def\FNH@prefntext{#1}\def\FNH@postfntext{#2}\FNH@check@b}%
+    \ifx\relax#3\FNH@bad@makefntext@alert
+    \else
+      \edef\FNH@restore@{\catcode`\noexpand\@\the\catcode`\@\relax}%
+      \makeatletter
+      \ifx\@makefntextFB\@undefined
+      \expandafter\@gobble\else\expandafter\@firstofone\fi
+      {\@ifclassloaded{memoir}%
+           {\ifFBFrenchFootnotes\expandafter\@gobble\fi}%
+           {}}%
+      \@secondoftwo
+      \scantokens{\def\FNH@prefntext{#1}\def\FNH@postfntext{#2}}%
+      \FNH@restore@
+      \expandafter\FNH@check@b
+    \fi
 }%
 \def\FNH@check@b #1\relax{%
     \expandafter\expandafter\expandafter\FNH@check@c

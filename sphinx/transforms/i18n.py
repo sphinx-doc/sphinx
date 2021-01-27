@@ -312,6 +312,7 @@ class Locale(SphinxTransform):
                 refname = newf.get('refname')
                 refs = old_foot_namerefs.get(refname, [])
                 if not refs:
+                    newf.parent.remove(newf)
                     continue
 
                 oldf = refs.pop(0)

@@ -14,6 +14,7 @@ import warnings
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
 from sphinx.util.inspect import (getannotations, getmro, getslots, isclass, isenumclass,
@@ -273,6 +274,9 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
     for name in dir(subject):
         try:
             value = attrgetter(subject, name)
+            if ismock(value):
+                value = undecorate(value)
+
             unmangled = unmangle(subject, name)
             if unmangled and unmangled not in members:
                 if name in obj_dict:

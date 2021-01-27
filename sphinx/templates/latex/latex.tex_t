@@ -20,6 +20,9 @@
 %% turn off hyperref patch of \index as sphinx.xdy xindy module takes care of
 %% suitable \hyperpage mark-up, working around hyperref-xindy incompatibility
 \PassOptionsToPackage{hyperindex=false}{hyperref}
+%% memoir class requires extra handling
+\makeatletter\@ifclassloaded{memoir}
+{\ifdefined\memhyperindexfalse\memhyperindexfalse\fi}{}\makeatother
 <% endif -%>
 <%= passoptionstopackages %>
 \PassOptionsToPackage{warn}{textcomp}

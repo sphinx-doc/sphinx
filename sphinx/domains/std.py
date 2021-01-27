@@ -308,7 +308,7 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
         document.note_explicit_target(term)
 
     std = cast(StandardDomain, env.get_domain('std'))
-    std.note_object('term', termtext, node_id, location=term)
+    std._note_term(termtext, node_id, location=term)
 
     # add an index entry too
     indexnode = addnodes.index()
@@ -680,6 +680,20 @@ class StandardDomain(Domain):
         self.objects[objtype, name] = (docname, labelid)
 
     @property
+    def _terms(self) -> Dict[str, Tuple[str, str]]:
+        """.. note:: Will be removed soon. internal use only."""
+        return self.data.setdefault('terms', {})  # (name) -> docname, labelid
+
+    def _note_term(self, term: str, labelid: str, location: Any = None) -> None:
+        """Note a term for cross reference.
+
+        .. note:: Will be removed soon. internal use only.
+        """
+        self.note_object('term', term, labelid, location)
+
+        self._terms[term.lower()] = (self.env.docname, labelid)
+
+    @property
     def progoptions(self) -> Dict[Tuple[str, str], Tuple[str, str]]:
         return self.data.setdefault('progoptions', {})  # (program, name) -> docname, labelid
 
@@ -699,6 +713,9 @@ class StandardDomain(Domain):
         for key, (fn, _l) in list(self.objects.items()):
             if fn == docname:
                 del self.objects[key]
+        for key, (fn, _l) in list(self._terms.items()):
+            if fn == docname:
+                del self._terms[key]
         for key, (fn, _l, _l) in list(self.labels.items()):
             if fn == docname:
                 del self.labels[key]
@@ -714,6 +731,9 @@ class StandardDomain(Domain):
         for key, data in otherdata['objects'].items():
             if data[0] in docnames:
                 self.objects[key] = data
+        for key, data in otherdata['terms'].items():
+            if data[0] in docnames:
+                self._terms[key] = data
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
                 self.labels[key] = data
@@ -947,19 +967,12 @@ class StandardDomain(Domain):
         if result:
             return result
         else:
-            for objtype, term in self.objects:
-                if objtype == 'term' and term.lower() == target.lower():
-                    docname, labelid = self.objects[objtype, term]
-                    logger.warning(__('term %s not found in case sensitive match.'
-                                      'made a reference to %s instead.'),
-                                   target, term, location=node, type='ref', subtype='term')
-                    break
+            # fallback to case insentive match
+            if target.lower() in self._terms:
+                docname, labelid = self._terms[target.lower()]
+                return make_refnode(builder, fromdocname, docname, labelid, contnode)
             else:
-                docname, labelid = '', ''
-            if not docname:
                 return None
-            return make_refnode(builder, fromdocname, docname,
-                                labelid, contnode)
 
     def _resolve_obj_xref(self, env: "BuildEnvironment", fromdocname: str,
                           builder: "Builder", typ: str, target: str,
@@ -1115,7 +1128,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
