@@ -470,24 +470,25 @@ class HyperlinkCollector(SphinxPostTransform):
         builder = cast(CheckExternalLinksBuilder, self.app.builder)
         hyperlinks = builder.hyperlinks
 
+        def add_hyperlink(uri: str, lineno: int) -> None:
+            uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+            if uri not in hyperlinks:
+                hyperlinks[uri] = uri_info
+
         # reference nodes
         for refnode in self.document.traverse(nodes.reference):
             if 'refuri' not in refnode:
                 continue
             uri = refnode['refuri']
             lineno = get_node_line(refnode)
-            uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
-            if uri not in hyperlinks:
-                hyperlinks[uri] = uri_info
+            add_hyperlink(uri, lineno)
 
         # image nodes
         for imgnode in self.document.traverse(nodes.image):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
                 lineno = get_node_line(imgnode)
-                uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
-                if uri not in hyperlinks:
-                    hyperlinks[uri] = uri_info
+                add_hyperlink(uri, lineno)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
