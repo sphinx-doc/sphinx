@@ -1,0 +1,164 @@
+%% PYTHON DOCS MACROS AND ENVIRONMENTS
+%
+% change this info string if making any custom modification
+\ProvidesFile{sphinxlatexenvdocs.sty}[2021/01/27 documentation environments]
+
+%  (some macros here used by \maketitle in sphinxmanual.cls and sphinxhowto.cls)
+
+% \moduleauthor{name}{email}
+\newcommand{\moduleauthor}[2]{}
+
+% \sectionauthor{name}{email}
+\newcommand{\sectionauthor}[2]{}
+
+% Allow the release number to be specified independently of the
+% \date{}.  This allows the date to reflect the document's date and
+% release to specify the release that is documented.
+%
+\newcommand{\py@release}{\releasename\space\version}
+\newcommand{\version}{}% part of \py@release, used by title page and headers
+% \releaseinfo is used on titlepage (sphinxmanual.cls, sphinxhowto.cls)
+\newcommand{\releaseinfo}{}
+\newcommand{\setreleaseinfo}[1]{\renewcommand{\releaseinfo}{#1}}
+% this is inserted via template and #1=release config variable
+\newcommand{\release}[1]{\renewcommand{\version}{#1}}
+% this is defined by template to 'releasename' latex_elements key
+\newcommand{\releasename}{}
+% Fix issue in case release and releasename deliberately left blank
+\newcommand{\sphinxheadercomma}{, }% used in fancyhdr header definition
+\newcommand{\sphinxifemptyorblank}[1]{%
+% test after one expansion of macro #1 if contents is empty or spaces
+     \if&\expandafter\@firstofone\detokenize\expandafter{#1}&%
+     \expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}%
+\AtBeginDocument {%
+   \sphinxifemptyorblank{\releasename}
+     {\sphinxifemptyorblank{\version}{\let\sphinxheadercomma\empty}{}}
+     {}%
+}%
+
+% Allow specification of the author's address separately from the
+% author's name.  This can be used to format them differently, which
+% is a good thing.
+%
+\newcommand{\py@authoraddress}{}
+\newcommand{\authoraddress}[1]{\renewcommand{\py@authoraddress}{#1}}
+
+% {fulllineitems} is the main environment for object descriptions.
+%
+\newcommand{\py@itemnewline}[1]{%
+  \kern\labelsep
+  \@tempdima\linewidth
+  \advance\@tempdima \labelwidth\makebox[\@tempdima][l]{#1}%
+  \kern-\labelsep
+}
+
+\newenvironment{fulllineitems}{%
+  \begin{list}{}{\labelwidth \leftmargin
+                 \rightmargin \z@ \topsep -\parskip \partopsep \parskip
+                 \itemsep -\parsep
+                 \let\makelabel=\py@itemnewline}%
+}{\end{list}}
+
+% Signatures, possibly multi-line
+%
+\newlength{\py@argswidth}
+\newcommand{\py@sigparams}[2]{%
+  \parbox[t]{\py@argswidth}{#1\sphinxcode{)}#2}}
+\newcommand{\pysigline}[1]{\item[{#1}]}
+\newcommand{\pysiglinewithargsret}[3]{%
+  \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
+  \addtolength{\py@argswidth}{-2\py@argswidth}%
+  \addtolength{\py@argswidth}{\linewidth}%
+  \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}}]}
+\newcommand{\pysigstartmultiline}{%
+ \def\pysigstartmultiline{\vskip\smallskipamount\parskip\z@skip\itemsep\z@skip}%
+ \edef\pysigstopmultiline
+     {\noexpand\leavevmode\parskip\the\parskip\relax\itemsep\the\itemsep\relax}%
+ \parskip\z@skip\itemsep\z@skip
+}
+
+% Production lists
+%
+\newenvironment{productionlist}{%
+%  \def\sphinxoptional##1{{\Large[}##1{\Large]}}
+  \def\production##1##2{\\\sphinxcode{\sphinxupquote{##1}}&::=&\sphinxcode{\sphinxupquote{##2}}}%
+  \def\productioncont##1{\\& &\sphinxcode{\sphinxupquote{##1}}}%
+  \parindent=2em
+  \indent
+  \setlength{\LTpre}{0pt}%
+  \setlength{\LTpost}{0pt}%
+  \begin{longtable}[l]{lcl}
+}{%
+  \end{longtable}
+}
+
+% Definition lists; requested by AMK for HOWTO documents.  Probably useful
+% elsewhere as well, so keep in in the general style support.
+%
+\newenvironment{definitions}{%
+  \begin{description}%
+  \def\term##1{\item[{##1}]\mbox{}\\*[0mm]}%
+}{%
+  \end{description}%
+}
+
+%% FROM DOCTUTILS LATEX WRITER
+%
+% The following is stuff copied from docutils' latex writer.
+%
+\newcommand{\optionlistlabel}[1]{\normalfont\bfseries #1 \hfill}% \bf deprecated
+\newenvironment{optionlist}[1]
+{\begin{list}{}
+  {\setlength{\labelwidth}{#1}
+   \setlength{\rightmargin}{1cm}
+   \setlength{\leftmargin}{\rightmargin}
+   \addtolength{\leftmargin}{\labelwidth}
+   \addtolength{\leftmargin}{\labelsep}
+   \renewcommand{\makelabel}{\optionlistlabel}}
+}{\end{list}}
+
+\newlength{\lineblockindentation}
+\setlength{\lineblockindentation}{2.5em}
+\newenvironment{lineblock}[1]
+{\begin{list}{}
+  {\setlength{\partopsep}{\parskip}
+   \addtolength{\partopsep}{\baselineskip}
+   \topsep0pt\itemsep0.15\baselineskip\parsep0pt
+   \leftmargin#1\relax}
+ \raggedright}
+{\end{list}}
+
+% From docutils.writers.latex2e
+% inline markup (custom roles)
+% \DUrole{#1}{#2} tries \DUrole#1{#2}
+\providecommand*{\DUrole}[2]{%
+  \ifcsname DUrole\detokenize{#1}\endcsname
+    \csname DUrole\detokenize{#1}\endcsname{#2}%
+  \else% backwards compatibility: try \docutilsrole#1{#2}
+    \ifcsname docutilsrole\detokenize{#1}\endcsname
+      \csname docutilsrole\detokenize{#1}\endcsname{#2}%
+    \else
+      #2%
+    \fi
+  \fi
+}
+
+\providecommand*{\DUprovidelength}[2]{%
+  \ifdefined#1\else\newlength{#1}\setlength{#1}{#2}\fi
+}
+
+\DUprovidelength{\DUlineblockindent}{2.5em}
+\ifdefined\DUlineblock\else
+  \newenvironment{DUlineblock}[1]{%
+    \list{}{\setlength{\partopsep}{\parskip}
+            \addtolength{\partopsep}{\baselineskip}
+            \setlength{\topsep}{0pt}
+            \setlength{\itemsep}{0.15\baselineskip}
+            \setlength{\parsep}{0pt}
+            \setlength{\leftmargin}{#1}}
+    \raggedright
+  }
+  {\endlist}
+\fi
+
+\endinput

@@ -1,0 +1,120 @@
+%% PAGE STYLING
+%
+% change this info string if making any custom modification
+\ProvidesFile{sphinxlatexstylepage.sty}[2021/01/27 page styling]
+
+% Style parameters and macros used by most documents here
+\raggedbottom
+\sloppy
+\hbadness = 5000                % don't print trivial gripes
+
+% Use \pagestyle{normal} as the primary pagestyle for text.
+% Redefine the 'normal' header/footer style when using "fancyhdr" package:
+\@ifpackageloaded{fancyhdr}{%
+  \ltx@ifundefined{c@chapter}
+  {% no \chapter, "howto" (non-Japanese) docclass
+   \fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[C]{{\py@HeaderFamily\thepage}}
+    \renewcommand{\headrulewidth}{0pt}
+    \renewcommand{\footrulewidth}{0pt}
+   }
+   % Same as 'plain', this way we can use it in template
+   % FIXME: shouldn't this have a running header with Name and Release like 'manual'?
+   \fancypagestyle{normal}{
+    \fancyhf{}
+    \fancyfoot[C]{{\py@HeaderFamily\thepage}}
+    \renewcommand{\headrulewidth}{0pt}
+    \renewcommand{\footrulewidth}{0pt}
+   }
+  }%
+  {% classes with \chapter command
+   \fancypagestyle{normal}{
+    \fancyhf{}
+    \fancyfoot[RO]{{\py@HeaderFamily\thepage}}
+    \fancyfoot[LO]{{\py@HeaderFamily\nouppercase{\rightmark}}}
+    \fancyhead[RO]{{\py@HeaderFamily \@title\sphinxheadercomma\py@release}}
+    \if@twoside
+     \fancyfoot[LE]{{\py@HeaderFamily\thepage}}
+     \fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
+     \fancyhead[LE]{{\py@HeaderFamily \@title\sphinxheadercomma\py@release}}
+    \fi
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0.4pt}
+    % define chaptermark with \@chappos when \@chappos is available for Japanese
+    \ltx@ifundefined{@chappos}{}
+      {\def\chaptermark##1{\markboth{\@chapapp\space\thechapter\space\@chappos\space ##1}{}}}
+    }
+  % Update the plain style so we get the page number & footer line,
+  % but not a chapter or section title.  This is to keep the first
+  % page of a chapter `clean.'
+   \fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[RO]{{\py@HeaderFamily\thepage}}
+    \if@twoside\fancyfoot[LE]{{\py@HeaderFamily\thepage}}\fi
+    \renewcommand{\headrulewidth}{0pt}
+    \renewcommand{\footrulewidth}{0.4pt}
+    }
+   }
+  }
+  {% no fancyhdr: memoir class
+   % Provide default for 'normal' style simply as an alias of 'plain' style
+   % This way we can use \pagestyle{normal} in LaTeX template
+   \def\ps@normal{\ps@plain}
+   % Users of memoir class are invited to redefine 'normal' style in preamble
+  }
+
+% geometry
+\ifx\kanjiskip\@undefined
+  \PassOptionsToPackage{%
+     hmargin={\unexpanded{\spx@opt@hmargin}},%
+     vmargin={\unexpanded{\spx@opt@vmargin}},%
+     marginpar=\unexpanded{\spx@opt@marginpar}}
+  {geometry}
+\else
+ % set text width for Japanese documents to be integer multiple of 1zw
+ % and text height to be integer multiple of \baselineskip
+ % the execution is delayed to \sphinxsetup then geometry.sty
+ \normalsize\normalfont
+ \newcommand*\sphinxtextwidthja[1]{%
+    \if@twocolumn\tw@\fi
+    \dimexpr
+       \numexpr\dimexpr\paperwidth-\tw@\dimexpr#1\relax\relax/
+               \dimexpr\if@twocolumn\tw@\else\@ne\fi zw\relax
+    zw\relax}%
+ \newcommand*\sphinxmarginparwidthja[1]{%
+    \dimexpr\numexpr\dimexpr#1\relax/\dimexpr1zw\relax zw\relax}%
+ \newcommand*\sphinxtextlinesja[1]{%
+    \numexpr\@ne+\dimexpr\paperheight-\topskip-\tw@\dimexpr#1\relax\relax/
+                 \baselineskip\relax}%
+ \ifx\@jsc@uplatextrue\@undefined\else
+ % the way we found in order for the papersize special written by
+ % geometry in the dvi file to be correct in case of jsbook class
+   \ifnum\mag=\@m\else % do nothing special if nomag class option or 10pt
+     \PassOptionsToPackage{truedimen}{geometry}%
+   \fi
+ \fi
+ \PassOptionsToPackage{%
+    hmarginratio={1:1},%
+    textwidth=\unexpanded{\sphinxtextwidthja{\spx@opt@hmargin}},%
+    vmarginratio={1:1},%
+    lines=\unexpanded{\sphinxtextlinesja{\spx@opt@vmargin}},%
+    marginpar=\unexpanded{\sphinxmarginparwidthja{\spx@opt@marginpar}},%
+    footskip=2\baselineskip,%
+  }{geometry}%
+ \AtBeginDocument
+ {% update a dimension used by the jsclasses
+  \ifx\@jsc@uplatextrue\@undefined\else\fullwidth\textwidth\fi
+  % for some reason, jreport normalizes all dimensions with \@settopoint
+  \@ifclassloaded{jreport}
+    {\@settopoint\textwidth\@settopoint\textheight\@settopoint\marginparwidth}
+    {}% <-- "false" clause of \@ifclassloaded
+  }%
+\fi
+
+% fix fncychap's bug which uses prematurely the \textwidth value
+\@ifpackagewith{fncychap}{Bjornstrup}
+ {\AtBeginDocument{\mylen\textwidth\advance\mylen-2\myhi}}%
+ {}% <-- "false" clause of \@ifpackagewith
+
+\endinput

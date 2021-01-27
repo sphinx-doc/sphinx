@@ -1,0 +1,134 @@
+%% OPTION HANDLING
+%
+% change this info string if making any custom modification
+\ProvidesFile{sphinxlatexoptionhandling.sty}[2021/01/27 option handling]
+
+% Handle options via "kvoptions" (later loaded by hyperref anyhow)
+\RequirePackage{kvoptions}
+\SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
+
+% Sphinx legacy text layout: 1in margins on all four sides
+\ifx\@jsc@uplatextrue\@undefined
+\DeclareStringOption[1in]{hmargin}
+\DeclareStringOption[1in]{vmargin}
+\DeclareStringOption[.5in]{marginpar}
+\else
+% Japanese standard document classes handle \mag in a special way
+\DeclareStringOption[\inv@mag in]{hmargin}
+\DeclareStringOption[\inv@mag in]{vmargin}
+\DeclareStringOption[.5\dimexpr\inv@mag in\relax]{marginpar}
+\fi
+
+\DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
+\DeclareStringOption[-1]{numfigreset}
+\DeclareBoolOption[false]{nonumfigreset}
+\DeclareBoolOption[false]{mathnumfig}
+% \DeclareBoolOption[false]{usespart}% not used
+% dimensions, we declare the \dimen registers here.
+\newdimen\sphinxverbatimsep
+\newdimen\sphinxverbatimborder
+\newdimen\sphinxshadowsep
+\newdimen\sphinxshadowsize
+\newdimen\sphinxshadowrule
+% \DeclareStringOption is not convenient for the handling of these dimensions
+% because we want to assign the values to the corresponding registers. Even if
+% we added the code to the key handler it would be too late for the initial
+% set-up and we would need to do initial assignments explicitely. We end up
+% using \define@key directly.
+% verbatim
+\sphinxverbatimsep=\fboxsep
+  \define@key{sphinx}{verbatimsep}{\sphinxverbatimsep\dimexpr #1\relax}
+\sphinxverbatimborder=\fboxrule
+  \define@key{sphinx}{verbatimborder}{\sphinxverbatimborder\dimexpr #1\relax}
+% topic boxes
+\sphinxshadowsep =5pt
+  \define@key{sphinx}{shadowsep}{\sphinxshadowsep\dimexpr #1\relax}
+\sphinxshadowsize=4pt
+  \define@key{sphinx}{shadowsize}{\sphinxshadowsize\dimexpr #1\relax}
+\sphinxshadowrule=\fboxrule
+  \define@key{sphinx}{shadowrule}{\sphinxshadowrule\dimexpr #1\relax}
+% verbatim
+\DeclareBoolOption[true]{verbatimwithframe}
+\DeclareBoolOption[true]{verbatimwrapslines}
+\DeclareBoolOption[true]{verbatimhintsturnover}
+\DeclareBoolOption[true]{inlineliteralwraps}
+\DeclareStringOption[t]{literalblockcappos}
+\DeclareStringOption[r]{verbatimcontinuedalign}
+\DeclareStringOption[r]{verbatimcontinuesalign}
+% parsed literal
+\DeclareBoolOption[true]{parsedliteralwraps}
+% \textvisiblespace for compatibility with fontspec+XeTeX/LuaTeX
+\DeclareStringOption[\textcolor{red}{\textvisiblespace}]{verbatimvisiblespace}
+\DeclareStringOption % must use braces to hide the brackets
+  [{\makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\m@th\hookrightarrow$}}}]%
+  {verbatimcontinued}
+% notices/admonitions
+% the dimensions for notices/admonitions are kept as macros and assigned to
+% \spx@notice@border at time of use, hence \DeclareStringOption is ok for this
+\newdimen\spx@notice@border
+\DeclareStringOption[0.5pt]{noteborder}
+\DeclareStringOption[0.5pt]{hintborder}
+\DeclareStringOption[0.5pt]{importantborder}
+\DeclareStringOption[0.5pt]{tipborder}
+\DeclareStringOption[1pt]{warningborder}
+\DeclareStringOption[1pt]{cautionborder}
+\DeclareStringOption[1pt]{attentionborder}
+\DeclareStringOption[1pt]{dangerborder}
+\DeclareStringOption[1pt]{errorborder}
+% footnotes
+\DeclareStringOption[\mbox{ }]{AtStartFootnote}
+% we need a public macro name for direct use in latex file
+\newcommand*{\sphinxAtStartFootnote}{\spx@opt@AtStartFootnote}
+% no such need for this one, as it is used inside other macros
+\DeclareStringOption[\leavevmode\unskip]{BeforeFootnote}
+% some font styling.
+\DeclareStringOption[\sffamily\bfseries]{HeaderFamily}
+% colours
+% same problems as for dimensions: we want the key handler to use \definecolor.
+% first, some colours with no prefix, for backwards compatibility
+\newcommand*{\sphinxDeclareColorOption}[2]{%
+   \definecolor{#1}#2%
+   \define@key{sphinx}{#1}{\definecolor{#1}##1}%
+}%
+\sphinxDeclareColorOption{TitleColor}{{rgb}{0.126,0.263,0.361}}
+\sphinxDeclareColorOption{InnerLinkColor}{{rgb}{0.208,0.374,0.486}}
+\sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
+\sphinxDeclareColorOption{VerbatimColor}{{rgb}{1,1,1}}
+\sphinxDeclareColorOption{VerbatimBorderColor}{{rgb}{0,0,0}}
+% now the colours defined with "sphinx" prefix in their names
+\newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
+   % set the initial default
+   \definecolor{sphinx#1}#2%
+   % set the key handler. The "value" ##1 must be acceptable by \definecolor.
+   \define@key{sphinx}{#1}{\definecolor{sphinx#1}##1}%
+}%
+% Default color chosen to be as in minted.sty LaTeX package!
+\sphinxDeclareSphinxColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
+% admonition boxes, "light" style
+\sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{importantBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{tipBorderColor}{{rgb}{0,0,0}}
+% admonition boxes, "heavy" style
+\sphinxDeclareSphinxColorOption{warningBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{cautionBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{attentionBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{dangerBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{errorBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{warningBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{cautionBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{attentionBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{dangerBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{errorBgColor}{{rgb}{1,1,1}}
+
+\DeclareDefaultOption{\@unknownoptionerror}
+\ProcessKeyvalOptions*
+% don't allow use of maxlistdepth via \sphinxsetup.
+\DisableKeyvalOption{sphinx}{maxlistdepth}
+\DisableKeyvalOption{sphinx}{numfigreset}
+\DisableKeyvalOption{sphinx}{nonumfigreset}
+\DisableKeyvalOption{sphinx}{mathnumfig}
+% user interface: options can be changed midway in a document!
+\newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
+
+\endinput

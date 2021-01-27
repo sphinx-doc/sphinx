@@ -830,9 +830,36 @@ macros may be significant.
 LaTeX macros and environments
 -----------------------------
 
-Here are some macros from the package file :file:`sphinx.sty` and class files
-:file:`sphinxhowto.cls`, :file:`sphinxmanual.cls`, which have public names
-thus allowing redefinitions. Check the respective files for the defaults.
+The "LaTeX package" file :file:`sphinx.sty` loads various components
+providing support macros (aka commands), and environments, which are used in
+the mark-up produced on output from the ``latex`` builder, before conversion
+to ``pdf`` via the LaTeX toolchain.  Also the "LaTeX class" files
+:file:`sphinxhowto.cls` and :file:`sphinxmanual.cls` define or customize some
+environments.  All of these files can be found in the latex build repertory.
+
+Some of these provide facilities not available from pre-existing LaTeX
+packages and work around LaTeX limitations with lists, table cells, verbatim
+rendering, footnotes, etc...
+
+Others simply define macros with public names to make overwriting their
+defaults easy via user-added contents to the preamble.  We will survey most of
+those public names here, but defaults have to be looked at in their respective
+definition files.
+
+.. hint::
+
+   Sphinx LaTeX support code is split across multiple smaller-sized files.
+   Rather than adding code to the preamble via
+   `latex_elements <latex_elements_confval_>`_\ [``'preamble'``] it is
+   also possible to replace entirely one of the component files of Sphinx
+   LaTeX code with a custom version, simply by including a modified copy in
+   the project source and adding the filename to the
+   :confval:`latex_additional_files` list.  Check the LaTeX build repertory
+   for the filenames and contents.
+
+.. versionchanged:: 4.0.0
+   split of :file:`sphinx.sty` into multiple smaller units, to facilitate
+   customization of many aspects simultaneously.
 
 .. _latex-macros:
 
