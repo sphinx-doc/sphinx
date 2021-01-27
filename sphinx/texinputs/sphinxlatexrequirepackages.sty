@@ -36,7 +36,8 @@
 \RequirePackage{tabulary}
 % tabulary has a bug with its re-definition of \multicolumn in its first pass
 % which is not \long. But now Sphinx does not use LaTeX's \multicolumn but its
-% own macro. Hence we don't even need to patch tabulary. See sphinxmulticell.sty
+% own macro. Hence we don't even need to patch tabulary. See
+% sphinxpackagemulticell.sty
 % X or S (Sphinx) may have meanings if some table package is loaded hence
 % \X was chosen to avoid possibility of conflict
 \newcolumntype{\X}[2]{p{\dimexpr
@@ -164,7 +165,7 @@
       \unexpanded\expandafter{\@vwid@setup}}%
 }%
 % Homemade package to handle merged cells
-\RequirePackage{sphinxmulticell}
+\RequirePackage{sphinxpackagemulticell}
 \RequirePackage{makeidx}
 % For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
@@ -182,7 +183,7 @@
 \sphinxresetverbatimhllines
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
-\RequirePackage{footnotehyper-sphinx}
+\RequirePackage{sphinxpackagefootnote}
 % For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
 % for allowing figures in tables.
 \RequirePackage{float}

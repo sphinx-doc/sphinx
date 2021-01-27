@@ -216,10 +216,12 @@ class LaTeXBuilder(Builder):
             if not self.babel.uses_cyrillic():
                 if 'X2' in self.context['fontenc']:
                     self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = '\\usepackage[Xtwo]{sphinxcyrillic}'
+                    self.context['textcyrillic'] = ('\\usepackage[Xtwo]'
+                                                    '{sphinxpackagecyrillic}')
                 elif 'T2A' in self.context['fontenc']:
                     self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = '\\usepackage[TtwoA]{sphinxcyrillic}'
+                    self.context['textcyrillic'] = ('\\usepackage[TtwoA]'
+                                                    '{sphinxpackagecyrillic}')
             if 'LGR' in self.context['fontenc']:
                 self.context['substitutefont'] = '\\usepackage{substitutefont}'
             else:
