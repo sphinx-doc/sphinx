@@ -192,6 +192,9 @@ Features added
 * #8775: autodoc: Support type union operator (PEP-604) in Python 3.10 or above
 * #8297: autodoc: Allow to extend :confval:`autodoc_default_options` via
   directive options
+* #759: autodoc: Add a new configuration :confval:`autodoc_preserve_defaults` as
+  an experimental feature.  It preserves the default argument values of
+  functions in source code and keep them not evaluated for readability.
 * #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
   for :meth:`Sphinx.add_js_file()` and :meth:`Sphinx.add_css_file()`

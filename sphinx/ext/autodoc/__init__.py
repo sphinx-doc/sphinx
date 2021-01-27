@@ -2634,6 +2634,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.connect('config-inited', migrate_autodoc_member_order, priority=800)
 
+    app.setup_extension('sphinx.ext.autodoc.preserve_defaults')
     app.setup_extension('sphinx.ext.autodoc.type_comment')
     app.setup_extension('sphinx.ext.autodoc.typehints')
 
