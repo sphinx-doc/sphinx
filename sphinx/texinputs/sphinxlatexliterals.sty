@@ -1,7 +1,21 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexenvliteral.sty}[2021/01/27 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2021/01/27 code-blocks and parsed literals]
+
+% For highlighted code.
+\RequirePackage{fancyvrb}
+\define@key{FV}{hllines}{\def\sphinx@verbatim@checkifhl##1{\in@{, ##1,}{#1}}}
+% sphinxVerbatim must be usable by third party without requiring hllines set-up
+\def\sphinxresetverbatimhllines{\def\sphinx@verbatim@checkifhl##1{\in@false}}
+\sphinxresetverbatimhllines
+% For parsed-literal blocks.
+\RequirePackage{alltt}
+% Display "real" single quotes in literal blocks.
+\RequirePackage{upquote}
+% control caption around literal-block
+\RequirePackage{capt-of}
+\RequirePackage{needspace}
 
 % Based on use of "fancyvrb.sty"'s Verbatim.
 % - with framing allowing page breaks ("framed.sty")

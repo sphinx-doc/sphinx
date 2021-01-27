@@ -1,0 +1,68 @@
+%% PACKAGES
+% 
+% change this info string if making any custom modification
+\ProvidesFile{sphinxlatexpackages.sty}[2021/01/27 packages]
+
+% Attention: package loading happens also from other sphinxlatex files
+\RequirePackage{graphicx}
+% for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
+\RequirePackage{amstext}
+\RequirePackage{textcomp}% "warn" option issued from template
+% For framing code-blocks and warning type notices, and shadowing topics
+\RequirePackage{framed}
+% The xcolor package draws better fcolorboxes around verbatim code
+\IfFileExists{xcolor.sty}{
+    \RequirePackage{xcolor}
+}{
+    \RequirePackage{color}
+}
+% For hyperlinked footnotes in tables; also for gathering footnotes from
+% topic and warning blocks. Also to allow code-blocks in footnotes.
+\RequirePackage{sphinxpackagefootnote}
+% For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
+% for allowing figures in tables.
+\RequirePackage{float}
+% For floating figures in the text. Better to load after float.
+\RequirePackage{wrapfig}
+% Separate paragraphs by space by default.
+\IfFileExists{parskip-2001-04-09.sty}% since September 2018 TeXLive update
+% new parskip.sty, but let it rollback to old one.
+% hopefully TeX installation not broken and LaTeX kernel not too old
+   {\RequirePackage{parskip}[=v1]}
+% standard one from 1989. Admittedly \section of article/book gives possibly
+% anomalous spacing, but we can't require September 2018 release for some time.
+   {\RequirePackage{parskip}}
+% LaTeX 2018-04-01 and later provides \@removefromreset
+\ltx@ifundefined{@removefromreset}
+    {\RequirePackage{remreset}}
+    {}% avoid warning
+% to make pdf with correct encoded bookmarks in Japanese
+% this should precede the hyperref package
+\ifx\kanjiskip\@undefined
+% for non-Japanese: make sure bookmarks are ok also with lualatex
+  \PassOptionsToPackage{pdfencoding=unicode}{hyperref}
+\else
+  \RequirePackage{atbegshi}
+  \ifx\ucs\@undefined
+    \ifnum 42146=\euc"A4A2
+      \AtBeginShipoutFirst{\special{pdf:tounicode EUC-UCS2}}
+    \else
+      \AtBeginShipoutFirst{\special{pdf:tounicode 90ms-RKSJ-UCS2}}
+    \fi
+  \else
+    \AtBeginShipoutFirst{\special{pdf:tounicode UTF8-UCS2}}
+  \fi
+\fi
+
+\ifx\@jsc@uplatextrue\@undefined\else
+  \PassOptionsToPackage{setpagesize=false}{hyperref}
+\fi
+
+% These options can be overriden inside  'hyperref' key
+% or by later use of \hypersetup.
+\PassOptionsToPackage{colorlinks,breaklinks,%
+ linkcolor=InnerLinkColor,filecolor=OuterLinkColor,%
+ menucolor=OuterLinkColor,urlcolor=OuterLinkColor,%
+ citecolor=InnerLinkColor}{hyperref}
+
+\endinput

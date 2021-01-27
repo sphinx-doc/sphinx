@@ -1,8 +1,33 @@
-% change this info string if making any custom modification
 %% TITLES
 %
+% change this info string if making any custom modification
 \ProvidesFile{sphinxlatexstyleheadings.sty}[2021/01/27 headings]
 
+\RequirePackage[nobottomtitles*]{titlesec}
+\@ifpackagelater{titlesec}{2016/03/15}%
+ {\@ifpackagelater{titlesec}{2016/03/21}%
+  {}%
+  {\newif\ifsphinx@ttlpatch@ok
+   \IfFileExists{etoolbox.sty}{%
+     \RequirePackage{etoolbox}%
+     \patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}%
+                                {\sphinx@ttlpatch@oktrue}{}%
+     \ifsphinx@ttlpatch@ok
+     \patchcmd{\ttlh@hang}{\noindent}{}{}{\sphinx@ttlpatch@okfalse}%
+     \fi
+   }{}%
+   \ifsphinx@ttlpatch@ok
+     \typeout{^^J Package Sphinx Info: ^^J
+              **** titlesec 2.10.1 successfully patched for bugfix ****^^J}%
+   \else
+     \AtEndDocument{\PackageWarningNoLine{sphinx}{^^J%
+******** titlesec 2.10.1 has a bug, (section numbers disappear) ......|^^J%
+******** and Sphinx could not patch it, perhaps because your local ...|^^J%
+******** copy is already fixed without a changed release date. .......|^^J%
+******** If not, you must update titlesec! ...........................|}}%
+   \fi
+  }%
+ }{}
 % Since Sphinx 1.5, users should use HeaderFamily key to 'sphinxsetup' rather
 % than defining their own \py@HeaderFamily command (which is still possible).
 % Memo: \py@HeaderFamily is also used by \maketitle as defined in

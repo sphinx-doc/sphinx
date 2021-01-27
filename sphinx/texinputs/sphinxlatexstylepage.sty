@@ -3,6 +3,8 @@
 % change this info string if making any custom modification
 \ProvidesFile{sphinxlatexstylepage.sty}[2021/01/27 page styling]
 
+\@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
+
 % Style parameters and macros used by most documents here
 \raggedbottom
 \sloppy
