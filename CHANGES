@@ -83,6 +83,8 @@ Bugs fixed
 * #8123: html search: fix searching for terms containing + (Requires a custom
   search language that does not split on +)
 * #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
+* #8745: i18n: crashes with KeyError when translation message adds a new auto
+  footnote reference
 * #4304: linkcheck: Fix race condition that could lead to checking the
   availability of the same URL twice
 * #7118: sphinx-quickstart: questionare got Mojibake if libreadline unavailable
