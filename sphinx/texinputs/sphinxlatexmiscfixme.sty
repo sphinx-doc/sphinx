@@ -1,0 +1,18 @@
+%% FIXME STUFF attention, changes here may necessitate changes elsewhere
+%
+% change this info string if making any custom modification
+\ProvidesFile{sphinxlatexmiscfixme}[2021/01/27 latex to be removed at some point]
+
+%% COLOR (general)
+%
+% FIXME: \normalcolor should probably be used in place of \py@NormalColor
+% elsewhere, and \py@NormalColor should never be defined. \normalcolor
+% switches to the colour from last \color call in preamble.
+\def\py@NormalColor{\color{black}}
+% FIXME: it is probably better to use \color{TitleColor}, as TitleColor
+% can be customized from 'sphinxsetup', and drop usage of \py@TitleColor
+\def\py@TitleColor{\color{TitleColor}}
+% FIXME: this line should be dropped, as "9" is default anyhow.
+\ifdefined\pdfcompresslevel\pdfcompresslevel = 9 \fi
+
+\endinput
