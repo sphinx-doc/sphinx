@@ -1,7 +1,18 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexenvliteral.sty}[2021/01/27 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2021/01/27 code-blocks and parsed literals]
+
+% For highlighted code.
+\RequirePackage{fancyvrb}
+\define@key{FV}{hllines}{\def\sphinx@verbatim@checkifhl##1{\in@{, ##1,}{#1}}}
+% sphinxVerbatim must be usable by third party without requiring hllines set-up
+\def\sphinxresetverbatimhllines{\def\sphinx@verbatim@checkifhl##1{\in@false}}
+\sphinxresetverbatimhllines
+% For parsed-literal blocks.
+\RequirePackage{alltt}
+% Display "real" single quotes in literal blocks.
+\RequirePackage{upquote}
 
 % Based on use of "fancyvrb.sty"'s Verbatim.
 % - with framing allowing page breaks ("framed.sty")
@@ -459,6 +470,10 @@
  \fi }
 {\end{alltt}}
 
+
+%% INLINE MARK-UP
+%
+
 % Protect \href's first argument in contexts such as sphinxalltt (or
 % \sphinxcode). Sphinx uses \#, \%, \& ... always inside \sphinxhref.
 \protected\def\sphinxhref#1#2{{%
@@ -476,5 +491,50 @@
     \sphinxunactivateextrasandspace\everyeof{}%
     \endlinechar\m@ne\scantokens{\nolinkurl{#1}}%
 }}
+
+% \sphinxupquote
+% to obtain straight quotes we execute \@noligs as patched by upquote, and
+% \scantokens is needed in cases where it would be too late for the macro to
+% first set catcodes and then fetch its argument. We also make the contents
+% breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive,
+% and also at \ character (which is escaped to \textbackslash{}).
+\protected\def\sphinxtextbackslashbreakbefore
+ {\discretionary{}{\sphinxafterbreak\sphinx@textbackslash}{\sphinx@textbackslash}}
+\protected\def\sphinxtextbackslashbreakafter
+ {\discretionary{\sphinx@textbackslash}{\sphinxafterbreak}{\sphinx@textbackslash}}
+\let\sphinxtextbackslash\sphinxtextbackslashbreakafter
+% the macro must be protected if it ends up used in moving arguments,
+% in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
+\protected\def\sphinxupquote#1{{\def\@tempa{alltt}%
+  \ifx\@tempa\@currenvir\else
+   \ifspx@opt@inlineliteralwraps
+      % break at . , ; ? ! /
+      \sphinxbreaksviaactive
+      % break also at \
+      \let\sphinx@textbackslash\textbackslash
+      \let\textbackslash\sphinxtextbackslash
+      % by default, no continuation symbol on next line but may be added
+      \let\sphinxafterbreak\sphinxafterbreakofinlineliteral
+      % do not overwrite the comma set-up
+      \let\verbatim@nolig@list\sphinx@literal@nolig@list
+   \fi
+   % fix a space-gobbling issue due to LaTeX's original \do@noligs
+% TODO: using \@noligs as patched by upquote.sty is now unneeded because
+% either ` and ' are escaped (non-unicode engines) or they don't build
+% ligatures (unicode engines). Thus remove this and unify handling of `, <, >,
+% ' and - with the characters . , ; ? ! / as handled via
+% \sphinxbreaksviaactive.
+% Hence \sphinx@do@noligs will be removed, or rather replaced  with code
+% inserting discretionaries, as they allow a continuation symbol on start of
+% next line to achieve common design with code-blocks.
+   \let\do@noligs\sphinx@do@noligs
+   \@noligs\endlinechar\m@ne\everyeof{}% (<- in case inside \sphinxhref)
+   \expandafter\scantokens
+  \fi {{#1}}}}% extra brace pair to fix end-space gobbling issue...
+\def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
+    \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
+\def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
+\let\sphinxafterbreakofinlineliteral\empty
+
 
 \endinput

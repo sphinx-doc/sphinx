@@ -3,49 +3,6 @@
 % change this info string if making any custom modification
 \ProvidesFile{sphinxlatexstyletext.sty}[2021/01/27 text styling]
 
-% to obtain straight quotes we execute \@noligs as patched by upquote, and
-% \scantokens is needed in cases where it would be too late for the macro to
-% first set catcodes and then fetch its argument. We also make the contents
-% breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive,
-% and also at \ character (which is escaped to \textbackslash{}).
-\protected\def\sphinxtextbackslashbreakbefore
- {\discretionary{}{\sphinxafterbreak\sphinx@textbackslash}{\sphinx@textbackslash}}
-\protected\def\sphinxtextbackslashbreakafter
- {\discretionary{\sphinx@textbackslash}{\sphinxafterbreak}{\sphinx@textbackslash}}
-\let\sphinxtextbackslash\sphinxtextbackslashbreakafter
-% the macro must be protected if it ends up used in moving arguments,
-% in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
-\protected\def\sphinxupquote#1{{\def\@tempa{alltt}%
-  \ifx\@tempa\@currenvir\else
-   \ifspx@opt@inlineliteralwraps
-      % break at . , ; ? ! /
-      \sphinxbreaksviaactive
-      % break also at \
-      \let\sphinx@textbackslash\textbackslash
-      \let\textbackslash\sphinxtextbackslash
-      % by default, no continuation symbol on next line but may be added
-      \let\sphinxafterbreak\sphinxafterbreakofinlineliteral
-      % do not overwrite the comma set-up
-      \let\verbatim@nolig@list\sphinx@literal@nolig@list
-   \fi
-   % fix a space-gobbling issue due to LaTeX's original \do@noligs
-% TODO: using \@noligs as patched by upquote.sty is now unneeded because
-% either ` and ' are escaped (non-unicode engines) or they don't build
-% ligatures (unicode engines). Thus remove this and unify handling of `, <, >,
-% ' and - with the characters . , ; ? ! / as handled via
-% \sphinxbreaksviaactive.
-% Hence \sphinx@do@noligs will be removed, or rather replaced  with code
-% inserting discretionaries, as they allow a continuation symbol on start of
-% next line to achieve common design with code-blocks.
-   \let\do@noligs\sphinx@do@noligs
-   \@noligs\endlinechar\m@ne\everyeof{}% (<- in case inside \sphinxhref)
-   \expandafter\scantokens
-  \fi {{#1}}}}% extra brace pair to fix end-space gobbling issue...
-\def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
-    \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
-\def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
-\let\sphinxafterbreakofinlineliteral\empty
-
 % Some custom font markup commands.
 \protected\def\sphinxstrong#1{\textbf{#1}}
 \protected\def\sphinxcode#1{\texttt{#1}}

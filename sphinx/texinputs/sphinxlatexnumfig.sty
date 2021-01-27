@@ -1,8 +1,12 @@
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexmiscnumbering.sty}[2021/01/27 numbering]
+\ProvidesFile{sphinxlatexnumfig.sty}[2021/01/27 numbering]
 
+% LaTeX 2018-04-01 and later provides \@removefromreset
+\ltx@ifundefined{@removefromreset}
+    {\RequirePackage{remreset}}
+    {}% avoid warning
 % Everything is delayed to \begin{document} to allow hyperref patches into
 %   \newcounter to solve duplicate label problems for internal hyperlinks to
 %   code listings (literalblock counter).  User or extension re-definitions of
