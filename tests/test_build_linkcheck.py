@@ -65,17 +65,17 @@ def test_defaults_json(app):
                  "info"]:
         assert attr in row
 
-    assert len(content.splitlines()) == 10
-    assert len(rows) == 10
+    assert len(content.splitlines()) == 9
+    assert len(rows) == 9
     # the output order of the rows is not stable
     # due to possible variance in network latency
     rowsby = {row["uri"]: row for row in rows}
-    assert rowsby["https://www.google.com#!bar"] == {
+    assert rowsby["https://www.google.com"] == {
         'filename': 'links.txt',
         'lineno': 10,
         'status': 'working',
         'code': 0,
-        'uri': 'https://www.google.com#!bar',
+        'uri': 'https://www.google.com',
         'info': ''
     }
     # looking for non-existent URL should fail
@@ -95,9 +95,9 @@ def test_defaults_json(app):
     }
     # looking for '#top' and '#does-not-exist' not found should fail
     assert "Anchor 'top' not found" == \
-        rowsby["https://www.google.com/#top"]["info"]
+        rowsby["https://www.google.com/"]["info"]
     assert "Anchor 'does-not-exist' not found" == \
-        rowsby["http://www.sphinx-doc.org/en/1.7/intro.html#does-not-exist"]["info"]
+        rowsby["http://www.sphinx-doc.org/en/1.7/intro.html"]["info"]
     # images should fail
     assert "Not Found for url: https://www.google.com/image.png" in \
         rowsby["https://www.google.com/image.png"]["info"]
@@ -123,6 +123,89 @@ def test_anchors_ignored(app):
     assert not content
 
 
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-multiple-anchors', freshenv=True)
+def test_one_uri_with_multiple_anchors(app, capsys):
+    class PageHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(
+                b"""
+                <!DOCTYPE html>
+                <html lang="en">
+                  <head>
+                    <meta charset="utf-8">
+                    <title>title</title>
+                  </head>
+                  <body>
+                    <h1 id="ants">Ants</h1>
+                    <p>Ants are eusocial insects of the family Formicidae.</p>
+                    <h2 id="behavior-and-ecology">Behavior and ecology</h2>
+                    <p>Ants communicate with each other using pheromones, sounds, and touch.</p>
+                    <iframe name="content-from-other-site"></iframe>
+                  </body>
+                </html>
+                """,
+            )
+
+        def log_date_time_string(self):
+            """Strip date and time from logged messages for assertions."""
+            return ""
+
+    with http_server(PageHandler):
+        app.build()
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
+    # Only one request was made.
+    _stdout, stderr = capsys.readouterr()
+    assert stderr == '127.0.0.1 - - [] "GET / HTTP/1.1" 200 -\n'
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-multiple-anchors', freshenv=True)
+def test_one_uri_with_multiple_anchors_not_found(app, capsys):
+    class PageHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(
+                b"""
+                <!DOCTYPE html>
+                <html lang="en">
+                  <head>
+                    <meta charset="utf-8">
+                    <title>title</title>
+                  </head>
+                  <body>
+                    <h1 id="behavior-and-ecology">Behavior and ecology</h1>
+                    <p>Ants communicate with each other using pheromones, sounds, and touch.</p>
+                  </body>
+                </html>
+                """,
+            )
+
+        def log_date_time_string(self):
+            """Strip date and time from logged messages for assertions."""
+            return ""
+
+    with http_server(PageHandler):
+        app.build()
+    content = (app.outdir / 'output.txt').read_text()
+    assert content == (
+        "index.rst:1: [broken] http://localhost:7777/: "
+        "Anchors not found: ['ants', 'content-from-other-site']\n"
+    )
+    # Only one request was made.
+    _stdout, stderr = capsys.readouterr()
+    assert stderr == '127.0.0.1 - - [] "GET / HTTP/1.1" 200 -\n'
+
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
@@ -133,7 +216,7 @@ def test_raises_for_invalid_status(app):
         app.build()
     content = (app.outdir / 'output.txt').read_text()
     assert content == (
-        "index.rst:1: [broken] http://localhost:7777/#anchor: "
+        "index.rst:1: [broken] http://localhost:7777/: "
         "500 Server Error: Internal Server Error "
         "for url: http://localhost:7777/\n"
     )

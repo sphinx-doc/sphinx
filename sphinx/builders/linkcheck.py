@@ -20,7 +20,7 @@ from html.parser import HTMLParser
 from os import path
 from threading import Thread
 from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple, cast
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote, urlparse, urlunparse
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -42,6 +42,7 @@ uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol rela
 
 Hyperlink = NamedTuple('Hyperlink', (('next_check', float),
                                      ('uri', Optional[str]),
+                                     ('anchors', Set[str]),
                                      ('docname', Optional[str]),
                                      ('lineno', Optional[int])))
 CheckResult = NamedTuple('CheckResult', (('uri', str),
@@ -73,24 +74,24 @@ def node_line_or_0(node: Element) -> int:
 class AnchorCheckParser(HTMLParser):
     """Specialized HTML parser that looks for a specific anchor."""
 
-    def __init__(self, search_anchor: str) -> None:
+    def __init__(self, search_anchors: Set[str]) -> None:
         super().__init__()
 
-        self.search_anchor = search_anchor
-        self.found = False
+        self.search_anchors = search_anchors
+        self.found = set()  # type: Set[str]
 
     def handle_starttag(self, tag: Any, attrs: Any) -> None:
         for key, value in attrs:
-            if key in ('id', 'name') and value == self.search_anchor:
-                self.found = True
+            if key in ('id', 'name') and value in self.search_anchors:
+                self.found.add(value)
                 break
 
 
-def check_anchor(response: requests.requests.Response, anchor: str) -> bool:
+def check_anchors(response: requests.requests.Response, anchors: Set[str]) -> Set[str]:
     """Reads HTML data from a response object `response` searching for `anchor`.
     Returns True if anchor was found, False otherwise.
     """
-    parser = AnchorCheckParser(anchor)
+    parser = AnchorCheckParser(anchors)
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
     for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
@@ -98,10 +99,11 @@ def check_anchor(response: requests.requests.Response, anchor: str) -> bool:
             chunk = chunk.decode()      # manually try to decode it
 
         parser.feed(chunk)
-        if parser.found:
+        remaining = anchors - parser.found
+        if not remaining:
             break
     parser.close()
-    return parser.found
+    return remaining
 
 
 class CheckExternalLinksBuilder(DummyBuilder):
@@ -137,6 +139,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def is_ignored_uri(self, uri: str) -> bool:
         return any(pat.match(uri) for pat in self.to_ignore)
+
+    def is_ignored_anchor(self, anchor: str) -> bool:
+        return any(pat.match(anchor) for pat in self.anchors_ignore)
 
     @property
     def good(self) -> Set[str]:
@@ -181,7 +186,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         )
         return HyperlinkAvailabilityCheckWorker(self).limit_rate(response)
 
-    def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
+    def process_result(self, result: CheckResult) -> None:
         uri, docname, lineno, status, info, code = result
 
         filename = self.env.doc2path(docname, None)
@@ -244,21 +249,39 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
+    def queue_hyperlinks(self) -> int:
+        hyperlinks_to_check = {}  # type: Dict[str, Hyperlink]
+        for hyperlink in self.hyperlinks.values():
+            if self.is_ignored_uri(hyperlink.uri):
+                self.process_result(
+                    CheckResult(hyperlink.uri, hyperlink.docname, hyperlink.lineno,
+                                'ignored', '', 0))
+            elif self.config.linkcheck_anchors:
+                # Group anchors for the same uri.
+                uri_tuple = urlparse(hyperlink.uri)
+                anchor = unquote(uri_tuple.fragment)
+                uri_tuple_without_anchor = uri_tuple._replace(fragment='')
+                uri_without_anchor = urlunparse(uri_tuple_without_anchor)
+                try:
+                    hyperlink_group = hyperlinks_to_check[uri_without_anchor]
+                except KeyError:
+                    hyperlink_group = hyperlink._replace(uri=uri_without_anchor)
+                if anchor and not self.is_ignored_anchor(anchor):
+                    hyperlink_group.anchors.add(anchor)
+                hyperlinks_to_check[uri_without_anchor] = hyperlink_group
+            else:
+                hyperlinks_to_check[hyperlink.uri] = hyperlink
+
+        for hyperlink in hyperlinks_to_check.values():
+            self.wqueue.put(hyperlink, False)
+        return len(hyperlinks_to_check)
+
     def finish(self) -> None:
         logger.info('')
 
         with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
              open(path.join(self.outdir, 'output.json'), 'w') as self.json_outfile:
-            total_links = 0
-            for hyperlink in self.hyperlinks.values():
-                if self.is_ignored_uri(hyperlink.uri):
-                    self.process_result(
-                        CheckResult(hyperlink.uri, hyperlink.docname, hyperlink.lineno,
-                                    'ignored', '', 0))
-                else:
-                    self.wqueue.put(hyperlink, False)
-                    total_links += 1
-
+            total_links = self.queue_hyperlinks()
             done = 0
             while done < total_links:
                 self.process_result(self.rqueue.get())
@@ -270,7 +293,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.wqueue.join()
         # Shutdown threads.
         for worker in self.workers:
-            self.wqueue.put((CHECK_IMMEDIATELY, None, None, None), False)
+            self.wqueue.put((CHECK_IMMEDIATELY, None, set(), None, None), False)
 
 
 class HyperlinkAvailabilityCheckWorker(Thread):
@@ -314,22 +337,13 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return {}
 
         def check_uri() -> Tuple[str, str, int]:
-            # split off anchor
-            if '#' in uri:
-                req_url, anchor = uri.split('#', 1)
-                for rex in self.anchors_ignore:
-                    if rex.match(anchor):
-                        anchor = None
-                        break
-            else:
-                req_url = uri
-                anchor = None
-
             # handle non-ASCII URIs
             try:
-                req_url.encode('ascii')
+                uri.encode('ascii')
             except UnicodeError:
-                req_url = encode_uri(req_url)
+                req_url = encode_uri(uri)
+            else:
+                req_url = uri
 
             # Get auth info, if any
             for pattern, auth_info in self.auth:
@@ -342,15 +356,18 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             kwargs['headers'] = get_request_headers()
 
             try:
-                if anchor and self.config.linkcheck_anchors:
-                    # Read the whole document and see if #anchor exists
+                if anchors:
+                    # Read the document and see if anchors exist.
                     response = requests.get(req_url, stream=True, config=self.config,
                                             auth=auth_info, **kwargs)
                     response.raise_for_status()
-                    found = check_anchor(response, unquote(anchor))
-
-                    if not found:
-                        raise Exception(__("Anchor '%s' not found") % anchor)
+                    not_found = check_anchors(response, anchors)
+                    if not_found:
+                        if len(not_found) == 1:
+                            msg = __("Anchor '%s' not found") % not_found.pop()
+                        else:
+                            msg = __("Anchors not found: %r") % sorted(not_found)
+                        raise Exception(msg)
                 else:
                     try:
                         # try a HEAD request first, which should be easier on
@@ -375,7 +392,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 elif err.response.status_code == 429:
                     next_check = self.limit_rate(err.response)
                     if next_check is not None:
-                        self.wqueue.put((next_check, uri, docname, lineno), False)
+                        self.wqueue.put((next_check, uri, anchors, docname, lineno), False)
                         return 'rate-limited', '', 0
                     return 'broken', str(err), 0
                 elif err.response.status_code == 503:
@@ -395,8 +412,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 return 'working', '', 0
             else:
                 new_url = response.url
-                if anchor:
-                    new_url += '#' + anchor
                 # history contains any redirects, get last
                 if response.history:
                     code = response.history[-1].status_code
@@ -442,7 +457,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return (status, info, code)
 
         while True:
-            next_check, uri, docname, lineno = self.wqueue.get()
+            next_check, uri, anchors, docname, lineno = self.wqueue.get()
             if uri is None:
                 break
             netloc = urlparse(uri).netloc
@@ -458,7 +473,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # Sleep before putting message back in the queue to avoid
                 # waking up other threads.
                 time.sleep(QUEUE_POLL_SECS)
-                self.wqueue.put((next_check, uri, docname, lineno), False)
+                self.wqueue.put((next_check, uri, anchors, docname, lineno), False)
                 self.wqueue.task_done()
                 continue
             status, info, code = check(docname)
@@ -521,7 +536,7 @@ class HyperlinkCollector(SphinxPostTransform):
                 continue
             uri = refnode['refuri']
             lineno = get_node_line(refnode)
-            uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+            uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, set(), self.env.docname, lineno)
             if uri not in hyperlinks:
                 hyperlinks[uri] = uri_info
 
@@ -530,7 +545,7 @@ class HyperlinkCollector(SphinxPostTransform):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
                 lineno = get_node_line(imgnode)
-                uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+                uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, set(), self.env.docname, lineno)
                 if uri not in hyperlinks:
                     hyperlinks[uri] = uri_info
 
