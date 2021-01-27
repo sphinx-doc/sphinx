@@ -31,7 +31,7 @@ ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_defaults(app):
-    app.builder.build_all()
+    app.build()
 
     assert (app.outdir / 'output.txt').exists()
     content = (app.outdir / 'output.txt').read_text()
@@ -52,7 +52,7 @@ def test_defaults(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_defaults_json(app):
-    app.builder.build_all()
+    app.build()
 
     assert (app.outdir / 'output.json').exists()
     content = (app.outdir / 'output.json').read_text()
@@ -113,7 +113,7 @@ def test_defaults_json(app):
                        'path/to/notfound']
                    })
 def test_anchors_ignored(app):
-    app.builder.build_all()
+    app.build()
 
     assert (app.outdir / 'output.txt').exists()
     content = (app.outdir / 'output.txt').read_text()
@@ -129,7 +129,7 @@ def test_raises_for_invalid_status(app):
             self.send_error(500, "Internal Server Error")
 
     with http_server(InternalServerErrorHandler):
-        app.builder.build_all()
+        app.build()
     content = (app.outdir / 'output.txt').read_text()
     assert content == (
         "index.rst:1: [broken] http://localhost:7777/#anchor: "
@@ -157,7 +157,7 @@ class HeadersDumperHandler(http.server.BaseHTTPRequestHandler):
     ]})
 def test_auth_header_uses_first_match(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
     stdout, stderr = capsys.readouterr()
     auth = requests.auth._basic_auth_str('user1', 'password')
     assert "Authorization: %s\n" % auth in stdout
@@ -168,7 +168,7 @@ def test_auth_header_uses_first_match(app, capsys):
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
     stdout, stderr = capsys.readouterr()
     assert "Authorization" not in stdout
 
@@ -185,7 +185,7 @@ def test_auth_header_no_match(app, capsys):
     }})
 def test_linkcheck_request_headers(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
 
     stdout, _stderr = capsys.readouterr()
     assert "Accept: text/html\n" in stdout
@@ -201,7 +201,7 @@ def test_linkcheck_request_headers(app, capsys):
     }})
 def test_linkcheck_request_headers_no_slash(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
 
     stdout, _stderr = capsys.readouterr()
     assert "Accept: application/json\n" in stdout
@@ -217,7 +217,7 @@ def test_linkcheck_request_headers_no_slash(app, capsys):
     }})
 def test_linkcheck_request_headers_default(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
 
     stdout, _stderr = capsys.readouterr()
     assert "Accepts: application/json\n" not in stdout
@@ -251,7 +251,7 @@ def make_redirect_handler(*, support_head):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_HEAD(app, capsys):
     with http_server(make_redirect_handler(support_head=True)):
-        app.builder.build_all()
+        app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text()
     assert content == (
@@ -269,7 +269,7 @@ def test_follows_redirects_on_HEAD(app, capsys):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_GET(app, capsys):
     with http_server(make_redirect_handler(support_head=False)):
-        app.builder.build_all()
+        app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text()
     assert content == (
@@ -299,7 +299,7 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
 def test_invalid_ssl(app):
     # Link indicates SSL should be used (https) but the server does not handle it.
     with http_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -313,7 +313,7 @@ def test_invalid_ssl(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_fails(app):
     with https_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -328,7 +328,7 @@ def test_connect_to_selfsigned_fails(app):
 def test_connect_to_selfsigned_with_tls_verify_false(app):
     app.config.tls_verify = False
     with https_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -346,7 +346,7 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
 def test_connect_to_selfsigned_with_tls_cacerts(app):
     app.config.tls_cacerts = CERT_FILE
     with https_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -364,7 +364,7 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
 def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     monkeypatch.setenv("REQUESTS_CA_BUNDLE", CERT_FILE)
     with https_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -382,7 +382,7 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
 def test_connect_to_selfsigned_nonexistent_cert_file(app):
     app.config.tls_cacerts = "does/not/exist"
     with https_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -410,7 +410,7 @@ def test_TooManyRedirects_on_HEAD(app):
             self.wfile.write(b"ok\n")
 
     with http_server(InfiniteRedirectOnHeadHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -445,7 +445,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
     with http_server(make_retry_after_handler([(429, "0"), (200, None)])), \
          mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0), \
          mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01):
-        app.builder.build_all()
+        app.build()
     content = (app.outdir / 'output.json').read_text()
     assert json.loads(content) == {
         "filename": "index.rst",
@@ -471,7 +471,7 @@ def test_too_many_requests_retry_after_HTTP_date(app, capsys):
     now = datetime.now().timetuple()
     retry_after = wsgiref.handlers.format_date_time(time.mktime(now))
     with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
-        app.builder.build_all()
+        app.build()
     content = (app.outdir / 'output.json').read_text()
     assert json.loads(content) == {
         "filename": "index.rst",
@@ -494,7 +494,7 @@ def test_too_many_requests_retry_after_HTTP_date(app, capsys):
 def test_too_many_requests_retry_after_without_header(app, capsys):
     with http_server(make_retry_after_handler([(429, None), (200, None)])),\
          mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0):
-        app.builder.build_all()
+        app.build()
     content = (app.outdir / 'output.json').read_text()
     assert json.loads(content) == {
         "filename": "index.rst",
@@ -517,7 +517,7 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
 def test_too_many_requests_user_timeout(app, capsys):
     app.config.linkcheck_rate_limit_timeout = 0.0
     with http_server(make_retry_after_handler([(429, None)])):
-        app.builder.build_all()
+        app.build()
     content = (app.outdir / 'output.json').read_text()
     assert json.loads(content) == {
         "filename": "index.rst",
