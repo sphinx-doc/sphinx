@@ -428,6 +428,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
             self.write_entry('redirected ' + text, docname, filename,
                              lineno, uri + ' to ' + info)
             self.write_linkstat(linkstat)
+        else:
+            raise ValueError("Unknown status %s." % status)
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
