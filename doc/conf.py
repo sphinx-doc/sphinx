@@ -58,17 +58,6 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
 latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontenc': r'\usepackage[LGR,X2,T1]{fontenc}',
-    'fontpkg': r'''
-\usepackage[sc]{mathpazo}
-\usepackage[scaled]{helvet}
-\usepackage{courier}
-\substitutefont{LGR}{\rmdefault}{cmr}
-\substitutefont{LGR}{\sfdefault}{cmss}
-\substitutefont{LGR}{\ttdefault}{cmtt}
-\substitutefont{X2}{\rmdefault}{cmr}
-\substitutefont{X2}{\sfdefault}{cmss}
-\substitutefont{X2}{\ttdefault}{cmtt}
-''',
     'passoptionstopackages': r'''
 \PassOptionsToPackage{svgnames}{xcolor}
 \PassOptionsToPackage{bookmarksdepth=3}{hyperref}% depth of pdf bookmarks
@@ -78,7 +67,6 @@ latex_elements = {
 \setcounter{tocdepth}{3}%    depth of what is kept from toc file
 \setcounter{secnumdepth}{1}% depth of section numbering
 ''',
-    'fvset': '\\fvset{fontsize=auto}',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
 \IfFileExists{\jobname.ind}
