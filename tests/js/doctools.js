@@ -12,6 +12,10 @@ describe('jQuery extensions', function() {
       expect(jQuery.urldecode(test_encoded_string)).toEqual(test_decoded_string);
     });
 
+    it('+ should result in " "', function() {
+      expect(jQuery.urldecode('+')).toEqual(' ');
+    });
+
   });
 
   describe('getQueryParameters', function() {

@@ -122,6 +122,7 @@ Features added
   :event:`html-page-context` event
 * #6550: html: Allow to use HTML permalink texts via
   :confval:`html_permalinks_icon`
+* #1638: html: Add permalink icons to glossary terms
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
 * #8573: napoleon: Allow to change the style of custom sections using
@@ -130,6 +131,7 @@ Features added
   references when :confval:`napoleon_preprocess_types` enabled
 * #6241: mathjax: Include mathjax.js only on the document using equations
 * #8651: std domain: cross-reference for a rubric having inline item is broken
+* #7642: std domain: Optimize case-insensitive match of term
 * #8681: viewcode: Support incremental build
 * #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
 * #207: Now :confval:`highlight_language` supports multiple languages
@@ -150,19 +152,26 @@ Bugs fixed
 * #8652: autodoc: All variable comments in the module are ignored if the module
   contains invalid type comments
 * #8693: autodoc: Default values for overloaded functions are rendered as string
+* #8134: autodoc: crashes when mocked decorator takes arguments
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
 * #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
   + or ^) are used as keystrokes
 * #8629: html: A type warning for html_use_opensearch is shown twice
 * #8714: html: kbd role with "Caps Lock" rendered incorrectly
+* #8123: html search: fix searching for terms containing + (Requires a custom
+  search language that does not split on +)
 * #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
+* #8745: i18n: crashes with KeyError when translation message adds a new auto
+  footnote reference
 * #4304: linkcheck: Fix race condition that could lead to checking the
   availability of the same URL twice
+* #7118: sphinx-quickstart: questionare got Mojibake if libreadline unavailable
 * #8094: texinfo: image files on the different directory with document are not
   copied
 * #8720: viewcode: module pages are generated for epub on incremental build
 * #8704: viewcode: anchors are generated in incremental build after singlehtml
+* #8756: viewcode: highlighted code is generated even if not referenced
 * #8671: :confval:`highlight_options` is not working
 * #8341: C, fix intersphinx lookup types for names in declarations.
 * C, C++: in general fix intersphinx and role lookup types.
@@ -170,8 +179,14 @@ Bugs fixed
 * #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
 * #1112: ``download`` role creates duplicated copies when relative path is
   specified
+* #7576: LaTeX with French babel and memoir crash: "Illegal parameter number
+  in definition of ``\FNH@prefntext``"
+* #8214: LaTeX: The :rst:role:`index` role and the glossary generate duplicate
+  entries in the LaTeX index (if both used for same term)
 * #8735: LaTeX: wrong internal links in pdf to captioned code-blocks when
   :confval:`numfig` is not True
+* #8442: LaTeX: some indexed terms are ignored when using xelatex engine
+  (or pdflatex and :confval:`latex_use_xindy` set to True) with memoir class
 
 Testing
 --------

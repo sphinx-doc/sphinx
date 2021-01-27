@@ -363,8 +363,12 @@ def get_verifier(verify, verify_re):
         # glossary (description list): multiple terms
         'verify',
         '.. glossary::\n\n   term1\n   term2\n       description',
-        ('<dl class="glossary docutils">\n<dt id="term-term1">term1</dt>'
-         '<dt id="term-term2">term2</dt><dd>description</dd>\n</dl>'),
+        ('<dl class="glossary docutils">\n'
+         '<dt id="term-term1">term1<a class="headerlink" href="#term-term1"'
+         ' title="Permalink to this term">¶</a></dt>'
+         '<dt id="term-term2">term2<a class="headerlink" href="#term-term2"'
+         ' title="Permalink to this term">¶</a></dt>'
+         '<dd>description</dd>\n</dl>'),
         None,
     ),
 ])

@@ -494,31 +494,34 @@ class Sphinx:
         """Register a configuration value.
 
         This is necessary for Sphinx to recognize new values and set default
-        values accordingly.  The *name* should be prefixed with the extension
-        name, to avoid clashes.  The *default* value can be any Python object.
-        The string value *rebuild* must be one of those values:
+        values accordingly.
 
-        * ``'env'`` if a change in the setting only takes effect when a
-          document is parsed -- this means that the whole environment must be
-          rebuilt.
-        * ``'html'`` if a change in the setting needs a full rebuild of HTML
-          documents.
-        * ``''`` if a change in the setting will not need any special rebuild.
 
-        The *types* value takes a list of types that describes the type of
-        configuration value.  For example, ``[str]`` is used to describe a
-        configuration that takes string value.
+        :param name: The name of configuration value.  It is recommended to be prefixed
+                     with the extension name (ex. ``html_logo``, ``epub_title``)
+        :param default: The default value of the configuration.
+        :param rebuild: The condition of rebuild.  It must be one of those values:
 
-        .. versionchanged:: 0.6
-           Changed *rebuild* from a simple boolean (equivalent to ``''`` or
-           ``'env'``) to a string.  However, booleans are still accepted and
-           converted internally.
+                        * ``'env'`` if a change in the setting only takes effect when a
+                          document is parsed -- this means that the whole environment must be
+                          rebuilt.
+                        * ``'html'`` if a change in the setting needs a full rebuild of HTML
+                          documents.
+                        * ``''`` if a change in the setting will not need any special rebuild.
+        :param types: The type of configuration value.  A list of types can be specified.  For
+                      example, ``[str]`` is used to describe a configuration that takes string
+                      value.
 
         .. versionchanged:: 0.4
            If the *default* value is a callable, it will be called with the
            config object as its argument in order to get the default value.
            This can be used to implement config values whose default depends on
            other values.
+
+        .. versionchanged:: 0.6
+           Changed *rebuild* from a simple boolean (equivalent to ``''`` or
+           ``'env'``) to a string.  However, booleans are still accepted and
+           converted internally.
         """
         logger.debug('[app] adding config value: %r',
                      (name, default, rebuild) + ((types,) if types else ()))
@@ -530,6 +533,8 @@ class Sphinx:
         """Register an event called *name*.
 
         This is needed to be able to emit it.
+
+        :param name: The name of the event
         """
         logger.debug('[app] adding event: %r', name)
         self.events.add(name)
@@ -560,6 +565,11 @@ class Sphinx:
         This is necessary for Docutils internals.  It may also be used in the
         future to validate nodes in the parsed documents.
 
+        :param node: A node class
+        :param kwargs: Visitor functions for each builder (see below)
+        :param override: If true, install the node forcedly even if another node is already
+                         installed as the same name
+
         Node visitor functions for the Sphinx HTML, LaTeX, text and manpage
         writers can be given as keyword arguments: the keyword should be one or
         more of ``'html'``, ``'latex'``, ``'text'``, ``'man'``, ``'texinfo'``
@@ -581,9 +591,6 @@ class Sphinx:
         Obviously, translators for which you don't specify visitor methods will
         choke on the node when encountered in a document to translate.
 
-        If *override* is True, the given *node* is forcedly installed even if
-        a node having the same name is already installed.
-
         .. versionchanged:: 0.5
            Added the support for keyword arguments giving visit functions.
         """
@@ -603,24 +610,21 @@ class Sphinx:
         Sphinx numbers the node automatically. And then the users can refer it
         using :rst:role:`numref`.
 
-        *figtype* is a type of enumerable nodes.  Each figtypes have individual
-        numbering sequences.  As a system figtypes, ``figure``, ``table`` and
-        ``code-block`` are defined.  It is able to add custom nodes to these
-        default figtypes.  It is also able to define new custom figtype if new
-        figtype is given.
-
-        *title_getter* is a getter function to obtain the title of node.  It
-        takes an instance of the enumerable node, and it must return its title
-        as string.  The title is used to the default title of references for
-        :rst:role:`ref`.  By default, Sphinx searches
-        ``docutils.nodes.caption`` or ``docutils.nodes.title`` from the node as
-        a title.
-
-        Other keyword arguments are used for node visitor functions. See the
-        :meth:`.Sphinx.add_node` for details.
-
-        If *override* is True, the given *node* is forcedly installed even if
-        a node having the same name is already installed.
+        :param node: A node class
+        :param figtype: The type of enumerable nodes.  Each figtypes have individual numbering
+                        sequences.  As a system figtypes, ``figure``, ``table`` and
+                        ``code-block`` are defined.  It is able to add custom nodes to these
+                        default figtypes.  It is also able to define new custom figtype if new
+                        figtype is given.
+        :param title_getter: A getter function to obtain the title of node.  It takes an
+                             instance of the enumerable node, and it must return its title as
+                             string.  The title is used to the default title of references for
+                             :rst:role:`ref`.  By default, Sphinx searches
+                             ``docutils.nodes.caption`` or ``docutils.nodes.title`` from the
+                             node as a title.
+        :param kwargs: Visitor functions for each builder (same as :meth:`add_node`)
+        :param override: If true, install the node forcedly even if another node is already
+                         installed as the same name
 
         .. versionadded:: 1.4
         """
@@ -679,7 +683,7 @@ class Sphinx:
         """Register a Docutils role.
 
         :param name: The name of role
-        :param cls: A role function
+        :param role: A role function
         :param override: If true, install the role forcedly even if another role is already
                          installed as the same name
 
@@ -720,11 +724,9 @@ class Sphinx:
     def add_domain(self, domain: "Type[Domain]", override: bool = False) -> None:
         """Register a domain.
 
-        Make the given *domain* (which must be a class; more precisely, a
-        subclass of :class:`~sphinx.domains.Domain`) known to Sphinx.
-
-        If *override* is True, the given *domain* is forcedly installed even if
-        a domain having the same name is already installed.
+        :param domain: A domain class
+        :param override: If true, install the domain forcedly even if another domain
+                         is already installed as the same name
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -739,8 +741,11 @@ class Sphinx:
         Like :meth:`add_directive`, but the directive is added to the domain
         named *domain*.
 
-        If *override* is True, the given *directive* is forcedly installed even if
-        a directive named as *name* is already installed.
+        :param domain: The name of target domain
+        :param name: A name of directive
+        :param cls: A directive class
+        :param override: If true, install the directive forcedly even if another directive
+                         is already installed as the same name
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -755,8 +760,11 @@ class Sphinx:
         Like :meth:`add_role`, but the role is added to the domain named
         *domain*.
 
-        If *override* is True, the given *role* is forcedly installed even if
-        a role named as *name* is already installed.
+        :param domain: The name of target domain
+        :param name: A name of role
+        :param role: A role function
+        :param override: If true, install the role forcedly even if another role is already
+                         installed as the same name
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -768,11 +776,12 @@ class Sphinx:
                             ) -> None:
         """Register a custom index for a domain.
 
-        Add a custom *index* class to the domain named *domain*.  *index* must
-        be a subclass of :class:`~sphinx.domains.Index`.
+        Add a custom *index* class to the domain named *domain*.
 
-        If *override* is True, the given *index* is forcedly installed even if
-        an index having the same name is already installed.
+        :param domain: The name of target domain
+        :param index: A index class
+        :param override: If true, install the index forcedly even if another index is
+                         already installed as the same name
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -893,6 +902,8 @@ class Sphinx:
         the list of transforms that are applied after Sphinx parses a reST
         document.
 
+        :param transform: A transform class
+
         .. list-table:: priority range categories for Sphinx transforms
            :widths: 20,80
 
@@ -925,6 +936,8 @@ class Sphinx:
         Add the standard docutils :class:`Transform` subclass *transform* to
         the list of transforms that are applied before Sphinx writes a
         document.
+
+        :param transform: A transform class
         """
         self.registry.add_post_transform(transform)
 
@@ -1196,9 +1209,10 @@ class Sphinx:
     def add_message_catalog(self, catalog: str, locale_dir: str) -> None:
         """Register a message catalog.
 
-        The *catalog* is a name of catalog, and *locale_dir* is a base path
-        of message catalog.  For more details, see
-        :func:`sphinx.locale.get_translation()`.
+        :param catalog: A name of catalog
+        :param locale_dir: The base path of message catalog
+
+        For more details, see :func:`sphinx.locale.get_translation()`.
 
         .. versionadded:: 1.8
         """
@@ -1209,7 +1223,7 @@ class Sphinx:
     def is_parallel_allowed(self, typ: str) -> bool:
         """Check parallel processing is allowed or not.
 
-        ``typ`` is a type of processing; ``'read'`` or ``'write'``.
+        :param typ: A type of processing; ``'read'`` or ``'write'``.
         """
         if typ == 'read':
             attrname = 'parallel_read_safe'
