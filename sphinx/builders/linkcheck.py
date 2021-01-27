@@ -44,6 +44,12 @@ Hyperlink = NamedTuple('Hyperlink', (('next_check', float),
                                      ('uri', Optional[str]),
                                      ('docname', Optional[str]),
                                      ('lineno', Optional[int])))
+CheckResult = NamedTuple('CheckResult', (('uri', str),
+                                         ('docname', str),
+                                         ('lineno', int),
+                                         ('status', str),
+                                         ('message', str),
+                                         ('code', int)))
 RateLimit = NamedTuple('RateLimit', (('delay', float), ('next_check', float)))
 
 DEFAULT_REQUEST_HEADERS = {
@@ -108,7 +114,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def init(self) -> None:
         self.hyperlinks = {}    # type: Dict[str, Hyperlink]
-        self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
         self.anchors_ignore = [re.compile(x)
                                for x in self.app.config.linkcheck_anchors_ignore]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
@@ -119,6 +124,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
 
+        self.txt_outfile = open(path.join(self.outdir, 'output.txt'), 'w')
+        self.json_outfile = open(path.join(self.outdir, 'output.json'), 'w')
+
         # create queues and worker threads
         self.rate_limits = {}  # type: Dict[str, RateLimit]
         self.wqueue = queue.PriorityQueue()  # type: queue.PriorityQueue
@@ -128,6 +136,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
             thread = threading.Thread(target=self.check_thread, daemon=True)
             thread.start()
             self.workers.append(thread)
+
+    def cleanup(self) -> None:
+        self.txt_outfile.close()
+        self.json_outfile.close()
+        super().cleanup()
 
     @property
     def good(self):
@@ -279,22 +292,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     srcdir = path.dirname(self.env.doc2path(docname))
                     if path.exists(path.join(srcdir, uri)):
                         return 'working', '', 0
-                    else:
-                        for rex in self.to_ignore:
-                            if rex.match(uri):
-                                return 'ignored', '', 0
-                        else:
-                            self._broken[uri] = ''
-                            return 'broken', '', 0
+                    self._broken[uri] = ''
+                    return 'broken', '', 0
             elif uri in self._good:
                 return 'working', 'old', 0
             elif uri in self._broken:
                 return 'broken', self._broken[uri], 0
             elif uri in self._redirected:
                 return 'redirected', self._redirected[uri][0], self._redirected[uri][1]
-            for rex in self.to_ignore:
-                if rex.match(uri):
-                    return 'ignored', '', 0
 
             # need to actually check the URI
             for _ in range(self.app.config.linkcheck_retries):
@@ -376,7 +381,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.rate_limits[netloc] = RateLimit(delay, next_check)
         return next_check
 
-    def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
+    def process_result(self, result: CheckResult) -> None:
         uri, docname, lineno, status, info, code = result
 
         filename = self.env.doc2path(docname, None)
@@ -447,11 +452,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
         total_links = len(self.hyperlinks)
         done = 0
-        with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
-             open(path.join(self.outdir, 'output.json'), 'w') as self.json_outfile:
-            while done < total_links:
-                self.process_result(self.rqueue.get())
-                done += 1
+        while done < total_links:
+            self.process_result(self.rqueue.get())
+            done += 1
 
         if self._broken:
             self.app.statuscode = 1
@@ -469,9 +472,14 @@ class HyperlinkCollector(SphinxPostTransform):
     def run(self, **kwargs: Any) -> None:
         builder = cast(CheckExternalLinksBuilder, self.app.builder)
         hyperlinks = builder.hyperlinks
+        to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
 
         def add_hyperlink(uri: str, lineno: int) -> None:
-            uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+            docname = self.env.docname
+            if any(ignore_re.match(uri) for ignore_re in to_ignore):
+                builder.process_result(CheckResult(uri, docname, lineno, 'ignored', '', 0))
+                return
+            uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, docname, lineno)
             if uri not in hyperlinks:
                 hyperlinks[uri] = uri_info
 
