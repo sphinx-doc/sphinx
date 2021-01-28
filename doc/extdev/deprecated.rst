@@ -12,17 +12,13 @@ The following is a list of deprecated interfaces.
 
 .. tabularcolumns:: |>{\raggedright}\Y{.4}|>{\centering}\Y{.1}|>{\centering}\Y{.12}|>{\raggedright\arraybackslash}\Y{.38}|
 
-.. |LaTeXHyphenate| raw:: latex
-
-                    \hspace{0pt}
-
 .. list-table:: deprecated APIs
    :header-rows: 1
    :class: deprecated
    :widths: 40, 10, 10, 40
 
    * - Target
-     - |LaTeXHyphenate|\ Deprecated
+     - Deprecated
      - (will be) Removed
      - Alternatives
 

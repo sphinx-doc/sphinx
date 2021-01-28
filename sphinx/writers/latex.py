@@ -1161,7 +1161,9 @@ class LaTeXTranslator(SphinxTranslator):
             # (first one is label node)
             pass
         else:
-            self.body.append('\n')
+            # the \hskip0pt\relax is to allow hyphenation of first word of
+            # a paragraph in narrow contexts such as in a table cell
+            self.body.append('\\hskip0pt\\relax\n')
 
     def depart_paragraph(self, node: Element) -> None:
         self.body.append('\n')
