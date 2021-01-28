@@ -206,6 +206,51 @@ def test_one_uri_with_multiple_anchors_not_found(app, capsys):
     assert stderr == '127.0.0.1 - - [] "GET / HTTP/1.1" 200 -\n'
 
 
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver-multiple-anchors', freshenv=True,
+    confoverrides={
+        'linkcheck_ignore': [
+            'https://localhost:7777/#ants',
+            'https://localhost:7777/#content-from-other-sites',
+        ],
+    })
+def test_linkcheck_ignore_precedes_linkcheck_anchors_ignore(app, capsys):
+    class PageHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(
+                b"""
+                <!DOCTYPE html>
+                <html lang="en">
+                  <head>
+                    <meta charset="utf-8">
+                    <title>title</title>
+                  </head>
+                  <body>
+                    <h1 id="behavior-and-ecology">Behavior and ecology</h1>
+                    <p>Ants communicate with each other using pheromones, sounds, and touch.</p>
+                  </body>
+                </html>
+                """,
+            )
+
+        def log_date_time_string(self):
+            """Strip date and time from logged messages for assertions."""
+            return ""
+
+    with http_server(PageHandler):
+        app.build()
+    content = (app.outdir / 'output.txt').read_text()
+    assert content == (
+        "index.rst:1: [broken] http://localhost:7777/: "
+        "Anchors not found: ['ants', 'content-from-other-site']\n"
+    )
+    # Only one request was made.
+    _stdout, stderr = capsys.readouterr()
+    assert stderr == '127.0.0.1 - - [] "GET / HTTP/1.1" 200 -\n'
+
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
