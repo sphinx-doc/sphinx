@@ -276,6 +276,7 @@ class HList(SphinxDirective):
         npercol, nmore = divmod(len(fulllist), ncolumns)
         index = 0
         newnode = addnodes.hlist()
+        newnode['ncolumns'] = str(ncolumns)
         for column in range(ncolumns):
             endindex = index + ((npercol + 1) if column < nmore else npercol)
             bullet_list = nodes.bullet_list()
