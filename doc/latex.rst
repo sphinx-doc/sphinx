@@ -1024,6 +1024,14 @@ Environments
 Miscellany
 ~~~~~~~~~~
 
+- Every text paragraph in document body starts with `\sphinxAtStartPar`.
+  Currently, this is used to insert a zero width horizontal skip which
+  is a trick to allow TeX hyphenation of the first word of a paragraph
+  in a narrow context (like a table cell). For ``'lualatex'`` which
+  does not need the trick, the `\sphinxAtStartPar` does nothing.
+
+  .. versionadded:: 3.5.0
+
 - The section, subsection, ... headings are set using  *titlesec*'s
   ``\titleformat`` command.
 
