@@ -394,8 +394,6 @@ units as well as normal text.
 
    .. versionadded:: 0.6
 
-   .. versionchanged:: 3.5.0
-      support by the latex builder.
 
 .. _code-examples:
 
