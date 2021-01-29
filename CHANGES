@@ -109,6 +109,7 @@ Bugs fixed
   :confval:`numfig` is not True
 * #8442: LaTeX: some indexed terms are ignored when using xelatex engine
   (or pdflatex and :confval:`latex_use_xindy` set to True) with memoir class
+* #8780: LaTeX: long words in narrow columns may not be hyphenated
 
 Testing
 --------
