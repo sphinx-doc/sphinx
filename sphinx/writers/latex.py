@@ -1177,9 +1177,11 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('\n\\end{center}')
 
     def visit_hlist(self, node: Element) -> None:
-        # for now, we don't support a more compact list format
-        # don't add individual itemize environments, but one for all columns
         self.compact_list += 1
+        ncolumns = node['ncolumns']
+        if self.compact_list > 1:
+            self.body.append('\\setlength{\\multicolsep}{0pt}\n')
+        self.body.append('\\begin{multicols}{' + ncolumns + '}\\raggedright\n')
         self.body.append('\\begin{itemize}\\setlength{\\itemsep}{0pt}'
                          '\\setlength{\\parskip}{0pt}\n')
         if self.table:
@@ -1187,12 +1189,17 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_hlist(self, node: Element) -> None:
         self.compact_list -= 1
-        self.body.append('\\end{itemize}\n')
+        self.body.append('\\end{itemize}\\raggedcolumns\\end{multicols}\n')
 
     def visit_hlistcol(self, node: Element) -> None:
         pass
 
     def depart_hlistcol(self, node: Element) -> None:
+        # \columnbreak would guarantee same columns as in html ouput.  But
+        # some testing with long items showed that columns may be too uneven.
+        # And in case only of short items, the automatic column breaks should
+        # match the ones pre-computed by the hlist() directive.
+        # self.body.append('\\columnbreak\n')
         pass
 
     def latex_image_length(self, width_str: str, scale: int = 100) -> str:
