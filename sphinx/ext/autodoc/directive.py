@@ -37,7 +37,7 @@ AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
                            'ignore-module-all', 'exclude-members', 'member-order',
                            'imported-members']
 
-AUTODOC_EXTENDABLE_OPTIONS = ['members', 'special-members', 'exclude-members']
+AUTODOC_EXTENDABLE_OPTIONS = ['members', 'private-members', 'special-members', 'exclude-members']
 
 
 class DummyOptionSpec(dict):
