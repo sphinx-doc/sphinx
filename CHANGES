@@ -114,6 +114,8 @@ Bugs fixed
 * #8442: LaTeX: some indexed terms are ignored when using xelatex engine
   (or pdflatex and :confval:`latex_use_xindy` set to True) with memoir class
 * #8780: LaTeX: long words in narrow columns may not be hyphenated
+* #8788: LaTeX: ``\titleformat`` last argument in sphinx.sty should be
+  bracketed, not braced (and is anyhow not needed) 
 
 Testing
 --------
