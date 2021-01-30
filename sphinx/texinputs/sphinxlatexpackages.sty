@@ -24,10 +24,6 @@
 \RequirePackage{float}
 % For floating figures in the text. Better to load after float.
 \RequirePackage{wrapfig}
-% LaTeX 2018-04-01 and later provides \@removefromreset
-\ltx@ifundefined{@removefromreset}
-    {\RequirePackage{remreset}}
-    {}% avoid warning
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
 \ifx\kanjiskip\@undefined
