@@ -85,6 +85,9 @@ Release 3.5.0 (in development)
 Dependencies
 ------------
 
+* LaTeX: ``multicol`` (it is anyhow a required part of the official latex2e
+  base distribution)
+
 Incompatible changes
 --------------------
 
@@ -157,6 +160,7 @@ Bugs fixed
 * #8134: autodoc: crashes when mocked decorator takes arguments
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
+* #8232: graphviz: Image node is not rendered if graph file is in subdirectory
 * #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
   + or ^) are used as keystrokes
 * #8629: html: A type warning for html_use_opensearch is shown twice
@@ -183,12 +187,14 @@ Bugs fixed
   specified
 * #7576: LaTeX with French babel and memoir crash: "Illegal parameter number
   in definition of ``\FNH@prefntext``"
+* #8072: LaTeX: Directive :rst:dir:`hlist` not implemented in LaTeX
 * #8214: LaTeX: The :rst:role:`index` role and the glossary generate duplicate
   entries in the LaTeX index (if both used for same term)
 * #8735: LaTeX: wrong internal links in pdf to captioned code-blocks when
   :confval:`numfig` is not True
 * #8442: LaTeX: some indexed terms are ignored when using xelatex engine
   (or pdflatex and :confval:`latex_use_xindy` set to True) with memoir class
+* #8780: LaTeX: long words in narrow columns may not be hyphenated
 
 Testing
 --------

@@ -208,6 +208,8 @@
 \ltx@ifundefined{@removefromreset}
     {\RequirePackage{remreset}}
     {}% avoid warning
+% To support hlist directive
+\RequirePackage{multicol}
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
 \ifx\kanjiskip\@undefined
