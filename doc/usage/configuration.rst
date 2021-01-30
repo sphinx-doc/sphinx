@@ -70,13 +70,14 @@ Project information
    The author name(s) of the document.  The default value is ``'unknown'``.
 
 .. confval:: copyright
-.. confval:: project_copyright
 
    A copyright statement in the style ``'2008, Author Name'``.
 
-   .. versionchanged:: 3.5
+.. confval:: project_copyright
 
-      As an alias, ``project_copyright`` is also allowed.
+   An alias of :confval:`copyright`.
+
+   .. versionadded:: 3.5
 
 .. confval:: version
 
