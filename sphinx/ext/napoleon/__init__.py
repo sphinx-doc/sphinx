@@ -4,7 +4,7 @@
 
     Support for NumPy and Google style docstrings.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -44,6 +44,7 @@ class Config:
         napoleon_preprocess_types = False
         napoleon_type_aliases = None
         napoleon_custom_sections = None
+        napoleon_attr_annotations = True
 
     .. _Google style:
        https://google.github.io/styleguide/pyguide.html
@@ -252,11 +253,19 @@ class Config:
           * To create a custom "generic" section, just pass a string.
           * To create an alias for an existing section, pass a tuple containing the
             alias name and the original, in that order.
+          * To create a custom section that displays like the parameters or returns
+            section, pass a tuple containing the custom section name and a string
+            value, "params_style" or "returns_style".
 
         If an entry is just a string, it is interpreted as a header for a generic
         section. If the entry is a tuple/list/indexed container, the first entry
-        is the name of the section, the second is the section key to emulate.
+        is the name of the section, the second is the section key to emulate. If the
+        second entry value is "params_style" or "returns_style", the custom section
+        will be displayed like the parameters section or returns section.
 
+    napoleon_attr_annotations : :obj:`bool` (Defaults to True)
+        Use the type annotations of class attributes that are documented in the docstring
+        but do not have a type in the docstring.
 
     """
     _config_values = {
@@ -274,7 +283,8 @@ class Config:
         'napoleon_use_keyword': (True, 'env'),
         'napoleon_preprocess_types': (False, 'env'),
         'napoleon_type_aliases': (None, 'env'),
-        'napoleon_custom_sections': (None, 'env')
+        'napoleon_custom_sections': (None, 'env'),
+        'napoleon_attr_annotations': (True, 'env'),
     }
 
     def __init__(self, **settings: Any) -> None:

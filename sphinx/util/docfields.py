@@ -5,7 +5,7 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -295,6 +295,7 @@ class DocFieldTransformer:
                         self.directive.domain,
                         target,
                         contnode=content[0],
+                        env=self.directive.state.document.settings.env
                     )
                     if _is_single_paragraph(field_body):
                         paragraph = cast(nodes.paragraph, field_body[0])

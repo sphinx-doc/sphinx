@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2019/09/02 v2.3.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2021/01/23 v3.5.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -239,6 +239,8 @@
 \ltx@ifundefined{@removefromreset}
     {\RequirePackage{remreset}}
     {}% avoid warning
+% To support hlist directive
+\RequirePackage{multicol}
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
 \ifx\kanjiskip\@undefined
@@ -410,6 +412,11 @@
 \DisableKeyvalOption{sphinx}{numfigreset}
 \DisableKeyvalOption{sphinx}{nonumfigreset}
 \DisableKeyvalOption{sphinx}{mathnumfig}
+% To allow hyphenation of first word in narrow contexts; no option,
+% customization to be done via 'preamble' key
+\newcommand*\sphinxAtStartPar{\nobreak\hskip\z@skip}
+% No need for the \hspace{0pt} trick (\hskip\z@skip) with luatex
+\ifdefined\directlua\let\sphinxAtStartPar\@empty\fi
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
@@ -709,17 +716,17 @@
 % Augment the sectioning commands used to get our own font family in place,
 % and reset some internal data items (\titleformat from titlesec package)
 \titleformat{\section}{\Large\py@HeaderFamily}%
-            {\py@TitleColor\thesection}{0.5em}{\py@TitleColor}{\py@NormalColor}
+            {\py@TitleColor\thesection}{0.5em}{\py@TitleColor}
 \titleformat{\subsection}{\large\py@HeaderFamily}%
-            {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
+            {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}
 \titleformat{\subsubsection}{\py@HeaderFamily}%
-            {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
+            {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}
 % By default paragraphs (and subsubsections) will not be numbered because
 % sphinxmanual.cls and sphinxhowto.cls set secnumdepth to 2
 \titleformat{\paragraph}{\py@HeaderFamily}%
-            {\py@TitleColor\theparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
+            {\py@TitleColor\theparagraph}{0.5em}{\py@TitleColor}
 \titleformat{\subparagraph}{\py@HeaderFamily}%
-            {\py@TitleColor\thesubparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
+            {\py@TitleColor\thesubparagraph}{0.5em}{\py@TitleColor}
 
 
 %% GRAPHICS
@@ -737,7 +744,7 @@
 \AtBeginDocument{\spx@image@maxheight\textheight}
 
 % box scratch register
-\newdimen\spx@image@box
+\newbox\spx@image@box
 \newcommand*{\sphinxsafeincludegraphics}[2][]{%
     % #1 contains possibly width=, height=, but no scale= since 1.8.4
     \setbox\spx@image@box\hbox{\includegraphics[#1,draft]{#2}}%
@@ -844,6 +851,12 @@
 
 
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
+
+% Everything is delayed to \begin{document} to allow hyperref patches into
+%   \newcounter to solve duplicate label problems for internal hyperlinks to
+%   code listings (literalblock counter).  User or extension re-definitions of
+%   \theliteralblock, et al., thus have also to be delayed. (changed at 3.5.0)
+\AtBeginDocument{%
 \ltx@ifundefined{c@chapter}
    {\newcounter{literalblock}}%
    {\newcounter{literalblock}[chapter]%
@@ -884,62 +897,52 @@
        \g@addto@macro\spx@preBthefigure{\fi}}%
 \fi
 \ifnum\spx@opt@numfigreset>1
-  \AtBeginDocument{%
     \@addtoreset{figure}{section}%
     \@addtoreset{table}{section}%
     \@addtoreset{literalblock}{section}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{section}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>2
-  \AtBeginDocument{%
     \@addtoreset{figure}{subsection}%
     \@addtoreset{table}{subsection}%
     \@addtoreset{literalblock}{subsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsection}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>3
-  \AtBeginDocument{%
     \@addtoreset{figure}{subsubsection}%
     \@addtoreset{table}{subsubsection}%
     \@addtoreset{literalblock}{subsubsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsubsection}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>4
-  \AtBeginDocument{%
     \@addtoreset{figure}{paragraph}%
     \@addtoreset{table}{paragraph}%
     \@addtoreset{literalblock}{paragraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{paragraph}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>5
-  \AtBeginDocument{%
     \@addtoreset{figure}{subparagraph}%
     \@addtoreset{table}{subparagraph}%
     \@addtoreset{literalblock}{subparagraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subparagraph}%
     \fi%
-  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -956,7 +959,7 @@
     \g@addto@macro\theequation{\arabic{equation}}%
   \fi
 \fi
-
+}% end of big \AtBeginDocument
 
 %% LITERAL BLOCKS
 %
@@ -966,9 +969,9 @@
 % - with possibly of a top caption, non-separable by pagebreak.
 % - and usable inside tables or footnotes ("footnotehyper-sphinx").
 
-% For extensions which use \OriginalVerbatim and compatibility with Sphinx <
-% 1.5, we define and use these when (unmodified) Verbatim will be needed. But
-% Sphinx >= 1.5 does not modify the \Verbatim macro anymore.
+% Prior to Sphinx 1.5, \Verbatim and \endVerbatim were modified by Sphinx.
+% The aliases defined here are used in sphinxVerbatim environment and can
+% serve as hook-points with no need to modify \Verbatim itself.
 \let\OriginalVerbatim   \Verbatim
 \let\endOriginalVerbatim\endVerbatim
 
@@ -1863,8 +1866,8 @@
 \def\sphinxstyleindexextra   #1{ (\emph{#1})}
 \def\sphinxstyleindexpageref #1{, \pageref{#1}}
 \def\sphinxstyleindexpagemain#1{\textbf{#1}}
-\protected\def\spxentry#1{#1}% will get \let to \sphinxstyleindexentry in index
-\protected\def\spxextra#1{#1}% will get \let to \sphinxstyleindexextra in index
+\def\spxentry{\@backslashchar spxentry}% let to \sphinxstyleindexentry in index
+\def\spxextra{\@backslashchar spxextra}% let to \sphinxstyleindexextra in index
 \def\sphinxstyleindexlettergroup #1%
     {{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 \def\sphinxstyleindexlettergroupDefault #1%

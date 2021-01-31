@@ -29,3 +29,6 @@ class Class:
 
 class Derived(Class):
     attr7: int
+
+
+Alias = Derived

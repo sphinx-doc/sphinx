@@ -4,7 +4,7 @@
 
     The C language domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -137,8 +137,7 @@ class ASTIdentifier(ASTBaseBase):
                                           reftype='identifier',
                                           reftarget=targetText, modname=None,
                                           classname=None)
-            key = symbol.get_lookup_key()
-            pnode['c:parent_key'] = key
+            pnode['c:parent_key'] = symbol.get_lookup_key()
             if self.is_anon():
                 pnode += nodes.strong(text="[anonymous]")
             else:
@@ -1582,13 +1581,11 @@ class Symbol:
     def get_all_symbols(self) -> Iterator["Symbol"]:
         yield self
         for sChild in self._children:
-            for s in sChild.get_all_symbols():
-                yield s
+            yield from sChild.get_all_symbols()
 
     @property
     def children(self) -> Iterator["Symbol"]:
-        for c in self._children:
-            yield c
+        yield from self._children
 
     @property
     def children_recurse_anon(self) -> Iterator["Symbol"]:
@@ -3101,7 +3098,7 @@ def _make_phony_error_name() -> ASTNestedName:
     return ASTNestedName([ASTIdentifier("PhonyNameDueToError")], rooted=False)
 
 
-class CObject(ObjectDescription):
+class CObject(ObjectDescription[ASTDeclaration]):
     """
     Description of a C language object.
     """
@@ -3206,7 +3203,8 @@ class CObject(ObjectDescription):
     def parse_pre_v3_type_definition(self, parser: DefinitionParser) -> ASTDeclaration:
         return parser.parse_pre_v3_type_definition()
 
-    def describe_signature(self, signode: TextElement, ast: Any, options: Dict) -> None:
+    def describe_signature(self, signode: TextElement, ast: ASTDeclaration,
+                           options: Dict) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def run(self) -> List[Node]:
@@ -3453,8 +3451,9 @@ class AliasNode(nodes.Element):
             assert parentKey is not None
             self.parentKey = parentKey
 
-    def copy(self: T) -> T:
-        return self.__class__(self.sig, env=None, parentKey=self.parentKey)  # type: ignore
+    def copy(self) -> 'AliasNode':
+        return self.__class__(self.sig, self.maxdepth, self.document,
+                              env=None, parentKey=self.parentKey)
 
 
 class AliasTransform(SphinxTransform):
@@ -3643,7 +3642,7 @@ class CExprRole(SphinxRole):
                            location=self.get_source_info())
             # see below
             return [self.node_type(text, text, classes=classes)], []
-        parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
+        parentSymbol = self.env.temp_data.get('c:parent_symbol', None)
         if parentSymbol is None:
             parentSymbol = self.env.domaindata['c']['root_symbol']
         # ...most if not all of these classes should really apply to the individual references,
@@ -3658,15 +3657,18 @@ class CDomain(Domain):
     name = 'c'
     label = 'C'
     object_types = {
-        'function': ObjType(_('function'), 'func'),
-        'member': ObjType(_('member'), 'member'),
-        'macro': ObjType(_('macro'), 'macro'),
-        'type': ObjType(_('type'), 'type'),
-        'var': ObjType(_('variable'), 'data'),
-        'enum': ObjType(_('enum'), 'enum'),
-        'enumerator': ObjType(_('enumerator'), 'enumerator'),
-        'struct': ObjType(_('struct'), 'struct'),
-        'union': ObjType(_('union'), 'union'),
+        # 'identifier' is the one used for xrefs generated in signatures, not in roles
+        'member': ObjType(_('member'), 'var', 'member', 'data', 'identifier'),
+        'var': ObjType(_('variable'),  'var', 'member', 'data', 'identifier'),
+        'function': ObjType(_('function'),     'func',          'identifier', 'type'),
+        'macro': ObjType(_('macro'),           'macro',         'identifier'),
+        'struct': ObjType(_('struct'),         'struct',        'identifier', 'type'),
+        'union': ObjType(_('union'),           'union',         'identifier', 'type'),
+        'enum': ObjType(_('enum'),             'enum',          'identifier', 'type'),
+        'enumerator': ObjType(_('enumerator'), 'enumerator',    'identifier'),
+        'type': ObjType(_('type'),                              'identifier', 'type'),
+        # generated object types
+        'functionParam': ObjType(_('function parameter'),       'identifier', 'var', 'member', 'data'),  # noqa
     }
 
     directives = {

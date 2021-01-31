@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -311,6 +311,7 @@ class Locale(SphinxTransform):
                 refname = newf.get('refname')
                 refs = old_foot_namerefs.get(refname, [])
                 if not refs:
+                    newf.parent.remove(newf)
                     continue
 
                 oldf = refs.pop(0)

@@ -48,7 +48,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -98,7 +98,7 @@ logger = logging.getLogger(__name__)
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
 
-WELL_KNOWN_ABBREVIATIONS = (' i.e.',)
+WELL_KNOWN_ABBREVIATIONS = ('et al.', ' i.e.',)
 
 
 # -- autosummary_toc node ------------------------------------------------------

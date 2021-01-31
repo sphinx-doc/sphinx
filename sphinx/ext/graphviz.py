@@ -5,7 +5,7 @@
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -142,6 +142,7 @@ class Graphviz(SphinxDirective):
                        'it failed') % filename, line=self.lineno)]
         else:
             dotcode = '\n'.join(self.content)
+            rel_filename = None
             if not dotcode.strip():
                 return [self.state_machine.reporter.warning(
                     __('Ignoring "graphviz" directive without content.'),
@@ -160,6 +161,8 @@ class Graphviz(SphinxDirective):
             node['align'] = self.options['align']
         if 'class' in self.options:
             node['classes'] = self.options['class']
+        if rel_filename:
+            node['filename'] = rel_filename
 
         if 'caption' not in self.options:
             self.add_name(node)
@@ -213,8 +216,8 @@ class GraphvizSimple(SphinxDirective):
             return [figure]
 
 
-def render_dot(self: SphinxTranslator, code: str, options: Dict,
-               format: str, prefix: str = 'graphviz') -> Tuple[str, str]:
+def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
+               prefix: str = 'graphviz', filename: str = None) -> Tuple[str, str]:
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
@@ -238,7 +241,10 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
     dot_args.extend(['-T' + format, '-o' + outfn])
 
     docname = options.get('docname', 'index')
-    cwd = path.dirname(path.join(self.builder.srcdir, docname))
+    if filename:
+        cwd = path.dirname(path.join(self.builder.srcdir, filename))
+    else:
+        cwd = path.dirname(path.join(self.builder.srcdir, docname))
 
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
@@ -263,14 +269,14 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
 
 
 def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Dict,
-                    prefix: str = 'graphviz', imgcls: str = None, alt: str = None
-                    ) -> Tuple[str, str]:
+                    prefix: str = 'graphviz', imgcls: str = None, alt: str = None,
+                    filename: str = None) -> Tuple[str, str]:
     format = self.builder.config.graphviz_output_format
     try:
         if format not in ('png', 'svg'):
             raise GraphvizError(__("graphviz_output_format must be one of 'png', "
                                    "'svg', but is %r") % format)
-        fname, outfn = render_dot(self, code, options, format, prefix)
+        fname, outfn = render_dot(self, code, options, format, prefix, filename)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
@@ -315,13 +321,14 @@ def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Di
 
 
 def html_visit_graphviz(self: HTMLTranslator, node: graphviz) -> None:
-    render_dot_html(self, node, node['code'], node['options'])
+    render_dot_html(self, node, node['code'], node['options'], filename=node.get('filename'))
 
 
 def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
-                     options: Dict, prefix: str = 'graphviz') -> None:
+                     options: Dict, prefix: str = 'graphviz', filename: str = None
+                     ) -> None:
     try:
-        fname, outfn = render_dot(self, code, options, 'pdf', prefix)
+        fname, outfn = render_dot(self, code, options, 'pdf', prefix, filename)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
@@ -352,7 +359,7 @@ def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
 
 
 def latex_visit_graphviz(self: LaTeXTranslator, node: graphviz) -> None:
-    render_dot_latex(self, node, node['code'], node['options'])
+    render_dot_latex(self, node, node['code'], node['options'], filename=node.get('filename'))
 
 
 def render_dot_texinfo(self: TexinfoTranslator, node: graphviz, code: str,

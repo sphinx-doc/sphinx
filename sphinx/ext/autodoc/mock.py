@@ -4,7 +4,7 @@
 
     mock for autodoc
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,10 +13,11 @@ import os
 import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
-from types import FunctionType, MethodType, ModuleType
+from types import ModuleType
 from typing import Any, Generator, Iterator, List, Sequence, Tuple, Union
 
 from sphinx.util import logging
+from sphinx.util.inspect import safe_getattr
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class _MockObject:
 
     __display_name__ = '_MockObject'
     __sphinx_mock__ = True
+    __sphinx_decorator_args__ = ()  # type: Tuple[Any, ...]
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
@@ -59,18 +61,19 @@ class _MockObject:
         return _make_subclass(key, self.__display_name__, self.__class__)()
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        if args and type(args[0]) in [type, FunctionType, MethodType]:
-            # Appears to be a decorator, pass through unchanged
-            return args[0]
-        return self
+        call = self.__class__()
+        call.__sphinx_decorator_args__ = args
+        return call
 
     def __repr__(self) -> str:
         return self.__display_name__
 
 
 def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
-                   attributes: Any = None) -> Any:
-    attrs = {'__module__': module, '__display_name__': module + '.' + name}
+                   attributes: Any = None, decorator_args: Tuple = ()) -> Any:
+    attrs = {'__module__': module,
+             '__display_name__': module + '.' + name,
+             '__sphinx_decorator_args__': decorator_args}
     attrs.update(attributes or {})
 
     return type(name, (superclass,), attrs)
@@ -147,3 +150,38 @@ def mock(modnames: List[str]) -> Generator[None, None, None]:
     finally:
         sys.meta_path.remove(finder)
         finder.invalidate_caches()
+
+
+def ismock(subject: Any) -> bool:
+    """Check if the object is mocked."""
+    # check the object has '__sphinx_mock__' attribute
+    try:
+        if safe_getattr(subject, '__sphinx_mock__', None) is None:
+            return False
+    except AttributeError:
+        return False
+
+    # check the object is mocked module
+    if isinstance(subject, _MockModule):
+        return True
+
+    try:
+        # check the object is mocked object
+        __mro__ = safe_getattr(type(subject), '__mro__', [])
+        if len(__mro__) > 2 and __mro__[1] is _MockObject:
+            return True
+    except AttributeError:
+        pass
+
+    return False
+
+
+def undecorate(subject: _MockObject) -> Any:
+    """Unwrap mock if *subject* is decorated by mocked object.
+
+    If not decorated, returns given *subject* itself.
+    """
+    if ismock(subject) and subject.__sphinx_decorator_args__:
+        return subject.__sphinx_decorator_args__[0]
+    else:
+        return subject

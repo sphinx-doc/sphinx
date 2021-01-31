@@ -4,7 +4,7 @@
 
     Test the Theme class.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -81,7 +81,7 @@ def test_js_source(app, status, warning):
     jquery_src = (app.outdir / '_static' / 'jquery-{v}.js'.format(v=v)).read_text()
     assert 'jQuery JavaScript Library v{v}'.format(v=v) in jquery_src, msg
 
-    v = '1.3.1'
+    v = '1.12.0'
     msg = 'underscore.js version does not match to {v}'.format(v=v)
     underscore_min = (app.outdir / '_static' / 'underscore.js').read_text()
     assert 'Underscore.js {v}'.format(v=v) in underscore_min, msg

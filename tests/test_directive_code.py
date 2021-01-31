@@ -4,7 +4,7 @@
 
     Test the code-block directive.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -248,6 +248,14 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
     content, lines = reader.read()
     assert content == ("f baz():\n"
                        "  pass\n"
+                       "\n")
+
+    # dedent: None
+    options = {'lines': '9-11', 'dedent': None}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("def baz():\n"
+                       "    pass\n"
                        "\n")
 
 

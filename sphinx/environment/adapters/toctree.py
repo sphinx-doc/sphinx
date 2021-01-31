@@ -4,7 +4,7 @@
 
     Toctree adapter for sphinx.environment.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -320,8 +320,10 @@ class TocTree:
         toctrees = []  # type: List[Element]
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = True
-        if 'maxdepth' not in kwargs:
+        if 'maxdepth' not in kwargs or not kwargs['maxdepth']:
             kwargs['maxdepth'] = 0
+        else:
+            kwargs['maxdepth'] = int(kwargs['maxdepth'])
         kwargs['collapse'] = collapse
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve(docname, builder, toctreenode, prune=True, **kwargs)

@@ -304,7 +304,7 @@ The following variables available in the templates:
 .. data:: modules
 
    List containing names of "public" modules in the package.  Only available for
-   modules that are packages.
+   modules that are packages and the ``recursive`` option is on.
 
    .. versionadded:: 3.1
 

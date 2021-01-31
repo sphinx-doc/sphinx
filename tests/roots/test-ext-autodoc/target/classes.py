@@ -27,3 +27,6 @@ class Qux:
 class Quux(List[Union[int, float]]):
     """A subclass of List[Union[int, float]]"""
     pass
+
+
+Alias = Foo

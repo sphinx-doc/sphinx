@@ -4,7 +4,7 @@
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -95,6 +95,9 @@ def test_extract_summary(capsys):
 
     # abbreviations
     doc = ['Blabla, i.e. bla.']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
+    doc = ['Blabla, et al. bla.']
     assert extract_summary(doc, document) == ' '.join(doc)
 
     # literal
@@ -375,7 +378,10 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
+@pytest.mark.usefixtures("rollback_sysmodules")
 def test_autosummary_recursive(app, status, warning):
+    sys.modules.pop('package', None)  # unload target module to clear the module cache
+
     app.build()
 
     # autosummary having :recursive: option
@@ -397,6 +403,20 @@ def test_autosummary_recursive(app, status, warning):
 
     content = (app.srcdir / 'generated' / 'package.package.rst').read_text()
     assert 'package.package.module' in content
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
+                    srcdir='test_autosummary_recursive_skips_mocked_modules',
+                    confoverrides={'autosummary_mock_imports': ['package.package']})
+@pytest.mark.usefixtures("rollback_sysmodules")
+def test_autosummary_recursive_skips_mocked_modules(app, status, warning):
+    sys.modules.pop('package', None)  # unload target module to clear the module cache
+    app.build()
+
+    assert (app.srcdir / 'generated' / 'package.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.module.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.package.rst').exists() is False
+    assert (app.srcdir / 'generated' / 'package.package.module.rst').exists() is False
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-filename-map')

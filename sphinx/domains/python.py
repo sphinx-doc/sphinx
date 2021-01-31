@@ -4,7 +4,7 @@
 
     The Python domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -272,6 +272,8 @@ class PyXrefMixin:
         result = super().make_xref(rolename, domain, target,  # type: ignore
                                    innernode, contnode, env)
         result['refspecific'] = True
+        result['py:module'] = env.ref_context.get('py:module')
+        result['py:class'] = env.ref_context.get('py:class')
         if target.startswith(('.', '~')):
             prefix, result['reftarget'] = target[0], target[1:]
             if prefix == '.':
@@ -332,7 +334,7 @@ class PyTypedField(PyXrefMixin, TypedField):
         return super().make_xref(rolename, domain, target, innernode, contnode, env)
 
 
-class PyObject(ObjectDescription):
+class PyObject(ObjectDescription[Tuple[str, str]]):
     """
     Description of a general Python object.
 

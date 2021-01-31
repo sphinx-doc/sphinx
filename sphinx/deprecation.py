@@ -4,7 +4,7 @@
 
     Sphinx deprecation classes and utilities.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,6 +23,10 @@ class RemovedInSphinx40Warning(DeprecationWarning):
 
 
 class RemovedInSphinx50Warning(PendingDeprecationWarning):
+    pass
+
+
+class RemovedInSphinx60Warning(PendingDeprecationWarning):
     pass
 
 

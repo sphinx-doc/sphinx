@@ -4,7 +4,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import gettext
@@ -34,7 +34,7 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
+LocaleFileInfoBase = namedtuple('LocaleFileInfoBase', 'base_dir,domain,charset')
 
 
 class CatalogInfo(LocaleFileInfoBase):
@@ -236,7 +236,9 @@ date_format_mappings = {
     '%X':  'medium',  # Locale’s appropriate time representation.
     '%y':  'YY',      # Year without century as a zero-padded decimal number.
     '%Y':  'yyyy',    # Year with century as a decimal number.
-    '%Z':  'zzzz',    # Time zone name (no characters if no time zone exists).
+    '%Z':  'zzz',     # Time zone name (no characters if no time zone exists).
+    '%z':  'ZZZ',     # UTC offset in the form ±HHMM[SS[.ffffff]]
+                      # (empty string if the object is naive).
     '%%':  '%',
 }
 

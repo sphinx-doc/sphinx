@@ -4,7 +4,7 @@
  *
  * Sphinx JavaScript utilities for the full-text search.
  *
- * :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -380,6 +380,13 @@ var Search = {
   },
 
   /**
+   * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+   */
+  escapeRegExp : function(string) {
+    return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+  },
+
+  /**
    * search for full-text terms in the index
    */
   performTermsSearch : function(searchterms, excluded, terms, titleterms) {
@@ -402,13 +409,14 @@ var Search = {
       ];
       // add support for partial matches
       if (word.length > 2) {
+        var word_regex = this.escapeRegExp(word);
         for (var w in terms) {
-          if (w.match(word) && !terms[word]) {
+          if (w.match(word_regex) && !terms[word]) {
             _o.push({files: terms[w], score: Scorer.partialTerm})
           }
         }
         for (var w in titleterms) {
-          if (w.match(word) && !titleterms[word]) {
+          if (w.match(word_regex) && !titleterms[word]) {
               _o.push({files: titleterms[w], score: Scorer.partialTitle})
           }
         }

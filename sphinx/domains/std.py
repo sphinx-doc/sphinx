@@ -4,7 +4,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -43,12 +43,12 @@ logger = logging.getLogger(__name__)
 
 
 # RE for option descriptions
-option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=[]+)(=?\s*.*)')
+option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
-token_re = re.compile(r'`(\w+)`', re.U)
+token_re = re.compile(r'`((~?\w*:)?\w+)`', re.U)
 
 
-class GenericObject(ObjectDescription):
+class GenericObject(ObjectDescription[str]):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
@@ -178,7 +178,7 @@ class Target(SphinxDirective):
         return self.name + '-' + name
 
 
-class Cmdoption(ObjectDescription):
+class Cmdoption(ObjectDescription[str]):
     """
     Description of a command-line option (.. option).
     """
@@ -197,6 +197,11 @@ class Cmdoption(ObjectDescription):
                                location=signode)
                 continue
             optname, args = m.groups()
+            if optname.endswith('[') and args.endswith(']'):
+                # optional value surrounded by brackets (ex. foo[=bar])
+                optname = optname[:-1]
+                args = '[' + args
+
             if count:
                 signode += addnodes.desc_addname(', ', ', ')
             signode += addnodes.desc_name(optname, optname)
@@ -318,7 +323,7 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
         term['ids'].append(node_id)
 
     std = cast(StandardDomain, env.get_domain('std'))
-    std.note_object('term', termtext, node_id, location=term)
+    std._note_term(termtext, node_id, location=term)
 
     # add an index entry too
     indexnode = addnodes.index()
@@ -459,9 +464,23 @@ def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
         if m.start() > pos:
             txt = text[pos:m.start()]
             retnodes.append(nodes.Text(txt, txt))
-        refnode = pending_xref(m.group(1), reftype='token', refdomain='std',
-                               reftarget=productionGroup + m.group(1))
-        refnode += nodes.literal(m.group(1), m.group(1), classes=['xref'])
+        token = m.group(1)
+        if ':' in token:
+            if token[0] == '~':
+                _, title = token.split(':')
+                target = token[1:]
+            elif token[0] == ':':
+                title = token[1:]
+                target = title
+            else:
+                title = token
+                target = token
+        else:
+            title = token
+            target = productionGroup + token
+        refnode = pending_xref(title, reftype='token', refdomain='std',
+                               reftarget=target)
+        refnode += nodes.literal(token, title, classes=['xref'])
         retnodes.append(refnode)
         pos = m.end()
     if pos < len(text):
@@ -676,6 +695,20 @@ class StandardDomain(Domain):
         self.objects[objtype, name] = (docname, labelid)
 
     @property
+    def _terms(self) -> Dict[str, Tuple[str, str]]:
+        """.. note:: Will be removed soon. internal use only."""
+        return self.data.setdefault('terms', {})  # (name) -> docname, labelid
+
+    def _note_term(self, term: str, labelid: str, location: Any = None) -> None:
+        """Note a term for cross reference.
+
+        .. note:: Will be removed soon. internal use only.
+        """
+        self.note_object('term', term, labelid, location)
+
+        self._terms[term.lower()] = (self.env.docname, labelid)
+
+    @property
     def progoptions(self) -> Dict[Tuple[str, str], Tuple[str, str]]:
         return self.data.setdefault('progoptions', {})  # (program, name) -> docname, labelid
 
@@ -695,6 +728,9 @@ class StandardDomain(Domain):
         for key, (fn, _l) in list(self.objects.items()):
             if fn == docname:
                 del self.objects[key]
+        for key, (fn, _l) in list(self._terms.items()):
+            if fn == docname:
+                del self._terms[key]
         for key, (fn, _l, _l) in list(self.labels.items()):
             if fn == docname:
                 del self.labels[key]
@@ -710,6 +746,9 @@ class StandardDomain(Domain):
         for key, data in otherdata['objects'].items():
             if data[0] in docnames:
                 self.objects[key] = data
+        for key, data in otherdata['terms'].items():
+            if data[0] in docnames:
+                self._terms[key] = data
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
                 self.labels[key] = data
@@ -740,9 +779,11 @@ class StandardDomain(Domain):
                                name, env.doc2path(self.labels[name][0]),
                                location=node)
             self.anonlabels[name] = docname, labelid
-            if node.tagname in ('section', 'rubric'):
+            if node.tagname == 'section':
                 title = cast(nodes.title, node[0])
                 sectname = clean_astext(title)
+            elif node.tagname == 'rubric':
+                sectname = clean_astext(node)
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
                 if not sectname:
@@ -852,8 +893,9 @@ class StandardDomain(Domain):
             if fignumber is None:
                 return contnode
         except ValueError:
-            logger.warning(__("no number is assigned for %s: %s"), figtype, labelid,
-                           location=node)
+            logger.warning(__("Failed to create a cross reference. Any number is not "
+                              "assigned: %s"),
+                           labelid, location=node)
             return contnode
 
         try:
@@ -945,19 +987,12 @@ class StandardDomain(Domain):
         if result:
             return result
         else:
-            for objtype, term in self.objects:
-                if objtype == 'term' and term.lower() == target.lower():
-                    docname, labelid = self.objects[objtype, term]
-                    logger.warning(__('term %s not found in case sensitive match.'
-                                      'made a reference to %s instead.'),
-                                   target, term, location=node, type='ref', subtype='term')
-                    break
+            # fallback to case insentive match
+            if target.lower() in self._terms:
+                docname, labelid = self._terms[target.lower()]
+                return make_refnode(builder, fromdocname, docname, labelid, contnode)
             else:
-                docname, labelid = '', ''
-            if not docname:
                 return None
-            return make_refnode(builder, fromdocname, docname,
-                                labelid, contnode)
 
     def _resolve_obj_xref(self, env: "BuildEnvironment", fromdocname: str,
                           builder: "Builder", typ: str, target: str,
@@ -1106,7 +1141,7 @@ class StandardDomain(Domain):
 
 
 def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref) -> bool:
-    if domain.name != 'std' or node['reftype'] != 'ref':
+    if (domain and domain.name != 'std') or node['reftype'] != 'ref':
         return None
     else:
         target = node['reftarget']
@@ -1125,7 +1160,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

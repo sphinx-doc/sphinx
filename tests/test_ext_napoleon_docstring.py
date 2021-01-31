@@ -5,11 +5,12 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+import sys
 from collections import namedtuple
 from contextlib import contextmanager
 from inspect import cleandoc
@@ -22,6 +23,10 @@ from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (GoogleDocstring, NumpyDocstring,
                                            _convert_numpy_type_spec, _recombine_set_tokens,
                                            _token_type, _tokenize_type_spec)
+
+if sys.version_info >= (3, 6):
+    from .ext_napoleon_pep526_data_google import PEP526GoogleClass
+    from .ext_napoleon_pep526_data_numpy import PEP526NumpyClass
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -293,6 +298,34 @@ class GoogleDocstringTest(BaseDocstringTest):
                      * **arg2** (*list[int]*) -- Description
                      * **arg3** (*dict(str, int)*) -- Description
                      * **arg4** (*dict[str, int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
+        Receive:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (*list(int)*) -- Description
+                   * **arg2** (*list[int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
+        Receives:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (*list(int)*) -- Description
+                   * **arg2** (*list[int]*) -- Description
         """
     ), (
         """
@@ -1039,10 +1072,27 @@ You should listen to me!
 Sooper Warning:
     Stop hitting yourself!
 """, """:Warns: **Stop hitting yourself!**
+"""),
+                      ("""\
+Params Style:
+    arg1 (int): Description of arg1
+    arg2 (str): Description of arg2
+
+""", """\
+:Params Style: * **arg1** (*int*) -- Description of arg1
+               * **arg2** (*str*) -- Description of arg2
+"""),
+                      ("""\
+Returns Style:
+    description of custom section
+
+""", """:Returns Style: description of custom section
 """))
 
         testConfig = Config(napoleon_custom_sections=['Really Important Details',
-                                                      ('Sooper Warning', 'warns')])
+                                                      ('Sooper Warning', 'warns'),
+                                                      ('Params Style', 'params_style'),
+                                                      ('Returns Style', 'returns_style')])
 
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring, testConfig))
@@ -1089,6 +1139,55 @@ Do as you please
 
 :keyword gotham_is_yours: shall interfere.
 :kwtype gotham_is_yours: None
+"""
+        self.assertEqual(expected, actual)
+
+    def test_pep526_annotations(self):
+        if sys.version_info >= (3, 6):
+            # Test class attributes annotations
+            config = Config(
+                napoleon_attr_annotations=True
+            )
+            actual = str(GoogleDocstring(cleandoc(PEP526GoogleClass.__doc__), config, app=None, what="class",
+                                         obj=PEP526GoogleClass))
+            expected = """\
+Sample class with PEP 526 annotations and google docstring
+
+.. attribute:: attr1
+
+   Attr1 description.
+
+   :type: int
+
+.. attribute:: attr2
+
+   Attr2 description.
+
+   :type: str
+"""
+            self.assertEqual(expected, actual)
+
+    def test_preprocess_types(self):
+        docstring = """\
+Do as you please
+
+Yield:
+   str:Extended
+"""
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+Do as you please
+
+:Yields: *str* -- Extended
+"""
+        self.assertEqual(expected, actual)
+
+        config = Config(napoleon_preprocess_types=True)
+        actual = str(GoogleDocstring(docstring, config))
+        expected = """\
+Do as you please
+
+:Yields: :class:`str` -- Extended
 """
         self.assertEqual(expected, actual)
 
@@ -1228,6 +1327,48 @@ class NumpyDocstringTest(BaseDocstringTest):
 
         :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
                      * **\\*args, \\*\\*kwargs** -- Variable length argument list and arbitrary keyword arguments.
+        """
+    ), (
+        """
+        Single line summary
+
+        Receive
+        -------
+        arg1:str
+            Extended
+            description of arg1
+        arg2 : int
+            Extended
+            description of arg2
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (:class:`str`) -- Extended
+                     description of arg1
+                   * **arg2** (:class:`int`) -- Extended
+                     description of arg2
+        """
+    ), (
+        """
+        Single line summary
+
+        Receives
+        --------
+        arg1:str
+            Extended
+            description of arg1
+        arg2 : int
+            Extended
+            description of arg2
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (:class:`str`) -- Extended
+                     description of arg1
+                   * **arg2** (:class:`int`) -- Extended
+                     description of arg2
         """
     ), (
         """
@@ -2402,3 +2543,29 @@ class TestNumpyDocstring:
         actual = numpy_docstring._escape_args_and_kwargs(name)
 
         assert actual == expected
+
+    def test_pep526_annotations(self):
+        if sys.version_info >= (3, 6):
+            # test class attributes annotations
+            config = Config(
+                napoleon_attr_annotations=True
+            )
+            actual = str(NumpyDocstring(cleandoc(PEP526NumpyClass.__doc__), config, app=None, what="class",
+                                        obj=PEP526NumpyClass))
+            expected = """\
+Sample class with PEP 526 annotations and numpy docstring
+
+.. attribute:: attr1
+
+   Attr1 description
+
+   :type: int
+
+.. attribute:: attr2
+
+   Attr2 description
+
+   :type: str
+"""
+            print(actual)
+            assert expected == actual

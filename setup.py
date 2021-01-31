@@ -44,14 +44,14 @@ extras_require = {
     'lint': [
         'flake8>=3.5.0',
         'isort',
-        'mypy>=0.790',
+        'mypy>=0.800',
         'docutils-stubs',
     ],
     'test': [
         'pytest',
         'pytest-cov',
         'html5lib',
-        'typed_ast',  # for py35-37
+        "typed_ast; python_version < '3.8'",
         'cython',
     ],
 }

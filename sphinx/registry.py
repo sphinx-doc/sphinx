@@ -4,7 +4,7 @@
 
     Sphinx component registry.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -63,7 +63,7 @@ class SphinxComponentRegistry:
         self.documenters = {}           # type: Dict[str, Type[Documenter]]
 
         #: css_files; a list of tuple of filename and attributes
-        self.css_files = []             # type: List[Tuple[str, Dict[str, str]]]
+        self.css_files = []             # type: List[Tuple[str, Dict[str, Any]]]
 
         #: domains; a dict of domain name -> domain class
         self.domains = {}               # type: Dict[str, Type[Domain]]
@@ -94,7 +94,7 @@ class SphinxComponentRegistry:
         self.html_block_math_renderers = {}     # type: Dict[str, Tuple[Callable, Callable]]
 
         #: js_files; list of JS paths or URLs
-        self.js_files = []              # type: List[Tuple[str, Dict[str, str]]]
+        self.js_files = []              # type: List[Tuple[str, Dict[str, Any]]]
 
         #: LaTeX packages; list of package names and its options
         self.latex_packages = []        # type: List[Tuple[str, str]]
@@ -361,10 +361,10 @@ class SphinxComponentRegistry:
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
         self.autodoc_attrgettrs[typ] = attrgetter
 
-    def add_css_files(self, filename: str, **attributes: str) -> None:
+    def add_css_files(self, filename: str, **attributes: Any) -> None:
         self.css_files.append((filename, attributes))
 
-    def add_js_file(self, filename: str, **attributes: str) -> None:
+    def add_js_file(self, filename: str, **attributes: Any) -> None:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 

@@ -5,7 +5,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -367,11 +367,6 @@ def test_get_doc(app):
         """Döcstring"""
     assert getdocl('function', f) == ['Döcstring']
 
-    # already-unicode docstrings must be taken literally
-    def f():
-        """Döcstring"""
-    assert getdocl('function', f) == ['Döcstring']
-
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
     class J:  # NOQA
@@ -695,6 +690,7 @@ def test_autodoc_special_members(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
+        '   .. py:attribute:: Class.__annotations__',
         '   .. py:attribute:: Class.__dict__',
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:attribute:: Class.__module__',
@@ -806,7 +802,7 @@ def test_autodoc_inner_class(app):
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
         '',
-        '      alias of :class:`builtins.dict`'
+        '      alias of :class:`dict`'
     ]
 
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
@@ -1177,6 +1173,8 @@ def test_slots(app):
         '.. py:class:: Bar()',
         '   :module: target.slots',
         '',
+        '   docstring',
+        '',
         '',
         '   .. py:attribute:: Bar.attr1',
         '      :module: target.slots',
@@ -1197,6 +1195,8 @@ def test_slots(app):
         '.. py:class:: Baz()',
         '   :module: target.slots',
         '',
+        '   docstring',
+        '',
         '',
         '   .. py:attribute:: Baz.attr',
         '      :module: target.slots',
@@ -1204,6 +1204,8 @@ def test_slots(app):
         '',
         '.. py:class:: Foo()',
         '   :module: target.slots',
+        '',
+        '   docstring',
         '',
         '',
         '   .. py:attribute:: Foo.attr',
@@ -1566,6 +1568,11 @@ def test_autodoc_typed_instance_variables(app):
         '.. py:module:: target.typed_vars',
         '',
         '',
+        '.. py:attribute:: Alias',
+        '   :module: target.typed_vars',
+        '',
+        '   alias of :class:`target.typed_vars.Derived`',
+        '',
         '.. py:class:: Class()',
         '   :module: target.typed_vars',
         '',
@@ -1675,7 +1682,29 @@ def test_autodoc_typed_inherited_instance_variables(app):
         '',
         '   .. py:attribute:: Derived.attr3',
         '      :module: target.typed_vars',
+        '      :type: int',
         '      :value: 0',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr4',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '      attr4',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr5',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '      attr5',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr6',
+        '      :module: target.typed_vars',
+        '      :type: int',
+        '',
+        '      attr6',
         '',
         '',
         '   .. py:attribute:: Derived.attr7',
@@ -1701,15 +1730,36 @@ def test_autodoc_GenericAlias(app):
             '.. py:module:: target.genericalias',
             '',
             '',
+            '.. py:class:: Class()',
+            '   :module: target.genericalias',
+            '',
+            '',
+            '   .. py:attribute:: Class.T',
+            '      :module: target.genericalias',
+            '',
+            '      alias of :class:`List`\\ [:class:`int`]',
+            '',
             '.. py:attribute:: T',
             '   :module: target.genericalias',
             '',
-            '   alias of :class:`typing.List`',
+            '   alias of :class:`List`\\ [:class:`int`]',
         ]
     else:
         assert list(actual) == [
             '',
             '.. py:module:: target.genericalias',
+            '',
+            '',
+            '.. py:class:: Class()',
+            '   :module: target.genericalias',
+            '',
+            '',
+            '   .. py:attribute:: Class.T',
+            '      :module: target.genericalias',
+            '',
+            '      A list of int',
+            '',
+            '      alias of List[int]',
             '',
             '',
             '.. py:data:: T',
@@ -1718,6 +1768,7 @@ def test_autodoc_GenericAlias(app):
             '   A list of int',
             '',
             '   alias of List[int]',
+            '',
         ]
 
 
@@ -1735,6 +1786,14 @@ def test_autodoc_TypeVar(app):
         '   :module: target.typevar',
         '',
         '',
+        '   .. py:attribute:: Class.T1',
+        '      :module: target.typevar',
+        '',
+        '      T1',
+        '',
+        "      alias of TypeVar('T1')",
+        '',
+        '',
         '   .. py:attribute:: Class.T6',
         '      :module: target.typevar',
         '',
@@ -1750,12 +1809,14 @@ def test_autodoc_TypeVar(app):
         '',
         "   alias of TypeVar('T1')",
         '',
+        '',
         '.. py:data:: T3',
         '   :module: target.typevar',
         '',
         '   T3',
         '',
         "   alias of TypeVar('T3', int, str)",
+        '',
         '',
         '.. py:data:: T4',
         '   :module: target.typevar',
@@ -1764,12 +1825,14 @@ def test_autodoc_TypeVar(app):
         '',
         "   alias of TypeVar('T4', covariant=True)",
         '',
+        '',
         '.. py:data:: T5',
         '   :module: target.typevar',
         '',
         '   T5',
         '',
         "   alias of TypeVar('T5', contravariant=True)",
+        '',
         '',
         '.. py:data:: T6',
         '   :module: target.typevar',
@@ -2015,17 +2078,17 @@ def test_overload(app):
         '   docstring',
         '',
         '',
-        '   .. py:method:: Math.sum(x: int, y: int) -> int',
-        '                  Math.sum(x: float, y: float) -> float',
-        '                  Math.sum(x: str, y: str) -> str',
+        '   .. py:method:: Math.sum(x: int, y: int = 0) -> int',
+        '                  Math.sum(x: float, y: float = 0.0) -> float',
+        '                  Math.sum(x: str, y: str = None) -> str',
         '      :module: target.overload',
         '',
         '      docstring',
         '',
         '',
-        '.. py:function:: sum(x: int, y: int) -> int',
-        '                 sum(x: float, y: float) -> float',
-        '                 sum(x: str, y: str) -> str',
+        '.. py:function:: sum(x: int, y: int = 0) -> int',
+        '                 sum(x: float, y: float = 0.0) -> float',
+        '                 sum(x: str, y: str = None) -> str',
         '   :module: target.overload',
         '',
         '   docstring',
@@ -2170,5 +2233,51 @@ def test_name_mangling(app):
         '      :value: None',
         '',
         '      name of Foo',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_hide_value(app):
+    options = {'members': True}
+    actual = do_autodoc(app, 'module', 'target.hide_value', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.hide_value',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.hide_value',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.SENTINEL1',
+        '      :module: target.hide_value',
+        '',
+        '      docstring',
+        '',
+        '      :meta hide-value:',
+        '',
+        '',
+        '   .. py:attribute:: Foo.SENTINEL2',
+        '      :module: target.hide_value',
+        '',
+        '      :meta hide-value:',
+        '',
+        '',
+        '.. py:data:: SENTINEL1',
+        '   :module: target.hide_value',
+        '',
+        '   docstring',
+        '',
+        '   :meta hide-value:',
+        '',
+        '',
+        '.. py:data:: SENTINEL2',
+        '   :module: target.hide_value',
+        '',
+        '   :meta hide-value:',
         '',
     ]

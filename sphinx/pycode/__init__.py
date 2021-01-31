@@ -4,7 +4,7 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -179,7 +179,7 @@ class ModuleAnalyzer:
             self.overloads = parser.overloads
             self.tags = parser.definitions
             self.tagorder = parser.deforders
-            self._parsed = True
+            self._analyzed = True
         except Exception as exc:
             raise PycodeError('parsing %r failed: %r' % (self.srcname, exc)) from exc
 

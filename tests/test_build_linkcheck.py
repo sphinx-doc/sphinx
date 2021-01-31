@@ -4,23 +4,34 @@
 
     Test the build process with manpage builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import http.server
 import json
+import re
 import textwrap
+import time
+import wsgiref.handlers
+from datetime import datetime
+from typing import Dict
+from unittest import mock
 
 import pytest
 import requests
 
-from .utils import CERT_FILE, http_server, https_server, modify_env
+from sphinx.builders.linkcheck import CheckExternalLinksBuilder, RateLimit
+from sphinx.util.console import strip_colors
+
+from .utils import CERT_FILE, http_server, https_server
+
+ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_defaults(app):
-    app.builder.build_all()
+    app.build()
 
     assert (app.outdir / 'output.txt').exists()
     content = (app.outdir / 'output.txt').read_text()
@@ -41,7 +52,7 @@ def test_defaults(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_defaults_json(app):
-    app.builder.build_all()
+    app.build()
 
     assert (app.outdir / 'output.json').exists()
     content = (app.outdir / 'output.json').read_text()
@@ -102,7 +113,7 @@ def test_defaults_json(app):
                        'path/to/notfound']
                    })
 def test_anchors_ignored(app):
-    app.builder.build_all()
+    app.build()
 
     assert (app.outdir / 'output.txt').exists()
     content = (app.outdir / 'output.txt').read_text()
@@ -118,7 +129,7 @@ def test_raises_for_invalid_status(app):
             self.send_error(500, "Internal Server Error")
 
     with http_server(InternalServerErrorHandler):
-        app.builder.build_all()
+        app.build()
     content = (app.outdir / 'output.txt').read_text()
     assert content == (
         "index.rst:1: [broken] http://localhost:7777/#anchor: "
@@ -146,7 +157,7 @@ class HeadersDumperHandler(http.server.BaseHTTPRequestHandler):
     ]})
 def test_auth_header_uses_first_match(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
     stdout, stderr = capsys.readouterr()
     auth = requests.auth._basic_auth_str('user1', 'password')
     assert "Authorization: %s\n" % auth in stdout
@@ -157,7 +168,7 @@ def test_auth_header_uses_first_match(app, capsys):
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
     stdout, stderr = capsys.readouterr()
     assert "Authorization" not in stdout
 
@@ -174,7 +185,7 @@ def test_auth_header_no_match(app, capsys):
     }})
 def test_linkcheck_request_headers(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
 
     stdout, _stderr = capsys.readouterr()
     assert "Accept: text/html\n" in stdout
@@ -190,7 +201,7 @@ def test_linkcheck_request_headers(app, capsys):
     }})
 def test_linkcheck_request_headers_no_slash(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
 
     stdout, _stderr = capsys.readouterr()
     assert "Accept: application/json\n" in stdout
@@ -206,7 +217,7 @@ def test_linkcheck_request_headers_no_slash(app, capsys):
     }})
 def test_linkcheck_request_headers_default(app, capsys):
     with http_server(HeadersDumperHandler):
-        app.builder.build_all()
+        app.build()
 
     stdout, _stderr = capsys.readouterr()
     assert "Accepts: application/json\n" not in stdout
@@ -240,7 +251,7 @@ def make_redirect_handler(*, support_head):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_HEAD(app, capsys):
     with http_server(make_redirect_handler(support_head=True)):
-        app.builder.build_all()
+        app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text()
     assert content == (
@@ -258,7 +269,7 @@ def test_follows_redirects_on_HEAD(app, capsys):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_GET(app, capsys):
     with http_server(make_redirect_handler(support_head=False)):
-        app.builder.build_all()
+        app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text()
     assert content == (
@@ -288,7 +299,7 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
 def test_invalid_ssl(app):
     # Link indicates SSL should be used (https) but the server does not handle it.
     with http_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -302,7 +313,7 @@ def test_invalid_ssl(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_fails(app):
     with https_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -317,7 +328,7 @@ def test_connect_to_selfsigned_fails(app):
 def test_connect_to_selfsigned_with_tls_verify_false(app):
     app.config.tls_verify = False
     with https_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -335,7 +346,7 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
 def test_connect_to_selfsigned_with_tls_cacerts(app):
     app.config.tls_cacerts = CERT_FILE
     with https_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -350,9 +361,10 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_connect_to_selfsigned_with_requests_env_var(app):
-    with modify_env(REQUESTS_CA_BUNDLE=CERT_FILE), https_server(OKHandler):
-        app.builder.build_all()
+def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
+    monkeypatch.setenv("REQUESTS_CA_BUNDLE", CERT_FILE)
+    with https_server(OKHandler):
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -370,7 +382,7 @@ def test_connect_to_selfsigned_with_requests_env_var(app):
 def test_connect_to_selfsigned_nonexistent_cert_file(app):
     app.config.tls_cacerts = "does/not/exist"
     with https_server(OKHandler):
-        app.builder.build_all()
+        app.build()
 
     with open(app.outdir / 'output.json') as fp:
         content = json.load(fp)
@@ -382,3 +394,182 @@ def test_connect_to_selfsigned_nonexistent_cert_file(app):
         "uri": "https://localhost:7777/",
         "info": "Could not find a suitable TLS CA certificate bundle, invalid path: does/not/exist",
     }
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_TooManyRedirects_on_HEAD(app):
+    class InfiniteRedirectOnHeadHandler(http.server.BaseHTTPRequestHandler):
+        def do_HEAD(self):
+            self.send_response(302, "Found")
+            self.send_header("Location", "http://localhost:7777/")
+            self.end_headers()
+
+        def do_GET(self):
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(b"ok\n")
+
+    with http_server(InfiniteRedirectOnHeadHandler):
+        app.build()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "working",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
+
+
+def make_retry_after_handler(responses):
+    class RetryAfterHandler(http.server.BaseHTTPRequestHandler):
+        def do_HEAD(self):
+            status, retry_after = responses.pop(0)
+            self.send_response(status)
+            if retry_after:
+                self.send_header('Retry-After', retry_after)
+            self.end_headers()
+
+        def log_date_time_string(self):
+            """Strip date and time from logged messages for assertions."""
+            return ""
+
+    return RetryAfterHandler
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_too_many_requests_retry_after_int_delay(app, capsys, status):
+    with http_server(make_retry_after_handler([(429, "0"), (200, None)])), \
+         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0), \
+         mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01):
+        app.build()
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
+    rate_limit_log = "-rate limited-   http://localhost:7777/ | sleeping...\n"
+    assert rate_limit_log in strip_colors(status.getvalue())
+    _stdout, stderr = capsys.readouterr()
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
+        """
+    )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_too_many_requests_retry_after_HTTP_date(app, capsys):
+    now = datetime.now().timetuple()
+    retry_after = wsgiref.handlers.format_date_time(time.mktime(now))
+    with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
+        app.build()
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
+    _stdout, stderr = capsys.readouterr()
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
+        """
+    )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_too_many_requests_retry_after_without_header(app, capsys):
+    with http_server(make_retry_after_handler([(429, None), (200, None)])),\
+         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0):
+        app.build()
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
+    _stdout, stderr = capsys.readouterr()
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
+        """
+    )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_too_many_requests_user_timeout(app, capsys):
+    app.config.linkcheck_rate_limit_timeout = 0.0
+    with http_server(make_retry_after_handler([(429, None)])):
+        app.build()
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "broken",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "429 Client Error: Too Many Requests for url: http://localhost:7777/",
+    }
+
+
+class FakeResponse:
+    headers = {}  # type: Dict[str, str]
+    url = "http://localhost/"
+
+
+def test_limit_rate_default_sleep(app):
+    checker = CheckExternalLinksBuilder(app)
+    checker.rate_limits = {}
+    with mock.patch('time.time', return_value=0.0):
+        next_check = checker.limit_rate(FakeResponse())
+    assert next_check == 60.0
+
+
+def test_limit_rate_user_max_delay(app):
+    app.config.linkcheck_rate_limit_timeout = 0.0
+    checker = CheckExternalLinksBuilder(app)
+    checker.rate_limits = {}
+    next_check = checker.limit_rate(FakeResponse())
+    assert next_check is None
+
+
+def test_limit_rate_doubles_previous_wait_time(app):
+    checker = CheckExternalLinksBuilder(app)
+    checker.rate_limits = {"localhost": RateLimit(60.0, 0.0)}
+    with mock.patch('time.time', return_value=0.0):
+        next_check = checker.limit_rate(FakeResponse())
+    assert next_check == 120.0
+
+
+def test_limit_rate_clips_wait_time_to_max_time(app):
+    checker = CheckExternalLinksBuilder(app)
+    app.config.linkcheck_rate_limit_timeout = 90.0
+    checker.rate_limits = {"localhost": RateLimit(60.0, 0.0)}
+    with mock.patch('time.time', return_value=0.0):
+        next_check = checker.limit_rate(FakeResponse())
+    assert next_check == 90.0
+
+
+def test_limit_rate_bails_out_after_waiting_max_time(app):
+    checker = CheckExternalLinksBuilder(app)
+    app.config.linkcheck_rate_limit_timeout = 90.0
+    checker.rate_limits = {"localhost": RateLimit(90.0, 0.0)}
+    next_check = checker.limit_rate(FakeResponse())
+    assert next_check is None

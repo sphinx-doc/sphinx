@@ -4,7 +4,7 @@
 
     Test the intersphinx extension.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -46,7 +46,7 @@ def reference_check(app, *args, **kwds):
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
 def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):
     intersphinx_setup(app)
-    _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode()
+    _read_from_url().readline.return_value = b'# Sphinx inventory version 2'
 
     # same uri and inv, not redirected
     _read_from_url().url = 'http://hostname/' + INVENTORY_FILENAME

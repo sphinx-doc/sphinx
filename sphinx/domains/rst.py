@@ -4,7 +4,7 @@
 
     The reStructuredText domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
 
-class ReSTMarkup(ObjectDescription):
+class ReSTMarkup(ObjectDescription[str]):
     """
     Description of generic reST markup.
     """

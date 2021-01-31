@@ -4,12 +4,13 @@
 
     The composit types for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
 import typing
+from struct import Struct
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, TypeVar, Union
 
 from docutils import nodes
@@ -66,7 +67,7 @@ def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dic
     from sphinx.util.inspect import safe_getattr  # lazy loading
 
     try:
-        return typing.get_type_hints(obj, None, localns)
+        return typing.get_type_hints(obj, globalns, localns)
     except NameError:
         # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
         return safe_getattr(obj, '__annotations__', {})
@@ -94,6 +95,9 @@ def restify(cls: Optional["Type"]) -> str:
         return ':obj:`None`'
     elif cls is Ellipsis:
         return '...'
+    elif cls is Struct:
+        # Before Python 3.9, struct.Struct class has incorrect __module__.
+        return ':class:`struct.Struct`'
     elif inspect.isNewType(cls):
         return ':class:`%s`' % cls.__name__
     elif cls.__module__ in ('__builtin__', 'builtins'):
@@ -153,6 +157,8 @@ def _restify_py37(cls: Optional["Type"]) -> str:
             return ':obj:`%s`' % cls._name
         else:
             return ':obj:`%s.%s`' % (cls.__module__, cls._name)
+    elif isinstance(cls, ForwardRef):
+        return ':class:`%s`' % cls.__forward_arg__
     else:
         # not a class (ex. TypeVar)
         return ':obj:`%s.%s`' % (cls.__module__, cls.__name__)
@@ -303,6 +309,9 @@ def stringify(annotation: Any) -> str:
         return annotation.__qualname__
     elif annotation is Ellipsis:
         return '...'
+    elif annotation is Struct:
+        # Before Python 3.9, struct.Struct class has incorrect __module__.
+        return 'struct.Struct'
 
     if sys.version_info >= (3, 7):  # py37+
         return _stringify_py37(annotation)

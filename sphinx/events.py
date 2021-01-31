@@ -6,7 +6,7 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -50,8 +50,6 @@ core_events = {
     'warn-missing-reference': 'domain, node',
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
-    'html-collect-pages': 'builder',
-    'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
 }
 

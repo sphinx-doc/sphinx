@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,7 +20,7 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import epoch_to_rfc1123, logging, requests, rfc1123_to_epoch, sha1
 from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
-from sphinx.util.osutil import ensuredir, movefile
+from sphinx.util.osutil import ensuredir
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +99,7 @@ class ImageDownloader(BaseImageConverter):
                     # append a suffix if URI does not contain suffix
                     ext = get_image_extension(mimetype)
                     newpath = os.path.join(self.imagedir, dirname, basename + ext)
-                    movefile(path, newpath)
+                    os.replace(path, newpath)
                     self.app.env.original_image_uri.pop(path)
                     self.app.env.original_image_uri[newpath] = node['uri']
                     path = newpath
@@ -197,14 +197,14 @@ class ImageConverter(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
+        elif set(node['candidates']) & set(self.app.builder.supported_image_types):
+            # builder supports the image; no need to convert
+            return False
         elif self.available is None:
             # store the value to the class variable to share it during the build
             self.__class__.available = self.is_available()
 
         if not self.available:
-            return False
-        elif set(node['candidates']) & set(self.app.builder.supported_image_types):
-            # builder supports the image; no need to convert
             return False
         else:
             rule = self.get_conversion_rule(node)

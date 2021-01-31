@@ -4,7 +4,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,6 +12,7 @@ import os
 import re
 from distutils.version import LooseVersion
 from itertools import chain, cycle
+from unittest.mock import ANY, call, patch
 
 import pygments
 import pytest
@@ -253,6 +254,7 @@ def test_html4_output(app, status, warning):
         (".//p[@class='centered']/strong", 'LICENSE'),
         # a glossary
         (".//dl/dt[@id='term-boson']", 'boson'),
+        (".//dl/dt[@id='term-boson']/a", '¶'),
         # a production list
         (".//pre/strong", 'try_stmt'),
         (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
@@ -662,7 +664,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
 
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
@@ -770,7 +772,7 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
@@ -875,7 +877,7 @@ def test_numfig_with_prefix_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
@@ -981,7 +983,7 @@ def test_numfig_with_secnum_depth_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
@@ -1228,6 +1230,35 @@ def test_html_assets(app):
     assert '<script src="_static/js/custom.js"></script>' in content
     assert ('<script async="async" src="https://example.com/script.js">'
             '</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='html_assets')
+def test_assets_order(app):
+    app.add_css_file('normal.css')
+    app.add_css_file('early.css', priority=100)
+    app.add_css_file('late.css', priority=750)
+    app.add_css_file('lazy.css', priority=900)
+    app.add_js_file('normal.js')
+    app.add_js_file('early.js', priority=100)
+    app.add_js_file('late.js', priority=750)
+    app.add_js_file('lazy.js', priority=900)
+
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text()
+
+    # css_files
+    expected = ['_static/pygments.css', '_static/alabaster.css', '_static/early.css',
+                'https://example.com/custom.css', '_static/normal.css', '_static/late.css',
+                '_static/css/style.css', '_static/lazy.css']
+    pattern = '.*'.join('href="%s"' % f for f in expected)
+    assert re.search(pattern, content, re.S)
+
+    # js_files
+    expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
+                '_static/doctools.js', 'https://example.com/script.js', '_static/normal.js',
+                '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
+    pattern = '.*'.join('src="%s"' % f for f in expected)
+    assert re.search(pattern, content, re.S)
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
@@ -1604,3 +1635,56 @@ def test_html_codeblock_linenos_style_inline(app):
         assert '<span class="linenos">1</span>' in content
     else:
         assert '<span class="lineno">1 </span>' in content
+
+
+@pytest.mark.sphinx('html', testroot='highlight_options')
+def test_highlight_options(app):
+    subject = app.builder.highlighter
+    with patch.object(subject, 'highlight_block', wraps=subject.highlight_block) as highlight:
+        app.build()
+
+        call_args = highlight.call_args_list
+        assert len(call_args) == 3
+        assert call_args[0] == call(ANY, 'default', force=False, linenos=False,
+                                    location=ANY, opts={'default_option': True})
+        assert call_args[1] == call(ANY, 'python', force=False, linenos=False,
+                                    location=ANY, opts={'python_option': True})
+        assert call_args[2] == call(ANY, 'java', force=False, linenos=False,
+                                    location=ANY, opts={})
+
+
+@pytest.mark.sphinx('html', testroot='highlight_options',
+                    confoverrides={'highlight_options': {'default_option': True}})
+def test_highlight_options_old(app):
+    subject = app.builder.highlighter
+    with patch.object(subject, 'highlight_block', wraps=subject.highlight_block) as highlight:
+        app.build()
+
+        call_args = highlight.call_args_list
+        assert len(call_args) == 3
+        assert call_args[0] == call(ANY, 'default', force=False, linenos=False,
+                                    location=ANY, opts={'default_option': True})
+        assert call_args[1] == call(ANY, 'python', force=False, linenos=False,
+                                    location=ANY, opts={})
+        assert call_args[2] == call(ANY, 'java', force=False, linenos=False,
+                                    location=ANY, opts={})
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'html_permalinks': False})
+def test_html_permalink_disable(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<h1>The basic Sphinx documentation for testing</h1>' in content
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'html_permalinks_icon': '<span>[PERMALINK]</span>'})
+def test_html_permalink_icon(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
+            'href="#the-basic-sphinx-documentation-for-testing" '
+            'title="Permalink to this headline"><span>[PERMALINK]</span></a></h1>' in content)

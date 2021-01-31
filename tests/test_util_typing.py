@@ -4,12 +4,13 @@
 
     Tests util.typing functions.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
 from numbers import Integral
+from struct import Struct
 from typing import (Any, Callable, Dict, Generator, List, NewType, Optional, Tuple, TypeVar,
                     Union)
 
@@ -43,6 +44,7 @@ def test_restify():
     assert restify(str) == ":class:`str`"
     assert restify(None) == ":obj:`None`"
     assert restify(Integral) == ":class:`numbers.Integral`"
+    assert restify(Struct) == ":class:`struct.Struct`"
     assert restify(Any) == ":obj:`Any`"
 
 
@@ -109,6 +111,12 @@ def test_restify_type_hints_alias():
     assert restify(MyTuple) == ":class:`Tuple`\\ [:class:`str`, :class:`str`]"  # type: ignore
 
 
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
+def test_restify_type_ForwardRef():
+    from typing import ForwardRef  # type: ignore
+    assert restify(ForwardRef("myint")) == ":class:`myint`"
+
+
 def test_restify_broken_type_hints():
     assert restify(BrokenType) == ':class:`tests.test_util_typing.BrokenType`'
 
@@ -118,6 +126,7 @@ def test_stringify():
     assert stringify(str) == "str"
     assert stringify(None) == "None"
     assert stringify(Integral) == "numbers.Integral"
+    assert restify(Struct) == ":class:`struct.Struct`"
     assert stringify(Any) == "Any"
 
 

@@ -4,7 +4,7 @@
 
     Helpers for inspecting Python modules.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -35,6 +35,10 @@ else:
     ClassMethodDescriptorType = type(object.__init__)
     MethodDescriptorType = type(str.join)
     WrapperDescriptorType = type(dict.__dict__['fromkeys'])
+
+if False:
+    # For type annotation
+    from typing import Type  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -154,11 +158,36 @@ def getall(obj: Any) -> Optional[Sequence[str]]:
             raise ValueError(__all__)
 
 
+def getannotations(obj: Any) -> Mapping[str, Any]:
+    """Get __annotations__ from given *obj* safely.
+
+    Raises AttributeError if given *obj* raises an error on accessing __attribute__.
+    """
+    __annotations__ = safe_getattr(obj, '__annotations__', None)
+    if isinstance(__annotations__, Mapping):
+        return __annotations__
+    else:
+        return {}
+
+
+def getmro(obj: Any) -> Tuple["Type", ...]:
+    """Get __mro__ from given *obj* safely.
+
+    Raises AttributeError if given *obj* raises an error on accessing __mro__.
+    """
+    __mro__ = safe_getattr(obj, '__mro__', None)
+    if isinstance(__mro__, tuple):
+        return __mro__
+    else:
+        return tuple()
+
+
 def getslots(obj: Any) -> Optional[Dict]:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
     Raises AttributeError if given *obj* raises an error on accessing __slots__.
+    Raises TypeError if given *obj* is not a class.
     Raises ValueError if given *obj* have invalid __slots__.
     """
     if not inspect.isclass(obj):
@@ -343,7 +372,7 @@ def iscoroutinefunction(obj: Any) -> bool:
 
 def isproperty(obj: Any) -> bool:
     """Check if the object is property."""
-    if sys.version_info > (3, 8):
+    if sys.version_info >= (3, 8):
         from functools import cached_property  # cached_property is available since py3.8
         if isinstance(obj, cached_property):
             return True
@@ -468,6 +497,19 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
         return False
 
     return getattr(builtins, name, None) is cls
+
+
+class DefaultValue:
+    """A simple wrapper for default value of the parameters of overload functions."""
+
+    def __init__(self, value: str) -> None:
+        self.value = value
+
+    def __eq__(self, other: object) -> bool:
+        return self.value == other
+
+    def __repr__(self) -> str:
+        return self.value
 
 
 def _should_unwrap(subject: Callable) -> bool:
@@ -675,7 +717,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:
-                default = ast_unparse(defaults[i], code)
+                default = DefaultValue(ast_unparse(defaults[i], code))
 
             annotation = ast_unparse(arg.annotation, code) or Parameter.empty
             params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
@@ -685,7 +727,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         if defaults[i + posonlyargs] is Parameter.empty:
             default = Parameter.empty
         else:
-            default = ast_unparse(defaults[i + posonlyargs], code)
+            default = DefaultValue(ast_unparse(defaults[i + posonlyargs], code))
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,

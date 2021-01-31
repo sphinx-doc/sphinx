@@ -4,7 +4,7 @@
 
     Texinfo builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -179,7 +179,8 @@ class TexinfoBuilder(Builder):
                 try:
                     imagedir = path.join(self.outdir, targetname + '-figures')
                     ensuredir(imagedir)
-                    copy_asset_file(path.join(self.srcdir, dest), imagedir)
+                    copy_asset_file(path.join(self.srcdir, src),
+                                    path.join(imagedir, dest))
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
