@@ -250,10 +250,10 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
             '<span class="pre">Bar</span></code></a>' in html)
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons"'
-            ' title="(in foo v2.0)">foons</a>' in html)
+            ' title="(in foo v2.0)"><span class="pre">foons</span></a>' in html)
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons_bartype"'
-            ' title="(in foo v2.0)">bartype</a>' in html)
+            ' title="(in foo v2.0)"><span class="pre">bartype</span></a>' in html)
 
 
 def test_missing_reference_jsdomain(tempdir, app, status, warning):
