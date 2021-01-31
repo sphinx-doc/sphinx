@@ -1,7 +1,21 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexenvshadowbox.sty}[2021/01/27 topic and contents boxes]
+\ProvidesFile{sphinxlatexshadowbox.sty}[2021/01/27 sphinxShadowBox]
+
+% Provides support for this output mark-up from Sphinx latex writer:
+%
+% - sphinxShadowBox (environment)
+%
+% Dependencies (they do not need to be defined at time of loading):
+%
+% - of course the various colour and dimension options handled via sphinx.sty
+% - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
+% - \savenotes/\spewnotes from sphinxpackagefootnote
+% - \ifspx@inframed defined in sphinx.sty
+%
+% Requires:
+\RequirePackage{framed}
 
 % Again based on use of "framed.sty", this allows breakable framed boxes.
 \long\def\spx@ShadowFBox#1{%

@@ -1,7 +1,26 @@
 %% INDEX, BIBLIOGRAPHY, APPENDIX, TABLE OF CONTENTS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexenvindbibtoc.sty}[2021/01/27 index, bib., toc]
+\ProvidesFile{sphinxlatexindbibtoc.sty}[2021/01/27 index, bib., toc]
+
+% Provides support for this output mark-up from Sphinx latex writer:
+%
+% - environments: (backup defaults or get redefined)
+%
+%   - sphinxtheindex (direct mark-up or via python.ist or sphinx.xdy)
+%   - sphinxthebibliography
+%
+% - macros: (defines defaults)
+%
+%   - \sphinxmaketitle
+%   - \sphinxtableofcontents
+%   - \sphinxnonalphabeticalgroupname
+%   - \sphinxsymbolsname
+%   - \sphinxnumbersname
+%   - \sphinxcite
+%
+% Requires:
+\RequirePackage{makeidx}
 
 % fix the double index and bibliography on the table of contents
 % in jsclasses (Japanese standard document classes)
@@ -43,5 +62,8 @@
 % redefined in preamble, headings for makeindex produced index
 \newcommand*{\sphinxsymbolsname}{}
 \newcommand*{\sphinxnumbersname}{}
+
+\protected\def\sphinxcite{\cite}
+
 
 \endinput

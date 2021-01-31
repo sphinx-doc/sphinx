@@ -3,6 +3,30 @@
 % change this info string if making any custom modification
 \ProvidesFile{sphinxlatexgraphics.sty}[2021/01/27 graphics]
 
+% Provides support for this output mark-up from Sphinx latex writer:
+%
+% - macros:
+%
+%   - \sphinxfigcaption
+%   - \sphinxincludegraphics
+%
+% - environments:
+%
+%   - sphinxfigure-in-table
+%
+% May change:
+%
+% - \sphinxcaption (at begin document)
+%
+% Also provides:
+%
+% - \sphinxsafeincludegraphics (default of \sphinxincludegraphics since 2.0)
+% - \spx@image@maxheight dimension (used by sphinxlatexadmonitions.sty)
+%
+% Requires:
+% \RequirePackage{graphicx}% done in sphinx.sty
+\RequirePackage{amstext}% needed for \firstchoice@true(false)
+
 % \sphinxincludegraphics resizes images larger than the TeX \linewidth (which
 % is adjusted in indented environments), or taller than a certain maximal
 % height (usually \textheight and this is reduced in the environments which use
@@ -85,21 +109,6 @@
   \sphinxsetvskipsforfigintablecaption
   \begin{minipage}{#1}%
 }{\end{minipage}}
-% store the original \caption macro for usage with figures inside longtable
-% and tabulary cells. Make sure we get the final \caption in presence of
-% caption package, whether the latter was loaded before or after sphinx.
-\AtBeginDocument{%
-    \let\spx@originalcaption\caption
-    \@ifpackageloaded{caption}
-      {\let\spx@ifcaptionpackage\@firstoftwo
-       \caption@AtBeginDocument*{\let\spx@originalcaption\caption}%
-% in presence of caption package, drop our own \sphinxcaption whose aim was to
-% ensure same width of caption to all kinds of tables (tabular(y), longtable),
-% because caption package has its own width (or margin) option
-       \def\sphinxcaption{\caption}%
-      }%
-      {\let\spx@ifcaptionpackage\@secondoftwo}%
-}
 % tabulary expands twice contents, we need to prevent double counter stepping
 \newcommand*\sphinxfigcaption
   {\ifx\equation$%$% this is trick to identify tabulary first pass

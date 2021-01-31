@@ -1,7 +1,12 @@
 %% ALPHANUMERIC LIST ITEMS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexmisclists.sty}[2021/01/27 lists]
+\ProvidesFile{sphinxlatexlists.sty}[2021/01/27 lists]
+
+% Provides support for this output mark-up from Sphinx latex writer:
+% - \sphinxsetlistlabels
+
+% Dependencies: the \spx@opt@maxlistdepth from sphinx.sty
 
 \newcommand\sphinxsetlistlabels[5]
 {% #1 = style, #2 = enum, #3 = enumnext, #4 = prefix, #5 = suffix
