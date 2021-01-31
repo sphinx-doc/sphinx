@@ -737,7 +737,7 @@
 \AtBeginDocument{\spx@image@maxheight\textheight}
 
 % box scratch register
-\newdimen\spx@image@box
+\newbox\spx@image@box
 \newcommand*{\sphinxsafeincludegraphics}[2][]{%
     % #1 contains possibly width=, height=, but no scale= since 1.8.4
     \setbox\spx@image@box\hbox{\includegraphics[#1,draft]{#2}}%
