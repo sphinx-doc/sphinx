@@ -2237,6 +2237,50 @@ def test_name_mangling(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_type_union_operator(app):
+    options = {'members': None}
+    actual = do_autodoc(app, 'module', 'target.pep604', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.pep604',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.pep604',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: Foo.attr',
+        '      :module: target.pep604',
+        '      :type: int | str',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Foo.meth(x: int | str, y: int | str) -> int | str',
+        '      :module: target.pep604',
+        '',
+        '      docstring',
+        '',
+        '',
+        '.. py:data:: attr',
+        '   :module: target.pep604',
+        '   :type: int | str',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:function:: sum(x: int | str, y: int | str) -> int | str',
+        '   :module: target.pep604',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
 @pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_hide_value(app):
