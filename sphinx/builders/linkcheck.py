@@ -130,7 +130,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             self.workers.append(thread)
 
     @property
-    def good(self):
+    def good(self) -> Set[str]:
         warnings.warn(
             "%s.%s is deprecated." % (self.__class__.__name__, "good"),
             RemovedInSphinx50Warning,
@@ -139,7 +139,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         return self._good
 
     @property
-    def broken(self):
+    def broken(self) -> Dict[str, str]:
         warnings.warn(
             "%s.%s is deprecated." % (self.__class__.__name__, "broken"),
             RemovedInSphinx50Warning,
@@ -148,7 +148,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         return self._broken
 
     @property
-    def redirected(self):
+    def redirected(self) -> Dict[str, Tuple[str, int]]:
         warnings.warn(
             "%s.%s is deprecated." % (self.__class__.__name__, "redirected"),
             RemovedInSphinx50Warning,
