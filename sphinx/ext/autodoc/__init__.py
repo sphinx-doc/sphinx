@@ -1020,10 +1020,6 @@ class ModuleDocumenter(Documenter):
         try:
             if not self.options.ignore_module_all:
                 self.__all__ = inspect.getall(self.object)
-        except AttributeError as exc:
-            # __all__ raises an error.
-            logger.warning(__('%s.__all__ raises an error. Ignored: %r'),
-                           (self.fullname, exc), type='autodoc')
         except ValueError as exc:
             # invalid __all__ found.
             logger.warning(__('__all__ should be a list of strings, not %r '
