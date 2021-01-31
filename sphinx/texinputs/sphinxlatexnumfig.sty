@@ -3,6 +3,9 @@
 % change this info string if making any custom modification
 \ProvidesFile{sphinxlatexnumfig.sty}[2021/01/27 numbering]
 
+% Requires: remreset (old LaTeX only)
+% relates to numfig and numfig_secnum_depth configuration variables
+
 % LaTeX 2018-04-01 and later provides \@removefromreset
 \ltx@ifundefined{@removefromreset}
     {\RequirePackage{remreset}}

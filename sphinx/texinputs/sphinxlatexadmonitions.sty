@@ -3,6 +3,32 @@
 % change this info string if making any custom modification
 \ProvidesFile{sphinxlatexadmonitions.sty}[2021/01/27 admonitions]
 
+% Provides support for this output mark-up from Sphinx latex writer:
+%
+% - sphinxadmonition (environment)
+%   This is a dispatch supporting
+%
+%   - note, hint, important, tip                 (via sphinxlightbox)
+%   - warning, caution, attention, danger, error (via sphinxheavybox)
+%
+%   Each sphinx<notice name> environment can be redefined by user.
+%   The defaults are customizable via various colour and dimension
+%   settings, cf sphinx docs (latex customization).
+%
+% Requires:
+\RequirePackage{framed}% used by sphinxheavybox
+%
+% Dependencies (they do not need to be defined at time of loading):
+% - of course the various colour and dimension options handled via sphinx.sty
+% - \sphinxstrong (for sphinxlightbox and sphinxheavybox)
+% - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
+% - \savenotes/\spewnotes from sphinxpackagefootnote (for sphinxheavybox)
+
+% Provides: (also in sphinxlatexliterals.sty)
+\providecommand*\sphinxvspacefixafterfrenchlists{%
+   \ifvmode\ifdim\lastskip<\z@ \vskip\parskip\fi\else\par\fi
+}
+
 % Some are quite plain
 % the spx@notice@bordercolor etc are set in the sphinxadmonition environment
 \newenvironment{sphinxlightbox}{%

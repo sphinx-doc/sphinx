@@ -3,22 +3,74 @@
 % change this info string if making any custom modification
 \ProvidesFile{sphinxlatexliterals.sty}[2021/01/27 code-blocks and parsed literals]
 
-% For highlighted code.
+% Provides support for this output mark-up from Sphinx latex writer:
+%
+% - macros:
+%   - \sphinxLiteralBlockLabel
+%   - \sphinxSetupCaptionForVerbatim
+%   - \sphinxSetupCodeBlockInFootnote
+%   - \sphinxhref
+%   - \sphinxnolinkurl
+%   - \sphinxresetverbatimhllines
+%   - \sphinxunactivateextrasandspace
+%   - \sphinxupquote
+%   - \sphinxurl
+%
+% - environments:
+%   - sphinxVerbatim
+%   - sphinxVerbatimintable
+%   - sphinxalltt
+%
+% Dependency:
+%
+% - hyperref (for \phantomsection and \capstart) (loaded later)
+%
+% Executes \RequirePackage for:
+%
+% - framed
+% - fancyvrb
+% - alltt
+% - upquote
+% - needspace
+
+% also in sphinxlatexadmonitions.sty:
+% This is a workaround to a "feature" of French lists, when literal block
+% follows immediately; usable generally (does only \par then), a priori...
+\providecommand*\sphinxvspacefixafterfrenchlists{%
+   \ifvmode\ifdim\lastskip<\z@ \vskip\parskip\fi\else\par\fi
+}
+
+% For framing allowing pagebreaks
+\RequirePackage{framed}
+% For source code
+% MEMO: fancyvrb is used mainly to
+% 1- control horizontal and vertical spacing
+% 2- optional line numbering
+% 3- optional line emphasizing
+% 4- while still allowing expansion of Pygments latex mark-up
+% Other aspects such as framing, caption handling, codeline wrapping are
+% added on top of it. We should stop using fancyvrb and implement
+% 1, 2, 3, 4 by own Sphinx fully native Verbatim. This would allow to solve
+% limitations with wrapped long code line not allowing page break.
 \RequirePackage{fancyvrb}
-\define@key{FV}{hllines}{\def\sphinx@verbatim@checkifhl##1{\in@{, ##1,}{#1}}}
-% sphinxVerbatim must be usable by third party without requiring hllines set-up
-\def\sphinxresetverbatimhllines{\def\sphinx@verbatim@checkifhl##1{\in@false}}
-\sphinxresetverbatimhllines
 % For parsed-literal blocks.
 \RequirePackage{alltt}
 % Display "real" single quotes in literal blocks.
 \RequirePackage{upquote}
+% Skip to next page if not enough space at bottom
+\RequirePackage{needspace}
 
 % Based on use of "fancyvrb.sty"'s Verbatim.
 % - with framing allowing page breaks ("framed.sty")
 % - with breaking of long lines (exploits Pygments mark-up),
 % - with possibly of a top caption, non-separable by pagebreak.
 % - and usable inside tables or footnotes ("sphinxpackagefootnote.sty").
+
+% for emphasizing lines
+\define@key{FV}{hllines}{\def\sphinx@verbatim@checkifhl##1{\in@{, ##1,}{#1}}}
+% sphinxVerbatim must be usable by third party without requiring hllines set-up
+\def\sphinxresetverbatimhllines{\def\sphinx@verbatim@checkifhl##1{\in@false}}
+\sphinxresetverbatimhllines
 
 % Prior to Sphinx 1.5, \Verbatim and \endVerbatim were modified by Sphinx.
 % The aliases defined here are used in sphinxVerbatim environment and can
@@ -36,7 +88,6 @@
 % analogous to \listoffigures, but for the code listings (foo = chosen title.)
 \newcommand*{\ext@literalblock}{lol}
 
-\newif\ifspx@inframed % flag set if we are already in a framed environment
 % if forced use of minipage encapsulation is needed (e.g. table cells)
 \newif\ifsphinxverbatimwithminipage   \sphinxverbatimwithminipagefalse
 
@@ -181,11 +232,6 @@
 % This box to measure contents if nested as inner \MakeFramed requires then
 % minipage encapsulation but too long contents then break outer \MakeFramed
 \newbox\sphinxVerbatim@ContentsBox
-% This is a workaround to a "feature" of French lists, when literal block
-% follows immediately; usable generally (does only \par then), a priori...
-\newcommand*\sphinxvspacefixafterfrenchlists{%
-   \ifvmode\ifdim\lastskip<\z@ \vskip\parskip\fi\else\par\fi
-}
 % Holder macro for labels of literal blocks. Set-up by LaTeX writer.
 \newcommand*\sphinxLiteralBlockLabel {}
 \newcommand*\sphinxSetupCaptionForVerbatim [1]

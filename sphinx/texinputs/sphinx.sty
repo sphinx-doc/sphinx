@@ -180,6 +180,37 @@
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
 
+%% MISCELLANEOUS CONTEXT
+%
+% flag to be set in a framed environment
+% (defined here as currently needed by three sphinxlatex....sty files and
+% even if not needed if such files are replaced, the definition does no harm)
+\newif\ifspx@inframed
+%
+% \spx@ifcaptionpackage (defined at begin document)
+%     is needed currently in macros from:
+%     sphinxlatexliterals.sty (sphinxVerbatim)
+%     sphinxlatextables.sty   (for some macros used in the table templates)
+%
+% \sphinxcaption is mark-up injected by the tabular and tabulary templates
+%     it is defined in sphinxlatextables.sty
+%
+% store the original \caption macro for usage with figures inside longtable
+% and tabulary cells. Make sure we get the final \caption in presence of
+% caption package, whether the latter was loaded before or after sphinx.
+\AtBeginDocument{%
+    \let\spx@originalcaption\caption
+    \@ifpackageloaded{caption}
+      {\let\spx@ifcaptionpackage\@firstoftwo
+       \caption@AtBeginDocument*{\let\spx@originalcaption\caption}%
+% in presence of caption package, drop our own \sphinxcaption whose aim was to
+% ensure same width of caption to all kinds of tables (tabular(y), longtable),
+% because caption package has its own width (or margin) option
+       \def\sphinxcaption{\caption}%
+      }%
+      {\let\spx@ifcaptionpackage\@secondoftwo}%
+}
+
 %% PASS OPTIONS
 %
 % pass options to hyperref; it must not have been loaded already
@@ -203,42 +234,35 @@
 %
 % as will be indicated below, secondary style files load some more packages
 %
-% for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
+% For \text macro (sphinx.util.texescape)
+% also for usage of \firstchoice@true(false) in sphinxlatexgraphics.sty
 \RequirePackage{amstext}
-% it was passed "warn" option from latex template
+% It was passed "warn" option from latex template in case it is already loaded
+% via some other package before \usepackage{sphinx} in preamble
 \RequirePackage{textcomp}
 % For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
 % for allowing figures in tables.
 \RequirePackage{float}
 % For floating figures in the text. Better to load after float.
 \RequirePackage{wrapfig}
-% control caption around literal-block
+% Provides \captionof, used once by latex writer (\captionof{figure})
 \RequirePackage{capt-of}
-\RequirePackage{needspace}
-% support hlist directive
+% Support hlist directive
 \RequirePackage{multicol}
 
 
 %% GRAPHICS
 %
+% It will always be needed, so let's load it here
 \RequirePackage{graphicx}
 \input{sphinxlatexgraphics.sty}
 
 
 %% FRAMED ENVIRONMENTS
-% For framing code-blocks and warning type notices, and shadowing topics
-\RequirePackage{framed}
 %
-% macros and environment for display literals (sphinxVerbatim, sphinxalltt)
-% and inline literals (\sphinxupquote); also defines \sphinxhref.
-% Requires: fancyvrb, alltt, upquote
-\input{sphinxlatexliterals.sty}
-%
-% topic and contents boxes: sphinxShadowBox uses framed.sty
-\input{sphinxlatexshadowbox.sty}
-%
-% notices and admonitions: sphinxheavybox uses again framed.sty
 \input{sphinxlatexadmonitions.sty}
+\input{sphinxlatexliterals.sty}
+\input{sphinxlatexshadowbox.sty}
 
 
 %% PYGMENTS
@@ -259,23 +283,16 @@
 
 %% TABLES
 %
-% Requires: tabulary, longtable, varwidth
-% extends tabulary and longtable via patches and custom macros to support
-% merged cells possibly containing code-blocks in complex tables
 \input{sphinxlatextables.sty}
 
 
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
 %
-% Requires: remreset (old LaTeX only)
-% relates to numfig and numfig_secnum_depth configuration variables
 \input{sphinxlatexnumfig.sty}
 
 
 %% LISTS
 %
-% optionally extends LaTeX maximal list nesting depth and provides
-% \sphinxsetlistlabels macro used in mark-up
 \input{sphinxlatexlists.sty}
 
 
@@ -284,35 +301,25 @@
 % support large numbered footnotes in minipage; but this is now obsolete
 % from systematic use of savenotes environment around minipages
 \def\thempfootnote{\arabic{mpfootnote}}
-% this package provides savenotes environment (aka \savenotes/spewnotes)
-% For hyperlinked footnotes in tables; also for gathering footnotes from
-% topic and warning blocks. Also to allow code-blocks in footnotes.
-% Based on footnotehyper, extended to support tabulary multipass system
+% This package is needed to support hyperlinked footnotes in tables and
+% framed contents, and to allow code-blocks in footnotes.
 \RequirePackage{sphinxpackagefootnote}
 
 
 %% INDEX, BIBLIOGRAPHY, APPENDIX, TABLE OF CONTENTS
 %
-% requires makeidx
 \input{sphinxlatexindbibtoc.sty}
 
 
 %% STYLING
 %
-% page
-% requires parskip (legacy version) and, except if memoir class, fancyhdr
 \input{sphinxlatexstylepage.sty}
-% headings
-% requires titlesec and, if it is at 2.10.1, etoolbox to patch it
 \input{sphinxlatexstyleheadings.sty}
-% many \sphinx... prefixed commands to style text
 \input{sphinxlatexstyletext.sty}
 
 
 %% MODULE RELEASE DATA AND OBJECT DESCRIPTIONS
 %
-% this legacy code has remained very stable over the years
-% (fulllineitems was updated to support multiline signatures)
 \input{sphinxlatexobjects.sty}
 
 

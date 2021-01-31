@@ -3,7 +3,20 @@
 % change this info string if making any custom modification
 \ProvidesFile{sphinxlatexobjects.sty}[2021/01/27 documentation environments]
 
-%  (some macros here used by \maketitle in sphinxmanual.cls and sphinxhowto.cls)
+% Provides support for this output mark-up from Sphinx latex writer:
+%
+% - environments
+%
+%   - fulllineitems
+%   - productionlist
+%   - optionlist
+%   - DUlineblock (also "lineblock")
+%
+% - macros
+%
+%   - \DUrole
+%   - various legacy support macros related to author and release
+%     data of documented objects and modules.
 
 % \moduleauthor{name}{email}
 \newcommand{\moduleauthor}[2]{}

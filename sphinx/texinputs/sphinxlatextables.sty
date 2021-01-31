@@ -3,9 +3,37 @@
 % change this info string if making any custom modification
 \ProvidesFile{sphinxlatextables.sty}[2021/01/27 tables]%
 
-% IMPORTANT: all this is to be kept in sync with the templates
-% longtable.tex_t, tabular.tex_t, tabulary.tex_t and the actual
-% Sphinx latex writer output.
+% Provides support for this output mark-up from Sphinx latex writer
+% and table templates:
+%
+% - the tabulary and longtable environments from the eponymous packages
+% - the varwidth environment
+% - the >{} etc mark-up possible in tabularcolumns is from array package
+%     which is loaded by longtable and tabulary
+% - \X, \Y, T column types; others (L, C, R, J) are from tabulary package
+% - \sphinxaftertopcaption
+% - \sphinxatlongtableend
+% - \sphinxatlongtablestart
+% - \sphinxattableend
+% - \sphinxattablestart
+% - \sphinxcapstartof
+% - \sphinxcolwidth
+% - \sphinxlongtablecapskipadjust
+% - \sphinxmultirow
+% - \sphinxstartmulticolumn
+% - \sphinxstopmulticolumn
+% - \sphinxtablestrut
+% - \sphinxthecaptionisattop
+% - \sphinxthelongtablecaptionisattop
+%
+% Executes \RequirePackage for:
+%
+% - tabulary
+% - longtable
+% - varwidth
+%
+% Extends tabulary and longtable via patches and custom macros to support
+% merged cells possibly containing code-blocks in complex tables
 
 \RequirePackage{tabulary}
 % tabulary has a bug with its re-definition of \multicolumn in its first pass

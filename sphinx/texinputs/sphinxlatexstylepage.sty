@@ -17,6 +17,7 @@
 \sloppy
 \hbadness = 5000                % don't print trivial gripes
 
+% Require package fancyhdr except under memoir class
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 % Use \pagestyle{normal} as the primary pagestyle for text.
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
@@ -74,9 +75,5 @@
    % Users of memoir class are invited to redefine 'normal' style in preamble
   }
 
-% fix fncychap's bug which uses prematurely the \textwidth value
-\@ifpackagewith{fncychap}{Bjornstrup}
- {\AtBeginDocument{\mylen\textwidth\advance\mylen-2\myhi}}%
- {}% <-- "false" clause of \@ifpackagewith
 
 \endinput

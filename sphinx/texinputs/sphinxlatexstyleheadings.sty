@@ -28,6 +28,23 @@
    \fi
   }%
  }{}
+
+% Augment the sectioning commands used to get our own font family in place,
+% and reset some internal data items (\titleformat from titlesec package)
+\titleformat{\section}{\Large\py@HeaderFamily}%
+            {\py@TitleColor\thesection}{0.5em}{\py@TitleColor}
+\titleformat{\subsection}{\large\py@HeaderFamily}%
+            {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}
+\titleformat{\subsubsection}{\py@HeaderFamily}%
+            {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}
+% By default paragraphs (and subsubsections) will not be numbered because
+% sphinxmanual.cls and sphinxhowto.cls set secnumdepth to 2
+\titleformat{\paragraph}{\py@HeaderFamily}%
+            {\py@TitleColor\theparagraph}{0.5em}{\py@TitleColor}
+\titleformat{\subparagraph}{\py@HeaderFamily}%
+            {\py@TitleColor\thesubparagraph}{0.5em}{\py@TitleColor}
+
+
 % Since Sphinx 1.5, users should use HeaderFamily key to 'sphinxsetup' rather
 % than defining their own \py@HeaderFamily command (which is still possible).
 % Memo: \py@HeaderFamily is also used by \maketitle as defined in
@@ -57,19 +74,10 @@
     }}
 }{}% <-- "false" clause of \@ifpackagewith
 
-% Augment the sectioning commands used to get our own font family in place,
-% and reset some internal data items (\titleformat from titlesec package)
-\titleformat{\section}{\Large\py@HeaderFamily}%
-            {\py@TitleColor\thesection}{0.5em}{\py@TitleColor}
-\titleformat{\subsection}{\large\py@HeaderFamily}%
-            {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}
-\titleformat{\subsubsection}{\py@HeaderFamily}%
-            {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}
-% By default paragraphs (and subsubsections) will not be numbered because
-% sphinxmanual.cls and sphinxhowto.cls set secnumdepth to 2
-\titleformat{\paragraph}{\py@HeaderFamily}%
-            {\py@TitleColor\theparagraph}{0.5em}{\py@TitleColor}
-\titleformat{\subparagraph}{\py@HeaderFamily}%
-            {\py@TitleColor\thesubparagraph}{0.5em}{\py@TitleColor}
+% fix fncychap's bug which uses prematurely the \textwidth value
+\@ifpackagewith{fncychap}{Bjornstrup}
+ {\AtBeginDocument{\mylen\textwidth\advance\mylen-2\myhi}}%
+ {}% <-- "false" clause of \@ifpackagewith
+
 
 \endinput
