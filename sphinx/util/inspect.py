@@ -171,10 +171,7 @@ def getannotations(obj: Any) -> Mapping[str, Any]:
 
 
 def getmro(obj: Any) -> Tuple["Type", ...]:
-    """Get __mro__ from given *obj* safely.
-
-    Raises AttributeError if given *obj* raises an error on accessing __mro__.
-    """
+    """Get __mro__ from given *obj* safely."""
     __mro__ = safe_getattr(obj, '__mro__', None)
     if isinstance(__mro__, tuple):
         return __mro__
@@ -481,12 +478,7 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     but PyPy implements it by pure Python code.
     """
     try:
-        mro = inspect.getmro(obj)
-    except AttributeError:
-        # no __mro__, assume the object has no methods as we know them
-        return False
-
-    try:
+        mro = getmro(obj)
         cls = next(c for c in mro if attr_name in safe_getattr(c, '__dict__', {}))
     except StopIteration:
         return False

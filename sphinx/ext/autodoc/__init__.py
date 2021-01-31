@@ -2505,22 +2505,19 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                 pass
 
     def get_attribute_comment(self, parent: Any, attrname: str) -> Optional[List[str]]:
-        try:
-            for cls in inspect.getmro(parent):
-                try:
-                    module = safe_getattr(cls, '__module__')
-                    qualname = safe_getattr(cls, '__qualname__')
+        for cls in inspect.getmro(parent):
+            try:
+                module = safe_getattr(cls, '__module__')
+                qualname = safe_getattr(cls, '__qualname__')
 
-                    analyzer = ModuleAnalyzer.for_module(module)
-                    analyzer.analyze()
-                    if qualname and self.objpath:
-                        key = (qualname, attrname)
-                        if key in analyzer.attr_docs:
-                            return list(analyzer.attr_docs[key])
-                except (AttributeError, PycodeError):
-                    pass
-        except (AttributeError, PycodeError):
-            pass
+                analyzer = ModuleAnalyzer.for_module(module)
+                analyzer.analyze()
+                if qualname and self.objpath:
+                    key = (qualname, attrname)
+                    if key in analyzer.attr_docs:
+                        return list(analyzer.attr_docs[key])
+            except (AttributeError, PycodeError):
+                pass
 
         return None
 
