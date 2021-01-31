@@ -470,12 +470,17 @@ class LaTeXTranslator(SphinxTranslator):
         return ('\\phantomsection' if anchor else '') + \
             '\\label{%s}' % self.idescape(id)
 
+    def hypernameddest(self, name: str) -> str:
+        return '\\sphinxnameddest{%s}' % self.idescape(name)
+
     def hypertarget_to(self, node: Element, anchor: bool = False) -> str:
         labels = ''.join(self.hypertarget(node_id, anchor=False) for node_id in node['ids'])
+        nameddests = ''.join(self.hypernameddest(nodes.make_id(node_name))
+                             for node_name in node['names'])
         if anchor:
-            return r'\phantomsection' + labels
+            return r'\phantomsection' + labels + nameddests
         else:
-            return labels
+            return labels + nameddests
 
     def hyperlink(self, id: str) -> str:
         return '{\\hyperref[%s]{' % self.idescape(id)

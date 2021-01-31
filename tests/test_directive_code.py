@@ -358,11 +358,13 @@ def test_code_block_caption_latex(app, status, warning):
 def test_code_block_namedlink_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'python.tex').read_text()
-    label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-rb}}}'
+    label1 = ('\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-rb}}'
+              '\\sphinxnameddest{\\detokenize{name-test-rb}}}')
     link1 = '\\hyperref[\\detokenize{caption:name-test-rb}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Ruby}}'
     label2 = ('\\def\\sphinxLiteralBlockLabel'
-              '{\\label{\\detokenize{namedblocks:some-ruby-code}}}')
+              '{\\label{\\detokenize{namedblocks:some-ruby-code}}'
+              '\\sphinxnameddest{\\detokenize{some-ruby-code}}}')
     link2 = '\\hyperref[\\detokenize{namedblocks:some-ruby-code}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{the ruby code}}}'
     assert label1 in latex
@@ -506,11 +508,13 @@ def test_literalinclude_caption_latex(app, status, warning):
 def test_literalinclude_namedlink_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'python.tex').read_text()
-    label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-py}}}'
+    label1 = ('\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-py}}'
+              '\\sphinxnameddest{\\detokenize{name-test-py}}}')
     link1 = '\\hyperref[\\detokenize{caption:name-test-py}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Python}}'
     label2 = ('\\def\\sphinxLiteralBlockLabel'
-              '{\\label{\\detokenize{namedblocks:some-python-code}}}')
+              '{\\label{\\detokenize{namedblocks:some-python-code}}'
+              '\\sphinxnameddest{\\detokenize{some-python-code}}}')
     link2 = '\\hyperref[\\detokenize{namedblocks:some-python-code}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{the python code}}}'
     assert label1 in latex

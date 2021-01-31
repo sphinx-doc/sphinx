@@ -419,7 +419,66 @@
 \ifdefined\directlua\let\sphinxAtStartPar\@empty\fi
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
-
+% Support for absolute destination label, for example:
+%     http://example.com/doc.pdf#nameddest=my-target
+%
+% This goes via \sphinxnameddest mark-up, which can be used multiple times for
+% same anchor. Achieving this requires hack into \hyper@anchorstart. Here and
+% in \sphinxnameddest, we assume that \@currentHref has benign expansion (i.e.
+% default is somecountername.number or section*.number from \phantomsection)
+% and I see no circumstance why it would be configured otherwise in a Sphinx
+% project.
+\AtBeginDocument{%
+   \let\spx@hyper@anchorstart@ORI\hyper@anchorstart
+   \def\hyper@anchorstart#1{% #1=\@currentHref
+       % in Sphinx context \@currentHref should have benign expansion
+       \ltx@ifundefined{spxDL@#1}%
+         {\spx@hyper@anchorstart@ORI{#1}}%
+         % When \spxDL@#1 expands, it executes for each given name the original
+         % \hyper@anchorstart, creating anchors at same spot in document.
+         {\@nameuse{spxDL@#1}}%
+   }%
+   %\PackageInfo{sphinx}{redefining \string\hyper@anchorstart}%
+}%
+% \spx@DLadd expands when the aux file is loaded and stores all given names
+% sharing a common location for later multiple anchor creations at same spot.
+% this will happen via patched as above \hyper@anchorstart
+\def\spx@DLadd#1#2{%
+  \ltx@ifundefined{spxDL@#1}%
+  % the original \detokenize from Sphinx mark-up now consumed, we add it again
+       {\global\@namedef{spxDL@#1}{%
+           % create anchor with hyperref assigned name else internal links fail!
+           \spx@hyper@anchorstart@ORI{\@currentHref}\hyper@anchorend
+           % add a name from \sphinxnameddest, others may follow
+           \spx@hyper@anchorstart@ORI{\detokenize{#2}}}%
+       }% end of branch for first name to a given location
+       {% add a second, third, etc..., name for anchor creation
+        \expandafter\g@addto@macro\csname spxDL@#1\endcsname
+           {\hyper@anchorend\spx@hyper@anchorstart@ORI{\detokenize{#2}}}%
+       }% end of branch for second, third, etc... additional names
+}%
+% this adds to the aux file, for next latex run, the various \spx@DLadd
+% it can recognize if an attempt is made to use same name multiple times but
+% as this is already filtered out at DocUtils/Sphinx level, simply do nothing
+\protected\def\sphinxnameddest#1{%
+  % \protected to prevent premature expansion, e.g. via \sphinxLiteralBlockLabel
+  % #1 from Sphinx LaTeX writer is always wrapped in \detokenize
+  % the \detokenize will get consumed from writing it out to aux file
+  \ltx@ifundefined{spxDL!#1}{%
+    % it is assumed \@currentHref expands nicely (see remark above)
+    \expandafter\xdef\csname spxDL!#1\endcsname{\@currentHref}%
+    \if@filesw % not really needed in Sphinx automated context
+    \begingroup
+    \edef\x{\endgroup%
+    % this will write to aux file the expanded \@currentHref in association
+    % to the given destination name #1
+    \noexpand\write\@auxout{\string\spx@DLadd{\@currentHref}{#1}}%
+    }\x%
+    \if@nobreak\ifvmode\nobreak\fi\fi
+    \fi}%
+    {% non-document prefixed section titles are likely to generate duplicates
+    }% simply we leave each such name have target its first occurrence location
+}%
 
 %% ALPHANUMERIC LIST ITEMS
 \newcommand\sphinxsetlistlabels[5]
@@ -1627,6 +1686,7 @@
                      \csname\@backslashchar color@#2\endcsname }
 
 % the main dispatch for all types of notices
+\newcounter{sphinxadmonition}
 \newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
