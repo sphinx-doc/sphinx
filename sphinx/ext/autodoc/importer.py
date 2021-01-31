@@ -294,24 +294,35 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
 
     try:
         for cls in getmro(subject):
-            # annotation only member (ex. attr: int)
-            for name in getannotations(cls):
-                name = unmangle(cls, name)
-                if name and name not in members:
-                    members[name] = ObjectMember(name, INSTANCEATTR, class_=cls)
-
-            # append instance attributes (cf. self.attr1) if analyzer knows
             try:
                 modname = safe_getattr(cls, '__module__')
                 qualname = safe_getattr(cls, '__qualname__')
                 analyzer = ModuleAnalyzer.for_module(modname)
                 analyzer.analyze()
+            except AttributeError:
+                qualname = None
+                analyzer = None
+            except PycodeError:
+                analyzer = None
+
+            # annotation only member (ex. attr: int)
+            for name in getannotations(cls):
+                name = unmangle(cls, name)
+                if name and name not in members:
+                    if analyzer and (qualname, name) in analyzer.attr_docs:
+                        docstring = '\n'.join(analyzer.attr_docs[qualname, name])
+                    else:
+                        docstring = None
+
+                    members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
+                                                 docstring=docstring)
+
+            # append instance attributes (cf. self.attr1) if analyzer knows
+            if analyzer:
                 for (ns, name), docstring in analyzer.attr_docs.items():
                     if ns == qualname and name not in members:
                         members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
                                                      docstring='\n'.join(docstring))
-            except (AttributeError, PycodeError):
-                pass
     except AttributeError:
         pass
 
