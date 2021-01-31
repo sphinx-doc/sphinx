@@ -113,9 +113,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                                for x in self.config.linkcheck_anchors_ignore]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in self.config.linkcheck_auth]
-        self._good = set()       # type: Set[str]
-        self._broken = {}        # type: Dict[str, str]
-        self._redirected = {}    # type: Dict[str, Tuple[str, int]]
+        self.brokens = 0
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
 
@@ -136,7 +134,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             RemovedInSphinx50Warning,
             stacklevel=2,
         )
-        return self._good
+        return set()
 
     @property
     def broken(self) -> Dict[str, str]:
@@ -145,7 +143,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             RemovedInSphinx50Warning,
             stacklevel=2,
         )
-        return self._broken
+        return {}
 
     @property
     def redirected(self) -> Dict[str, Tuple[str, int]]:
@@ -154,7 +152,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             RemovedInSphinx50Warning,
             stacklevel=2,
         )
-        return self._redirected
+        return {}
 
     def check_thread(self) -> None:
         kwargs = {}
@@ -284,14 +282,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                             if rex.match(uri):
                                 return 'ignored', '', 0
                         else:
-                            self._broken[uri] = ''
                             return 'broken', '', 0
-            elif uri in self._good:
-                return 'working', 'old', 0
-            elif uri in self._broken:
-                return 'broken', self._broken[uri], 0
-            elif uri in self._redirected:
-                return 'redirected', self._redirected[uri][0], self._redirected[uri][1]
             for rex in self.to_ignore:
                 if rex.match(uri):
                     return 'ignored', '', 0
@@ -301,13 +292,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 status, info, code = check_uri()
                 if status != "broken":
                     break
-
-            if status == "working":
-                self._good.add(uri)
-            elif status == "broken":
-                self._broken[uri] = info
-            elif status == "redirected":
-                self._redirected[uri] = (info, code)
 
             return (status, info, code)
 
@@ -405,6 +389,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             logger.info(darkgreen('ok        ') + uri + info)
             self.write_linkstat(linkstat)
         elif status == 'broken':
+            self.brokens += 1
             if self.app.quiet or self.app.warningiserror:
                 logger.warning(__('broken link: %s (%s)'), uri, info,
                                location=(filename, lineno))
@@ -453,7 +438,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 self.process_result(self.rqueue.get())
                 done += 1
 
-        if self._broken:
+        if self.brokens > 0:
             self.app.statuscode = 1
 
         self.wqueue.join()
