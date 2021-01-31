@@ -54,6 +54,7 @@ Features added
 * #8004: napoleon: Type definitions in Google style docstrings are rendered as
   references when :confval:`napoleon_preprocess_types` enabled
 * #6241: mathjax: Include mathjax.js only on the document using equations
+* #8775: py domain: Support type union operator (PEP-604)
 * #8651: std domain: cross-reference for a rubric having inline item is broken
 * #7642: std domain: Optimize case-insensitive match of term
 * #8681: viewcode: Support incremental build

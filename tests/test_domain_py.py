@@ -429,6 +429,20 @@ def test_pyfunction_with_number_literals(app):
                                                         [nodes.inline, "1_6_0"])])])
 
 
+def test_pyfunction_with_union_type_operator(app):
+    text = ".. py:function:: hello(age: int | None)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "age"],
+                                                        [desc_sig_punctuation, ":"],
+                                                        " ",
+                                                        [desc_sig_name, ([pending_xref, "int"],
+                                                                         " ",
+                                                                         [desc_sig_punctuation, "|"],
+                                                                         " ",
+                                                                         [pending_xref, "None"])])])])
+
+
 def test_optional_pyfunction_signature(app):
     text = ".. py:function:: compile(source [, filename [, symbol]]) -> ast object"
     doctree = restructuredtext.parse(app, text)
@@ -494,6 +508,20 @@ def test_pydata_signature_old(app):
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="data",
                 domain="py", objtype="data", noindex=False)
+
+
+def test_pydata_with_union_type_operator(app):
+    text = (".. py:data:: version\n"
+            "   :type: int | str")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0],
+                ([desc_name, "version"],
+                 [desc_annotation, (": ",
+                                    [pending_xref, "int"],
+                                    " ",
+                                    [desc_sig_punctuation, "|"],
+                                    " ",
+                                    [pending_xref, "str"])]))
 
 
 def test_pyobject_prefix(app):
