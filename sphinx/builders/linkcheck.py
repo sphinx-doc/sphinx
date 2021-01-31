@@ -108,11 +108,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def init(self) -> None:
         self.hyperlinks = {}    # type: Dict[str, Hyperlink]
-        self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
+        self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
         self.anchors_ignore = [re.compile(x)
-                               for x in self.app.config.linkcheck_anchors_ignore]
+                               for x in self.config.linkcheck_anchors_ignore]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
-                     in self.app.config.linkcheck_auth]
+                     in self.config.linkcheck_auth]
         self._good = set()       # type: Set[str]
         self._broken = {}        # type: Dict[str, str]
         self._redirected = {}    # type: Dict[str, Tuple[str, int]]
@@ -124,7 +124,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.wqueue = queue.PriorityQueue()  # type: queue.PriorityQueue
         self.rqueue = queue.Queue()  # type: queue.Queue
         self.workers = []  # type: List[threading.Thread]
-        for i in range(self.app.config.linkcheck_workers):
+        for i in range(self.config.linkcheck_workers):
             thread = threading.Thread(target=self.check_thread, daemon=True)
             thread.start()
             self.workers.append(thread)
@@ -158,8 +158,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def check_thread(self) -> None:
         kwargs = {}
-        if self.app.config.linkcheck_timeout:
-            kwargs['timeout'] = self.app.config.linkcheck_timeout
+        if self.config.linkcheck_timeout:
+            kwargs['timeout'] = self.config.linkcheck_timeout
 
         def get_request_headers() -> Dict:
             url = urlparse(uri)
@@ -205,9 +205,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
             kwargs['headers'] = get_request_headers()
 
             try:
-                if anchor and self.app.config.linkcheck_anchors:
+                if anchor and self.config.linkcheck_anchors:
                     # Read the whole document and see if #anchor exists
-                    response = requests.get(req_url, stream=True, config=self.app.config,
+                    response = requests.get(req_url, stream=True, config=self.config,
                                             auth=auth_info, **kwargs)
                     response.raise_for_status()
                     found = check_anchor(response, unquote(anchor))
@@ -219,7 +219,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                         # try a HEAD request first, which should be easier on
                         # the server and the network
                         response = requests.head(req_url, allow_redirects=True,
-                                                 config=self.app.config, auth=auth_info,
+                                                 config=self.config, auth=auth_info,
                                                  **kwargs)
                         response.raise_for_status()
                     except (HTTPError, TooManyRedirects) as err:
@@ -228,7 +228,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
                         response = requests.get(req_url, stream=True,
-                                                config=self.app.config,
+                                                config=self.config,
                                                 auth=auth_info, **kwargs)
                         response.raise_for_status()
             except HTTPError as err:
@@ -297,7 +297,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     return 'ignored', '', 0
 
             # need to actually check the URI
-            for _ in range(self.app.config.linkcheck_retries):
+            for _ in range(self.config.linkcheck_retries):
                 status, info, code = check_uri()
                 if status != "broken":
                     break
@@ -360,7 +360,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 next_check = time.time() + delay
         netloc = urlparse(response.url).netloc
         if next_check is None:
-            max_delay = self.app.config.linkcheck_rate_limit_timeout
+            max_delay = self.config.linkcheck_rate_limit_timeout
             try:
                 rate_limit = self.rate_limits[netloc]
             except KeyError:
