@@ -159,10 +159,7 @@ def getall(obj: Any) -> Optional[Sequence[str]]:
 
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
-    """Get __annotations__ from given *obj* safely.
-
-    Raises AttributeError if given *obj* raises an error on accessing __attribute__.
-    """
+    """Get __annotations__ from given *obj* safely."""
     __annotations__ = safe_getattr(obj, '__annotations__', None)
     if isinstance(__annotations__, Mapping):
         return __annotations__

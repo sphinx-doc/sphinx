@@ -1064,14 +1064,11 @@ class ModuleDocumenter(Documenter):
                 continue
 
         # annotation only member (ex. attr: int)
-        try:
-            for name in inspect.getannotations(self.object):
-                if name not in members:
-                    docstring = attr_docs.get(('', name), [])
-                    members[name] = ObjectMember(name, INSTANCEATTR,
-                                                 docstring="\n".join(docstring))
-        except AttributeError:
-            pass
+        for name in inspect.getannotations(self.object):
+            if name not in members:
+                docstring = attr_docs.get(('', name), [])
+                members[name] = ObjectMember(name, INSTANCEATTR,
+                                             docstring="\n".join(docstring))
 
         return members
 
@@ -1911,16 +1908,16 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
 
     def update_annotations(self, parent: Any) -> None:
         """Update __annotations__ to support type_comment and so on."""
-        try:
-            annotations = dict(inspect.getannotations(parent))
-            parent.__annotations__ = annotations
+        annotations = dict(inspect.getannotations(parent))
+        parent.__annotations__ = annotations
 
+        try:
             analyzer = ModuleAnalyzer.for_module(self.modname)
             analyzer.analyze()
             for (classname, attrname), annotation in analyzer.annotations.items():
                 if classname == '' and attrname not in annotations:
                     annotations[attrname] = annotation
-        except AttributeError:
+        except PycodeError:
             pass
 
     def import_object(self, raiseerror: bool = False) -> bool:
@@ -2450,8 +2447,6 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                             annotations[attrname] = annotation
                 except (AttributeError, PycodeError):
                     pass
-        except AttributeError:
-            pass
         except TypeError:
             # Failed to set __annotations__ (built-in, extensions, etc.)
             pass
