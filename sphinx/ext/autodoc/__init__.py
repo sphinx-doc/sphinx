@@ -2226,7 +2226,7 @@ class SlotsMixin(DataDocumenterMixinBase):
                 return True
             else:
                 return False
-        except (AttributeError, ValueError, TypeError):
+        except (ValueError, TypeError):
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
@@ -2252,7 +2252,7 @@ class SlotsMixin(DataDocumenterMixinBase):
                     return [docstring]
                 else:
                     return []
-            except (AttributeError, ValueError) as exc:
+            except ValueError as exc:
                 logger.warning(__('Invalid __slots__ found on %s. Ignored.'),
                                (self.parent.__qualname__, exc), type='autodoc')
                 return []
