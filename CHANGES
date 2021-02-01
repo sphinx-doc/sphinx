@@ -77,6 +77,8 @@ Bugs fixed
   contains invalid type comments
 * #8693: autodoc: Default values for overloaded functions are rendered as string
 * #8134: autodoc: crashes when mocked decorator takes arguments
+* #8800: autodoc: Uninitialized attributes in superclass are recognized as
+  undocumented
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
 * #8232: graphviz: Image node is not rendered if graph file is in subdirectory
