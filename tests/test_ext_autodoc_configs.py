@@ -483,7 +483,7 @@ def test_mocked_module_imports(app, warning):
                     confoverrides={'autodoc_typehints': "signature"})
 def test_autodoc_typehints_signature(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
     assert list(actual) == [
         '',
@@ -549,7 +549,7 @@ def test_autodoc_typehints_signature(app):
                     confoverrides={'autodoc_typehints': "none"})
 def test_autodoc_typehints_none(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
     assert list(actual) == [
         '',

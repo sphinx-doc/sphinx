@@ -903,7 +903,7 @@ def test_autodoc_ignore_module_all(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_noindex(app):
-    options = {"noindex": True}
+    options = {"noindex": None}
     actual = do_autodoc(app, 'module', 'target', options)
     assert list(actual) == [
         '',
@@ -984,7 +984,7 @@ def test_autodoc_inner_class(app):
         '',
     ]
 
-    options['show-inheritance'] = True
+    options['show-inheritance'] = None
     actual = do_autodoc(app, 'class', 'target.InnerChild', options)
     assert list(actual) == [
         '',
@@ -1028,7 +1028,7 @@ def test_autodoc_staticmethod(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_descriptor(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.descriptor.Class', options)
     assert list(actual) == [
         '',
@@ -1056,7 +1056,7 @@ def test_autodoc_descriptor(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_cached_property(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.cached_property.Foo', options)
     assert list(actual) == [
         '',
@@ -1076,8 +1076,8 @@ def test_autodoc_member_order(app):
     # case member-order='bysource'
     options = {"members": None,
                'member-order': 'bysource',
-               "undoc-members": True,
-               'private-members': True}
+               "undoc-members": None,
+               'private-members': None}
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
@@ -1101,8 +1101,8 @@ def test_autodoc_member_order(app):
     # case member-order='groupwise'
     options = {"members": None,
                'member-order': 'groupwise',
-               "undoc-members": True,
-               'private-members': True}
+               "undoc-members": None,
+               'private-members': None}
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
@@ -1125,8 +1125,8 @@ def test_autodoc_member_order(app):
 
     # case member-order=None
     options = {"members": None,
-               "undoc-members": True,
-               'private-members': True}
+               "undoc-members": None,
+               'private-members': None}
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
@@ -1153,7 +1153,7 @@ def test_autodoc_module_member_order(app):
     # case member-order='bysource'
     options = {"members": 'foo, Bar, baz, qux, Quux, foobar',
                'member-order': 'bysource',
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.sort_by_all', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:module:: target.sort_by_all',
@@ -1168,8 +1168,8 @@ def test_autodoc_module_member_order(app):
     # case member-order='bysource' and ignore-module-all
     options = {"members": 'foo, Bar, baz, qux, Quux, foobar',
                'member-order': 'bysource',
-               "undoc-members": True,
-               "ignore-module-all": True}
+               "undoc-members": None,
+               "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target.sort_by_all', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:module:: target.sort_by_all',
@@ -1216,7 +1216,7 @@ def test_autodoc_class_scope(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_class_attributes(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.AttCls', options)
     assert list(actual) == [
         '',
@@ -1326,7 +1326,7 @@ def test_autoattribute_instance_attributes(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_slots(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.slots', options)
     assert list(actual) == [
         '',
@@ -1710,7 +1710,7 @@ def test_partialmethod_undoc_members(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_typed_instance_variables(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typed_vars', options)
     assert list(actual) == [
         '',
@@ -1804,8 +1804,8 @@ def test_autodoc_typed_instance_variables(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_typed_inherited_instance_variables(app):
     options = {"members": None,
-               "undoc-members": True,
-               "inherited-members": True}
+               "undoc-members": None,
+               "inherited-members": None}
     actual = do_autodoc(app, 'class', 'target.typed_vars.Derived', options)
     assert list(actual) == [
         '',
