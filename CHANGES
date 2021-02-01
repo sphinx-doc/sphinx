@@ -98,6 +98,7 @@ Bugs fixed
 * #7118: sphinx-quickstart: questionare got Mojibake if libreadline unavailable
 * #8094: texinfo: image files on the different directory with document are not
   copied
+* #8782: todo: Cross references in todolist get broken
 * #8720: viewcode: module pages are generated for epub on incremental build
 * #8704: viewcode: anchors are generated in incremental build after singlehtml
 * #8756: viewcode: highlighted code is generated even if not referenced
