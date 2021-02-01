@@ -704,12 +704,18 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(self.context.pop())
 
     def visit_desc(self, node: Element) -> None:
-        self.body.append('\n\n\\begin{fulllineitems}\n')
+        if self.config.latex_show_urls == 'footnote':
+            self.body.append('\n\n\\begin{savenotes}\\begin{fulllineitems}\n')
+        else:
+            self.body.append('\n\n\\begin{fulllineitems}\n')
         if self.table:
             self.table.has_problematic = True
 
     def depart_desc(self, node: Element) -> None:
-        self.body.append('\n\\end{fulllineitems}\n\n')
+        if self.config.latex_show_urls == 'footnote':
+            self.body.append('\n\\end{fulllineitems}\\end{savenotes}\n\n')
+        else:
+            self.body.append('\n\\end{fulllineitems}\n\n')
 
     def _visit_signature_line(self, node: Element) -> None:
         for child in node:
