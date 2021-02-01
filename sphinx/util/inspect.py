@@ -145,7 +145,6 @@ def getall(obj: Any) -> Optional[Sequence[str]]:
     """Get __all__ attribute of the module as dict.
 
     Return None if given *obj* does not have __all__.
-    Raises AttributeError if given *obj* raises an error on accessing __all__.
     Raises ValueError if given *obj* have invalid __all__.
     """
     __all__ = safe_getattr(obj, '__all__', None)
@@ -159,10 +158,7 @@ def getall(obj: Any) -> Optional[Sequence[str]]:
 
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
-    """Get __annotations__ from given *obj* safely.
-
-    Raises AttributeError if given *obj* raises an error on accessing __attribute__.
-    """
+    """Get __annotations__ from given *obj* safely."""
     __annotations__ = safe_getattr(obj, '__annotations__', None)
     if isinstance(__annotations__, Mapping):
         return __annotations__
@@ -171,10 +167,7 @@ def getannotations(obj: Any) -> Mapping[str, Any]:
 
 
 def getmro(obj: Any) -> Tuple["Type", ...]:
-    """Get __mro__ from given *obj* safely.
-
-    Raises AttributeError if given *obj* raises an error on accessing __mro__.
-    """
+    """Get __mro__ from given *obj* safely."""
     __mro__ = safe_getattr(obj, '__mro__', None)
     if isinstance(__mro__, tuple):
         return __mro__
@@ -186,7 +179,6 @@ def getslots(obj: Any) -> Optional[Dict]:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
-    Raises AttributeError if given *obj* raises an error on accessing __slots__.
     Raises TypeError if given *obj* is not a class.
     Raises ValueError if given *obj* have invalid __slots__.
     """
@@ -481,12 +473,7 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     but PyPy implements it by pure Python code.
     """
     try:
-        mro = inspect.getmro(obj)
-    except AttributeError:
-        # no __mro__, assume the object has no methods as we know them
-        return False
-
-    try:
+        mro = getmro(obj)
         cls = next(c for c in mro if attr_name in safe_getattr(c, '__dict__', {}))
     except StopIteration:
         return False

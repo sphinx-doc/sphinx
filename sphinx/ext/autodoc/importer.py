@@ -157,12 +157,9 @@ def get_module_members(module: Any) -> List[Tuple[str, Any]]:
             continue
 
     # annotation only member (ex. attr: int)
-    try:
-        for name in getannotations(module):
-            if name not in members:
-                members[name] = (name, INSTANCEATTR)
-    except AttributeError:
-        pass
+    for name in getannotations(module):
+        if name not in members:
+            members[name] = (name, INSTANCEATTR)
 
     return sorted(list(members.values()))
 
@@ -214,7 +211,7 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
 
             for name in __slots__:
                 members[name] = Attribute(name, True, SLOTSATTR)
-    except (AttributeError, TypeError, ValueError):
+    except (TypeError, ValueError):
         pass
 
     # other members
@@ -230,13 +227,10 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
 
     # annotation only member (ex. attr: int)
     for i, cls in enumerate(getmro(subject)):
-        try:
-            for name in getannotations(cls):
-                name = unmangle(cls, name)
-                if name and name not in members:
-                    members[name] = Attribute(name, i == 0, INSTANCEATTR)
-        except AttributeError:
-            pass
+        for name in getannotations(cls):
+            name = unmangle(cls, name)
+            if name and name not in members:
+                members[name] = Attribute(name, i == 0, INSTANCEATTR)
 
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows
@@ -279,7 +273,7 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
             for name, docstring in __slots__.items():
                 members[name] = ObjectMember(name, SLOTSATTR, class_=subject,
                                              docstring=docstring)
-    except (AttributeError, TypeError, ValueError):
+    except (TypeError, ValueError):
         pass
 
     # other members
@@ -301,13 +295,10 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
     try:
         for cls in getmro(subject):
             # annotation only member (ex. attr: int)
-            try:
-                for name in getannotations(cls):
-                    name = unmangle(cls, name)
-                    if name and name not in members:
-                        members[name] = ObjectMember(name, INSTANCEATTR, class_=cls)
-            except AttributeError:
-                pass
+            for name in getannotations(cls):
+                name = unmangle(cls, name)
+                if name and name not in members:
+                    members[name] = ObjectMember(name, INSTANCEATTR, class_=cls)
 
             # append instance attributes (cf. self.attr1) if analyzer knows
             try:
