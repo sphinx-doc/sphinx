@@ -13,7 +13,7 @@
        generate:
                sphinx-autogen -o source/generated source/*.rst
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -34,20 +34,18 @@ from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
 import sphinx.locale
-from sphinx import __display_version__
-from sphinx import package_dir
+from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
-from sphinx.ext.autosummary import import_by_name, import_ivar_by_name, get_documenter
+from sphinx.ext.autodoc.importer import import_module
+from sphinx.ext.autosummary import get_documenter, import_by_name, import_ivar_by_name
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util import logging
-from sphinx.util import rst
-from sphinx.util import split_full_qualified_name
+from sphinx.util import logging, rst, split_full_qualified_name
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
@@ -88,29 +86,29 @@ AutosummaryEntry = NamedTuple('AutosummaryEntry', [('name', str),
 
 
 def setup_documenters(app: Any) -> None:
-    from sphinx.ext.autodoc import (
-        ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
-        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
-        InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
-        SingledispatchFunctionDocumenter,
-    )
+    from sphinx.ext.autodoc import (AttributeDocumenter, ClassDocumenter, DataDocumenter,
+                                    DecoratorDocumenter, ExceptionDocumenter,
+                                    FunctionDocumenter, MethodDocumenter, ModuleDocumenter,
+                                    NewTypeAttributeDocumenter, NewTypeDataDocumenter,
+                                    PropertyDocumenter)
     documenters = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
-        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
-        InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
-        SingledispatchFunctionDocumenter,
+        FunctionDocumenter, MethodDocumenter, NewTypeAttributeDocumenter,
+        NewTypeDataDocumenter, AttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
     ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
 
 
 def _simple_info(msg: str) -> None:
+    warnings.warn('_simple_info() is deprecated.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     print(msg)
 
 
 def _simple_warn(msg: str) -> None:
+    warnings.warn('_simple_warn() is deprecated.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     print('WARNING: ' + msg, file=sys.stderr)
 
 
@@ -291,6 +289,13 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         items = []  # type: List[str]
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
+            try:
+                module = import_module(fullname)
+                if module and hasattr(module, '__sphinx_mock__'):
+                    continue
+            except ImportError:
+                pass
+
             items.append(fullname)
         public = [x for x in items if not x.split('.')[-1].startswith('_')]
         return public, items

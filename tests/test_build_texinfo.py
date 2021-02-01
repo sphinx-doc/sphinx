@@ -4,18 +4,17 @@
 
     Test the build process with Texinfo builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
 import subprocess
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 from unittest.mock import Mock
 
 import pytest
-from test_build_html import ENV_WARNINGS
 
 from sphinx.builders.texinfo import default_texinfo_documents
 from sphinx.config import Config
@@ -23,6 +22,7 @@ from sphinx.testing.util import strip_escseq
 from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
+from .test_build_html import ENV_WARNINGS
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option

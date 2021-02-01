@@ -4,7 +4,7 @@
 
     Input/Output files
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import codecs
@@ -26,21 +26,19 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import FiletypeNotFoundError
-from sphinx.transforms import (
-    AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
-)
-from sphinx.transforms.i18n import (
-    PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
-)
+from sphinx.transforms import (AutoIndexUpgrader, DoctreeReadEvent, FigureAligner,
+                               SphinxTransformer)
+from sphinx.transforms.i18n import (Locale, PreserveTranslatableMessages,
+                                    RemoveTranslatableInline)
 from sphinx.transforms.references import SphinxDomains
-from sphinx.util import logging, get_filetype
-from sphinx.util import UnicodeDecodeErrorHandler
+from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
+
     from sphinx.application import Sphinx
 
 

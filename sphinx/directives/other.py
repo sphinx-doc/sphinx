@@ -2,13 +2,12 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from typing import Any, Dict, List
-from typing import cast
+from typing import Any, Dict, List, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -21,7 +20,7 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
-from sphinx.util import url_re, docname_join
+from sphinx.util import docname_join, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
@@ -277,6 +276,7 @@ class HList(SphinxDirective):
         npercol, nmore = divmod(len(fulllist), ncolumns)
         index = 0
         newnode = addnodes.hlist()
+        newnode['ncolumns'] = str(ncolumns)
         for column in range(ncolumns):
             endindex = index + ((npercol + 1) if column < nmore else npercol)
             bullet_list = nodes.bullet_list()

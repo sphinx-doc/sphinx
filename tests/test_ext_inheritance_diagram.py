@@ -4,19 +4,18 @@
 
     Test sphinx.ext.inheritance_diagram extension.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import os
+import re
 import sys
 
 import pytest
 
-from sphinx.ext.inheritance_diagram import (
-    InheritanceDiagram, InheritanceException, import_classes
-)
+from sphinx.ext.inheritance_diagram import (InheritanceDiagram, InheritanceException,
+                                            import_classes)
 
 
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")

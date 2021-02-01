@@ -4,13 +4,12 @@
 
     The changeset domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from collections import namedtuple
-from typing import Any, Dict, List
-from typing import cast
+from typing import Any, Dict, List, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -19,7 +18,6 @@ from sphinx import addnodes
 from sphinx.domains import Domain
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
-
 
 if False:
     # For type annotation

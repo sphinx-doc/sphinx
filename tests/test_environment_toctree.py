@@ -4,13 +4,13 @@
 
     Test the sphinx.environment.managers.toctree.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
 from docutils import nodes
-from docutils.nodes import bullet_list, list_item, caption, comment, reference
+from docutils.nodes import bullet_list, caption, comment, list_item, reference
 
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only

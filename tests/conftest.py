@@ -2,7 +2,7 @@
     pytest config for sphinx/tests
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,8 +13,8 @@ import docutils
 import pytest
 
 import sphinx
-from sphinx.testing.path import path
 from sphinx.testing import comparer
+from sphinx.testing.path import path
 
 pytest_plugins = 'sphinx.testing.fixtures'
 

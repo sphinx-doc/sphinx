@@ -4,17 +4,16 @@
 
     Inventory utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import re
 import zlib
-from typing import Callable, IO, Iterator
+from typing import IO, Callable, Iterator
 
 from sphinx.util import logging
 from sphinx.util.typing import Inventory
-
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)

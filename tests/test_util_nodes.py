@@ -4,22 +4,20 @@
 
     Tests uti.nodes functions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from textwrap import dedent
 from typing import Any
 
 import pytest
-from docutils import frontend
-from docutils import nodes
+from docutils import frontend, nodes
 from docutils.parsers import rst
 from docutils.utils import new_document
 
 from sphinx.transforms import ApplySourceWorkaround
-from sphinx.util.nodes import (
-    NodeMatcher, extract_messages, clean_astext, make_id, split_explicit_title
-)
+from sphinx.util.nodes import (NodeMatcher, clean_astext, extract_messages, make_id,
+                               split_explicit_title)
 
 
 def _transform(doctree):

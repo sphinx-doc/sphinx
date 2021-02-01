@@ -4,14 +4,13 @@
 
     The C++ language domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar, Union, Optional
-)
+from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, Type,
+                    TypeVar, Union)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -30,19 +29,16 @@ from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
-from sphinx.util.cfamily import (
-    NoOldIdError, ASTBaseBase, ASTAttribute, ASTBaseParenExprList,
-    verify_description_mode, StringifyTransform,
-    BaseParser, DefinitionError, UnsupportedMultiCharacterCharLiteral,
-    identifier_re, anon_identifier_re, integer_literal_re, octal_literal_re,
-    hex_literal_re, binary_literal_re, integers_literal_suffix_re,
-    float_literal_re, float_literal_suffix_re,
-    char_literal_re
-)
+from sphinx.util.cfamily import (ASTAttribute, ASTBaseBase, ASTBaseParenExprList, BaseParser,
+                                 DefinitionError, NoOldIdError, StringifyTransform,
+                                 UnsupportedMultiCharacterCharLiteral, anon_identifier_re,
+                                 binary_literal_re, char_literal_re, float_literal_re,
+                                 float_literal_suffix_re, hex_literal_re, identifier_re,
+                                 integer_literal_re, integers_literal_suffix_re,
+                                 octal_literal_re, verify_description_mode)
 from sphinx.util.docfields import Field, GroupedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
-
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
@@ -1596,6 +1592,15 @@ class ASTOperator(ASTBase):
         identifier = str(self)
         if mode == 'lastIsName':
             signode += addnodes.desc_name(identifier, identifier)
+        elif mode == 'markType':
+            targetText = prefix + identifier + templateArgs
+            pnode = addnodes.pending_xref('', refdomain='cpp',
+                                          reftype='identifier',
+                                          reftarget=targetText, modname=None,
+                                          classname=None)
+            pnode['cpp:parent_key'] = symbol.get_lookup_key()
+            pnode += nodes.Text(identifier)
+            signode += pnode
         else:
             signode += addnodes.desc_addname(identifier, identifier)
 
@@ -1836,7 +1841,7 @@ class ASTFunctionParameter(ASTBase):
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
-            return symbol.parent.declaration.get_id(version, prefixed=None)
+            return symbol.parent.declaration.get_id(version, prefixed=False)
         # else, do the usual
         if self.ellipsis:
             return 'z'
@@ -3798,7 +3803,7 @@ class Symbol:
             assert False  # shouldn't happen
         else:
             # the domain base class makes a copy of the initial data, which is fine
-            return Symbol(None, None, None, None, None, None)
+            return Symbol(None, None, None, None, None, None, None)
 
     @staticmethod
     def debug_print(*args: Any) -> None:
@@ -3825,7 +3830,8 @@ class Symbol:
 
     def __init__(self, parent: "Symbol", identOrOp: Union[ASTIdentifier, ASTOperator],
                  templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction],
-                 templateArgs: Any, declaration: ASTDeclaration, docname: str) -> None:
+                 templateArgs: Any, declaration: ASTDeclaration,
+                 docname: str, line: int) -> None:
         self.parent = parent
         # declarations in a single directive are linked together
         self.siblingAbove = None  # type: Symbol
@@ -3835,6 +3841,7 @@ class Symbol:
         self.templateArgs = templateArgs  # identifier<templateArgs>
         self.declaration = declaration
         self.docname = docname
+        self.line = line
         self.isRedeclaration = False
         self._assert_invariants()
 
@@ -3850,15 +3857,18 @@ class Symbol:
         # Do symbol addition after self._children has been initialised.
         self._add_template_and_function_params()
 
-    def _fill_empty(self, declaration: ASTDeclaration, docname: str) -> None:
+    def _fill_empty(self, declaration: ASTDeclaration, docname: str, line: int) -> None:
         self._assert_invariants()
-        assert not self.declaration
-        assert not self.docname
-        assert declaration
-        assert docname
+        assert self.declaration is None
+        assert self.docname is None
+        assert self.line is None
+        assert declaration is not None
+        assert docname is not None
+        assert line is not None
         self.declaration = declaration
         self.declaration.symbol = self
         self.docname = docname
+        self.line = line
         self._assert_invariants()
         # and symbol addition should be done as well
         self._add_template_and_function_params()
@@ -3882,7 +3892,7 @@ class Symbol:
                     decl = None
                 nne = ASTNestedNameElement(tp.get_identifier(), None)
                 nn = ASTNestedName([nne], [False], rooted=False)
-                self._add_symbols(nn, [], decl, self.docname)
+                self._add_symbols(nn, [], decl, self.docname, self.line)
         # add symbols for function parameters, if any
         if self.declaration is not None and self.declaration.function_params is not None:
             for fp in self.declaration.function_params:
@@ -3895,7 +3905,7 @@ class Symbol:
                 decl = ASTDeclaration('functionParam', None, None, None, None, fp, None)
                 assert not nn.rooted
                 assert len(nn.names) == 1
-                self._add_symbols(nn, [], decl, self.docname)
+                self._add_symbols(nn, [], decl, self.docname, self.line)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
 
@@ -3913,6 +3923,7 @@ class Symbol:
             if sChild.declaration and sChild.docname == docname:
                 sChild.declaration = None
                 sChild.docname = None
+                sChild.line = None
                 if sChild.siblingAbove is not None:
                     sChild.siblingAbove.siblingBelow = sChild.siblingBelow
                 if sChild.siblingBelow is not None:
@@ -3925,8 +3936,7 @@ class Symbol:
     def get_all_symbols(self) -> Iterator[Any]:
         yield self
         for sChild in self._children:
-            for s in sChild.get_all_symbols():
-                yield s
+            yield from sChild.get_all_symbols()
 
     @property
     def children_recurse_anon(self) -> Generator["Symbol", None, None]:
@@ -4107,7 +4117,7 @@ class Symbol:
             Symbol.debug_print("self:")
             print(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_print("nestedName:        ", nestedName)
-            Symbol.debug_print("templateDecls:     ", templateDecls)
+            Symbol.debug_print("templateDecls:     ", ",".join(str(t) for t in templateDecls))
             Symbol.debug_print("strictTemplateParamArgLists:", strictTemplateParamArgLists)
             Symbol.debug_print("ancestorLookupType:", ancestorLookupType)
             Symbol.debug_print("templateShorthand: ", templateShorthand)
@@ -4223,7 +4233,7 @@ class Symbol:
                                   identOrOp, templateParams, templateArgs)
 
     def _add_symbols(self, nestedName: ASTNestedName, templateDecls: List[Any],
-                     declaration: ASTDeclaration, docname: str) -> "Symbol":
+                     declaration: ASTDeclaration, docname: str, line: int) -> "Symbol":
         # Used for adding a whole path of symbols, where the last may or may not
         # be an actual declaration.
 
@@ -4231,10 +4241,10 @@ class Symbol:
             Symbol.debug_indent += 1
             Symbol.debug_print("_add_symbols:")
             Symbol.debug_indent += 1
-            Symbol.debug_print("tdecls:", templateDecls)
-            Symbol.debug_print("nn:    ", nestedName)
-            Symbol.debug_print("decl:  ", declaration)
-            Symbol.debug_print("doc:   ", docname)
+            Symbol.debug_print("tdecls:", ",".join(str(t) for t in templateDecls))
+            Symbol.debug_print("nn:       ", nestedName)
+            Symbol.debug_print("decl:     ", declaration)
+            Symbol.debug_print("location: {}:{}".format(docname, line))
 
         def onMissingQualifiedSymbol(parentSymbol: "Symbol",
                                      identOrOp: Union[ASTIdentifier, ASTOperator],
@@ -4251,7 +4261,7 @@ class Symbol:
             return Symbol(parent=parentSymbol, identOrOp=identOrOp,
                           templateParams=templateParams,
                           templateArgs=templateArgs, declaration=None,
-                          docname=None)
+                          docname=None, line=None)
 
         lookupResult = self._symbol_lookup(nestedName, templateDecls,
                                            onMissingQualifiedSymbol,
@@ -4272,14 +4282,14 @@ class Symbol:
                 Symbol.debug_print("identOrOp:     ", lookupResult.identOrOp)
                 Symbol.debug_print("templateArgs:  ", lookupResult.templateArgs)
                 Symbol.debug_print("declaration:   ", declaration)
-                Symbol.debug_print("docname:       ", docname)
+                Symbol.debug_print("location:      {}:{}".format(docname, line))
                 Symbol.debug_indent -= 1
             symbol = Symbol(parent=lookupResult.parentSymbol,
                             identOrOp=lookupResult.identOrOp,
                             templateParams=lookupResult.templateParams,
                             templateArgs=lookupResult.templateArgs,
                             declaration=declaration,
-                            docname=docname)
+                            docname=docname, line=line)
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 2
             return symbol
@@ -4328,7 +4338,7 @@ class Symbol:
                             templateParams=lookupResult.templateParams,
                             templateArgs=lookupResult.templateArgs,
                             declaration=declaration,
-                            docname=docname)
+                            docname=docname, line=line)
             if Symbol.debug_lookup:
                 Symbol.debug_print("end:   creating candidate symbol")
             return symbol
@@ -4360,6 +4370,11 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print("candId:", candId)
             for symbol in withDecl:
+                # but all existing must be functions as well,
+                # otherwise we declare it to be a duplicate
+                if symbol.declaration.objectType != 'function':
+                    handleDuplicateDeclaration(symbol, candSymbol)
+                    # (not reachable)
                 oldId = symbol.declaration.get_newest_id()
                 if Symbol.debug_lookup:
                     Symbol.debug_print("oldId: ", oldId)
@@ -4370,7 +4385,11 @@ class Symbol:
         # if there is an empty symbol, fill that one
         if len(noDecl) == 0:
             if Symbol.debug_lookup:
-                Symbol.debug_print("no match, no empty, candSybmol is not None?:", candSymbol is not None)  # NOQA
+                Symbol.debug_print("no match, no empty")
+                if candSymbol is not None:
+                    Symbol.debug_print("result is already created candSymbol")
+                else:
+                    Symbol.debug_print("result is makeCandSymbol()")
                 Symbol.debug_indent -= 2
             if candSymbol is not None:
                 return candSymbol
@@ -4391,7 +4410,7 @@ class Symbol:
             # .. namespace:: Test
             # .. namespace:: nullptr
             # .. class:: Test
-            symbol._fill_empty(declaration, docname)
+            symbol._fill_empty(declaration, docname, line)
             return symbol
 
     def merge_with(self, other: "Symbol", docnames: List[str],
@@ -4470,13 +4489,15 @@ class Symbol:
                 continue
             if otherChild.declaration and otherChild.docname in docnames:
                 if not ourChild.declaration:
-                    ourChild._fill_empty(otherChild.declaration, otherChild.docname)
+                    ourChild._fill_empty(otherChild.declaration,
+                                         otherChild.docname, otherChild.line)
                 elif ourChild.docname != otherChild.docname:
                     name = str(ourChild.declaration)
-                    msg = __("Duplicate C++ declaration, also defined in '%s'.\n"
-                             "Declaration is '%s'.")
-                    msg = msg % (ourChild.docname, name)
-                    logger.warning(msg, location=otherChild.docname)
+                    msg = __("Duplicate C++ declaration, also defined at %s:%s.\n"
+                             "Declaration is '.. cpp:%s:: %s'.")
+                    msg = msg % (ourChild.docname, ourChild.line,
+                                 ourChild.declaration.directiveType, name)
+                    logger.warning(msg, location=(otherChild.docname, otherChild.line))
                 else:
                     # Both have declarations, and in the same docname.
                     # This can apparently happen, it should be safe to
@@ -4500,23 +4521,25 @@ class Symbol:
         else:
             templateDecls = []
         res = self._add_symbols(nestedName, templateDecls,
-                                declaration=None, docname=None)
+                                declaration=None, docname=None, line=None)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
         return res
 
-    def add_declaration(self, declaration: ASTDeclaration, docname: str) -> "Symbol":
+    def add_declaration(self, declaration: ASTDeclaration,
+                        docname: str, line: int) -> "Symbol":
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("add_declaration:")
-        assert declaration
-        assert docname
+        assert declaration is not None
+        assert docname is not None
+        assert line is not None
         nestedName = declaration.name
         if declaration.templatePrefix:
             templateDecls = declaration.templatePrefix.templates
         else:
             templateDecls = []
-        res = self._add_symbols(nestedName, templateDecls, declaration, docname)
+        res = self._add_symbols(nestedName, templateDecls, declaration, docname, line)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
         return res
@@ -4711,7 +4734,8 @@ class Symbol:
                              templateParams=lookupResult.templateParams,
                              templateArgs=lookupResult.templateArgs,
                              declaration=declaration,
-                             docname='fakeDocnameForQuery')
+                             docname='fakeDocnameForQuery',
+                             line=42)
         queryId = declaration.get_newest_id()
         for symbol in symbols:
             if symbol.declaration is None:
@@ -6655,7 +6679,7 @@ def _make_phony_error_name() -> ASTNestedName:
     return ASTNestedName([nne], [False], rooted=False)
 
 
-class CPPObject(ObjectDescription):
+class CPPObject(ObjectDescription[ASTDeclaration]):
     """Description of a C++ language object."""
 
     doc_field_types = [
@@ -6717,7 +6741,7 @@ class CPPObject(ObjectDescription):
         Symbol(parent=targetSymbol, identOrOp=symbol.identOrOp,
                templateParams=None, templateArgs=None,
                declaration=declClone,
-               docname=self.env.docname)
+               docname=self.env.docname, line=self.get_source_info()[1])
 
     def add_target_and_index(self, ast: ASTDeclaration, sig: str,
                              signode: TextElement) -> None:
@@ -6814,10 +6838,12 @@ class CPPObject(ObjectDescription):
         parentSymbol = env.temp_data['cpp:parent_symbol']
         parentDecl = parentSymbol.declaration
         if parentDecl is not None and parentDecl.objectType == 'function':
-            logger.warning("C++ declarations inside functions are not supported." +
-                           " Parent function is " +
-                           str(parentSymbol.get_full_nested_name()),
-                           location=self.get_source_info())
+            msg = "C++ declarations inside functions are not supported." \
+                  " Parent function: {}\nDirective name: {}\nDirective arg: {}"
+            logger.warning(msg.format(
+                str(parentSymbol.get_full_nested_name()),
+                self.name, self.arguments[0]
+            ), location=self.get_source_info())
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             env.temp_data['cpp:last_symbol'] = symbol
@@ -6829,7 +6855,7 @@ class CPPObject(ObjectDescription):
         return super().run()
 
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
-        parentSymbol = self.env.temp_data['cpp:parent_symbol']
+        parentSymbol = self.env.temp_data['cpp:parent_symbol']  # type: Symbol
 
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
@@ -6845,7 +6871,8 @@ class CPPObject(ObjectDescription):
             raise ValueError from e
 
         try:
-            symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
+            symbol = parentSymbol.add_declaration(
+                ast, docname=self.env.docname, line=self.get_source_info()[1])
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None
             assert symbol.siblingBelow is None
@@ -6858,9 +6885,10 @@ class CPPObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['cpp:last_symbol'] = e.symbol
-            msg = __("Duplicate C++ declaration, also defined in '%s'.\n"
-                     "Declaration is '%s'.")
-            msg = msg % (e.symbol.docname, sig)
+            msg = __("Duplicate C++ declaration, also defined at %s:%s.\n"
+                     "Declaration is '.. cpp:%s:: %s'.")
+            msg = msg % (e.symbol.docname, e.symbol.line,
+                         self.display_object_type, sig)
             logger.warning(msg, location=signode)
 
         if ast.objectType == 'enumerator':
@@ -7031,8 +7059,8 @@ class AliasNode(nodes.Element):
             assert parentKey is not None
             self.parentKey = parentKey
 
-    def copy(self: T) -> T:
-        return self.__class__(self.sig, env=None, parentKey=self.parentKey)  # type: ignore
+    def copy(self) -> 'AliasNode':
+        return self.__class__(self.sig, env=None, parentKey=self.parentKey)
 
 
 class AliasTransform(SphinxTransform):
@@ -7232,14 +7260,18 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class':      ObjType(_('class'),      'class',             'type', 'identifier'),
-        'union':      ObjType(_('union'),      'union',             'type', 'identifier'),
-        'function':   ObjType(_('function'),   'function',  'func', 'type', 'identifier'),
-        'member':     ObjType(_('member'),     'member',    'var'),
-        'type':       ObjType(_('type'),                            'type', 'identifier'),
-        'concept':    ObjType(_('concept'),    'concept',                   'identifier'),
-        'enum':       ObjType(_('enum'),       'enum',              'type', 'identifier'),
-        'enumerator': ObjType(_('enumerator'), 'enumerator')
+        'class':      ObjType(_('class'),      'class', 'struct',   'identifier', 'type'),
+        'union':      ObjType(_('union'),      'union',             'identifier', 'type'),
+        'function':   ObjType(_('function'),   'func',              'identifier', 'type'),
+        'member':     ObjType(_('member'),     'member', 'var',     'identifier'),
+        'type':       ObjType(_('type'),                            'identifier', 'type'),
+        'concept':    ObjType(_('concept'),    'concept',           'identifier'),
+        'enum':       ObjType(_('enum'),       'enum',              'identifier', 'type'),
+        'enumerator': ObjType(_('enumerator'), 'enumerator',        'identifier'),
+        # generated object types
+        'functionParam': ObjType(_('function parameter'),           'identifier', 'member', 'var'),  # noqa
+        'templateParam': ObjType(_('template parameter'),
+                                 'identifier', 'class', 'struct', 'union', 'member', 'var', 'type'),  # noqa
     }
 
     directives = {
@@ -7279,7 +7311,7 @@ class CPPDomain(Domain):
         'texpr': CPPExprRole(asCode=False)
     }
     initial_data = {
-        'root_symbol': Symbol(None, None, None, None, None, None),
+        'root_symbol': Symbol(None, None, None, None, None, None, None),
         'names': {}  # full name for indexing -> docname
     }
 
@@ -7416,30 +7448,19 @@ class CPPDomain(Domain):
 
         if typ.startswith('cpp:'):
             typ = typ[4:]
-        origTyp = typ
-        if typ == 'func':
-            typ = 'function'
-        if typ == 'struct':
-            typ = 'class'
         declTyp = s.declaration.objectType
 
         def checkType() -> bool:
-            if typ == 'any' or typ == 'identifier':
+            if typ == 'any':
                 return True
-            if declTyp == 'templateParam':
-                # TODO: perhaps this should be strengthened one day
-                return True
-            if declTyp == 'functionParam':
-                if typ == 'var' or typ == 'member':
-                    return True
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
-            print("Type is %s (originally: %s), declType is %s" % (typ, origTyp, declTyp))
+            print("Type is %s, declaration type is %s" % (typ, declTyp))
             assert False
         if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",
-                           origTyp, s.declaration.objectType,
+                           typ, s.declaration.objectType,
                            s.get_full_nested_name(),
                            location=node)
 
@@ -7469,10 +7490,10 @@ class CPPDomain(Domain):
                     if env.config.add_function_parentheses and typ == 'any':
                         addParen += 1
                     # and now this stuff for operator()
-                    if (env.config.add_function_parentheses and typ == 'function' and
+                    if (env.config.add_function_parentheses and typ == 'func' and
                             title.endswith('operator()')):
                         addParen += 1
-                    if ((typ == 'any' or typ == 'function') and
+                    if ((typ == 'any' or typ == 'func') and
                             title.endswith('operator') and
                             displayName.endswith('operator()')):
                         addParen += 1
@@ -7481,7 +7502,7 @@ class CPPDomain(Domain):
                     if env.config.add_function_parentheses:
                         if typ == 'any' and displayName.endswith('()'):
                             addParen += 1
-                        elif typ == 'function':
+                        elif typ == 'func':
                             if title.endswith('()') and not displayName.endswith('()'):
                                 title = title[:-2]
                     else:

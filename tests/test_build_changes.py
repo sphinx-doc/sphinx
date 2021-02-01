@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_build_changes
     ~~~~~~~~~~~~~~~~~~
 
     Test the ChangesBuilder class.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

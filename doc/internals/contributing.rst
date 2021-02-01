@@ -138,10 +138,7 @@ Coding style
 
 Please follow these guidelines when writing code for Sphinx:
 
-* Try to use the same code style as used in the rest of the project.  See the
-  `Pocoo Styleguide`__ for more information.
-
-  __ http://flask.pocoo.org/docs/styleguide/
+* Try to use the same code style as used in the rest of the project.
 
 * For non-trivial changes, please update the :file:`CHANGES` file.  If your
   changes alter existing behavior, please document this.
@@ -272,9 +269,9 @@ identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
 values for :confval:`language` in ``doc/usage/configuration.rst``.
 
 The Sphinx core messages can also be translated on `Transifex
-<https://www.transifex.com/sphinx-doc/>`_.  There ``tx`` client tool, which is
-provided by the ``transifex_client`` Python package, can be used to pull
-translations in ``.po`` format from Transifex.  To do this, go to
+<https://www.transifex.com/sphinx-doc/sphinx-1/>`_.  There ``tx`` client tool,
+which is provided by the ``transifex_client`` Python package, can be used to
+pull translations in ``.po`` format from Transifex.  To do this, go to
 ``sphinx/locale`` and then run ``tx pull -f -l LANG`` where ``LANG`` is an
 existing language identifier.  It is good practice to run ``python setup.py
 update_catalog`` afterwards to make sure the ``.po`` file has the canonical

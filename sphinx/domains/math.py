@@ -4,7 +4,7 @@
 
     The math domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,8 +12,7 @@ import warnings
 from typing import Any, Dict, Iterable, List, Tuple
 
 from docutils import nodes
-from docutils.nodes import Element, Node, system_message
-from docutils.nodes import make_id
+from docutils.nodes import Element, Node, make_id, system_message
 
 from sphinx.addnodes import pending_xref
 from sphinx.deprecation import RemovedInSphinx40Warning
@@ -158,8 +157,11 @@ class MathDomain(Domain):
         targets = [eq for eq in self.equations.values() if eq[0] == docname]
         return len(targets) + 1
 
-    def has_equations(self) -> bool:
-        return any(self.data['has_equations'].values())
+    def has_equations(self, docname: str = None) -> bool:
+        if docname:
+            return self.data['has_equations'].get(docname, False)
+        else:
+            return any(self.data['has_equations'].values())
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

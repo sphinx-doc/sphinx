@@ -4,14 +4,13 @@
 
     Changelog builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import html
 from os import path
-from typing import Any, Dict, List, Tuple
-from typing import cast
+from typing import Any, Dict, List, Tuple, cast
 
 from sphinx import package_dir
 from sphinx.application import Sphinx
@@ -23,7 +22,6 @@ from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
-
 
 logger = logging.getLogger(__name__)
 

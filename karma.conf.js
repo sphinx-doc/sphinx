@@ -18,6 +18,7 @@ module.exports = function(config) {
       'sphinx/themes/basic/static/underscore.js',
       'sphinx/themes/basic/static/jquery.js',
       'sphinx/themes/basic/static/doctools.js',
+      'sphinx/themes/basic/static/searchtools.js',
       'tests/js/*.js'
     ],
 

@@ -4,7 +4,7 @@
 
     Base class of epub2/epub3 builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,11 +25,10 @@ from sphinx import addnodes
 from sphinx.builders.html import BuildInfo, StandaloneHTMLBuilder
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import status_iterator
+from sphinx.util import logging, status_iterator
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import ensuredir, copyfile
+from sphinx.util.osutil import copyfile, ensuredir
 
 try:
     from PIL import Image
@@ -208,7 +207,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         appeared = set()  # type: Set[str]
         for node in nodes:
             if node['refuri'] in appeared:
-                logger.warning(__('duplicated ToC entry found: %s'), node['refuri'])
+                logger.warning(
+                    __('duplicated ToC entry found: %s'),
+                    node['refuri'],
+                    type="epub",
+                    subtype="duplicated_toc_entry",
+                )
             else:
                 appeared.add(node['refuri'])
 

@@ -5,7 +5,7 @@
     Build epub3 files.
     Originally derived from epub.py.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Set, Tuple
 from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import _epub_base
-from sphinx.config import Config, ENUM
+from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging, xmlname_checker

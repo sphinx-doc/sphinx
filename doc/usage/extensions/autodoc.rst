@@ -168,7 +168,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      ``:meta private:`` in its :ref:`info-field-lists`.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -183,7 +183,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      an underscore.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def _my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -192,6 +192,16 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
             """
 
      .. versionadded:: 3.1
+
+   * autodoc considers a variable member does not have any default value if its
+     docstring contains ``:meta hide-value:`` in its :ref:`info-field-lists`.
+     Example:
+
+     .. code-block:: python
+
+        var1 = None  #: :meta hide-value:
+
+     .. versionadded:: 3.5
 
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
@@ -337,6 +347,15 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
    By default, without ``annotation`` option, Sphinx tries to obtain the value of
    the variable and print it after the name.
 
+   The ``no-value`` option can be used instead of a blank ``annotation`` to show the
+   type hint but not the value::
+
+      .. autodata:: CD_DRIVE
+         :no-value:
+
+   If both the ``annotation`` and ``no-value`` options are used, ``no-value`` has no
+   effect.
+
    For module data members and class attributes, documentation can either be put
    into a comment with special formatting (using a ``#:`` to start the comment
    instead of just ``#``), or in a docstring *after* the definition.  Comments
@@ -376,6 +395,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       option.
    .. versionchanged:: 2.0
       :rst:dir:`autodecorator` added.
+   .. versionchanged:: 3.4
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``no-value``
+      option.
 
    .. note::
 
@@ -553,7 +575,7 @@ There are also config values that you can set:
         ...
 
    If you set ``autodoc_type_aliases`` as
-   ``{'AliasType': 'your.module.TypeAlias'}``, it generates a following document
+   ``{'AliasType': 'your.module.AliasType'}``, it generates the following document
    internally::
 
      .. py:function:: f() -> your.module.AliasType:

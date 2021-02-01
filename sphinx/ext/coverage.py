@@ -5,7 +5,7 @@
     Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,7 +15,7 @@ import pickle
 import re
 from importlib import import_module
 from os import path
-from typing import Any, Dict, IO, List, Pattern, Set, Tuple
+from typing import IO, Any, Dict, List, Pattern, Set, Tuple
 
 import sphinx
 from sphinx.application import Sphinx

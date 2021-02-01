@@ -4,7 +4,6 @@ import re
 
 import sphinx
 
-
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
               'sphinx.ext.intersphinx',
@@ -15,7 +14,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2020, Georg Brandl and the Sphinx team'
+copyright = '2007-2021, Georg Brandl and the Sphinx team'
 version = sphinx.__display_version__
 release = version
 show_authors = True
@@ -28,6 +27,7 @@ html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 html_additional_pages = {'index': 'index.html'}
 html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
 html_baseurl = 'https://www.sphinx-doc.org/en/master/'
+html_favicon = '_static/favicon.svg'
 
 htmlhelp_basename = 'Sphinxdoc'
 
@@ -69,8 +69,15 @@ latex_elements = {
 \substitutefont{X2}{\sfdefault}{cmss}
 \substitutefont{X2}{\ttdefault}{cmtt}
 ''',
-    'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
-    'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',
+    'passoptionstopackages': r'''
+\PassOptionsToPackage{svgnames}{xcolor}
+\PassOptionsToPackage{bookmarksdepth=3}{hyperref}% depth of pdf bookmarks
+''',
+    'preamble': r'''
+\DeclareUnicodeCharacter{229E}{\ensuremath{\boxplus}}
+\setcounter{tocdepth}{3}%    depth of what is kept from toc file
+\setcounter{secnumdepth}{1}% depth of section numbering
+''',
     'fvset': '\\fvset{fontsize=auto}',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
@@ -110,7 +117,10 @@ texinfo_documents = [
      1),
 ]
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'requests': ('https://requests.readthedocs.io/en/master', None),
+}
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
 locale_dirs = ['locale/']

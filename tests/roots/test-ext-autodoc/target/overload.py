@@ -2,21 +2,21 @@ from typing import Any, overload
 
 
 @overload
-def sum(x: int, y: int) -> int:
+def sum(x: int, y: int = 0) -> int:
     ...
 
 
 @overload
-def sum(x: "float", y: "float") -> "float":
+def sum(x: "float", y: "float" = 0.0) -> "float":
     ...
 
 
 @overload
-def sum(x: str, y: str) -> str:
+def sum(x: str, y: str = ...) -> str:
     ...
 
 
-def sum(x, y):
+def sum(x, y=None):
     """docstring"""
     return x + y
 
@@ -25,18 +25,18 @@ class Math:
     """docstring"""
 
     @overload
-    def sum(self, x: int, y: int) -> int:
+    def sum(self, x: int, y: int = 0) -> int:
         ...
 
     @overload
-    def sum(self, x: "float", y: "float") -> "float":
+    def sum(self, x: "float", y: "float" = 0.0) -> "float":
         ...
 
     @overload
-    def sum(self, x: str, y: str) -> str:
+    def sum(self, x: str, y: str = ...) -> str:
         ...
 
-    def sum(self, x, y):
+    def sum(self, x, y=None):
         """docstring"""
         return x + y
 

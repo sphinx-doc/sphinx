@@ -5,7 +5,6 @@ import os
 import mod_resource
 import mod_something
 
-
 if __name__ == "__main__":
     print("Hello, world! -> something returns: {}".format(mod_something.something()))
 

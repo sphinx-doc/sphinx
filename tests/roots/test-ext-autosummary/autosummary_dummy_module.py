@@ -1,7 +1,6 @@
 from os import path  # NOQA
 from typing import Union
 
-
 #: module variable
 CONSTANT1 = None
 CONSTANT2 = None

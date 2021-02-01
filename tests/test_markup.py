@@ -4,28 +4,26 @@
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
 import pytest
-from docutils import frontend, utils, nodes
+from docutils import frontend, nodes, utils
 from docutils.parsers.rst import Parser as RstParser
 
 from sphinx import addnodes
 from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.builders.latex.theming import ThemeFactory
 from sphinx.roles import XRefRole
 from sphinx.testing.util import Struct, assert_node
 from sphinx.transforms import SphinxSmartQuotes
-from sphinx.util import docutils
-from sphinx.util import texescape
+from sphinx.util import docutils, texescape
 from sphinx.util.docutils import sphinx_domains
-from sphinx.writers.html import HTMLWriter, HTMLTranslator
-from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+from sphinx.writers.html import HTMLTranslator, HTMLWriter
+from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 
 @pytest.fixture
@@ -160,7 +158,8 @@ def get_verifier(verify, verify_re):
         ':pep:`8`',
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
          'href="http://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a></p>'),
-        ('\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+        ('\\sphinxAtStartPar\n'
+         '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
          '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{http://www.python.org/dev/peps/pep-0008}'
          '{\\sphinxstylestrong{PEP 8}}')
     ),
@@ -171,7 +170,8 @@ def get_verifier(verify, verify_re):
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
          'href="http://www.python.org/dev/peps/pep-0008#id1">'
          '<strong>PEP 8#id1</strong></a></p>'),
-        ('\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+        ('\\sphinxAtStartPar\n'
+         '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
          '!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
          '{http://www.python.org/dev/peps/pep-0008\\#id1}'
          '{\\sphinxstylestrong{PEP 8\\#id1}}')
@@ -182,7 +182,8 @@ def get_verifier(verify, verify_re):
         ':rfc:`2324`',
         ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
          'href="http://tools.ietf.org/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'),
-        ('\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
+        ('\\sphinxAtStartPar\n'
+         '\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
          '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html}'
          '{\\sphinxstylestrong{RFC 2324}}')
     ),
@@ -193,7 +194,8 @@ def get_verifier(verify, verify_re):
         ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
          'href="http://tools.ietf.org/html/rfc2324.html#id1">'
          '<strong>RFC 2324#id1</strong></a></p>'),
-        ('\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
+        ('\\sphinxAtStartPar\n'
+         '\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
          '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html\\#id1}'
          '{\\sphinxstylestrong{RFC 2324\\#id1}}')
     ),
@@ -203,14 +205,14 @@ def get_verifier(verify, verify_re):
         '``code   sample``',
         ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
+        r'\\sphinxAtStartPar\n\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
     (
         # interpolation of arrows in menuselection
         'verify',
         ':menuselection:`a --> b`',
         ('<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>'),
-        '\\sphinxmenuselection{a \\(\\rightarrow\\) b}',
+        '\\sphinxAtStartPar\n\\sphinxmenuselection{a \\(\\rightarrow\\) b}',
     ),
     (
         # interpolation of ampersands in menuselection
@@ -218,7 +220,9 @@ def get_verifier(verify, verify_re):
         ':menuselection:`&Foo -&&- &Bar`',
         ('<p><span class="menuselection"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
-        r'\sphinxmenuselection{\sphinxaccelerator{F}oo \sphinxhyphen{}\&\sphinxhyphen{} \sphinxaccelerator{B}ar}',
+        ('\\sphinxAtStartPar\n'
+         r'\sphinxmenuselection{\sphinxaccelerator{F}oo \sphinxhyphen{}'
+         r'\&\sphinxhyphen{} \sphinxaccelerator{B}ar}'),
     ),
     (
         # interpolation of ampersands in guilabel
@@ -226,38 +230,51 @@ def get_verifier(verify, verify_re):
         ':guilabel:`&Foo -&&- &Bar`',
         ('<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
-        r'\sphinxguilabel{\sphinxaccelerator{F}oo \sphinxhyphen{}\&\sphinxhyphen{} \sphinxaccelerator{B}ar}',
+        ('\\sphinxAtStartPar\n'
+         r'\sphinxguilabel{\sphinxaccelerator{F}oo \sphinxhyphen{}\&\sphinxhyphen{} \sphinxaccelerator{B}ar}'),
     ),
     (
         # no ampersands in guilabel
         'verify',
         ':guilabel:`Foo`',
         '<p><span class="guilabel">Foo</span></p>',
-        r'\sphinxguilabel{Foo}',
+        '\\sphinxAtStartPar\n\\sphinxguilabel{Foo}',
     ),
     (
         # kbd role
         'verify',
         ':kbd:`space`',
         '<p><kbd class="kbd docutils literal notranslate">space</kbd></p>',
-        '\\sphinxkeyboard{\\sphinxupquote{space}}',
+        '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{space}}',
     ),
     (
         # kbd role
         'verify',
         ':kbd:`Control+X`',
-        ('<p><kbd class="kbd docutils literal notranslate">'
+        ('<p><kbd class="kbd compound docutils literal notranslate">'
          '<kbd class="kbd docutils literal notranslate">Control</kbd>'
          '+'
          '<kbd class="kbd docutils literal notranslate">X</kbd>'
          '</kbd></p>'),
-        '\\sphinxkeyboard{\\sphinxupquote{Control+X}}',
+        '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{Control+X}}',
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`Alt+^`',
+        ('<p><kbd class="kbd compound docutils literal notranslate">'
+         '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
+         '+'
+         '<kbd class="kbd docutils literal notranslate">^</kbd>'
+         '</kbd></p>'),
+        ('\\sphinxAtStartPar\n'
+         '\\sphinxkeyboard{\\sphinxupquote{Alt+\\textasciicircum{}}}'),
     ),
     (
         # kbd role
         'verify',
         ':kbd:`M-x  M-s`',
-        ('<p><kbd class="kbd docutils literal notranslate">'
+        ('<p><kbd class="kbd compound docutils literal notranslate">'
          '<kbd class="kbd docutils literal notranslate">M</kbd>'
          '-'
          '<kbd class="kbd docutils literal notranslate">x</kbd>'
@@ -266,7 +283,24 @@ def get_verifier(verify, verify_re):
          '-'
          '<kbd class="kbd docutils literal notranslate">s</kbd>'
          '</kbd></p>'),
-        '\\sphinxkeyboard{\\sphinxupquote{M\\sphinxhyphen{}x  M\\sphinxhyphen{}s}}',
+        ('\\sphinxAtStartPar\n'
+         '\\sphinxkeyboard{\\sphinxupquote{M\\sphinxhyphen{}x  M\\sphinxhyphen{}s}}'),
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`-`',
+        '<p><kbd class="kbd docutils literal notranslate">-</kbd></p>',
+        ('\\sphinxAtStartPar\n'
+         '\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}'),
+    ),
+    (
+        # kbd role
+        'verify',
+        ':kbd:`Caps Lock`',
+        '<p><kbd class="kbd docutils literal notranslate">Caps Lock</kbd></p>',
+        ('\\sphinxAtStartPar\n'
+         '\\sphinxkeyboard{\\sphinxupquote{Caps Lock}}'),
     ),
     (
         # non-interpolation of dashes in option role
@@ -274,14 +308,15 @@ def get_verifier(verify, verify_re):
         ':option:`--with-option`',
         ('<p><code( class="xref std std-option docutils literal notranslate")?>'
          '<span class="pre">--with-option</span></code></p>$'),
-        r'\\sphinxcode{\\sphinxupquote{\\sphinxhyphen{}\\sphinxhyphen{}with\\sphinxhyphen{}option}}$',
+        (r'\\sphinxAtStartPar\n'
+         r'\\sphinxcode{\\sphinxupquote{\\sphinxhyphen{}\\sphinxhyphen{}with\\sphinxhyphen{}option}}$'),
     ),
     (
         # verify smarty-pants quotes
         'verify',
         '"John"',
         '<p>“John”</p>',
-        "“John”",
+        "\\sphinxAtStartPar\n“John”",
     ),
     (
         # ... but not in literal text
@@ -289,21 +324,21 @@ def get_verifier(verify, verify_re):
         '``"John"``',
         ('<p><code class="docutils literal notranslate"><span class="pre">'
          '&quot;John&quot;</span></code></p>'),
-        '\\sphinxcode{\\sphinxupquote{"John"}}',
+        '\\sphinxAtStartPar\n\\sphinxcode{\\sphinxupquote{"John"}}',
     ),
     (
         # verify classes for inline roles
         'verify',
         ':manpage:`mp(1)`',
         '<p><em class="manpage">mp(1)</em></p>',
-        '\\sphinxstyleliteralemphasis{\\sphinxupquote{mp(1)}}',
+        '\\sphinxAtStartPar\n\\sphinxstyleliteralemphasis{\\sphinxupquote{mp(1)}}',
     ),
     (
         # correct escaping in normal mode
         'verify',
         'Γ\\\\∞$',
         None,
-        'Γ\\textbackslash{}\\(\\infty\\)\\$',
+        '\\sphinxAtStartPar\nΓ\\textbackslash{}\\(\\infty\\)\\$',
     ),
     (
         # in verbatim code fragments
@@ -319,7 +354,7 @@ def get_verifier(verify, verify_re):
         'verify_re',
         '`test <https://www.google.com/~me/>`_',
         None,
-        r'\\sphinxhref{https://www.google.com/~me/}{test}.*',
+        r'\\sphinxAtStartPar\n\\sphinxhref{https://www.google.com/~me/}{test}.*',
     ),
     (
         # description list: simple
@@ -340,8 +375,12 @@ def get_verifier(verify, verify_re):
         # glossary (description list): multiple terms
         'verify',
         '.. glossary::\n\n   term1\n   term2\n       description',
-        ('<dl class="glossary docutils">\n<dt id="term-term1">term1</dt>'
-         '<dt id="term-term2">term2</dt><dd>description</dd>\n</dl>'),
+        ('<dl class="glossary docutils">\n'
+         '<dt id="term-term1">term1<a class="headerlink" href="#term-term1"'
+         ' title="Permalink to this term">¶</a></dt>'
+         '<dt id="term-term2">term2<a class="headerlink" href="#term-term2"'
+         ' title="Permalink to this term">¶</a></dt>'
+         '<dd>description</dd>\n</dl>'),
         None,
     ),
 ])

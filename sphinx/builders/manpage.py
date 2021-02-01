@@ -4,7 +4,7 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,13 +20,11 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import NoUri
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import progress_message
+from sphinx.util import logging, progress_message
 from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project
-from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
-
+from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
 
 logger = logging.getLogger(__name__)
 

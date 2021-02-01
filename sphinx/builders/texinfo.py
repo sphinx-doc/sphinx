@@ -4,7 +4,7 @@
 
     Texinfo builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,23 +16,20 @@ from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 
-from sphinx import addnodes
-from sphinx import package_dir
+from sphinx import addnodes, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
-from sphinx.util import logging
-from sphinx.util import progress_message, status_iterator
+from sphinx.util import logging, progress_message, status_iterator
 from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, ensuredir, make_filename_from_project
-from sphinx.writers.texinfo import TexinfoWriter, TexinfoTranslator
-
+from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')
@@ -182,7 +179,8 @@ class TexinfoBuilder(Builder):
                 try:
                     imagedir = path.join(self.outdir, targetname + '-figures')
                     ensuredir(imagedir)
-                    copy_asset_file(path.join(self.srcdir, dest), imagedir)
+                    copy_asset_file(path.join(self.srcdir, src),
+                                    path.join(imagedir, dest))
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)

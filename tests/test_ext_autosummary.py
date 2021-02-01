@@ -4,7 +4,7 @@
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,13 +16,11 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.ext.autosummary import (
-    autosummary_table, autosummary_toc, mangle_signature, import_by_name, extract_summary
-)
-from sphinx.ext.autosummary.generate import (
-    AutosummaryEntry, generate_autosummary_content, generate_autosummary_docs,
-    main as autogen_main
-)
+from sphinx.ext.autosummary import (autosummary_table, autosummary_toc, extract_summary,
+                                    import_by_name, mangle_signature)
+from sphinx.ext.autosummary.generate import (AutosummaryEntry, generate_autosummary_content,
+                                             generate_autosummary_docs)
+from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
 from sphinx.util.osutil import cd
@@ -97,6 +95,9 @@ def test_extract_summary(capsys):
 
     # abbreviations
     doc = ['Blabla, i.e. bla.']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
+    doc = ['Blabla, et al. bla.']
     assert extract_summary(doc, document) == ' '.join(doc)
 
     # literal
@@ -377,7 +378,10 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
+@pytest.mark.usefixtures("rollback_sysmodules")
 def test_autosummary_recursive(app, status, warning):
+    sys.modules.pop('package', None)  # unload target module to clear the module cache
+
     app.build()
 
     # autosummary having :recursive: option
@@ -399,6 +403,20 @@ def test_autosummary_recursive(app, status, warning):
 
     content = (app.srcdir / 'generated' / 'package.package.rst').read_text()
     assert 'package.package.module' in content
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
+                    srcdir='test_autosummary_recursive_skips_mocked_modules',
+                    confoverrides={'autosummary_mock_imports': ['package.package']})
+@pytest.mark.usefixtures("rollback_sysmodules")
+def test_autosummary_recursive_skips_mocked_modules(app, status, warning):
+    sys.modules.pop('package', None)  # unload target module to clear the module cache
+    app.build()
+
+    assert (app.srcdir / 'generated' / 'package.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.module.rst').exists()
+    assert (app.srcdir / 'generated' / 'package.package.rst').exists() is False
+    assert (app.srcdir / 'generated' / 'package.package.module.rst').exists() is False
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-filename-map')

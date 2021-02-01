@@ -4,14 +4,13 @@
 
     Generating content for autodoc using typehints
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 from collections import OrderedDict
-from typing import Any, Dict, Iterable
-from typing import cast
+from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -28,7 +27,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
         if callable(obj):
             annotations = app.env.temp_data.setdefault('annotations', {})
             annotation = annotations.setdefault(name, OrderedDict())
-            sig = inspect.signature(obj)
+            sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
                     annotation[param.name] = typing.stringify(param.annotation)

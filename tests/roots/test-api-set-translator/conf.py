@@ -11,7 +11,6 @@ from sphinx.writers.manpage import ManualPageTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
 from sphinx.writers.text import TextTranslator
 
-
 project = 'test'
 
 

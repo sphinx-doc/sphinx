@@ -203,7 +203,8 @@ Type Annotations
 This is an alternative to expressing types directly in docstrings.
 One benefit of expressing types according to `PEP 484`_ is that
 type checkers and IDEs can take advantage of them for static code
-analysis.
+analysis. `PEP 484`_ was then extended by `PEP 526`_ which introduced
+a similar way to annotate variables (and attributes).
 
 Google style with Python 3 type annotations::
 
@@ -221,6 +222,19 @@ Google style with Python 3 type annotations::
 
         """
         return True
+    
+    class Class:
+        """Summary line.
+
+        Extended description of class
+
+        Attributes:
+            attr1: Description of attr1
+            attr2: Description of attr2
+        """
+
+        attr1: int
+        attr2: str
 
 Google style with types in docstrings::
 
@@ -238,6 +252,16 @@ Google style with types in docstrings::
 
         """
         return True
+    
+    class Class:
+        """Summary line.
+
+        Extended description of class
+
+        Attributes:
+            attr1 (int): Description of attr1
+            attr2 (str): Description of attr2
+        """
 
 .. Note::
    `Python 2/3 compatible annotations`_ aren't currently
@@ -245,6 +269,9 @@ Google style with types in docstrings::
 
 .. _PEP 484:
    https://www.python.org/dev/peps/pep-0484/
+
+.. _PEP 526:
+    https://www.python.org/dev/peps/pep-0526/
 
 .. _Python 2/3 compatible annotations:
    https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
@@ -275,6 +302,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
     napoleon_use_param = True
     napoleon_use_rtype = True
     napoleon_type_aliases = None
+    napoleon_attr_annotations = True
 
 .. _Google style:
    https://google.github.io/styleguide/pyguide.html
@@ -511,3 +539,35 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
        :type arg2: :term:`dict-like <mapping>`
 
    .. versionadded:: 3.2
+
+.. confval:: napoleon_attr_annotations
+
+   True to allow using `PEP 526`_ attributes annotations in classes.
+   If an attribute is documented in the docstring without a type and
+   has an annotation in the class body, that type is used.
+
+   .. versionadded:: 3.4
+
+.. confval:: napoleon_custom_sections
+
+   Add a list of custom sections to include, expanding the list of parsed sections.
+   *Defaults to None.*
+
+   The entries can either be strings or tuples, depending on the intention:
+
+   * To create a custom "generic" section, just pass a string.
+   * To create an alias for an existing section, pass a tuple containing the
+     alias name and the original, in that order.
+   * To create a custom section that displays like the parameters or returns
+     section, pass a tuple containing the custom section name and a string
+     value, "params_style" or "returns_style".
+
+   If an entry is just a string, it is interpreted as a header for a generic
+   section. If the entry is a tuple/list/indexed container, the first entry
+   is the name of the section, the second is the section key to emulate. If the
+   second entry value is "params_style" or "returns_style", the custom section
+   will be displayed like the parameters section or returns section.
+
+   .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+      Support ``params_style`` and ``returns_style``

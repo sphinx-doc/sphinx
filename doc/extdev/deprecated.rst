@@ -12,19 +12,141 @@ The following is a list of deprecated interfaces.
 
 .. tabularcolumns:: |>{\raggedright}\Y{.4}|>{\centering}\Y{.1}|>{\centering}\Y{.12}|>{\raggedright\arraybackslash}\Y{.38}|
 
-.. |LaTeXHyphenate| raw:: latex
-
-                    \hspace{0pt}
-
 .. list-table:: deprecated APIs
    :header-rows: 1
    :class: deprecated
    :widths: 40, 10, 10, 40
 
    * - Target
-     - |LaTeXHyphenate|\ Deprecated
+     - Deprecated
      - (will be) Removed
      - Alternatives
+
+   * - pending_xref node for viewcode extension
+     - 3.5
+     - 5.0
+     - ``sphinx.ext.viewcode.viewcode_anchor``
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.node_line_or_0()``
+     - 3.5
+     - 5.0
+     - ``sphinx.util.nodes.get_node_line()``
+
+   * - ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.importer.get_module_members()``
+     - 3.5
+     - 5.0
+     - ``sphinx.ext.autodoc.ModuleDocumenter.get_module_members()``
+
+   * - ``sphinx.ext.autosummary.generate._simple_info()``
+     - 3.5
+     - 5.0
+     - :ref:`logging-api`
+
+   * - ``sphinx.ext.autosummary.generate._simple_warn()``
+     - 3.5
+     - 5.0
+     - :ref:`logging-api`
+
+   * - ``sphinx.writers.html.HTMLTranslator.permalink_text``
+     - 3.5
+     - 5.0
+     - :confval:`html_permalinks_icon`
+
+   * - ``sphinx.writers.html5.HTML5Translator.permalink_text``
+     - 3.5
+     - 5.0
+     - :confval:`html_permalinks_icon`
+
+   * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+     - 3.4
+     - 5.0
+     - N/A
+
+   * - The ``no_docstring`` argument of
+       ``sphinx.ext.autodoc.Documenter.add_content()``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.Documenter.get_doc()``
+
+   * - ``sphinx.ext.autodoc.Documenter.get_object_members()``
+     - 3.4
+     - 6.0
+     - ``sphinx.ext.autodoc.ClassDocumenter.get_object_members()``
+
+   * - ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.DataDocumenter``
+
+   * - ``sphinx.ext.autodoc.GenericAliasDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.DataDocumenter``
+
+   * - ``sphinx.ext.autodoc.InstanceAttributeDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.AttributeDocumenter``
+
+   * - ``sphinx.ext.autodoc.SlotsAttributeDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.AttributeDocumenter``
+
+   * - ``sphinx.ext.autodoc.TypeVarDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.DataDocumenter``
+
+   * - ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
+     - 3.5
+     - 5.0
+     - ``sphinx.util.logging``
+
+   * - ``sphinx.ext.autodoc.importer._getannotations()``
+     - 3.4
+     - 4.0
+     - ``sphinx.util.inspect.getannotations()``
+
+   * - ``sphinx.ext.autodoc.importer._getmro()``
+     - 3.4
+     - 4.0
+     - ``sphinx.util.inspect.getmro()``
+
+   * - ``sphinx.pycode.ModuleAnalyzer.parse()``
+     - 3.4
+     - 5.0
+     - ``sphinx.pycode.ModuleAnalyzer.analyze()``
+
+   * - ``sphinx.util.osutil.movefile()``
+     - 3.4
+     - 5.0
+     - ``os.replace()``
+
+   * - ``sphinx.util.requests.is_ssl_error()``
+     - 3.4
+     - 5.0
+     - N/A
 
    * - ``sphinx.builders.latex.LaTeXBuilder.usepackages``
      - 3.3

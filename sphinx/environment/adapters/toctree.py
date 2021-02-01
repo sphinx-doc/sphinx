@@ -4,19 +4,18 @@
 
     Toctree adapter for sphinx.environment.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Iterable, List
-from typing import cast
+from typing import Any, Iterable, List, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes
 from sphinx.locale import __
-from sphinx.util import url_re, logging
+from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
 from sphinx.util.nodes import clean_astext, process_only_nodes
 
@@ -321,8 +320,10 @@ class TocTree:
         toctrees = []  # type: List[Element]
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = True
-        if 'maxdepth' not in kwargs:
+        if 'maxdepth' not in kwargs or not kwargs['maxdepth']:
             kwargs['maxdepth'] = 0
+        else:
+            kwargs['maxdepth'] = int(kwargs['maxdepth'])
         kwargs['collapse'] = collapse
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve(docname, builder, toctreenode, prune=True, **kwargs)

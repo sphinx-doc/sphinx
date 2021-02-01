@@ -4,12 +4,11 @@
 
     consntants for LaTeX builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from typing import Any, Dict
-
 
 PDFLATEX_DEFAULT_FONTPKG = r'''
 \usepackage{times}

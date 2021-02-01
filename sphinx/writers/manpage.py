@@ -4,30 +4,26 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
-from typing import Any, Dict, Iterable
-from typing import cast
+from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
-from docutils.writers.manpage import (
-    Writer,
-    Translator as BaseTranslator
-)
+from docutils.writers.manpage import Translator as BaseTranslator
+from docutils.writers.manpage import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import _, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher
-
 
 logger = logging.getLogger(__name__)
 
@@ -300,8 +296,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if uri.startswith('mailto:') or uri.startswith('http:') or \
            uri.startswith('https:') or uri.startswith('ftp:'):
             # if configured, put the URL after the link
-            if self.builder.config.man_show_urls and \
-               node.astext() != uri:
+            if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):
                     uri = uri[7:]
                 self.body.extend([

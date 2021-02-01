@@ -4,7 +4,7 @@
 
     Swedish search language: includes the JS Swedish stemmer.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,7 +13,6 @@ from typing import Dict
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
-
 
 swedish_stopwords = parse_stop_word('''
 | source: http://snowball.tartarus.org/algorithms/swedish/stop.txt

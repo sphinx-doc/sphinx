@@ -2,11 +2,12 @@
     sphinx.directives.code
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
+import textwrap
 import warnings
 from difflib import unified_diff
 from typing import Any, Dict, List, Tuple
@@ -19,9 +20,9 @@ from docutils.statemachine import StringList
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.directives import optional_int
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import parselinenos
+from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
 
 if False:
@@ -69,7 +70,7 @@ class HighlightLang(Highlight):
 
 def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None) -> List[str]:
     if not dedent:
-        return lines
+        return textwrap.dedent(''.join(lines)).splitlines(True)
 
     if any(s[:dedent].strip() for s in lines):
         logger.warning(__('non-whitespace stripped by dedent'), location=location)
@@ -118,7 +119,7 @@ class CodeBlock(SphinxDirective):
     option_spec = {
         'force': directives.flag,
         'linenos': directives.flag,
-        'dedent': int,
+        'dedent': optional_int,
         'lineno-start': int,
         'emphasize-lines': directives.unchanged_required,
         'caption': directives.unchanged_required,
@@ -392,7 +393,7 @@ class LiteralInclude(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {
-        'dedent': int,
+        'dedent': optional_int,
         'linenos': directives.flag,
         'lineno-start': int,
         'lineno-match': directives.flag,

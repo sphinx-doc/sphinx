@@ -5,7 +5,7 @@
     Tests for :mod:`sphinx.ext.napoleon.__init__` module.
 
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,8 +14,8 @@ from collections import namedtuple
 from unittest import TestCase, mock
 
 from sphinx.application import Sphinx
+from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
 from sphinx.testing.util import simple_decorator
-from sphinx.ext.napoleon import _process_docstring, _skip_member, Config, setup
 
 
 def _private_doc():

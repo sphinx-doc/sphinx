@@ -5,13 +5,12 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
-from typing import Any, Dict, List, Tuple, Union
-from typing import cast
+from typing import Any, Dict, List, Tuple, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -23,8 +22,9 @@ from sphinx.util.typing import TextlikeNode
 if False:
     # For type annotation
     from typing import Type  # for python3.5.1
-    from sphinx.environment import BuildEnvironment
+
     from sphinx.directive import ObjectDescription
+    from sphinx.environment import BuildEnvironment
 
 
 def _is_single_paragraph(node: nodes.field_body) -> bool:
@@ -295,6 +295,7 @@ class DocFieldTransformer:
                         self.directive.domain,
                         target,
                         contnode=content[0],
+                        env=self.directive.state.document.settings.env
                     )
                     if _is_single_paragraph(field_body):
                         paragraph = cast(nodes.paragraph, field_body[0])

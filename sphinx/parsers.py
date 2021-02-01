@@ -4,7 +4,7 @@
 
     A Base class for additional parsers.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,8 +23,10 @@ from sphinx.util.rst import append_epilog, prepend_prolog
 
 if False:
     # For type annotation
-    from docutils.transforms import Transform  # NOQA
     from typing import Type  # NOQA # for python3.5.1
+
+    from docutils.transforms import Transform  # NOQA
+
     from sphinx.application import Sphinx
 
 

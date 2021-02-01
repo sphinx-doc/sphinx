@@ -4,13 +4,12 @@
 
     The reStructuredText domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from typing import Any, Dict, Iterator, List, Tuple
-from typing import cast
+from typing import Any, Dict, Iterator, List, Tuple, cast
 
 from docutils.nodes import Element
 from docutils.parsers.rst import directives
@@ -27,13 +26,12 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_id, make_refnode
 
-
 logger = logging.getLogger(__name__)
 
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
 
-class ReSTMarkup(ObjectDescription):
+class ReSTMarkup(ObjectDescription[str]):
     """
     Description of generic reST markup.
     """

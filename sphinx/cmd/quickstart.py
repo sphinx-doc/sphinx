@@ -4,7 +4,7 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -29,6 +29,7 @@ try:
         readline.parse_and_bind("tab: complete")
         USE_LIBEDIT = False
 except ImportError:
+    readline = None
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
@@ -37,9 +38,8 @@ import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util.console import (  # type: ignore
-    colorize, bold, red, turquoise, nocolor, color_terminal
-)
+from sphinx.util.console import (bold, color_terminal, colorize, nocolor, red,  # type: ignore
+                                 turquoise)
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
@@ -170,8 +170,11 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
             # sequence (see #5335).  To avoid the problem, all prompts are not colored
             # on libedit.
             pass
-        else:
+        elif readline:
+            # pass input_mode=True if readline available
             prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
+        else:
+            prompt = colorize(COLOR_QUESTION, prompt, input_mode=False)
         x = term_input(prompt).strip()
         if default and not x:
             x = default
@@ -489,8 +492,10 @@ def get_parser() -> argparse.ArgumentParser:
                         help=__('project root'))
 
     group = parser.add_argument_group(__('Structure options'))
-    group.add_argument('--sep', action='store_true', default=None,
+    group.add_argument('--sep', action='store_true', dest='sep', default=None,
                        help=__('if specified, separate source and build dirs'))
+    group.add_argument('--no-sep', action='store_false', dest='sep',
+                       help=__('if specified, create build dir under source dir'))
     group.add_argument('--dot', metavar='DOT', default='_',
                        help=__('replacement for dot in _templates etc.'))
 

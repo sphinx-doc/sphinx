@@ -4,7 +4,7 @@
 
     Test the build process with LaTeX builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,19 +13,19 @@ import re
 import subprocess
 from itertools import product
 from shutil import copyfile
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 
 import pytest
-from test_build_html import ENV_WARNINGS
 
 from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
-from sphinx.errors import SphinxError, ThemeError
+from sphinx.errors import SphinxError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
+from .test_build_html import ENV_WARNINGS
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']
@@ -730,13 +730,14 @@ def test_footnote(app, status, warning):
             '\\end{footnote}') in result
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
     assert '\\sphinxcite{footnote:bar}' in result
-    assert ('\\bibitem[bar]{footnote:bar}\ncite\n') in result
+    assert ('\\bibitem[bar]{footnote:bar}\n\\sphinxAtStartPar\ncite\n') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
     assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
-            'footnote in table header\n%\n\\end{footnotetext}\\ignorespaces \n'
-            'VIDIOC\\_CROPCAP\n&\n') in result
+            'footnote in table header\n%\n\\end{footnotetext}\\ignorespaces '
+            '\n\\sphinxAtStartPar\n'
+            'VIDIOC\\_CROPCAP\n&\n\\sphinxAtStartPar\n') in result
     assert ('Information about VIDIOC\\_CROPCAP %\n'
             '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
             'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\\hline\n'
@@ -764,7 +765,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert ('\\caption{This is the figure caption with a footnote to '
             '\\sphinxfootnotemark[7].}\\label{\\detokenize{index:id29}}\\end{figure}\n'
             '%\n\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
-            'Footnote in caption\n%\n\\end{footnotetext}')in result
+            'Footnote in caption\n%\n\\end{footnotetext}') in result
     assert ('\\sphinxcaption{footnote \\sphinxfootnotemark[8] in '
             'caption of normal table}\\label{\\detokenize{index:id30}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[9] '
@@ -776,7 +777,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert ('This is a reference to the code\\sphinxhyphen{}block in the footnote:\n'
             '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}') in result
-    assert ('&\nThis is one more footnote with some code in it %\n'
+    assert ('&\n\\sphinxAtStartPar\nThis is one more footnote with some code in it %\n'
             '\\begin{footnote}[11]\\sphinxAtStartFootnote\n'
             'Third footnote in longtable\n') in result
     assert ('\\end{sphinxVerbatim}\n%\n\\end{footnote}.\n') in result
@@ -816,13 +817,15 @@ def test_latex_show_urls_is_inline(app, status, warning):
     assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde} '
             '(http://sphinx\\sphinxhyphen{}doc.org/\\textasciitilde{}test/)') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
-            '(http://sphinx\\sphinxhyphen{}doc.org/)}] \\leavevmode\nDescription' in result)
+            '(http://sphinx\\sphinxhyphen{}doc.org/)}] '
+            '\\leavevmode\n\\sphinxAtStartPar\nDescription' in result)
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[6]}] '
             '\\leavevmode%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
-            'Description') in result
+            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
+            '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist} '
-            '(http://sphinx\\sphinxhyphen{}doc.org/)}] \\leavevmode\nDescription') in result
+            '(http://sphinx\\sphinxhyphen{}doc.org/)}] '
+            '\\leavevmode\n\\sphinxAtStartPar\nDescription') in result
     assert '\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}') in result
@@ -867,16 +870,16 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '{URL in term}\\sphinxfootnotemark[9]}] '
             '\\leavevmode%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
-            '\\end{footnotetext}\\ignorespaces \nDescription') in result
+            '\\end{footnotetext}\\ignorespaces \n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[11]}] '
             '\\leavevmode%\n\\begin{footnotetext}[11]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
-            'Description') in result
+            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
+            '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}'
             '\\sphinxfootnotemark[10]}] '
             '\\leavevmode%\n\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
-            '\\end{footnotetext}\\ignorespaces \nDescription') in result
+            '\\end{footnotetext}\\ignorespaces \n\\sphinxAtStartPar\nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}\n') in result
@@ -913,13 +916,13 @@ def test_latex_show_urls_is_no(app, status, warning):
             'Footnote inside footnote\n%\n\\end{footnotetext}\\ignorespaces') in result
     assert '\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}' in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term}}] '
-            '\\leavevmode\nDescription') in result
+            '\\leavevmode\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[6]}] '
             '\\leavevmode%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
-            'Description') in result
+            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
+            '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}}] '
-            '\\leavevmode\nDescription') in result
+            '\\leavevmode\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}\n') in result
@@ -1354,7 +1357,7 @@ def test_latex_index(app, status, warning):
             '\\index{equation@\\spxentry{equation}}equation:\n' in result)
     assert ('\n\\index{Einstein@\\spxentry{Einstein}}'
             '\\index{relativity@\\spxentry{relativity}}'
-            '\\ignorespaces \nand') in result
+            '\\ignorespaces \n\\sphinxAtStartPar\nand') in result
     assert ('\n\\index{main \\sphinxleftcurlybrace{}@\\spxentry{'
             'main \\sphinxleftcurlybrace{}}}\\ignorespaces ' in result)
 
@@ -1403,7 +1406,7 @@ def test_latex_thebibliography(app, status, warning):
     result = (app.outdir / 'python.tex').read_text()
     print(result)
     assert ('\\begin{sphinxthebibliography}{AuthorYe}\n'
-            '\\bibitem[AuthorYear]{index:authoryear}\n'
+            '\\bibitem[AuthorYear]{index:authoryear}\n\\sphinxAtStartPar\n'
             'Author, Title, Year\n'
             '\\end{sphinxthebibliography}\n' in result)
     assert '\\sphinxcite{index:authoryear}' in result
@@ -1447,7 +1450,8 @@ def test_latex_labels(app, status, warning):
             r'\end{figure}' in result)
     assert (r'\caption{labeled figure}'
             '\\label{\\detokenize{index:figure3}}\n'
-            '\\begin{sphinxlegend}\nwith a legend\n\\end{sphinxlegend}\n'
+            '\\begin{sphinxlegend}\n\\sphinxAtStartPar\n'
+            'with a legend\n\\end{sphinxlegend}\n'
             r'\end{figure}' in result)
 
     # code-blocks

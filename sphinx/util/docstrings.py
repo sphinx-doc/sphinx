@@ -4,7 +4,7 @@
 
     Utilities for docstring processing.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,7 +16,6 @@ from typing import Dict, List
 from docutils.parsers.rst.states import Body
 
 from sphinx.deprecation import RemovedInSphinx50Warning
-
 
 field_list_item_re = re.compile(Body.patterns['field_marker'])
 

@@ -73,6 +73,12 @@ Project information
 
    A copyright statement in the style ``'2008, Author Name'``.
 
+.. confval:: project_copyright
+
+   An alias of :confval:`copyright`.
+
+   .. versionadded:: 3.5
+
 .. confval:: version
 
    The major project version, used as the replacement for ``|version|``.  For
@@ -316,6 +322,7 @@ General configuration
    * ``toc.circular``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
+   * ``epub.duplicated_toc_entry``
    * ``autosectionlabel.*``
 
    You can choose from these types.
@@ -339,6 +346,10 @@ General configuration
    .. versionchanged:: 2.1
 
       Added ``autosectionlabel.*``
+
+   .. versionchanged:: 3.3.0
+
+      Added ``epub.duplicated_toc_entry``
 
 .. confval:: needs_sphinx
 
@@ -551,7 +562,7 @@ General configuration
    * Otherwise, the current time is formatted using :func:`time.strftime` and
      the format given in :confval:`today_fmt`.
 
-   The default is now :confval:`today` and a :confval:`today_fmt` of ``'%B %d,
+   The default is now :confval:`today` and a :confval:`today_fmt` of ``'%b %d,
    %Y'`` (or, if translation is enabled with :confval:`language`, an equivalent
    format for the selected locale).
 
@@ -572,12 +583,27 @@ General configuration
 
 .. confval:: highlight_options
 
-   A dictionary of options that modify how the lexer specified by
-   :confval:`highlight_language` generates highlighted source code. These are
-   lexer-specific; for the options understood by each, see the
-   `Pygments documentation <https://pygments.org/docs/lexers>`_.
+   A dictionary that maps language names to options for the lexer modules of
+   Pygments.  These are lexer-specific; for the options understood by each,
+   see the `Pygments documentation <https://pygments.org/docs/lexers>`_.
+
+   Example::
+
+     highlight_options = {
+       'default': {'stripall': True},
+       'php': {'startinline': True},
+     }
+
+   A single dictionary of options are also allowed.  Then it is recognized
+   as options to the lexer specified by :confval:`highlight_language`::
+
+     # configuration for the ``highlight_language``
+     highlight_options = {'stripall': True}
 
    .. versionadded:: 1.3
+   .. versionchanged:: 3.5
+
+      Allow to configure highlight options for multiple languages
 
 .. confval:: pygments_style
 
@@ -932,8 +958,11 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_baseurl
 
-   The URL which points to the root of the HTML documentation.  It is used to
-   indicate the location of document like ``canonical_url``.
+   The base URL which points to the root of the HTML documentation.  It is used
+   to indicate the location of document using `The Canonical Link Relation`_.
+   Default: ``''``.
+
+   .. _The Canonical Link Relation: https://tools.ietf.org/html/rfc6596
 
    .. versionadded:: 1.8
 
@@ -991,7 +1020,14 @@ that use Sphinx's HTMLWriter class.
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
 
+   As a special attribute, *priority* can be set as an integer to load the CSS
+   file earlier or lazier step.  For more information, refer
+   :meth:`Sphinx.add_css_files()`.
+
    .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+
+      Support priority attribute
 
 .. confval:: html_js_files
 
@@ -1007,7 +1043,14 @@ that use Sphinx's HTMLWriter class.
                         'https://example.com/scripts/custom.js',
                         ('custom.js', {'async': 'async'})]
 
+   As a special attribute, *priority* can be set as an integer to load the CSS
+   file earlier or lazier step.  For more information, refer
+   :meth:`Sphinx.add_css_files()`.
+
    .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+
+      Support priority attribute
 
 .. confval:: html_static_path
 
@@ -1090,6 +1133,23 @@ that use Sphinx's HTMLWriter class.
    .. versionchanged:: 1.1
       This can now be a string to select the actual text of the link.
       Previously, only boolean values were accepted.
+
+   .. deprecated:: 3.5
+      This has been replaced by :confval:`html_permalinks`
+
+.. confval:: html_permalinks
+
+   If true, Sphinx will add "permalinks" for each heading and description
+   environment.  Default: ``True``.
+
+   .. versionadded:: 3.5
+
+.. confval:: html_permalinks_icon
+
+   A text for permalinks for each heading and description environment.  HTML
+   tags are allowed.  Default: a paragraph sign; ``¶``
+
+   .. versionadded:: 3.5
 
 .. confval:: html_sidebars
 
@@ -2519,6 +2579,23 @@ Options for the linkcheck builder
       ]
 
    .. versionadded:: 2.3
+
+.. confval:: linkcheck_rate_limit_timeout
+
+   The ``linkcheck`` builder may issue a large number of requests to the same
+   site over a short period of time. This setting controls the builder behavior
+   when servers indicate that requests are rate-limited.
+
+   If a server indicates when to retry (using the `Retry-After`_ header),
+   ``linkcheck`` always follows the server indication.
+
+   Otherwise, ``linkcheck`` waits for a minute before to retry and keeps
+   doubling the wait time between attempts until it succeeds or exceeds the
+   ``linkcheck_rate_limit_timeout``. By default, the timeout is 5 minutes.
+
+   .. _Retry-After: https://tools.ietf.org/html/rfc7231#section-7.1.3
+
+   .. versionadded:: 3.4
 
 
 Options for the XML builder

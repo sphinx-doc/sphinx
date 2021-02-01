@@ -4,12 +4,11 @@
 
     Toctree collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Set, Tuple, TypeVar
-from typing import cast
+from typing import Any, Dict, List, Set, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -21,7 +20,7 @@ from sphinx.environment.adapters.toctree import TocTree
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
-from sphinx.util import url_re, logging
+from sphinx.util import logging, url_re
 
 if False:
     # For type annotation

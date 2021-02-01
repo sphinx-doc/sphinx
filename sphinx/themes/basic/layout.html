@@ -4,7 +4,7 @@
 
     Master layout template for Sphinx themes.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- block doctype -%}{%- if html5_doctype %}
@@ -18,7 +18,7 @@
 {%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and
                          (sidebars != []) %}
 {%- set url_root = pathto('', 1) %}
-{# XXX necessary? #}
+{# URL root should never be #, then all links are fragments #}
 {%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
 {%- if not embedded and docstitle %}
   {%- set titlesuffix = " &#8212; "|safe + docstitle|e %}
@@ -88,15 +88,15 @@
 {%- endmacro %}
 
 {%- macro script() %}
-    <script id="documentation_options" data-url_root="{{ pathto('', 1) }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
+    <script id="documentation_options" data-url_root="{{ url_root }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
     {%- for js in script_files %}
     {{ js_tag(js) }}
     {%- endfor %}
 {%- endmacro %}
 
 {%- macro css() %}
-    <link rel="stylesheet" href="{{ pathto('_static/' + style, 1)|e }}" type="text/css" />
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
+    <link rel="stylesheet" href="{{ pathto('_static/' + style, 1)|e }}" type="text/css" />
     {%- for css in css_files %}
       {%- if css|attr("filename") %}
     {{ css_tag(css) }}

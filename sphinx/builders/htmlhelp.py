@@ -5,20 +5,18 @@
     Build HTML help support files.
     Parts adapted from Python's Doc/tools/prechm.py.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
 from typing import Any, Dict
 
-from sphinxcontrib.htmlhelp import (
-    chm_locales, chm_htmlescape, HTMLHelpBuilder, default_htmlhelp_basename
-)
+from sphinxcontrib.htmlhelp import (HTMLHelpBuilder, chm_htmlescape, chm_locales,
+                                    default_htmlhelp_basename)
 
 from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
-
 
 deprecated_alias('sphinx.builders.htmlhelp',
                  {

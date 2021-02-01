@@ -6,7 +6,6 @@ from docutils.parsers.rst import Directive
 
 from sphinx import addnodes
 
-
 sys.path.append(os.path.abspath('.'))
 
 extensions = ['sphinx.ext.autodoc',
@@ -31,8 +30,6 @@ keep_warnings = True
 pygments_style = 'sphinx'
 show_authors = True
 numfig = True
-
-rst_epilog = '.. |subst| replace:: global substitution'
 
 html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
                         'customsb.html', 'searchbox.html'],

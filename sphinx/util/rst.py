@@ -4,7 +4,7 @@
 
     reST helper functions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,12 +18,10 @@ from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.statemachine import StringList
 from docutils.utils import Reporter
-from jinja2 import Environment
-from jinja2 import environmentfilter
+from jinja2 import Environment, environmentfilter
 
 from sphinx.locale import __
-from sphinx.util import docutils
-from sphinx.util import logging
+from sphinx.util import docutils, logging
 
 logger = logging.getLogger(__name__)
 

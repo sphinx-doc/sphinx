@@ -4,7 +4,7 @@
 
     The Python domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,23 +15,23 @@ import sys
 import typing
 import warnings
 from inspect import Parameter
-from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Tuple
-from typing import cast
+from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import pending_xref, desc_signature
+from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType, Index, IndexEntry
+from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
-from sphinx.pycode.ast import ast, parse as ast_parse
+from sphinx.pycode.ast import ast
+from sphinx.pycode.ast import parse as ast_parse
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
@@ -272,6 +272,8 @@ class PyXrefMixin:
         result = super().make_xref(rolename, domain, target,  # type: ignore
                                    innernode, contnode, env)
         result['refspecific'] = True
+        result['py:module'] = env.ref_context.get('py:module')
+        result['py:class'] = env.ref_context.get('py:class')
         if target.startswith(('.', '~')):
             prefix, result['reftarget'] = target[0], target[1:]
             if prefix == '.':
@@ -332,7 +334,7 @@ class PyTypedField(PyXrefMixin, TypedField):
         return super().make_xref(rolename, domain, target, innernode, contnode, env)
 
 
-class PyObject(ObjectDescription):
+class PyObject(ObjectDescription[Tuple[str, str]]):
     """
     Description of a general Python object.
 

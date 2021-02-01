@@ -4,7 +4,7 @@
 
     Test i18n util.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -86,6 +86,12 @@ def test_format_date():
     format = '%c'
     assert i18n.format_date(format, date=datet) == 'Feb 7, 2016, 5:11:17 AM'
     assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
+
+    # timezone
+    format = '%Z'
+    assert i18n.format_date(format, date=datet) == 'UTC'
+    format = '%z'
+    assert i18n.format_date(format, date=datet) == '+0000'
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Path separators don't match on windows")
