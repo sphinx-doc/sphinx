@@ -2237,7 +2237,7 @@ def test_name_mangling(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_type_union_operator(app):
     options = {'members': None}

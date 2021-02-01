@@ -77,7 +77,9 @@ def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dic
         # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
         return safe_getattr(obj, '__annotations__', {})
     except TypeError:
-        return {}
+        # Invalid object is given. But try to get __annotations__ as a fallback for
+        # the code using type union operator (PEP 604) in python 3.9 or below.
+        return safe_getattr(obj, '__annotations__', {})
     except KeyError:
         # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
         return {}
