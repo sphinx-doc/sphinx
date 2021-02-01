@@ -2395,7 +2395,7 @@ def test_name_mangling(app):
 @pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_hide_value(app):
-    options = {'members': True}
+    options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.hide_value', options)
     assert list(actual) == [
         '',

@@ -53,7 +53,7 @@ def test_classes(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_instance_variable(app):
-    options = {'members': True}
+    options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.instance_variable.Bar', options)
     assert list(actual) == [
         '',
@@ -77,8 +77,8 @@ def test_instance_variable(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_inherited_instance_variable(app):
-    options = {'members': True,
-               'inherited-members': True}
+    options = {'members': None,
+               'inherited-members': None}
     actual = do_autodoc(app, 'class', 'target.instance_variable.Bar', options)
     assert list(actual) == [
         '',
@@ -161,7 +161,7 @@ def test_slots_attribute(app):
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_show_inheritance_for_subclass_of_generic_type(app):
-    options = {'show-inheritance': True}
+    options = {'show-inheritance': None}
     actual = do_autodoc(app, 'class', 'target.classes.Quux', options)
     assert list(actual) == [
         '',
