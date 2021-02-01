@@ -127,6 +127,17 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            .. automodule:: foo
               :no-undoc-members:
 
+     .. tip::
+
+        You can use autodoc directive options to temporarily override or
+        extend default options which takes list as an input. For example::
+
+           .. autoclass:: Noodle
+              :members: eat
+              :private-members: +_spicy, _garlickly
+
+     .. versionchanged:: 3.5
+        The default options can be overridden or extended temporarily.
 
    * Members without docstrings will be left out, unless you give the
      ``undoc-members`` flag option::
