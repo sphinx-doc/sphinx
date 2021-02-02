@@ -87,8 +87,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def visit_desc_signature(self, node: Element) -> None:
         # the id is set automatically
         self.body.append(self.starttag(node, 'dt'))
+        self.protect_literal_text += 1
 
     def depart_desc_signature(self, node: Element) -> None:
+        self.protect_literal_text -= 1
         if not node.get('is_multiline'):
             self.add_permalink_ref(node, _('Permalink to this definition'))
         self.body.append('</dt>\n')

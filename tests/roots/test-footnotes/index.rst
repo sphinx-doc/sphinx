@@ -169,3 +169,9 @@ Footnote in term [#]_
 
           def bar(x,y):
               return x+y
+
+The section with an object description
+======================================
+
+.. py:function:: dummy(N)
+   :noindex:

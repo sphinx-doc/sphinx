@@ -101,17 +101,19 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
             return [nodes.Text("%s.%s" % (unparse(node.value)[0], node.attr))]
-        elif isinstance(node, ast.Constant):  # type: ignore
-            if node.value is Ellipsis:
-                return [addnodes.desc_sig_punctuation('', "...")]
-            else:
-                return [nodes.Text(node.value)]
+        elif isinstance(node, ast.BinOp):
+            result = unparse(node.left)  # type: List[Node]
+            result.extend(unparse(node.op))
+            result.extend(unparse(node.right))
+            return result
+        elif isinstance(node, ast.BitOr):
+            return [nodes.Text(' '), addnodes.desc_sig_punctuation('', '|'), nodes.Text(' ')]
         elif isinstance(node, ast.Expr):
             return unparse(node.value)
         elif isinstance(node, ast.Index):
             return unparse(node.value)
         elif isinstance(node, ast.List):
-            result = [addnodes.desc_sig_punctuation('', '[')]  # type: List[Node]
+            result = [addnodes.desc_sig_punctuation('', '[')]
             for elem in node.elts:
                 result.extend(unparse(elem))
                 result.append(addnodes.desc_sig_punctuation('', ', '))
@@ -157,7 +159,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
         tree = ast_parse(annotation)
         result = unparse(tree)
         for i, node in enumerate(result):
-            if isinstance(node, nodes.Text):
+            if isinstance(node, nodes.Text) and node.strip():
                 result[i] = type_to_xref(str(node), env)
         return result
     except SyntaxError:

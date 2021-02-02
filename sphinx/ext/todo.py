@@ -19,6 +19,7 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 import sphinx
+from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
@@ -123,12 +124,12 @@ class TodoListProcessor:
         self.config = app.config
         self.env = app.env
         self.domain = cast(TodoDomain, app.env.get_domain('todo'))
+        self.document = new_document('')
 
         self.process(doctree, docname)
 
     def process(self, doctree: nodes.document, docname: str) -> None:
         todos = sum(self.domain.todos.values(), [])  # type: List[todo_node]
-        document = new_document('')
         for node in doctree.traverse(todolist):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
@@ -144,12 +145,7 @@ class TodoListProcessor:
                 new_todo = todo.deepcopy()
                 new_todo['ids'].clear()
 
-                # (Recursively) resolve references in the todo content
-                #
-                # Note: To resolve references, it is needed to wrap it with document node
-                document += new_todo
-                self.env.resolve_references(document, todo['docname'], self.builder)
-                document.remove(new_todo)
+                self.resolve_reference(new_todo, docname)
                 content.append(new_todo)
 
                 todo_ref = self.create_todo_reference(todo, docname)
@@ -184,6 +180,17 @@ class TodoListProcessor:
         para += nodes.Text(suffix, suffix)
 
         return para
+
+    def resolve_reference(self, todo: todo_node, docname: str) -> None:
+        """Resolve references in the todo content."""
+        for node in todo.traverse(addnodes.pending_xref):
+            if 'refdoc' in node:
+                node['refdoc'] = docname
+
+        # Note: To resolve references, it is needed to wrap it with document node
+        self.document += todo
+        self.env.resolve_references(self.document, docname, self.builder)
+        self.document.remove(todo)
 
 
 def visit_todo_node(self: HTMLTranslator, node: todo_node) -> None:

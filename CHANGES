@@ -119,6 +119,7 @@ Features added
   info-field-list
 * #8514: autodoc: Default values of overloaded functions are taken from actual
   implementation if they're ellipsis
+* #8775: autodoc: Support type union operator (PEP-604) in Python 3.10 or above
 * #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
   for :meth:`Sphinx.add_js_file()` and :meth:`Sphinx.add_css_file()`
@@ -135,6 +136,7 @@ Features added
 * #8004: napoleon: Type definitions in Google style docstrings are rendered as
   references when :confval:`napoleon_preprocess_types` enabled
 * #6241: mathjax: Include mathjax.js only on the document using equations
+* #8775: py domain: Support type union operator (PEP-604)
 * #8651: std domain: cross-reference for a rubric having inline item is broken
 * #7642: std domain: Optimize case-insensitive match of term
 * #8681: viewcode: Support incremental build
@@ -158,6 +160,8 @@ Bugs fixed
   contains invalid type comments
 * #8693: autodoc: Default values for overloaded functions are rendered as string
 * #8134: autodoc: crashes when mocked decorator takes arguments
+* #8800: autodoc: Uninitialized attributes in superclass are recognized as
+  undocumented
 * #8306: autosummary: mocked modules are documented as empty page when using
   :recursive: option
 * #8232: graphviz: Image node is not rendered if graph file is in subdirectory
@@ -168,13 +172,16 @@ Bugs fixed
 * #8123: html search: fix searching for terms containing + (Requires a custom
   search language that does not split on +)
 * #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
+* #8446: html: consecutive spaces are displayed as single space
 * #8745: i18n: crashes with KeyError when translation message adds a new auto
   footnote reference
 * #4304: linkcheck: Fix race condition that could lead to checking the
   availability of the same URL twice
+* #8791: linkcheck: The docname for each hyperlink is not displayed
 * #7118: sphinx-quickstart: questionare got Mojibake if libreadline unavailable
 * #8094: texinfo: image files on the different directory with document are not
   copied
+* #8782: todo: Cross references in todolist get broken
 * #8720: viewcode: module pages are generated for epub on incremental build
 * #8704: viewcode: anchors are generated in incremental build after singlehtml
 * #8756: viewcode: highlighted code is generated even if not referenced
@@ -194,6 +201,8 @@ Bugs fixed
   :confval:`numfig` is not True
 * #8442: LaTeX: some indexed terms are ignored when using xelatex engine
   (or pdflatex and :confval:`latex_use_xindy` set to True) with memoir class
+* #8750: LaTeX: URLs as footnotes fail to show in PDF if originating from
+  inside function type signatures
 * #8780: LaTeX: long words in narrow columns may not be hyphenated
 * #8788: LaTeX: ``\titleformat`` last argument in sphinx.sty should be
   bracketed, not braced (and is anyhow not needed) 
@@ -222,6 +231,8 @@ Bugs fixed
 * #8655: autodoc: Failed to generate document if target module contains an
   object that raises an exception on ``hasattr()``
 * C, ``expr`` role should start symbol lookup in the current scope.
+* #8796: LaTeX: potentially critical low level TeX coding mistake has gone
+  unnoticed so far
 
 Testing
 --------
