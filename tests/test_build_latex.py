@@ -829,6 +829,7 @@ def test_latex_show_urls_is_inline(app, status, warning):
     assert '\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}') in result
+    assert '\\begin{savenotes}\\begin{fulllineitems}' not in result
 
 
 @pytest.mark.sphinx(
@@ -883,6 +884,7 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}\n') in result
+    assert '\\begin{savenotes}\\begin{fulllineitems}' in result
 
 
 @pytest.mark.sphinx(
@@ -926,6 +928,7 @@ def test_latex_show_urls_is_no(app, status, warning):
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}\n') in result
+    assert '\\begin{savenotes}\\begin{fulllineitems}' not in result
 
 
 @pytest.mark.sphinx(

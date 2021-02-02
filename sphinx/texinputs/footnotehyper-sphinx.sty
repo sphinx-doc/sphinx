@@ -1,9 +1,9 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{footnotehyper-sphinx}%
- [2021/01/26 v1.1b hyperref aware footnote.sty for sphinx (JFB)]
+ [2021/01/29 v1.1c hyperref aware footnote.sty for sphinx (JFB)]
 %%
 %% Package: footnotehyper-sphinx
-%% Version: based on footnotehyper.sty 2021/01/26 v1.1b
+%% Version: based on footnotehyper.sty 2021/01/29 v1.1c
 %% as available at https://www.ctan.org/pkg/footnotehyper
 %% License: the one applying to Sphinx
 %%
@@ -20,6 +20,7 @@
 \DeclareOption*{\PackageWarning{footnotehyper-sphinx}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
 \newbox\FNH@notes
+\newtoks\FNH@toks % 1.1c
 \newdimen\FNH@width
 \let\FNH@colwidth\columnwidth
 \newif\ifFNH@savingnotes
@@ -27,6 +28,7 @@
     \let\FNH@latex@footnote    \footnote
     \let\FNH@latex@footnotetext\footnotetext
     \let\FNH@H@@footnotetext   \@footnotetext
+    \let\FNH@H@@mpfootnotetext \@mpfootnotetext
     \newenvironment{savenotes}
         {\FNH@savenotes\ignorespaces}{\FNH@spewnotes\ignorespacesafterend}%
     \let\spewnotes      \FNH@spewnotes
@@ -37,6 +39,7 @@
     \@ifpackageloaded{hyperref}
      {\ifHy@hyperfootnotes
          \let\FNH@H@@footnotetext\H@@footnotetext
+         \let\FNH@H@@mpfootnotetext\H@@mpfootnotetext
       \else
          \let\FNH@hyper@fntext\FNH@nohyp@fntext
       \fi}%
@@ -111,14 +114,33 @@
   \fi
 }%
 \def\FNH@spewnotes {%
-  \endgroup
+  \if@endpe\ifx\par\@@par\FNH@toks{}\else
+     \FNH@toks\expandafter{\expandafter
+              \def\expandafter\par\expandafter{\par}\@endpetrue}%
+     \expandafter\expandafter\expandafter
+     \FNH@toks
+     \expandafter\expandafter\expandafter
+     {\expandafter\the\expandafter\FNH@toks
+      \expandafter\def\expandafter\@par\expandafter{\@par}}%
+     \expandafter\expandafter\expandafter
+     \FNH@toks
+     \expandafter\expandafter\expandafter
+     {\expandafter\the\expandafter\FNH@toks
+      \expandafter\everypar\expandafter{\the\everypar}}\fi
+  \else\FNH@toks{}\fi
+  \expandafter
+  \endgroup\the\FNH@toks
   \ifFNH@savingnotes\else
    \ifvoid\FNH@notes\else
     \begingroup
      \let\@makefntext\@empty
      \let\@finalstrut\@gobble
      \let\rule\@gobbletwo
-     \FNH@H@@footnotetext{\unvbox\FNH@notes}%
+     \ifx\@footnotetext\@mpfootnotetext
+        \expandafter\FNH@H@@mpfootnotetext
+     \else
+        \expandafter\FNH@H@@footnotetext
+     \fi{\unvbox\FNH@notes}%
     \endgroup
    \fi
   \fi
