@@ -67,6 +67,7 @@ Features added
   dedent via no-argument ``:dedent:`` option
 * C++, also hyperlink operator overloads in expressions and alias declarations.
 * #8247: Allow production lists to refer to tokens from other production groups
+* #8813: Show what extension (or module) caused it on errors on event handler
 
 Bugs fixed
 ----------
