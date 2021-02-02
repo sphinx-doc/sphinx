@@ -96,6 +96,7 @@ Bugs fixed
   footnote reference
 * #4304: linkcheck: Fix race condition that could lead to checking the
   availability of the same URL twice
+* #8791: linkcheck: The docname for each hyperlink is not displayed
 * #7118: sphinx-quickstart: questionare got Mojibake if libreadline unavailable
 * #8094: texinfo: image files on the different directory with document are not
   copied

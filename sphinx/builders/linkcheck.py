@@ -390,7 +390,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             self.write_linkstat(linkstat)
             return
         if lineno:
-            logger.info('(line %4d) ', lineno, nonl=True)
+            logger.info('(%16s: line %4d) ', docname, lineno, nonl=True)
         if status == 'ignored':
             if info:
                 logger.info(darkgray('-ignored- ') + uri + ': ' + info)
