@@ -106,6 +106,73 @@ def test_inherited_instance_variable(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_uninitialized_attributes(app):
+    options = {"members": None,
+               "inherited-members": True}
+    actual = do_autodoc(app, 'class', 'target.uninitialized_attributes.Derived', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Derived()',
+        '   :module: target.uninitialized_attributes',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr1',
+        '      :module: target.uninitialized_attributes',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr3',
+        '      :module: target.uninitialized_attributes',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_undocumented_uninitialized_attributes(app):
+    options = {"members": None,
+               "inherited-members": True,
+               "undoc-members": True}
+    actual = do_autodoc(app, 'class', 'target.uninitialized_attributes.Derived', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Derived()',
+        '   :module: target.uninitialized_attributes',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr1',
+        '      :module: target.uninitialized_attributes',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr2',
+        '      :module: target.uninitialized_attributes',
+        '      :type: str',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr3',
+        '      :module: target.uninitialized_attributes',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:attribute:: Derived.attr4',
+        '      :module: target.uninitialized_attributes',
+        '      :type: str',
+        '',
+    ]
+
+
 def test_decorators(app):
     actual = do_autodoc(app, 'class', 'target.decorator.Baz')
     assert list(actual) == [

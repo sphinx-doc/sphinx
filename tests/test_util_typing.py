@@ -117,6 +117,13 @@ def test_restify_type_ForwardRef():
     assert restify(ForwardRef("myint")) == ":class:`myint`"
 
 
+@pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
+def test_restify_type_union_operator():
+    assert restify(int | None) == "Optional[:class:`int`]"  # type: ignore
+    assert restify(int | str) == ":class:`int` | :class:`str`"  # type: ignore
+    assert restify(int | str | None) == "Optional[:class:`int` | :class:`str`]"  # type: ignore
+
+
 def test_restify_broken_type_hints():
     assert restify(BrokenType) == ':class:`tests.test_util_typing.BrokenType`'
 
@@ -204,6 +211,13 @@ def test_stringify_type_hints_alias():
     MyTuple = Tuple[str, str]
     assert stringify(MyStr) == "str"
     assert stringify(MyTuple) == "Tuple[str, str]"  # type: ignore
+
+
+@pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
+def test_stringify_type_union_operator():
+    assert stringify(int | None) == "Optional[int]"  # type: ignore
+    assert stringify(int | str) == "int | str"  # type: ignore
+    assert stringify(int | str | None) == "Optional[int | str]"  # type: ignore
 
 
 def test_stringify_broken_type_hints():
