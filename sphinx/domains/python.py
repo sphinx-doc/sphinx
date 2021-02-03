@@ -108,6 +108,11 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
             return result
         elif isinstance(node, ast.BitOr):
             return [nodes.Text(' '), addnodes.desc_sig_punctuation('', '|'), nodes.Text(' ')]
+        elif isinstance(node, ast.Constant):  # type: ignore
+            if node.value is Ellipsis:
+                return [addnodes.desc_sig_punctuation('', "...")]
+            else:
+                return [nodes.Text(node.value)]
         elif isinstance(node, ast.Expr):
             return unparse(node.value)
         elif isinstance(node, ast.Index):
@@ -143,12 +148,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
 
             return result
         else:
-            if isinstance(node, ast.Constant):  # type: ignore
-                if node.value is Ellipsis:
-                    return [addnodes.desc_sig_punctuation('', "...")]
-                else:
-                    return [nodes.Text(node.value)]
-
             if sys.version_info < (3, 8):
                 if isinstance(node, ast.Ellipsis):
                     return [addnodes.desc_sig_punctuation('', "...")]
