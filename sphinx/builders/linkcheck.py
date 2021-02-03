@@ -19,7 +19,7 @@ from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from os import path
 from threading import Thread
-from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple, cast
+from typing import Any, Dict, List, NamedTuple, Optional, Pattern, Set, Tuple, cast
 from urllib.parse import unquote, urlparse
 
 from docutils import nodes
@@ -114,11 +114,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def init(self) -> None:
         self.hyperlinks = {}    # type: Dict[str, Hyperlink]
-        self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
-        self.anchors_ignore = [re.compile(x)
-                               for x in self.config.linkcheck_anchors_ignore]
-        self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
-                     in self.config.linkcheck_auth]
         self._good = set()       # type: Set[str]
         self._broken = {}        # type: Dict[str, str]
         self._redirected = {}    # type: Dict[str, Tuple[str, int]]
@@ -137,6 +132,34 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def is_ignored_uri(self, uri: str) -> bool:
         return any(pat.match(uri) for pat in self.to_ignore)
+
+    @property
+    def anchors_ignore(self) -> List[Pattern]:
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "anchors_ignore"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return [re.compile(x) for x in self.config.linkcheck_anchors_ignore]
+
+    @property
+    def auth(self) -> List[Tuple[Pattern, Any]]:
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "auth"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return [(re.compile(pattern), auth_info) for pattern, auth_info
+                in self.config.linkcheck_auth]
+
+    @property
+    def to_ignore(self) -> List[Pattern]:
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "to_ignore"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return [re.compile(x) for x in self.config.linkcheck_ignore]
 
     @property
     def good(self) -> Set[str]:
@@ -277,14 +300,17 @@ class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
     def __init__(self, builder: CheckExternalLinksBuilder) -> None:
-        self.anchors_ignore = builder.anchors_ignore
-        self.auth = builder.auth
         self.config = builder.config
         self.env = builder.env
         self.rate_limits = builder.rate_limits
         self.rqueue = builder.rqueue
-        self.to_ignore = builder.to_ignore
         self.wqueue = builder.wqueue
+
+        self.anchors_ignore = [re.compile(x)
+                               for x in self.config.linkcheck_anchors_ignore]
+        self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
+                     in self.config.linkcheck_auth]
+        self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
 
         self._good = builder._good
         self._broken = builder._broken
