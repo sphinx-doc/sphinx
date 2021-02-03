@@ -23,7 +23,10 @@ Deprecated
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.rqueue``
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.to_ignore``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.workers``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.wqueue``
 * ``sphinx.builders.linkcheck.node_line_or_0()``
 * ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
 * ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
