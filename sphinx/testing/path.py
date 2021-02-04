@@ -18,6 +18,17 @@ from sphinx.deprecation import RemovedInSphinx50Warning
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
+def getumask() -> int:
+    """Get current umask value"""
+    umask = os.umask(0)  # Note: Change umask value temporarily to obtain it
+    os.umask(umask)
+
+    return umask
+
+
+UMASK = getumask()
+
+
 class path(str):
     """
     Represents a path which behaves like a string.
@@ -104,9 +115,9 @@ class path(str):
         # to the destination tree, ensure destination directories are not marked
         # read-only.
         for root, dirs, files in os.walk(destination):
-            os.chmod(root, 0o755)
+            os.chmod(root, 0o755 & ~UMASK)
             for name in files:
-                os.chmod(os.path.join(root, name), 0o644)
+                os.chmod(os.path.join(root, name), 0o644 & ~UMASK)
 
     def movetree(self, destination: str) -> None:
         """
