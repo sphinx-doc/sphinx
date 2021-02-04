@@ -836,7 +836,7 @@ def test_noindexentry(app):
 
 
 @pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
-def test_intersphinx(tempdir, app, status, warning):
+def test_intersphinx_v3_remote(tempdir, app, status, warning):
     origSource = """\
 .. c:member:: int _member
 .. c:var:: int _var
@@ -870,6 +870,55 @@ _struct c:struct 1 index.html#c.$ -
 _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
+'''))  # noqa
+    app.config.intersphinx_mapping = {
+        'https://localhost/intersphinx/c/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    app.builder.build_all()
+    ws = filter_warnings(warning, "index")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
+def test_intersphinx_v4_remote(tempdir, app, status, warning):
+    origSource = """\
+.. c:member:: int _member
+.. c:var:: int _var
+.. c:function:: void _function()
+.. c:macro:: _macro
+.. c:struct:: _struct
+.. c:union:: _union
+.. c:enum:: _enum
+
+    .. c:enumerator:: _enumerator
+
+.. c:type:: _type
+.. c:function:: void _functionParam(int param)
+"""  # noqa
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: C Intersphinx Test
+# Version: 
+# The remainder of this file is compressed using zlib.
+''' + zlib.compress(b'''\
+_enumerator c:enumerator 1 index.html#C2--_enum.$ -
+_function c:function 1 index.html#C2-$ -
+_functionParam c:function 1 index.html#C2-$ -
+_functionParam.param c:functionParam 1 index.html#C2-_functionParam -
+_macro c:macro 1 index.html#C2-$ -
+_member c:member 1 index.html#C2-$ -
+_type c:type 1 index.html#C2-$ -
+_var c:member 1 index.html#C2-$ -
+enum _enum c:enum 1 index.html#C2--_enum -
+enum _enum._enumerator c:enumerator 1 index.html#C2--_enum._enumerator -
+struct _struct c:struct 1 index.html#C2--_struct -
+union _union c:union 1 index.html#C2--_union -
 '''))  # noqa
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/c/': inv_file,
