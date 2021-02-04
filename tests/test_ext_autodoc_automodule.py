@@ -18,7 +18,7 @@ from .test_ext_autodoc import do_autodoc
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_empty_all(app):
-    options = {'members': True}
+    options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.empty_all', options)
     assert list(actual) == [
         '',
@@ -39,6 +39,6 @@ def test_empty_all(app):
 def test_subclass_of_mocked_object(app):
     sys.modules.pop('target', None)  # unload target module to clear the module cache
 
-    options = {'members': True}
+    options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert '.. py:class:: Inherited(*args: Any, **kwargs: Any)' in actual
