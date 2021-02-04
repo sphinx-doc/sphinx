@@ -569,6 +569,36 @@ def test_autodoc_members(app):
         '   .. py:method:: Base.inheritedstaticmeth(cls)'
     ]
 
+    # ALL-members override autodoc_default_options
+    options = {"members": None}
+    app.config.autodoc_default_options["members"] = "inheritedstaticmeth"
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base()',
+        '   .. py:method:: Base.inheritedclassmeth()',
+        '   .. py:method:: Base.inheritedmeth()',
+        '   .. py:method:: Base.inheritedstaticmeth(cls)'
+    ]
+
+    # members override autodoc_default_options
+    options = {"members": "inheritedmeth"}
+    app.config.autodoc_default_options["members"] = "inheritedstaticmeth"
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base()',
+        '   .. py:method:: Base.inheritedmeth()',
+    ]
+
+    # members extends autodoc_default_options
+    options = {"members": "+inheritedmeth"}
+    app.config.autodoc_default_options["members"] = "inheritedstaticmeth"
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base()',
+        '   .. py:method:: Base.inheritedmeth()',
+        '   .. py:method:: Base.inheritedstaticmeth(cls)'
+    ]
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_exclude_members(app):
@@ -586,6 +616,57 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+    ]
+
+    # + has no effect when autodoc_default_options are not present
+    options = {"members": None,
+               "exclude-members": "+inheritedmeth,inheritedstaticmeth"}
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base()',
+        '   .. py:method:: Base.inheritedclassmeth()'
+    ]
+
+    # exclude-members overrides autodoc_default_options
+    options = {"members": None,
+               "exclude-members": "inheritedmeth"}
+    app.config.autodoc_default_options["exclude-members"] = "inheritedstaticmeth"
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base()',
+        '   .. py:method:: Base.inheritedclassmeth()',
+        '   .. py:method:: Base.inheritedstaticmeth(cls)'
+    ]
+
+    # exclude-members extends autodoc_default_options
+    options = {"members": None,
+               "exclude-members": "+inheritedmeth"}
+    app.config.autodoc_default_options["exclude-members"] = "inheritedstaticmeth"
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base()',
+        '   .. py:method:: Base.inheritedclassmeth()',
+    ]
+
+    # no exclude-members causes use autodoc_default_options
+    options = {"members": None}
+    app.config.autodoc_default_options["exclude-members"] = "inheritedstaticmeth,inheritedmeth"
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base()',
+        '   .. py:method:: Base.inheritedclassmeth()',
+    ]
+
+    # empty exclude-members cancels autodoc_default_options
+    options = {"members": None,
+               "exclude-members": None}
+    app.config.autodoc_default_options["exclude-members"] = "inheritedstaticmeth,inheritedmeth"
+    actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base()',
+        '   .. py:method:: Base.inheritedclassmeth()',
+        '   .. py:method:: Base.inheritedmeth()',
+        '   .. py:method:: Base.inheritedstaticmeth(cls)'
     ]
 
 
@@ -610,6 +691,48 @@ def test_autodoc_undoc_members(app):
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:method:: Class.undocmeth()'
+    ]
+
+    # use autodoc_default_options
+    options = {"members": None}
+    app.config.autodoc_default_options["undoc-members"] = None
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:attribute:: Class.attr',
+        '   .. py:attribute:: Class.docattr',
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:attribute:: Class.inst_attr_comment',
+        '   .. py:attribute:: Class.inst_attr_inline',
+        '   .. py:attribute:: Class.inst_attr_string',
+        '   .. py:attribute:: Class.mdocattr',
+        '   .. py:method:: Class.meth()',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        '   .. py:attribute:: Class.skipattr',
+        '   .. py:method:: Class.skipmeth()',
+        '   .. py:attribute:: Class.udocattr',
+        '   .. py:method:: Class.undocmeth()'
+    ]
+
+    # options negation work check
+    options = {"members": None,
+               "no-undoc-members": None}
+    app.config.autodoc_default_options["undoc-members"] = None
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:attribute:: Class.attr',
+        '   .. py:attribute:: Class.docattr',
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:attribute:: Class.inst_attr_comment',
+        '   .. py:attribute:: Class.inst_attr_inline',
+        '   .. py:attribute:: Class.inst_attr_string',
+        '   .. py:attribute:: Class.mdocattr',
+        '   .. py:method:: Class.meth()',
+        '   .. py:method:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.skipmeth()',
+        '   .. py:attribute:: Class.udocattr',
     ]
 
 
@@ -713,6 +836,38 @@ def test_autodoc_special_members(app):
         '   .. py:method:: Class.undocmeth()'
     ]
 
+    # specific special methods from autodoc_default_options
+    options = {"undoc-members": None}
+    app.config.autodoc_default_options["special-members"] = "__special2__"
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.__special2__()',
+    ]
+
+    # specific special methods option with autodoc_default_options
+    options = {"undoc-members": None,
+               "special-members": "__init__,__special1__"}
+    app.config.autodoc_default_options["special-members"] = "__special2__"
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.__init__(arg)',
+        '   .. py:method:: Class.__special1__()',
+    ]
+
+    # specific special methods merge with autodoc_default_options
+    options = {"undoc-members": None,
+               "special-members": "+__init__,__special1__"}
+    app.config.autodoc_default_options["special-members"] = "__special2__"
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.__init__(arg)',
+        '   .. py:method:: Class.__special1__()',
+        '   .. py:method:: Class.__special2__()',
+    ]
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_ignore_module_all(app):
@@ -740,7 +895,7 @@ def test_autodoc_ignore_module_all(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_noindex(app):
-    options = {"noindex": True}
+    options = {"noindex": None}
     actual = do_autodoc(app, 'module', 'target', options)
     assert list(actual) == [
         '',
@@ -821,7 +976,7 @@ def test_autodoc_inner_class(app):
         '',
     ]
 
-    options['show-inheritance'] = True
+    options['show-inheritance'] = None
     actual = do_autodoc(app, 'class', 'target.InnerChild', options)
     assert list(actual) == [
         '',
@@ -865,7 +1020,7 @@ def test_autodoc_staticmethod(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_descriptor(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.descriptor.Class', options)
     assert list(actual) == [
         '',
@@ -893,7 +1048,7 @@ def test_autodoc_descriptor(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_cached_property(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.cached_property.Foo', options)
     assert list(actual) == [
         '',
@@ -913,8 +1068,8 @@ def test_autodoc_member_order(app):
     # case member-order='bysource'
     options = {"members": None,
                'member-order': 'bysource',
-               "undoc-members": True,
-               'private-members': True}
+               "undoc-members": None,
+               'private-members': None}
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
@@ -938,8 +1093,8 @@ def test_autodoc_member_order(app):
     # case member-order='groupwise'
     options = {"members": None,
                'member-order': 'groupwise',
-               "undoc-members": True,
-               'private-members': True}
+               "undoc-members": None,
+               'private-members': None}
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
@@ -962,8 +1117,8 @@ def test_autodoc_member_order(app):
 
     # case member-order=None
     options = {"members": None,
-               "undoc-members": True,
-               'private-members': True}
+               "undoc-members": None,
+               'private-members': None}
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
@@ -990,7 +1145,7 @@ def test_autodoc_module_member_order(app):
     # case member-order='bysource'
     options = {"members": 'foo, Bar, baz, qux, Quux, foobar',
                'member-order': 'bysource',
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.sort_by_all', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:module:: target.sort_by_all',
@@ -1005,8 +1160,8 @@ def test_autodoc_module_member_order(app):
     # case member-order='bysource' and ignore-module-all
     options = {"members": 'foo, Bar, baz, qux, Quux, foobar',
                'member-order': 'bysource',
-               "undoc-members": True,
-               "ignore-module-all": True}
+               "undoc-members": None,
+               "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target.sort_by_all', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:module:: target.sort_by_all',
@@ -1053,7 +1208,7 @@ def test_autodoc_class_scope(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_class_attributes(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.AttCls', options)
     assert list(actual) == [
         '',
@@ -1163,7 +1318,7 @@ def test_autoattribute_instance_attributes(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_slots(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.slots', options)
     assert list(actual) == [
         '',
@@ -1561,7 +1716,7 @@ def test_partialmethod_undoc_members(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_typed_instance_variables(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typed_vars', options)
     assert list(actual) == [
         '',
@@ -1660,8 +1815,8 @@ def test_autodoc_typed_instance_variables(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_typed_inherited_instance_variables(app):
     options = {"members": None,
-               "undoc-members": True,
-               "inherited-members": True}
+               "undoc-members": None,
+               "inherited-members": None}
     actual = do_autodoc(app, 'class', 'target.typed_vars.Derived', options)
     assert list(actual) == [
         '',
@@ -2284,7 +2439,7 @@ def test_type_union_operator(app):
 @pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_hide_value(app):
-    options = {'members': True}
+    options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.hide_value', options)
     assert list(actual) == [
         '',
