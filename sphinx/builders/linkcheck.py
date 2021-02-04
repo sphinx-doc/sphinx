@@ -129,6 +129,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
             thread.start()
             self.workers.append(thread)
 
+    def is_ignored_uri(self, uri: str) -> bool:
+        return any(pat.match(uri) for pat in self.to_ignore)
+
     @property
     def good(self) -> Set[str]:
         warnings.warn(
@@ -280,21 +283,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     if path.exists(path.join(srcdir, uri)):
                         return 'working', '', 0
                     else:
-                        for rex in self.to_ignore:
-                            if rex.match(uri):
-                                return 'ignored', '', 0
-                        else:
-                            self._broken[uri] = ''
-                            return 'broken', '', 0
+                        self._broken[uri] = ''
+                        return 'broken', '', 0
             elif uri in self._good:
                 return 'working', 'old', 0
             elif uri in self._broken:
                 return 'broken', self._broken[uri], 0
             elif uri in self._redirected:
                 return 'redirected', self._redirected[uri][0], self._redirected[uri][1]
-            for rex in self.to_ignore:
-                if rex.match(uri):
-                    return 'ignored', '', 0
 
             # need to actually check the URI
             for _ in range(self.config.linkcheck_retries):
@@ -442,13 +438,18 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def finish(self) -> None:
         logger.info('')
 
-        for hyperlink in self.hyperlinks.values():
-            self.wqueue.put(hyperlink, False)
-
-        total_links = len(self.hyperlinks)
-        done = 0
         with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
              open(path.join(self.outdir, 'output.json'), 'w') as self.json_outfile:
+            total_links = 0
+            for hyperlink in self.hyperlinks.values():
+                if self.is_ignored_uri(hyperlink.uri):
+                    self.process_result((hyperlink.uri, hyperlink.docname, hyperlink.lineno,
+                                         'ignored', '', 0))
+                else:
+                    self.wqueue.put(hyperlink, False)
+                    total_links += 1
+
+            done = 0
             while done < total_links:
                 self.process_result(self.rqueue.get())
                 done += 1

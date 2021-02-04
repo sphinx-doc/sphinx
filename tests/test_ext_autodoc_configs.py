@@ -486,7 +486,7 @@ def test_mocked_module_imports(app, warning):
                     confoverrides={'autodoc_typehints': "signature"})
 def test_autodoc_typehints_signature(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
     assert list(actual) == [
         '',
@@ -552,7 +552,7 @@ def test_autodoc_typehints_signature(app):
                     confoverrides={'autodoc_typehints': "none"})
 def test_autodoc_typehints_none(app):
     options = {"members": None,
-               "undoc-members": True}
+               "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
     assert list(actual) == [
         '',
@@ -851,7 +851,7 @@ def test_autodoc_default_options(app):
     assert '   .. py:attribute:: EnumCls.val4' not in actual
 
     # with :members: = True
-    app.config.autodoc_default_options = {'members': True}
+    app.config.autodoc_default_options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual

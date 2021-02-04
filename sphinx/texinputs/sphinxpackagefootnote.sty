@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{sphinxpackagefootnote}%
- [2021/01/29 v1.1c footnotehyper adapted to sphinx (Sphinx team)]
+ [2021/02/04 v1.1d footnotehyper adapted to sphinx (Sphinx team)]
 % Provides support for this output mark-up from Sphinx latex writer:
 % - footnote environment
 % - savenotes environment (table templates)
@@ -8,7 +8,7 @@
 %
 %%
 %% Package: sphinxpackagefootnote
-%% Version: based on footnotehyper.sty 2021/01/29 v1.1c
+%% Version: based on footnotehyper.sty 2021/02/04 v1.1d
 %% as available at https://www.ctan.org/pkg/footnotehyper
 %% License: the one applying to Sphinx
 %%
@@ -22,6 +22,7 @@
 %% 4. macro definition \sphinxfootnotemark,
 %% 5. macro definition \sphinxlongtablepatch
 %% 6. replaced some \undefined by \@undefined
+\newif\iffootnotehyperparse\footnotehyperparsetrue
 \DeclareOption*{\PackageWarning{sphinxpackagefootnote}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
 \newbox\FNH@notes
@@ -223,29 +224,67 @@
     \FNH@endfntext@fntext {\unvbox\z@}%
   \endgroup
 }%
-\AtBeginDocument{%
-   \let\FNH@@makefntext\@makefntext
-   \ifx\@makefntextFB\@undefined
-   \expandafter\@gobble\else\expandafter\@firstofone\fi
-   {\ifFBFrenchFootnotes \let\FNH@@makefntext\@makefntextFB \else
-                         \let\FNH@@makefntext\@makefntextORI\fi}%
-   \expandafter\FNH@check@a\FNH@@makefntext{1.2!3?4,}%
-               \FNH@@@1.2!3?4,\FNH@@@\relax
+\let\FNH@prefntext\@empty
+\let\FNH@postfntext\@empty
+\AtBeginDocument{\iffootnotehyperparse\expandafter\FNH@check\fi}%
+\def\FNH@safeif#1{%
+   \iftrue\csname if#1\endcsname\csname fi\endcsname\expandafter\@firstoftwo
+   \else\csname fi\endcsname\expandafter\@secondoftwo
+   \fi
+}%
+\def\FNH@check{%
+   \ifx\@makefntextFB\@undefined\expandafter\FNH@check@
+                           \else\expandafter\FNH@frenchb@
+   \fi
+}%
+\def\FNH@frenchb@{%
+   \def\FNH@prefntext{%
+     \localleftbox{}%
+     \let\FBeverypar@save\FBeverypar@quote
+     \let\FBeverypar@quote\relax
+     \FNH@safeif{FB@koma}%
+       {\FNH@safeif{FBFrenchFootnotes}%
+          {\ifx\footnote\thanks
+             \let\@@makefnmark\@@makefnmarkTH
+             \@makefntextTH{} % space as in french.ldf
+           \else
+             \let\@@makefnmark\@@makefnmarkFB
+             \@makefntextFB{} % space as in french.ldf
+             \fi
+          }{\let\@@makefnmark\@@makefnmarkORI
+             \@makefntextORI{}% no space as in french.ldf
+          }%
+       }%
+       {\FNH@safeif{FBFrenchFootnotes}%
+          {\@makefntextFB{}}%
+          {\@makefntextORI{}}%
+       }%
+   }%
+   \def\FNH@postfntext{%
+     \let\FBeverypar@quote\FBeverypar@save
+     \localleftbox{\FBeveryline@quote}%
+   }%
+}%
+\def\FNH@check@{%
+    \expandafter\FNH@check@a\@makefntext{1.2!3?4,}%
+                \FNH@@@1.2!3?4,\FNH@@@\relax
 }%
 \long\def\FNH@check@a #11.2!3?4,#2\FNH@@@#3{%
-    \ifx\relax#3\FNH@bad@makefntext@alert
+    \ifx\relax#3\expandafter\FNH@checkagain@
     \else
-      \edef\FNH@restore@{\catcode`\noexpand\@\the\catcode`\@\relax}%
-      \makeatletter
-      \ifx\@makefntextFB\@undefined
-      \expandafter\@gobble\else\expandafter\@firstofone\fi
-      {\@ifclassloaded{memoir}%
-           {\ifFBFrenchFootnotes\expandafter\@gobble\fi}%
-           {}}%
-      \@secondoftwo
-      \scantokens{\def\FNH@prefntext{#1}\def\FNH@postfntext{#2}}%
-      \FNH@restore@
+      \def\FNH@prefntext{#1}\def\FNH@postfntext{#2}%
       \expandafter\FNH@check@b
+    \fi
+}%
+\def\FNH@checkagain@{%
+    \expandafter\FNH@checkagain@a
+    \detokenize\expandafter{\@makefntext{1.2!3?4,}}\relax\FNH@@@
+}%
+\edef\FNH@temp{\noexpand\FNH@checkagain@a ##1\string{1.2!3?4,\string}}%
+\expandafter\def\FNH@temp#2#3\FNH@@@{%
+    \ifx\relax#2%
+      \def\FNH@prefntext{\@makefntext{}}%
+    \else\FNH@bad@makefntext@alert
     \fi
 }%
 \def\FNH@check@b #1\relax{%
@@ -254,7 +293,7 @@
     \meaning\FNH@postfntext1.2!3?4,\FNH@check@c\relax
 }%
 \def\FNH@check@c #11.2!3?4,#2#3\relax{%
-    \ifx\FNH@check@c#2\expandafter\@gobble\fi\FNH@bad@makefntext@alert
+    \ifx\FNH@check@c#2\else\FNH@bad@makefntext@alert\fi
 }%
 % slight reformulation for Sphinx
 \def\FNH@bad@makefntext@alert{%
