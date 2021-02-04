@@ -110,7 +110,7 @@ def test_inherited_instance_variable(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_uninitialized_attributes(app):
     options = {"members": None,
-               "inherited-members": True}
+               "inherited-members": None}
     actual = do_autodoc(app, 'class', 'target.uninitialized_attributes.Derived', options)
     assert list(actual) == [
         '',
@@ -138,8 +138,8 @@ def test_uninitialized_attributes(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_undocumented_uninitialized_attributes(app):
     options = {"members": None,
-               "inherited-members": True,
-               "undoc-members": True}
+               "inherited-members": None,
+               "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.uninitialized_attributes.Derived', options)
     assert list(actual) == [
         '',
