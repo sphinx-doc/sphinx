@@ -109,15 +109,16 @@ class path(str):
             pointed to by the symbolic links are copied.
         """
         shutil.copytree(self, destination, symlinks=symlinks)
-        # If source tree is marked read-only (e.g. because it is on a read-only
-        # filesystem), `shutil.copytree` will mark the destination as read-only
-        # as well.  To avoid failures when adding additional files/directories
-        # to the destination tree, ensure destination directories are not marked
-        # read-only.
-        for root, dirs, files in os.walk(destination):
-            os.chmod(root, 0o755 & ~UMASK)
-            for name in files:
-                os.chmod(os.path.join(root, name), 0o644 & ~UMASK)
+        if os.environ.get('SPHINX_READONLY_TESTDIR'):
+            # If source tree is marked read-only (e.g. because it is on a read-only
+            # filesystem), `shutil.copytree` will mark the destination as read-only
+            # as well.  To avoid failures when adding additional files/directories
+            # to the destination tree, ensure destination directories are not marked
+            # read-only.
+            for root, dirs, files in os.walk(destination):
+                os.chmod(root, 0o755 & ~UMASK)
+                for name in files:
+                    os.chmod(os.path.join(root, name), 0o644 & ~UMASK)
 
     def movetree(self, destination: str) -> None:
         """
