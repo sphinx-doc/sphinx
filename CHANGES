@@ -39,6 +39,8 @@ Features added
 * #8514: autodoc: Default values of overloaded functions are taken from actual
   implementation if they're ellipsis
 * #8775: autodoc: Support type union operator (PEP-604) in Python 3.10 or above
+* #8297: autodoc: Allow to extend :confcal:`autodoc_default_options` via
+  directive options
 * #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
   for :meth:`Sphinx.add_js_file()` and :meth:`Sphinx.add_css_file()`
