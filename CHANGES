@@ -114,7 +114,9 @@ Bugs fixed
 * #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
 * #1112: ``download`` role creates duplicated copies when relative path is
   specified
-* #2616 (fifth item): LaTeX: footnotes from captions are not clickable
+* #2616 (fifth item): LaTeX: footnotes from captions are not clickable,
+  and for manually numbered footnotes only first one with same number is
+  an hyperlink
 * #7576: LaTeX with French babel and memoir crash: "Illegal parameter number
   in definition of ``\FNH@prefntext``"
 * #8072: LaTeX: Directive :rst:dir:`hlist` not implemented in LaTeX
