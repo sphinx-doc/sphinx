@@ -12,13 +12,13 @@ import json
 import queue
 import re
 import socket
-import threading
 import time
 import warnings
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from os import path
+from threading import Thread
 from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple, cast
 from urllib.parse import unquote, urlparse
 
@@ -129,9 +129,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.rate_limits = {}  # type: Dict[str, RateLimit]
         self.wqueue = queue.PriorityQueue()  # type: queue.PriorityQueue
         self.rqueue = queue.Queue()  # type: queue.Queue
-        self.workers = []  # type: List[threading.Thread]
+        self.workers = []  # type: List[Thread]
         for i in range(self.config.linkcheck_workers):
-            thread = threading.Thread(target=self.check_thread, daemon=True)
+            thread = HyperlinkAvailabilityCheckWorker(self)
             thread.start()
             self.workers.append(thread)
 
@@ -166,6 +166,134 @@ class CheckExternalLinksBuilder(DummyBuilder):
         return self._redirected
 
     def check_thread(self) -> None:
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "check_thread"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        # do nothing.
+
+    def limit_rate(self, response: Response) -> Optional[float]:
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "limit_rate"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return HyperlinkAvailabilityCheckWorker(self).limit_rate(response)
+
+    def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
+        uri, docname, lineno, status, info, code = result
+
+        filename = self.env.doc2path(docname, None)
+        linkstat = dict(filename=filename, lineno=lineno,
+                        status=status, code=code, uri=uri,
+                        info=info)
+        if status == 'unchecked':
+            self.write_linkstat(linkstat)
+            return
+        if status == 'working' and info == 'old':
+            self.write_linkstat(linkstat)
+            return
+        if lineno:
+            logger.info('(%16s: line %4d) ', docname, lineno, nonl=True)
+        if status == 'ignored':
+            if info:
+                logger.info(darkgray('-ignored- ') + uri + ': ' + info)
+            else:
+                logger.info(darkgray('-ignored- ') + uri)
+            self.write_linkstat(linkstat)
+        elif status == 'local':
+            logger.info(darkgray('-local-   ') + uri)
+            self.write_entry('local', docname, filename, lineno, uri)
+            self.write_linkstat(linkstat)
+        elif status == 'working':
+            logger.info(darkgreen('ok        ') + uri + info)
+            self.write_linkstat(linkstat)
+        elif status == 'broken':
+            if self.app.quiet or self.app.warningiserror:
+                logger.warning(__('broken link: %s (%s)'), uri, info,
+                               location=(filename, lineno))
+            else:
+                logger.info(red('broken    ') + uri + red(' - ' + info))
+            self.write_entry('broken', docname, filename, lineno, uri + ': ' + info)
+            self.write_linkstat(linkstat)
+        elif status == 'redirected':
+            try:
+                text, color = {
+                    301: ('permanently', purple),
+                    302: ('with Found', purple),
+                    303: ('with See Other', purple),
+                    307: ('temporarily', turquoise),
+                    308: ('permanently', purple),
+                }[code]
+            except KeyError:
+                text, color = ('with unknown code', purple)
+            linkstat['text'] = text
+            logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
+            self.write_entry('redirected ' + text, docname, filename,
+                             lineno, uri + ' to ' + info)
+            self.write_linkstat(linkstat)
+        else:
+            raise ValueError("Unknown status %s." % status)
+
+    def write_entry(self, what: str, docname: str, filename: str, line: int,
+                    uri: str) -> None:
+        self.txt_outfile.write("%s:%s: [%s] %s\n" % (filename, line, what, uri))
+
+    def write_linkstat(self, data: dict) -> None:
+        self.json_outfile.write(json.dumps(data))
+        self.json_outfile.write('\n')
+
+    def finish(self) -> None:
+        logger.info('')
+
+        with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
+             open(path.join(self.outdir, 'output.json'), 'w') as self.json_outfile:
+            total_links = 0
+            for hyperlink in self.hyperlinks.values():
+                if self.is_ignored_uri(hyperlink.uri):
+                    self.process_result(
+                        CheckResult(hyperlink.uri, hyperlink.docname, hyperlink.lineno,
+                                    'ignored', '', 0))
+                else:
+                    self.wqueue.put(hyperlink, False)
+                    total_links += 1
+
+            done = 0
+            while done < total_links:
+                self.process_result(self.rqueue.get())
+                done += 1
+
+        if self._broken:
+            self.app.statuscode = 1
+
+        self.wqueue.join()
+        # Shutdown threads.
+        for worker in self.workers:
+            self.wqueue.put((CHECK_IMMEDIATELY, None, None, None), False)
+
+
+class HyperlinkAvailabilityCheckWorker(Thread):
+    """A worker class for checking the availability of hyperlinks."""
+
+    def __init__(self, builder: CheckExternalLinksBuilder) -> None:
+        self.app = builder.app
+        self.anchors_ignore = builder.anchors_ignore
+        self.auth = builder.auth
+        self.config = builder.config
+        self.env = builder.env
+        self.rate_limits = builder.rate_limits
+        self.rqueue = builder.rqueue
+        self.to_ignore = builder.to_ignore
+        self.wqueue = builder.wqueue
+
+        self._good = builder._good
+        self._broken = builder._broken
+        self._redirected = builder._redirected
+
+        super().__init__(daemon=True)
+
+    def run(self) -> None:
         kwargs = {}
         if self.config.linkcheck_timeout:
             kwargs['timeout'] = self.config.linkcheck_timeout
@@ -377,97 +505,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
             next_check = time.time() + delay
         self.rate_limits[netloc] = RateLimit(delay, next_check)
         return next_check
-
-    def process_result(self, result: CheckResult) -> None:
-        uri, docname, lineno, status, info, code = result
-
-        filename = self.env.doc2path(docname, None)
-        linkstat = dict(filename=filename, lineno=lineno,
-                        status=status, code=code, uri=uri,
-                        info=info)
-        if status == 'unchecked':
-            self.write_linkstat(linkstat)
-            return
-        if status == 'working' and info == 'old':
-            self.write_linkstat(linkstat)
-            return
-        if lineno:
-            logger.info('(%16s: line %4d) ', docname, lineno, nonl=True)
-        if status == 'ignored':
-            if info:
-                logger.info(darkgray('-ignored- ') + uri + ': ' + info)
-            else:
-                logger.info(darkgray('-ignored- ') + uri)
-            self.write_linkstat(linkstat)
-        elif status == 'local':
-            logger.info(darkgray('-local-   ') + uri)
-            self.write_entry('local', docname, filename, lineno, uri)
-            self.write_linkstat(linkstat)
-        elif status == 'working':
-            logger.info(darkgreen('ok        ') + uri + info)
-            self.write_linkstat(linkstat)
-        elif status == 'broken':
-            if self.app.quiet or self.app.warningiserror:
-                logger.warning(__('broken link: %s (%s)'), uri, info,
-                               location=(filename, lineno))
-            else:
-                logger.info(red('broken    ') + uri + red(' - ' + info))
-            self.write_entry('broken', docname, filename, lineno, uri + ': ' + info)
-            self.write_linkstat(linkstat)
-        elif status == 'redirected':
-            try:
-                text, color = {
-                    301: ('permanently', purple),
-                    302: ('with Found', purple),
-                    303: ('with See Other', purple),
-                    307: ('temporarily', turquoise),
-                    308: ('permanently', purple),
-                }[code]
-            except KeyError:
-                text, color = ('with unknown code', purple)
-            linkstat['text'] = text
-            logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
-            self.write_entry('redirected ' + text, docname, filename,
-                             lineno, uri + ' to ' + info)
-            self.write_linkstat(linkstat)
-        else:
-            raise ValueError("Unknown status %s." % status)
-
-    def write_entry(self, what: str, docname: str, filename: str, line: int,
-                    uri: str) -> None:
-        self.txt_outfile.write("%s:%s: [%s] %s\n" % (filename, line, what, uri))
-
-    def write_linkstat(self, data: dict) -> None:
-        self.json_outfile.write(json.dumps(data))
-        self.json_outfile.write('\n')
-
-    def finish(self) -> None:
-        logger.info('')
-
-        with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
-             open(path.join(self.outdir, 'output.json'), 'w') as self.json_outfile:
-            total_links = 0
-            for hyperlink in self.hyperlinks.values():
-                if self.is_ignored_uri(hyperlink.uri):
-                    self.process_result(
-                        CheckResult(hyperlink.uri, hyperlink.docname, hyperlink.lineno,
-                                    'ignored', '', 0))
-                else:
-                    self.wqueue.put(hyperlink, False)
-                    total_links += 1
-
-            done = 0
-            while done < total_links:
-                self.process_result(self.rqueue.get())
-                done += 1
-
-        if self._broken:
-            self.app.statuscode = 1
-
-        self.wqueue.join()
-        # Shutdown threads.
-        for worker in self.workers:
-            self.wqueue.put((CHECK_IMMEDIATELY, None, None, None), False)
 
 
 class HyperlinkCollector(SphinxPostTransform):
