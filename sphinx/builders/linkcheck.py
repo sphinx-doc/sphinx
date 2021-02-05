@@ -44,6 +44,12 @@ Hyperlink = NamedTuple('Hyperlink', (('next_check', float),
                                      ('uri', Optional[str]),
                                      ('docname', Optional[str]),
                                      ('lineno', Optional[int])))
+CheckResult = NamedTuple('CheckResult', (('uri', str),
+                                         ('docname', str),
+                                         ('lineno', int),
+                                         ('status', str),
+                                         ('message', str),
+                                         ('code', int)))
 RateLimit = NamedTuple('RateLimit', (('delay', float), ('next_check', float)))
 
 DEFAULT_REQUEST_HEADERS = {
@@ -372,7 +378,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.rate_limits[netloc] = RateLimit(delay, next_check)
         return next_check
 
-    def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
+    def process_result(self, result: CheckResult) -> None:
         uri, docname, lineno, status, info, code = result
 
         filename = self.env.doc2path(docname, None)
@@ -443,8 +449,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
             total_links = 0
             for hyperlink in self.hyperlinks.values():
                 if self.is_ignored_uri(hyperlink.uri):
-                    self.process_result((hyperlink.uri, hyperlink.docname, hyperlink.lineno,
-                                         'ignored', '', 0))
+                    self.process_result(
+                        CheckResult(hyperlink.uri, hyperlink.docname, hyperlink.lineno,
+                                    'ignored', '', 0))
                 else:
                     self.wqueue.put(hyperlink, False)
                     total_links += 1
