@@ -277,7 +277,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
     def __init__(self, builder: CheckExternalLinksBuilder) -> None:
-        self.app = builder.app
         self.anchors_ignore = builder.anchors_ignore
         self.auth = builder.auth
         self.config = builder.config
