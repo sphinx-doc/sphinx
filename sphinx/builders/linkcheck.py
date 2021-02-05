@@ -274,7 +274,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
 
 class HyperlinkAvailabilityCheckWorker(Thread):
-    """A worker class for checing the availability of hyperlinks."""
+    """A worker class for checking the availability of hyperlinks."""
 
     def __init__(self, builder: CheckExternalLinksBuilder) -> None:
         self.app = builder.app
