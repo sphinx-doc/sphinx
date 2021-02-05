@@ -1738,7 +1738,8 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnotetext(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
         self.body.append('%%\n\\begin{footnotetext}[%s]'
-                         '\\sphinxAtStartFootnote\n' % label.astext())
+                         '\\phantomsection\\label{fn:%s}%%\n'
+                         '\\sphinxAtStartFootnote\n' % (label.astext(), label.astext()))
 
     def depart_footnotetext(self, node: Element) -> None:
         # the \ignorespaces in particular for after table header use

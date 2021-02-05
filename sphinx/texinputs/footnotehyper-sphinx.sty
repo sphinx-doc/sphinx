@@ -325,8 +325,17 @@
 % some extras for Sphinx :
 % \sphinxfootnotemark: usable in section titles and silently removed from TOCs.
 \def\sphinxfootnotemark [#1]%
-   {\ifx\thepage\relax\else\protect\spx@opt@BeforeFootnote
-                             \protect\footnotemark[#1]\fi}%
+   {\ifx\thepage\relax\else\sphinxfootref{#1}\fi}%
+% \sphinxfootref: almost same as \footref from footmisc package as
+% re-defined by hyperref:
+% - \spx@opt@BeforeFootnote is from BeforeFootnote sphinxsetup option
+% - 'fn:' prefix is output by LaTeX writer in \label of footnotetext
+\protected\def\sphinxfootref#1{\spx@opt@BeforeFootnote
+    \begingroup
+      \unrestored@protected@xdef\@thefnmark{\ref{fn:#1}}% #1 = number
+    \endgroup
+    \H@@footnotemark
+}%
 \AtBeginDocument{%
    % let hyperref less complain
    \pdfstringdefDisableCommands{\def\sphinxfootnotemark [#1]{}}%
