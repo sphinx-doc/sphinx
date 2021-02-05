@@ -174,6 +174,9 @@
      \unrestored@protected@xdef\@thefnmark{\thempfn}%
     \endgroup
     \@footnotemark
+% Sphinx addition: store internal hyperref anchor reference to allow
+% multiple clickable reference to same numbered footnote
+    \expandafter\xdef\csname FNH@!#1\endcsname{\Hy@footnote@currentHref}%
     \def\FNH@endfntext@fntext{\@footnotetext}%
     \FNH@startfntext
 }%
@@ -326,15 +329,37 @@
 % \sphinxfootnotemark: usable in section titles and silently removed from TOCs.
 \def\sphinxfootnotemark [#1]%
    {\ifx\thepage\relax\else\sphinxfootref{#1}\fi}%
-% \sphinxfootref: almost same as \footref from footmisc package as
-% re-defined by hyperref:
+% \sphinxfootref: inspired by \footref from footmisc package as
+% re-defined by hyperref, but with an extra FNH@! branch:
 % - \spx@opt@BeforeFootnote is from BeforeFootnote sphinxsetup option
-% - 'fn:' prefix is output by LaTeX writer in \label of footnotetext
-\protected\def\sphinxfootref#1{\spx@opt@BeforeFootnote
-    \begingroup
-      \unrestored@protected@xdef\@thefnmark{\ref{fn:#1}}% #1 = number
-    \endgroup
-    \H@@footnotemark
+% - \ref{fn:#1} branch:
+%     the latex.py writer inserts at start of footnotetext contents
+%     \phantomsection\label{fn:<num>}, so we can use \ref which
+%     hyperref converts into an hyperlink. This is basically the
+%     idea of the \footref macro from package footmisc.
+% - FNH@! branch:
+%     explicitly numbered footnotes in latex.py output always use first
+%     the footnote environment, then \sphinxfootnotemark. We patched
+%     \FNH@footnoteenv@i to define the \FNH@!<number> macro as storage
+%     for the internal hyperref target id for the hyperref anchor. So
+%     we can then create an hyperlink from any \sphinxfootnotemark with
+%     this <number> as argument.
+\protected\def\sphinxfootref#1{%
+  \spx@opt@BeforeFootnote
+  \ifcsname FNH@!#1\endcsname
+     \def\@thefnmark{#1}%
+     \let\spx@saved@makefnmark\@makefnmark
+     \def\@makefnmark{%
+       \hyper@linkstart{link}{\@nameuse{FNH@!#1}}%
+       \spx@saved@makefnmark
+       \hyper@linkend
+     }%
+     \H@@footnotemark
+     \let\@makefnmark\spx@saved@makefnmark
+  \else
+     \def\@thefnmark{\ref{fn:#1}}% #1 = number
+     \H@@footnotemark
+  \fi
 }%
 \AtBeginDocument{%
    % let hyperref less complain
