@@ -47,12 +47,19 @@ class ApplicationError(SphinxError):
 
 class ExtensionError(SphinxError):
     """Extension error."""
-    category = 'Extension error'
 
-    def __init__(self, message: str, orig_exc: Exception = None) -> None:
+    def __init__(self, message: str, orig_exc: Exception = None, modname: str = None) -> None:
         super().__init__(message)
         self.message = message
         self.orig_exc = orig_exc
+        self.modname = modname
+
+    @property
+    def category(self) -> str:  # type: ignore
+        if self.modname:
+            return 'Extension error (%s)' % self.modname
+        else:
+            return 'Extension error'
 
     def __repr__(self) -> str:
         if self.orig_exc:

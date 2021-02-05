@@ -19,6 +19,7 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.inspect import safe_getattr
 
 if False:
     # For type annotation
@@ -114,8 +115,9 @@ class EventManager:
             except SphinxError:
                 raise
             except Exception as exc:
+                modname = safe_getattr(listener.handler, '__module__', None)
                 raise ExtensionError(__("Handler %r for event %r threw an exception") %
-                                     (listener.handler, name), exc) from exc
+                                     (listener.handler, name), exc, modname=modname) from exc
         return results
 
     def emit_firstresult(self, name: str, *args: Any,
