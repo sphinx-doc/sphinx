@@ -847,6 +847,11 @@
 % Support scopes for footnote numbering
 \newcounter{sphinxscope}
 \newcommand{\sphinxstepscope}{\stepcounter{sphinxscope}}
+% Some babel/polyglossia languages fiddle with \@arabic, so let's be extra
+% cautious and redefine \thesphinxscope with \number not \@arabic.
+% Memo: we expect some subtle redefinition of \thesphinxscope to be a part of page
+% scoping for footnotes, when we shall implement it.
+\renewcommand{\thesphinxscope}{\number\value{sphinxscope}}
 % Support large numbered footnotes in minipage
 % But now obsolete due to systematic use of \savenotes/\spewnotes
 % when minipages are in use in the various macro definitions next.
