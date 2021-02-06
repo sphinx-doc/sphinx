@@ -29,7 +29,9 @@ from requests.exceptions import HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
@@ -193,7 +195,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
             RemovedInSphinx50Warning,
             stacklevel=2,
         )
-        return HyperlinkAvailabilityCheckWorker(self, None, None, {}).limit_rate(response)
+        worker = HyperlinkAvailabilityCheckWorker(self.env, self.config,
+                                                  None, None, {})
+        return worker.limit_rate(response)
 
     def rqueue(self, response: Response) -> queue.Queue:
         warnings.warn(
@@ -283,7 +287,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.json_outfile.write('\n')
 
     def finish(self) -> None:
-        checker = HyperlinkAvailabilityChecker(self)
+        checker = HyperlinkAvailabilityChecker(self.env, self.config, self)
         logger.info('')
 
         with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
@@ -296,9 +300,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
 
 class HyperlinkAvailabilityChecker:
-    def __init__(self, builder: CheckExternalLinksBuilder) -> None:
+    def __init__(self, env: BuildEnvironment, config: Config,
+                 builder: CheckExternalLinksBuilder = None) -> None:
+        # Warning: builder argument will be removed in the sphinx-5.0.
+        # Don't use it from extensions.
+        # tag: RemovedInSphinx50Warning
         self.builder = builder
-        self.config = builder.config
+        self.config = config
+        self.env = env
         self.rate_limits = {}  # type: Dict[str, RateLimit]
         self.workers = []  # type: List[Thread]
 
@@ -313,8 +322,9 @@ class HyperlinkAvailabilityChecker:
 
     def invoke_threads(self) -> None:
         for i in range(self.config.linkcheck_workers):
-            thread = HyperlinkAvailabilityCheckWorker(self.builder, self.rqueue, self.wqueue,
-                                                      self.rate_limits)
+            thread = HyperlinkAvailabilityCheckWorker(self.env, self.config,
+                                                      self.rqueue, self.wqueue,
+                                                      self.rate_limits, self.builder)
             thread.start()
             self.workers.append(thread)
 
@@ -349,10 +359,14 @@ class HyperlinkAvailabilityChecker:
 class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
-    def __init__(self, builder: CheckExternalLinksBuilder, rqueue: queue.Queue,
-                 wqueue: queue.Queue, rate_limits: Dict[str, RateLimit]) -> None:
-        self.config = builder.config
-        self.env = builder.env
+    def __init__(self, env: BuildEnvironment, config: Config, rqueue: queue.Queue,
+                 wqueue: queue.Queue, rate_limits: Dict[str, RateLimit],
+                 builder: CheckExternalLinksBuilder = None) -> None:
+        # Warning: builder argument will be removed in the sphinx-5.0.
+        # Don't use it from extensions.
+        # tag: RemovedInSphinx50Warning
+        self.config = config
+        self.env = env
         self.rate_limits = rate_limits
         self.rqueue = rqueue
         self.wqueue = wqueue
@@ -362,9 +376,16 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in self.config.linkcheck_auth]
 
-        self._good = builder._good
-        self._broken = builder._broken
-        self._redirected = builder._redirected
+        if builder:
+            # if given, fill the result of checks as cache
+            self._good = builder._good
+            self._broken = builder._broken
+            self._redirected = builder._redirected
+        else:
+            # only for compatibility. Will be removed in Sphinx-5.0
+            self._good = set()
+            self._broken = {}
+            self._redirected = {}
 
         super().__init__(daemon=True)
 
