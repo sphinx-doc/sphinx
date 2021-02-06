@@ -414,7 +414,7 @@
 \DisableKeyvalOption{sphinx}{mathnumfig}
 % To allow hyphenation of first word in narrow contexts; no option,
 % customization to be done via 'preamble' key
-\newcommand*\sphinxAtStartPar{\nobreak\hskip\z@skip}
+\newcommand*\sphinxAtStartPar{\hskip\z@skip}
 % No need for the \hspace{0pt} trick (\hskip\z@skip) with luatex
 \ifdefined\directlua\let\sphinxAtStartPar\@empty\fi
 % user interface: options can be changed midway in a document!
