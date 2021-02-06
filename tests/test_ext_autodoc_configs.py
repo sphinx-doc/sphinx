@@ -348,7 +348,11 @@ def test_autoclass_content_and_docstring_signature_class(app):
         '',
         '.. py:class:: E()',
         '   :module: target.docstring_signature',
-        ''
+        '',
+        '',
+        '.. py:class:: F()',
+        '   :module: target.docstring_signature',
+        '',
     ]
 
 
@@ -382,7 +386,12 @@ def test_autoclass_content_and_docstring_signature_init(app):
         '.. py:class:: E(foo: int, bar: int, baz: int) -> None',
         '              E(foo: str, bar: str, baz: str) -> None',
         '   :module: target.docstring_signature',
-        ''
+        '',
+        '',
+        '.. py:class:: F(foo: int, bar: int, baz: int) -> None',
+        '              F(foo: str, bar: str, baz: str) -> None',
+        '   :module: target.docstring_signature',
+        '',
     ]
 
 
@@ -419,6 +428,11 @@ def test_autoclass_content_and_docstring_signature_both(app):
         '',
         '.. py:class:: E(foo: int, bar: int, baz: int) -> None',
         '              E(foo: str, bar: str, baz: str) -> None',
+        '   :module: target.docstring_signature',
+        '',
+        '',
+        '.. py:class:: F(foo: int, bar: int, baz: int) -> None',
+        '              F(foo: str, bar: str, baz: str) -> None',
         '   :module: target.docstring_signature',
         '',
     ]

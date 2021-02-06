@@ -1191,20 +1191,17 @@ class DocstringSignatureMixin:
                     break
 
                 if line.endswith('\\'):
-                    multiline = True
                     line = line.rstrip('\\').rstrip()
-                else:
-                    multiline = False
 
                 # match first line of docstring against signature RE
                 match = py_ext_sig_re.match(line)
                 if not match:
-                    continue
+                    break
                 exmod, path, base, args, retann = match.groups()
 
                 # the base name must match ours
                 if base not in valid_names:
-                    continue
+                    break
 
                 # re-prepare docstring to ignore more leading indentation
                 tab_width = self.directive.state.document.settings.tab_width  # type: ignore
@@ -1217,13 +1214,6 @@ class DocstringSignatureMixin:
                 else:
                     # subsequent signatures
                     self._signatures.append("(%s) -> %s" % (args, retann))
-
-                if multiline:
-                    # the signature have multiple signatures on docstring
-                    continue
-                else:
-                    # don't look any further
-                    break
 
             if result:
                 # finish the loop when signature found
