@@ -176,7 +176,7 @@
     \@footnotemark
 % Sphinx addition: store internal hyperref anchor reference to allow
 % multiple clickable reference to same numbered footnote
-    \expandafter\xdef\csname FNH@!#1\endcsname{\Hy@footnote@currentHref}%
+    \expandafter\xdef\csname FNH!\number\value{sphinxscope}!#1\endcsname{\Hy@footnote@currentHref}%
     \def\FNH@endfntext@fntext{\@footnotetext}%
     \FNH@startfntext
 }%
@@ -329,35 +329,34 @@
 % \sphinxfootnotemark: usable in section titles and silently removed from TOCs.
 \def\sphinxfootnotemark [#1]%
    {\ifx\thepage\relax\else\sphinxfootref{#1}\fi}%
-% \sphinxfootref: inspired by \footref from footmisc package as
-% re-defined by hyperref, but with an extra FNH@! branch:
+% \sphinxfootref:
 % - \spx@opt@BeforeFootnote is from BeforeFootnote sphinxsetup option
-% - \ref{fn:#1} branch:
+% - \ref branch:
 %     the latex.py writer inserts at start of footnotetext contents
-%     \phantomsection\label{fn:<num>}, so we can use \ref which
-%     hyperref converts into an hyperlink. This is basically the
-%     idea of the \footref macro from package footmisc.
-% - FNH@! branch:
+%     \phantomsection\label{<scope>.<num>}, so we can use \ref which
+%     hyperref converts into an hyperlink. <scope> is the number of
+%     the scope and <num> the number of the footnote, local to scope.
+% - FNH! branch:
 %     explicitly numbered footnotes in latex.py output always use first
 %     the footnote environment, then \sphinxfootnotemark. We patched
-%     \FNH@footnoteenv@i to define the \FNH@!<number> macro as storage
+%     \FNH@footnoteenv@i to define the \FNH!<scope>!<number> macro as storage
 %     for the internal hyperref target id for the hyperref anchor. So
 %     we can then create an hyperlink from any \sphinxfootnotemark with
-%     this <number> as argument.
-\protected\def\sphinxfootref#1{%
+%     this <number> as argument and taking into account current <scope>.
+\protected\def\sphinxfootref#1{% #1 always explicit number in Sphinx usage
   \spx@opt@BeforeFootnote
-  \ifcsname FNH@!#1\endcsname
-     \def\@thefnmark{#1}%
+  \ifcsname FNH!\number\value{sphinxscope}!#1\endcsname
+     \gdef\@thefnmark{#1}% \@thefnmark always redefined globally by latex
      \let\spx@saved@makefnmark\@makefnmark
-     \def\@makefnmark{%
-       \hyper@linkstart{link}{\@nameuse{FNH@!#1}}%
-       \spx@saved@makefnmark
-       \hyper@linkend
+     \edef\@makefnmark{% we pre-expand the sphinxscope value, to be safe
+       \noexpand\hyper@linkstart{link}{\@nameuse{FNH!\number\value{sphinxscope}!#1}}%
+       \noexpand\spx@saved@makefnmark
+       \noexpand\hyper@linkend
      }%
      \H@@footnotemark
      \let\@makefnmark\spx@saved@makefnmark
   \else
-     \def\@thefnmark{\ref{fn:#1}}% #1 = number
+     \xdef\@thefnmark{\noexpand\ref{\number\value{sphinxscope}.#1}}% #1 = number
      \H@@footnotemark
   \fi
 }%
