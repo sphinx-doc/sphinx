@@ -176,7 +176,7 @@
     \@footnotemark
 % Sphinx addition: store internal hyperref anchor reference to allow
 % multiple clickable reference to same numbered footnote
-    \expandafter\xdef\csname FNH!\number\value{sphinxscope}!#1\endcsname{\Hy@footnote@currentHref}%
+    \expandafter\xdef\csname FNH!\thesphinxscope!#1\endcsname{\Hy@footnote@currentHref}%
     \def\FNH@endfntext@fntext{\@footnotetext}%
     \FNH@startfntext
 }%
@@ -345,18 +345,18 @@
 %     this <number> as argument and taking into account current <scope>.
 \protected\def\sphinxfootref#1{% #1 always explicit number in Sphinx usage
   \spx@opt@BeforeFootnote
-  \ifcsname FNH!\number\value{sphinxscope}!#1\endcsname
+  \ifcsname FNH!\thesphinxscope!#1\endcsname
      \gdef\@thefnmark{#1}% \@thefnmark always redefined globally by latex
      \let\spx@saved@makefnmark\@makefnmark
      \edef\@makefnmark{% we pre-expand the sphinxscope value, to be safe
-       \noexpand\hyper@linkstart{link}{\@nameuse{FNH!\number\value{sphinxscope}!#1}}%
+       \noexpand\hyper@linkstart{link}{\@nameuse{FNH!\thesphinxscope!#1}}%
        \noexpand\spx@saved@makefnmark
        \noexpand\hyper@linkend
      }%
      \H@@footnotemark
      \let\@makefnmark\spx@saved@makefnmark
   \else
-     \xdef\@thefnmark{\noexpand\ref{\number\value{sphinxscope}.#1}}% #1 = number
+     \xdef\@thefnmark{\noexpand\ref{\thesphinxscope.#1}}% #1 = number
      \H@@footnotemark
   \fi
 }%

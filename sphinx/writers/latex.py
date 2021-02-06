@@ -1738,7 +1738,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnotetext(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
         self.body.append('%%\n\\begin{footnotetext}[%s]'
-                         '\\phantomsection\\label{\\number\\value{sphinxscope}.%s}%%\n'
+                         '\\phantomsection\\label{\\thesphinxscope.%s}%%\n'
                          '\\sphinxAtStartFootnote\n' % (label.astext(), label.astext()))
 
     def depart_footnotetext(self, node: Element) -> None:
