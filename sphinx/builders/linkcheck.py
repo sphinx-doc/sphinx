@@ -19,7 +19,8 @@ from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from os import path
 from threading import Thread
-from typing import Any, Dict, Generator, List, NamedTuple, Optional, Pattern, Set, Tuple, cast
+from typing import (Any, Dict, Generator, List, NamedTuple, Optional, Pattern, Set, Tuple,
+                    Union, cast)
 from urllib.parse import unquote, urlparse
 
 from docutils import nodes
@@ -42,10 +43,11 @@ logger = logging.getLogger(__name__)
 
 uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
 
-Hyperlink = NamedTuple('Hyperlink', (('next_check', float),
-                                     ('uri', Optional[str]),
-                                     ('docname', Optional[str]),
+Hyperlink = NamedTuple('Hyperlink', (('uri', str),
+                                     ('docname', str),
                                      ('lineno', Optional[int])))
+CheckRequest = NamedTuple('CheckRequest', (('next_check', float),
+                                           ('hyperlink', Optional[Hyperlink])))
 CheckResult = NamedTuple('CheckResult', (('uri', str),
                                          ('docname', str),
                                          ('lineno', int),
@@ -53,6 +55,9 @@ CheckResult = NamedTuple('CheckResult', (('uri', str),
                                          ('message', str),
                                          ('code', int)))
 RateLimit = NamedTuple('RateLimit', (('delay', float), ('next_check', float)))
+
+# Tuple is old styled CheckRequest
+CheckRequestType = Union[CheckRequest, Tuple[float, str, str, int]]
 
 DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
@@ -123,7 +128,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         socket.setdefaulttimeout(5.0)
 
         # create queues and worker threads
-        self._wqueue = queue.PriorityQueue()  # type: queue.PriorityQueue
+        self._wqueue = queue.PriorityQueue()  # type: queue.PriorityQueue[CheckRequestType]
         self._rqueue = queue.Queue()  # type: queue.Queue
 
     @property
@@ -331,7 +336,7 @@ class HyperlinkAvailabilityChecker:
     def shutdown_threads(self) -> None:
         self.wqueue.join()
         for worker in self.workers:
-            self.wqueue.put((CHECK_IMMEDIATELY, None, None, None), False)
+            self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, None), False)
 
     def check(self, hyperlinks: Dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
         self.invoke_threads()
@@ -342,7 +347,7 @@ class HyperlinkAvailabilityChecker:
                 yield CheckResult(hyperlink.uri, hyperlink.docname, hyperlink.lineno,
                                   'ignored', '', 0)
             else:
-                self.wqueue.put(hyperlink, False)
+                self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, hyperlink), False)
                 total_links += 1
 
         done = 0
@@ -471,7 +476,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 elif err.response.status_code == 429:
                     next_check = self.limit_rate(err.response)
                     if next_check is not None:
-                        self.wqueue.put((next_check, uri, docname, lineno), False)
+                        self.wqueue.put(CheckRequest(next_check, hyperlink), False)
                         return 'rate-limited', '', 0
                     return 'broken', str(err), 0
                 elif err.response.status_code == 503:
@@ -538,7 +543,17 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return (status, info, code)
 
         while True:
-            next_check, uri, docname, lineno = self.wqueue.get()
+            check_request = self.wqueue.get()
+            try:
+                next_check, hyperlink = check_request
+                if hyperlink is None:
+                    break
+
+                uri, docname, lineno = hyperlink
+            except ValueError:
+                # old styled check_request (will be deprecated in Sphinx-5.0)
+                next_check, uri, docname, lineno = check_request
+
             if uri is None:
                 break
             netloc = urlparse(uri).netloc
@@ -554,7 +569,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # Sleep before putting message back in the queue to avoid
                 # waking up other threads.
                 time.sleep(QUEUE_POLL_SECS)
-                self.wqueue.put((next_check, uri, docname, lineno), False)
+                self.wqueue.put(CheckRequest(next_check, hyperlink), False)
                 self.wqueue.task_done()
                 continue
             status, info, code = check(docname)
@@ -617,7 +632,7 @@ class HyperlinkCollector(SphinxPostTransform):
                 continue
             uri = refnode['refuri']
             lineno = get_node_line(refnode)
-            uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+            uri_info = Hyperlink(uri, self.env.docname, lineno)
             if uri not in hyperlinks:
                 hyperlinks[uri] = uri_info
 
@@ -626,7 +641,7 @@ class HyperlinkCollector(SphinxPostTransform):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
                 lineno = get_node_line(imgnode)
-                uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+                uri_info = Hyperlink(uri, self.env.docname, lineno)
                 if uri not in hyperlinks:
                     hyperlinks[uri] = uri_info
 
