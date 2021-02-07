@@ -99,9 +99,12 @@ Deprecated
 ----------
 
 * pending_xref node for viewcode extension
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.anchors_ignore``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.auth``
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.to_ignore``
 * ``sphinx.builders.linkcheck.node_line_or_0()``
 * ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
 * ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
@@ -148,6 +151,7 @@ Features added
   dedent via no-argument ``:dedent:`` option
 * C++, also hyperlink operator overloads in expressions and alias declarations.
 * #8247: Allow production lists to refer to tokens from other production groups
+* #8813: Show what extension (or module) caused it on errors on event handler
 
 Bugs fixed
 ----------

@@ -72,6 +72,16 @@ The following is a list of deprecated interfaces.
      - 5.0
      - ``sphinx.ext.viewcode.viewcode_anchor``
 
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.anchors_ignore``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.auth``
+     - 3.5
+     - 5.0
+     - N/A
+
    * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
      - 3.5
      - 5.0
@@ -83,6 +93,11 @@ The following is a list of deprecated interfaces.
      - N/A
 
    * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.to_ignore``
      - 3.5
      - 5.0
      - N/A
