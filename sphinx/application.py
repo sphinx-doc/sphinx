@@ -130,6 +130,9 @@ class Sphinx:
     :ivar outdir: Directory for storing build documents.
     """
 
+    warningiserror: bool
+    _warncount: int
+
     def __init__(self, srcdir: str, confdir: Optional[str], outdir: str, doctreedir: str,
                  buildername: str, confoverrides: Dict = None,
                  status: IO = sys.stdout, warning: IO = sys.stderr,

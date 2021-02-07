@@ -108,7 +108,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         return name
 
     def visit_arguments(self, node: ast.arguments) -> str:
-        defaults = list(node.defaults)
+        defaults = list(node.defaults)  # type: List[Optional[ast.expr]]
         positionals = len(node.args)
         posonlyargs = 0
         if hasattr(node, "posonlyargs"):  # for py38+
@@ -117,7 +117,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         for _ in range(len(defaults), positionals):
             defaults.insert(0, None)
 
-        kw_defaults = list(node.kw_defaults)
+        kw_defaults = list(node.kw_defaults)  # type: List[Optional[ast.expr]]
         for _ in range(len(kw_defaults), len(node.kwonlyargs)):
             kw_defaults.insert(0, None)
 
