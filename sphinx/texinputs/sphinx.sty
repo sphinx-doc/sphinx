@@ -1686,8 +1686,11 @@
                      \csname\@backslashchar color@#2\endcsname }
 
 % the main dispatch for all types of notices
+% work around a problem with todo extension triggering usage of \label
+% without a proper anchor set-up via ref-stepping a counter (or \phantomsection)
 \newcounter{sphinxadmonition}
 \newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
+  \refstepcounter{sphinxadmonition}% in case extension triggers \label usage
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
   % set parameters of heavybox/lightbox
