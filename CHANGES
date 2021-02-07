@@ -117,8 +117,6 @@ Bugs fixed
 * #8780: LaTeX: long words in narrow columns may not be hyphenated
 * #8788: LaTeX: ``\titleformat`` last argument in sphinx.sty should be
   bracketed, not braced (and is anyhow not needed)
-* #8807: LaTeX: todo directive inserts ``\label`` without a proper anchor point
-  (from ``\phantomsection`` or a counter stepping)
 
 Testing
 --------
