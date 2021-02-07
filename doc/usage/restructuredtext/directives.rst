@@ -162,7 +162,7 @@ tables of contents.  The ``toctree`` directive is the central element.
 
          recipe/*
 
-   You can also give a "hidden" option to the directive, like this::
+   You can also give a ``hidden`` option to the directive, like this::
 
       .. toctree::
          :hidden:
@@ -185,7 +185,71 @@ tables of contents.  The ``toctree`` directive is the central element.
          doc_1
          doc_2
 
-   All other toctree entries can then be eliminated by the "hidden" option.
+   All other toctree entries can then be eliminated by the ``hidden`` option.
+
+   When a ``toctree`` directive is encountered in a reST document, Sphinx will
+   add the listed entries as children of the current nesting level. This is
+   sometimes undesired. For example, placing a ``toctree`` at the end of a
+   document will make make the listed entries subsections of the last section of
+   the document. The default behavior can be changed with the ``raise_level``
+   option. Consider the following::
+
+       ====
+       Main
+       ====
+
+       -----
+       Sub 1
+       -----
+
+       .. toctree::
+          :raise_level: 1
+
+          sub_2
+          sub_3
+
+   The structure without the ``raise_level`` option would be:
+
+   * Main
+
+     * Sub 1
+
+       * Sub 2
+       * Sub 3
+
+   With ``:raise_level: 1`` it becomes:
+
+   * Main
+
+     * Sub 1
+     * Sub 2
+     * Sub 3
+
+   Sometimes, the nesting depth at the end of the document varies and
+   the ``raise_level`` option would need to be changed accordingly. In
+   these cases the ``toctree`` directive can be placed on an
+   appropriate level and moved using the ``index`` option, which
+   determines the (zero-based) index of the first entry of the
+   ``toctree`` among its siblings. Negative indices are counted from
+   the end. For example, the following document produces the same
+   structure as the previous one::
+
+       ====
+       Main
+       ====
+
+       .. toctree::
+          :index: -1
+
+          sub_2
+          sub_3
+
+       -----
+       Sub 1
+       -----
+
+   The ``index`` option is usually used with ``hidden`` to put subsections
+   defined in other files after the sections in the current document.
 
    In the end, all documents in the :term:`source directory` (or subdirectories)
    must occur in some ``toctree`` directive; Sphinx will emit a warning if it

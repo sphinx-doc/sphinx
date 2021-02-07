@@ -28,6 +28,21 @@ if False:
 logger = logging.getLogger(__name__)
 
 
+def parent_bullet_list(node, levels):
+    """Scan up from node until *levels* bullet_list nodes are found.
+    Return the found node and the child through which the scan arrived at it.
+    """
+    parent = node.parent
+    child = node
+    while parent and not isinstance(parent, nodes.bullet_list):
+        child = parent
+        parent = parent.parent
+    if levels == 0 or not parent:
+        return (parent, child)
+    else:
+        return parent_bullet_list(parent, levels - 1)
+
+
 class TocTree:
     def __init__(self, env: "BuildEnvironment") -> None:
         self.env = env
@@ -201,15 +216,41 @@ class TocTree:
                                     toplevel.pop(1)
                     # resolve all sub-toctrees
                     for subtocnode in toc.traverse(addnodes.toctree):
-                        if not (subtocnode.get('hidden', False) and
-                                not includehidden):
-                            i = subtocnode.parent.index(subtocnode) + 1
+                        if not subtocnode.get('hidden', False) or includehidden:
+                            raise_level = subtocnode.get('raise_level', 0)
+                            if raise_level < 0:
+                                logger.warning(__('negative raise_level option ignored'),
+                                               location=toctreenode)
+                                raise_level = 0
+                            parent, child = parent_bullet_list(subtocnode, raise_level)
+                            if not parent:
+                                logger.warning(__('toctree parent not found'),
+                                               location=toctreenode)
+                                child = subtocnode
+                                parent = subtocnode.parent
+
+                            if 'index' in subtocnode:
+                                insert_index = subtocnode.get('index')
+                                if insert_index < 0:
+                                    insert_index = len(parent) + 1 + insert_index
+                                if insert_index < 0 or insert_index > len(parent):
+                                    insert_index = 0
+                                    logger.warning(__('toctree index out of bounds'),
+                                                   location=toctreenode)
+                            else:
+                                insert_index = parent.index(child) + 1
+
                             for entry in _entries_from_toctree(
                                     subtocnode, [refdoc] + parents,
                                     subtree=True):
-                                subtocnode.parent.insert(i, entry)
-                                i += 1
-                            subtocnode.parent.remove(subtocnode)
+                                parent.insert(insert_index, entry)
+                                insert_index += 1
+
+                            parent = subtocnode.parent
+                            parent.remove(subtocnode)
+                            if len(parent) == 0 and parent.parent:
+                                parent.parent.remove(parent)
+
                     if separate:
                         entries.append(toc)
                     else:

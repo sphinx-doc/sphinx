@@ -58,6 +58,8 @@ class TocTree(SphinxDirective):
         'numbered': int_or_nothing,
         'titlesonly': directives.flag,
         'reversed': directives.flag,
+        'raise_level': int,
+        'index': int,
     }
 
     def run(self) -> List[Node]:
@@ -75,6 +77,9 @@ class TocTree(SphinxDirective):
         subnode['includehidden'] = 'includehidden' in self.options
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
+        subnode['raise_level'] = self.options.get('raise_level', 0)
+        if 'index' in self.options:
+            subnode['index'] = self.options.get('index')
         self.set_source_info(subnode)
         wrappernode = nodes.compound(classes=['toctree-wrapper'])
         wrappernode.append(subnode)
