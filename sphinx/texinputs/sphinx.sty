@@ -334,6 +334,7 @@
 % verbatim
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
+\DeclareBoolOption[false]{verbatimforcewraps}
 \DeclareBoolOption[true]{verbatimhintsturnover}
 \DeclareBoolOption[true]{inlineliteralwraps}
 \DeclareStringOption[t]{literalblockcappos}
@@ -1171,13 +1172,102 @@
   % no need to restore \fboxsep here, as this ends up in a \hbox from fancyvrb
 }%
 % \sphinxVerbatimFormatLine will be set locally to one of those two:
-\newcommand\sphinxVerbatimFormatLineWrap[1]{%
-    \hsize\linewidth
+\newcommand\sphinxVerbatimFormatLineWrap{%
+  \hsize\linewidth
+  \ifspx@opt@verbatimforcewraps
+       \expandafter\spx@verb@FormatLineForceWrap
+  \else\expandafter\spx@verb@FormatLineWrap
+  \fi
+}%
+\newcommand\sphinxVerbatimFormatLineNoWrap[1]{\hb@xt@\linewidth{\strut #1\hss}}%
+\long\def\spx@verb@FormatLineWrap#1{%
     \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
           \strut #1\strut}%
 }%
-\newcommand\sphinxVerbatimFormatLineNoWrap[1]{\hb@xt@\linewidth{\strut #1\hss}}%
+% We implement an alternative to wrapping long code lines. This
+% alternative works only if the contents are in the expected
+% Pygments mark-up: i.e. some character escapes such as \PYGZdl{}
+% and the highlighting \PYG macro with always 2 arguments, and no
+% other macros. This means:
+% - the command prefix *must* be PYG
+% - the texcomments Pygments option *must* be set to False (it could
+% work by luck if True)
+% For non-highlighted tokens a break point is installed at each of them.
+% For highlighted tokens (i.e. in 2nd argument of \PYG) every four such
+% characters. \PYGZdl{} etc will count for 2, although corresponding to
+% only one. The result is that no line should be more than 3 characters
+% overfull.
+% First a measurement step is done of what would our standard wrapping
+% approach give. This is a bit tricky, cf TeX by Topic for the basic
+% dissecting technique, because TeX unfortunately when building a
+% vertical box does not store in an accessible way what was the maximal
+% line-width: the width of the box will be the set \hsize.
+% Anyway, if the max width exceed the linewidth by at least 4 character
+% widths, then we apply the "force wrapping" of previous paragraph,
+% else we apply our "standard wrapping".
+\long\def\spx@verb@FormatLineForceWrap#1{%
+    % \spx@image@box is a scratch box register that we can use here
+    \global\let\spx@verb@maxwidth\z@
+    \setbox\spx@image@box
+    \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+          \doublehyphendemerits\z@\finalhyphendemerits\z@
+          \strut #1\strut\@@par
+          \spx@verb@getmaxwidth}%
+    \ifdim\spx@verb@maxwidth>\dimexpr\linewidth+3\fontcharwd\font`X\relax
+      \spx@verb@FormatLineWrap{\spx@forcewrapPYG #1\spx@forcewrapPYG}%
+    \else
+      \spx@verb@FormatLineWrap{#1}%
+    \fi
+}%
+% auxiliary paragraph dissector to get max width
+\newbox\spx@line@box
+\def\spx@verb@getmaxwidth {%
+    \unskip\unpenalty
+    \setbox\spx@line@box\lastbox
+    \ifvoid\spx@line@box
+    \else
+       \setbox\spx@line@box\hbox{\unhbox\spx@line@box}%
+       \ifdim\spx@verb@maxwidth<\wd\spx@line@box
+          \xdef\spx@verb@maxwidth{\number\wd\spx@line@box sp}%
+       \fi
+       \expandafter\spx@verb@getmaxwidth
+    \fi
+}%
+% auxiliary macros to implement "cut long line even in middle of word"
+\def\spx@forcewrapPYG{%
+    \futurelet\spx@nexttoken\spx@forcewrapPYG@i
+}%
+\def\spx@forcewrapPYG@i{%
+    \ifx\spx@nexttoken\spx@forcewrapPYG\let\next=\@gobble\else
+    \ifx\spx@nexttoken\PYG\let\next=\spx@forcewrapPYG@PYG\else
+      \discretionary{}{\sphinxafterbreak}{}%
+      \let\next=\spx@forcewrapPYG@ii
+    \fi\fi
+    \next
+}%
+\def\spx@forcewrapPYG@ii#1{#1\futurelet\spx@nexttoken\spx@forcewrapPYG@i}%
+% Replace \PYG by itself applied to short strings of 4 characters at a time
+% and insert breakpoints in-between
+\def\spx@forcewrapPYG@PYG\PYG#1#2{%
+    \def\spx@PYGspec{{#1}}%
+    \spx@PYG#2\@empty\@empty\@empty\@empty\relax
+}%
+\def\spx@PYG#1#2#3#4{%
+    \discretionary{}{\sphinxafterbreak}{}%
+    \expandafter\PYG\spx@PYGspec{#1#2#3#4}%
+% I assume here contents never contain \@empty. If #4={} originally then
+% it is empty here and the \ifx will compare \@empty to \relax and choose
+% the else branch, i.e. to continue applying \PYG repeatedly
+    \ifx#4\@empty\relax
+      \expandafter\spx@PYG@done
+    \else
+      \expandafter\spx@PYG
+    \fi
+}%
+% Once \PYG is handled we get back to our forward scan token by token
+\def\spx@PYG@done#1\relax{\futurelet\spx@nexttoken\spx@forcewrapPYG@i}%
+%
 \g@addto@macro\FV@SetupFont{%
     \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
     \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}%

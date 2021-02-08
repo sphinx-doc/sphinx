@@ -638,6 +638,18 @@ macros may be significant.
 
     Default: ``true``
 
+``verbatimforcewraps``
+    Boolean to specify if long lines in :rst:dir:`code-block`\ 's contents
+    which the wrapping algorithm could not reduce to at most an excess of 3
+    characters on a line will be cut forcefully to achieve this maximal excess
+    of 3 characters on each line. (*this is possibly fragile, so by default is
+    not done; please try it out and report issues to the maintainers to help
+    improve and decide whether to make this default*)
+
+    Default: ``false``
+
+    .. versionadded:: 3.5.0
+
 ``literalblockcappos``
     Decides the caption position: either ``b`` ("bottom") or ``t`` ("top").
 
