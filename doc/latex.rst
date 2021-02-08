@@ -642,9 +642,13 @@ macros may be significant.
     Boolean to specify if long lines in :rst:dir:`code-block`\ 's contents
     which the wrapping algorithm could not reduce to at most an excess of 3
     characters on a line will be cut forcefully to achieve this maximal excess
-    of 3 characters on each line. (*this is possibly fragile, so by default is
-    not done; please try it out and report issues to the maintainers to help
-    improve and decide whether to make this default*)
+    of 3 characters on each line. (*this is possibly fragile, and in
+    particular will break with* ``'pdflatex'``, *if the code-block contains
+    Unicode input, so by default is not activated; however it will not have
+    this problem with Unicode engines. Please try it out and report further
+    issues to the maintainers; injecting* ``\sphinxsetup{verbatimforcewraps}``
+    *and* ``\sphinxsetup{verbatimforcewraps=false}`` *via* ``.. raw:: latex``
+    *directives will localize usage to only certain code-blocks*)
 
     Default: ``false``
 
