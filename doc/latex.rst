@@ -497,11 +497,22 @@ Keys that don't need to be overridden unless in special cases are:
    .. versionchanged:: 1.6
       Remove unneeded ``{}`` after ``\\hrule``.
 
+``'makeindex'``
+   "makeindex" call, the last thing before ``\begin{document}``. With
+   ``'\\usepackage[columns=1]{idxlayout}\\makeindex'`` the index will use
+   only one column. You may have to install ``idxlayout`` LaTeX package.
+
+   Default: ``'\\makeindex'``
+
 ``'printindex'``
    "printindex" call, the last thing in the file. Override if you want to
-   generate the index differently or append some content after the index. For
-   example ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
-   index is full of long entries.
+   generate the index differently, append some content after the index, or
+   change the font. As LaTeX uses two-column mode for the index it is
+   often advisable to set this key to
+   ``'\\footnotesize\\raggedright\\printindex'``. Or, to obtain a one-column
+   index, use ``'\\def\\twocolumn[#1]{#1}\\printindex'`` (this trick may fail
+   if using a custom document class; then try the ``idxlayout`` approach
+   described in the documentation of the ``'makeindex'`` key).
 
    Default: ``'\\printindex'``
 
@@ -527,7 +538,6 @@ Keys that are set by other options and therefore should not be overridden are:
 ``'title'``
 ``'release'``
 ``'author'``
-``'makeindex'``
 
 
 .. _latexsphinxsetup:
