@@ -404,10 +404,15 @@ Showing code examples
            single: sourcecode
 
 There are multiple ways to show syntax-highlighted literal code blocks in
-Sphinx: using :ref:`reST doctest blocks <rst-doctest-blocks>`; using :ref:`reST
-literal blocks <rst-literal-blocks>`, optionally in combination with the
-:rst:dir:`highlight` directive; using the :rst:dir:`code-block` directive; and
-using the :rst:dir:`literalinclude` directive. Doctest blocks can only be used
+Sphinx:
+
+* using :ref:`reST doctest blocks <rst-doctest-blocks>`;
+* using :ref:`reST literal blocks <rst-literal-blocks>`, optionally in
+  combination with the :rst:dir:`highlight` directive;
+* using the :rst:dir:`code-block` directive;
+* and using the :rst:dir:`literalinclude` directive.
+
+Doctest blocks can only be used
 to show interactive Python sessions, while the remaining three can be used for
 other languages. Of these three, literal blocks are useful when an entire
 document, or at least large sections of it, use code blocks with the same
