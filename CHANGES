@@ -120,6 +120,8 @@ Bugs fixed
   specified
 * #7576: LaTeX with French babel and memoir crash: "Illegal parameter number
   in definition of ``\FNH@prefntext``"
+* #8055: LaTeX (docs): A potential display bug with the LaTeX generation step
+  in Sphinx (how to generate one-column index)
 * #8072: LaTeX: Directive :rst:dir:`hlist` not implemented in LaTeX
 * #8214: LaTeX: The :rst:role:`index` role and the glossary generate duplicate
   entries in the LaTeX index (if both used for same term)
