@@ -660,6 +660,8 @@ macros may be significant.
        the default LaTeX handling of Unicode code points, i.e. ``utf8`` not
        ``utf8x`` is allowed.
 
+    .. _Pygments: https://pygments.org/
+
     Default: ``false``
 
     .. versionadded:: 3.5.0
