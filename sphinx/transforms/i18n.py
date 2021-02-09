@@ -263,7 +263,7 @@ class Locale(SphinxTransform):
             # see: http://docutils.sourceforge.net/docs/ref/doctree.html#structural-subelements
             if isinstance(node, nodes.title):
                 # This generates: <section ...><title>msgstr</title></section>
-                msgstr = msgstr + '\n' + '-' * len(msgstr) * 2
+                msgstr = msgstr + '\n' + '=' * len(msgstr) * 2
 
             patch = publish_msgstr(self.app, msgstr, source,
                                    node.line, self.config, settings)
