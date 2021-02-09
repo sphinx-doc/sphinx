@@ -1224,9 +1224,10 @@
 % box does not store in an accessible way what was the maximal
 % line-width during paragraph building.
 %
-% If the max width exceed the linewidth by at least 4 character
-% widths, then we apply the "force wrapping" with potential line
-% break at each character, else we don't.
+% If the max width exceeds the linewidth by more than verbatimmaxoverfull
+% character widths, or if the min width plus verbatimmaxunderfull character
+% widths is inferior to linewidth, then we apply the "force wrapping" with
+% potential line break at each character, else we don't.
 \long\def\spx@verb@FormatLineForceWrap#1{%
     % \spx@image@box is a scratch box register that we can use here
     \global\let\spx@verb@maxwidth\z@

@@ -646,6 +646,8 @@ macros may be significant.
 
     Default: ``true``
 
+.. _latexsphinxsetupforcewraps:
+
 ``verbatimforcewraps``
     Boolean to specify if long lines in :rst:dir:`code-block`\ 's contents
     should be forcefully wrapped to never overflow due to long strings.
@@ -692,7 +694,8 @@ macros may be significant.
       }
 
     This can be done locally for a given code-block via the use of raw latex
-    directives to insert suitable ``\sphinxsetup`` into the latex file.
+    directives to insert suitable ``\sphinxsetup`` (before and after) into the
+    latex file.
 
     Default: ``100``
 
