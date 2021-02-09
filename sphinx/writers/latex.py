@@ -853,7 +853,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             self.body.append('%\n')
             self.body.append('\\begin{footnote}[%s]' % label.astext())
-        if 'auto' not in node.attributes:
+        if 'auto' not in node:
             self.body.append('\\phantomsection'
                              '\\label{\\thesphinxscope.%s}%%\n' % label.astext())
         self.body.append('\\sphinxAtStartFootnote\n')
