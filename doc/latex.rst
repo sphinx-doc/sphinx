@@ -802,17 +802,17 @@ macros may be significant.
 
     Default: ``{rgb}{0,0,0}`` (black)
 
+.. note::
+
+   Starting with the next colour, and for all others following, the
+   names declared to "color" or "xcolor" are prefixed with "sphinx".
+
 ``VerbatimHighlightColor``
     The color for highlighted lines.
 
     Default: ``{rgb}{0.878,1,1}``
 
     .. versionadded:: 1.6.6
-
-.. note::
-
-   Starting with this colour key, and for all others coming next, the actual
-   names declared to "color" or "xcolor" are prefixed with "sphinx".
 
 ``verbatimsep``
     The separation between code lines and the frame.
@@ -900,9 +900,8 @@ macros may be significant.
                                ``attentionBorderColor``, ``dangerBorderColor``,
                                ``errorBorderColor``
 
-.. |wgbdcolorslatex| replace:: ``warningBorderColor``, ``cautionBorderColor``,
-                               ``attentionB..C..``, ``dangerB..C..``,
-                               ``errorB..C..``
+.. |wgbdcolorslatex| replace:: ``warningBorderColor``, and 
+                               ``(caution|attention|danger|error)BorderColor``
 
 .. else latex goes into right margin, as it does not hyphenate the names
 
