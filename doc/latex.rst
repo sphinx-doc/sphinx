@@ -775,10 +775,10 @@ macros may be significant.
 
     Default: ``{rgb}{0.126,0.263,0.361}``
 
-.. warning::
+    .. warning::
 
-   Colours set via ``'sphinxsetup'``  must obey the syntax of the
-   argument of the ``color/xcolor`` packages ``\definecolor`` command.
+       Colours set via ``'sphinxsetup'``  must obey the syntax of the
+       argument of the ``color/xcolor`` packages ``\definecolor`` command.
 
 ``InnerLinkColor``
     A colour passed to ``hyperref`` as value of ``linkcolor``  and
@@ -809,10 +809,10 @@ macros may be significant.
 
     .. versionadded:: 1.6.6
 
-.. note::
+    .. note::
 
-   Starting with this colour key, and for all others coming next, the actual
-   names declared to "color" or "xcolor" are prefixed with "sphinx".
+       Starting with this colour, and for all others following, the
+       names declared to "color" or "xcolor" are prefixed with "sphinx".
 
 ``verbatimsep``
     The separation between code lines and the frame.
@@ -900,9 +900,8 @@ macros may be significant.
                                ``attentionBorderColor``, ``dangerBorderColor``,
                                ``errorBorderColor``
 
-.. |wgbdcolorslatex| replace:: ``warningBorderColor``, ``cautionBorderColor``,
-                               ``attentionB..C..``, ``dangerB..C..``,
-                               ``errorB..C..``
+.. |wgbdcolorslatex| replace:: ``warningBorderColor``, and 
+                               ``(caution|attention|danger|error)BorderColor``
 
 .. else latex goes into right margin, as it does not hyphenate the names
 
