@@ -1230,25 +1230,26 @@
 \long\def\spx@verb@FormatLineForceWrap#1{%
     % \spx@image@box is a scratch box register that we can use here
     \global\let\spx@verb@maxwidth\z@
+    \global\let\spx@verb@minwidth\linewidth
     \setbox\spx@image@box
     \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
           \strut #1\strut\@@par
-          \spx@verb@getmaxwidth}%
+          \spx@verb@getwidths}%
     \ifdim\spx@verb@maxwidth>
           \dimexpr\linewidth+\spx@opt@verbatimmaxoverfull\fontcharwd\font`X \relax
       \spx@verb@FormatLineWrap{\spx@verb@wrapPYG #1\spx@verb@wrapPYG}%
     \else
-      \ifdim\spx@verb@maxwidth<
+      \ifdim\spx@verb@minwidth<
             \dimexpr\linewidth-\spx@opt@verbatimmaxunderfull\fontcharwd\font`X \relax
         \spx@verb@FormatLineWrap{\spx@verb@wrapPYG #1\spx@verb@wrapPYG}%
       \else
         \spx@verb@FormatLineWrap{#1}%
     \fi\fi
 }%
-% auxiliary paragraph dissector to get max width
+% auxiliary paragraph dissector to get max and min widths
 \newbox\spx@scratchbox
-\def\spx@verb@getmaxwidth {%
+\def\spx@verb@getwidths {%
     \unskip\unpenalty
     \setbox\spx@scratchbox\lastbox
     \ifvoid\spx@scratchbox
@@ -1257,7 +1258,10 @@
        \ifdim\spx@verb@maxwidth<\wd\spx@scratchbox
           \xdef\spx@verb@maxwidth{\number\wd\spx@scratchbox sp}%
        \fi
-       \expandafter\spx@verb@getmaxwidth
+       \ifdim\spx@verb@minwidth>\wd\spx@scratchbox
+          \xdef\spx@verb@minwidth{\number\wd\spx@scratchbox sp}%
+       \fi
+       \expandafter\spx@verb@getwidths
     \fi
 }%
 % auxiliary macros to implement "cut long line even in middle of word"
