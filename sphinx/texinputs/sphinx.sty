@@ -92,6 +92,9 @@
 % verbatim
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
+\DeclareBoolOption[false]{verbatimforcewraps}
+\DeclareStringOption[3]{verbatimmaxoverfull}
+\DeclareStringOption[100]{verbatimmaxunderfull}
 \DeclareBoolOption[true]{verbatimhintsturnover}
 \DeclareBoolOption[true]{inlineliteralwraps}
 \DeclareStringOption[t]{literalblockcappos}
@@ -298,6 +301,28 @@
 
 %% FOOTNOTES
 %
+% Support scopes for footnote numbering
+\newcounter{sphinxscope}
+\newcommand{\sphinxstepscope}{\stepcounter{sphinxscope}}
+% Explictly numbered footnotes may be referred to, and for this to be
+% clickable we need to have only one target. So we will step this at each
+% explicit footnote and let \thesphinxscope take it into account
+\newcounter{sphinxexplicit}
+\newcommand{\sphinxstepexplicit}{\stepcounter{sphinxexplicit}}
+% Some babel/polyglossia languages fiddle with \@arabic, so let's be extra
+% cautious and redefine \thesphinxscope with \number not \@arabic.
+% Memo: we expect some subtle redefinition of \thesphinxscope to be a part of page
+% scoping for footnotes, when we shall implement it.
+\renewcommand{\thesphinxscope}{\number\value{sphinxscope}.\number\value{sphinxexplicit}}
+\newcommand\sphinxthefootnotemark[2]{%
+   % this is used to make reference to an explicitly numbered footnote not on same page
+   % #1=label of footnote text, #2=page number where footnote text was printed
+   \ifdefined\pagename
+      \pagename\space#2, % <- space
+    \else
+      p. #2, % <- space
+   \fi #1% no space
+}
 % support large numbered footnotes in minipage; but this is now obsolete
 % from systematic use of savenotes environment around minipages
 \def\thempfootnote{\arabic{mpfootnote}}

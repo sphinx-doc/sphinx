@@ -844,11 +844,16 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnote(self, node: Element) -> None:
         self.in_footnote += 1
         label = cast(nodes.label, node[0])
+        if 'auto' not in node:
+            self.body.append('\\sphinxstepexplicit ')
         if self.in_parsed_literal:
             self.body.append('\\begin{footnote}[%s]' % label.astext())
         else:
             self.body.append('%\n')
             self.body.append('\\begin{footnote}[%s]' % label.astext())
+        if 'auto' not in node:
+            self.body.append('\\phantomsection'
+                             '\\label{\\thesphinxscope.%s}%%\n' % label.astext())
         self.body.append('\\sphinxAtStartFootnote\n')
 
     def depart_footnote(self, node: Element) -> None:
@@ -1746,7 +1751,9 @@ class LaTeXTranslator(SphinxTranslator):
         label = cast(nodes.label, node[0])
         self.body.append('%\n')
         self.body.append('\\begin{footnotetext}[%s]'
-                         '\\sphinxAtStartFootnote\n' % label.astext())
+                         '\\phantomsection\\label{\\thesphinxscope.%s}%%\n'
+                         % (label.astext(), label.astext()))
+        self.body.append('\\sphinxAtStartFootnote\n')
 
     def depart_footnotetext(self, node: Element) -> None:
         # the \ignorespaces in particular for after table header use
