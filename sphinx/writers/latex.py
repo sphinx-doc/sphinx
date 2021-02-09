@@ -846,7 +846,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnote(self, node: Element) -> None:
         self.in_footnote += 1
         label = cast(nodes.label, node[0])
-        if 'auto' not in node.attributes:
+        if 'auto' not in node:
             self.body.append('\\sphinxstepexplicit ')
         if self.in_parsed_literal:
             self.body.append('\\begin{footnote}[%s]' % label.astext())
