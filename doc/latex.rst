@@ -650,7 +650,7 @@ macros may be significant.
     Boolean to specify if long lines in :rst:dir:`code-block`\ 's contents
     should be forcefully wrapped to never overflow due to long strings.
 
-    .. notice::
+    .. note::
 
        It is assumed that the Pygments_ LaTeXFormatter has not been used with
        its ``texcomments`` or similar options which allow additional
