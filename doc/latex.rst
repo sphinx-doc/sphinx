@@ -585,7 +585,7 @@ The below is included at the end of the chapter::
 
      \endgroup
 
-LaTeX syntax for boolean keys require *lowercase* ``true`` or ``false``
+LaTeX syntax for boolean keys requires *lowercase* ``true`` or ``false``
 e.g ``'sphinxsetup': "verbatimwrapslines=false"``.  If setting the
 boolean key to ``true``, ``=true`` is optional.
 Spaces around the commas and equal signs are ignored, spaces inside LaTeX
