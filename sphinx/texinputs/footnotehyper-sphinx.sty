@@ -325,8 +325,58 @@
 % some extras for Sphinx :
 % \sphinxfootnotemark: usable in section titles and silently removed from TOCs.
 \def\sphinxfootnotemark [#1]%
-   {\ifx\thepage\relax\else\protect\spx@opt@BeforeFootnote
-                             \protect\footnotemark[#1]\fi}%
+   {\ifx\thepage\relax\else\sphinxfootref{#1}\fi}%
+% \sphinxfootref:
+% - \spx@opt@BeforeFootnote is from BeforeFootnote sphinxsetup option
+% - \ref:
+%     the latex.py writer inserts a \phantomsection\label{<scope>.<num>}
+%     whenever
+%     - the footnote was explicitly numbered in sources,
+%     - or it was in restrained context and is rendered using footnotetext
+%
+%     These are the two types of footnotes that \sphinxfootnotemark must
+%     handle. But for explicitly numbered footnotes the same number
+%     can be found in document. So a secondary part in  <scope> is updated
+%     at each novel such footnote to know what is the target from then on
+%     for \sphinxfootnotemark and already encountered [1], or [2],...
+%
+% LaTeX package varioref is not supported by hyperref (from its doc: "There
+% are too many problems with varioref. Nobody has time to sort them out.
+% Therefore this package is now unsupported.") So we will simply use our own
+% macros to access the page number of footnote text and decide whether to print
+% it. \pagename is internationalized by latex-babel.
+\def\spx@thefnmark#1#2{%
+  % #1=label for reference, #2=page where footnote was printed
+  \ifx\spx@tempa\spx@tempb
+     % same page
+     #1%
+  \else
+    \sphinxthefootnotemark{#1}{#2}%
+  \fi
+}%
+\def\sphinxfootref@get #1#2#3#4#5\relax{%
+    \def\sphinxfootref@label{#1}%
+    \def\sphinxfootref@page {#2}%
+    \def\sphinxfootref@Href {#4}%
+}%
+\protected\def\sphinxfootref#1{% #1 always explicit number in Sphinx usage
+  \spx@opt@BeforeFootnote
+  \ltx@ifundefined{r@\thesphinxscope.#1}%
+    {\gdef\@thefnmark{?}\H@@footnotemark}%
+    {\expandafter\expandafter\expandafter\sphinxfootref@get
+                 \csname r@\thesphinxscope.#1\endcsname\relax
+     \edef\spx@tempa{\thepage}\edef\spx@tempb{\sphinxfootref@page}%
+     \protected@xdef\@thefnmark{\spx@thefnmark{\sphinxfootref@label}{\sphinxfootref@page}}%
+     \let\spx@@makefnmark\@makefnmark
+     \def\@makefnmark{%
+       \hyper@linkstart{link}{\sphinxfootref@Href}%
+       \spx@@makefnmark
+       \hyper@linkend
+     }%
+     \H@@footnotemark
+     \let\@makefnmark\spx@@makefnmark
+    }%
+}%
 \AtBeginDocument{%
    % let hyperref less complain
    \pdfstringdefDisableCommands{\def\sphinxfootnotemark [#1]{}}%
