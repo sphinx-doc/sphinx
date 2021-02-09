@@ -3173,7 +3173,7 @@ msgstr "Veuillez activer le JavaScript pour que la recherche fonctionne."
 msgid ""
 "Searching for multiple words only shows matches that contain\n"
 "    all words."
-msgstr ""
+msgstr "Une recherche sur plusieurs mots affiche uniquement les résultats qui contiennent tous les mots."
 
 #: sphinx/themes/basic/search.html:32
 msgid "search"
