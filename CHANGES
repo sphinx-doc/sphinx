@@ -18,9 +18,12 @@ Deprecated
 ----------
 
 * pending_xref node for viewcode extension
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.anchors_ignore``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.auth``
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
 * ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.to_ignore``
 * ``sphinx.builders.linkcheck.node_line_or_0()``
 * ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
 * ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
@@ -50,6 +53,7 @@ Features added
 * #6550: html: Allow to use HTML permalink texts via
   :confval:`html_permalinks_icon`
 * #1638: html: Add permalink icons to glossary terms
+* #8852: i18n: Allow to translate heading syntax in MyST-Parser
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
 * #8573: napoleon: Allow to change the style of custom sections using
@@ -119,6 +123,8 @@ Bugs fixed
   an hyperlink
 * #7576: LaTeX with French babel and memoir crash: "Illegal parameter number
   in definition of ``\FNH@prefntext``"
+* #8055: LaTeX (docs): A potential display bug with the LaTeX generation step
+  in Sphinx (how to generate one-column index)
 * #8072: LaTeX: Directive :rst:dir:`hlist` not implemented in LaTeX
 * #8214: LaTeX: The :rst:role:`index` role and the glossary generate duplicate
   entries in the LaTeX index (if both used for same term)
@@ -131,6 +137,9 @@ Bugs fixed
 * #8780: LaTeX: long words in narrow columns may not be hyphenated
 * #8788: LaTeX: ``\titleformat`` last argument in sphinx.sty should be
   bracketed, not braced (and is anyhow not needed) 
+* #8849: LaTex: code-block printed out of margin (see the opt-in LaTeX syntax
+  boolean :ref:`verbatimforcewraps <latexsphinxsetupforcewraps>` for use via
+  the :ref:`'sphinxsetup' <latexsphinxsetup>` key of ``latex_elements``)
 
 Testing
 --------
