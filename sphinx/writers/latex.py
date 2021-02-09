@@ -60,6 +60,7 @@ ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
                                    })
 
 CR = '\n'
+BLANKLINE = '\n\n'
 EXTRA_RE = re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')
 
 
@@ -584,7 +585,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_section(self, node: Element) -> None:
         if not self.this_is_the_title:
             self.sectionlevel += 1
-        self.body.append('\n\n')
+        self.body.append(BLANKLINE)
 
     def depart_section(self, node: Element) -> None:
         self.sectionlevel = max(self.sectionlevel - 1,
@@ -613,12 +614,12 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_productionlist(self, node: Element) -> None:
-        self.body.append('\n\n')
+        self.body.append(BLANKLINE)
         self.body.append('\\begin{productionlist}' + CR)
         self.in_production_list = 1
 
     def depart_productionlist(self, node: Element) -> None:
-        self.body.append('\\end{productionlist}\n\n')
+        self.body.append('\\end{productionlist}' + BLANKLINE)
         self.in_production_list = 0
 
     def visit_production(self, node: Element) -> None:
@@ -705,19 +706,19 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_desc(self, node: Element) -> None:
         if self.config.latex_show_urls == 'footnote':
-            self.body.append('\n\n')
+            self.body.append(BLANKLINE)
             self.body.append('\\begin{savenotes}\\begin{fulllineitems}' + CR)
         else:
-            self.body.append('\n\n')
+            self.body.append(BLANKLINE)
             self.body.append('\\begin{fulllineitems}' + CR)
         if self.table:
             self.table.has_problematic = True
 
     def depart_desc(self, node: Element) -> None:
         if self.config.latex_show_urls == 'footnote':
-            self.body.append(CR + '\\end{fulllineitems}\\end{savenotes}\n\n')
+            self.body.append(CR + '\\end{fulllineitems}\\end{savenotes}' + BLANKLINE)
         else:
-            self.body.append(CR + '\\end{fulllineitems}\n\n')
+            self.body.append(CR + '\\end{fulllineitems}' + BLANKLINE)
 
     def _visit_signature_line(self, node: Element) -> None:
         for child in node:
@@ -825,12 +826,12 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_seealso(self, node: Element) -> None:
-        self.body.append('\n\n')
+        self.body.append(BLANKLINE)
         self.body.append('\\sphinxstrong{%s:}' % admonitionlabels['seealso'] + CR)
-        self.body.append('\\nopagebreak\n\n')
+        self.body.append('\\nopagebreak' + BLANKLINE)
 
     def depart_seealso(self, node: Element) -> None:
-        self.body.append("\n\n")
+        self.body.append(BLANKLINE)
 
     def visit_rubric(self, node: Element) -> None:
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
@@ -901,7 +902,7 @@ class LaTeXTranslator(SphinxTranslator):
         table_type = self.table.get_table_type()
         table = self.render(table_type + '.tex_t',
                             dict(table=self.table, labels=labels))
-        self.body.append("\n\n")
+        self.body.append(BLANKLINE)
         self.body.append(table)
         self.body.append(CR)
 
@@ -1049,9 +1050,9 @@ class LaTeXTranslator(SphinxTranslator):
         # comma-separated list here
         bullet_list = cast(nodes.bullet_list, node[0])
         list_items = cast(Iterable[nodes.list_item], bullet_list)
-        self.body.append('\n\n')
+        self.body.append(BLANKLINE)
         self.body.append(', '.join(n.astext() for n in list_items) + '.')
-        self.body.append('\n\n')
+        self.body.append(BLANKLINE)
         raise nodes.SkipNode
 
     def visit_bullet_list(self, node: Element) -> None:
@@ -1339,8 +1340,8 @@ class LaTeXTranslator(SphinxTranslator):
                 length = self.latex_image_length(node['width'])
             elif isinstance(node[0], nodes.image) and 'width' in node[0]:
                 length = self.latex_image_length(node[0]['width'])
-            self.body.append('\n\n')    # Insert a blank line to prevent infinite loop
-                                        # https://github.com/sphinx-doc/sphinx/issues/7059
+            self.body.append(BLANKLINE)     # Insert a blank line to prevent infinite loop
+                                            # https://github.com/sphinx-doc/sphinx/issues/7059
             self.body.append('\\begin{wrapfigure}{%s}{%s}' %
                              ('r' if node['align'] == 'right' else 'l', length or '0pt') + CR)
             self.body.append('\\centering')
