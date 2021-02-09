@@ -372,9 +372,8 @@ class LaTeXTranslator(SphinxTranslator):
                 'fncychap' not in self.config.latex_elements):
             # use Sonny style if any language specified (except English)
             self.elements['fncychap'] = ('\\usepackage[Sonny]{fncychap}\n'
-                                         '\\ChNameVar{\\Large\\normalfont'
-                                         '\\sffamily}\n\\ChTitleVar{\\Large'
-                                         '\\normalfont\\sffamily}')
+                                         '\\ChNameVar{\\Large\\normalfont\\sffamily}\n'
+                                         '\\ChTitleVar{\\Large\\normalfont\\sffamily}')
 
         self.babel = self.builder.babel
         if self.config.language and not self.babel.is_supported_language():
@@ -612,7 +611,8 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_productionlist(self, node: Element) -> None:
-        self.body.append('\n\n\\begin{productionlist}\n')
+        self.body.append('\n\n')
+        self.body.append('\\begin{productionlist}\n')
         self.in_production_list = 1
 
     def depart_productionlist(self, node: Element) -> None:
@@ -703,9 +703,11 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_desc(self, node: Element) -> None:
         if self.config.latex_show_urls == 'footnote':
-            self.body.append('\n\n\\begin{savenotes}\\begin{fulllineitems}\n')
+            self.body.append('\n\n')
+            self.body.append('\\begin{savenotes}\\begin{fulllineitems}\n')
         else:
-            self.body.append('\n\n\\begin{fulllineitems}\n')
+            self.body.append('\n\n')
+            self.body.append('\\begin{fulllineitems}\n')
         if self.table:
             self.table.has_problematic = True
 
@@ -735,13 +737,15 @@ class LaTeXTranslator(SphinxTranslator):
         if not node.get('is_multiline'):
             self._visit_signature_line(node)
         else:
-            self.body.append('%\n\\pysigstartmultiline\n')
+            self.body.append('%\n')
+            self.body.append('\\pysigstartmultiline\n')
 
     def depart_desc_signature(self, node: Element) -> None:
         if not node.get('is_multiline'):
             self._depart_signature_line(node)
         else:
-            self.body.append('%\n\\pysigstopmultiline')
+            self.body.append('%\n')
+            self.body.append('\\pysigstopmultiline')
 
     def visit_desc_signature_line(self, node: Element) -> None:
         self._visit_signature_line(node)
@@ -819,8 +823,9 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_seealso(self, node: Element) -> None:
-        self.body.append('\n\n\\sphinxstrong{%s:}\n\\nopagebreak\n\n'
-                         % admonitionlabels['seealso'])
+        self.body.append('\n\n')
+        self.body.append('\\sphinxstrong{%s:}\n' % admonitionlabels['seealso'])
+        self.body.append('\\nopagebreak\n\n')
 
     def depart_seealso(self, node: Element) -> None:
         self.body.append("\n\n")
@@ -842,14 +847,16 @@ class LaTeXTranslator(SphinxTranslator):
         if self.in_parsed_literal:
             self.body.append('\\begin{footnote}[%s]' % label.astext())
         else:
-            self.body.append('%%\n\\begin{footnote}[%s]' % label.astext())
+            self.body.append('%\n')
+            self.body.append('\\begin{footnote}[%s]' % label.astext())
         self.body.append('\\sphinxAtStartFootnote\n')
 
     def depart_footnote(self, node: Element) -> None:
         if self.in_parsed_literal:
             self.body.append('\\end{footnote}')
         else:
-            self.body.append('%\n\\end{footnote}')
+            self.body.append('%\n')
+            self.body.append('\\end{footnote}')
         self.in_footnote -= 1
 
     def visit_label(self, node: Element) -> None:
@@ -1310,10 +1317,11 @@ class LaTeXTranslator(SphinxTranslator):
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
                 if length:
-                    self.body.append('\\begin{sphinxfigure-in-table}[%s]\n'
-                                     '\\centering\n' % length)
+                    self.body.append('\\begin{sphinxfigure-in-table}[%s]\n' % length)
+                    self.body.append('\\centering\n')
             else:
-                self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
+                self.body.append('\\begin{sphinxfigure-in-table}\n')
+                self.body.append('\\centering\n')
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart')
             self.context.append('\\end{sphinxfigure-in-table}\\relax\n')
@@ -1325,14 +1333,16 @@ class LaTeXTranslator(SphinxTranslator):
                 length = self.latex_image_length(node[0]['width'])
             self.body.append('\n\n')    # Insert a blank line to prevent infinite loop
                                         # https://github.com/sphinx-doc/sphinx/issues/7059
-            self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
+            self.body.append('\\begin{wrapfigure}{%s}{%s}\n' %
                              ('r' if node['align'] == 'right' else 'l', length or '0pt'))
+            self.body.append('\\centering')
             self.context.append('\\end{wrapfigure}\n')
         elif self.in_minipage:
             self.body.append('\n\\begin{center}')
             self.context.append('\\end{center}\n')
         else:
-            self.body.append('\n\\begin{figure}[%s]\n\\centering\n' % align)
+            self.body.append('\n\\begin{figure}[%s]\n' % align)
+            self.body.append('\\centering\n')
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
             self.context.append('\\end{figure}\n')
@@ -1734,12 +1744,14 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_footnotetext(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
-        self.body.append('%%\n\\begin{footnotetext}[%s]'
+        self.body.append('%\n')
+        self.body.append('\\begin{footnotetext}[%s]'
                          '\\sphinxAtStartFootnote\n' % label.astext())
 
     def depart_footnotetext(self, node: Element) -> None:
         # the \ignorespaces in particular for after table header use
-        self.body.append('%\n\\end{footnotetext}\\ignorespaces ')
+        self.body.append('%\n')
+        self.body.append('\\end{footnotetext}\\ignorespaces ')
 
     def visit_captioned_literal_block(self, node: Element) -> None:
         pass
@@ -1812,8 +1824,8 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_line_block(self, node: Element) -> None:
         if isinstance(node.parent, nodes.line_block):
-            self.body.append('\\item[]\n'
-                             '\\begin{DUlineblock}{\\DUlineblockindent}\n')
+            self.body.append('\\item[]\n')
+            self.body.append('\\begin{DUlineblock}{\\DUlineblockindent}\n')
         else:
             self.body.append('\n\\begin{DUlineblock}{0em}\n')
         if self.table:

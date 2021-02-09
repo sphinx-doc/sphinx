@@ -134,6 +134,7 @@ Features added
 * #6550: html: Allow to use HTML permalink texts via
   :confval:`html_permalinks_icon`
 * #1638: html: Add permalink icons to glossary terms
+* #8852: i18n: Allow to translate heading syntax in MyST-Parser
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
 * #8573: napoleon: Allow to change the style of custom sections using
