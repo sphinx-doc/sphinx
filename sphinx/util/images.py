@@ -12,7 +12,7 @@ import base64
 import imghdr
 from collections import OrderedDict
 from os import path
-from typing import IO, NamedTuple, Optional, Tuple
+from typing import IO, BinaryIO, NamedTuple, Optional, Tuple
 
 import imagesize
 
@@ -103,7 +103,7 @@ def parse_data_uri(uri: str) -> Optional[DataURI]:
     return DataURI(mimetype, charset, image_data)
 
 
-def test_svg(h: bytes, f: IO) -> Optional[str]:
+def test_svg(h: bytes, f: Optional[BinaryIO]) -> Optional[str]:
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
         if '<svg' in h.decode().lower():
