@@ -775,10 +775,10 @@ macros may be significant.
 
     Default: ``{rgb}{0.126,0.263,0.361}``
 
-.. warning::
+    .. warning::
 
-   Colours set via ``'sphinxsetup'``  must obey the syntax of the
-   argument of the ``color/xcolor`` packages ``\definecolor`` command.
+       Colours set via ``'sphinxsetup'``  must obey the syntax of the
+       argument of the ``color/xcolor`` packages ``\definecolor`` command.
 
 ``InnerLinkColor``
     A colour passed to ``hyperref`` as value of ``linkcolor``  and
