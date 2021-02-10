@@ -44,7 +44,7 @@ class SubstitutionDefinitionsRemover(SphinxPostTransform):
     default_priority = Substitutions.default_priority + 1
     builders = ('latex',)
 
-    def apply(self, **kwargs: Any) -> None:
+    def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.substitution_definition):
             node.parent.remove(node)
 
