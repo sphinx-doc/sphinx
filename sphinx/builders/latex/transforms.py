@@ -574,7 +574,7 @@ class DocumentTargetTransform(SphinxPostTransform):
                 section['ids'].append(':doc')  # special label for :doc:
 
 
-class IndexInSectionTitleTransform(SphinxTransform):
+class IndexInSectionTitleTransform(SphinxPostTransform):
     """Move index nodes in section title to outside of the title.
 
     LaTeX index macro is not compatible with some handling of section titles
@@ -601,8 +601,9 @@ class IndexInSectionTitleTransform(SphinxTransform):
             ...
     """
     default_priority = 400
+    builders = ('latex',)
 
-    def apply(self, **kwargs: Any) -> None:
+    def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.title):
             if isinstance(node.parent, nodes.section):
                 for i, index in enumerate(node.traverse(addnodes.index)):
