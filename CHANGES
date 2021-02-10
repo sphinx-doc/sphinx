@@ -140,6 +140,8 @@ Bugs fixed
 * #8849: LaTex: code-block printed out of margin (see the opt-in LaTeX syntax
   boolean :ref:`verbatimforcewraps <latexsphinxsetupforcewraps>` for use via
   the :ref:`'sphinxsetup' <latexsphinxsetup>` key of ``latex_elements``)
+* #8183: LaTeX: Remove substitution_reference nodes from doctree only on LaTeX
+  builds
 
 Testing
 --------
