@@ -13,8 +13,9 @@
 var stopwords = {{ search_language_stop_words }};
 
 {% if search_language_stemming_code %}
-/* Non-minified version JS is _stemmer.js if file is provided */ {% endif -%}
+/* Non-minified version is copied as a separate JS file, is available */
 {{ search_language_stemming_code|safe }}
+{% endif -%}
 
 {% if search_scorer_tool %}
 {{ search_scorer_tool|safe }}
