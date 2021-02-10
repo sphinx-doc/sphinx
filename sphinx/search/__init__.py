@@ -439,15 +439,34 @@ class IndexBuilder:
             js_splitter_code = self.js_splitter_code
 
         return {
-            'search_language_stemming_code': self.lang.js_stemmer_code,
+            'search_language_stemming_code': self.get_js_stemmer_code(),
             'search_language_stop_words': jsdump.dumps(sorted(self.lang.stopwords)),
             'search_scorer_tool': self.js_scorer_code,
             'search_word_splitter_code': js_splitter_code,
         }
 
-    def get_js_stemmer_rawcode(self) -> str:
+    def get_js_stemmer_rawcodes(self) -> List[str]:
+        """Returns a list of non-minified stemmer JS files to copy."""
         if self.lang.js_stemmer_rawcode:
-            return path.join(package_dir, 'search', 'non-minified-js',
-                             self.lang.js_stemmer_rawcode)
+            return [
+                path.join(package_dir, 'search', 'non-minified-js', fname)
+                for fname in ('base-stemmer.js', self.lang.js_stemmer_rawcode)
+            ]
         else:
-            return None
+            return []
+
+    def get_js_stemmer_rawcode(self) -> str:
+        return None
+
+    def get_js_stemmer_code(self) -> str:
+        """Returns JS code that will be inserted into language_data.js."""
+        if self.lang.js_stemmer_rawcode:
+            js_dir = path.join(package_dir, 'search', 'minified-js')
+            with open(path.join(js_dir, 'base-stemmer.js')) as js_file:
+                base_js = js_file.read()
+            with open(path.join(js_dir, self.lang.js_stemmer_rawcode)) as js_file:
+                language_js = js_file.read()
+            return ('%s\n%s\nStemmer = %sStemmer;' %
+                    (base_js, language_js, self.lang.language_name))
+        else:
+            return self.lang.js_stemmer_code
