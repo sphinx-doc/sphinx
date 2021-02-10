@@ -469,11 +469,22 @@ Keys that don't need to be overridden unless in special cases are:
    .. versionchanged:: 1.6
       Remove unneeded ``{}`` after ``\\hrule``.
 
+``'makeindex'``
+   "makeindex" call, the last thing before ``\begin{document}``. With
+   ``'\\usepackage[columns=1]{idxlayout}\\makeindex'`` the index will use
+   only one column. You may have to install ``idxlayout`` LaTeX package.
+
+   Default: ``'\\makeindex'``
+
 ``'printindex'``
    "printindex" call, the last thing in the file. Override if you want to
-   generate the index differently or append some content after the index. For
-   example ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
-   index is full of long entries.
+   generate the index differently, append some content after the index, or
+   change the font. As LaTeX uses two-column mode for the index it is
+   often advisable to set this key to
+   ``'\\footnotesize\\raggedright\\printindex'``. Or, to obtain a one-column
+   index, use ``'\\def\\twocolumn[#1]{#1}\\printindex'`` (this trick may fail
+   if using a custom document class; then try the ``idxlayout`` approach
+   described in the documentation of the ``'makeindex'`` key).
 
    Default: ``'\\printindex'``
 
@@ -505,7 +516,6 @@ Keys that are set by other options and therefore should not be overridden are:
 ``'title'``
 ``'release'``
 ``'author'``
-``'makeindex'``
 
 
 .. _latexsphinxsetup:
@@ -563,7 +573,9 @@ The below is included at the end of the chapter::
 
      \endgroup
 
-LaTeX boolean keys require *lowercase* ``true`` or ``false`` values.
+LaTeX syntax for boolean keys requires *lowercase* ``true`` or ``false``
+e.g ``'sphinxsetup': "verbatimwrapslines=false"``.  If setting the
+boolean key to ``true``, ``=true`` is optional.
 Spaces around the commas and equal signs are ignored, spaces inside LaTeX
 macros may be significant.
 
@@ -614,14 +626,68 @@ macros may be significant.
     Boolean to specify if long lines in :rst:dir:`code-block`\ 's contents are
     wrapped.
 
+    If ``true``, line breaks may happen at spaces (the last space before the
+    line break will be rendered using a special symbol), and at ascii
+    punctuation characters (i.e. not at letters or digits). Whenever a long
+    string has no break points, it is moved to next line. If its length is
+    longer than the line width it will overflow.
+
     Default: ``true``
 
-``literalblockcappos``
-    Decides the caption position: either ``b`` ("bottom") or ``t`` ("top").
+.. _latexsphinxsetupforcewraps:
 
-    Default: ``t``
+``verbatimforcewraps``
+    Boolean to specify if long lines in :rst:dir:`code-block`\ 's contents
+    should be forcefully wrapped to never overflow due to long strings.
 
-    .. versionadded:: 1.7
+    .. note::
+
+       It is assumed that the Pygments_ LaTeXFormatter has not been used with
+       its ``texcomments`` or similar options which allow additional
+       (arbitrary) LaTeX mark-up.
+
+       Also, in case of :confval:`latex_engine` set to ``'pdflatex'``, only
+       the default LaTeX handling of Unicode code points, i.e. ``utf8`` not
+       ``utf8x`` is allowed.
+
+    .. _Pygments: https://pygments.org/
+
+    Default: ``false``
+
+    .. versionadded:: 3.5.0
+
+``verbatimmaxoverfull``
+    A number. If an unbreakable long string has length larger than the total
+    linewidth plus this number of characters, and if ``verbatimforcewraps``
+    mode is on, the input line will be reset using the forceful algorithm
+    which applies breakpoints at each character.
+
+    Default: ``3``
+
+    .. versionadded:: 3.5.0
+
+``verbatimmaxunderfull``
+    A number. If ``verbatimforcewraps`` mode applies, and if after applying
+    the line wrapping at spaces and punctuation, the first part of the split
+    line is lacking at least that number of characters to fill the available
+    width, then the input line will be reset using the forceful algorithm.
+
+    As the default is set to a high value, the forceful algorithm is triggered
+    only in overfull case, i.e. in presence of a string longer than full
+    linewidth. Set this to ``0`` to force all input lines to be hard wrapped
+    at the current avaiable linewidth::
+
+      latex_elements = {
+          'sphinxsetup': "verbatimforcewraps, verbatimmaxunderfull=0",
+      }
+
+    This can be done locally for a given code-block via the use of raw latex
+    directives to insert suitable ``\sphinxsetup`` (before and after) into the
+    latex file.
+
+    Default: ``100``
+
+    .. versionadded:: 3.5.0
 
 ``verbatimhintsturnover``
     Boolean to specify if code-blocks display "continued on next page" and
@@ -687,10 +753,10 @@ macros may be significant.
 
     Default: ``{rgb}{0.126,0.263,0.361}``
 
-.. warning::
+    .. warning::
 
-   Colours set via ``'sphinxsetup'``  must obey the syntax of the
-   argument of the ``color/xcolor`` packages ``\definecolor`` command.
+       Colours set via ``'sphinxsetup'``  must obey the syntax of the
+       argument of the ``color/xcolor`` packages ``\definecolor`` command.
 
 ``InnerLinkColor``
     A colour passed to ``hyperref`` as value of ``linkcolor``  and
@@ -721,10 +787,10 @@ macros may be significant.
 
     .. versionadded:: 1.6.6
 
-.. note::
+    .. note::
 
-   Starting with this colour key, and for all others coming next, the actual
-   names declared to "color" or "xcolor" are prefixed with "sphinx".
+       Starting with this colour, and for all others following, the
+       names declared to "color" or "xcolor" are prefixed with "sphinx".
 
 ``verbatimsep``
     The separation between code lines and the frame.
@@ -812,9 +878,8 @@ macros may be significant.
                                ``attentionBorderColor``, ``dangerBorderColor``,
                                ``errorBorderColor``
 
-.. |wgbdcolorslatex| replace:: ``warningBorderColor``, ``cautionBorderColor``,
-                               ``attentionB..C..``, ``dangerB..C..``,
-                               ``errorB..C..``
+.. |wgbdcolorslatex| replace:: ``warningBorderColor``, and 
+                               ``(caution|attention|danger|error)BorderColor``
 
 .. else latex goes into right margin, as it does not hyphenate the names
 
