@@ -24,7 +24,7 @@ install_requires = [
     'Jinja2>=2.11, <2.12',
     'Pygments>=2.7,<2.8',
     'docutils>=0.14',
-    'snowballstemmer>=1.1',
+    'snowballstemmer>=2.1',
     'babel>=2.9',
     'alabaster>=0.7,<0.8',
     'imagesize',
