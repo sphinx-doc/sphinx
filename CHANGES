@@ -76,6 +76,12 @@ Features added
 * C++, also hyperlink operator overloads in expressions and alias declarations.
 * #8247: Allow production lists to refer to tokens from other production groups
 * #8813: Show what extension (or module) caused it on errors on event handler
+* #8213: C++: add ``maxdepth`` option to :rst:dir:`cpp:alias` to insert nested
+  declarations.
+* C, add ``noroot`` option to :rst:dir:`c:alias` to render only nested
+  declarations.
+* C++, add ``noroot`` option to :rst:dir:`cpp:alias` to render only nested
+  declarations.
 
 Bugs fixed
 ----------
@@ -148,6 +154,9 @@ Bugs fixed
   builds
 * #8865: LaTeX: Restructure the index nodes inside title nodes only on LaTeX
   builds
+* C, :rst:dir:`c:alias` skip symbols without explicit declarations
+  instead of crashing.
+* C, :rst:dir:`c:alias` give a warning when the root symbol is not declared.
 
 Testing
 --------

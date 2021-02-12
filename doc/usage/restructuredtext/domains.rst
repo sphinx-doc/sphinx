@@ -755,6 +755,13 @@ The following directive can be used for this purpose.
 
       .. versionadded:: 3.3
 
+   .. rst:directive:option:: noroot
+
+      Skip the mentioned declarations and only render nested declarations.
+      Requires ``maxdepth`` either 0 or at least 2.
+
+      .. versionadded:: 3.5
+
 
 .. c:namespace-pop::
 
@@ -1177,6 +1184,24 @@ The following directive can be used for this purpose.
                   void overload_example::C::f(double d)
 
    .. versionadded:: 2.0
+
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: maxdepth: int
+
+      Insert nested declarations as well, up to the total depth given.
+      Use 0 for infinite depth and 1 for just the mentioned declaration.
+      Defaults to 1.
+
+      .. versionadded:: 3.5
+
+   .. rst:directive:option:: noroot
+
+      Skip the mentioned declarations and only render nested declarations.
+      Requires ``maxdepth`` either 0 or at least 2.
+
+      .. versionadded:: 3.5
 
 
 Constrained Templates
