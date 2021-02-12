@@ -207,10 +207,10 @@ You can now use the extension throughout your project. For example:
    The recipe contains `tomato` and `cilantro`.
 
    .. recipe:recipe:: TomatoSoup
-     :contains: tomato cilantro salt pepper
+      :contains: tomato, cilantro, salt, pepper
 
-    This recipe is a tasty tomato soup, combine all ingredients
-    and cook.
+      This recipe is a tasty tomato soup, combine all ingredients
+      and cook.
 
 The important things to note are the use of the ``:recipe:ref:`` role to
 cross-reference the recipe actually defined elsewhere (using the
