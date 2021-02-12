@@ -74,7 +74,7 @@ def test_mangle_signature():
 
 
 def test_extract_summary(capsys):
-    settings = Mock(language_code='',
+    settings = Mock(language_code='en',
                     id_prefix='',
                     auto_id_prefix='',
                     pep_reference=False,
