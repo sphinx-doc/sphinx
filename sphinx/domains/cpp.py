@@ -7089,7 +7089,7 @@ class AliasTransform(SphinxTransform):
 
         if recurse:
             if skipThis:
-                childContainer = nodes
+                childContainer = nodes  # type: Union[List[Node], addnodes.desc]
             else:
                 content = addnodes.desc_content()
                 desc = addnodes.desc()
