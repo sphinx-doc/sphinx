@@ -20,6 +20,7 @@ from docutils import nodes
 from sphinx import locale
 from sphinx.testing.util import (assert_node, assert_not_re_search, assert_re_search,
                                  assert_startswith, etree_parse, path, strip_escseq)
+from sphinx.util import docutils
 
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
@@ -1083,8 +1084,12 @@ def test_additional_targets_should_not_be_translated(app):
     result = (app.outdir / 'raw.html').read_text()
 
     # raw block should not be translated
-    expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
-    assert_count(expected_expr, result, 1)
+    if docutils.__version_info__ < (0, 17):
+        expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
+        assert_count(expected_expr, result, 1)
+    else:
+        expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></section>"""
+        assert_count(expected_expr, result, 1)
 
     # [figure.txt]
 
@@ -1157,8 +1162,12 @@ def test_additional_targets_should_be_translated(app):
     result = (app.outdir / 'raw.html').read_text()
 
     # raw block should be translated
-    expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
-    assert_count(expected_expr, result, 1)
+    if docutils.__version_info__ < (0, 17):
+        expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
+        assert_count(expected_expr, result, 1)
+    else:
+        expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></section>"""
+        assert_count(expected_expr, result, 1)
 
     # [figure.txt]
 
