@@ -24,7 +24,7 @@ class RecipeDirective(ObjectDescription):
 
     def add_target_and_index(self, name_cls, sig, signode):
         signode['ids'].append('recipe' + '-' + sig)
-        if 'noindex' not in self.options:
+        if 'contains' not in self.options:
             ingredients = [
                 x.strip() for x in self.options.get('contains').split(',')]
 
