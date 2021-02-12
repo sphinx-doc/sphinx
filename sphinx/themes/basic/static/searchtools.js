@@ -248,7 +248,7 @@ var Search = {
       // results left, load the summary and display it
       if (results.length) {
         var item = results.pop();
-        var listItem = $('<li style="display:none"></li>');
+        var listItem = $('<li></li>');
         var requestUrl = "";
         var linkUrl = "";
         if (DOCUMENTATION_OPTIONS.BUILDER === 'dirhtml') {
@@ -273,9 +273,9 @@ var Search = {
         if (item[3]) {
           listItem.append($('<span> (' + item[3] + ')</span>'));
           Search.output.append(listItem);
-          listItem.slideDown(5, function() {
+          setTimeout(function() {
             displayNextItem();
-          });
+          }, 5);
         } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
           $.ajax({url: requestUrl,
                   dataType: "text",
@@ -285,16 +285,16 @@ var Search = {
                       listItem.append(Search.makeSearchSummary(data, searchterms, hlterms));
                     }
                     Search.output.append(listItem);
-                    listItem.slideDown(5, function() {
+                    setTimeout(function() {
                       displayNextItem();
-                    });
+                    }, 5);
                   }});
         } else {
           // no source available, just display title
           Search.output.append(listItem);
-          listItem.slideDown(5, function() {
+          setTimeout(function() {
             displayNextItem();
-          });
+          }, 5);
         }
       }
       // search finished, update title and status message

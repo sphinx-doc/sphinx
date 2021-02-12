@@ -97,7 +97,22 @@ The following is a list of deprecated interfaces.
      - 5.0
      - N/A
 
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.rqueue``
+     - 3.5
+     - 5.0
+     - N/A
+
    * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.to_ignore``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.workers``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.wqueue``
      - 3.5
      - 5.0
      - N/A

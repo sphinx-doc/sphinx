@@ -15,14 +15,14 @@ import textwrap
 import time
 import wsgiref.handlers
 from datetime import datetime
+from queue import Queue
 from typing import Dict
 from unittest import mock
 
 import pytest
 import requests
 
-from sphinx.builders.linkcheck import (CheckExternalLinksBuilder,
-                                       HyperlinkAvailabilityCheckWorker, RateLimit)
+from sphinx.builders.linkcheck import HyperlinkAvailabilityCheckWorker, RateLimit
 from sphinx.util.console import strip_colors
 
 from .utils import CERT_FILE, http_server, https_server
@@ -536,10 +536,7 @@ class FakeResponse:
 
 
 def test_limit_rate_default_sleep(app):
-    checker = CheckExternalLinksBuilder(app)
-    checker.init()
-    checker.rate_limits = {}
-    worker = HyperlinkAvailabilityCheckWorker(checker)
+    worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(), {})
     with mock.patch('time.time', return_value=0.0):
         next_check = worker.limit_rate(FakeResponse())
     assert next_check == 60.0
@@ -547,40 +544,34 @@ def test_limit_rate_default_sleep(app):
 
 def test_limit_rate_user_max_delay(app):
     app.config.linkcheck_rate_limit_timeout = 0.0
-    checker = CheckExternalLinksBuilder(app)
-    checker.init()
-    checker.rate_limits = {}
-    worker = HyperlinkAvailabilityCheckWorker(checker)
+    worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(), {})
     next_check = worker.limit_rate(FakeResponse())
     assert next_check is None
 
 
 def test_limit_rate_doubles_previous_wait_time(app):
-    checker = CheckExternalLinksBuilder(app)
-    checker.init()
-    checker.rate_limits = {"localhost": RateLimit(60.0, 0.0)}
-    worker = HyperlinkAvailabilityCheckWorker(checker)
+    rate_limits = {"localhost": RateLimit(60.0, 0.0)}
+    worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(),
+                                              rate_limits)
     with mock.patch('time.time', return_value=0.0):
         next_check = worker.limit_rate(FakeResponse())
     assert next_check == 120.0
 
 
 def test_limit_rate_clips_wait_time_to_max_time(app):
-    checker = CheckExternalLinksBuilder(app)
-    checker.init()
     app.config.linkcheck_rate_limit_timeout = 90.0
-    checker.rate_limits = {"localhost": RateLimit(60.0, 0.0)}
-    worker = HyperlinkAvailabilityCheckWorker(checker)
+    rate_limits = {"localhost": RateLimit(60.0, 0.0)}
+    worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(),
+                                              rate_limits)
     with mock.patch('time.time', return_value=0.0):
         next_check = worker.limit_rate(FakeResponse())
     assert next_check == 90.0
 
 
 def test_limit_rate_bails_out_after_waiting_max_time(app):
-    checker = CheckExternalLinksBuilder(app)
-    checker.init()
     app.config.linkcheck_rate_limit_timeout = 90.0
-    checker.rate_limits = {"localhost": RateLimit(90.0, 0.0)}
-    worker = HyperlinkAvailabilityCheckWorker(checker)
+    rate_limits = {"localhost": RateLimit(90.0, 0.0)}
+    worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(),
+                                              rate_limits)
     next_check = worker.limit_rate(FakeResponse())
     assert next_check is None

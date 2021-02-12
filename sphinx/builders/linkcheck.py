@@ -19,7 +19,8 @@ from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from os import path
 from threading import Thread
-from typing import Any, Dict, List, NamedTuple, Optional, Pattern, Set, Tuple, cast
+from typing import (Any, Dict, Generator, List, NamedTuple, Optional, Pattern, Set, Tuple,
+                    Union, cast)
 from urllib.parse import unquote, urlparse
 
 from docutils import nodes
@@ -29,7 +30,9 @@ from requests.exceptions import HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
@@ -40,10 +43,11 @@ logger = logging.getLogger(__name__)
 
 uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
 
-Hyperlink = NamedTuple('Hyperlink', (('next_check', float),
-                                     ('uri', Optional[str]),
-                                     ('docname', Optional[str]),
+Hyperlink = NamedTuple('Hyperlink', (('uri', str),
+                                     ('docname', str),
                                      ('lineno', Optional[int])))
+CheckRequest = NamedTuple('CheckRequest', (('next_check', float),
+                                           ('hyperlink', Optional[Hyperlink])))
 CheckResult = NamedTuple('CheckResult', (('uri', str),
                                          ('docname', str),
                                          ('lineno', int),
@@ -51,6 +55,9 @@ CheckResult = NamedTuple('CheckResult', (('uri', str),
                                          ('message', str),
                                          ('code', int)))
 RateLimit = NamedTuple('RateLimit', (('delay', float), ('next_check', float)))
+
+# Tuple is old styled CheckRequest
+CheckRequestType = Union[CheckRequest, Tuple[float, str, str, int]]
 
 DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
@@ -121,17 +128,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
         socket.setdefaulttimeout(5.0)
 
         # create queues and worker threads
-        self.rate_limits = {}  # type: Dict[str, RateLimit]
-        self.wqueue = queue.PriorityQueue()  # type: queue.PriorityQueue
-        self.rqueue = queue.Queue()  # type: queue.Queue
-        self.workers = []  # type: List[Thread]
-        for i in range(self.config.linkcheck_workers):
-            thread = HyperlinkAvailabilityCheckWorker(self)
-            thread.start()
-            self.workers.append(thread)
-
-    def is_ignored_uri(self, uri: str) -> bool:
-        return any(pat.match(uri) for pat in self.to_ignore)
+        self._wqueue = queue.PriorityQueue()  # type: queue.PriorityQueue[CheckRequestType]
+        self._rqueue = queue.Queue()  # type: queue.Queue
 
     @property
     def anchors_ignore(self) -> List[Pattern]:
@@ -202,7 +200,33 @@ class CheckExternalLinksBuilder(DummyBuilder):
             RemovedInSphinx50Warning,
             stacklevel=2,
         )
-        return HyperlinkAvailabilityCheckWorker(self).limit_rate(response)
+        worker = HyperlinkAvailabilityCheckWorker(self.env, self.config,
+                                                  None, None, {})
+        return worker.limit_rate(response)
+
+    def rqueue(self, response: Response) -> queue.Queue:
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "rqueue"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return self._rqueue
+
+    def workers(self, response: Response) -> List[Thread]:
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "workers"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return []
+
+    def wqueue(self, response: Response) -> queue.Queue:
+        warnings.warn(
+            "%s.%s is deprecated." % (self.__class__.__name__, "wqueue"),
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
+        return self._wqueue
 
     def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
         uri, docname, lineno, status, info, code = result
@@ -268,53 +292,105 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.json_outfile.write('\n')
 
     def finish(self) -> None:
+        checker = HyperlinkAvailabilityChecker(self.env, self.config, self)
         logger.info('')
 
         with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
              open(path.join(self.outdir, 'output.json'), 'w') as self.json_outfile:
-            total_links = 0
-            for hyperlink in self.hyperlinks.values():
-                if self.is_ignored_uri(hyperlink.uri):
-                    self.process_result(
-                        CheckResult(hyperlink.uri, hyperlink.docname, hyperlink.lineno,
-                                    'ignored', '', 0))
-                else:
-                    self.wqueue.put(hyperlink, False)
-                    total_links += 1
-
-            done = 0
-            while done < total_links:
-                self.process_result(self.rqueue.get())
-                done += 1
+            for result in checker.check(self.hyperlinks):
+                self.process_result(result)
 
         if self._broken:
             self.app.statuscode = 1
 
+
+class HyperlinkAvailabilityChecker:
+    def __init__(self, env: BuildEnvironment, config: Config,
+                 builder: CheckExternalLinksBuilder = None) -> None:
+        # Warning: builder argument will be removed in the sphinx-5.0.
+        # Don't use it from extensions.
+        # tag: RemovedInSphinx50Warning
+        self.builder = builder
+        self.config = config
+        self.env = env
+        self.rate_limits = {}  # type: Dict[str, RateLimit]
+        self.workers = []  # type: List[Thread]
+
+        self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
+
+        if builder:
+            self.rqueue = builder._rqueue
+            self.wqueue = builder._wqueue
+        else:
+            self.rqueue = queue.Queue()
+            self.wqueue = queue.PriorityQueue()
+
+    def invoke_threads(self) -> None:
+        for i in range(self.config.linkcheck_workers):
+            thread = HyperlinkAvailabilityCheckWorker(self.env, self.config,
+                                                      self.rqueue, self.wqueue,
+                                                      self.rate_limits, self.builder)
+            thread.start()
+            self.workers.append(thread)
+
+    def shutdown_threads(self) -> None:
         self.wqueue.join()
-        # Shutdown threads.
         for worker in self.workers:
-            self.wqueue.put((CHECK_IMMEDIATELY, None, None, None), False)
+            self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, None), False)
+
+    def check(self, hyperlinks: Dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
+        self.invoke_threads()
+
+        total_links = 0
+        for hyperlink in hyperlinks.values():
+            if self.is_ignored_uri(hyperlink.uri):
+                yield CheckResult(hyperlink.uri, hyperlink.docname, hyperlink.lineno,
+                                  'ignored', '', 0)
+            else:
+                self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, hyperlink), False)
+                total_links += 1
+
+        done = 0
+        while done < total_links:
+            yield self.rqueue.get()
+            done += 1
+
+        self.shutdown_threads()
+
+    def is_ignored_uri(self, uri: str) -> bool:
+        return any(pat.match(uri) for pat in self.to_ignore)
 
 
 class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
-    def __init__(self, builder: CheckExternalLinksBuilder) -> None:
-        self.config = builder.config
-        self.env = builder.env
-        self.rate_limits = builder.rate_limits
-        self.rqueue = builder.rqueue
-        self.wqueue = builder.wqueue
+    def __init__(self, env: BuildEnvironment, config: Config, rqueue: queue.Queue,
+                 wqueue: queue.Queue, rate_limits: Dict[str, RateLimit],
+                 builder: CheckExternalLinksBuilder = None) -> None:
+        # Warning: builder argument will be removed in the sphinx-5.0.
+        # Don't use it from extensions.
+        # tag: RemovedInSphinx50Warning
+        self.config = config
+        self.env = env
+        self.rate_limits = rate_limits
+        self.rqueue = rqueue
+        self.wqueue = wqueue
 
         self.anchors_ignore = [re.compile(x)
                                for x in self.config.linkcheck_anchors_ignore]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in self.config.linkcheck_auth]
-        self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
 
-        self._good = builder._good
-        self._broken = builder._broken
-        self._redirected = builder._redirected
+        if builder:
+            # if given, fill the result of checks as cache
+            self._good = builder._good
+            self._broken = builder._broken
+            self._redirected = builder._redirected
+        else:
+            # only for compatibility. Will be removed in Sphinx-5.0
+            self._good = set()
+            self._broken = {}
+            self._redirected = {}
 
         super().__init__(daemon=True)
 
@@ -400,7 +476,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 elif err.response.status_code == 429:
                     next_check = self.limit_rate(err.response)
                     if next_check is not None:
-                        self.wqueue.put((next_check, uri, docname, lineno), False)
+                        self.wqueue.put(CheckRequest(next_check, hyperlink), False)
                         return 'rate-limited', '', 0
                     return 'broken', str(err), 0
                 elif err.response.status_code == 503:
@@ -467,7 +543,17 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return (status, info, code)
 
         while True:
-            next_check, uri, docname, lineno = self.wqueue.get()
+            check_request = self.wqueue.get()
+            try:
+                next_check, hyperlink = check_request
+                if hyperlink is None:
+                    break
+
+                uri, docname, lineno = hyperlink
+            except ValueError:
+                # old styled check_request (will be deprecated in Sphinx-5.0)
+                next_check, uri, docname, lineno = check_request
+
             if uri is None:
                 break
             netloc = urlparse(uri).netloc
@@ -483,7 +569,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # Sleep before putting message back in the queue to avoid
                 # waking up other threads.
                 time.sleep(QUEUE_POLL_SECS)
-                self.wqueue.put((next_check, uri, docname, lineno), False)
+                self.wqueue.put(CheckRequest(next_check, hyperlink), False)
                 self.wqueue.task_done()
                 continue
             status, info, code = check(docname)
@@ -546,7 +632,7 @@ class HyperlinkCollector(SphinxPostTransform):
                 continue
             uri = refnode['refuri']
             lineno = get_node_line(refnode)
-            uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+            uri_info = Hyperlink(uri, self.env.docname, lineno)
             if uri not in hyperlinks:
                 hyperlinks[uri] = uri_info
 
@@ -555,7 +641,7 @@ class HyperlinkCollector(SphinxPostTransform):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
                 lineno = get_node_line(imgnode)
-                uri_info = Hyperlink(CHECK_IMMEDIATELY, uri, self.env.docname, lineno)
+                uri_info = Hyperlink(uri, self.env.docname, lineno)
                 if uri not in hyperlinks:
                     hyperlinks[uri] = uri_info
 
