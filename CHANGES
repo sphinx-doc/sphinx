@@ -146,6 +146,8 @@ Bugs fixed
   the :ref:`'sphinxsetup' <latexsphinxsetup>` key of ``latex_elements``)
 * #8183: LaTeX: Remove substitution_reference nodes from doctree only on LaTeX
   builds
+* #8865: LaTeX: Restructure the index nodes inside title nodes only on LaTeX
+  builds
 
 Testing
 --------
