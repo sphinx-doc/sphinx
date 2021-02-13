@@ -75,6 +75,8 @@ Bugs fixed
   change) with late TeXLive 2019
 * #8253: LaTeX: Figures with no size defined get overscaled (compared to images
   with size explicitly set in pixels) (fixed for ``'pdflatex'/'lualatex'`` only)
+* #8874: LaTeX: the fix to two minor Pygments LaTeXFormatter output issues ignore
+  Pygments style
 
 Testing
 --------

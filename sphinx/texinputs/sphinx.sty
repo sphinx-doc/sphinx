@@ -271,17 +271,6 @@
 %% PYGMENTS
 % stylesheet for highlighting with pygments
 \RequirePackage{sphinxhighlight}
-% fix baseline increase from Pygments latex formatter in case of error tokens
-% and keep \fboxsep's scope local via added braces
-\def\PYG@tok@err{%
-    \def\PYG@bc##1{{\setlength{\fboxsep}{-\fboxrule}%
-                    \fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}%
-}
-\def\PYG@tok@cs{%
-    \def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}%
-    \def\PYG@bc##1{{\setlength{\fboxsep}{0pt}%
-                    \colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}%
-}%
 
 
 %% TABLES
