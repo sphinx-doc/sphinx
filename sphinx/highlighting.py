@@ -57,6 +57,7 @@ _LATEX_ADD_STYLES = r'''
 # cf pygments #1708 which makes this unneeded for Pygments > 2.7.4
 _LATEX_ADD_STYLES_FIXPYG = r'''
 \makeatletter
+% fix for Pygments <= 2.7.4
 \let\spx@original@fcolorbox\fcolorbox
 \def\spx@fixpyg@fcolorbox{\fboxsep-\fboxrule\spx@original@fcolorbox}
 \def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+%
