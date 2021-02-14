@@ -22,6 +22,7 @@ recursive-include sphinx/texinputs_win *
 recursive-include sphinx/themes *
 recursive-include sphinx/locale *.js *.pot *.po *.mo
 recursive-include sphinx/search/non-minified-js *.js
+recursive-include sphinx/search/minified-js *.js
 recursive-include sphinx/ext/autosummary/templates *
 recursive-include tests *
 recursive-include utils *
