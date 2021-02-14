@@ -754,9 +754,13 @@ class StandaloneHTMLBuilder(Builder):
     def copy_stemmer_js(self) -> None:
         """Copy a JavaScript file for stemmer."""
         if self.indexer is not None:
-            jsfile = self.indexer.get_js_stemmer_rawcode()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+            if hasattr(self.indexer, 'get_js_stemmer_rawcodes'):
+                for jsfile in self.indexer.get_js_stemmer_rawcodes():
+                    copyfile(jsfile, path.join(self.outdir, '_static', path.basename(jsfile)))
+            else:
+                jsfile = self.indexer.get_js_stemmer_rawcode()
+                if jsfile:
+                    copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
 
     def copy_theme_static_files(self, context: Dict) -> None:
         def onerror(filename: str, error: Exception) -> None:
