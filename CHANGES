@@ -138,6 +138,8 @@ Features added
   :confval:`html_permalinks_icon`
 * #1638: html: Add permalink icons to glossary terms
 * #8868: html search: performance issue with massive lists
+* #8867: html search: Update JavaScript stemmer code to the latest version of
+  Snowball (v2.1.0)
 * #8852: i18n: Allow to translate heading syntax in MyST-Parser
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
