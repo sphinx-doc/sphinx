@@ -9,7 +9,9 @@
 """
 
 import os
+from distutils.version import LooseVersion
 
+import pygments
 import pytest
 from docutils import nodes
 
@@ -421,46 +423,87 @@ def test_literal_include_block_start_with_comment_or_brank(app, status, warning)
 def test_literal_include_linenos(app, status, warning):
     app.builder.build(['linenos'])
     html = (app.outdir / 'linenos.html').read_text()
+    pygments_version = tuple(LooseVersion(pygments.__version__).version)
 
     # :linenos:
-    assert ('<td class="linenos"><div class="linenodiv"><pre>'
-            ' 1\n'
-            ' 2\n'
-            ' 3\n'
-            ' 4\n'
-            ' 5\n'
-            ' 6\n'
-            ' 7\n'
-            ' 8\n'
-            ' 9\n'
-            '10\n'
-            '11\n'
-            '12\n'
-            '13</pre></div></td>' in html)
+    if pygments_version >= (2, 8):
+        assert ('<td class="linenos"><div class="linenodiv"><pre>'
+                '<span class="normal"> 1</span>\n'
+                '<span class="normal"> 2</span>\n'
+                '<span class="normal"> 3</span>\n'
+                '<span class="normal"> 4</span>\n'
+                '<span class="normal"> 5</span>\n'
+                '<span class="normal"> 6</span>\n'
+                '<span class="normal"> 7</span>\n'
+                '<span class="normal"> 8</span>\n'
+                '<span class="normal"> 9</span>\n'
+                '<span class="normal">10</span>\n'
+                '<span class="normal">11</span>\n'
+                '<span class="normal">12</span>\n'
+                '<span class="normal">13</span></pre></div></td>' in html)
+    else:
+        assert ('<td class="linenos"><div class="linenodiv"><pre>'
+                ' 1\n'
+                ' 2\n'
+                ' 3\n'
+                ' 4\n'
+                ' 5\n'
+                ' 6\n'
+                ' 7\n'
+                ' 8\n'
+                ' 9\n'
+                '10\n'
+                '11\n'
+                '12\n'
+                '13</pre></div></td>' in html)
 
     # :lineno-start:
-    assert ('<td class="linenos"><div class="linenodiv"><pre>'
-            '200\n'
-            '201\n'
-            '202\n'
-            '203\n'
-            '204\n'
-            '205\n'
-            '206\n'
-            '207\n'
-            '208\n'
-            '209\n'
-            '210\n'
-            '211\n'
-            '212</pre></div></td>' in html)
+    if pygments_version >= (2, 8):
+        assert ('<td class="linenos"><div class="linenodiv"><pre>'
+                '<span class="normal">200</span>\n'
+                '<span class="normal">201</span>\n'
+                '<span class="normal">202</span>\n'
+                '<span class="normal">203</span>\n'
+                '<span class="normal">204</span>\n'
+                '<span class="normal">205</span>\n'
+                '<span class="normal">206</span>\n'
+                '<span class="normal">207</span>\n'
+                '<span class="normal">208</span>\n'
+                '<span class="normal">209</span>\n'
+                '<span class="normal">210</span>\n'
+                '<span class="normal">211</span>\n'
+                '<span class="normal">212</span></pre></div></td>' in html)
+    else:
+        assert ('<td class="linenos"><div class="linenodiv"><pre>'
+                '200\n'
+                '201\n'
+                '202\n'
+                '203\n'
+                '204\n'
+                '205\n'
+                '206\n'
+                '207\n'
+                '208\n'
+                '209\n'
+                '210\n'
+                '211\n'
+                '212</pre></div></td>' in html)
 
     # :lineno-match:
-    assert ('<td class="linenos"><div class="linenodiv"><pre>'
-            '5\n'
-            '6\n'
-            '7\n'
-            '8\n'
-            '9</pre></div></td>' in html)
+    if pygments_version >= (2, 8):
+        assert ('<td class="linenos"><div class="linenodiv"><pre>'
+                '<span class="normal">5</span>\n'
+                '<span class="normal">6</span>\n'
+                '<span class="normal">7</span>\n'
+                '<span class="normal">8</span>\n'
+                '<span class="normal">9</span></pre></div></td>' in html)
+    else:
+        assert ('<td class="linenos"><div class="linenodiv"><pre>'
+                '5\n'
+                '6\n'
+                '7\n'
+                '8\n'
+                '9</pre></div></td>' in html)
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
@@ -594,45 +637,82 @@ def test_linenothreshold(app, status, warning):
     app.builder.build(['linenothreshold'])
     html = (app.outdir / 'linenothreshold.html').read_text()
 
+    pygments_version = tuple(LooseVersion(pygments.__version__).version)
     lineos_head = '<td class="linenos"><div class="linenodiv"><pre>'
     lineos_tail = '</pre></div></td>'
 
     # code-block using linenothreshold
-    _, matched, html = html.partition(lineos_head +
-                                      '1\n'
-                                      '2\n'
-                                      '3\n'
-                                      '4\n'
-                                      '5\n'
-                                      '6' + lineos_tail)
+    if pygments_version >= (2, 8):
+        _, matched, html = html.partition(lineos_head +
+                                          '<span class="normal">1</span>\n'
+                                          '<span class="normal">2</span>\n'
+                                          '<span class="normal">3</span>\n'
+                                          '<span class="normal">4</span>\n'
+                                          '<span class="normal">5</span>\n'
+                                          '<span class="normal">6</span>' + lineos_tail)
+    else:
+        _, matched, html = html.partition(lineos_head +
+                                          '1\n'
+                                          '2\n'
+                                          '3\n'
+                                          '4\n'
+                                          '5\n'
+                                          '6' + lineos_tail)
     assert matched
 
     # code-block not using linenothreshold
-    html, matched, _ = html.partition(lineos_head +
-                                      '1\n'
-                                      '2' + lineos_tail)
+    if pygments_version >= (2, 8):
+        html, matched, _ = html.partition(lineos_head +
+                                          '<span class="normal">1</span>\n'
+                                          '<span class="normal">2</span>' + lineos_tail)
+    else:
+        html, matched, _ = html.partition(lineos_head +
+                                          '1\n'
+                                          '2' + lineos_tail)
     assert not matched
 
     # literal include using linenothreshold
-    _, matched, html = html.partition(lineos_head +
-                                      ' 1\n'
-                                      ' 2\n'
-                                      ' 3\n'
-                                      ' 4\n'
-                                      ' 5\n'
-                                      ' 6\n'
-                                      ' 7\n'
-                                      ' 8\n'
-                                      ' 9\n'
-                                      '10\n'
-                                      '11\n'
-                                      '12\n'
-                                      '13' + lineos_tail)
+    if pygments_version >= (2, 8):
+        _, matched, html = html.partition(lineos_head +
+                                          '<span class="normal"> 1</span>\n'
+                                          '<span class="normal"> 2</span>\n'
+                                          '<span class="normal"> 3</span>\n'
+                                          '<span class="normal"> 4</span>\n'
+                                          '<span class="normal"> 5</span>\n'
+                                          '<span class="normal"> 6</span>\n'
+                                          '<span class="normal"> 7</span>\n'
+                                          '<span class="normal"> 8</span>\n'
+                                          '<span class="normal"> 9</span>\n'
+                                          '<span class="normal">10</span>\n'
+                                          '<span class="normal">11</span>\n'
+                                          '<span class="normal">12</span>\n'
+                                          '<span class="normal">13</span>' + lineos_tail)
+    else:
+        _, matched, html = html.partition(lineos_head +
+                                          ' 1\n'
+                                          ' 2\n'
+                                          ' 3\n'
+                                          ' 4\n'
+                                          ' 5\n'
+                                          ' 6\n'
+                                          ' 7\n'
+                                          ' 8\n'
+                                          ' 9\n'
+                                          '10\n'
+                                          '11\n'
+                                          '12\n'
+                                          '13' + lineos_tail)
     assert matched
 
     # literal include not using linenothreshold
-    html, matched, _ = html.partition(lineos_head +
-                                      '1\n'
-                                      '2\n'
-                                      '3' + lineos_tail)
+    if pygments_version >= (2, 8):
+        html, matched, _ = html.partition(lineos_head +
+                                          '<span class="normal">1</span>\n'
+                                          '<span class="normal">2</span>\n'
+                                          '<span class="normal">3</span>' + lineos_tail)
+    else:
+        html, matched, _ = html.partition(lineos_head +
+                                          '1\n'
+                                          '2\n'
+                                          '3' + lineos_tail)
     assert not matched
