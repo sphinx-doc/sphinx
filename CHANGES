@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8884: html: minified js stemmers not included in the distributed package
+
 Testing
 --------
 
