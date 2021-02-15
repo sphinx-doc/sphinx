@@ -1036,7 +1036,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # sort JS/CSS before rendering HTML
         ctx['script_files'].sort(key=lambda js: js.priority)
-        ctx['css_files'].sort(key=lambda js: js.priority)
+        ctx['css_files'].sort(key=lambda css: css.priority)
 
         try:
             output = self.templates.render(templatename, ctx)
