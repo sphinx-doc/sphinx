@@ -12,7 +12,7 @@ import posixpath
 import traceback
 import warnings
 from os import path
-from typing import Any, Dict, Generator, Iterable, Optional, Set, Tuple, cast
+from typing import Any, Dict, Generator, Iterable, Optional, Set, Tuple, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -30,10 +30,15 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
 
+if False:
+    # For type annotation
+    from typing import Literal  # type: ignore  # NOQA  # available since py38
+
 logger = logging.getLogger(__name__)
 
 
 OUTPUT_DIRNAME = '_modules'
+ViewcodeModule = Union["Literal[False]", Tuple[str, str, Dict, str]]
 
 
 class viewcode_anchor(Element):
@@ -80,6 +85,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         env._viewcode_modules = {}  # type: ignore
 
     def has_tag(modname: str, fullname: str, docname: str, refname: str) -> bool:
+        entry = None  # type: ViewcodeModule
         entry = env._viewcode_modules.get(modname, None)  # type: ignore
         if entry is False:
             return False
@@ -150,15 +156,17 @@ def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
 
 
 def env_purge_doc(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
-    modules = getattr(env, '_viewcode_modules', {})
+    modules = getattr(env, '_viewcode_modules', {})  # type: Dict[str, ViewcodeModule]
 
-    for modname, (code, tags, used, refname) in list(modules.items()):
-        for fullname in list(used):
-            if used[fullname] == docname:
-                used.pop(fullname)
+    for modname, entry in list(modules.items()):
+        if entry:
+            code, tags, used, refname = entry
+            for fullname in list(used):
+                if used[fullname] == docname:
+                    used.pop(fullname)
 
-        if len(used) == 0:
-            modules.pop(modname)
+            if len(used) == 0:
+                modules.pop(modname)
 
 
 class ViewcodeAnchorTransform(SphinxPostTransform):
@@ -238,6 +246,7 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
     highlighter = app.builder.highlighter  # type: ignore
     urito = app.builder.get_relative_uri
 
+    modnames = None  # type: Set[Tuple[str, ViewcodeModule]]
     modnames = set(env._viewcode_modules)  # type: ignore
 
     for modname, entry in status_iterator(
