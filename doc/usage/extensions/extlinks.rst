@@ -23,29 +23,28 @@ The extension adds a config value:
 .. confval:: extlinks
 
    This config value must be a dictionary of external sites, mapping unique
-   short alias names to a base URL and a *prefix*.  For example, to create an
+   short alias names to a base URL and a *caption*.  For example, to create an
    alias for the above mentioned issues, you would add ::
 
       extlinks = {'issue': ('https://github.com/sphinx-doc/sphinx/issues/%s',
-                            'issue ')}
+                            'issue %s')}
 
    Now, you can use the alias name as a new role, e.g. ``:issue:`123```.  This
    then inserts a link to https://github.com/sphinx-doc/sphinx/issues/123.
    As you can see, the target given in the role is substituted in the base URL
    in the place of ``%s``.
 
-   The link *caption* depends on the second item in the tuple, the *prefix*:
+   The link caption depends on the second item in the tuple, the *caption*:
 
-   - If the prefix is ``None``, the link caption is the full URL.
-   - If the prefix is the empty string, the link caption is the partial URL
-     given in the role content (``123`` in this case.)
-   - If the prefix is a non-empty string, the link caption is the partial URL,
-     prepended by the prefix -- in the above example, the link caption would be
+   - If *caption* is ``None``, the link caption is the full URL.
+   - If *caption* is a string, then it must contain ``%s`` exactly once.  In
+     this case the link caption is *caption* with the partial URL substituted
+     for ``%s`` -- in the above example, the link caption would be
      ``issue 123``.
 
    You can also use the usual "explicit title" syntax supported by other roles
    that generate links, i.e. ``:issue:`this issue <123>```.  In this case, the
-   *prefix* is not relevant.
+   *caption* is not relevant.
 
 .. note::
 

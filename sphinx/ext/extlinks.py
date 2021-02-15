@@ -7,15 +7,15 @@
 
     This adds a new config value called ``extlinks`` that is created like this::
 
-       extlinks = {'exmpl': ('https://example.invalid/%s.html', prefix), ...}
+       extlinks = {'exmpl': ('https://example.invalid/%s.html', caption), ...}
 
     Now you can use e.g. :exmpl:`foo` in your documents.  This will create a
     link to ``https://example.invalid/foo.html``.  The link caption depends on
-    the *prefix* value given:
+    the *caption* value given:
 
     - If it is ``None``, the caption will be the full URL.
-    - If it is a string (empty or not), the caption will be the prefix prepended
-      to the role content.
+    - If it is a string, it must contain ``%s`` exactly once.  In this case the
+      caption will be *caption* with the role content substituted for ``%s``.
 
     You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 
@@ -35,7 +35,7 @@ from sphinx.util.nodes import split_explicit_title
 from sphinx.util.typing import RoleFunction
 
 
-def make_link_role(base_url: str, prefix: str) -> RoleFunction:
+def make_link_role(base_url: str, caption: str) -> RoleFunction:
     def role(typ: str, rawtext: str, text: str, lineno: int,
              inliner: Inliner, options: Dict = {}, content: List[str] = []
              ) -> Tuple[List[Node], List[system_message]]:
@@ -50,18 +50,25 @@ def make_link_role(base_url: str, prefix: str) -> RoleFunction:
                 % (typ, base_url), line=lineno)
             full_url = base_url + part
         if not has_explicit_title:
-            if prefix is None:
+            if caption is None:
                 title = full_url
             else:
-                title = prefix + part
+                try:
+                    title = caption % part
+                except (TypeError, ValueError):
+                    inliner.reporter.warning(
+                        'unable to expand %s extlink with caption %r, please make '
+                        'sure the caption contains \'%%s\' exactly once'
+                        % (typ, caption), line=lineno)
+                    title = caption + part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
         return [pnode], []
     return role
 
 
 def setup_link_roles(app: Sphinx) -> None:
-    for name, (base_url, prefix) in app.config.extlinks.items():
-        app.add_role(name, make_link_role(base_url, prefix))
+    for name, (base_url, caption) in app.config.extlinks.items():
+        app.add_role(name, make_link_role(base_url, caption))
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
