@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8883: autodoc: AttributeError is raised on assigning __annotations__ on
+  read-only class
 * #8884: html: minified js stemmers not included in the distributed package
 * #8880: viewcode: ExtensionError is raised on incremental build after
   unparsable python module found
