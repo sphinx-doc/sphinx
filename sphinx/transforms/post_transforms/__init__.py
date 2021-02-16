@@ -125,7 +125,7 @@ class ReferencesResolver(SphinxPostTransform):
                 for role in domain.roles:
                     res = domain.resolve_xref(self.env, refdoc, self.app.builder,
                                               role, target, node, contnode)
-                    if res and isinstance(res[0], nodes.Element):
+                    if res and len(res) > 0 and isinstance(res[0], nodes.Element):
                         results.append(('%s:%s' % (domain.name, role), res))
         # now, see how many matches we got...
         if not results:
