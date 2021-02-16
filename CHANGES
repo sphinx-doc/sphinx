@@ -1,17 +1,5 @@
-Release 3.5.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 3.5.1 (released Feb 16, 2021)
+=====================================
 
 Bugs fixed
 ----------
@@ -23,9 +11,6 @@ Bugs fixed
   :confval:`html_context`
 * #8880: viewcode: ExtensionError is raised on incremental build after
   unparsable python module found
-
-Testing
---------
 
 Release 3.5.0 (released Feb 14, 2021)
 =====================================
