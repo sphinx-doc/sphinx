@@ -152,7 +152,11 @@ def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
 def env_purge_doc(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
     modules = getattr(env, '_viewcode_modules', {})
 
-    for modname, (code, tags, used, refname) in list(modules.items()):
+    for modname, entry in list(modules.items()):
+        if entry is False:
+            continue
+
+        code, tags, used, refname = entry
         for fullname in list(used):
             if used[fullname] == docname:
                 used.pop(fullname)

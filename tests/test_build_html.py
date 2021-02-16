@@ -1597,7 +1597,14 @@ def test_html_codeblock_linenos_style_table(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    assert '<div class="linenodiv"><pre>1\n2\n3\n4</pre></div>' in content
+    pygments_version = tuple(LooseVersion(pygments.__version__).version)
+    if pygments_version >= (2, 8):
+        assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
+                '<span class="normal">2</span>\n'
+                '<span class="normal">3</span>\n'
+                '<span class="normal">4</span></pre></div>') in content
+    else:
+        assert '<div class="linenodiv"><pre>1\n2\n3\n4</pre></div>' in content
 
 
 @pytest.mark.sphinx('html', testroot='reST-code-block',

@@ -1377,7 +1377,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             params[0] = params[0].replace(annotation=typ)
             try:
                 func.__signature__ = sig.replace(parameters=params)  # type: ignore
-            except TypeError:
+            except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
                 return
 
@@ -2156,7 +2156,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             params[1] = params[1].replace(annotation=typ)
             try:
                 func.__signature__ = sig.replace(parameters=params)  # type: ignore
-            except TypeError:
+            except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
                 return
 
@@ -2422,7 +2422,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                             annotations[attrname] = annotation
                 except (AttributeError, PycodeError):
                     pass
-        except TypeError:
+        except (AttributeError, TypeError):
             # Failed to set __annotations__ (built-in, extensions, etc.)
             pass
 
