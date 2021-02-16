@@ -1035,8 +1035,20 @@ class StandaloneHTMLBuilder(Builder):
             templatename = newtmpl
 
         # sort JS/CSS before rendering HTML
-        ctx['script_files'].sort(key=lambda js: js.priority)
-        ctx['css_files'].sort(key=lambda js: js.priority)
+        try:
+            # Convert script_files to list to support non-list script_files (refs: #8889)
+            ctx['script_files'] = sorted(list(ctx['script_files']), key=lambda js: js.priority)
+        except AttributeError:
+            # Skip sorting if users modifies script_files directly (maybe via `html_context`).
+            # refs: #8885
+            #
+            # Note: priority sorting feature will not work in this case.
+            pass
+
+        try:
+            ctx['css_files'] = sorted(list(ctx['css_files']), key=lambda css: css.priority)
+        except AttributeError:
+            pass
 
         try:
             output = self.templates.render(templatename, ctx)

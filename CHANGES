@@ -17,6 +17,8 @@ Bugs fixed
 ----------
 
 * #8884: html: minified js stemmers not included in the distributed package
+* #8885: html: AttributeError is raised if CSS/JS files are installed via
+  :confval:`html_context`
 * #8880: viewcode: ExtensionError is raised on incremental build after
   unparsable python module found
 
