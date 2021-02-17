@@ -121,6 +121,7 @@ class Graphviz(SphinxDirective):
         'graphviz_dot': directives.unchanged,  # an old alias of `layout` option
         'name': directives.unchanged,
         'class': directives.class_option,
+        'scale_latex': directives.unchanged,
     }
 
     def run(self) -> List[Node]:
@@ -163,6 +164,8 @@ class Graphviz(SphinxDirective):
             node['classes'] = self.options['class']
         if rel_filename:
             node['filename'] = rel_filename
+        if 'scale_latex' in self.options:
+            node['scale_latex'] = self.options['scale_latex']
 
         if 'caption' not in self.options:
             self.add_name(node)
@@ -189,6 +192,7 @@ class GraphvizSimple(SphinxDirective):
         'graphviz_dot': directives.unchanged,  # an old alias of `layout` option
         'name': directives.unchanged,
         'class': directives.class_option,
+        'scale_latex': directives.class_option,
     }
 
     def run(self) -> List[Node]:
@@ -206,6 +210,8 @@ class GraphvizSimple(SphinxDirective):
             node['align'] = self.options['align']
         if 'class' in self.options:
             node['classes'] = self.options['class']
+        if 'scale_latex' in self.options:
+            node['scale_latex'] = self.options['scale_latex']
 
         if 'caption' not in self.options:
             self.add_name(node)
@@ -350,7 +356,11 @@ def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
                 post = r'\hspace*{\fill}}'
         self.body.append('\n%s' % pre)
 
-    self.body.append(r'\sphinxincludegraphics[]{%s}' % fname)
+    sphinxincludegraphics_opt=''
+    if 'scale_latex' in node:
+        sphinxincludegraphics_opt=sphinxincludegraphics_opt+r' '+r'scale='+node['scale_latex']
+
+    self.body.append(r'\sphinxincludegraphics['+sphinxincludegraphics_opt+']{%s}' % fname)
 
     if not is_inline:
         self.body.append('%s\n' % post)
