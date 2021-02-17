@@ -356,12 +356,12 @@ def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
                 post = r'\hspace*{\fill}}'
         self.body.append('\n%s' % pre)
 
-    sphinxincludegraphics_opt = ''
+    opt = ''
 
     if 'scale_latex' in node:
-        sphinxincludegraphics_opt = sphinxincludegraphics_opt + r' ' + r'scale=' + node['scale_latex']
+        opt = opt + r' ' + r'scale=' + node['scale_latex']
 
-    self.body.append(r'\sphinxincludegraphics[' + sphinxincludegraphics_opt + ']{%s}' % fname)
+    self.body.append(r'\sphinxincludegraphics[' + opt + ']{%s}' % fname)
 
     if not is_inline:
         self.body.append('%s\n' % post)
