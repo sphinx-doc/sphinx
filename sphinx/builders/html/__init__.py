@@ -1221,15 +1221,26 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
+UNSET = object()
+
+
 def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
     """Migrate html_add_permalinks to html_permalinks*."""
-    if config.html_add_permalinks:
-        if (isinstance(config.html_add_permalinks, bool) and
-                config.html_add_permalinks is False):
-            config.html_permalinks = False  # type: ignore
-        else:
-            config.html_permalinks_icon = html.escape(config.html_add_permalinks)  # type: ignore  # NOQA
+    html_add_permalinks = config.html_add_permalinks
+    if html_add_permalinks is UNSET:
+        return
 
+    if (
+        html_add_permalinks is None or
+        html_add_permalinks is False or
+        html_add_permalinks == ""
+    ):
+        config.html_permalinks = False  # type: ignore[attr-defined]
+        return
+
+    config.html_permalinks_icon = html.escape(  # type: ignore[attr-defined]
+        config.html_add_permalinks
+    )
 
 # for compatibility
 import sphinxcontrib.serializinghtml  # NOQA
@@ -1261,7 +1272,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])
-    app.add_config_value('html_add_permalinks', None, 'html')
+    app.add_config_value('html_add_permalinks', UNSET, 'html')
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
