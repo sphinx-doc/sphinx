@@ -47,8 +47,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
-ws_re = re.compile(r'\s+')                      # type: Pattern
-url_re = re.compile(r'(?P<schema>.+)://.*')     # type: Pattern
+ws_re = re.compile(r'\s+')
+url_re = re.compile(r'(?P<schema>.+)://.*')
 
 
 # High-level utility functions.
