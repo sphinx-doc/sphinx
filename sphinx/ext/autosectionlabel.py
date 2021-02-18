@@ -41,6 +41,8 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
         docname = app.env.docname
         title = cast(nodes.title, node[0])
         ref_name = getattr(title, 'rawsource', title.astext())
+        if app.config.autosectionlabel_word_separator != ' ':
+            ref_name = app.config.autosectionlabel_word_separator.join(ref_name.split())
         if app.config.autosectionlabel_prefix_document:
             name = nodes.fully_normalize_name(docname + ':' + ref_name)
         else:
@@ -58,6 +60,7 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autosectionlabel_prefix_document', False, 'env')
+    app.add_config_value('autosectionlabel_word_separator', ' ', 'env')
     app.add_config_value('autosectionlabel_maxdepth', None, 'env')
     app.connect('doctree-read', register_sections_as_label)
 
