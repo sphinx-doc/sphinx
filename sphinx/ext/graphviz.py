@@ -288,7 +288,7 @@ def render_dot_html__svg_get_objwidth(scale: str, outfn: str, filename: str) -> 
         r_size = re.compile(r'(?P<num>\d*\.?\d+)\s?(?P<uni>[a-zA-Z]+)')
         tree = ET.parse(outfn)
         g_size = r_size.match(tree.getroot().attrib["width"])
-        tmpwidth = round(tmpwidth * float( g_size.group("num")))
+        tmpwidth = round(tmpwidth * float(g_size.group("num")))
         return 'width="%r%s"' % (tmpwidth, g_size.group("uni"))
     except Exception:
         logger.warning(__('"scale_html" FAIL for "%s"' % filename))
