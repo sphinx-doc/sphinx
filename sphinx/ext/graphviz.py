@@ -279,21 +279,22 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
 def render_dot_html__svg_get_objwidth(scale: str, outfn: str, filename: str):
     try:
         tmpwidth = float(scale)
-    except:
+    except Exception:
         logger.warning(__('"scale_html" FAIL for "%s"' % filename))
-        logger.warning(__('"scale_html" MUST numeric (1.0 - 100Percent; 0.1 - 10Percent): "%s"' % scale))
+        logger.warning(__('"scale_html" MUST numeric\n'
+                          '(1.0 - 100Percent; 0.1 - 10Percent): "%s"' % scale))
         return ''
     #
     try:
         r_size = re.compile(r'(?P<num>\d*\.?\d+)\s?(?P<uni>[a-zA-Z]+)')
         tree = ET.parse(outfn)
         g_size = r_size.match(tree.getroot().attrib["width"])
-        tmpwidth = round( tmpwidth * float( g_size.group("num") ) )
+        tmpwidth = round(tmpwidth * float( g_size.group("num")))
         return 'width="%r%s"' % (tmpwidth, g_size.group("uni"))
-    except:
+    except Exception:
         logger.warning(__('"scale_html" FAIL for "%s"' % filename))
         return ''
-    #  
+    #
     return ''
 
 
@@ -326,10 +327,10 @@ def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Di
             objStyle = ''
             if 'scale_html' in node:
                 scale_arr = node['scale_html'].split(':')
-                objWidth = render_dot_html__svg_get_objwidth(scale_arr[0], outfn, filename)        
+                objWidth = render_dot_html__svg_get_objwidth(scale_arr[0], outfn, filename)
                 if objWidth:
                     if 'strong' in scale_arr:
-                        objStyle ='style="max-width:unset"'
+                        objStyle = 'style="max-width:unset"'
 
             self.body.append('<div class="graphviz">')
             self.body.append('<object data="%s" type="image/svg+xml" class="%s" %s %s>\n' %
