@@ -578,6 +578,17 @@ e.g ``'sphinxsetup': "verbatimwrapslines=false"``.  If setting the
 boolean key to ``true``, ``=true`` is optional.
 Spaces around the commas and equal signs are ignored, spaces inside LaTeX
 macros may be significant.
+Do not use quotes to enclose values, whether numerical or strings.
+
+``bookmarksdepth``
+    Controls the depth of the collapsable bookmarks panel in the PDF.
+    May be either a number (e.g. ``3``) or a LaTeX sectioning name (e.g.
+    ``subsubsection``, i.e. without backslash).
+    For details, refer to the ``hyperref`` LaTeX docs.
+
+    Default: ``5``
+
+    .. versionadded:: 4.0.0
 
 .. _latexsphinxsetuphmargin:
 
