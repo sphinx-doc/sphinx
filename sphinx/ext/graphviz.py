@@ -36,6 +36,8 @@ from sphinx.writers.manpage import ManualPageTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
 from sphinx.writers.text import TextTranslator
 
+import xml.etree.ElementTree as ET
+
 logger = logging.getLogger(__name__)
 
 
@@ -121,6 +123,7 @@ class Graphviz(SphinxDirective):
         'graphviz_dot': directives.unchanged,  # an old alias of `layout` option
         'name': directives.unchanged,
         'class': directives.class_option,
+        'scale_html': directives.unchanged,
     }
 
     def run(self) -> List[Node]:
@@ -163,6 +166,8 @@ class Graphviz(SphinxDirective):
             node['classes'] = self.options['class']
         if rel_filename:
             node['filename'] = rel_filename
+        if 'scale_html' in self.options:
+            node['scale_html'] = self.options['scale_html']
 
         if 'caption' not in self.options:
             self.add_name(node)
@@ -189,6 +194,7 @@ class GraphvizSimple(SphinxDirective):
         'graphviz_dot': directives.unchanged,  # an old alias of `layout` option
         'name': directives.unchanged,
         'class': directives.class_option,
+        'scale_html': directives.unchanged,
     }
 
     def run(self) -> List[Node]:
@@ -206,6 +212,8 @@ class GraphvizSimple(SphinxDirective):
             node['align'] = self.options['align']
         if 'class' in self.options:
             node['classes'] = self.options['class']
+        if 'scale_html' in self.options:
+            node['scale_html'] = self.options['scale_html']
 
         if 'caption' not in self.options:
             self.add_name(node)
@@ -268,6 +276,27 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
                                '[stdout]\n%r') % (exc.stderr, exc.stdout)) from exc
 
 
+def render_dot_html__svg_get_objwidth(scale: str, outfn: str, filename: str):
+    try:
+        tmpwidth = float(scale)
+    except:
+        logger.warning(__('"scale_html" FAIL for "%s"' % filename))
+        logger.warning(__('"scale_html" MUST numeric (1.0 - 100Percent; 0.1 - 10Percent): "%s"' % scale))
+        return ''
+    #
+    try:
+        r_size = re.compile(r'(?P<num>\d*\.?\d+)\s?(?P<uni>[a-zA-Z]+)')
+        tree = ET.parse(outfn)
+        g_size = r_size.match(tree.getroot().attrib["width"])
+        tmpwidth = round( tmpwidth * float( g_size.group("num") ) )
+        return 'width="%r%s"' % (tmpwidth, g_size.group("uni"))
+    except:
+        logger.warning(__('"scale_html" FAIL for "%s"' % filename))
+        return ''
+    #  
+    return ''
+
+
 def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Dict,
                     prefix: str = 'graphviz', imgcls: str = None, alt: str = None,
                     filename: str = None) -> Tuple[str, str]:
@@ -293,9 +322,18 @@ def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Di
             self.body.append('<div align="%s" class="align-%s">' %
                              (node['align'], node['align']))
         if format == 'svg':
+            objWidth = ''
+            objStyle = ''
+            if 'scale_html' in node:
+                scale_arr = node['scale_html'].split(':')
+                objWidth = render_dot_html__svg_get_objwidth(scale_arr[0], outfn, filename)        
+                if objWidth:
+                    if 'strong' in scale_arr:
+                        objStyle ='style="max-width:unset"'
+
             self.body.append('<div class="graphviz">')
-            self.body.append('<object data="%s" type="image/svg+xml" class="%s">\n' %
-                             (fname, imgcls))
+            self.body.append('<object data="%s" type="image/svg+xml" class="%s" %s %s>\n' %
+                             (fname, imgcls, objWidth, objStyle))
             self.body.append('<p class="warning">%s</p>' % alt)
             self.body.append('</object></div>\n')
         else:
