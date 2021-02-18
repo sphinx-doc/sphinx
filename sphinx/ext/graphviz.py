@@ -12,6 +12,7 @@
 import posixpath
 import re
 import subprocess
+import xml.etree.ElementTree as ET
 from os import path
 from subprocess import PIPE, CalledProcessError
 from typing import Any, Dict, List, Tuple
@@ -35,8 +36,6 @@ from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.manpage import ManualPageTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
 from sphinx.writers.text import TextTranslator
-
-import xml.etree.ElementTree as ET
 
 logger = logging.getLogger(__name__)
 
@@ -276,7 +275,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
                                '[stdout]\n%r') % (exc.stderr, exc.stdout)) from exc
 
 
-def render_dot_html__svg_get_objwidth(scale: str, outfn: str, filename: str):
+def render_dot_html__svg_get_objwidth(scale: str, outfn: str, filename: str) -> str:
     try:
         tmpwidth = float(scale)
     except Exception:
