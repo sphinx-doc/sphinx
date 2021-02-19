@@ -7644,10 +7644,11 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value("cpp_debug_lookup", False, '')
     app.add_config_value("cpp_debug_show_tree", False, '')
 
-    def setDebugFlags(app):
+    def initStuff(app):
         Symbol.debug_lookup = app.config.cpp_debug_lookup
         Symbol.debug_show_tree = app.config.cpp_debug_show_tree
-    app.connect("builder-inited", setDebugFlags)
+        app.config.cpp_index_common_prefix.sort(reverse=True)
+    app.connect("builder-inited", initStuff)
 
     return {
         'version': 'builtin',
