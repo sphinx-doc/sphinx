@@ -332,8 +332,12 @@ def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Di
                         objStyle = 'style="max-width:unset"'
 
             self.body.append('<div class="graphviz">')
-            self.body.append('<object data="%s" type="image/svg+xml" class="%s" %s %s>\n' %
-                             (fname, imgcls, objWidth, objStyle))
+            if objWidth:
+                self.body.append('<object data="%s" type="image/svg+xml" class="%s" %s %s>\n' %
+                                 (fname, imgcls, objWidth, objStyle))
+            else:
+                self.body.append('<object data="%s" type="image/svg+xml" class="%s">\n' %
+                                 (fname, imgcls))
             self.body.append('<p class="warning">%s</p>' % alt)
             self.body.append('</object></div>\n')
         else:
