@@ -2956,7 +2956,7 @@ msgstr "注意"
 
 #: sphinx/locale/__init__.py:251
 msgid "Caution"
-msgstr "警告"
+msgstr "小心"
 
 #: sphinx/locale/__init__.py:252
 msgid "Danger"
